@@ -285,12 +285,9 @@ uchar* pdouble_to_uchar( pdouble d )
 
 	PROC( "pdouble_to_uchar" );
 	PARMS( "d", "%lf", d );
-	
-	if( !( ret = (uchar*)pmalloc( ( digits_of_pdouble( d, 16 ) + 1 )
-										* sizeof( uchar ) ) ) )
-		RETURN( (uchar*)NULL );
 
-	psprintf( ret, "%lf", d );
+	if( !( ret = pasprintf( "%lf", d ) ) )
+		RETURN( (uchar*)NULL );
 	VARS( "ret", "%s", ret );
 	
 	for( trail = ret + pstrlen( ret ) - 1;
@@ -331,11 +328,9 @@ pchar* pdouble_to_pchar( pdouble d )
 	PROC( "pdouble_to_pchar" );
 	PARMS( "d", "%lf", d );
 	
-	if( !( ret = (pchar*)pmalloc( ( digits_of_pdouble( d, 16 ) + 1 )
-										* sizeof( pchar ) ) ) )
+	if( !( ret = Pasprintf( L"%lf", d ) ) )
 		RETURN( (pchar*)NULL );
 
-	Psprintf( ret, L"%lf", d );
 	VARS( "ret", "%ls", ret );
 	
 	for( trail = ret + Pstrlen( ret ) - 1;
