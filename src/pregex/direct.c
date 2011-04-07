@@ -28,7 +28,6 @@ int pregex_match( uchar* regex, uchar* str, pregex_result** results )
 	u_int			len;
 	uchar*			pstr;
 	pregex_nfa		nfa;
-	pregex_result	res;
 
 	PROC( "pregex_match" );
 	PARMS( "regex", "%s", regex );
@@ -36,7 +35,7 @@ int pregex_match( uchar* regex, uchar* str, pregex_result** results )
 	PARMS( "results", "%p", results );
 
 	memset( &nfa, 0, sizeof( pregex_nfa ) );
-	if( ( ret = parse_expr( regex, &nfa, 0 ) ) != ERR_OK ) 
+	if( ( ret = pregex_compile_to_nfa( regex, &nfa, 0 ) ) != ERR_OK ) 
 		RETURN( ret );
 
 	for( pstr = str; *pstr; )
