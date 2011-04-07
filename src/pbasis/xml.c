@@ -1599,7 +1599,7 @@ int xml_count_all( XML_T xml )
 }
 
 /* =============================================================================
-    removes a tag along with its subtags without pfreeing its memory
+    removes a tag along with its subtags without freeing its memory
  ============================================================================ */
 XML_T xml_cut( XML_T xml )
 {
