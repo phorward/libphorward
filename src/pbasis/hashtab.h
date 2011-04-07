@@ -1,9 +1,10 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Basis Library :: Hash Table Library
-Copyright (C) 2007 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ contact<at>phorward-software<dot>.com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
-File:	hashtab.h (created on 01.07.2007)
+File:	hashtab.h
 Author:	Jan Max Meyer
 Usage:	Hash Table Library / Structures and Definitions
 ----------------------------------------------------------------------------- */
@@ -11,6 +12,25 @@ Usage:	Hash Table Library / Structures and Definitions
 #ifndef __HASHTAB_H
 #define __HASHTAB_H
 
+/*
+ * Hash table modifiers
+ */
+#define HASHTAB_MOD_NONE		0	/* No modifiers */
+#define HASHTAB_MOD_EXTKEYS		1	/* External keys */
+#define HASHTAB_MOD_WCHAR		2	/* Wide-character keys */
+#define HASHTAB_MOD_LIST		4	/* All table elements are additionally
+ 										hold in a linked list, to keep the
+										insertation order of the hash table
+										elements */
+#define HASHTAB_MOD_NO_COLL		8	/* Disallow collisions of hash table
+										elements; When inserted, (HASHELEM*)
+										NULL will be returned! */
+
+#define HASHTAB_NO_CALLBACK		( (void(*) ( void* ) ) NULL )
+
+/*
+ * Type definitions
+ */
 typedef struct _hashtab 	HASHTAB;
 typedef struct _bucket		BUCKET;
 typedef struct _hashelem	HASHELEM;
@@ -20,14 +40,17 @@ typedef struct _hashelem	HASHELEM;
  */
 struct _hashtab
 {
+	int			flags;					/* Flags, that are associated
+										   	with the individual hash-table */
 	int			size;					/* Size of the table
 										   	(number of buckets) */
-	int			external_keys;			/* Flag, if element keys
-										   	are handled internal
-											or external */
 	BUCKET*		buckets;				/* Array of buckets */
 	HASHELEM*	discarded;				/* Discarded elements */
+	LIST*		list;					/* Hash element adjustment
+											list (HASHTAB_MOD_LIST only) */
 };
+
+#define hashtab_list( ht )				(ht)->list
 
 struct _bucket
 {
