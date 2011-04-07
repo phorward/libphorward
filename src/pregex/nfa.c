@@ -79,7 +79,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 	/* Initialize */
 	memset( ptr, 0, sizeof( pregex_nfa_st ) );
 	ptr->accept = REGEX_ACCEPT_NONE;
-	ptr->ref = -1;
+	ptr->ref = nfa->ref_cur;
 
 	/* Put into list of NFA states */
 	if( !( nfa->states = list_push( nfa->states, (void*)ptr ) ) )
@@ -178,7 +178,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 		
 		if( s->ccl )
 			ccl_print( stderr, s->ccl, 0 );
-		fprintf( stderr, "\n" );
+		fprintf( stderr, "\n\n" );
 	}
 
 	fprintf( stderr, "---------------------\n" );
@@ -325,6 +325,10 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
+	18.11.2010	Jan Max Meyer	Program halt if character-node with two
+								outgoing transitions recognized (this may
+								happen if the NFA machine was constructed
+								manually and incorrectly).
 ----------------------------------------------------------------------------- */
 LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 			int* accept, int* anchors )
@@ -368,6 +372,14 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 					stack = list_push( stack, (void*)next );
 				}
 			}
+		}
+		else if( top->next2 )
+		{
+			/* This may not happen! */
+			fprintf( stderr,
+				"%s, %d: FATAL :: Character-node with two outgoing"
+						" transitions!\n", __FILE__, __LINE__ );
+			exit( 1 );
 		}
 	}
 
@@ -414,7 +426,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 											2. ref_count is zero
 											3. ref points to a pregex_result*
 											
-					int				ref_count Retrieves the number of
+					int*			ref_count Retrieves the number of
 											references.
 											This value MUST be zero, if the
 											function should allocate refs.
@@ -442,6 +454,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	psize		plen		= 0;
 	int			accept		= REGEX_ACCEPT_NONE;
 	int			last_accept = REGEX_ACCEPT_NONE;
+	int			rc;
 	pchar		ch;
 
 	PROC( "pregex_nfa_match" );
@@ -453,32 +466,14 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	PARMS( "len", "%p", len );
 	PARMS( "anchors", "%p", anchors );
 	PARMS( "ref", "%p", ref );
-	PARMS( "ref_count", "%d", ref_count );
+	PARMS( "ref_count", "%p", ref_count );
 	PARMS( "flags", "%d", flags );
-	
-	/* If ref-pointer is set, then use it! */
-	if( ( ref && nfa->ref_count ) )
-	{
-		VARS( "*ref_count", "%d", *ref_count );
-		VARS( "nfa->ref_count", "%d", nfa->ref_count );
-
-		if( ( *ref_count != nfa->ref_count ) )
-		{
-			MSG( "Allocating reference array" );
-			if( !( *ref = (pregex_result*)pmalloc( nfa->ref_count *
-						sizeof( pregex_result ) ) ) )
-			{
-				MSG( "Can't allocate references array" );
-				RETURN( ERR_MEM );
-			}
-		}
-		
-		MSG( "Initalizing reference array to zero" );
-		memset( *ref, 0, nfa->ref_count * sizeof( pregex_result ) );
-		*ref_count = nfa->ref_count;
-	}
 
 	/* Initialize */
+	if( ( rc = pregex_ref_init( ref, ref_count, nfa->ref_count, flags ) )
+			!= ERR_OK )
+		RETURN( rc );
+
 	*len = 0;
 	if( anchors )
 		*anchors = REGEX_ANCHOR_NONE;
@@ -503,21 +498,8 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 					VARS( "State", "%d", list_find(
 									nfa->states, (void*)st ) );
 					VARS( "st->ref", "%d", st->ref );
-					VARS( "(*ref)[ st->ref ].begin", "%p",
-							(*ref)[ st->ref ].begin );
-					
-					if( !( (*ref)[ st->ref ].begin ) )
-					{
-						(*ref)[ st->ref ].begin = pstr;
-						(*ref)[ st->ref ].pbegin = (pchar*)pstr;
-						(*ref)[ st->ref ].pos = plen;
-					}
-					else
-					{
-						(*ref)[ st->ref ].end = pstr;
-						(*ref)[ st->ref ].pend = (pchar*)pstr;
-						(*ref)[ st->ref ].len = plen - (*ref)[ st->ref ].pos;
-					}
+
+					pregex_ref_update( &( ( *ref )[ st->ref ] ), pstr, plen );
 				}
 			}
 		}
@@ -635,6 +617,10 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 		nfirst && nfirst->next2; nfirst = nfirst->next2 )
 			;
 
+	/* Reference counter */
+	nfa->ref_cur = nfa->ref_count++;
+	
+	/* Create first epsilon node */
 	if( !( first = pregex_nfa_create_state( nfa,
 			(uchar*)NULL, flags ) ) )
 	{
@@ -642,9 +628,6 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 		return ERR_MEM;
 	}
 	
-	/* Zero reference */
-	ref = nfa->ref_count++;
-
 	/* Parse anchor at begin of regular expression */
 	if( !( flags & REGEX_MOD_NO_ANCHORS ) )
 	{
@@ -660,7 +643,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 			pstr += 2;
 		}
 	}
-	
+
 	/* Run the regex parser */
 	if( ( ret = parse_alter( &pstr, nfa, &estart, &eend, flags ) )
 			!= ERR_OK )
@@ -681,10 +664,11 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	
 	/* estart is next of first */
 	first->next = estart;
-	
+
 	/* Build references; If eend has already one reference, 
 			append one more epsilon node */
-	if( eend->ref != -1 )
+	/*
+	if( eend->ref != ( first->ref = nfa->ref_cur ) )
 	{
 		if( !( last = pregex_nfa_create_state( nfa,
 				(uchar*)NULL, flags ) ) )
@@ -696,10 +680,8 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 		eend->next = last;
 		eend = last;
 	}
+	*/
 
-	first->ref = ref;
-	eend->ref = ref;
-	
 	/* Accept */
 	eend->accept = accept;
 	eend->anchor = anchor;
@@ -727,25 +709,28 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 	uchar		restore;
 	uchar*		zero;
 	pboolean	neg		= FALSE;
-	int			ref;
+	int			ref		= nfa->ref_cur;
 	
 	switch( **pstr )
 	{
 		case '(':
 			INC( *pstr );
-			ref = nfa->ref_count++;
+
+			nfa->ref_cur++;
+			nfa->ref_count++;
 
 			if( ( ret = parse_alter( pstr, nfa, start, end, flags ) )
 					!= ERR_OK )
 				return ret;
 
+			/* Patch last transition to previous reference */
+			(*end)->ref = --nfa->ref_cur;
+
 			if( **pstr != ')' && !( flags & REGEX_MOD_NO_ERRORS ) )
 				return 1;
 
 			INC( *pstr );
-			
-			(*start)->ref = ref;
-			(*end)->ref = ref;			
+
 			/*
 
 			if( !( *start = pregex_nfa_create_state(
@@ -934,9 +919,10 @@ PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
 
 		memcpy( *end, sstart, sizeof( pregex_nfa_st ) );
 		memset( sstart, 0, sizeof( pregex_nfa_st ) );
+
+		nfa->states = list_remove( nfa->states, (void*)sstart );
 		if( !( nfa->empty = list_push( nfa->empty, (void*)sstart ) ) )
 			return ERR_MEM;
-		nfa->states = list_remove( nfa->states, (void*)sstart );
 
 		*end = send;
 	}
