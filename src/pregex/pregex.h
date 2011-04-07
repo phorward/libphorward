@@ -46,16 +46,15 @@ Usage:	Header for regex lib
 										normal characters */
 
 /* Regular Expression anchors */
-#define REGEX_ANCHOR_NONE	0		/* No anchor defined */
-#define REGEX_ANCHOR_BOL	1		/* Begin of line */
-#define REGEX_ANCHOR_EOL	2		/* End of line */
-#define REGEX_ANCHOR_BOW	4		/* Begin of word */
-#define REGEX_ANCHOR_EOW	8		/* End of word */
+#define REGEX_ANCHOR_NONE		0	/* No anchor defined */
+#define REGEX_ANCHOR_BOL		1	/* Begin of line */
+#define REGEX_ANCHOR_EOL		2	/* End of line */
+#define REGEX_ANCHOR_BOW		4	/* Begin of word */
+#define REGEX_ANCHOR_EOW		8	/* End of word */
 
 #ifndef PRIVATE
 #define PRIVATE static
 #endif
-
 
 /* Typedefs */
 typedef CCL						pregex_ccl;
@@ -66,6 +65,11 @@ typedef struct _regex_nfa		pregex_nfa;
 typedef struct _regex_dfa		pregex_dfa;
 typedef struct _regex			pregex;
 typedef	struct _regex_result	pregex_result;
+
+/* Callback-Functions */
+typedef	int 					(*pregex_callback)( pregex_result* );
+#define REGEX_NO_CALLBACK	( (pregex_callback)NULL )
+
 
 /* Structs */
 struct _regex_nfa_st
@@ -115,7 +119,9 @@ struct _regex
 	union
 	{
 		pregex_nfa	nfa;
-		pregex_dfa	dfa;
+
+		/* For later extensions... */
+		/* pregex_dfa	dfa; */
 	} machine;
 
 	int				flags;		/* Several flags */
@@ -131,6 +137,11 @@ struct _regex_result
 	psize			len;		/* Length of result in bytes */
 	int				accept;		/* The ID of the accepting state;	
 									This is only filled in a pattern match */
+	pbyte*			user;		/* User data pointer; This can be set from
+									within callback-functions and is copied
+									into elements of result-descriptors;
+									It is also used in replace-function-call-
+									backs to point to a replacement string! */
 };
 
 /* Prototypes */
