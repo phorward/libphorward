@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ $# -lt 2 ]
+then
+	echo "usage: $0 infile outfile"
+	exit 1
+fi
+
+tr -d '\r' <$1 >$2
