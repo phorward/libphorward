@@ -34,6 +34,9 @@ typedef struct llist
 /* Macros */
 #define list_access( ll )		( (ll) ? (ll)->pptr : (void*)NULL )
 #define list_next( ll )			( (ll) ? (ll)->next : (LIST*)NULL )
+#define list_replace( ll, ptr )	( (ll) ? (ll)->pptr = (ptr) : 0 )
+
+#define LISTFOR( ll, cc )		for( (cc) = (ll); (cc); (cc) = list_next(cc) )
 
 #endif
 
