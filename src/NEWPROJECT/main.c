@@ -46,7 +46,7 @@ void copyright( void )
 {
 	fprintf( stderr, "NEWPROJECT v%s [build %s %s]\n",
 			VERSION, __DATE__, __TIME__ );
-	fprintf( stderr, "Copyright (C) 2010 by "
+	fprintf( stderr, "Copyright (C) 2011 by "
 						"Phorward Software Technologies, Jan Max Meyer\n" );
 	fprintf( stderr, "http://www.phorward-software.com ++ "
 						"contact<at>phorward<dash>software<dot>com\n\n" );
