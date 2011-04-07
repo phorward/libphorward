@@ -65,7 +65,7 @@ int pregex_match( uchar* regex, uchar* str, int flags, pregex_result** results )
 	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
-	matches = pregex_comp_match( &re, str, results );
+	matches = pregex_comp_match( &re, str, REGEX_NO_CALLBACK, results );
 	pregex_comp_free( &re );
 	
 	VARS( "matches", "%d", matches );
@@ -121,7 +121,7 @@ int pregex_split( uchar* regex, uchar* str, int flags, pregex_result** results )
 	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
-	matches = pregex_comp_split( &re, str, results );
+	matches = pregex_comp_split( &re, str, REGEX_NO_CALLBACK, results );
 	pregex_comp_free( &re );
 
 	VARS( "matches", "%d", matches );	
@@ -178,7 +178,8 @@ int pregex_replace( uchar* regex, uchar* str, uchar* replacement,
 	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
-	matches = pregex_comp_replace( &re, str, replacement, result );
+	matches = pregex_comp_replace( &re, str, replacement,
+					REGEX_NO_CALLBACK, result );
 	pregex_comp_free( &re );
 
 	VARS( "matches", "%d", matches );
