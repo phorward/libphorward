@@ -1,0 +1,2 @@
+@echo off
+sh lincl %*
