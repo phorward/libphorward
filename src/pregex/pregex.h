@@ -1,7 +1,8 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Regular Expression Library, Version 2
-Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail<at>phorward<dash>software<dot>com
+Phorward Foundation Libraries :: Regular Expression Library, Version 2
+Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	pregex.h
 Author:	Jan Max Meyer
@@ -41,6 +42,15 @@ Usage:	Header for regex lib
 #define REGEX_MOD_NO_REFERENCES	16	/* Don't create references */
 #define REGEX_MOD_NO_ERRORS		32	/* Don't report errors, try to compile as
 										much as possible */
+#define REGEX_MOD_NO_ANCHORS	64	/* Ignore anchor tokens, handle them as
+										normal characters */
+
+/* Regular Expression anchors */
+#define REGEX_ANCHOR_NONE	0		/* No anchor defined */
+#define REGEX_ANCHOR_BOL	1		/* Begin of line */
+#define REGEX_ANCHOR_EOL	2		/* End of line */
+#define REGEX_ANCHOR_BOW	4		/* Begin of word */
+#define REGEX_ANCHOR_EOW	8		/* End of word */
 
 #ifndef PRIVATE
 #define PRIVATE static
@@ -65,7 +75,8 @@ struct _regex_nfa_st
 	pregex_nfa_st*	next;		/* First following NFA-state */
 	pregex_nfa_st*	next2;		/* Second following NFA-state */
 	int				accept;		/* Accepting state ID */
-	int				ref;
+	int				ref;		/* Reference level depth */
+	int				anchor;		/* State anchor */
 };
 
 struct _regex_nfa
