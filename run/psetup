@@ -1,11 +1,13 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
-# Phorward SDK - psetup :: Phorward SDK setup tool
+# Phorward Software Development Kit
 # Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
 #
 # Script:		psetup
 # Author:		Jan Max Meyer
+# Usage:		Setup script for the Phorward foundation libraries & SDK.
 #-------------------------------------------------------------------------------
 
 echo "Welcome to Phorward Software Development Environment Setup"
@@ -64,7 +66,7 @@ echo "#!/bin/sh" >$psh
 echo "PHOME=$PHOME" >>$psh
 echo "PSYSTEM=$os" >>$psh
 echo "export PHOME PSYSTEM" >>$psh
-cat "$PHOME/run/psh.templ" >>$psh
+echo ". \$PHOME/run/psh \$*" >>$psh
 chmod 775 $psh
 #********************************
 
