@@ -59,7 +59,7 @@ Usage:	Header for regex lib
 /* Typedefs */
 typedef CCL						pregex_ccl;
 typedef struct _regex_nfa_st	pregex_nfa_st;
-typedef struct _regex_dfa_ent	pregex_dfa_ent;
+typedef struct _regex_dfa_tr	pregex_dfa_tr;
 typedef struct _regex_dfa_st	pregex_dfa_st;
 typedef struct _regex_nfa		pregex_nfa;
 typedef struct _regex_dfa		pregex_dfa;
@@ -87,12 +87,12 @@ struct _regex_nfa
 {	
 	LIST*			states;		/* List of nfa-states */
 	LIST*			empty;		/* List to pointers of states to be used */
-	byte			modifiers;	/* Regex-modifiers */
+	pbyte			modifiers;	/* Regex-modifiers */
 	
 	int				ref_count;	/* Number of last reference */
 };
 
-struct _regex_dfa_ent
+struct _regex_dfa_tr
 {
 	pregex_ccl		ccl;		/* Matching character range */
 	unsigned int	go_to;		/* Go-To state */
@@ -101,6 +101,10 @@ struct _regex_dfa_ent
 struct _regex_dfa_st
 {
 	LIST*			trans;		/* Transition table row for this DFA state */
+	pregex_dfa_tr*	def_trans;	/* If != (pregex_dfa_tr*)NULL, this points
+									to a default dfa transition, which covers
+									the most character of the entire character
+									range */
 	int				accept;		/* Accepting state and ID */
 	BOOLEAN			done;		/* Done-Flag */
 	
