@@ -1,7 +1,8 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Basis Library :: UTF-8 string handling utilities
-Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ contact<at>phorward-software<dot>com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	utf8.h
 Author:	Jan Max Meyer
