@@ -3,9 +3,9 @@ Hash Table Library
 Copyright (C) 2007 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward-software<dot>.com
 
-File:	hashtab.c (created on 01.07.2007)
+File:	hashtab.c
 Author:	Jan Max Meyer
-Usage:	Hash Table Library / Structures and Definitions
+Usage:	Hash Table Library
 ----------------------------------------------------------------------------- */
 
 /* ---------------- */
