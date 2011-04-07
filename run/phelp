@@ -1,25 +1,49 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
-# Phorward SDK - phelp :: Phorward SDK extension help
+# Phorward Software Development Kit
 # Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
 #
 # Script:		phelp
 # Author:		Jan Max Meyer
+# Usage:		Show command help
 #-------------------------------------------------------------------------------
 
+echo "d         Move to $PHOME/doc (Documentation Directory)"
 echo "dmake     Run 'make' with trace define"
+echo "e         Move to $PHOME/etc (Miscelleanous Directory)"
 echo "ed        Edit file with $EDITOR"
-echo "ex        View current directory in file explorer"
+echo "ex        View current directory in file explorer ($EXPLORER)"
 echo "i         Move to $PHOME/include (Include Directory)"
 echo "l         Move to $PHOME/lib (Library Directory)"
-echo "makeall   Only in $PHOME/src: Make all available subdirs"
 echo "phelp     Shows this quick help"
-echo "r         Move to $PHOME/run (Tools Program/Binary Directory)"
+echo "r         Move to $PHOME/run (Tools/Executable Directory)"
 echo "s         Move to $PHOME/src (Source Directory)"
-echo "screate   Create SCCS file"
-echo "sget      Get (check-out) file from SCCS"
-echo "shist     Show SCCS file history"
-echo "sinfo     Shows which files are checked-out from SCCS"
-echo "sput      Put (check-in) file back into SCCS"
-echo "sunget    Unget file from SCCS, no changes are taken"
+
+if [ -x "$PHOME/run/screate" ]
+then
+	echo "screate   Create SCCS file"
+fi
+if [ -x "$PHOME/run/sget" ]
+then
+	echo "sget      Get (check-out) file from SCCS"
+fi
+if [ -x "$PHOME/run/shist" ]
+then
+	echo "shist     Show SCCS file history"
+fi
+if [ -x "$PHOME/run/sinfo" ]
+then
+	echo "sinfo     Shows which files are checked-out from SCCS"
+fi
+if [ -x "$PHOME/run/sput" ]
+then
+	echo "sput      Put (check-in) file back into SCCS"
+fi
+if [ -x "$PHOME/run/sunget" ]
+then
+	echo "sunget    Unget file from SCCS, no changes are taken"
+fi
+
+echo "t         Move to $PHOME/tpl (Template Directory)"
