@@ -802,7 +802,7 @@ uchar* pstrlwr( uchar* str )
 	Parameters:		wchar*		retc		Return pointer for the character
 											code of the escaped string.
 					uchar*		str			Begin pointer where string
-					pboolean	escapeseq	TRUE: Regards escape sequences
+					BOOLEAN		escapeseq	TRUE: Regards escape sequences
 											FALSE: Ignores escape sequences
 					
 	Returns:		int						The number of bytes that had been
@@ -810,7 +810,8 @@ uchar* pstrlwr( uchar* str )
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
------------------------------------------------------------------------------ */int pstr_char( wchar* retc, uchar *str, pboolean escapeseq )
+----------------------------------------------------------------------------- */
+int pstr_char( wchar* retc, uchar *str, pboolean escapeseq )
 {
 	wchar	ch;
     uchar 	digs[9]		=	"\0\0\0\0\0\0\0\0";
@@ -818,7 +819,7 @@ uchar* pstrlwr( uchar* str )
 	uchar*	p			= str;
 
 	PROC( "pstr_char" );
-	PARMS( "ch", "%p", ch );
+	PARMS( "retc", "%p", retc );
 	PARMS( "str", "%s", str );
 	PARMS( "escapeseq", "%s", BOOLEAN_STR( escapeseq ) );
 
@@ -900,7 +901,7 @@ uchar* pstrlwr( uchar* str )
 					ch = u8_char( p );
 					p += u8_seqlen( p );
 #else
-					ch = *( p );
+					ch = *( p++ );
 #endif
 				}
 				break;
@@ -919,6 +920,7 @@ uchar* pstrlwr( uchar* str )
 	VARS( "ch", "%d", ch );
 	VARS( "len", "%d", (int)( p - str ) );
 	*retc = ch;
+
     RETURN( (int)( p - str ) );
 }
 
