@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward String Object Library
+Phorward Foundation Libraries :: String Object Library
 Copyright (C) 2010 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	pstring.c
 Author:	Jan Max Meyer
@@ -32,33 +33,33 @@ Usage:	General string object functions & features
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Pstring-object constructor, which allocates and
-					initializes a new Pstring-object.
+	Usage:			pstring-object constructor, which allocates and
+					initializes a new pstring-object.
 					
 	Parameters:		pchar*		str				A pchar-string to be used
-												as Pstring-object initalizer
+												as pstring-object initalizer
 												value
 	
-	Returns:		Pstring						The newly allocated
-												Pstring-object.
+	Returns:		pstring						The newly allocated
+												pstring-object.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-Pstring pstring_new( pchar* str )
+pstring pstring_new( pchar* str )
 {
-	Pstring		newstr;
+	pstring		newstr;
 
 	PROC( "pstring_new" );
 	PARMS( "str", "%S", str );
 
-	if ( !( newstr = (Pstring)pmalloc( sizeof( pstring ) ) ) )
-		RETURN( (Pstring)NULL );
+	if ( !( newstr = (pstring)pmalloc( sizeof( pstring ) ) ) )
+		RETURN( (pstring)NULL );
 
 	pstring_init( newstr );
 
 	if( str )
-		pstring_set_pchar( newstr, str );
+		pstring_set( newstr, str );
 
 	RETURN( newstr );
 }
@@ -68,28 +69,28 @@ Pstring pstring_new( pchar* str )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Pstring-object destructor, which frees memory and
-					deletes a Pstring-object.
+	Usage:			pstring-object destructor, which frees memory and
+					deletes a pstring-object.
 					
-	Parameters:		Pstring	obj					Pstring-object to be freed.
+	Parameters:		pstring	obj					pstring-object to be freed.
 	
-	Returns:		Pstring						Always (Pstring*)NULL
+	Returns:		pstring						Always (pstring*)NULL
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-Pstring pstring_free( Pstring obj )
+pstring pstring_free( pstring obj )
 {
 	PROC( "pstring_free" );
 	PARMS( "str", "%p", obj );
 
 	if( !obj )
-		RETURN( (Pstring)NULL );
+		RETURN( (pstring)NULL );
 
 	pstring_reset( obj );
 	pfree( obj );
 
-	RETURN( (Pstring)NULL );
+	RETURN( (pstring)NULL );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -97,17 +98,17 @@ Pstring pstring_free( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Initializes a Pstring-object.
+	Usage:			Initializes a pstring-object.
 					
-	Parameters:		Pstring		obj				Pointer to a Pstring-object to
+	Parameters:		pstring		obj				Pointer to a pstring-object to
 												be initialized.
 	
-	Returns:		Pstring						Same as input-pointer.
+	Returns:		pstring						Same as input-pointer.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-void pstring_init( Pstring obj )
+void pstring_init( pstring obj )
 {
 	PROC( "pstring_init" );
 	PARMS( "obj", "%p", obj );
@@ -123,9 +124,9 @@ void pstring_init( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Resets a Pstring-object, frees possibly used content memory.
+	Usage:			Resets a pstring-object, frees possibly used content memory.
 					
-	Parameters:		Pstring		obj			Pointer to a Pstring-object to
+	Parameters:		pstring		obj			Pointer to a pstring-object to
 											be reset.
 	
 	Returns:		void
@@ -133,9 +134,9 @@ void pstring_init( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-void pstring_reset( Pstring obj )
+void pstring_reset( pstring obj )
 {
-	PROC( "pstring_init" );
+	PROC( "pstring_reset" );
 	PARMS( "obj", "%p", obj );
 
 	if( !obj )
@@ -144,7 +145,6 @@ void pstring_reset( Pstring obj )
 	if( obj->str )
 		pfree( obj->str );
 		
-	pstring_drop_tmp( obj, TRUE );
 	pstring_init( obj );
 
 	VOIDRET;
@@ -157,7 +157,7 @@ void pstring_reset( Pstring obj )
 	
 	Usage:			Returns the length of a given string-object instance.
 					
-	Parameters:		Pstring		obj			The Pstring-object which length
+	Parameters:		pstring		obj			The pstring-object which length
 											should be returned.
 	
 	Returns:		psize					Length of obj in size_t.
@@ -165,7 +165,7 @@ void pstring_reset( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-psize pstring_len( Pstring obj )
+psize pstring_len( pstring obj )
 {
 	PROC( "pstring_len" );
 	PARMS( "obj", "%p", obj );
@@ -185,18 +185,18 @@ psize pstring_len( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Gets the raw pchar-content of the given Pstring-object.
+	Usage:			Gets the raw pchar-content of the given pstring-object.
 					
-	Parameters:		Pstring		obj			The Pstring-object whose raw string
+	Parameters:		pstring		obj			The pstring-object whose raw string
 											pointer should be returned.
 	
 	Returns:		pchar*					Pointer to data-pointer of the
-											Pstring-object.
+											pstring-object.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pchar* pstring_GET( Pstring obj )
+pchar* pstring_GET( pstring obj )
 {
 	PROC( "pstring_GET" );
 	PARMS( "obj", "%p", obj );
@@ -216,9 +216,9 @@ pchar* pstring_GET( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Puts the raw pchar-content for a given Pstring-object.
+	Usage:			Puts the raw pchar-content for a given pstring-object.
 					
-	Parameters:		Pstring		obj			The Pstring-object whose raw string
+	Parameters:		pstring		obj			The pstring-object whose raw string
 											pointer should be returned.
 					pchar*		ptr			Pointer to read the content from
 											which is put into the object.
@@ -233,7 +233,7 @@ pchar* pstring_GET( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pstring_PUT( Pstring obj, pchar* ptr, psize len )
+int pstring_PUT( pstring obj, pchar* ptr, psize len )
 {
 	PROC( "pstring_PUT" );
 	PARMS( "obj", "%p", obj );
@@ -267,55 +267,13 @@ int pstring_PUT( Pstring obj, pchar* ptr, psize len )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstring_drop_tmp()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Drops the temporary conversion pointer of a string-object.
-					It can be specified if the pointer only will be zero'd, or
-					if also its associated memory should be freed.
-					
-	Parameters:		Pstring		obj			The Pstring-object whose conversion
-											string pointer should be freed.
-					pboolean	memdrop		TRUE: Drop even memory of tmp,
-											FALSE: Hold memory, clear pointer.
-	
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-void pstring_drop_tmp( Pstring obj, pboolean memdrop )
-{
-	PROC( "pstring_drop_tmp" );
-	PARMS( "obj", "%p", obj );
-	PARMS( "memdrop", "%s", BOOLEAN_STR( memdrop ) );
-
-	if( !obj )
-	{
-		MSG( "Object is zero" );
-		VOIDRET;
-	}
-	
-	if( obj->tmp )
-	{
-		if( memdrop )
-			pfree( obj->tmp );
-
-		obj->tmp = (pbyte*)NULL;
-	}
-
-	VOIDRET;
-}
-
-/* -FUNCTION--------------------------------------------------------------------
 	Function:		pstring_empty()
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Checks if a Pstring-object is empty.
+	Usage:			Checks if a pstring-object is empty.
 					
-	Parameters:		Pstring		obj			The Pstring-object to test.
+	Parameters:		pstring		obj			The pstring-object to test.
 	
 	Returns:		pboolean				TRUE: Object is empty
 											FALSE: Object is not empty
@@ -323,7 +281,7 @@ void pstring_drop_tmp( Pstring obj, pboolean memdrop )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pboolean pstring_empty( Pstring obj )
+pboolean pstring_empty( pstring obj )
 {
 	PROC( "pstring_empty" );
 	PARMS( "obj", "%p", obj );
@@ -339,11 +297,11 @@ pboolean pstring_empty( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Copyies the content of two Pstring-objects.
+	Usage:			Copyies the content of two pstring-objects.
 					
-	Parameters:		Pstring		dst			The Pstring-object to act as
+	Parameters:		pstring		dst			The pstring-object to act as
 											destination.
-					Pstring		src			The Pstring-object from which to
+					pstring		src			The pstring-object from which to
 											copy from.
 	
 	Returns:		int						Returns ERR_OK on success,
@@ -352,7 +310,7 @@ pboolean pstring_empty( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pstring_copy( Pstring dst, Pstring src )
+int pstring_copy( pstring dst, pstring src )
 {
 	PROC( "pstring_copy" );
 	PARMS( "dst", "%p", dst );
@@ -372,23 +330,23 @@ int pstring_copy( Pstring dst, Pstring src )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Duplicates a Pstring-object in the memory.
+	Usage:			Duplicates a pstring-object in the memory.
 					
-	Parameters:		Pstring		obj			The Pstring-object to be duplicated.
+	Parameters:		pstring		obj			The pstring-object to be duplicated.
 	
-	Returns:		Pstring					A newly created object which is a
+	Returns:		pstring					A newly created object which is a
 											duplicate of obj. In case of a 
 											memory allocation error, the
-											return result is (Pstring)NULL.
-											It is also (Pstring)NULL if obj
+											return result is (pstring)NULL.
+											It is also (pstring)NULL if obj
 											is a NULL-pointer.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-Pstring pstring_dup( Pstring obj )
+pstring pstring_dup( pstring obj )
 {
-	Pstring		dup;
+	pstring		dup;
 
 	PROC( "pstring_dup" );
 	PARMS( "obj", "%p", obj );
@@ -396,19 +354,19 @@ Pstring pstring_dup( Pstring obj )
 	if ( ! obj )
 	{
 		MSG( "Nothing to copy!" );
-		RETURN( (Pstring)NULL );
+		RETURN( (pstring)NULL );
 	}
 
 	if( !( dup = pstring_new( (pchar*)NULL ) ) )
 	{
 		MSG( "Am I out of memory?" );
-		RETURN( (Pstring)NULL );
+		RETURN( (pstring)NULL );
 	}
 
 	if( pstring_PUT( dup, obj->str, obj->len ) < ERR_OK )
 	{
 		pstring_free( dup );
-		RETURN( (Pstring)NULL );
+		RETURN( (pstring)NULL );
 	}
 
 	RETURN( dup );
@@ -420,11 +378,11 @@ Pstring pstring_dup( Pstring obj )
 	Author:			Jan Max Meyer
 	
 	Usage:			Universal function which appends characters from a
-					pchar-pointer and a length-information to a Pstring-object.
+					pchar-pointer and a length-information to a pstring-object.
 					
-	Parameters:		Pstring		obj			The Pstring-object where content
+	Parameters:		pstring		obj			The pstring-object where content
 											will be copied and appended to.
-											If obj is (Pstring)NULL, the
+											If obj is (pstring)NULL, the
 											function will create a new
 											object with the character, and
 											returns the pointer to it.
@@ -435,14 +393,14 @@ Pstring pstring_dup( Pstring obj )
 											(pchar*)NULL, it is assumed that
 											ptr is zero-terminated.
 	
-	Returns:		Pstring					Pointer to dst.
-											In error case, (Pstring)NULL is
+	Returns:		pstring					Pointer to dst.
+											In error case, (pstring)NULL is
 											returned.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-Pstring pstring_APPEND( Pstring obj, pchar* ptr, psize len )
+pstring pstring_APPEND( pstring obj, pchar* ptr, psize len )
 {
 	pboolean	save		= FALSE;
 
@@ -454,7 +412,7 @@ Pstring pstring_APPEND( Pstring obj, pchar* ptr, psize len )
 	if( !obj )
 	{
 		if( !( obj = pstring_new( (pchar*)NULL ) ) )
-			RETURN( (Pstring)NULL );
+			RETURN( (pstring)NULL );
 
 		RETURN( pstring_APPEND( obj, ptr, len ) );
 	}
@@ -481,7 +439,7 @@ Pstring pstring_APPEND( Pstring obj, pchar* ptr, psize len )
 							* sizeof( pchar ) );
 
 	if( !obj->str )
-		RETURN( (Pstring)NULL );
+		RETURN( (pstring)NULL );
 
 	if( save )
 		ptr = obj->str;
@@ -501,32 +459,32 @@ Pstring pstring_APPEND( Pstring obj, pchar* ptr, psize len )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Appends the content of one Pstring-object to the content
-					of another Pstring-object. Latter object can be optionally
+	Usage:			Appends the content of one pstring-object to the content
+					of another pstring-object. Latter object can be optionally
 					freed by the function.
 					
-	Parameters:		Pstring		dst			The Pstring-object where content
+	Parameters:		pstring		dst			The pstring-object where content
 											will be copied and appended to.
-											If dst is (Pstring)NULL, then
+											If dst is (pstring)NULL, then
 											src will be returned if it should
 											be freed, else a duplicate of src
 											is returned.
 
-					Pstring		src			The Pstring-object from which to
+					pstring		src			The pstring-object from which to
 											copy from.
 					pboolean	drop_src	TRUE: Destruct object src after
 													append operation.
 											FALSE: Leave src as it is.
 	
-	Returns:		Pstring					Pointer to dst. If dst is NULL,
+	Returns:		pstring					Pointer to dst. If dst is NULL,
 											then src will be duplicated. In
-											error case, (Pstring)NULL is
+											error case, (pstring)NULL is
 											returned.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-Pstring pstring_append( Pstring dst, Pstring src, pboolean drop_src )
+pstring pstring_append( pstring dst, pstring src, pboolean drop_src )
 {
 	PROC( "pstring_append" );
 	PARMS( "dst", "%p", dst );
@@ -548,5 +506,60 @@ Pstring pstring_append( Pstring dst, Pstring src, pboolean drop_src )
 		pstring_free( src );
 
 	RETURN( dst );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pstring_charat()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Returns a string object's character at a speicfied offset.
+					
+	Parameters:		pstring		obj			The pstring-object from which to
+											return the character from.
+					psize		position	The offset of the character.
+	
+	Returns:		pchar*					Returns a pointer to the expected
+											character. If the positon index is
+											out of string bounds, (pchar*)NULL
+											will be returned.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pchar* pstring_charat( pstring obj, psize position )
+{
+	pchar*		ret;
+#if !defined( UNICODE ) && defined( UTF8 )
+	psize		i;
+#endif
+	PROC( "pstring_charat" );
+	PARMS( "obj", "%p", obj );
+	PARMS( "position", "%ld", position );
+	
+	if( !( obj && obj->str ) )
+	{
+		MSG( "Invalid string object" );
+		RETURN( (pchar*)NULL );
+	}
+	
+	if( position > obj->len )
+	{
+		MSG( "Position is out of bounds!" );
+		RETURN( (pchar*)NULL );
+	}
+
+#if defined( UNICODE ) || !defined( UTF8 )
+	ret = obj->str + position;
+#else
+	MSG( "UTF-8 mode" );
+	for( i = 0, ret = obj->str; i < position && i < obj->len; i++ )
+		ret += u8_seqlen( ret );
+	
+	if( i == obj->len )
+		ret	= (pchar*)NULL;
+#endif
+
+	RETURN( ret );
 }
 
