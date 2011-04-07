@@ -1,6 +1,6 @@
 /* -HEADER----------------------------------------------------------------------
 Phorward Basis Library
-Copyright (C) 2006-2009 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward-software<dot>com
 
 File:	pbasis.h
@@ -12,7 +12,7 @@ Usage:	Main include file for pbasis
 
 /*
  * Standard System Includes
- * They're always required, in all programs!
+ * They're always required, in all of our programs!
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,7 +22,7 @@ Usage:	Main include file for pbasis
 #include <limits.h>
 #include <time.h>
 
-#ifdef UTF8
+#ifdef UNICODE
 #include <locale.h>
 #include <wchar.h>
 #include <wctype.h>
@@ -34,28 +34,33 @@ Usage:	Main include file for pbasis
 #include <unistd.h>
 #endif
 
-#define u8_isutf(c) (((c)&0xC0)!=0x80)
-
 /*
- * Universal Data Types
+ * General Data Types & Structures
  */
 
-/* uchar - universal character type */
-#ifndef uchar
-#define uchar char
-#endif
-
-/* pchar - universal (wide?) character type */
-#ifdef UTF8
-#define wchar wchar_t
+/* wchar - universal (wide?) character type */
+#ifdef UNICODE
+typedef wchar_t					wchar;
 #else
-#define wchar uchar
+typedef unsigned int			wchar;
 #endif
 
-/* boolean - Just saving true or false ;) */
-#define BOOLEAN	pboolean
-#define boolean pboolean
-typedef int 	pboolean;	/* Phorward Boolean */
+/* Phorward Software primitive type specifiers */
+typedef char					pbyte;		/* Byte type */
+typedef wchar					pchar;		/* Phorward char type (wide char) */
+typedef char					uchar;		/* Universal char type (one byte) */
+typedef	int						pint;		/* Integer type */
+typedef	float					pfloat;		/* Floating point */
+typedef double					pdouble;	/* Double type */
+typedef long					plong;		/* Long-type */
+typedef size_t					pulong;		/* Unsigned long */
+typedef size_t					psize;		/* Size-type */
+
+typedef int 					pboolean;	/* Phorward Boolean */
+#define BOOLEAN					pboolean
+#define boolean 				pboolean
+
+#define BOOLEAN_STR( b ) ( ( b ) ? "TRUE" : "FALSE" )
 
 #define TRUE	1
 #define FALSE	0
@@ -74,7 +79,7 @@ typedef int 	pboolean;	/* Phorward Boolean */
  * Error codes
  */
 #define ERR_OK					0		/* OK */
-#define ERR_FAILURE				-1		/* Failure */
+#define ERR_FAILURE				-1		/* (General) Failure */
 #define ERR_PARMS				-2		/* Wrong parameters */
 #define ERR_MEM					-3		/* Memory allocation error */
 #define ERR_SYSTEM				-4		/* System call error */
@@ -93,14 +98,17 @@ typedef int 	pboolean;	/* Phorward Boolean */
 /*
  * Basis Library modules
  */
-#include "ccl.h"
 #include "bitset.h"
+#include "ccl.h"
 #include "dbg.h"
 #include "hashtab.h"
 #include "llist.h"
+#include "string.h"
+#include "utf8.h"
 
 #ifndef MAKE_PROTOTYPES
 #include "pbasis.proto.h"
 #endif
 
 #endif /* _PBASIS_H */
+
