@@ -20,9 +20,9 @@ Usage:	Header for regex lib
 #define REGEX_ALLOC_STEP		16
 
 /* Regular expression compile states */
-#define REGEX_STAT_UNCOMPILED	0
-#define REGEX_STAT_COMPILED		1
-#define REGEX_STAT_FINALIZED	2
+#define REGEX_STAT_NONE			0
+#define REGEX_STAT_NFA			1
+#define REGEX_STAT_DFA			2
 
 /* Regex Modifiers */
 #define REGEX_MOD_NONE			0	/* No modification (for the sake
