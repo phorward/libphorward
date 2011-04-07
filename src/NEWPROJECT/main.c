@@ -22,7 +22,7 @@ Usage:	Program entry and parameter parsing.
 /*
  * Defines
  */
-#define VERSION		"0.2"
+#define VERSION		"0.3"
 
 /*
  * Functions
@@ -107,12 +107,12 @@ BOOLEAN get_command_line( int argc, char** argv )
 			if( *opt == '-' )
 				opt++;
 
-			if( !strcmp( opt, "version" ) || !strcmp( opt, "V" ) )
+			if( !pstrcmp( opt, "version" ) || !pstrcmp( opt, "V" ) )
 			{
 				copyright();
 				exit( EXIT_SUCCESS );
 			}
-			else if( !strcmp( opt, "help" ) || !strcmp( opt, "h" ) )
+			else if( !pstrcmp( opt, "help" ) || !pstrcmp( opt, "h" ) )
 			{
 				usage( *argv );
 				exit( EXIT_SUCCESS );
