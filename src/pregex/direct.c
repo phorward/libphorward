@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Regular Expression Library, Version 2
-Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail<at>phorward<dash>software<dot>com
+Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See LICENSE for more information.
 
 File:	direct.c
 Author:	Jan Max Meyer
@@ -42,11 +43,9 @@ Usage:	Direct regular expression access functions
 												str. results must be freed
 												after usage.
 																	
-	Returns:		>= 0						The amount of matches, which
-												is the amount of items within
-												the returned results-array.
-												
-					ERR_...						ERR_*-define on error.
+	Returns:		int							Returns the amount of matches.
+												If the value is negative,
+												it is an error define.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -97,10 +96,12 @@ int pregex_match( uchar* regex, uchar* str, int flags, pregex_result** results )
 												related strings within the
 												input-string str.
 																	
-	Returns:		>= 0						The amount of elements within
-												the returned results-array.
-												
-					ERR_...						ERR_*-define on error.
+	Returns:		int							Returns the amount of matches,
+												which is the amount of items
+												within the returned
+												results-array. If the 
+												value is negative,
+												it is an error define.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -150,9 +151,12 @@ int pregex_split( uchar* regex, uchar* str, int flags, pregex_result** results )
 					uchar**			result		Returns a pointer to the result
 												string.
 																	
-	Returns:		>= 0						The amount of matches.
-												
-					ERR_...						ERR_*-define on error.
+	Returns:		int							Returns the amount of matches,
+												which is the amount of items
+												within the returned
+												results-array. If the 
+												value is negative,
+												it is an error define.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
