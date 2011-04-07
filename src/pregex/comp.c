@@ -130,7 +130,10 @@ int pregex_comp_finalize( pregex* machine )
 
 	PROC( "pregex_comp_finalize" );
 	PARMS( "machine", "%p", machine );
+	
+	/* This will be enabled later! */
 
+#if 0
 	if( !( machine->stat == REGEX_STAT_COMPILED ) )
 	{
 		MSG( "The machine must be in compiled state." );
@@ -164,6 +167,7 @@ int pregex_comp_finalize( pregex* machine )
 	/* Set new machine status */
 	memcpy( &( machine->machine.dfa ), &dfa, sizeof( pregex_dfa ) );
 	machine->stat = REGEX_STAT_FINALIZED;
+#endif
 
 	RETURN( ERR_OK );
 }
@@ -221,6 +225,16 @@ void pregex_comp_free( pregex* machine )
 												regex state machine.
 					uchar*			str			Pointer to input string where
 												the pattern will be executed on.
+					pregex_callback	fn			A callback-function which
+												is called for each match.
+												The returned value is set for
+												the match within the results
+												array, if it is greater or equal
+												to 0. If the return value is
+												negative, the match will be
+												ignored. Use the macro
+												REGEX_NO_CALLBACK to disable a
+												callback-function usage.
 					pregex_result**	results		Array of results to the
 												matched substrings within
 												str. results must be freed
@@ -238,8 +252,10 @@ void pregex_comp_free( pregex* machine )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
+int pregex_comp_match( pregex* machine, uchar* str, pregex_callback fn,
+							pregex_result** results )
 {
+	pregex_result	tmp_result;
 	int				match;
 	int				matches	= 0;
 	int				anchors;
@@ -256,6 +272,7 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 		PARMS( "str", "%s", str );
 #endif
 
+	PARMS( "fn", "%p", fn );
 	PARMS( "results", "%p", results );
 	
 	if( results )
@@ -279,80 +296,96 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 			MSG( "pregex_nfa_match found a match!" );
 			VARS( "match", "%d", match );
 			VARS( "len", "%ld", len );
+			
+			if( results || fn )
+			{							
+				memset( &tmp_result, 0, sizeof( pregex_result ) );
+		
+				tmp_result.accept = match;
+				tmp_result.begin = pstr;
+				tmp_result.end = pstr + len;
+				tmp_result.pbegin = (pchar*)pstr;
+				tmp_result.pend = (pchar*)pstr + len;
+			
+				if( machine->flags & REGEX_MOD_WCHAR )
+					tmp_result.pos = (pchar*)pstr - (pchar*)str;
+				else
+					tmp_result.pos = pstr - str;
 
-			if( results )
+				tmp_result.len = len;
+				VARS( "len of result", "%ld", tmp_result.len );
+			}
+			
+			if( fn )
 			{
-				if( !matches )
-					*results = (pregex_result*)pmalloc( REGEX_ALLOC_STEP
-									* sizeof( pregex_result ) );
-				else if( !( matches % REGEX_ALLOC_STEP ) )
-					*results = (pregex_result*)prealloc(
-									(pregex_result*)*results,
+				MSG( "Calling callback-function" );
+				match = (*fn)( &tmp_result );
+			}
+			
+			VARS( "match", "%d", match );
+			if( match >= 0 )
+			{
+				if( results )
+				{
+					tmp_result.accept = match;
+
+					if( !matches )
+						*results = (pregex_result*)pmalloc( REGEX_ALLOC_STEP
+										* sizeof( pregex_result ) );
+					else if( !( matches % REGEX_ALLOC_STEP ) )
+						*results = (pregex_result*)prealloc(
+										(pregex_result*)*results,
 										( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
 											* REGEX_ALLOC_STEP )
 												*  sizeof( pregex_result ) );
 
-				if( !*results )
-					RETURN( ERR_MEM );
-				
-				(*results)[ matches ].accept = match;
-				(*results)[ matches ].begin = pstr;
-				(*results)[ matches ].end = pstr + len;
-				(*results)[ matches ].pbegin = (pchar*)pstr;
-				(*results)[ matches ].pend = (pchar*)pstr + len;
-				
+					if( !*results )
+						RETURN( ERR_MEM );
+					
+					memcpy( *results + matches, &tmp_result,
+								sizeof( pregex_result ) );
+				}
+
 				if( machine->flags & REGEX_MOD_WCHAR )
-					(*results)[ matches ].pos = (pchar*)pstr - (pchar*)str;
+					pstr += len * sizeof( pchar );
 				else
-					(*results)[ matches ].pos = pstr - str;
-
-				(*results)[ matches ].len = len;
-				VARS( "len of result", "%ld", (*results)[ matches ].len );
-			}
-
-			if( machine->flags & REGEX_MOD_WCHAR )
-			{
-				pstr += len * sizeof( pchar );
-			}
-			else
-			{
+				{
 #ifdef UTF8
-				for( ; len > 0; len-- )
-					pstr += u8_seqlen( pstr );
+					for( ; len > 0; len-- )
+						pstr += u8_seqlen( pstr );
 #else
-				pstr += len;
+					pstr += len;
 #endif
-			}
+				}
 
-			if( results )
-			{
-				(*results)[ matches ].end = pstr;
+				if( results )
+				{
+					(*results)[ matches ].end = pstr;
 #ifdef UTF8
-				if( !( machine->flags & REGEX_MOD_WCHAR ) )
-					(*results)[ matches ].len =
-							pstr - (*results)[ matches ].begin;
+					if( !( machine->flags & REGEX_MOD_WCHAR ) )
+						(*results)[ matches ].len =
+								pstr - (*results)[ matches ].begin;
 #endif
+				}
+
+				matches++;
+
+				if( !( machine->flags & REGEX_MOD_GLOBAL ) )
+					break;
+				
+				continue;
 			}
-
-			matches++;
-
-			if( !( machine->flags & REGEX_MOD_GLOBAL ) )
-				break;
 		}
+
+		if( machine->flags & REGEX_MOD_WCHAR )
+			pstr += sizeof( pchar );
 		else
 		{
-			if( machine->flags & REGEX_MOD_WCHAR )
-			{
-				pstr += sizeof( pchar );
-			}
-			else
-			{
 #ifdef UTF8
-				pstr += u8_seqlen( pstr );
+			pstr += u8_seqlen( pstr );
 #else
-				pstr++;
+			pstr++;
 #endif
-			}
 		}
 	}
 
@@ -374,6 +407,13 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 												regex state machine.
 					uchar*			str			Searchstring the pattern
 												will be ran on.
+					pregex_callback	fn			A callback-function which
+												is called for each split match.
+												If the return value is negative,
+												the match will be ignored.
+												Use the macro REGEX_NO_CALLBACK
+												to disable a callback-function
+												usage.
 					pregex_result**	results		Array of results to the
 												split substrings. Each element
 												of this array contains begin-
@@ -391,8 +431,11 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
+int pregex_comp_split( pregex* machine, uchar* str, pregex_callback fn,
+							pregex_result** results )
 {
+	pregex_result	tmp_result;
+	int				match;
 	int				matches	= 0;
 	int				anchors;
 	psize			len;
@@ -407,6 +450,7 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 	else
 		PARMS( "str", "%s", str );
 #endif
+	PARMS( "fn", "%p", fn );
 	PARMS( "results", "%p", results );
 
 	*results = (pregex_result*)NULL;
@@ -414,76 +458,99 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
-		if( pregex_nfa_match( &( machine->machine.nfa ), pstr, &len, &anchors,
-				(pregex_result**)NULL, (int*)NULL, machine->flags ) >= 0
-			&& pregex_check_anchors( str, pstr, len,
-					anchors, machine->flags ) )
+		if( ( match = pregex_nfa_match( &( machine->machine.nfa ),
+				pstr, &len, &anchors, (pregex_result**)NULL, (int*)NULL,
+					machine->flags ) ) >= 0
+			&& pregex_check_anchors( str, pstr, len, anchors, machine->flags ) )
 		{
-			if( !matches )
-				*results = (pregex_result*)pmalloc(
-								REGEX_ALLOC_STEP * sizeof( pregex_result ) );
-			else if( !( matches % REGEX_ALLOC_STEP ) )
-				*results = (pregex_result*)prealloc(
-								(pregex_result*)*results,
-									( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
-										* REGEX_ALLOC_STEP )
-											*  sizeof( pregex_result ) );
+			MSG( "Write information into temporary result structure" );
+			
+			if( fn )
+			{
+				memset( &tmp_result, 0, sizeof( pregex_result ) );
 
-			if( !*results )
-				RETURN( ERR_MEM );
+				tmp_result.accept = match;
+				tmp_result.begin = pstr;
+				tmp_result.end = pstr + len;
+				tmp_result.pbegin = (pchar*)pstr;
+				tmp_result.pend = (pchar*)pstr + len;
+				tmp_result.len = len;
 
-			(*results)[ matches ].begin = prev;
-			(*results)[ matches ].end = pstr;
-			(*results)[ matches ].pbegin = (pchar*)prev;
-			(*results)[ matches ].pend = (pchar*)pstr;
-			if( machine->flags & REGEX_MOD_WCHAR )
-			{
-				(*results)[ matches ].pos = (pchar*)prev - (pchar*)str;
-				(*results)[ matches ].len = (pchar*)pstr - (pchar*)prev;
+				if( machine->flags & REGEX_MOD_WCHAR )
+					tmp_result.pos = (pchar*)pstr - (pchar*)str;
+				else
+					tmp_result.pos = pstr - str;
+			
+				MSG( "Calling callback-function" );
+				match = (*fn)( &tmp_result );
 			}
-			else
+			
+			VARS( "match", "%d", match );
+			if( match >= 0 )
 			{
-				(*results)[ matches ].pos = prev - str;	
-				(*results)[ matches ].len = pstr - prev;
-			}
-		
-			matches++;
+				if( !matches )
+					*results = (pregex_result*)pmalloc(
+									REGEX_ALLOC_STEP *
+										sizeof( pregex_result ) );
+				else if( !( matches % REGEX_ALLOC_STEP ) )
+					*results = (pregex_result*)prealloc(
+									(pregex_result*)*results,
+										( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
+											* REGEX_ALLOC_STEP )
+												*  sizeof( pregex_result ) );
+				if( !*results )
+					RETURN( ERR_MEM );
 
-			if( machine->flags & REGEX_MOD_WCHAR )
-			{
-				pstr += len * sizeof( pchar );
-			}
-			else
-			{
+				(*results)[ matches ].begin = prev;
+				(*results)[ matches ].end = pstr;
+				(*results)[ matches ].pbegin = (pchar*)prev;
+				(*results)[ matches ].pend = (pchar*)pstr;
+				if( machine->flags & REGEX_MOD_WCHAR )
+				{
+					(*results)[ matches ].pos = (pchar*)prev - (pchar*)str;
+					(*results)[ matches ].len = (pchar*)pstr - (pchar*)prev;
+				}
+				else
+				{
+					(*results)[ matches ].pos = prev - str;	
+					(*results)[ matches ].len = pstr - prev;
+				}
+				(*results)[ matches ].user = tmp_result.user;
+
+				matches++;
+
+				if( machine->flags & REGEX_MOD_WCHAR )
+					pstr += len * sizeof( pchar );
+				else
+				{
 #ifdef UTF8
-				for( ; len > 0; len-- )
-					pstr += u8_seqlen( pstr );
+					for( ; len > 0; len-- )
+						pstr += u8_seqlen( pstr );
 #else
-				pstr += len;
+					pstr += len;
 #endif
-			}
-			prev = pstr;
+				}
+				prev = pstr;
 
-			if( !( machine->flags & REGEX_MOD_GLOBAL ) )
-			{
-				pstr += pstrlen( pstr );
-				break;
+				if( !( machine->flags & REGEX_MOD_GLOBAL ) )
+				{
+					pstr += pstrlen( pstr );
+					break;
+				}
+			
+				continue;
 			}
 		}
+
+		if( machine->flags & REGEX_MOD_WCHAR )
+			pstr += sizeof( pchar );
 		else
 		{
-			if( machine->flags & REGEX_MOD_WCHAR )
-			{
-				pstr += sizeof( pchar );
-			}
-			else
-			{
 #ifdef UTF8
-				pstr += u8_seqlen( pstr );
+			pstr += u8_seqlen( pstr );
 #else
-				pstr++;
+			pstr++;
 #endif
-			}
 		}
 	}
 	
@@ -543,8 +610,23 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 												as replacement for each pattern
 												match. $x backreferences
 												can be used
+					pregex_callback	fn			An optional callback function.
+												If the return value is negative,
+												it ignores the current match.
+												If there is an alternative
+												replacement string wanted, put
+												a string pointer in the member
+												variable 'user' of the
+												pregex_result-object provided.
+												The alternative replacement
+												string can contain reference
+												wildcards, if not disabled.
+												Use the macro REGEX_NO_CALLBACK
+												to hand over an empty callback
+												function.
 					uchar**			result		Returns a pointer to the result
-												string.
+												string. This must be freed by
+												the caller after its use.
 																	
 	Returns:		int							Returns the amount of matches.
 												If the value is negative,
@@ -553,12 +635,14 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_comp_replace( pregex* machine, uchar* str,
-							uchar* replacement, uchar** result )
+int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
+							pregex_callback fn, uchar** result )
 {
 	pregex_result*	refs		= (pregex_result*)NULL;
+	pregex_result	tmp_result;
 	int				refs_cnt	= 0;
 	int				matches		= 0;
+	int				match;
 	int				charsize	= sizeof( uchar );
 	int				ref;
 	int				anchors;
@@ -569,11 +653,13 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 	uchar*			rbegin;
 	uchar*			rprev;
 	uchar*			replace;
+	uchar*			use_replacement;
 
 	PROC( "pregex_comp_replace" );
 	PARMS( "machine", "%p", machine );
 	PARMS( "str", "%s", str );
 	PARMS( "result", "%p", result );
+	PARMS( "fn", "%p", fn );
 
 	*result = (uchar*)NULL;
 
@@ -583,23 +669,57 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
-		if( pregex_nfa_match( &( machine->machine.nfa ), pstr, &len, &anchors,
+		if( ( match = pregex_nfa_match( &( machine->machine.nfa ), pstr, &len, &anchors,
 			( ( machine->flags & REGEX_MOD_NO_REFERENCES ) ?
 					(pregex_result**)NULL : &refs ),
-						&refs_cnt, machine->flags ) == 0
+						&refs_cnt, machine->flags ) ) >= 0
 			&& pregex_check_anchors( str, pstr, len,
 					anchors, machine->flags ) )
 		{
+			use_replacement = (uchar*)NULL;
+
+			if( fn )
+			{
+				MSG( "Prepare pregex_result-structure for callback" );
+
+				memset( &tmp_result, 0, sizeof( pregex_result ) );
+				tmp_result.accept = match;
+				tmp_result.begin = pstr;
+				tmp_result.end = pstr + len;
+				tmp_result.pbegin = (pchar*)pstr;
+				tmp_result.pend = (pchar*)pstr + len;
+				tmp_result.len = len;
+
+				if( machine->flags & REGEX_MOD_WCHAR )
+					tmp_result.pos = (pchar*)pstr - (pchar*)str;
+				else
+					tmp_result.pos = pstr - str;
+				
+				MSG( "Calling callback-function" );
+				if( ( (*fn)( &tmp_result ) < 0 ) )
+				{
+					MSG( "Callback returns value lower than 0" );
+					continue;
+				}
+				
+				/* An alternative replacement string can be saved into the
+					regex_result-structure's user-pointer */					
+				use_replacement = (uchar*)tmp_result.user;
+			}
+
+			if( !use_replacement )
+				use_replacement = replacement;
+		
 			if( machine->flags & REGEX_MOD_NO_REFERENCES )
 			{
 				MSG( "No references wanted by caller" );
-				replace = replacement;
+				replace = use_replacement;
 			}
 			else
 			{
 				VARS( "refs_cnt", "%d", refs_cnt );
 				MSG( "Constructing replacement" );
-				for( rprev = rpstr = replacement, replace = (uchar*)NULL;
+				for( rprev = rpstr = use_replacement, replace = (uchar*)NULL;
 						*rpstr; )
 				{
 					VARS( "*rpstr", "%c", *rpstr );
@@ -748,7 +868,7 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 					RETURN( ERR_MEM );
 
 				if( !( *result = (uchar*)Pstr_append_str( (pchar*)*result,
-						(pchar*)replace,( ( replace == replacement )
+						(pchar*)replace,( ( replace == use_replacement )
 								? FALSE : TRUE ) ) ) )
 					RETURN( ERR_MEM );
 				
@@ -771,7 +891,7 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 					RETURN( ERR_MEM );
 
 				if( !( *result = pstr_append_str( *result, replace,
-						( ( replace == replacement ) ? FALSE : TRUE ) ) ) )
+						( ( replace == use_replacement ) ? FALSE : TRUE ) ) ) )
 					RETURN( ERR_MEM );
 				
 				VARS( "len", "%d", len );
