@@ -487,8 +487,8 @@ int list_count( LIST* list )
 	Parameters:		LIST*	list				First linked list.
 					LIST*	subset				Possible subset list.
 											
-	Returns:		0							In case if it is not a subset,
-					1							if it is a subset.
+	Returns:		int							0 in case if it is not a subset,
+												!0 if it is a subset.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -512,3 +512,4 @@ int list_subset( LIST* list, LIST* subset )
 
 	return 0;
 } /* list_subset() */
+
