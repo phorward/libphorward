@@ -2255,7 +2255,7 @@ int main( int argc, char** argv )
 	
 	fprintf( stderr, "min_lalr1 - Minimalist LALR(1) Parser Generator "
 			"v0.14.1 [%s]\n", __DATE__ );
-	fprintf( stderr, "Copyright (C) 2007-2010 by "
+	fprintf( stderr, "Copyright (C) 2007-2011 by "
 			"Phorward Software Technologies, Jan Max Meyer\n" );
 	fprintf( stderr, "http://www.phorward-software.com   "
 				"contact<at>phorward<dash>software<dot>com\n" );
