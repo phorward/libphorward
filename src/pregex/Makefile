@@ -11,13 +11,15 @@ SRC			=	comp.c \
 				dfa.c \
 				direct.c \
 				nfa.c \
+				ref.c \
 				util.c
 
 OBJ			=	comp$(OBJEXT) \
 				dfa$(OBJEXT) \
 				direct$(OBJEXT) \
 				nfa$(OBJEXT) \
-				util$(OBJEXT)
+				ref$(OBJEXT) \
+				util$(OBJEXT) 
 
 PROTO		=	pregex.proto.h
 SPROTO		=	pregex.sproto.h
