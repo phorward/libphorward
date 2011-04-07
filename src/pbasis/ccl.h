@@ -13,16 +13,25 @@ Usage:	Structures for character-class handling
 
 /* Defines */
 #define CCL_MIN			0x0
+
+#ifdef UTF8
 #define CCL_MAX			0xffff
+#else
+#define CCL_MAX			0xff
+#endif
 
 /* Typedefs */
 typedef struct _crange	CRANGE;
-typedef crange*			CCL;
+typedef struct _crange*	CCL;
 
 struct _crange
 {
-	u_int	begin;
-	u_int	end;
+	wchar	begin;
+	wchar	end;
 };
+
+/* Macros */
+#define ccl_free( ccl )				pfree( ccl )
+#define ccl_replace( ccl, nccl )	free( ccl ), ccl = nccl
 
 #endif
