@@ -345,6 +345,10 @@ PRIVATE int pregex_dfa_collect_ref( pregex_dfa_st* st )
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	17.01.2011	Jan Max Meyer	Removed bug; The lowest accepting ID takes
+								place over all other accepting states. The
+								bug raise up in UniCC during a special test
+								stage, fine to have this fixed! :)
 ----------------------------------------------------------------------------- */
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 {
@@ -399,7 +403,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 			if( nfa_st->accept > REGEX_ACCEPT_NONE )
 			{
 				if( current->accept == REGEX_ACCEPT_NONE
-					|| current->accept == nfa_st->accept )
+					|| current->accept >= nfa_st->accept )
 				{
 					current->accept = nfa_st->accept;
 					current->anchor = nfa_st->anchor;
