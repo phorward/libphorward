@@ -23,6 +23,7 @@ FILE* 		_dbg_tracefile;
 /* --- Implementation --- */
 /* ---------------------- */
 
+/*NODOC*/
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		_dbg_trace()
 
@@ -95,9 +96,6 @@ void _dbg_trace( FILE* f, int indent, char* file, int line, char* proc,
 					char*	file			Filename (__FILE__)
 					int		line			Line number in file (__LINE__)
 					char*	proc			Procedure name
-					char*	type			Type of trace
-					char*	format			printf()-like format string
-					...						Format values
 
 	Returns:		void
   
@@ -106,12 +104,16 @@ void _dbg_trace( FILE* f, int indent, char* file, int line, char* proc,
 ----------------------------------------------------------------------------- */
 void _dbg_time( FILE* f, int indent, char* file, int line, char* proc )
 {
+#ifdef _WIN32
+	__time64_t		now;
+	static BOOLEAN	tz_isset	= FALSE;
+#else
 	struct timespec	now;
+#endif
 	
 	if( f == (FILE*)NULL )
 		f = stderr;
 
-	clock_gettime( CLOCK_REALTIME, &now );
 	fprintf( f, "%d (%s[% 4d]) ", getpid(), file, line );
 
 	while( indent > 0 )
@@ -120,10 +122,28 @@ void _dbg_time( FILE* f, int indent, char* file, int line, char* proc )
 		indent--;
 	}
 
+
+#ifdef _WIN32
+	if( !tz_isset )
+	{
+		_tzset();
+		tz_isset = TRUE;
+	}
+
+	_time64( &now );
+
+	fprintf( f, "%s() TIMEDUMP %s\n", proc, _ctime64( &now ) );
+#else
+	clock_gettime( CLOCK_REALTIME, &now );
+
 	fprintf( f, "%s() TIMEDUMP %ld s %ld ns\n", proc, 
 				now.tv_sec, now.tv_nsec );
+#endif
+
 	
 	fflush( f );
 	
 } /* _dbg_time() */
+
+/*/NODOC*/
 
