@@ -125,8 +125,10 @@ int pregex_comp_compile( pregex* machine, uchar* pattern, int accept )
 ----------------------------------------------------------------------------- */
 int pregex_comp_finalize( pregex* machine )
 {
+	/*
 	pregex_dfa	dfa;
 	int			ret;
+	*/
 
 	PROC( "pregex_comp_finalize" );
 	PARMS( "machine", "%p", machine );
@@ -199,7 +201,7 @@ void pregex_comp_free( pregex* machine )
 			break;
 
 		case REGEX_STAT_FINALIZED:
-			pregex_dfa_free( &( machine->machine.dfa ) );
+			/* pregex_dfa_free( &( machine->machine.dfa ) ); */
 			break;
 
 		default:
