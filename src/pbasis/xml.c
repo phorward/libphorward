@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Libraries :: Basis Library
-Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2011 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See $PHOME/LICENSE for more information.n.
 
