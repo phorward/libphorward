@@ -678,10 +678,11 @@ int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
-		if( ( match = pregex_nfa_match( &( machine->machine.nfa ), pstr, &len, &anchors,
-			( ( machine->flags & REGEX_MOD_NO_REFERENCES ) ?
-					(pregex_result**)NULL : &refs ),
-						&refs_cnt, machine->flags ) ) >= 0
+		if( ( match = pregex_nfa_match( &( machine->machine.nfa ),
+			pstr, &len, &anchors,
+				( ( machine->flags & REGEX_MOD_NO_REFERENCES ) ?
+						(pregex_result**)NULL : &refs ),
+							&refs_cnt, machine->flags ) ) >= 0
 			&& pregex_check_anchors( str, pstr, len,
 					anchors, machine->flags ) )
 		{
@@ -705,9 +706,16 @@ int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 					tmp_result.pos = pstr - str;
 				
 				MSG( "Calling callback-function" );
-				if( ( ( tmp_result.accept = (*fn)( &tmp_result ) ) < 0 ) )
+				if( (*fn)( &tmp_result ) < 0 )
 				{
-					MSG( "Callback returns value lower than 0" );
+					MSG( "Callback function returns negative value, will"
+							"discard this match" );
+#ifdef UTF8
+					for( ; len > 0; len-- )
+						pstr += u8_seqlen( pstr );
+#else
+					pstr += len * charsize;
+#endif
 					continue;
 				}
 				
