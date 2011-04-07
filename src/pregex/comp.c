@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Regular Expression Library, Version 2
-Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail<at>phorward<dash>software<dot>com
+Phorward Foundation Libraries :: Regular Expression Library, Version 2
+Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	comp.c
 Author:	Jan Max Meyer
@@ -140,7 +141,7 @@ int pregex_comp_finalize( pregex* machine )
 
 	/* Perform subset construction algorithm */
 	if( ( ret = pregex_dfa_from_nfa( &dfa, &( machine->machine.nfa ) ) )
-			!= ERR_OK )
+			< ERR_OK )
 	{
 		MSG( "Subset construction failed" );
 		pregex_dfa_free( &dfa );
@@ -227,11 +228,12 @@ void pregex_comp_free( pregex* machine )
 												the accepting IDs of the
 												matching expressions.
 																	
-	Returns:		int		>= 0				The amount of matches, which
-												is the amount of items within
-												the returned results-array.
-												
-							ERR_...				ERR_*-define on error.
+	Returns:		int							Returns the amount of matches,
+												which is the amount of items
+												within the returned
+												results-array. If the 
+												value is negative,
+												it is an error define.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -240,6 +242,7 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 {
 	int				match;
 	int				matches	= 0;
+	int				anchors;
 	psize			len;
 	uchar*			pstr;
 
@@ -258,7 +261,7 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 	if( results )
 		*results = (pregex_result*)NULL;
 
-	pregex_nfa_print( &( machine->machine.nfa ) );
+	/* pregex_nfa_print( &( machine->machine.nfa ) ); */
 
 	for( pstr = str; *pstr; )
 	{
@@ -267,8 +270,11 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 		else
 			PARMS( "pstr", "%s", pstr );
 	
-		if( ( match = pregex_nfa_match( &( machine->machine.nfa ), pstr, &len,
-				(pregex_result**)NULL, (int*)NULL, machine->flags ) ) >= 0 )
+		if( ( match = pregex_nfa_match( &( machine->machine.nfa ), pstr,
+					&len, &anchors, (pregex_result**)NULL, (int*)NULL,
+						machine->flags ) ) >= 0
+			&& pregex_check_anchors( str, pstr, len,
+				anchors, machine->flags ) )
 		{
 			MSG( "pregex_nfa_match found a match!" );
 			VARS( "match", "%d", match );
@@ -375,10 +381,12 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 												related strings within the
 												input-string str.
 																	
-	Returns:		int				>= 0		The amount of elements within
-												the returned results-array.
-												
-									ERR_...		ERR_*-define on error.
+	Returns:		int							Returns the amount of matches,
+												which is the amount of items
+												within the returned
+												results-array. If the 
+												value is negative,
+												it is an error define.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -386,6 +394,7 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 {
 	int				matches	= 0;
+	int				anchors;
 	psize			len;
 	uchar*			pstr;
 	uchar*			prev;
@@ -405,8 +414,10 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
-		if( pregex_nfa_match( &( machine->machine.nfa ), pstr, &len,
-				(pregex_result**)NULL, (int*)NULL, machine->flags ) >= 0 )
+		if( pregex_nfa_match( &( machine->machine.nfa ), pstr, &len, &anchors,
+				(pregex_result**)NULL, (int*)NULL, machine->flags ) >= 0
+			&& pregex_check_anchors( str, pstr, len,
+					anchors, machine->flags ) )
 		{
 			if( !matches )
 				*results = (pregex_result*)pmalloc(
@@ -535,8 +546,9 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 					uchar**			result		Returns a pointer to the result
 												string.
 																	
-	Returns:		int				>= 0		The amount of matches.
-									ERR_...		ERR_*-define on error.
+	Returns:		int							Returns the amount of matches.
+												If the value is negative,
+												it is an error define.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -549,6 +561,7 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 	int				matches		= 0;
 	int				charsize	= sizeof( uchar );
 	int				ref;
+	int				anchors;
 	psize			len;
 	uchar*			pstr;
 	uchar*			prev;
@@ -570,10 +583,12 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
-		if( pregex_nfa_match( &( machine->machine.nfa ), pstr, &len,
+		if( pregex_nfa_match( &( machine->machine.nfa ), pstr, &len, &anchors,
 			( ( machine->flags & REGEX_MOD_NO_REFERENCES ) ?
 					(pregex_result**)NULL : &refs ),
-						&refs_cnt, machine->flags ) == 0 )
+						&refs_cnt, machine->flags ) == 0
+			&& pregex_check_anchors( str, pstr, len,
+					anchors, machine->flags ) )
 		{
 			if( machine->flags & REGEX_MOD_NO_REFERENCES )
 			{
