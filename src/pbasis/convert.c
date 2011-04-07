@@ -6,7 +6,12 @@ All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	convert.c
 Author:	Jan Max Meyer
-Usage:	Conversion functions for data type and storage type conversion
+Usage:	Conversion functions for data type and storage type conversion.
+		All functions within this module reserve memory for their returned
+		data, so there is not always a pendant-function right in here for
+		every conversion function. For example, plong_to_uchar() converts a
+		long-value into an allocated uchar-string, but the C standard library
+		wrapper pstrtol() is the pendant to convert a string into a long value.
 ----------------------------------------------------------------------------- */
 
 /*
@@ -25,6 +30,51 @@ Usage:	Conversion functions for data type and storage type conversion
 /*
  * Functions
  */
+ 
+ 
+/* Internal functions, not documented! */
+static int digits_of_plong( plong l )
+{
+	int	size		= 0;
+
+	if( l < 0 )
+	{
+		size++;
+		l *= -1;
+	}
+	
+	for( ; l != 0; size++ )
+		l /= 10;
+	
+	return size;
+}
+
+static int digits_of_pulong( pulong ul )
+{
+	int	size		= 0;
+	
+	for( ; ul != 0; size++ )
+		ul /= 10;
+	
+	return size;
+}
+
+static int digits_of_pdouble( pdouble d, int p )
+{
+	int		i;
+	int		size;
+	int		prec = 1;
+	
+	for( i = p; i > 0; i-- )
+		prec *= 10;
+		
+	size = digits_of_plong( (plong)d );
+	size += digits_of_plong( (plong)( d - (plong)d * prec ) );
+	
+	return size + 1;
+}
+
+/* Public functions */
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pchar_to_uchar()
@@ -112,6 +162,9 @@ uchar* pchar_to_uchar( pchar* str, pboolean freestr )
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	23.09.2010	Jan Max Meyer	Conversions avoided terminating null under some
+								circumstances, adding +1 to the final conversion
+								call resolved this problem.
 ----------------------------------------------------------------------------- */
 pchar* uchar_to_pchar( uchar* str, pboolean freestr )
 {
@@ -132,7 +185,7 @@ pchar* uchar_to_pchar( uchar* str, pboolean freestr )
 		RETURN( (pchar*)NULL );
 	}
 
-	mbstowcs( retstr, str, size );
+	mbstowcs( retstr, str, size + 1 ); /* JMM 23.09.2010 */
 
 	if( freestr )
 		pfree( str );
@@ -147,5 +200,224 @@ pchar* uchar_to_pchar( uchar* str, pboolean freestr )
 
 	VARS( "retstr", "%ls", retstr );
 	RETURN( retstr );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		plong_to_uchar()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Converts long-value into an allocated uchar string buffer.
+
+	Parameters:		plong		l			Long value to become converted.
+					
+	Returns:		uchar*					Pointer to the newly allocated
+											string, which contains the string-
+											representation of the long value.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* plong_to_uchar( plong l )
+{
+	uchar*		ret;
+
+	PROC( "plong_to_uchar" );
+	PARMS( "l", "%ld", l );
+	
+	if( !( ret = (uchar*)pmalloc( ( digits_of_plong( l ) + 1 )
+									* sizeof( uchar ) ) ) )
+		RETURN( (uchar*)NULL );
+
+	psprintf( ret, "%ld", l );
+	RETURN( ret );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		plong_to_pchar()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Converts long-value into an allocated pchar
+					wide string buffer.
+
+	Parameters:		plong		l			Long value to become converted.
+					
+	Returns:		pchar*					Pointer to the newly allocated
+											wide-character string (if compiled
+											with the UNICODE flag!), which 
+											contains the wide-string-represen-
+											tation of the long value.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pchar* plong_to_pchar( plong l )
+{
+	pchar*		ret;
+
+	PROC( "plong_to_pchar" );
+	PARMS( "l", "%ld", l );
+	
+	if( !( ret = (pchar*)pmalloc( ( digits_of_plong( l ) + 1 )
+									* sizeof( pchar ) ) ) )
+		RETURN( (pchar*)NULL );
+
+	Psprintf( ret, L"%ld", l );
+	RETURN( ret );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pulong_to_uchar()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Converts unsigned long-value into an allocated uchar
+					string buffer.
+
+	Parameters:		plong		l			Long value to become converted.
+					
+	Returns:		uchar*					Pointer to the newly allocated
+											string, which contains the string-
+											representation of the long value.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* pulong_to_uchar( pulong ul )
+{
+	uchar*		ret;
+
+	PROC( "pulong_to_uchar" );
+	PARMS( "l", "%ld", ul );
+	
+	if( !( ret = (uchar*)pmalloc( ( digits_of_pulong( ul ) + 1 )
+									* sizeof( uchar ) ) ) )
+		RETURN( (uchar*)NULL );
+
+	psprintf( ret, "%ld", ul );
+	RETURN( ret );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pulong_to_pchar()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Converts unsigned long-value into an allocated pchar
+					wide string buffer.
+
+	Parameters:		pulong		l			Long value to become converted.
+					
+	Returns:		pchar*					Pointer to the newly allocated
+											wide-character string (if compiled
+											with the UNICODE flag!), which 
+											contains the wide-string-represen-
+											tation of the long value.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pchar* pulong_to_pchar( pulong ul )
+{
+	pchar*		ret;
+
+	PROC( "pulong_to_pchar" );
+	PARMS( "ul", "%ld", ul );
+	
+	if( !( ret = (pchar*)pmalloc( ( digits_of_pulong( ul ) + 1 )
+									* sizeof( pchar ) ) ) )
+		RETURN( (pchar*)NULL );
+
+	Psprintf( ret, L"%ld", ul );
+	RETURN( ret );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pdouble_to_uchar()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Converts double-value into an allocated uchar string buffer.
+					Zero-digits behind the decimal will be removed, so "1.65000"
+					will become to "1.65" in its string representation.
+
+	Parameters:		pdouble		d			Double value to become converted.
+					
+	Returns:		uchar*					Pointer to the newly allocated
+											string, which contains the string-
+											representation of the double value.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* pdouble_to_uchar( pdouble d )
+{
+	uchar*		ret;
+	uchar*		trail;
+
+	PROC( "pdouble_to_uchar" );
+	PARMS( "d", "%lf", d );
+	
+	if( !( ret = (uchar*)pmalloc( ( digits_of_pdouble( d, 16 ) + 1 )
+										* sizeof( uchar ) ) ) )
+		RETURN( (uchar*)NULL );
+
+	psprintf( ret, "%lf", d );
+	VARS( "ret", "%s", ret );
+	
+	for( trail = ret + pstrlen( ret ) - 1;
+			*trail == '0'; trail-- )
+		;
+
+	*( trail + 1 ) = '\0';
+
+	VARS( "ret", "%s", ret );	
+	RETURN( ret );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pdouble_to_pchar()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Converts double-value into an allocated pchar string buffer.
+					Zero-digits behind the decimal will be removed, so "1.65000"
+					will become to "1.65" in its wide string representation.
+
+	Parameters:		pdouble		d			Double value to become converted.
+					
+	Returns:		uchar*					Pointer to the newly allocated
+											wide-string, which contains the 
+											wide string-representation of the
+											double value, if compiled with
+											the UNICODE-flag.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pchar* pdouble_to_pchar( pdouble d )
+{
+	pchar*		ret;
+	pchar*		trail;
+
+	PROC( "pdouble_to_pchar" );
+	PARMS( "d", "%lf", d );
+	
+	if( !( ret = (pchar*)pmalloc( ( digits_of_pdouble( d, 16 ) + 1 )
+										* sizeof( pchar ) ) ) )
+		RETURN( (pchar*)NULL );
+
+	Psprintf( ret, L"%lf", d );
+	VARS( "ret", "%ls", ret );
+	
+	for( trail = ret + Pstrlen( ret ) - 1;
+			*trail == '0'; trail-- )
+		;
+
+	*( trail + 1 ) = '\0';
+
+	VARS( "ret", "%ls", ret );	
+	RETURN( ret );
 }
 
