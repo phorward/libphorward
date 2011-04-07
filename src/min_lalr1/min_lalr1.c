@@ -1,7 +1,7 @@
 /*
 	min_lalr1 - Experimental Minimalist LALR(1) Parser Generator
-	Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
-	http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+	Copyright (C) 2006-2011 by Phorward Software Technologies, Jan Max Meyer
+	http://www.phorward-software.com  contact<at>phorward<dash>software<dot>com
 	All rights reserved. See $PHOME/LICENSE for more information.
 	
 	This program represents a modified experimental implementation of the
