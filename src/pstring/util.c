@@ -1,11 +1,12 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward String Object Library
+Phorward Foundation Libraries :: String Object Library
 Copyright (C) 2010 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	util.c
 Author:	Jan Max Meyer
-Usage:	Pstring-object utility functions
+Usage:	pstring-object utility functions
 ----------------------------------------------------------------------------- */
 
 /*
@@ -32,14 +33,14 @@ Usage:	Pstring-object utility functions
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Function to compare Pstring-objects.
+	Usage:			Function to compare pstring-objects.
 					
-	Parameters:		Pstring		obj1			First compare operand
-					Pstring		obj2			Second operand
-					pboolean	case_ins		TRUE: Case-insensitive 
-													comparison
+	Parameters:		pstring		obj1			First compare operand.
+					pstring		obj2			Second operand.
+					BOOLEAN		caseins			TRUE: Case-insensitive 
+												comparison
 												FALSE: Case-insensitive
-													comparison
+												comparison
 	
 	Returns:		int							Returns an integer less than,
 												equal to or greater than
@@ -48,7 +49,7 @@ Usage:	Pstring-object utility functions
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pstring_compare( Pstring obj1, Pstring obj2, pboolean case_ins )
+int pstring_compare( pstring obj1, pstring obj2, pboolean case_ins )
 {
 	int		rc		= 0;
 	psize	p;
@@ -98,5 +99,100 @@ int pstring_compare( Pstring obj1, Pstring obj2, pboolean case_ins )
 
 	VARS( "rc", "%d", rc );
 	RETURN( rc * -1 );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pstring_from_uchar()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Turn a zero-terminated uchar-(multi)byte-character string
+					into a pstring-Object's content.
+					
+	Parameters:		pstring		obj				The Pstring-object which content
+												will be set.
+					uchar*		str				A pointer to the zero-terminated
+												uchar-string to be set.
+	
+	Returns:		int							Returns an error-code, ERR_OK
+												if everything was fine.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int pstring_from_uchar( pstring obj, uchar* str )
+{
+	PROC( "pstring_from_uchar" );
+	PARMS( "obj", "%p", obj );
+	PARMS( "str", "%s", str );
+	
+	pstring_reset( obj );
+
+	if( !str )
+		RETURN( ERR_OK );
+
+#ifdef UTF8
+	obj->len = u8_strlen( str );
+#else
+	obj->len = pstrlen( str );
+#endif
+	VARS( "obj->len", "%ld", obj->len );
+
+	if( !ALLOC_STR( obj, obj->len ) )
+		RETURN( ERR_MEM );
+
+#ifdef UNICODE
+	mbstowcs( obj->str, str, obj->len );
+	VARS( "obj->str", "%ls", obj->str );
+#else
+	Pstrcpy( obj->str, str );
+	VARS( "obj->str", "%s", obj->str );
+#endif
+
+	RETURN( ERR_OK );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pstring_to_uchar()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Returns the content of a Pstring-object as an
+					zero-terminated (multibyte)-uchar-string.
+					The pointer is returned, and must be freed by the caller. 
+					
+	Parameters:		pstring		obj				The Pstring-object which content
+												will be returned as uchar.
+	
+	Returns:		uchar*						Returns a pointer to the string.
+												If the content is empty (NULL),
+												an empty uchar-string will be
+												returned.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* pstring_to_uchar( pstring obj )
+{
+	uchar*		ptr;
+
+	PROC( "pstring_to_uchar" );
+	PARMS( "obj", "%p", obj );
+	
+	VARS( "str", "%ls", obj->str );
+	
+	if( pstring_empty( obj ) )
+	{
+		RETURN( pstrdup( "" ) );
+	}
+
+	if( !( ptr = pchar_to_uchar( obj->str, FALSE ) ) )
+	{
+		MSG( "Am I out of memory?" );
+		RETURN( (uchar*)NULL );
+	}
+
+	VARS( "ptr", "%s", ptr );
+	RETURN( ptr );
 }
 
