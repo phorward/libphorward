@@ -1,11 +1,13 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
-# Phorward SDK - ppp :: Phorward Pre-Processor Script
+# Phorward Software Development Kit
 # Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
 #
 # Script:		ppp
 # Author:		Jan Max Meyer
+# Usage:		Phorward Pre-Processor wrapper script
 #-------------------------------------------------------------------------------
 
 if [ $# -lt 1 ]
