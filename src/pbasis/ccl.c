@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Basis Library :: Chraracter class handling
-Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail@phorward-software.com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.n.
 
 File:	ccl.c
 Author:	Jan Max Meyer
@@ -47,6 +48,32 @@ int ccl_size( CCL ccl )
 
 	for( i = ccl; i && i->begin != CCL_MAX; i++ )
 		cnt++;
+
+	return cnt;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		ccl_count()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Return the number of range pairs within a character-class.
+					
+	Parameters:		CCL			ccl				Pointer to the character-class
+	
+	Returns:		int						Number of pairs the charclass
+												holds.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int ccl_count( CCL ccl )
+{
+	CCL		i;
+	int		cnt	= 0;
+
+	for( i = ccl; i && i->begin != CCL_MAX; i++ )
+		cnt += ( i->end - i->begin ) + 1;
 
 	return cnt;
 }
@@ -750,7 +777,7 @@ CCL ccl_del( CCL ccl, pchar ch )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Tests for a character to matche the character class.
+	Usage:			Tests for a character to match a character class.
 					
 	Parameters:		pchar*		ccl				Pointer to character-class
 												to be tested
@@ -773,6 +800,72 @@ pboolean ccl_test( CCL ccl, pchar ch )
 	}
 
 	return FALSE;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		ccl_testrange()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Tests a character class to match a character range.
+					
+	Parameters:		pchar*		ccl				Pointer to character-class
+												to be tested
+					pchar		begin			Begin of character-range to
+												be tested
+					pchar		end				End of character-range to be
+												tested
+	
+	Returns:		pboolean					TRUE: Character matches class
+												FALSE: the opposite.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pboolean ccl_testrange( CCL ccl, pchar begin, pchar end )
+{
+	CCL		i;
+
+	for( i = ccl; i && i->begin != CCL_MAX; i++ )
+	{
+		if( begin >= i->begin && end <= i->end )
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		ccl_instest()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Tests for a case-insensitive character to match a
+					character class.
+					
+	Parameters:		pchar*		ccl				Pointer to character-class
+												to be tested
+					pchar		ch				Character to be tested
+	
+	Returns:		pboolean					TRUE: Character matches class
+												FALSE: the opposite.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pboolean ccl_instest( CCL ccl, pchar ch )
+{
+	CCL		i;
+
+	if( ccl_test( ccl, ch ) )
+		return TRUE;
+		
+	if( Pisupper( ch ) )
+		ch = Ptolower( ch );
+	else
+		ch = Ptoupper( ch );
+
+	return ccl_test( ccl, ch );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -807,10 +900,11 @@ int ccl_compare( CCL first, CCL second )
 	if( ( ret = (int)ccl_size( first ) - (int)ccl_size( second ) != 0 ) )
 		RETURN( ret );
 
-	for( i = first; i && i->begin != CCL_MAX; i++ )
-		for( j = second; j && j->begin != CCL_MAX; j++ )
-			if( !( i->begin == j->begin && i->end == j->end ) )
-				RETURN( ( ( i->begin > j->begin ) ? 1 : -1 ) );
+	for( i = first, j = second;
+			i && i->begin != CCL_MAX && j && j->begin != CCL_MAX;
+				i++, j++ )
+		if( !( i->begin == j->begin && i->end == j->end ) )
+			RETURN( ( ( i->begin > j->begin ) ? 1 : -1 ) );
 
 	RETURN( ret );
 }
@@ -858,7 +952,7 @@ CCL ccl_intersect( CCL first, CCL second )
 				if( !( intersections = (CCL)prealloc( (CCL)intersections,
 						( ccl_size( intersections ) + 1 + 2 )
 							* sizeof( CRANGE ) ) ) )
-					return (CCL)NULL;
+					RETURN( (CCL)NULL );
 					
 				memcpy( &( intersections[cnt++] ), &inter, sizeof( CRANGE ) );
 				intersections[cnt].begin = CCL_MAX;
