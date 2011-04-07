@@ -113,6 +113,8 @@ pregex_nfa_st* pregex_nfa_create_state(
 			{
 				for( ch = c->begin; ch <= c->end; ch++ )
 				{
+				
+/* TODO */
 #ifdef UTF8
 					if( iswupper( ch ) )
 						cch = towlower( ch );
@@ -209,8 +211,6 @@ void pregex_nfa_free( pregex_nfa* nfa )
 
 	PROC( "pregex_nfa_free" );
 	PARMS( "nfa", "%p", nfa );
-	
-	pregex_nfa_print( nfa );
 
 	MSG( "Clearing states" );
 	for( l = nfa->states; l; l = list_next( l ) )
@@ -374,11 +374,32 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 
 	Usage:			Tries to match a pattern using an NFA-machine.
 
-	Parameters:		pregex_nfa*	nfa			The NFA machine to be executed.
-					uchar*		str			A test string where the NFA should
+	Parameters:		pregex_nfa*		nfa		The NFA machine to be executed.
+					uchar*			str		A test string where the NFA should
 											work on.
-					size_t*		len			Length of the match, -1 on error or
+					psize*			len		Length of the match, -1 on error or
 											no match.
+					pregex_result**	ref		Return array of references; If this
+											pointer is not NULL, the function
+											will allocate memory for a refer-
+											ence array. This array is only
+											allocated if the following dependen
+											cies are met:
+											
+											1. The NFA has references
+											2. ref_count is zero
+											3. ref points to a pregex_result*
+											
+					int				ref_count Retrieves the number of
+											references.
+											This value MUST be zero, if the
+											function should allocate refs.
+											A positive value indicates the
+											number of elements in ref, so the
+											array can be re-used in multiple
+											calls.
+					int				flags	Flags to modify regular expression
+											behavior.
 
 	Returns:		int						REGEX_ACCEPT_NONE, if no match was
 											found, else the number of the
@@ -387,33 +408,46 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_nfa_match( pregex_nfa* nfa, uchar* str, size_t* len,
-		pregex_result** ref, int* ref_count )
+int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len,
+		pregex_result** ref, int* ref_count, int flags )
 {
 	LIST*		res			= (LIST*)NULL;
 	LIST*		l;
-	LIST*		m;
 	NFA_ST*		st;
 	uchar*		pstr		= str;
-	size_t		plen		= 0;
+	psize		plen		= 0;
 	int			accept		= REGEX_ACCEPT_NONE;
 	int			last_accept = REGEX_ACCEPT_NONE;
+	pchar		ch;
 
 	PROC( "pregex_nfa_match" );
 	PARMS( "nfa", "%p", nfa );
-	PARMS( "str", "%s", str );
+
+	if( flags & REGEX_MOD_WCHAR )
+		PARMS( "str", "%ls", str );
+	else
+		PARMS( "str", "%s", str );
+
 	PARMS( "len", "%p", len );
 	
 	/* If ref-pointer is set, then use it! */
-	if( ref && nfa->ref_count )
+	if( ( ref && nfa->ref_count ) )
 	{
-		if( !( *ref = (pregex_result*)pmalloc( nfa->ref_count *
-					sizeof( pregex_result ) ) ) )
+		VARS( "*ref_count", "%d", *ref_count );
+		VARS( "nfa->ref_count", "%d", nfa->ref_count );
+
+		if( ( *ref_count != nfa->ref_count ) )
 		{
-			MSG( "Can't allocate references array" );
-			RETURN( ERR_MEM );
+			MSG( "Allocating reference array" );
+			if( !( *ref = (pregex_result*)pmalloc( nfa->ref_count *
+						sizeof( pregex_result ) ) ) )
+			{
+				MSG( "Can't allocate references array" );
+				RETURN( ERR_MEM );
+			}
 		}
 		
+		MSG( "Initalizing reference array to zero" );
 		memset( *ref, 0, nfa->ref_count * sizeof( pregex_result ) );
 		*ref_count = nfa->ref_count;
 	}
@@ -442,9 +476,17 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, size_t* len,
 							(*ref)[ st->ref ].begin );
 					
 					if( !( (*ref)[ st->ref ].begin ) )
+					{
 						(*ref)[ st->ref ].begin = pstr;
+						(*ref)[ st->ref ].pbegin = (pchar*)pstr;
+						(*ref)[ st->ref ].pos = plen;
+					}
 					else
+					{
 						(*ref)[ st->ref ].end = pstr;
+						(*ref)[ st->ref ].pend = (pchar*)pstr;
+						(*ref)[ st->ref ].len = plen - (*ref)[ st->ref ].pos;
+					}
 				}
 			}
 		}
@@ -460,12 +502,41 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, size_t* len,
 			VARS( "*len", "%d", *len );
 		}
 
-		VARS( "pstr", "%s", pstr );
-		VARS( "u8_char( pstr )", "%d", u8_char( pstr ) );
+		if( flags & REGEX_MOD_WCHAR )
+		{
+			VARS( "pstr", "%ls", (pchar*)pstr );
+			ch = *((pchar*)pstr);
+		}
+		else
+		{
+			VARS( "pstr", "%s", pstr );
+#ifdef UTF8
+			ch = u8_char( pstr );
+#else
+			ch = *pstr;
+#endif
+		}
 
-		res = pregex_nfa_move( nfa, res, u8_char( pstr ) );
-		pstr += u8_seqlen( pstr );
+		VARS( "ch", "%d", ch );
+		VARS( "ch", "%lc", ch );
+
+		res = pregex_nfa_move( nfa, res, ch );
+
+		if( flags & REGEX_MOD_WCHAR )
+		{
+			pstr += sizeof( pchar );
+		}
+		else
+		{
+#ifdef UTF8
+			pstr += u8_seqlen( pstr );
+#else
+			pstr++;
+#endif
+		}
+
 		plen++;
+		VARS( "plen", "%ld", plen );
 	}
 	
 	VARS( "*len", "%d", *len );
@@ -488,31 +559,49 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, size_t* len,
 					int			accept		Identifying number for the accepting
 											state if the expression is matched.
 
-	Returns:		int						1 if a parse error occured.
-											ERR_OK on no error.
-											ERR_-define else.
+	Returns:		int						ERR_OK on no error.
+											ERR_FAILURE on parse error.
+											other ERR_-define else.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 {
+	int		ref;
 	int		ret;
 	NFA_ST*	estart;
 	NFA_ST*	eend;
 	NFA_ST*	first;
+	NFA_ST*	last;
 	NFA_ST*	nfirst;
 	uchar*	pstr;
 
 	if( !( str && nfa && accept >= 0 ) )
 		return ERR_PARMS;
-
-	if( !( pstr = str = pstrdup( str ) ) )
-		return ERR_MEM;
-
+	
+	/*  REGEX_MOD_STATIC_STRING is set, convert the entire regex pattern as
+		a static string matching pattern into the NFA */
+	if( flags & REGEX_MOD_STATIC_STRING )
+		return pregex_nfa_from_string( nfa, str, flags, accept );
+		
+	/* Copy input string - this is required,
+		because of memory modification during the parse */
+	if( flags & REGEX_MOD_WCHAR )
+	{
+		if( !( pstr = str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
+			return ERR_MEM;
+	}
+	else
+	{
+		if( !( pstr = str = pstrdup( str ) ) )
+			return ERR_MEM;
+	}
+	
+	/* Find last first node ;) ... */
 	for( nfirst = (NFA_ST*)list_access( nfa->states );
 		nfirst && nfirst->next2; nfirst = nfirst->next2 )
-			/* Find last first node ;) ... */ ;
+			;
 
 	if( !( first = pregex_nfa_create_state( nfa,
 			(uchar*)NULL, flags ) ) )
@@ -520,21 +609,49 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 		pfree( str );
 		return ERR_MEM;
 	}
-
+	
+	/* Zero reference */
+	ref = nfa->ref_count++;
+	
+	/* Run the regex parser */
 	if( ( ret = parse_alter( &pstr, nfa, &estart, &eend, flags ) )
 			!= ERR_OK )
 	{
 		pfree( str );
-		return ret;
+		return ( ret > ERR_OK ) ? ERR_FAILURE : ret;
+	}
+	
+	/* estart is next of first */
+	first->next = estart;
+	
+	/* Build references; If eend has already one reference, 
+			append one more epsilon node */
+	if( eend->ref != -1 )
+	{
+		if( !( last = pregex_nfa_create_state( nfa,
+				(uchar*)NULL, flags ) ) )
+		{
+			pfree( str );
+			return ERR_MEM;
+		}
+		
+		eend->next = last;
+
+
+		eend = last;
 	}
 
-	first->next = estart;
+	first->ref = ref;
+	eend->ref = ref;
+	
+	/* Accept */
 	eend->accept = accept;
 
 	/* Chaining into big machine */
 	if( nfirst )
 		nfirst->next2 = first;
-
+		
+	/* Free copied string */
 	pfree( str );
 	return ERR_OK;
 }
@@ -552,20 +669,17 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 	pboolean	neg		= FALSE;
 	int			ref;
 	
-	NFA_ST*		cstart;
-	NFA_ST*		cend;
-
 	switch( **pstr )
 	{
 		case '(':
-			INC( *pstr );			
+			INC( *pstr );
 			ref = nfa->ref_count++;
 
 			if( ( ret = parse_alter( pstr, nfa, start, end, flags ) )
 					!= ERR_OK )
 				return ret;
 
-			if( **pstr != ')' )
+			if( **pstr != ')' && !( flags & REGEX_MOD_NO_ERRORS ) )
 				return 1;
 
 			INC( *pstr );
@@ -596,14 +710,16 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 				return ERR_MEM;
 				
 			if( !( (*start)->ccl = ccl_addrange(
-					(*start)->ccl, CCL_MIN, CCL_MAX ) ) )
+					(*start)->ccl, CCL_MIN + 1, CCL_MAX ) ) )
 				return ERR_MEM;
 
 			if( !( *end = pregex_nfa_create_state( nfa,
 					(uchar*)NULL, flags ) ) )
 				return ERR_MEM;
 		
-				(*start)->next = *end;
+			(*start)->next = *end;
+			
+			INC( *pstr );
 			break;
 
 		case '[':
