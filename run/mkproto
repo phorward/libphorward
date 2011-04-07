@@ -1,11 +1,13 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
-# Phorward SDK - mkproto :: C-prototype files generator
+# Phorward Software Development Kit
 # Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
 #
 # Script:		mkproto
 # Author:		Jan Max Meyer
+# Usage:		C function prototype generator
 #-------------------------------------------------------------------------------
 
 if [ $# -lt 1 ]
