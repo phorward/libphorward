@@ -12,7 +12,6 @@ Usage:	Header for regex lib
 #define PREGEX_H
 
 #include <pbasis.h>
-#include <pstring.h>
 
 /* Defines */
 #define REGEX_ACCEPT_NONE		-1
@@ -25,10 +24,23 @@ Usage:	Header for regex lib
 #define REGEX_STAT_FINALIZED	2
 
 /* Regex Modifiers */
-#define REGEX_MOD_NONE			0
-#define REGEX_MOD_INSENSITIVE	1
-#define REGEX_MOD_MULTILINE		2
-#define REGEX_MOD_GLOBAL		4
+#define REGEX_MOD_NONE			0	/* No modification (for the sake
+										of completeness) */
+#define REGEX_MOD_WCHAR			1	/* Regular expression and/or search string
+										for direct pattern executions are
+											of type pchar (wide character,
+												if UNICODE is flagged!) */
+#define REGEX_MOD_INSENSITIVE	2	/* Regular expression is case insensitive */
+#define REGEX_MOD_GLOBAL		4	/* Regular expression is run globally, not
+										only for the first match */
+#define REGEX_MOD_STATIC_STRING	8	/* The regular expression passed for to the
+										compiler should be converted 1:1 as
+											it where a string-constant.
+												Any regex-specific symbols will
+												be ignored! */
+#define REGEX_MOD_NO_REFERENCES	16	/* Don't create references */
+#define REGEX_MOD_NO_ERRORS		32	/* Don't report errors, try to compile as
+										much as possible */
 
 #ifndef PRIVATE
 #define PRIVATE static
@@ -100,8 +112,14 @@ struct _regex
 
 struct _regex_result
 {
-	uchar*			begin;
-	uchar*			end;
+	uchar*			begin;		/* Begin pointer */
+	pchar*			pbegin;		/* Wide-character begin pointer */
+	uchar*			end;		/* End pointer */
+	pchar*			pend;		/* Wide-character end pointer */
+	psize			pos;		/* Position from string begin in bytes */
+	psize			len;		/* Length of result in bytes */
+	int				accept;		/* The ID of the accepting state;	
+									This is only filled in a pattern match */
 };
 
 /* Prototypes */
