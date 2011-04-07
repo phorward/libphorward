@@ -15,7 +15,7 @@ Usage:	Header for regex lib
 #include <pstring.h>
 
 /* Defines */
-#define REGEX_ACCEPT_NONE		0xFFFF
+#define REGEX_ACCEPT_NONE		-1
 
 #define REGEX_ALLOC_STEP		16
 
@@ -28,34 +28,31 @@ Usage:	Header for regex lib
 #define PRIVATE static
 #endif
 
+
 /* Typedefs */
-typedef u_int*					pregex_ccl;
+typedef CCL						pregex_ccl;
 typedef struct _regex_nfa_st	pregex_nfa_st;
 typedef struct _regex_dfa_ent	pregex_dfa_ent;
 typedef struct _regex_dfa_st	pregex_dfa_st;
 typedef struct _regex_nfa		pregex_nfa;
 typedef struct _regex_dfa		pregex_dfa;
 typedef struct _regex			pregex;
+typedef	struct _regex_result	pregex_result;
 
 /* Structs */
 struct _regex_nfa_st
 {
-	pregex_ccl*		ccl;		/* Char-class; if ccl == (pregex_ccl*)NULL,
+	pregex_ccl		ccl;		/* Char-class; if ccl == (pregex_ccl*)NULL,
 									then this is an epsilon edge */
-
-	u_int			next;		/* First following NFA-state */
-	u_int			next2;		/* Second following NFA-state */
-	
-	u_int			accept;		/* Accepting state ID */
+	pregex_nfa_st*	next;		/* First following NFA-state */
+	pregex_nfa_st*	next2;		/* Second following NFA-state */
+	int				accept;		/* Accepting state ID */
 };
 
 struct _regex_nfa
 {	
-	pregex_nfa_st*	states;		/* Pointer to array of nfa-states */
-	u_int			states_cnt;	/* Number of nfa-states */
-	
-	pregex_nfa_st*	start;		/* Pointer to starting state */
-	pregex_nfa_st*	end;		/* Pointer to ending state */
+	LIST*			states;		/* List of nfa-states */
+	LIST*			empty;		/* List to pointers of states to be used */
 };
 
 struct _regex_dfa_ent
@@ -66,8 +63,7 @@ struct _regex_dfa_ent
 
 struct _regex_dfa_st
 {
-	pregex_dfa_ent*	trans;		/* Transition table row for this DFA state */
-	u_int			group; 		/* Required for DFA minimization */
+	LIST*			trans;		/* Transition table row for this DFA state */
 	int				accept;		/* Accepting state and ID */
 	BOOLEAN			done;		/* Done-Flag */
 	
@@ -77,9 +73,7 @@ struct _regex_dfa_st
 struct _regex_dfa
 {
 	pregex_nfa*		nfa;		/* Pointer to NFA this DFA is based on */
-	
-	pregex_dfa_st*	states;		/* Pointer to array of dfa-states */
-	int				states_cnt;	/* Number of dfa-states */
+	LIST*			states;		/* List of dfa-states */
 };
 
 struct _regex
@@ -95,9 +89,20 @@ struct _regex
 	u_int			flags;		/* Several flags */
 };
 
+struct _regex_result
+{
+	uchar*			begin;
+	uchar*			end;
+};
+
 /* Prototypes */
 #ifndef MAKE_PROTOTYPES
-/* #include "pregex.proto.h" */
+#include "pregex.proto.h"
+
+#ifdef PREGEX_LOCAL
+#include "pregex.sproto.h"
+#endif
+
 #endif
 
 #endif
