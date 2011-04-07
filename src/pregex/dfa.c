@@ -623,11 +623,9 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len )
 	pregex_dfa_st*	dfa_st;
 	pregex_dfa_ent*	ent;
 	LIST*			l;
-	LIST*			m;
 	uchar*			pstr		= str;
 	size_t			plen		= 0;
 	wchar			ch;
-	int				accept		= REGEX_ACCEPT_NONE;
 	int				last_accept = REGEX_ACCEPT_NONE;
 
 	PROC( "pregex_dfa_match" );
