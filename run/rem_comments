@@ -1,11 +1,13 @@
 #!/bin/sed -f
 #-------------------------------------------------------------------------------
-# Phorward SDK - rem_comments :: C-style comment remover
+# Phorward Software Development Kit
 # Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
 #
 # Script:		rem_comments
-# Author:		<unknown>
+# Author:		Jan Max Meyer
+# Usage:		Remove comments from C source files
 #-------------------------------------------------------------------------------
 
 #< Remove C/C++ comments from files
