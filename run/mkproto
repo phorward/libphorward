@@ -1,0 +1,108 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Phorward SDK - mkproto :: C-prototype files generator
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+#
+# Script:		mkproto
+# Author:		Jan Max Meyer
+#-------------------------------------------------------------------------------
+
+if [ $# -lt 1 ]
+then
+	echo "usage: $0 [OPTIONS] <filenames>"
+	echo
+	echo "          -s        Output static declarations also"
+	echo "          -S        Only output static declarations"
+	exit 1
+fi
+
+#assemble options
+options=""
+
+while [ "$1" ]
+do
+	case "$1" in
+		-s)
+			options="$options -vwith_static=1"
+			;;
+		-S)
+			options="$options -vonly_static=1"
+			;;
+		*)
+			break
+			;;
+	esac
+
+	shift
+done
+
+#make prototypes
+
+while [ "$1" != "" ]
+do
+	rem_comments < $1 | awk $options '
+
+BEGIN				{	FS = "[ \t]+"
+						same_line = 0
+
+						if( only_static )
+							with_static = 1
+					}
+
+/^[ \t]*([A-Za-z_]+[ \t]+)?[A-Za-z_][A-Za-z0-9_]*[ \t*]+[A-Za-z_][A-Za-z0-9_]*[ \t]*\(/ \
+					{
+						if( $1 == "static" )
+						{
+							if( !with_static )
+								next
+						}
+						else if( only_static )
+							next
+
+						akt_proto = akt_proto $0
+						same_line = 1
+					}
+
+/^{[ \t]*$/			{
+						if( akt_proto != "" )
+						{
+							gsub( "[ \t]+", " ", akt_proto )
+							print akt_proto ";"
+							akt_proto = ""
+						}
+
+						next
+					}
+
+					{
+						if( akt_proto != "" )
+						{
+							if( !same_line )
+								akt_proto = akt_proto $0
+
+							test_line = $0
+							gsub( "[ \t]+", "", test_line )
+
+							test_chr = substr( test_line, \
+										length( test_line ), 1 )
+
+							if( test_chr == ";" )
+							{
+								akt_proto = ""
+							}
+						}
+
+						same_line = 0
+					}
+
+	'
+
+	if [ $? -ne 0 ]
+	then
+		exit 1
+	fi
+
+	shift
+done
+
