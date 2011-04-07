@@ -1,5 +1,5 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Basis Library :: Linked Pointer Lists
+Phorward Basis Library
 Copyright (C) 2006-2009 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward-software<dot>com
 
@@ -11,7 +11,8 @@ Usage:	Main include file for pbasis
 #define _PBASIS_H
 
 /*
- * Standard System includes
+ * Standard System Includes
+ * They're always required, in all programs!
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,10 +20,11 @@ Usage:	Main include file for pbasis
 #include <stdarg.h>
 #include <limits.h>
 #include <time.h>
-#include <unistd.h>
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #include <process.h>
+#else
+#include <unistd.h>
 #endif
 
 /*
@@ -34,16 +36,19 @@ Usage:	Main include file for pbasis
 #define uchar char
 #endif
 
-/* boolean - Just saving true or false ;) */
-typedef enum _boolean BOOLEAN;
-typedef enum _boolean boolean;
-typedef enum _boolean pboolean;	/* Phorward Boolean */
+/* u_int - Unsigned int */
+#define u_int	unsigned int
 
-enum _boolean
-{
-	FALSE	= 0,
-	TRUE	= 1
-};
+/* pccl - Character classes */
+#define pccl	u_int*
+
+/* boolean - Just saving true or false ;) */
+#define BOOLEAN	pboolean
+#define boolean pboolean
+typedef int 	pboolean;	/* Phorward Boolean */
+
+#define TRUE	1
+#define FALSE	0
 
 /*
  * Dynamic memory management macros
@@ -67,12 +72,21 @@ enum _boolean
 #define ERR_OTHER				-6		/* Any other error */
 
 /*
+ * Path separator
+ */
+#ifndef _WIN32
+#define PPATHSEP				'/'
+#else
+#define PPATHSEP				'\\'
+#endif
+
+/*
  * Basis Library modules
  */
 #include "bitset.h"
 #include "dbg.h"
-#include "llist.h"
 #include "hashtab.h"
+#include "llist.h"
 
 #ifndef MAKE_PROTOTYPES
 #include "pbasis.proto.h"
