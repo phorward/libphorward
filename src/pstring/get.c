@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward String Object Library
+Phorward Foundation Libraries :: String Object Library
 Copyright (C) 2010 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	get.c
 Author:	Jan Max Meyer
@@ -28,14 +29,14 @@ Usage:	String object getter functions
  */
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstring_get_pchar()
+	Function:		pstring_get()
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Returns the content of a Pstring-object as an
+	Usage:			Returns the content of a pstring-object as an
 					zero-terminated pchar-string.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The pstring-object which content
 												will be returned.
 	
 	Returns:		pchar*						Returns a pointer to the string.
@@ -46,7 +47,7 @@ Usage:	String object getter functions
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pchar* pstring_get_pchar( Pstring obj )
+pchar* pstring_get( pstring obj )
 {
 	PROC( "pstring_set_pchar" );
 	PARMS( "obj", "%p", obj );
@@ -58,125 +59,13 @@ pchar* pstring_get_pchar( Pstring obj )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstring_get_uchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Returns the content of a Pstring-object as an
-					zero-terminated uchar-string. The pointer returned is
-					associated by the Pstring-object via the tmp-pointer, and
-					is freed with the next conversion call or the object
-					destruction!
-					
-	Parameters:		Pstring		obj				The Pstring-object which content
-												will be returned as uchar.
-	
-	Returns:		uchar*						Returns a pointer to the string.
-												If the content is empty (NULL),
-												an empty uchar-string will be
-												returned.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-uchar* pstring_get_uchar( Pstring obj )
-{
-	size_t		alloc_size;
-
-	PROC( "pstring_get_uchar" );
-	PARMS( "obj", "%p", obj );
-	
-	VARS( "str", "%S", obj->str );
-	
-	pstring_drop_tmp( obj, TRUE );
-		
-	if( pstring_empty( obj ) )
-	{
-		RETURN( "" );
-	}
-
-#ifdef UNICODE
-	if( ( alloc_size = wcstombs( (uchar*)NULL, obj->str, 0 ) ) < 0 )
-	{
-		MSG( "Can't convert according to the current locale!" );
-		RETURN( (uchar*)NULL );
-	}
-#else
-	alloc_size = Pstrlen( obj->str );
-#endif
-
-	VARS( "alloc_size", "%ld", alloc_size );
-	if( !( obj->tmp = (pbyte*)pmalloc( ( alloc_size + 1 )
-							* sizeof( uchar ) ) ) )
-	{
-		MSG( "Can't allocate memory" );
-		RETURN( (uchar*)NULL );
-	}
-	
-#ifdef UNICODE
-	wcstombs( (uchar*)obj->tmp, obj->str, alloc_size );
-#else
-	Pstrcpy( (uchar*)obj->tmp, obj->str );
-#endif
-
-	VARS( "(uchar*)obj->tmp", "%s", (uchar*)obj->tmp );
-	RETURN( (uchar*)obj->tmp );
-}
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pstring_get_uchar_distinct()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Returns the content of a Pstring-object as an
-					zero-terminated uchar-string.
-					Unlike pstring_get_uchar(), the memory of  the returned
-					uchar-array is not associated with the Pstring-object, it
-					is returned as a distinct unit, which must be manually
-					freed by the caller.
-					
-	Parameters:		Pstring		obj				The Pstring-object which content
-												will be returned as uchar.
-	
-	Returns:		uchar*						Returns a pointer to the string.
-												If the content is empty (NULL),
-												an empty uchar-string will be
-												returned.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-uchar* pstring_get_uchar_distinct( Pstring obj )
-{
-	uchar*		ret;
-
-	PROC( "pstring_get_uchar_distinct" );
-	PARMS( "obj", "%p", obj );
-	
-	VARS( "str", "%S", obj->str );
-	
-	if( !( ret = pstring_get_uchar( obj ) ) )
-	{
-		MSG( "pstring_get_uchar() returned NULL-pointer, not good!" );
-		RETURN( (uchar*)NULL );
-	}
-
-	pstring_drop_tmp( obj, FALSE );	
-	if( !*ret )
-		ret = pstrdup( "" );
-	
-	VARS( "ret", "%s", ret );
-	RETURN( ret );
-}
-
-/* -FUNCTION--------------------------------------------------------------------
 	Function:		pstring_get_int()
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Returns the content of a Pstring-object as an int-value.
+	Usage:			Returns the content of a pstring-object as an int-value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The pstring-object which content
 												will be set.
 	
 	Returns:		pint						Returns the converted string
@@ -185,21 +74,15 @@ uchar* pstring_get_uchar_distinct( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint pstring_get_int( Pstring obj )
+pint pstring_get_int( pstring obj )
 {
 	PROC( "pstring_get_int" );
 	PARMS( "obj", "%p", obj );
 	
-	pstring_drop_tmp( obj, TRUE );
-	
 	if( pstring_empty( obj ) )
 		RETURN( 0 );
 
-#ifdef UNICODE
-	RETURN( (pint)wcstol( obj->str, (pchar**)NULL, 0 ) );
-#else
-	RETURN( (pint)strtol( obj->str, (pchar**)NULL, 0 ) );
-#endif
+	RETURN( (pint)Pstrtol( obj->str, (pchar**)NULL, 0 ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -207,9 +90,9 @@ pint pstring_get_int( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Returns the content of a Pstring-object as a long-value.
+	Usage:			Returns the content of a pstring-object as a long-value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The pstring-object which content
 												will be set.
 	
 	Returns:		plong						Returns the converted string
@@ -218,21 +101,15 @@ pint pstring_get_int( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-plong pstring_get_long( Pstring obj )
+plong pstring_get_long( pstring obj )
 {
 	PROC( "pstring_get_long" );
 	PARMS( "obj", "%p", obj );
 	
-	pstring_drop_tmp( obj, TRUE );
-	
 	if( pstring_empty( obj ) )
 		RETURN( (long)0 );
 
-#ifdef UNICODE
-	RETURN( wcstol( obj->str, (pchar**)NULL, 0 ) );
-#else
-	RETURN( strtol( obj->str, (pchar**)NULL, 0 ) );
-#endif
+	RETURN( Pstrtol( obj->str, (pchar**)NULL, 0 ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -240,9 +117,9 @@ plong pstring_get_long( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Returns the content of a Pstring-object as a pulong-value.
+	Usage:			Returns the content of a pstring-object as a pulong-value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The pstring-object which content
 												will be set.
 	
 	Returns:		pulong						Returns the converted string
@@ -251,21 +128,15 @@ plong pstring_get_long( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pulong pstring_get_ulong( Pstring obj )
+pulong pstring_get_ulong( pstring obj )
 {
 	PROC( "pstring_get_ulong" );
 	PARMS( "obj", "%p", obj );
 	
-	pstring_drop_tmp( obj, TRUE );
-	
 	if( pstring_empty( obj ) )
 		RETURN( (pulong)0 );
 
-#ifdef UNICODE
-	RETURN( wcstoul( obj->str, (pchar**)NULL, 0 ) );
-#else
-	RETURN( strtoul( obj->str, (pchar**)NULL, 0 ) );
-#endif
+	RETURN( Pstrtoul( obj->str, (pchar**)NULL, 0 ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -273,9 +144,9 @@ pulong pstring_get_ulong( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Returns the content of a Pstring-object as a float-value.
+	Usage:			Returns the content of a pstring-object as a float-value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The pstring-object which content
 												will be set.
 	
 	Returns:		pfloat						Returns the converted string
@@ -284,21 +155,15 @@ pulong pstring_get_ulong( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pfloat pstring_get_float( Pstring obj )
+pfloat pstring_get_float( pstring obj )
 {
 	PROC( "pstring_get_float" );
 	PARMS( "obj", "%p", obj );
 	
-	pstring_drop_tmp( obj, TRUE );
-	
 	if( pstring_empty( obj ) )
 		RETURN( 0 );
 
-#ifdef UNICODE
-	RETURN( (pfloat)wcstod( obj->str, (pchar**)NULL ) );
-#else
-	RETURN( (pfloat)strtod( obj->str, (pchar**)NULL ) );
-#endif
+	RETURN( (pfloat)Pstrtod( obj->str, (pchar**)NULL ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -306,9 +171,9 @@ pfloat pstring_get_float( Pstring obj )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Returns the content of a Pstring-object as a double-value.
+	Usage:			Returns the content of a pstring-object as a double-value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The pstring-object which content
 												will be set.
 	
 	Returns:		pdouble						Returns the converted string
@@ -317,20 +182,14 @@ pfloat pstring_get_float( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pdouble pstring_get_double( Pstring obj )
+pdouble pstring_get_double( pstring obj )
 {
 	PROC( "pstring_get_double" );
 	PARMS( "obj", "%p", obj );
 	
-	pstring_drop_tmp( obj, TRUE );
-	
 	if( pstring_empty( obj ) )
 		RETURN( 0 );
 
-#ifdef UNICODE
-	RETURN( wcstod( obj->str, (pchar**)NULL ) );
-#else
-	RETURN( strtod( obj->str, (pchar**)NULL ) );
-#endif
+	RETURN( Pstrtod( obj->str, (pchar**)NULL ) );
 }
 
