@@ -1,13 +1,15 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Basis Library :: Byte-string utility functions
-Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail@phorward-software.com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	string.c
 Author:	Jan Max Meyer
-Usage:	Some extended byte-string functions that can be universally
-		used. The library was build from several UniCC and RapidBATCH 6
-		functions, and are now assembled into one new library here.
+Usage:	Some extended functions for zero-terminated byte- and wide-character
+		strings that can be universally used. The library was build from
+		several UniCC and RapidBATCH 6 functions, and is now assembled into
+		the pbasis-library now.
 ----------------------------------------------------------------------------- */
 
 /*
@@ -50,8 +52,8 @@ Usage:	Some extended byte-string functions that can be universally
 					wchar		chr				The character to be appended to
 												str.
 	
-	Returns:		uchar*						Pointer to (possibly re-)allo-
-												cated and appended string.
+	Returns:		uchar*						Pointer to (possibly re-)
+												allocated and appended string.
 												(uchar*)NULL is returned if no
 												memory could be (re)allocated.
   
@@ -106,8 +108,8 @@ uchar* pstr_append_char( uchar* str, wchar chr )
 					boolean		release_append	If true, append is free'd
 												automatically by this function.
 	
-	Returns:		uchar*						Pointer to (possibly re-)allo-
-												cated and appended string.
+	Returns:		uchar*						Pointer to (possibly re-)
+												allocated and appended string.
 												(uchar*)NULL is returned if no
 												memory could be (re)allocated,
 												or both strings where NULL.
@@ -166,8 +168,8 @@ uchar* pstr_append_str( uchar* dest, uchar* src, boolean freesrc )
 					psize		num				Number of characters to be
 												appended to str.
 	
-	Returns:		uchar*						Pointer to (possibly re-)allo-
-												cated and appended string.
+	Returns:		uchar*						Pointer to (possibly re-)
+												allocated and appended string.
 												(uchar*)NULL is returned if no
 												memory could be (re)allocated,
 												or both strings where NULL.
@@ -415,7 +417,7 @@ int psprintf( uchar* res, uchar* fmt, ... )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Saver atol() replacement.
+	Usage:			A safer atol() replacement.
 					
 	Parameters:		uchar*		str					Parameter string to be
 													converted to long.
@@ -430,7 +432,7 @@ long patol( uchar* str )
 	if( !str )
 		return 0L;
 		
-	return atol( (char*)str );
+	return atol( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -438,7 +440,7 @@ long patol( uchar* str )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			patof() replacement.
+	Usage:			A safer atof() replacement.
 					
 	Parameters:		uchar*		str					Parameter string to be
 													converted to double.
@@ -453,7 +455,30 @@ double patof( uchar* str )
 	if( !str )
 		return (double)0.0;
 		
-	return atof( (char*)str );
+	return atof( str );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		patoi()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			A safer atoi() replacement.
+					
+	Parameters:		uchar*		str					Parameter string to be
+													converted to int.
+													
+	Returns:		double							Same as atoi, 0 in case
+													of (uchar*)NULL.
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int patoi( uchar* str )
+{
+	if( !str )
+		return 0;
+		
+	return atoi( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -898,13 +923,16 @@ uchar* pstrlwr( uchar* str )
 }
 
 #if 0
+/* NO_DOC */
+
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		p_int_to_str()
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Returns an allocated string which contains the string-repre-
-					sentation of an int value, for code generation purposes.
+	Usage:			Returns an allocated string which contains the
+					string-representation of an int value, for code
+					generation purposes.
 
 	Parameters:		int		val					Value to be converted
 					
@@ -1127,9 +1155,8 @@ uchar* p_str_no_whitespace( uchar* str )
 
 	return start;
 }
+/* COD_ON */
 #endif
-
-
 
 /******************************************************************************
  * FUNCTIONS FOR UNICODE PROCESSING (pchar)                                   *
@@ -1166,8 +1193,9 @@ pchar* Pstrdup( pchar* str )
 
 	Author:			Jan Max Meyer
 
-	Usage:			Ostrintf is a repleacement for a parameter-compatible
+	Usage:			Psprintf() is a repleacement for a parameter-compatible
 					sprintf-behavior function for wide-character.
+
 					Yes, it's unsafe, but the same behavior as sprintf().
 
 	Parameters:		pchar*		res					Result string
