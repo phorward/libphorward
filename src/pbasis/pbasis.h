@@ -19,7 +19,12 @@ Usage:	Main include file for pbasis library
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+
 #include <stdarg.h>
+#if !defined( va_copy ) && _WIN32 /* MSVC does not know about va_copy... */
+#define va_copy( dst, src )		((void)((dst) = (src)))
+#endif
+
 #include <limits.h>
 #include <time.h>
 #include <fcntl.h>
