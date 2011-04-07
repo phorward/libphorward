@@ -33,6 +33,11 @@ Usage:	Compilation of multiple patterns into one state machine structure
 	Parameters:		pregex*			machine		Pointer to a pregex-structure,
 												which will be initizalized for
 												further usage.
+					int				flags		Flags to modifiy compiler- and
+												execution-options. Use the
+												REGEX_MOD_-flags. To specify
+												more than one flag, use the 
+												or-operator (|).
 																	
 	Returns:		void
   
