@@ -11,6 +11,7 @@ Usage:	NFA creation and executable functions
 /*
  * Includes
  */
+#define PREGEX_LOCAL
 #include "pregex.h"
 
 /*
@@ -134,7 +135,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 			s->accept );
 		
 		if( s->ccl )
-			ccl_print( stderr, s->ccl );
+			ccl_print( stderr, s->ccl, 0 );
 		fprintf( stderr, "\n" );
 	}
 
@@ -223,7 +224,6 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 	pregex_nfa_st*	next;
 	pregex_nfa_st*	last_accept	= (pregex_nfa_st*)NULL;
 	LIST*			stack;
-	int				pos			= 0;
 	short			i;
 
 	PROC( "pregex_nfa_epsilon_closure" );
@@ -364,6 +364,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int accept )
 	NFA_ST*	estart;
 	NFA_ST*	eend;
 	NFA_ST*	first;
+	NFA_ST*	nfirst;
 	uchar*	pstr;
 
 	if( !( str && nfa && accept >= 0 ) )
@@ -371,6 +372,10 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int accept )
 
 	if( !( pstr = str = pstrdup( str ) ) )
 		return ERR_MEM;
+
+	for( nfirst = (NFA_ST*)list_access( nfa->states );
+		nfirst && nfirst->next2; nfirst = nfirst->next2 )
+			/* Find last first node ;) ... */ ;
 
 	if( !( first = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
 	{
@@ -386,6 +391,10 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int accept )
 
 	first->next = estart;
 	eend->accept = accept;
+
+	/* Chaining into big machine */
+	if( nfirst )
+		nfirst->next2 = first;
 
 	pfree( str );
 	return ERR_OK;
