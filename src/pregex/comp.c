@@ -240,25 +240,39 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 {
 	int				match;
 	int				matches	= 0;
-	int				ret;
-	size_t			len;
+	psize			len;
 	uchar*			pstr;
 
 	PROC( "pregex_comp_match" );
 	PARMS( "machine", "%p", machine );
-	PARMS( "str", "%s", str );
+
+#ifdef __WITH_TRACE
+	if( machine->flags & REGEX_MOD_WCHAR )
+		PARMS( "str", "%ls", str );
+	else
+		PARMS( "str", "%s", str );
+#endif
+
 	PARMS( "results", "%p", results );
 	
 	if( results )
 		*results = (pregex_result*)NULL;
 
+	pregex_nfa_print( &( machine->machine.nfa ) );
+
 	for( pstr = str; *pstr; )
 	{
-		VARS( "pstr", "%s", pstr );
+		if( machine->flags & REGEX_MOD_WCHAR )
+			PARMS( "pstr", "%ls", pstr );
+		else
+			PARMS( "pstr", "%s", pstr );
+	
 		if( ( match = pregex_nfa_match( &( machine->machine.nfa ), pstr, &len,
-				(pregex_result**)NULL, (int*)NULL ) ) >= 0 )
+				(pregex_result**)NULL, (int*)NULL, machine->flags ) ) >= 0 )
 		{
+			MSG( "pregex_nfa_match found a match!" );
 			VARS( "match", "%d", match );
+			VARS( "len", "%ld", len );
 
 			if( results )
 			{
@@ -277,20 +291,41 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 				
 				(*results)[ matches ].accept = match;
 				(*results)[ matches ].begin = pstr;
-				(*results)[ matches ].pos = pstr - str;
+				(*results)[ matches ].end = pstr + len;
+				(*results)[ matches ].pbegin = (pchar*)pstr;
+				(*results)[ matches ].pend = (pchar*)pstr + len;
+				
+				if( machine->flags & REGEX_MOD_WCHAR )
+					(*results)[ matches ].pos = (pchar*)pstr - (pchar*)str;
+				else
+					(*results)[ matches ].pos = pstr - str;
+
+				(*results)[ matches ].len = len;
+				VARS( "len of result", "%ld", (*results)[ matches ].len );
 			}
 
+			if( machine->flags & REGEX_MOD_WCHAR )
+			{
+				pstr += len * sizeof( pchar );
+			}
+			else
+			{
 #ifdef UTF8
-			for( ; len > 0; len-- )
-				pstr += u8_seqlen( pstr );
+				for( ; len > 0; len-- )
+					pstr += u8_seqlen( pstr );
 #else
-			pstr += len;
+				pstr += len;
 #endif
+			}
 
 			if( results )
 			{
 				(*results)[ matches ].end = pstr;
-				(*results)[ matches ].len = pstr - (*results)[ matches ].begin;
+#ifdef UTF8
+				if( !( machine->flags & REGEX_MOD_WCHAR ) )
+					(*results)[ matches ].len =
+							pstr - (*results)[ matches ].begin;
+#endif
 			}
 
 			matches++;
@@ -300,11 +335,18 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 		}
 		else
 		{
+			if( machine->flags & REGEX_MOD_WCHAR )
+			{
+				pstr += sizeof( pchar );
+			}
+			else
+			{
 #ifdef UTF8
-			pstr += u8_seqlen( pstr );
+				pstr += u8_seqlen( pstr );
 #else
-			pstr++;
+				pstr++;
 #endif
+			}
 		}
 	}
 
@@ -344,14 +386,18 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 {
 	int				matches	= 0;
-	int				ret;
-	size_t			len;
+	psize			len;
 	uchar*			pstr;
 	uchar*			prev;
 
 	PROC( "pregex_comp_split" );
 	PARMS( "machine", "%p", machine );
-	PARMS( "str", "%s", str );
+#ifdef __WITH_TRACE
+	if( machine->flags & REGEX_MOD_WCHAR )
+		PARMS( "str", "%ls", str );
+	else
+		PARMS( "str", "%s", str );
+#endif
 	PARMS( "results", "%p", results );
 
 	*results = (pregex_result*)NULL;
@@ -360,7 +406,7 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 	{
 		VARS( "pstr", "%s", pstr );
 		if( pregex_nfa_match( &( machine->machine.nfa ), pstr, &len,
-				(pregex_result**)NULL, (int*)NULL ) >= 0 )
+				(pregex_result**)NULL, (int*)NULL, machine->flags ) >= 0 )
 		{
 			if( !matches )
 				*results = (pregex_result*)pmalloc(
@@ -377,16 +423,34 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 
 			(*results)[ matches ].begin = prev;
 			(*results)[ matches ].end = pstr;
-			(*results)[ matches ].pos = prev - str;
-			(*results)[ matches ].len = pstr - prev;
+			(*results)[ matches ].pbegin = (pchar*)prev;
+			(*results)[ matches ].pend = (pchar*)pstr;
+			if( machine->flags & REGEX_MOD_WCHAR )
+			{
+				(*results)[ matches ].pos = (pchar*)prev - (pchar*)str;
+				(*results)[ matches ].len = (pchar*)pstr - (pchar*)prev;
+			}
+			else
+			{
+				(*results)[ matches ].pos = prev - str;	
+				(*results)[ matches ].len = pstr - prev;
+			}
+		
 			matches++;
-			
+
+			if( machine->flags & REGEX_MOD_WCHAR )
+			{
+				pstr += len * sizeof( pchar );
+			}
+			else
+			{
 #ifdef UTF8
-			for( ; len > 0; len-- )
-				pstr += u8_seqlen( pstr );
+				for( ; len > 0; len-- )
+					pstr += u8_seqlen( pstr );
 #else
-			pstr += len;
+				pstr += len;
 #endif
+			}
 			prev = pstr;
 
 			if( !( machine->flags & REGEX_MOD_GLOBAL ) )
@@ -397,11 +461,18 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 		}
 		else
 		{
+			if( machine->flags & REGEX_MOD_WCHAR )
+			{
+				pstr += sizeof( pchar );
+			}
+			else
+			{
 #ifdef UTF8
-			pstr += u8_seqlen( pstr );
+				pstr += u8_seqlen( pstr );
 #else
-			pstr++;
+				pstr++;
 #endif
+			}
 		}
 	}
 	
@@ -423,8 +494,19 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 
 		(*results)[ matches ].begin = prev;
 		(*results)[ matches ].end = pstr;
-		(*results)[ matches ].pos = prev - str;
-		(*results)[ matches ].len = pstr - prev;
+		(*results)[ matches ].pbegin = (pchar*)prev;
+		(*results)[ matches ].pend = (pchar*)pstr;
+		if( machine->flags & REGEX_MOD_WCHAR )
+		{
+			(*results)[ matches ].pos = (pchar*)prev - (pchar*)str;
+			(*results)[ matches ].len = (pchar*)pstr - (pchar*)prev;
+		}
+		else
+		{
+			(*results)[ matches ].pos = prev - str;	
+			(*results)[ matches ].len = pstr - prev;
+		}
+
 		matches++;
 	}
 	
@@ -433,7 +515,7 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_replace()
+	Function:		pregex_comp_replace()
 	
 	Author:			Jan Max Meyer
 	
@@ -466,17 +548,14 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 	pregex_result*	refs		= (pregex_result*)NULL;
 	int				refs_cnt	= 0;
 	int				matches		= 0;
-	int				ret;
-	int				i;
+	int				charsize	= sizeof( uchar );
 	int				ref;
-	int				lref;
-	size_t			len;
+	psize			len;
 	uchar*			pstr;
 	uchar*			prev;
 	uchar*			rpstr;
 	uchar*			rbegin;
 	uchar*			rprev;
-	uchar*			refout;
 	uchar*			replace;
 
 	PROC( "pregex_comp_replace" );
@@ -486,12 +565,16 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 
 	*result = (uchar*)NULL;
 
+	if( machine->flags & REGEX_MOD_WCHAR )
+		charsize = sizeof( pchar );
+
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
 		if( pregex_nfa_match( &( machine->machine.nfa ), pstr, &len,
 			( ( machine->flags & REGEX_MOD_NO_REFERENCES ) ?
-					(pregex_result**)NULL : &refs ), &refs_cnt ) == 0 )
+					(pregex_result**)NULL : &refs ),
+						&refs_cnt, machine->flags ) == 0 )
 		{
 			if( machine->flags & REGEX_MOD_NO_REFERENCES )
 			{
@@ -510,96 +593,221 @@ int pregex_comp_replace( pregex* machine, uchar* str,
 					{
 						rbegin = rpstr;
 
-						if( isdigit( *( ++rpstr ) ) )
+						if( machine->flags & REGEX_MOD_WCHAR )
 						{
-							ref = atoi( rpstr );
-							VARS( "ref", "%d", ref );
+							pchar*		end;
+							pchar*		_rpstr = (pchar*)rpstr;
 
-							/* Skip length of the number */
-							if( !ref )
-								rpstr++;
-							else
-								for( lref = ref; lref; rpstr++ )
-									lref /= 10;
+							MSG( "Switching to wide-character mode" );
 
-							/* Extend first from prev of replacement */
-							if( !( replace = pstr_append_nchar( replace,
-										rprev, rbegin - rprev ) ) )
-								RETURN( ERR_MEM );
-
-							VARS( "replace", "%s", replace );
-							
-							VARS( "refs[ ref ].begin", "%p",
-									refs[ ref ].begin );
-							VARS( "refs[ ref ].end", "%p",
-									refs[ ref ].end );
-									
-							VARS( "ref", "%d", ref );
-
-							/* Obtain reference information */
-							if( refs[ ref ].begin && refs[ ref ].end )
+							if( Pisdigit( *( ++_rpstr ) ) )
 							{
-								MSG( "There is a reference!" );
-								VARS( "refs[ ref ].begin", "%s",
-										refs[ ref ].begin );
-								VARS( "len", "%d",
-									refs[ ref ].end - refs[ ref ].begin );
+								ref = Pstrtol( _rpstr, &end, 0 );
 
-								if( !( replace = pstr_append_nchar( replace,
-										refs[ ref ].begin,
-											refs[ ref ].end -
-												refs[ ref ].begin ) ) )
+								VARS( "ref", "%d", ref );
+								VARS( "end", "%ls", end );
+
+								/* Skip length of the number */
+								_rpstr = end;
+
+								/* Extend first from prev of replacement */
+								if( !( replace = (uchar*)Pstr_append_nchar(
+										(pchar*)replace, (pchar*)rprev,
+											(pchar*)rbegin - (pchar*)rprev ) ) )
 									RETURN( ERR_MEM );
+
+								VARS( "replace", "%ls", (pchar*)replace );
+								
+								VARS( "refs[ ref ].pbegin", "%p",
+										refs[ ref ].pbegin );
+								VARS( "refs[ ref ].pend", "%p",
+										refs[ ref ].pend );
+										
+								VARS( "ref", "%d", ref );
+
+								/* Obtain reference information */
+								if( refs[ ref ].pbegin && refs[ ref ].pend )
+								{
+									MSG( "There is a reference!" );
+									VARS( "refs[ ref ].pbegin", "%s",
+											refs[ ref ].pbegin );
+									VARS( "len", "%d",
+										refs[ ref ].pend - refs[ ref ].pbegin );
+
+									if( !( replace = (uchar*)Pstr_append_nchar(
+											(pchar*)replace, refs[ ref ].pbegin,
+												refs[ ref ].pend -
+													refs[ ref ].pbegin ) ) )
+										RETURN( ERR_MEM );
+								}
+								
+								VARS( "replace", "%ls", (pchar*)replace );
+								rprev = rpstr = (uchar*)_rpstr;
 							}
-							
-							VARS( "replace", "%s", replace );						
-							rprev = rpstr;
+							else
+								rpstr = (uchar*)_rpstr;
+						}
+						else
+						{
+							uchar*		end;
+
+							MSG( "Byte-character mode (Standard)" );
+
+							if( pisdigit( *( ++rpstr ) ) )
+							{
+								ref = pstrtol( rpstr, &end, 0 );
+
+								VARS( "ref", "%d", ref );
+								VARS( "end", "%s", end );
+
+								/* Skip length of the number */
+								rpstr = end;
+
+								/* Extend first from prev of replacement */
+								if( !( replace = pstr_append_nchar( replace,
+											rprev, rbegin - rprev ) ) )
+									RETURN( ERR_MEM );
+
+								VARS( "replace", "%s", replace );
+								
+								VARS( "refs[ ref ].begin", "%p",
+										refs[ ref ].begin );
+								VARS( "refs[ ref ].end", "%p",
+										refs[ ref ].end );
+										
+								VARS( "ref", "%d", ref );
+
+								/* Obtain reference information */
+								if( refs[ ref ].begin && refs[ ref ].end )
+								{
+									MSG( "There is a reference!" );
+									VARS( "refs[ ref ].begin", "%s",
+											refs[ ref ].begin );
+									VARS( "len", "%d",
+										refs[ ref ].end - refs[ ref ].begin );
+
+									if( !( replace = pstr_append_nchar( replace,
+											refs[ ref ].begin,
+												refs[ ref ].end -
+													refs[ ref ].begin ) ) )
+										RETURN( ERR_MEM );
+								}
+								
+								VARS( "replace", "%s", replace );						
+								rprev = rpstr;
+							}
 						}
 					}
 					else
-						rpstr++;
+						rpstr += charsize;
 				}
 
 				VARS( "rpstr", "%p", rpstr );
 				VARS( "rprev", "%p", rprev );
-				if( rpstr != rprev && !( replace = pstr_append_str(
-											replace, rprev, FALSE ) ) )
-					RETURN( ERR_MEM );
+
+				if( machine->flags & REGEX_MOD_WCHAR )
+				{
+					if( rpstr != rprev &&
+							!( replace = (uchar*)Pstr_append_str(
+									(pchar*)replace, (pchar*)rprev, FALSE ) ) )
+						RETURN( ERR_MEM );
+				}
+				else
+				{
+					if( rpstr != rprev && !( replace = pstr_append_str(
+												replace, rprev, FALSE ) ) )
+						RETURN( ERR_MEM );
+				}
 			}
 
-			VARS( "replace", "%s", replace );		
 			MSG( "Extend result string" );
-			
-			/* Extend result */
-			if( !( *result = pstr_append_nchar(
-					*result, prev, pstr - prev ) ) )
-				RETURN( ERR_MEM );
 
-			if( !( *result = pstr_append_str( *result, replace,
-					( ( replace == replacement ) ? FALSE : TRUE ) ) ) )
-				RETURN( ERR_MEM );
-			
-			VARS( "len", "%d", len );
-			VARS( "pstr", "%s", pstr );
+			if( machine->flags & REGEX_MOD_WCHAR )
+			{
+				MSG( "Switching to wide-character mode" );
+				VARS( "replace", "%ls", replace );		
+				
+				/* Extend result */
+				if( !( *result = (uchar*)Pstr_append_nchar(
+						(pchar*)*result, (pchar*)prev,
+							(pchar*)pstr - (pchar*)prev ) ) )
+					RETURN( ERR_MEM );
 
-			for( ; len > 0; len-- )
-				pstr += u8_seqlen( pstr );
-			prev = pstr;
-			
-			VARS( "my pstr", "%s", pstr );
+				if( !( *result = (uchar*)Pstr_append_str( (pchar*)*result,
+						(pchar*)replace,( ( replace == replacement )
+								? FALSE : TRUE ) ) ) )
+					RETURN( ERR_MEM );
+				
+				VARS( "len", "%d", len );
+				VARS( "pstr", "%ls", (pchar*)pstr );
+
+				pstr += len * charsize;
+				prev = pstr;
+				
+				VARS( "my pstr", "%ls", (pchar*)pstr );
+			}
+			else
+			{
+				MSG( "Switching to byte-character mode" );
+				VARS( "replace", "%s", replace );		
+				
+				/* Extend result */
+				if( !( *result = pstr_append_nchar(
+						*result, prev, pstr - prev ) ) )
+					RETURN( ERR_MEM );
+
+				if( !( *result = pstr_append_str( *result, replace,
+						( ( replace == replacement ) ? FALSE : TRUE ) ) ) )
+					RETURN( ERR_MEM );
+				
+				VARS( "len", "%d", len );
+				VARS( "pstr", "%s", pstr );
+
+#ifdef UTF8
+				for( ; len > 0; len-- )
+					pstr += u8_seqlen( pstr );
+#else
+				pstr += len;
+#endif
+				prev = pstr;
+				
+				VARS( "my pstr", "%s", pstr );
+			}
 			
 			if( !( machine->flags & REGEX_MOD_GLOBAL ) )
 				break;
 		}
 		else
-			pstr += u8_seqlen( pstr );
+		{
+			if( machine->flags & REGEX_MOD_WCHAR )
+				pstr += charsize;
+			else
+#ifdef UTF8
+				pstr += u8_seqlen( pstr );
+#else
+				pstr += charsize;
+#endif
+		}
 	}
 	
 	if( refs_cnt )
 		pfree( refs );
 
-	if( prev != pstr && !( *result = pstr_append_str( *result, prev, FALSE ) ) )
-		RETURN( ERR_MEM );
+	if( machine->flags & REGEX_MOD_WCHAR )
+	{
+		VARS( "*result", "%s", *result );
+		if( prev != pstr && !( *result = (uchar*)Pstr_append_str(
+						(pchar*)*result, (pchar*)prev, FALSE ) ) )
+			RETURN( ERR_MEM );
+
+		VARS( "*result", "%s", *result );
+	}
+	else
+	{
+		if( prev != pstr && !( *result = pstr_append_str(
+						*result, prev, FALSE ) ) )
+			RETURN( ERR_MEM );
+	}
 
 	RETURN( matches );
 }
