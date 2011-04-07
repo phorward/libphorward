@@ -26,7 +26,8 @@ Usage:	Hash Table Library / Structures and Definitions
 										elements; When inserted, (HASHELEM*)
 										NULL will be returned! */
 
-#define HASHTAB_NO_CALLBACK		( (void(*) ( void* ) ) NULL )
+#define HASHTAB_CALLBACK		(void(*) ( void* ))
+#define HASHTAB_NO_CALLBACK		(HASHTAB_CALLBACK)NULL
 
 /*
  * Type definitions
