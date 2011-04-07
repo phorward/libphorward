@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Regular Expression Library, Version 2
-Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail<at>phorward<dash>software<dot>com
+Phorward Foundation Libraries :: Regular Expression Library, Version 2
+Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	dfa.c
 Author:	Jan Max Meyer
@@ -21,6 +22,8 @@ Usage:	DFA creation and transformation functions
 /*
  * Functions
  */
+
+/*NO_DOC*/
 
 /* Creating a new DFA state */
 PRIVATE pregex_dfa_st* pregex_dfa_create_state( pregex_dfa* dfa )
@@ -176,14 +179,20 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	LIST*			transitions;
 	LIST*			item;
 	LIST*			ent;
+	LIST*			classes;
+	LIST*			l;
+	LIST*			m;
 	pregex_dfa_ent*	entry;
 	pregex_dfa_st*	current;
 	pregex_dfa_st*	tmp;
 	pregex_nfa_st*	nfa_st;
 	int				state_next	= 0;
-	CCL				alphabet	= (CCL)NULL;
+	pboolean		changed;
 	CCL				i;
-	wchar			ch;
+	CCL				ccl;
+	CCL				test;
+	CCL				subset;
+	int				ch;
 
 	PROC( "pregex_dfa_from_nfa" );
 	PARMS( "dfa", "%p", dfa );
@@ -199,15 +208,17 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	if( !( set = list_push( (LIST*)NULL, list_access( nfa->states ) ) ) )
 		RETURN( ERR_MEM );
 
-	current->nfa_set = pregex_nfa_epsilon_closure( nfa, set, (int*)NULL );
+	current->nfa_set = pregex_nfa_epsilon_closure( nfa, set,
+							(int*)NULL, (int*)NULL );
 
 	/* Perform algorithm until all states are done */
 	while( ( current = pregex_dfa_get_undone_state( dfa ) ) )
 	{
 		current->done = TRUE;
 		current->accept = REGEX_ACCEPT_NONE;
-
-		alphabet = (CCL)NULL;
+		
+		/* Assemble all character sets in the alphabet list */
+		classes = (LIST*)NULL;
 		for( item = current->nfa_set; item; item = list_next( item ) )
 		{
 			nfa_st = (pregex_nfa_st*)list_access( item );
@@ -219,31 +230,81 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					current->accept = nfa_st->accept;
 			}
 
-			/* Construct alphabet from the union
-				of all NFA character edges */
+			/* Generate list of character classes */
 			VARS( "nfa_st->ccl", "%p", nfa_st->ccl );
-			VARS( "alphabet", "%p", alphabet );
+			VARS( "classes", "%p", classes );
 
 			if( nfa_st->ccl )
-				alphabet = ccl_union( alphabet, nfa_st->ccl );
-		}
-
-		/* Make transitions on constructed alphabet */
-		for( i = alphabet; i && i->begin != CCL_MAX; i++ )
-		{
-			for( ch = i->begin; ch <= i->end; ch++ )
 			{
-				VARS( "ch", "%d", ch );
+				MSG( "Adding character class to list" );
+				if( !( ccl = ccl_dup( nfa_st->ccl ) ) )
+					RETURN( ERR_MEM );
+					
+				if( !( classes = list_push( classes, (void*)ccl ) ) )
+					RETURN( ERR_MEM );
+					
+				VARS( "count (classes)", "%d", list_count( classes ) );
+			}
+		}
+		
+		VARS( "current->accept", "%d", current->accept );
+		
+		MSG( "Removing intersections within character classes" );
+		do
+		{
+			changed = FALSE;
 
-				transitions = list_dup( current->nfa_set );
+			LISTFOR( classes, l )
+			{
+				ccl = (CCL)list_access( l );
+
+				LISTFOR( classes, m )
+				{
+					if( l == m )
+						continue;
+						
+					test = (CCL)list_access( m );
+					
+					if( ccl_count( ccl ) > ccl_count( test ) )
+						continue;
+
+					if( ccl_size( ( subset = ccl_intersect( ccl, test ) ) ) )
+					{
+						test = ccl_diff( test, subset );
+						list_replace( m, test );
+						changed = TRUE;
+					}
+
+					ccl_free( subset );
+				}
+			}
+			
+			VARS( "changed", "%s", BOOLEAN_STR( changed ) );
+		}
+		while( changed );
+		
+		MSG( "Make transitions from constructed alphabet" );
+		/* Make transitions on constructed alphabet */
+		LISTFOR( classes, l )
+		{
+			ccl = (CCL)list_access( l );
+
+			MSG( "Check char class" );			
+			for( i = ccl; i && i->begin != CCL_MAX; i++ )
+			{
+				VARS( "i->begin", "%d", i->begin );
+				VARS( "i->end", "%d", i->end );
+
+				if( !( transitions = list_dup( current->nfa_set ) ) )
+					RETURN( ERR_MEM );				
 				
 				if( ( transitions = pregex_nfa_move(
-						nfa, transitions, ch ) ) )
+						nfa, transitions, i->begin, i->end ) ) )
 				{
 					transitions = pregex_nfa_epsilon_closure(
-						nfa, transitions, (int*)NULL );
+						nfa, transitions, (int*)NULL, (int*)NULL );
 				}
-						
+					
 				if( !transitions )
 				{
 					/* There is no move on this character! */
@@ -258,14 +319,14 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					transitions = list_free( transitions );
 				}
 				else
-				{				
+				{
 					/* Create a new DFA as undone with this transition! */
 					if( !( tmp = pregex_dfa_create_state( dfa ) ) )
 						return ERR_MEM;
-					
+				
 					tmp->nfa_set = transitions;
 					transitions = (LIST*)NULL;
-					
+				
 					state_next = list_count( dfa->states ) - 1;
 				}
 
@@ -275,7 +336,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				for( ent = current->trans; ent; ent = list_next( ent ) )
 				{
 					entry = (pregex_dfa_ent*)list_access( ent );
-					
+				
 					if( entry->go_to == state_next )
 						break;
 				}
@@ -293,7 +354,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 					memset( entry, 0, sizeof( pregex_dfa_ent ) );
 
-					if( !( entry->ccl = ccl_add( entry->ccl, ch ) ) )
+					if( !( entry->ccl = ccl_addrange(
+							entry->ccl, i->begin, i->end ) ) )
 						RETURN( ERR_MEM );
 
 					entry->go_to = state_next;
@@ -306,13 +368,16 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				{
 					MSG( "Will extend existing transition entry" );
 
-					if( !( entry->ccl = ccl_add( entry->ccl, ch ) ) )
+					if( !( entry->ccl = ccl_addrange(
+							entry->ccl, i->begin, i->end ) ) )
 						RETURN( ERR_MEM );
 				}
 			}
+
+			ccl_free( ccl );
 		}
 
-		ccl_free( alphabet );
+		list_free( classes );
 	}
 	
 	/* Remove NFA structs */
@@ -674,4 +739,6 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len )
 	VARS( "last_accept", "%d", last_accept );
 	RETURN( last_accept );
 }
+
+/*COD_ON*/
 
