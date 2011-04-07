@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Basis Library :: Chraracter class handling
-Copyright (C) 2008, 2009 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ mail@phorward-software.com
 
 File:	ccl.c
@@ -16,14 +16,10 @@ Usage:	Charclass-Handling
 /*
  * Global variables
  */
-static	u_int		ccl_min		= 0x0;
-static	u_int		ccl_max		= 0xFFFF;
 
 /*
  * Defines
  */
-#define CCL_MIN		ccl_min
-#define CCL_MAX		ccl_max
 
 /*
  * Functions
@@ -437,6 +433,36 @@ u_int* ccl_create( uchar* ccldef )
 		ccl_negate( ccl );
 
 	RETURN( ccl );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		ccl_test()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Tests for a character to matche the character class.
+					
+	Parameters:		u_int*		ccl				Pointer to character-class
+												to be tested
+					u_int		ch				Character to be tested
+	
+	Returns:		pboolean					TRUE: Character matches class
+												FALSE: the opposite.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pboolean ccl_test( u_int* ccl, u_int ch )
+{
+	u_int*	i;
+
+	for( i = ccl; *i != CCL_MAX; i += 2 )
+	{
+		if( *i <= ch && *(i+1) >= ch )
+			return TRUE;
+	}
+
+	return FALSE;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
