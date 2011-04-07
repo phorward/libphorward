@@ -136,6 +136,32 @@ uchar* xml_attr( XML_T xml, uchar* attr )
 }
 
 /* =============================================================================
+    returns the integer value of the requested tag attribute or 0 if not found.
+ ============================================================================ */
+plong xml_int_attr( XML_T xml, uchar* attr )
+{
+	uchar*		v;
+	
+	if( !( v = xml_attr( xml, attr ) ) )
+		return 0;
+		
+	return pstrtol( v, (uchar**)NULL, 0 );
+}
+
+/* =============================================================================
+    returns the float value of the requested tag attribute or 0.0 if not found.
+ ============================================================================ */
+pdouble xml_float_attr( XML_T xml, uchar* attr )
+{
+	uchar*		v;
+	
+	if( !( v = xml_attr( xml, attr ) ) )
+		return (pdouble)0.0;
+
+	return (pdouble)pstrtod( v, (uchar**)NULL );
+}
+
+/* =============================================================================
     same as xml_get but takes an already initialized va_list
  ============================================================================ */
 XML_T xml_vget( XML_T xml, va_list ap )
@@ -204,7 +230,7 @@ static XML_T xml_err( xml_root_t root, uchar* s, uchar* err, ... )
 {
 	va_list ap;
 	int		line = 1;
-	uchar*	t, fmt[XML_ERRL];
+	uchar	fmt[XML_ERRL];
 
 #ifdef _WIN32
 	_snprintf
@@ -982,7 +1008,8 @@ XML_T xml_parse_fd( int fd )
 	if( fd < 0 ) return NULL;
 	fstat( fd, &st );
 
-	l = read( fd, m = pmalloc( st.st_size ), st.st_size );
+	l = read( fd, m = pmalloc( ( st.st_size + 1 ) * sizeof( uchar ) ),
+			st.st_size );
 	root = (xml_root_t)xml_parse_str( m, l );
 	root->len = -1; /* so we know to pfree s in xml_free() */
 
@@ -1488,6 +1515,32 @@ XML_T xml_set_attr( XML_T xml, uchar* name, uchar* value )
 
 	xml->flags &= ~XML_DUP; /* clear strdup() flag */
 	return xml;
+}
+
+/* =============================================================================
+    Set integer value into attribute.
+ ============================================================================ */
+XML_T xml_set_int_attr( XML_T xml, uchar* name, plong value )
+{
+	uchar*		v;
+	
+	if( !( v = plong_to_uchar( value ) ) )
+		return (XML_T)NULL;
+	
+	return xml_set_attr_f( xml, name, v );
+}
+
+/* =============================================================================
+    Set float value into attribute.
+ ============================================================================ */
+XML_T xml_set_float_attr( XML_T xml, uchar* name, pdouble value )
+{
+	uchar*		v;
+	
+	if( !( v = pdouble_to_uchar( value ) ) )
+		return (XML_T)NULL;
+	
+	return xml_set_attr_f( xml, name, v );
 }
 
 /* =============================================================================
