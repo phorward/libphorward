@@ -1,0 +1,40 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Phorward SDK - cproto_all :: Wrapper for mkproto (formerly cproto-wapper)
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+#
+# Script:		cproto_all
+# Author:		Jan Max Meyer
+#-------------------------------------------------------------------------------
+
+if [ $# -lt 3 ]
+then
+	echo "usage: $0 \"<files>\" <include-dir> <output> [ <mkproto flags> ]"
+	exit 1
+fi
+
+rm -f $3
+
+echo "/*" >$3
+echo " * $3 is a generated file - manual editing is not recommended!" >>$3
+echo " */" >>$3
+echo "" >>$3
+
+echo
+echo ":: Making prototypes ::"
+
+for i in $1
+do
+	echo "Prototyping $i..."
+	ppp -I $2 -D MAKE_PROTOTYPES $i >$i.gen
+
+	#ppp -I $2 -D MAKE_PROTOTYPES $i 
+	#cc -I $2 -E -DMAKE_PROTOTYPES $i >$i.gen
+	#cproto $4 -I $2 -DMAKE_PROTOTYPES $i >>$3
+	echo >>$3
+	echo "/* $i */" >>$3
+	mkproto $4 $i.gen >>$3
+	rm -f $i.gen
+done
+
