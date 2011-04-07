@@ -1,0 +1,25 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Phorward SDK - phelp :: Phorward SDK extension help
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+#
+# Script:		phelp
+# Author:		Jan Max Meyer
+#-------------------------------------------------------------------------------
+
+echo "dmake     Run 'make' with trace define"
+echo "ed        Edit file with $EDITOR"
+echo "ex        View current directory in file explorer"
+echo "i         Move to $PHOME/include (Include Directory)"
+echo "l         Move to $PHOME/lib (Library Directory)"
+echo "makeall   Only in $PHOME/src: Make all available subdirs"
+echo "phelp     Shows this quick help"
+echo "r         Move to $PHOME/run (Tools Program/Binary Directory)"
+echo "s         Move to $PHOME/src (Source Directory)"
+echo "screate   Create SCCS file"
+echo "sget      Get (check-out) file from SCCS"
+echo "shist     Show SCCS file history"
+echo "sinfo     Shows which files are checked-out from SCCS"
+echo "sput      Put (check-in) file back into SCCS"
+echo "sunget    Unget file from SCCS, no changes are taken"
