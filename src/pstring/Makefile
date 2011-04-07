@@ -1,0 +1,66 @@
+# -MAKE-------------------------------------------------------------------------
+# Phorward Foundation Libraries :: String Object Library
+# Copyright (C) 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
+# ------------------------------------------------------------------------------
+
+include		../../include/Make.inc
+
+SRC			=	get.c \
+				set.c \
+				pstring.c \
+				util.c
+
+OBJ			=	get$(OBJEXT) \
+				set$(OBJEXT) \
+				pstring$(OBJEXT) \
+				util$(OBJEXT)
+
+PROTO		=	pstring.proto.h
+PROTO_H		=	$(INCLUDE_DIR)$(PATH_SEP)$(PROTO)
+
+HEADERS		=	pstring.h
+LHEADERS	=	local.h
+
+DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pstring.html
+
+# ------------------------------------------------------------------------------
+
+all: $(PSTRING_LIB_H) $(PROTO_H) $(PSTRING_LIB)
+	@echo
+	@echo --- Compilation succeeded! ---
+
+$(PSTRING_LIB): $(SRC) $(LHEADERS) $(HEADERS) Makefile
+	$(CC) $(CLIBOPTS) $(DEBUG) $(SRC)
+	$(LLIB) $(LIBOPTS)$(PSTRING_LIB) $(OBJ)
+
+$(PSTRING_LIB_H): $(SRC) $(HEADERS) Makefile
+	$(CP) $(HEADERS) $@
+
+$(PROTO_H): $(PROTO)
+	$(CP) $(PROTO) $@
+
+$(PROTO): $(SRC) $(HEADERS)
+	cproto_all "$(SRC)" $(INCLUDE_DIR) $@
+
+clean_obj:
+	-@$(RM) $(OBJ)
+
+clean: clean_obj
+	-@$(RM) $(PSTRING_LIB)
+	-@$(RM) $(PSTRING_LIB_H)
+	-@$(RM) $(PROTO_H)
+
+backup: clean
+	-@$(RM) ../pstring.tar
+	tar cvf ../pstring.tar ../pstring
+
+#make doc
+doc: 
+	-$(MKDIR) $(DOC_DIR)
+	$(MKDOC) -ns -i -t pstring -u "Phorward String Object Library" \
+		 $(SRC) >$(DOCFILE)
+	@echo
+	@echo --- Done making documentation! ---
+
