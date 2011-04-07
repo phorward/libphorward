@@ -1,10 +1,12 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Basis Library :: Linked Pointer Lists
-Copyright (C) 2006-2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ contact<at>phorward-software<dot>com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	llist.c
-Usage:	Universal management functions for dynamic linked pointer list
+Author:	Jan Max Meyer
+Usage:	Provides functions for simple, universal linked-list management.
 ----------------------------------------------------------------------------- */
 
 /* ---------------- */
