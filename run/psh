@@ -1,0 +1,75 @@
+#Setup development environment
+SRCD=$PHOME/src
+export SRCD
+
+PATH=.:$PHOME/run:$PATH
+export PATH
+
+#Setting the CDPATH
+if [ "$CDPATH" ]
+then
+	CDPATH=".:$PHOME/src:$CDPATH"
+else
+	CDPATH=".:$PHOME/src"
+fi
+export CDPATH
+
+#Aliases
+if [ "$PSYSTEM" = "WINDOWS" ]
+then
+	# WINDOWS PORT ENVIRONMENT REQUIREMENTS
+	# +++++++++++++++++++++++++++++++++++++
+	# Unix-Environment:		Msys
+	# Compiler:				Microsoft Visual C++
+	# Local File Editor:	Notepad2
+
+	WINDOW_EXPLORER=start
+	EDITOR=notepad2
+
+	alias make='nmake //nologo $*'
+	alias vi='$EDITOR $*'
+
+	#Use Microsoft NMake on Windows
+	PMAKE="nmake //nologo"
+	export PMAKE
+else
+	WINDOW_EXPLORER=efm
+	EDITOR=gedit
+	USERNAME=`whoami`
+
+	#Use GNU Make on Linux
+	PMAKE=make
+	export PMAKE
+fi
+
+alias s='cd $PHOME/src'
+alias i='cd $PHOME/include'
+alias l='cd $PHOME/lib'
+alias r='cd $PHOME/run'
+alias d='cd $PHOME/doc'
+alias t='cd $PHOME/tpl'
+alias ex='$WINDOW_EXPLORER . &'
+alias ed='$EDITOR $1'
+alias quit='exit'
+alias q='exit'
+
+#UniCC parser templates - this is temporarily located here
+export UNICC_TPLDIR=$SRCD/p_lalr1_cc
+
+#Give Welcome message!
+if [ "$1" != "--silent" -a "$1" != "-s" ]
+then
+		echo "PHORWARD SDK v`$PHOME/Version`"
+		echo ">>>> >>>>  >>>  >>>    >>    >>      >      >"
+		echo "[`uname -n -s -m`] PSYSTEM=[$PSYSTEM] PHOME=[$PHOME]"
+		if [ -f "$PHOME/include/Commercial.inc" ]
+		then
+			echo "*** Commercial extensions are enabled ***"
+		fi
+
+		echo
+		echo "Hello $USERNAME, please enjoy your coding session!"
+		echo
+		phelp
+fi
+
