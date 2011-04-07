@@ -1,0 +1,75 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Phorward SDK - psetup :: Phorward SDK setup tool
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+#
+# Script:		psetup
+# Author:		Jan Max Meyer
+#-------------------------------------------------------------------------------
+
+echo "Welcome to Phorward Software Development Environment Setup"
+echo "----------------------------------------------------------"
+echo "It seems that \"`pwd`\" is the absolute DevEnv root path."
+echo "If this is the case, press ENTER, else type in the correct"
+echo "directory in its absolute path notation and without a"
+echo "trailing \"/\":"
+read PHOME
+if [ "$PHOME" = "" ]
+then
+	PHOME=`pwd`
+fi
+
+echo "*** Your DevEnv root path will be \"$PHOME\" ***"
+echo ""
+echo "Next, you need to tell me what your operating system is."
+echo "Is it [l]inux/unix (default) or [w]indows?"
+read os
+if [ "$os" = "l" -o "$os" = "" ]
+then
+	echo "*** Linux/Unix selected ***"
+	os=LINUX
+elif [ "$os" = "w" ]
+then
+	echo "*** Windows selected ***"
+	os=WINDOWS
+else
+	echo "This operating system is now available - I'm sorry."
+	exit 0
+fi
+
+echo "Okay, the DevEnv will now be set up for your system."
+
+if [ -f "$PHOME/include/Make.inc" ]
+then
+	echo "*** $PHOME/include/Make.inc already existing ***"
+else
+
+	echo "*** copying configuration ***"
+	if [ "$os" = "LINUX" ]
+	then
+		cp $PHOME/include/DIST.Make.inc $PHOME/include/Make.inc
+	else
+		cp $PHOME/include/DIST.Make.inc.win $PHOME/include/Make.inc
+	fi
+fi
+
+#write start script
+psh=$PHOME/psh
+
+echo "*** creating $psh ***"
+
+#********************************
+echo "#!/bin/sh" >$psh
+echo "PHOME=$PHOME" >>$psh
+echo "PSYSTEM=$os" >>$psh
+echo "export PHOME PSYSTEM" >>$psh
+cat "$PHOME/run/psh.templ" >>$psh
+chmod 775 $psh
+#********************************
+
+echo "Setup has finished now, thanks!"
+echo "To start the DevEnv, run \". $psh\" in future."
+echo ""
+echo "Enjoy and Have fun!"
+exit 0
