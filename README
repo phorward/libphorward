@@ -1,70 +1,88 @@
-Phorward Foundation Libraries & Software Development Kit
-Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-All rights reserved. See $PHOME/LICENSE for more information.
+:: Phorward Foundation Libraries & Software Development Kit.
+:: Copyright (C) 2006-2011 by Phorward Software Technologies, Jan Max Meyer
+:: All rights reserved. See $PHOME/LICENSE for more informations.
+::
+:: README FILE
 --------------------------------------------------------------------------------
 
 *******************************************
 WHAT ARE THE PHORWARD FOUNDATION LIBRARIES?
 *******************************************
-Welcome to the Phorward Foundation Libraries SDK ReadMe!
+Welcome to the Phorward Foundation Libraries & SDK!
 
 This software package unions a set of universal C libraries, utility programs
 and shell scripts into a platform-independent development environment for C
 programs. The initial purpose of this project is that it serves as a build-
 environment and toolkit library for various software projects which have
-their origin at Phorward Software Technologies, but can also be used for any
-other kind of software developments.
+their origin at Phorward Software Technologies.
+
+Phorward Software Technologies is a company from Dortmund in Germany, which
+is specialized in the area of compiler construction, scripting languages and
+other kinds of software development tools.
+
+This toolchain can possibly also be used for any other kind of software
+projects, so this is also the reason why it was released under the BSD
+open source license agreements.
+
 Especially the platform-independent approach as well as many of the useful
 tools, libraries and functions provided by the Phorward Foundation Libraries
 and Software Development Kit make the entire package suitable for many
 C programmers.
 
-This is what the Phorward Foundation Libraries & SDK provide. Please note,
+Below is what the Phorward Foundation Libraries & SDK provide. Please note,
 that all libraries and tools are under recent development within the Phorward
-Software projects, so they will always be extended and enhanced from time to
+software projects, so they will always be extended and enhanced from time to
 time.
 
-+ pbasis	The Phorward Basis Library
-			A basic function library providing a bunch of useful, dynamic
-			utilites. This includes functions for linked lists, hash-tables,
-			stacks, multi-byte and wide-character strings, character-class
-			handling (sets of values), trace tools and some utility and
-			system functions.
++ pbasis		The Phorward Basis Library
+				A basic function library providing a bunch of useful,
+				dynamic utilites. This includes functions for linked
+				lists, hash-tables, stacks, multi-byte and wide-char-
+				acter strings, character-class handling (sets of values),
+				trace tools, a dynamic variant data type, XML-DOM pro-
+				cessing functions, conversion functions and some utility
+				and system functions.
 
-+ pregex	The Phorward Regular Expression Library
-			An implementation of a Unicode-enabled regular expression library
-			for C programs. This includes a build-in regular expression parser, 
-			NFA construction and definition, (DFA) subset construction and
-			minimization, functions for string matching, splitting and
-			replacing using regular expressions, and much more.
++ pregex		The Phorward Regular Expression Library
+				An implementation of a Unicode-enabled regular expression
+				library for C programs. This includes a build-in regular
+				expression parser, NFA construction and definition, (DFA)
+				subset construction and minimization, functions for string
+				matching, splitting and replacing using regular expressions,
+				and much more.
 
-+ pstring	The Phorward String Object Library
-			A unicode-enabled, dynamic string object to be used within C
-			programs.
++ pstring		The Phorward String Object Library
+				A unicode-enabled, dynamic string object to be used within
+				C programs. This library is still under development, and
+				should be used with care.
 
-+ xml		XML Processing Library (based on ezXML)
-			Functions and utilities for XML-DOM processing, based on the
-			public-domain ezXML library.
-
-+ min_lalr1	Minimalist LALR(1) Parser Generator
-			An simple, quick&dirty-written parser generator.
++ min_lalr1		Minimalist LALR(1) Parser Generator
+				An simple, quick&dirty-written parser generator to build
+				simple LALR(1) parsers. This project served as an experi-
+				mental and research compiler for the upcoming UniCC parser
+				generator project developed by Phorward Software Technologies,
+				which is entirely integrated into the Foundation Libaries.
 			
-+ DEMO		A directory of useful demonstration examples on how to use the
-			Phorward Foundation Libraries.
++ DEMO			A project with useful demonstration examples on how to use the
+				Phorward Foundation Libraries.
+
++ NEWPROJECT	A project template that is compileable and serves a skeleton
+				for new programs. Copy this directory within $PHOME/src to
+				start a new project hosted and served by the Phorward
+				Foundation Libraries and SDK.
 
 These are some of the tools you get:
 
-+ mkdoc		Phorward Source-Code Documentation Generator
-			An AWK-script to construct manuals from source codes
-			(by validating comments)
++ mkdoc			Phorward Source-Code Documentation Generator
+				An AWK-script to construct manuals from source codes
+				(by validating comments)
 
-+ mkproto	Phorward Function Prototype Generator
-			A shell-script to generate C-function prototypes from source code;
-			Requires a C-compiler as preprocessor.
++ mkproto		Phorward Function Prototype Generator
+				A shell-script to generate C-function prototypes from source
+				code; Requires a C-compiler as preprocessor.
 
-+ ppp,		Various utility programs used within Makefiles and other scripts
-  lincl,	to process files and get the build-environment run.
++ ppp,			Various utility programs used within Makefiles and other
+  lincl,		scripts to process files and get the build-environment run.
   dmake,
   psh,
   text_to_c
@@ -97,7 +115,7 @@ which can quickly be accessed.
 
 The development environment will install aliases within your session to access
 every directory from anywhere just by enterng the first character of the
-folder you want to change to. So type 's' to switch to $PHOME/src, or 'r' to
+folder you want to change to. Type 's' to switch to $PHOME/src, or 'r' to
 enter the $PHOME/run directory.
 
 $PHOME will always contain the path to the Phorward Foundation Libraries root.
@@ -108,7 +126,8 @@ SYSTEM REQUIREMENTS
 *******************
 To get the Phorward Foundation Libraries compiled and run, you need either a
 Linux/Unix system, in combination with gcc, or a Windows-system with a
-Unix-like script execution environment, e.g. Minimal System (MSYS).
+Unix-like script execution environment, e.g. Minimal System (MSYS), and a
+compiler like MinGW or even Microsoft Visual C++ (Express Edition).
 
 Phorward Foundation Libraries compile both with GNU gcc and Microsoft Visual
 C++ 2005 (or higher), command-line compiler. Other compilers are currently
