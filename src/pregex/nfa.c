@@ -723,6 +723,7 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 	NFA_ST** start, NFA_ST** end, int flags )
 {
 	int			ret;
+	wchar		single;
 	uchar		restore;
 	uchar*		zero;
 	pboolean	neg		= FALSE;
@@ -811,21 +812,20 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 			}
 
 		default:
-			zero = *pstr + u8_seqlen( *pstr );
-			restore = *zero;
-			*zero = '\0';
-
+			*pstr += pstr_char( &single, *pstr, TRUE );
+			
 			if( !( *start = pregex_nfa_create_state(
-					nfa, *pstr, flags ) ) )
+					nfa, (uchar*)NULL, flags ) ) )
 				return ERR_MEM;
+
+			if( !( ( *start )->ccl = ccl_add( ( *start )->ccl, single ) ) )
+				return ERR_MEM;
+				
 			if( !( *end = pregex_nfa_create_state(
 					nfa, (uchar*)NULL, flags ) ) )
 				return ERR_MEM;
 
 			(*start)->next = *end;
-
-			*zero = restore;
-			*pstr = zero;
 			break;
 	}
 
