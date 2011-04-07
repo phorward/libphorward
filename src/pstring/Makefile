@@ -18,7 +18,6 @@ OBJ			=	get$(OBJEXT) \
 				util$(OBJEXT)
 
 PROTO		=	pstring.proto.h
-PROTO_H		=	$(INCLUDE_DIR)$(PATH_SEP)$(PROTO)
 
 HEADERS		=	pstring.h
 LHEADERS	=	local.h
@@ -27,7 +26,7 @@ DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pstring.html
 
 # ------------------------------------------------------------------------------
 
-all: $(PSTRING_LIB_H) $(PROTO_H) $(PSTRING_LIB)
+all: $(PSTRING_LIB_H) $(PSTRING_LIB)
 	@echo
 	@echo --- Compilation succeeded! ---
 
@@ -35,11 +34,8 @@ $(PSTRING_LIB): $(SRC) $(LHEADERS) $(HEADERS) Makefile
 	$(CC) $(CLIBOPTS) $(DEBUG) $(SRC)
 	$(LLIB) $(LIBOPTS)$(PSTRING_LIB) $(OBJ)
 
-$(PSTRING_LIB_H): $(SRC) $(HEADERS) Makefile
-	$(CP) $(HEADERS) $@
-
-$(PROTO_H): $(PROTO)
-	$(CP) $(PROTO) $@
+$(PSTRING_LIB_H): $(SRC) $(HEADERS) $(PROTO) Makefile
+	$(LOCALINCLUDE) pstring.h >$@
 
 $(PROTO): $(SRC) $(HEADERS)
 	cproto_all "$(SRC)" $(INCLUDE_DIR) $@
