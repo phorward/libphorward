@@ -69,7 +69,7 @@ uchar* pchar_to_uchar( pchar* str, pboolean freestr )
 		RETURN( (uchar*)NULL );
 	}
 
-	wcstombs( retstr, str, size );
+	wcstombs( retstr, str, size + 1 );
 
 	if( freestr )
 		pfree( str );
@@ -148,29 +148,3 @@ pchar* uchar_to_pchar( uchar* str, pboolean freestr )
 	RETURN( retstr );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		uchar_to_pchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			If compiled with the -DUNICODE-flag, this functions
-					converts a UTF-8-multi-byte string into an Unicode
-					pchar-wide-character string.
-					The string conversion is performed into dynamically
-					allocated strings. The function wraps mbstowcs(), so
-					set_locale() must be done before this function works
-					properly.
-					
-	Parameters:		uchar*		str				Zero-terminated UTF-8 string to
-												be converted into a wide
-												character string.
-					pboolean	freestr			Frees input-string after
-												conversion, if TRUE.
-	
-	Returns:		pchar*						Returns the wide character
-												pendant of str as dynamically
-												allocated memory area.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
