@@ -907,6 +907,63 @@ uchar* pstrlwr( uchar* str )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		pstrcasecmp()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			A pstrcmp-pendant matching strings with different
+					case order.
+
+	Parameters:		uchar*		s1			First string to compare
+					uchar*		s2			Second string to compare with s1.
+					
+	Returns:		The same result as pstrcmp().
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int	pstrcasecmp( uchar* s1, uchar* s2 )
+{
+	if( !( s1 && s2 ) )
+		return -1;
+
+	for( ; *s1 && *s2 && ptoupper( *s1 ) == ptoupper( *s2 ); s1++, s2++ )
+		;
+
+	return (int)( ptoupper( *s1 ) - ptoupper( *s2 ) );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pstrncasecmp()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			A pstrncmp-pendant matching strings with different
+					case order.
+
+	Parameters:		uchar*		s1			First string to compare
+					uchar*		s2			Second string to compare with s1.
+					int			n			Number of characters to be
+											count until matching test stops.
+					
+	Returns:		The same result as pstrncmp().
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int	pstrncasecmp( uchar* s1, uchar* s2, pint n )
+{
+	if( !( s1 && s2 && n < 1 ) )
+		return -1;
+
+	for( ; n > 0 && *s1 && *s2 && ptoupper( *s1 ) == ptoupper( *s2 );
+			s1++, s2++, n-- )
+		;
+
+	return (int)( ( !n ) ? 0 : ( ptoupper( *s1 ) - ptoupper( *s2 ) ) );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		pstr_char()
 	
 	Author:			Jan Max Meyer
