@@ -12,49 +12,56 @@ Usage:	Header for string utility functions
 #define STRUTIL_H
 
 /* pchar wide-character replacements for standard string functions
-	do all begin with uppercase P. */
+	do all begin with uppercase 'P'. */
 #ifdef UNICODE
 
-#define Pstrlen			wcslen
-#define Pstrcpy			wcscpy
-#define Pstrcat			wcscat
-#define Pstrncpy		wcsncpy
-#define Pstrcmp			wcscmp
-#define Pstrncmp		wcsncmp	
-#define Pstrtol			wcstol
-#define Pstrtoul		wcstoul
-#define Pstrtod			wcstod
-#define Pstrstr			wcsstr
-#define Pstrchr			wcschr
-#define Pstrrchr		wcsrchr
+#define Pstrcpy					wcscpy
+#define Pstrcat					wcscat
+#define Pstrncpy				wcsncpy
+#define Pstrcmp					wcscmp
+#define Pstrncmp				wcsncmp	
+#define Pstrtol					wcstol
+#define Pstrtoul				wcstoul
+#define Pstrtod					wcstod
+#define Pstrstr					wcsstr
+#define Pstrchr					wcschr
+#define Pstrrchr				wcsrchr
 
-#define Pisupper		iswupper
-#define Ptoupper		towupper
-#define Ptolower		towlower
+#define Pisupper				iswupper
+#define Pislower				iswlower
+#define Ptoupper				towupper
+#define Ptolower				towlower
+#define Pisdigit				iswdigit
 
 #else
 
 /* If no unicode is flagged, pchar is threated as uchar. */
-#define Pstrlen			strlen
-#define Pstrcpy			strcpy
-#define Pstrcat			strcat
-#define Pstrncpy		strncpy
-#define Pstrcmp			strcmp
-#define Pstrncmp		strncmp
-#define Pstrtol			strtol
-#define Pstrtoul		strtoul
-#define Pstrtod			strtoud
-#define Pstrchr			strchr
-#define Pstrrchr		strrchr
-#define Pstrstr			strstr
+#define Pstrlen					pstrlen
+#define Pstrcpy					pstrcpy
+#define Pstrcat					pstrcat
+#define Pstrncpy				pstrncpy
+#define Pstrcmp					pstrcmp
+#define Pstrncmp				pstrncmp
+#define Pstrtol					pstrtol
+#define Pstrtoul				pstrtoul
+#define Pstrtod					pstrtoud
+#define Pstrchr					pstrchr
+#define Pstrrchr				pstrrchr
+#define Pstrstr					pstrstr
 
-#define Pisupper		isupper
-#define Ptoupper		toupper
-#define Ptolower		tolower
+#define Pisupper				pisupper
+#define Pislower				pislower
+#define Ptoupper				ptoupper
+#define Ptolower				ptolower
+#define Pisdigit				pisdigit
 
-/* UNICODE-only helper functions */
-#define Psprintf		psprintf
-#define Pstrdup			pstrdup
+/* UNICODE-only helper functions are replaced by uchar-pendants */
+#define Pstrlen					pstrlen
+#define Psprintf				psprintf
+#define Pstrdup					pstrdup
+#define Pstr_append_str			pstr_append_str
+#define Pstr_append_char 		pstr_append_char
+#define Pstr_append_nchar 		pstr_append_nchar
 
 #endif
 
@@ -73,7 +80,9 @@ Usage:	Header for string utility functions
 #define pstrtod( s, p )			strtod( s, p )
 
 #define pisupper( c )			isupper( c )
+#define pislower( c )			islower( c )
 #define ptoupper( c )			toupper( c )
 #define ptolower( c )			tolower( c )
+#define pisdigit( c )			isdigit( c )
 
 #endif
