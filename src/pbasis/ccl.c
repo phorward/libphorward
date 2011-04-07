@@ -855,8 +855,6 @@ pboolean ccl_testrange( CCL ccl, pchar begin, pchar end )
 ----------------------------------------------------------------------------- */
 pboolean ccl_instest( CCL ccl, pchar ch )
 {
-	CCL		i;
-
 	if( ccl_test( ccl, ch ) )
 		return TRUE;
 		
