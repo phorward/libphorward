@@ -101,7 +101,7 @@ ENDL
 
 		if [ -f "$PHOME/include/Commercial.inc" ]
 		then
-			echo "PSYSTEM=$PSYSTEM PHOME=$PHOME (Closed-source extensions available)"
+			echo "PSYSTEM=$PSYSTEM PHOME=$PHOME (PRIVATE SOURCES REPOSITORY)"
 		else
 			echo "PSYSTEM=$PSYSTEM PHOME=$PHOME"
 		fi
