@@ -51,19 +51,29 @@ int ccl_size( CCL ccl )
 	return cnt;
 }
 
-/* Sort-function for quick sort */
-static int ccl_sortfunc( const void* v_r1, const void* v_r2 )
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		ccl_dup()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Duplicates one character class to new memory. Returns
+					(CCL)NULL if no more memory is left.
+					
+	Parameters:		CCL			ccl				Pointer to the character-class
+												to be duplicated
+	
+	Returns:		CCL							Pointer to the duplicate of ccl,
+												(CCL)NULL in error case.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+CCL ccl_dup( CCL ccl )
 {
-	CCL		r1	= (CCL)v_r1;
-	CCL		r2	= (CCL)v_r2;
-
-	if( r1->begin == r2->begin )
-		return 0;
-	else if( r1->begin < r2->begin )
-		return -1;
-
-	return 1;
+	return (CCL)memdup( ccl, ( ( ccl_size( ccl ) + 1 ) + 1 )
+								* sizeof( CRANGE ) );
 }
+
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		ccl_normalize()
@@ -90,6 +100,21 @@ static int ccl_sortfunc( const void* v_r1, const void* v_r2 )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
+
+/* Sort-function required for quick sort */
+static int ccl_sortfunc( const void* v_r1, const void* v_r2 )
+{
+	CCL		r1	= (CCL)v_r1;
+	CCL		r2	= (CCL)v_r2;
+
+	if( r1->begin == r2->begin )
+		return 0;
+	else if( r1->begin < r2->begin )
+		return -1;
+
+	return 1;
+}
+
 static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 {
 	CCL		nccl;
@@ -175,29 +200,6 @@ static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_dup()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Duplicates one character class to new memory. Returns
-					(wchar*)NULL if no more memory is left.
-					
-	Parameters:		CCL			ccl				Pointer to the character-class
-												to be duplicated
-	
-	Returns:		CCL							Pointer to the duplicate of ccl,
-												(wchar*)NULL in error case.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-CCL ccl_dup( CCL ccl )
-{
-	return (CCL)memdup( ccl, ( ( ccl_size( ccl ) + 1 ) + 1 )
-								* sizeof( CRANGE ) );
-}
-
-/* -FUNCTION--------------------------------------------------------------------
 	Function:		ccl_negate()
 	
 	Author:			Jan Max Meyer
@@ -215,9 +217,9 @@ CCL ccl_dup( CCL ccl )
 ----------------------------------------------------------------------------- */
 CCL ccl_negate( CCL ccl )
 {
-	wchar	size	= 0;
-	wchar	start;
-	wchar	end		= CCL_MIN;
+	pchar	size	= 0;
+	pchar	start;
+	pchar	end		= CCL_MIN;
 	CCL		i;
 	CCL		j;
 
@@ -261,7 +263,7 @@ CCL ccl_negate( CCL ccl )
 					CCL			second			Pointer to the second
 												character-class
 	
-	Returns:		wchar*						Returns a pointer to the
+	Returns:		CCL							Returns a pointer to the
 												unioned character class.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -317,8 +319,8 @@ CCL ccl_create( uchar* ccldef )
 {
 	uchar*	cclptr;
 	CCL		ccl		= (CCL)NULL;
-	wchar	begin, end, swap;
-	wchar	size	= 0;
+	pchar	begin, end, swap;
+	pchar	size	= 0;
 
 	PROC( "ccl_create" );
 	PARMS( "ccldef", "%s", ccldef );
@@ -333,7 +335,8 @@ CCL ccl_create( uchar* ccldef )
 		{
 			VARS( "cclptr", "%s", cclptr );
 
-			begin = end = u8_parse_char( &cclptr );
+			cclptr += pstr_char( &begin, cclptr, TRUE );
+			end = begin;
 			
 			VARS( "begin", "%d", begin );
 			VARS( "end", "%d", end );
@@ -342,10 +345,8 @@ CCL ccl_create( uchar* ccldef )
 			if( *cclptr == '-' )
 			{
 				MSG( "This is a range!" );
-
 				cclptr++;
-				
-				end = u8_parse_char( &cclptr );
+				cclptr += pstr_char( &end, cclptr, TRUE );
 				VARS( "end", "%d", end );
 			}
 
@@ -435,10 +436,10 @@ void ccl_print( FILE* stream, CCL ccl, int break_after )
 		{
 			u8_toutf8( outstr[1], sizeof( outstr[1] ), &( i->end ), 1 );
 			fprintf( stream, "'%s' [%d] to '%s' [%d] ",
-				outstr[0], i->begin, outstr[1], i->end );
+				outstr[0], (int)i->begin, outstr[1], (int)i->end );
 		}
 		else
-			fprintf( stream, "'%s' [%d] ", outstr[0], i->begin );
+			fprintf( stream, "'%s' [%d] ", outstr[0], (int)i->begin );
 
 		if( break_after > 0 && cnt % break_after == 0 )
 			fprintf( stream, "\n" );
@@ -532,9 +533,9 @@ uchar* ccl_to_str( CCL ccl, pboolean escape )
 					
 	Parameters:		CCL			ccl				Pointer to the character-class
 												to be affected.
-					wchar		begin			Begin of character range to be
+					pchar		begin			Begin of character range to be
 												integrated.
-					wchar		end				End of character range to
+					pchar		end				End of character range to
 												be integrated.
 	
 	Returns:		CCL							Pointer to the enhanced and
@@ -544,10 +545,10 @@ uchar* ccl_to_str( CCL ccl, pboolean escape )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-CCL ccl_addrange( CCL ccl, wchar begin, wchar end )
+CCL ccl_addrange( CCL ccl, pchar begin, pchar end )
 {
 	int		size	= ccl_size( ccl );
-	wchar	tmp;
+	pchar	tmp;
 
 	PROC( "ccl_addrange" );
 	PARMS( "ccl", "%p", ccl );
@@ -606,9 +607,9 @@ CCL ccl_addrange( CCL ccl, wchar begin, wchar end )
 					
 	Parameters:		CCL			ccl				Pointer to the character-class
 												to be affected.
-					wchar		begin			Begin of character range to be
+					pchar		begin			Begin of character range to be
 												integrated.
-					wchar		end				End of character range to
+					pchar		end				End of character range to
 												be integrated.
 	
 	Returns:		CCL							Pointer to the enhanced and
@@ -618,10 +619,10 @@ CCL ccl_addrange( CCL ccl, wchar begin, wchar end )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-CCL ccl_delrange( CCL ccl, wchar begin, wchar end )
+CCL ccl_delrange( CCL ccl, pchar begin, pchar end )
 {
 	int		size;
-	wchar	tmp;
+	pchar	tmp;
 	CCL		i;
 
 	/* Swap begin and end if required */
@@ -681,7 +682,7 @@ CCL ccl_delrange( CCL ccl, wchar begin, wchar end )
 					
 	Parameters:		CCL			ccl				Pointer to the character-class
 												to be affected.
-					wchar		ch				Character to be integrated.
+					pchar		ch				Character to be integrated.
 	
 	Returns:		CCL							Pointer to the enhanced and
 												normalized character-class,
@@ -690,7 +691,7 @@ CCL ccl_delrange( CCL ccl, wchar begin, wchar end )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-CCL ccl_add( CCL ccl, wchar ch )
+CCL ccl_add( CCL ccl, pchar ch )
 {
 	return ccl_addrange( ccl, ch, ch );
 }
@@ -704,7 +705,7 @@ CCL ccl_add( CCL ccl, wchar ch )
 					
 	Parameters:		CCL			ccl				Pointer to the character-class
 												to be affected.
-					wchar		ch				Character to be removed from
+					pchar		ch				Character to be removed from
 												the character class.
 	
 	Returns:		CCL							Pointer to the enhanced and
@@ -715,10 +716,10 @@ CCL ccl_add( CCL ccl, wchar ch )
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 #if 0
-CCL ccl_del( CCL ccl, wchar ch )
+CCL ccl_del( CCL ccl, pchar ch )
 {
 	CCL		i;
-	wchar	size	= ccl_size( ccl );
+	pchar	size	= ccl_size( ccl );
 
 	if( !size || !ccl_test( ccl, ch ) )
 		return ccl;
@@ -751,9 +752,9 @@ CCL ccl_del( CCL ccl, wchar ch )
 	
 	Usage:			Tests for a character to matche the character class.
 					
-	Parameters:		wchar*		ccl				Pointer to character-class
+	Parameters:		pchar*		ccl				Pointer to character-class
 												to be tested
-					wchar		ch				Character to be tested
+					pchar		ch				Character to be tested
 	
 	Returns:		pboolean					TRUE: Character matches class
 												FALSE: the opposite.
@@ -761,7 +762,7 @@ CCL ccl_del( CCL ccl, wchar ch )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pboolean ccl_test( CCL ccl, wchar ch )
+pboolean ccl_test( CCL ccl, pchar ch )
 {
 	CCL		i;
 
@@ -836,7 +837,7 @@ int ccl_compare( CCL first, CCL second )
 ----------------------------------------------------------------------------- */
 CCL ccl_intersect( CCL first, CCL second )
 {
-	wchar	cnt				= 0;
+	psize	cnt				= 0;
 	CCL		i;
 	CCL		j;
 	CCL		intersections	= (CCL)NULL;
