@@ -69,6 +69,8 @@ Usage:	Header for string functions and standard library replacements
 #define Pstr_append_str			pstr_append_str
 #define Pstr_append_char 		pstr_append_char
 #define Pstr_append_nchar 		pstr_append_nchar
+#define Pvasprintf				pvasprintf
+#define Pasprintf				pasprintf
 
 #endif
 
