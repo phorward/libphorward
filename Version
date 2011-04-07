@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "0.12dev"
+echo "0.16.2"
