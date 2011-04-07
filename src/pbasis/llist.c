@@ -515,3 +515,64 @@ int list_subset( LIST* list, LIST* subset )
 	return 0;
 } /* list_subset() */
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		list_sort()
+
+	Author:			Jan Max Meyer
+						
+	Usage:			Sorts a list according to a callback-function using the
+					bubble-sort algorithm.
+					
+	Parameters:		LIST*	list				Linked list to be sorted.
+					int		(*sf)(void*,void*)	Pointer to callback-function
+												to compare items. The functions
+												shall return a value lower than
+												0 if a<b, greater 0 if a>b and
+												0 if a==b.
+											
+	Returns:		LIST*	Returns the pointer to the sorted list.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+LIST* list_sort( LIST* list, int (*sf)( void*, void* ) )
+{
+	LIST*		current;
+	int			ret;
+	BOOLEAN		changes;
+	void*		tmp;
+
+	if( !sf )
+		return list; /* Can't sort anything */
+
+	do
+	{
+		changes = FALSE;
+
+		for( current = list; list_next( current );
+				current = list_next( current ) )
+		{
+			if( ( ret = (*sf)( list_access( current ),
+							list_access( list_next( current ) ) ) ) < 0 )
+			{
+				tmp = list_access( list_next( current ) );
+				current->next->pptr = list_access( current );
+				current->pptr = tmp;
+				
+				changes = TRUE;
+			}
+			else if( ret > 0 )
+			{
+				tmp = list_access( current );
+				current->pptr = list_access( list_next( current ) );
+				current->next->pptr = tmp;
+
+				changes = TRUE;
+			}
+		}
+	}
+	while( changes );
+
+	return list;
+} /* list_sort() */
+
