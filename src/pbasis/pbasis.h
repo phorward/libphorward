@@ -17,15 +17,24 @@ Usage:	Main include file for pbasis
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdarg.h>
 #include <limits.h>
 #include <time.h>
+
+#ifdef UTF8
+#include <locale.h>
+#include <wchar.h>
+#include <wctype.h>
+#endif
 
 #ifdef _WIN32
 #include <process.h>
 #else
 #include <unistd.h>
 #endif
+
+#define u8_isutf(c) (((c)&0xC0)!=0x80)
 
 /*
  * Universal Data Types
@@ -36,11 +45,12 @@ Usage:	Main include file for pbasis
 #define uchar char
 #endif
 
-/* u_int - Unsigned int */
-#define u_int	unsigned int
-
-/* pccl - Character classes */
-#define pccl	u_int*
+/* pchar - universal (wide?) character type */
+#ifdef UTF8
+#define wchar wchar_t
+#else
+#define wchar uchar
+#endif
 
 /* boolean - Just saving true or false ;) */
 #define BOOLEAN	pboolean
@@ -83,6 +93,7 @@ typedef int 	pboolean;	/* Phorward Boolean */
 /*
  * Basis Library modules
  */
+#include "ccl.h"
 #include "bitset.h"
 #include "dbg.h"
 #include "hashtab.h"
