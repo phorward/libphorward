@@ -81,10 +81,10 @@ typedef int 					pboolean;	/* Phorward Boolean */
 								( ptr ) = NULL; } while( 0 )
 
 /*
- * Error codes
+ * Generic error codes
  */
 #define ERR_OK					0		/* OK */
-#define ERR_FAILURE				-1		/* (General) Failure */
+#define ERR_FAILURE				-1		/* General/Unspecified failure */
 #define ERR_PARMS				-2		/* Wrong parameters */
 #define ERR_MEM					-3		/* Memory allocation error */
 #define ERR_SYSTEM				-4		/* System call error */
@@ -101,6 +101,15 @@ typedef int 					pboolean;	/* Phorward Boolean */
 #endif
 
 /*
+ * Bitwise value modifiers
+ */
+#define bit_set( val, bit )		( (val) |= (bit) )
+#define bit_unset( val, bit )	( (val) &= ~(bit) )
+#define bit_is_set( val, bit )	( ( (val) & (bit) ) == (bit) )
+#define bit_is_unset( val, bit ) \
+ 								( ( (val) & (bit) ) == 0 )
+
+/*
  * Basis Library modules
  */
 #include "bitset.h"
@@ -111,6 +120,7 @@ typedef int 					pboolean;	/* Phorward Boolean */
 #include "stack.h"
 #include "string.h"
 #include "utf8.h"
+#include "var.h"
 #include "xml.h"
 
 #ifndef MAKE_PROTOTYPES
