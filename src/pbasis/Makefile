@@ -6,64 +6,72 @@
 
 include ../../include/Make.inc
 
-SRC			=	bitset.c \
+SRC			=	ccl.c \
+				bitset.c \
 				dbg.c \
 				llist.c \
 				hashtab.c \
-				util.c
+				util.c \
+				system.c \
+				utf8.c
 
-SRC_HDR		=	bitset.h \
+SRC_HDR		=	ccl.h \
+				bitset.h \
 				dbg.h \
 				llist.h \
 				hashtab.h
 
-OBJ			=	bitset$(OBJEXT) \
+OBJ			=	ccl$(OBJEXT) \
+				bitset$(OBJEXT) \
 				dbg$(OBJEXT) \
 				llist$(OBJEXT) \
 				hashtab$(OBJEXT) \
-				util$(OBJEXT)
+				util$(OBJEXT) \
+				system$(OBJEXT) \
+				utf8$(OBJEXT)
 
 PROTO		=	pbasis.proto.h
-PROTO_H		=	$(INCLUDE_DIR)$(PATH_SEP)$(PROTO)
 
 HEADERS		=	pbasis.h
 
+DOC			=	$(DOC_DIR)$(PATH_SEP)pbasis$(DOCEXT)
+
 # ------------------------------------------------------------------------------
 
-all: $(PBASIS_LIB_H) $(PROTO_H) $(PBASIS_LIB)
+all: $(PBASIS_LIB_H) $(PBASIS_LIB)
 	@echo
 	@echo --- Compilation succeeded! ---
 
-$(PBASIS_LIB): $(SRC) $(HEADERS) Makefile
-	$(CC) $(CLIBOPTS) $(SRC)
+$(PBASIS_LIB): $(SRC) $(HEADERS) $(SRC_HDR) $(PROTO) Makefile
+	$(CC) $(CLIBOPTS) $(DEBUG) $(SRC)
 	$(LLIB) $(LIBOPTS)$(PBASIS_LIB) $(OBJ)
 
-$(PBASIS_LIB_H): $(SRC) $(HEADERS) $(SRC_HDR) Makefile
-	$(CP) $(HEADERS) $@
-	for i in $(SRC_HDR); \
-	do \
-		( $(CP) $$i $(INCLUDE_DIR); ); \
-	done
-
-$(PROTO_H): $(PROTO)
-	$(CP) $(PROTO) $@
+$(PBASIS_LIB_H): $(SRC) $(HEADERS) $(SRC_HDR) $(PROTO) Makefile
+	$(LOCALINCLUDE) $(HEADERS) >$@
 
 $(PROTO): $(SRC) $(HEADERS)
 	cproto_all "$(SRC)" $(INCLUDE_DIR) $@
 
 clean_obj:
-	-@$(RM) $(OBJ)
+	-$(RM) $(OBJ)
 
 clean: clean_obj
-	-@$(RM) $(PBASIS_LIB)
-	-@$(RM) $(PBASIS_LIB_H)
-	-@$(RM) $(PROTO_H)
-	-@$(RM) cscope.out
-	for i in $(SRC_HDR); \
-	do \
-		( $(RM) $(INCLUDE_DIR)/$$i; ); \
-	done
+	-$(RM) $(PBASIS_LIB)
+	-$(RM) $(PBASIS_LIB_H)
 
 backup: clean
-	-@$(RM) ../pbasis.tar
+	-$(RM) ../pbasis.tar
 	tar cvf ../pbasis.tar ../pbasis
+
+#make doc
+doc: $(DOC)
+	@echo
+	@echo --- Done making documentation! ---
+
+docclean: $(DOC)
+	$(RM) -f $?
+
+$(DOC): $(SRC)
+	-$(RM) $@
+	$(MKDOC) $(SRC) >$@
+
