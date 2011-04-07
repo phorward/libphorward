@@ -1,0 +1,72 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Phorward SDK - ppp :: Phorward Pre-Processor Script
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+#
+# Script:		ppp
+# Author:		Jan Max Meyer
+#-------------------------------------------------------------------------------
+
+if [ $# -lt 1 ]
+then
+	echo "usage: $0 [ -I <include-dir> ] [ -D <define> ] <files>"
+	exit 1
+fi
+
+if [ "$PSYSTEM" = "WINDOWS" ]
+then
+	optbegin="//"
+	cc="cl"
+	opt="//nologo"
+else
+	optbegin="-"
+	cc="cc"
+	opt=""
+fi
+
+#find stdopts
+cstdopts=`awk '/^CFLAGS[ \t]*=/	{	split( $0, line, "=" )
+									print line[2]
+								}' $PHOME/include/Make.inc`
+
+if [ "$PSYSTEM" = "WINDOWS" ]
+then
+	cstdopts=`echo $cstdopts | sed -e "s/\//\/\//g"`
+	#echo $cstdopts
+fi
+								
+while [ "$1" ]
+do
+	case "$1" in
+		-I)
+			if [ "$PSYSTEM" = "WINDOWS" ]
+			then
+				opt="$opt ${optbegin}I \"$2\""
+			else
+				opt="$opt ${optbegin}I$2"
+			fi
+
+			shift
+			;;
+		-D)
+			opt="$opt ${optbegin}D$2"
+			shift
+			;;
+		*)
+			break
+			;;
+	esac
+
+	shift
+done
+
+while [ "$1" ]
+do
+	#zum glueck sind die Parameter bei MS und GNU gleich :D
+	#$cc ${optbegin}E $opt $1
+	#echo $cc ${optbegin}E $opt $cstdopts $1 1>&2
+	$cc ${optbegin}E $opt $cstdopts $1
+	shift
+done
+
