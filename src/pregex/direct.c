@@ -53,82 +53,24 @@ Usage:	Direct regular expression access functions
 ----------------------------------------------------------------------------- */
 int pregex_match( uchar* regex, uchar* str, int flags, pregex_result** results )
 {
-	int				matches	= 0;
-	int				ret;
-	size_t			len;
-	uchar*			pstr;
-	pregex_nfa		nfa;
+	int			matches	= 0;
+	pregex		re;
 
 	PROC( "pregex_match" );
 	PARMS( "regex", "%s", regex );
 	PARMS( "str", "%s", str );
 	PARMS( "flags", "%d", flags );
 	PARMS( "results", "%p", results );
-
-	memset( &nfa, 0, sizeof( pregex_nfa ) );
-	if( ( ret = pregex_compile_to_nfa( regex, &nfa, flags, 0 ) ) != ERR_OK )
-	{
-		MSG( "Unable to compile regex" );
-		RETURN( ret );
-	}
-
-	for( pstr = str; *pstr; )
-	{
-		VARS( "pstr", "%s", pstr );
-		if( pregex_nfa_match( &nfa, pstr, &len,
-				(pregex_result**)NULL, (int*)NULL ) == 0 )
-		{
-			/*
-			if( !matches )
-				*results = (pregex_result*)pmalloc( sizeof( pregex_result ) );
-			else
-				*results = (pregex_result*)prealloc(
-								(pregex_result*)*results,
-									( matches + 1 ) * sizeof( pregex_result ) );
-			*/
-			if( !matches )
-				*results = (pregex_result*)pmalloc(
-								REGEX_ALLOC_STEP * sizeof( pregex_result ) );
-			else if( !( matches % REGEX_ALLOC_STEP ) )
-				*results = (pregex_result*)prealloc(
-								(pregex_result*)*results,
-									( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
-										* REGEX_ALLOC_STEP )
-											*  sizeof( pregex_result ) );
-
-			if( !*results )
-				RETURN( ERR_MEM );
-
-			(*results)[ matches ].begin = pstr;
-			(*results)[ matches ].pos = pstr - str;
-
-#ifdef UTF8
-			for( ; len > 0; len-- )
-				pstr += u8_seqlen( pstr );
-#else
-			pstr += len;
-#endif
-
-			(*results)[ matches ].end = pstr;
-			(*results)[ matches ].len = pstr - (*results)[ matches ].begin;
-			matches++;
-						
-			if( !( flags & REGEX_MOD_GLOBAL ) )
-				break;
-		}
-		else
-		{
-#ifdef UTF8
-			pstr += u8_seqlen( pstr );
-#else
-			pstr++;
-#endif
-		}
-	}
 	
-	pregex_nfa_free( &nfa );
+	pregex_comp_init( &re, flags );
+	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
+		RETURN( matches );
 
+	matches = pregex_comp_match( &re, str, results );
+	pregex_comp_free( &re );
+	
 	VARS( "matches", "%d", matches );
+
 	RETURN( matches );
 }
 
@@ -165,104 +107,24 @@ int pregex_match( uchar* regex, uchar* str, int flags, pregex_result** results )
 ----------------------------------------------------------------------------- */
 int pregex_split( uchar* regex, uchar* str, int flags, pregex_result** results )
 {
-	int				matches	= 0;
-	int				ret;
-	size_t			len;
-	uchar*			pstr;
-	uchar*			prev;
-	pregex_nfa		nfa;
+	int			matches	= 0;
+	pregex		re;
 
 	PROC( "pregex_split" );
 	PARMS( "regex", "%s", regex );
 	PARMS( "str", "%s", str );
 	PARMS( "flags", "%d", flags );
 	PARMS( "results", "%p", results );
-
-	memset( &nfa, 0, sizeof( pregex_nfa ) );
-	*results = (pregex_result*)NULL;
-
-	if( ( ret = pregex_compile_to_nfa( regex, &nfa, flags, 0 ) ) != ERR_OK )
-	{
-		MSG( "Unable to compile regex" );
-		RETURN( ret );
-	}
-
-	for( prev = pstr = str; *pstr; )
-	{
-		VARS( "pstr", "%s", pstr );
-		if( pregex_nfa_match( &nfa, pstr, &len,
-				(pregex_result**)NULL, (int*)NULL ) == 0 )
-		{
-			if( !matches )
-				*results = (pregex_result*)pmalloc(
-								REGEX_ALLOC_STEP * sizeof( pregex_result ) );
-			else if( !( matches % REGEX_ALLOC_STEP ) )
-				*results = (pregex_result*)prealloc(
-								(pregex_result*)*results,
-									( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
-										* REGEX_ALLOC_STEP )
-											*  sizeof( pregex_result ) );
-
-			if( !*results )
-				RETURN( ERR_MEM );
-
-			(*results)[ matches ].begin = prev;
-			(*results)[ matches ].end = pstr;
-			(*results)[ matches ].pos = prev - str;
-			(*results)[ matches ].len = pstr - prev;
-			matches++;
-			
-#ifdef UTF8
-			for( ; len > 0; len-- )
-				pstr += u8_seqlen( pstr );
-#else
-			pstr += len;
-#endif
-			prev = pstr;
-
-			if( !( flags & REGEX_MOD_GLOBAL ) )
-			{
-				pstr += pstrlen( pstr );
-				break;
-			}
-		}
-		else
-		{
-#ifdef UTF8
-			pstr += u8_seqlen( pstr );
-#else
-			pstr++;
-#endif
-		}
-	}
 	
-	pregex_nfa_free( &nfa );
-	
-	/* Put last one if required! */
-	if( prev != pstr )
-	{
-		if( !matches )
-			*results = (pregex_result*)pmalloc(
-							REGEX_ALLOC_STEP * sizeof( pregex_result ) );
-		else if( !( matches % REGEX_ALLOC_STEP ) )
-			*results = (pregex_result*)prealloc(
-							(pregex_result*)*results,
-								( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
-									* REGEX_ALLOC_STEP )
-										*  sizeof( pregex_result ) );
+	pregex_comp_init( &re, flags );
+	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
+		RETURN( matches );
 
-		if( !*results )
-			RETURN( ERR_MEM );
+	matches = pregex_comp_split( &re, str, results );
+	pregex_comp_free( &re );
 
-		(*results)[ matches ].begin = prev;
-		(*results)[ matches ].end = pstr;
-		(*results)[ matches ].pos = prev - str;
-		(*results)[ matches ].len = pstr - prev;
-		matches++;
-	}
-	
-	VARS( "matches", "%d", matches );
-	RETURN( matches );
+	VARS( "matches", "%d", matches );	
+	RETURN( matches );	
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -298,22 +160,8 @@ int pregex_split( uchar* regex, uchar* str, int flags, pregex_result** results )
 int pregex_replace( uchar* regex, uchar* str, uchar* replacement,
 	int flags, uchar** result )
 {
-	pregex_result*	refs;
-	int				refs_cnt	= 0;
-	int				matches		= 0;
-	int				ret;
-	int				i;
-	int				ref;
-	int				lref;
-	size_t			len;
-	uchar*			pstr;
-	uchar*			prev;
-	uchar*			rpstr;
-	uchar*			rbegin;
-	uchar*			rprev;
-	pregex_nfa		nfa;
-	uchar*			refout;
-	uchar*			replace;
+	int			matches		= 0;
+	pregex		re;
 
 	PROC( "pregex_replace" );
 	PARMS( "regex", "%s", regex );
@@ -322,132 +170,14 @@ int pregex_replace( uchar* regex, uchar* str, uchar* replacement,
 	PARMS( "flags", "%d", flags );
 	PARMS( "result", "%p", result );
 
-	memset( &nfa, 0, sizeof( pregex_nfa ) );
-	*result = (uchar*)NULL;
+	pregex_comp_init( &re, flags );
+	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
+		RETURN( matches );
 
-	if( ( ret = pregex_compile_to_nfa( regex, &nfa, flags, 0 ) ) != ERR_OK )
-	{
-		MSG( "Unable to compile regex" );
-		RETURN( ret );
-	}
+	matches = pregex_comp_replace( &re, str, replacement, result );
+	pregex_comp_free( &re );
 
-	for( prev = pstr = str; *pstr; )
-	{
-		VARS( "pstr", "%s", pstr );
-		if( pregex_nfa_match( &nfa, pstr, &len,
-			( ( flags & REGEX_MOD_NO_REFERENCES ) ?
-					(pregex_result**)NULL : &refs ), &refs_cnt ) == 0 )
-		{
-			if( flags & REGEX_MOD_NO_REFERENCES )
-			{
-				MSG( "No references wanted by caller" );
-				replace = replacement;
-			}
-			else
-			{
-				VARS( "refs_cnt", "%d", refs_cnt );
-
-				MSG( "Constructing replacement" );
-				for( rprev = rpstr = replacement, replace = (uchar*)NULL;
-						*rpstr; )
-				{
-					VARS( "*rpstr", "%c", *rpstr );
-					if( *rpstr == '$' )
-					{
-						rbegin = rpstr;
-
-						if( isdigit( *( ++rpstr ) ) )
-						{
-							ref = atoi( rpstr );
-							VARS( "ref", "%d", ref );
-
-							/* Skip length of the number */
-							if( !ref )
-								rpstr++;
-							else
-								for( lref = ref; lref; rpstr++ )
-									lref /= 10;
-
-							/* Extend first from prev of replacement */
-							if( !( replace = pstr_append_nchar( replace,
-										rprev, rbegin - rprev ) ) )
-								RETURN( ERR_MEM );
-
-							VARS( "replace", "%s", replace );
-							
-							VARS( "refs[ ref ].begin", "%p",
-									refs[ ref ].begin );
-							VARS( "refs[ ref ].end", "%p",
-									refs[ ref ].end );
-
-							/* Obtain reference information */
-							if( refs[ ref ].begin && refs[ ref ].end )
-							{
-								MSG( "There is a reference!" );
-								VARS( "refs[ ref ].begin", "%s",
-										refs[ ref ].begin );
-								VARS( "len", "%d",
-									refs[ ref ].end - refs[ ref ].begin );
-
-								if( !( replace = pstr_append_nchar( replace,
-										refs[ ref ].begin,
-											refs[ ref ].end -
-												refs[ ref ].begin ) ) )
-									RETURN( ERR_MEM );
-							}
-							
-							VARS( "replace", "%s", replace );						
-							rprev = rpstr;
-						}
-					}
-					else
-						rpstr++;
-						
-					pfree( refs );
-				}
-
-				VARS( "rpstr", "%p", rpstr );
-				VARS( "rprev", "%p", rprev );
-				if( rpstr != rprev && !( replace = pstr_append_str(
-											replace, rprev, FALSE ) ) )
-					RETURN( ERR_MEM );
-			}
-
-			VARS( "replace", "%s", replace );		
-			MSG( "Extend result string" );
-			
-			/* Extend result */
-			if( !( *result = pstr_append_nchar(
-					*result, prev, pstr - prev ) ) )
-				RETURN( ERR_MEM );
-
-			if( !( *result = pstr_append_str( *result, replace,
-					( ( replace == replacement ) ? FALSE : TRUE ) ) ) )
-				RETURN( ERR_MEM );
-			
-			VARS( "len", "%d", len );
-			VARS( "pstr", "%s", pstr );
-
-			for( ; len > 0; len-- )
-				pstr += u8_seqlen( pstr );
-			prev = pstr;
-			
-			VARS( "my pstr", "%s", pstr );
-			
-			if( !( flags & REGEX_MOD_GLOBAL ) )
-				break;
-		}
-		else
-			pstr += u8_seqlen( pstr );
-	}
-	
-	if( refs_cnt )
-		pfree( refs );
-	pregex_nfa_free( &nfa );
-
-	if( prev != pstr && !( *result = pstr_append_str( *result, prev, FALSE ) ) )
-		RETURN( ERR_MEM );
-
-	RETURN( matches );
+	VARS( "matches", "%d", matches );
+	RETURN( matches );	
 }
 
