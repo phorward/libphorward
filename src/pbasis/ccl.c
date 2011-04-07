@@ -57,12 +57,12 @@ int ccl_size( CCL ccl )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Return the number of range pairs within a character-class.
+	Usage:			Return the number of characters within a character-class.
 					
 	Parameters:		CCL			ccl				Pointer to the character-class
 	
-	Returns:		int						Number of pairs the charclass
-												holds.
+	Returns:		int							Number of characters the class
+													holds.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -94,11 +94,26 @@ int ccl_count( CCL ccl )
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	02.10.2010	Jan Max Meyer	Invalid reads came up in valgrind, really don't
+								know why, but this fixes it.
 ----------------------------------------------------------------------------- */
 CCL ccl_dup( CCL ccl )
 {
-	return (CCL)memdup( ccl, ( ( ccl_size( ccl ) + 1 ) + 1 )
-								* sizeof( CRANGE ) );
+	CCL dup;
+
+	/*
+		Don't use memdup() here... there is one CRANGE of junk always behind
+		the terminator, for negating character-classes.
+		
+		This way won't come up in valgrind.
+	*/	
+	if( !( dup = (CCL)pmalloc( ( ccl_size( ccl ) + 1 + 1 )
+						* sizeof( CRANGE ) ) ) )
+		return (CCL)NULL;
+		
+	memcpy( dup, ccl, ( ccl_size( ccl ) + 1 ) * sizeof( CRANGE ) );
+
+	return dup;
 }
 
 
