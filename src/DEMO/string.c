@@ -33,12 +33,12 @@ int main( int argc, char** argv )
 	pstring_set_int( s1, 12345 );
 	s2 = pstring_append( s2, s1, FALSE );
 
-	printf( ">%ls< %d >%ls< %d\n", pstring_get( s1 ), pstring_len( s1 ),
-									pstring_get( s2 ), pstring_len( s2 ) );
+	printf( ">%ls< %d >%ls< %d\n", pstring_get( s1 ), (int)pstring_len( s1 ),
+									pstring_get( s2 ), (int)pstring_len( s2 ) );
 
 	pstring_set_double( s1, 1234567.890123456789 );
 
-	printf( ">%ls< %d\n", pstring_get( s1 ), pstring_len( s1 ) );
+	printf( ">%ls< %d\n", pstring_get( s1 ), (int)pstring_len( s1 ) );
 
 	pstring_set( s1, L"Hello" );
 	pstring_set( s2, L"HEllO" );
