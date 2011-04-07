@@ -19,10 +19,16 @@ Usage:	Header for regex lib
 
 #define REGEX_ALLOC_STEP		16
 
-#define REGEX_UNCOMPILED		0
-#define REGEX_IS_NFA			1
-#define REGEX_IS_DFA			2
-#define REGEX_IS_MINDFA			3
+/* Regular expression compile states */
+#define REGEX_STAT_UNCOMPILED	0
+#define REGEX_STAT_COMPILED		1
+#define REGEX_STAT_FINALIZED	2
+
+/* Regex Modifiers */
+#define REGEX_MOD_NONE			0
+#define REGEX_MOD_INSENSITIVE	1
+#define REGEX_MOD_MULTILINE		2
+#define REGEX_MOD_GLOBAL		4
 
 #ifndef PRIVATE
 #define PRIVATE static
@@ -47,18 +53,22 @@ struct _regex_nfa_st
 	pregex_nfa_st*	next;		/* First following NFA-state */
 	pregex_nfa_st*	next2;		/* Second following NFA-state */
 	int				accept;		/* Accepting state ID */
+	int				ref;
 };
 
 struct _regex_nfa
 {	
 	LIST*			states;		/* List of nfa-states */
 	LIST*			empty;		/* List to pointers of states to be used */
+	byte			modifiers;	/* Regex-modifiers */
+	
+	int				ref_count;	/* Number of last reference */
 };
 
 struct _regex_dfa_ent
 {
 	pregex_ccl		ccl;		/* Matching character range */
-	u_int			go_to;		/* Go-To state */
+	unsigned int	go_to;		/* Go-To state */
 };
 
 struct _regex_dfa_st
@@ -72,21 +82,20 @@ struct _regex_dfa_st
 
 struct _regex_dfa
 {
-	pregex_nfa*		nfa;		/* Pointer to NFA this DFA is based on */
 	LIST*			states;		/* List of dfa-states */
 };
 
 struct _regex
 {
-	byte			state;		/* Current regex state */
+	byte			stat;		/* Current regex status */
 
 	union
 	{
 		pregex_nfa	nfa;
 		pregex_dfa	dfa;
-	};
+	} machine;
 
-	u_int			flags;		/* Several flags */
+	int				flags;		/* Several flags */
 };
 
 struct _regex_result
