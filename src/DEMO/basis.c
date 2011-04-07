@@ -67,7 +67,7 @@ void utf8_demo( void )
 	/*             123456789012345678901234567890
 	               0        1         2         3
 	*/
-	printf( "%d %d\n", pstrlen( str ), u8_strlen( str ) );
+	printf( "%ld %d\n", pstrlen( str ), u8_strlen( str ) );
 	for( ptr = str; *ptr; ptr += u8_seqlen( ptr ) )
 		printf( ">%s< %d\n", ptr, u8_char( ptr ) );
 
@@ -249,28 +249,29 @@ void stack_demo( void )
 
 	stack_init( &s, sizeof( struct person ), 3 );
 	
-	strcpy( x.last_name, "Zufall" );
-	strcpy( x.first_name, "Reiner" );
+	pstrcpy( x.last_name, "Zufall" );
+	pstrcpy( x.first_name, "Reiner" );
 	stack_push( &s, (pbyte*)&x );
 	
-	strcpy( x.last_name, "Pfahl" );
-	strcpy( x.first_name, "Martha" );
+	pstrcpy( x.last_name, "Pfahl" );
+	pstrcpy( x.first_name, "Martha" );
 	stack_push( &s, (pbyte*)&x );
 	
-	strcpy( x.last_name, "Racho" );
-	strcpy( x.first_name, "Volker" );
+	pstrcpy( x.last_name, "Racho" );
+	pstrcpy( x.first_name, "Volker" );
 	stack_push( &s, (pbyte*)&x );
 	
-	strcpy( x.last_name, "Pete" );
-	strcpy( x.first_name, "Dieter" );
+	pstrcpy( x.last_name, "Pete" );
+	pstrcpy( x.first_name, "Dieter" );
 	stack_push( &s, (pbyte*)&x );
 
-	stack_dump( __FILE__, __LINE__, "s", &s, stack_demo_callback );
+	stack_dump( __FILE__, __LINE__, "s", &s,
+		(STACK_CALLBACK)stack_demo_callback );
 	
 	while( ( p = (struct person*)stack_pop( &s ) ) )
 		fprintf( stderr, "Pop: %s %s\n", p->first_name, p->last_name );
 
-	stack_free( &s, stack_demo_callback );
+	stack_free( &s, (STACK_CALLBACK)stack_demo_callback );
 }
 
 int dbg_demo( int x )
