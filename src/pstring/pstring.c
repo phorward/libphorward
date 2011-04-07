@@ -472,7 +472,7 @@ pstring pstring_APPEND( pstring obj, pchar* ptr, psize len )
 
 					pstring		src			The pstring-object from which to
 											copy from.
-					pboolean	drop_src	TRUE: Destruct object src after
+					BOOLEAN		drop_src	TRUE: Destruct object src after
 													append operation.
 											FALSE: Leave src as it is.
 	
