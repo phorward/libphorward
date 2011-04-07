@@ -345,10 +345,14 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 	PARMS( "accept", "%p", accept );
 	PARMS( "anchors", "%p", anchors );
 
-	if( accept != (int*)NULL )
+	if( accept )
 		*accept = REGEX_ACCEPT_NONE;
 
+	if( anchors )
+		*anchors = REGEX_ANCHOR_NONE;
+
 	stack = list_dup( input );
+
 
 	/* Loop trough the items */
 	while( stack != (LIST*)NULL )
