@@ -1,10 +1,11 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Basis Library
+Phorward Foundation Libraries :: Basis Library
 Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ contact<at>phorward-software<dot>com
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	pbasis.h
-Usage:	Main include file for pbasis
+Usage:	Main include file for pbasis library
 ----------------------------------------------------------------------------- */
 
 #ifndef _PBASIS_H
@@ -101,8 +102,9 @@ typedef int 					pboolean;	/* Phorward Boolean */
 #include "bitset.h"
 #include "ccl.h"
 #include "dbg.h"
-#include "hashtab.h"
 #include "llist.h"
+#include "hashtab.h"
+#include "stack.h"
 #include "string.h"
 #include "utf8.h"
 
