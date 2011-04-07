@@ -32,12 +32,22 @@ void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
 	pregex_dfa_st*	s;
 	pregex_dfa_tr*	e;
 	LIST*			m;
+	int				i;
 
 	for( l = dfa->states; l; l = list_next( l ) )
 	{
 		s = (pregex_dfa_st*)list_access( l );
-		fprintf( stream, "*** STATE %d (accepts %d)\n",
-			list_find( dfa->states, (void*)s), s->accept );
+		fprintf( stream, "*** STATE %d (accepts %d, ref_cnt %d, anchor %d)\n",
+			list_find( dfa->states, (void*)s ), s->accept, 
+				s->ref_cnt, s->anchor );
+
+		if( s->ref_cnt )
+		{
+			for( i = 0; i < s->ref_cnt; i++ )
+				fprintf( stream, "ref[%d]=%d ", i, s->ref[i] );
+
+			fprintf( stream, "\n" );
+		}
 
 		for( m = s->trans; m; m = list_next( m ) )
 		{
@@ -165,6 +175,8 @@ void pregex_dfa_free( pregex_dfa* dfa )
 
 		list_free( dfa_st->trans );
 		list_free( dfa_st->nfa_set );
+
+		pfree( dfa_st->ref );
 		pfree( dfa_st );
 	}
 
@@ -247,6 +259,70 @@ PRIVATE void pregex_dfa_default_trans( pregex_dfa* dfa )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_dfa_collect_ref()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Collects all references by the NFA-states forming a
+					DFA-state, and puts them into an dynamically allocated
+					array for later re-use.
+					
+	Parameters:		pregex_dfa_st*	nfa			DFA-state, for which
+												references shall be collected.
+
+	Returns:		ERR_OK						On success.
+					ERR_...						ERR_*-define on error.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+PRIVATE int pregex_dfa_collect_ref( pregex_dfa_st* st )
+{
+	LIST*			l;
+	pregex_nfa_st*	nfa_st;
+	int				i;
+
+	PROC( "pregex_dfa_collect_ref" );
+	PARMS( "st", "%p", st );
+
+	/* References? */
+	if( !( st->ref ) )
+	{
+		/* Find out number of references, check for anchors */
+		MSG( "Searching for references in the NFA transitions" );
+		LISTFOR( st->nfa_set, l )
+		{
+			nfa_st = (pregex_nfa_st*)list_access( l );
+
+			if( nfa_st->ref > -1 )
+			{
+				for( i = 0; i < st->ref_cnt; i++ )
+					if( st->ref[i] == nfa_st->ref )
+						break;
+
+				if( i < st->ref_cnt )
+					continue;
+
+				if( !st->ref )
+					st->ref = (int*)pmalloc(
+								REGEX_ALLOC_STEP * sizeof( int ) );
+				else if( st->ref_cnt % REGEX_ALLOC_STEP )
+					st->ref = (int*)prealloc( (void*)st->ref, 
+								( st->ref_cnt + REGEX_ALLOC_STEP )
+									* sizeof( int ) );
+
+				if( !st->ref )
+					RETURN( ERR_MEM );
+
+				st->ref[ st->ref_cnt++ ] = nfa_st->ref;
+			}
+		}
+	}
+				
+	RETURN( ERR_OK );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_dfa_from_nfa()
 	
 	Author:			Jan Max Meyer
@@ -306,13 +382,14 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 	current->nfa_set = pregex_nfa_epsilon_closure( nfa, set,
 							(int*)NULL, (int*)NULL );
+	pregex_dfa_collect_ref( current );
 
 	/* Perform algorithm until all states are done */
 	while( ( current = pregex_dfa_get_undone_state( dfa ) ) )
 	{
 		current->done = TRUE;
 		current->accept = REGEX_ACCEPT_NONE;
-		
+
 		/* Assemble all character sets in the alphabet list */
 		classes = (LIST*)NULL;
 		for( item = current->nfa_set; item; item = list_next( item ) )
@@ -323,7 +400,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 			{
 				if( current->accept == REGEX_ACCEPT_NONE
 					|| current->accept == nfa_st->accept )
+				{
 					current->accept = nfa_st->accept;
+					current->anchor = nfa_st->anchor;
+				}
 			}
 
 			/* Generate list of character classes */
@@ -392,7 +472,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				VARS( "i->end", "%d", i->end );
 
 				if( !( transitions = list_dup( current->nfa_set ) ) )
-					RETURN( ERR_MEM );				
+					RETURN( ERR_MEM );
 				
 				if( ( transitions = pregex_nfa_move(
 						nfa, transitions, i->begin, i->end ) ) )
@@ -416,13 +496,16 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				}
 				else
 				{
+					MSG( "Creating new DFA state" );
 					/* Create a new DFA as undone with this transition! */
 					if( !( tmp = pregex_dfa_create_state( dfa ) ) )
-						return ERR_MEM;
+						RETURN( ERR_MEM );
 				
 					tmp->nfa_set = transitions;
 					transitions = (LIST*)NULL;
-				
+
+					pregex_dfa_collect_ref( tmp );
+
 					state_next = list_count( dfa->states ) - 1;
 				}
 
@@ -485,6 +568,9 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 	/* Set default transitions */
 	pregex_dfa_default_trans( dfa );
+
+	/* Maximum number of references does not change */
+	dfa->ref_count = nfa->ref_count;
 	
 	RETURN( list_count( dfa->states ) );
 }
@@ -760,45 +846,85 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len )
+int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
+		int* anchors, pregex_result** ref, int* ref_count, int flags )
 {
 	pregex_dfa_st*	dfa_st;
+	pregex_dfa_st*	next_dfa_st;
 	pregex_dfa_tr*	ent;
 	LIST*			l;
 	uchar*			pstr		= str;
 	size_t			plen		= 0;
-	wchar			ch;
+	pchar			ch;
 	int				last_accept = REGEX_ACCEPT_NONE;
+	int				i;
 
 	PROC( "pregex_dfa_match" );
 	PARMS( "dfa", "%p", dfa );
-	PARMS( "str", "%s", str );
+	if( flags & REGEX_MOD_WCHAR )
+		PARMS( "str", "%ls", str );
+	else
+		PARMS( "str", "%s", str );
 	PARMS( "len", "%p", len );
-	
-	*len = 0;
+	PARMS( "anchors", "%p", anchors );
+	PARMS( "ref", "%p", ref );
+	PARMS( "ref_count", "%p", ref_count );
+	PARMS( "flags", "%d", flags );
 
+	/* Initialize! */
+	if( ( i = pregex_ref_init( ref, ref_count, dfa->ref_count, flags ) )
+			!= ERR_OK )
+		RETURN( i );
+
+	*len = 0;
 	dfa_st = (pregex_dfa_st*)list_access( dfa->states );
 
 	while( dfa_st )
 	{
+		MSG( "At begin of loop" );
 		if( dfa_st->accept > REGEX_ACCEPT_NONE )
 		{
+			MSG( "This state has an accept" );
 			last_accept = dfa_st->accept;
 			*len = plen;
 		}
 
-		if( dfa_st != (pregex_dfa_st*)list_access( dfa->states ) )
+		MSG( "Handling References" );
+		if( ref && dfa->ref_count && dfa_st->ref_cnt )
 		{
-			pstr += u8_seqlen( pstr );
-			plen++;
+			VARS( "Having ref_cnt", "%d", dfa_st->ref_cnt );
+
+			for( i = 0; i < dfa_st->ref_cnt; i++ )
+			{
+				VARS( "i", "%d", i );
+				VARS( "State", "%d", list_find(
+								dfa->states, (void*)dfa_st ) );
+				VARS( "dfa_st->ref[i]", "%d", dfa_st->ref[ i ] );
+
+				pregex_ref_update( &( ( *ref )[ dfa_st->ref[ i ] ] ),
+									pstr, plen );
+			}
 		}
 
-		ch = u8_char( pstr );
+		/* Get next character */
+		if( flags & REGEX_MOD_WCHAR )
+		{
+			VARS( "pstr", "%ls", (pchar*)pstr );
+			ch = *((pchar*)pstr);
+		}
+		else
+		{
+			VARS( "pstr", "%s", pstr );
+#ifdef UTF8
+			ch = u8_char( pstr );
+#else
+			ch = *pstr;
+#endif
+		}
+
 		VARS( "ch", "%d", ch );
-		VARS( "pstr", "%s", pstr );
 
-		dfa_st = (pregex_dfa_st*)NULL;
-
+		next_dfa_st = (pregex_dfa_st*)NULL;
 		LISTFOR( dfa_st->trans, l )
 		{
 			ent = (pregex_dfa_tr*)list_access( l );
@@ -806,11 +932,37 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len )
 			if( ccl_test( ent->ccl, ch ) )
 			{
 				MSG( "Having a character match!" );
-				dfa_st = list_getptr( dfa->states, ent->go_to );
+				next_dfa_st = (pregex_dfa_st*)list_getptr(
+								dfa->states, ent->go_to );
 				break;
 			}
 		}
+
+		if( !next_dfa_st )
+		{
+			MSG( "No transitions match!" );
+			break;
+		}
+
+		/* Move to next char */
+		if( flags & REGEX_MOD_WCHAR )
+			pstr += sizeof( pchar );
+		else
+		{
+#ifdef UTF8
+			pstr += u8_seqlen( pstr );
+#else
+			pstr++;
+#endif
+		}
+
+		plen++;
+		VARS( "plen", "%ld", plen );
+
+		dfa_st = next_dfa_st;
 	}
+
+	MSG( "Done scanning" );
 	
 	VARS( "*len", "%d", *len );
 	VARS( "last_accept", "%d", last_accept );
