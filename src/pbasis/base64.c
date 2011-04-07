@@ -212,7 +212,7 @@ pint from_base64( uchar** outstream, psize* outsize, uchar* instream )
 	}
 
 	*outstream = output;
-	*outsize = (psize)( ptr - output ) );
+	*outsize = (psize)( ptr - output );
 
 	VARS( "*outsize", "%ld", *outsize );
 	RETURN( ERR_OK );
