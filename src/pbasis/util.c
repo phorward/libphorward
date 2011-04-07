@@ -42,7 +42,7 @@ Usage:	Utiliy functions for various usages.
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-void* memdup( void* ptr, size_t size )
+void* memdup( void* ptr, psize size )
 {
 	void*	ret;
 	
