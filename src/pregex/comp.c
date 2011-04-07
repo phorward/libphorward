@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Libraries :: Regular Expression Library, Version 2
-Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2009-2011 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See $PHOME/LICENSE for more information.
 
@@ -13,6 +13,9 @@ Usage:	Compilation of multiple patterns into one state machine structure
  * Includes
  */
 #include "pregex.h"
+
+#define IS_EXECUTABLE( stat )	( (stat) == REGEX_STAT_NFA || \
+									(stat) == REGEX_STAT_DFA )
 
 /*
  * Global variables
@@ -50,7 +53,7 @@ void pregex_comp_init( pregex* machine, int flags )
 	PARMS( "machine", "%p", machine );
 
 	memset( machine, 0, sizeof( pregex ) );
-	machine->stat = REGEX_STAT_UNCOMPILED;
+	machine->stat = REGEX_STAT_NONE;
 	machine->flags = flags;
 
 	VOIDRET;
@@ -89,18 +92,18 @@ int pregex_comp_compile( pregex* machine, uchar* pattern, int accept )
 	PARMS( "pattern", "%s", pattern );
 	PARMS( "accept", "%d",accept );
 
-	if( !( machine->stat == REGEX_STAT_UNCOMPILED 
-			|| machine->stat == REGEX_STAT_COMPILED ) )
+	if( !( machine->stat == REGEX_STAT_NONE 
+			|| machine->stat == REGEX_STAT_NFA ) )
 	{
 		MSG( "The machine is not inizialized or already turned into DFA!" );
 		RETURN( ERR_FAILURE );
 	}
 
-	if( machine->stat == REGEX_STAT_UNCOMPILED )
+	if( machine->stat == REGEX_STAT_NONE )
 	{
 		MSG( "Machine is only self-inizialized yet - inizializing NFA!" );
 		memset( &( machine->machine.nfa ), 0, sizeof( pregex_nfa ) );
-		machine->stat = REGEX_STAT_COMPILED;
+		machine->stat = REGEX_STAT_NFA;
 	}
 	
 	ret = pregex_compile_to_nfa( pattern,
@@ -127,21 +130,19 @@ int pregex_comp_compile( pregex* machine, uchar* pattern, int accept )
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	17.02.2011	Jan Max Meyer	Finalize NFA to DFA now activated.
 ----------------------------------------------------------------------------- */
 int pregex_comp_finalize( pregex* machine )
 {
-	/*
 	pregex_dfa	dfa;
 	int			ret;
-	*/
 
 	PROC( "pregex_comp_finalize" );
 	PARMS( "machine", "%p", machine );
 	
 	/* This will be enabled later! */
 
-#if 0
-	if( !( machine->stat == REGEX_STAT_COMPILED ) )
+	if( !( machine->stat == REGEX_STAT_NFA ) )
 	{
 		MSG( "The machine must be in compiled state." );
 		RETURN( ERR_FAILURE );
@@ -160,6 +161,7 @@ int pregex_comp_finalize( pregex* machine )
 	}
 
 	/* Perform DFA minimization */
+	/*
 	if( ( ret = pregex_dfa_minimize( &dfa ) ) != ERR_OK )
 	{
 		MSG( "DFA minimization failed" );
@@ -167,14 +169,20 @@ int pregex_comp_finalize( pregex* machine )
 
 		RETURN( ret );
 	}
+	*/
 
 	/* Delete NFA */
+	/*
+	pregex_nfa_print( &( machine->machine.nfa ) );
+	*/
 	pregex_nfa_free( &( machine->machine.nfa ) );
 
 	/* Set new machine status */
+	/*
+	pregex_dfa_print( stderr, &dfa );
+	*/
 	memcpy( &( machine->machine.dfa ), &dfa, sizeof( pregex_dfa ) );
-	machine->stat = REGEX_STAT_FINALIZED;
-#endif
+	machine->stat = REGEX_STAT_DFA;
 
 	RETURN( ERR_OK );
 }
@@ -201,12 +209,12 @@ void pregex_comp_free( pregex* machine )
 	
 	switch( machine->stat )
 	{
-		case REGEX_STAT_COMPILED:
+		case REGEX_STAT_NFA:
 			pregex_nfa_free( &( machine->machine.nfa ) );
 			break;
 
-		case REGEX_STAT_FINALIZED:
-			/* pregex_dfa_free( &( machine->machine.dfa ) ); */
+		case REGEX_STAT_DFA:
+			pregex_dfa_free( &( machine->machine.dfa ) );
 			break;
 
 		default:
@@ -258,6 +266,7 @@ void pregex_comp_free( pregex* machine )
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
 ----------------------------------------------------------------------------- */
 int pregex_comp_match( pregex* machine, uchar* str, pregex_callback fn,
 							pregex_result** results )
@@ -281,11 +290,12 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_callback fn,
 
 	PARMS( "fn", "%p", fn );
 	PARMS( "results", "%p", results );
+
+	if( !IS_EXECUTABLE( machine->stat ) )
+		RETURN( ERR_UNIMPL );
 	
 	if( results )
 		*results = (pregex_result*)NULL;
-
-	/* pregex_nfa_print( &( machine->machine.nfa ) ); */
 
 	for( pstr = str; *pstr; )
 	{
@@ -293,12 +303,18 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_callback fn,
 			PARMS( "pstr", "%ls", pstr );
 		else
 			PARMS( "pstr", "%s", pstr );
+
+		if( machine->stat == REGEX_STAT_NFA )
+			match = pregex_nfa_match( &( machine->machine.nfa ), pstr,
+						&len, &anchors, (pregex_result**)NULL, (int*)NULL,
+							machine->flags );
+		else
+			match = pregex_dfa_match( &( machine->machine.dfa ), pstr,
+						&len, &anchors, (pregex_result**)NULL, (int*)NULL,
+							machine->flags );
 	
-		if( ( match = pregex_nfa_match( &( machine->machine.nfa ), pstr,
-					&len, &anchors, (pregex_result**)NULL, (int*)NULL,
-						machine->flags ) ) >= 0
-			&& pregex_check_anchors( str, pstr, len,
-				anchors, machine->flags ) )
+		if( match >= 0 && pregex_check_anchors( str, pstr, len,
+							anchors, machine->flags ) )
 		{
 			MSG( "pregex_nfa_match found a match!" );
 			VARS( "match", "%d", match );
@@ -437,6 +453,7 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_callback fn,
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
 ----------------------------------------------------------------------------- */
 int pregex_comp_split( pregex* machine, uchar* str, pregex_callback fn,
 							pregex_result** results )
@@ -460,15 +477,26 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_callback fn,
 	PARMS( "fn", "%p", fn );
 	PARMS( "results", "%p", results );
 
+	if( !IS_EXECUTABLE( machine->stat ) )
+		RETURN( ERR_UNIMPL );
+
 	*results = (pregex_result*)NULL;
 
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
-		if( ( match = pregex_nfa_match( &( machine->machine.nfa ),
-				pstr, &len, &anchors, (pregex_result**)NULL, (int*)NULL,
-					machine->flags ) ) >= 0
-			&& pregex_check_anchors( str, pstr, len, anchors, machine->flags ) )
+
+		if( machine->stat == REGEX_STAT_NFA )
+			match = pregex_nfa_match( &( machine->machine.nfa ), pstr,
+						&len, &anchors, (pregex_result**)NULL, (int*)NULL,
+							machine->flags );
+		else
+			match = pregex_dfa_match( &( machine->machine.dfa ), pstr,
+						&len, &anchors, (pregex_result**)NULL, (int*)NULL,
+							machine->flags );
+
+		if( match >= 0 && pregex_check_anchors( str, pstr, len,
+							anchors, machine->flags ) )
 		{
 			MSG( "Write information into temporary result structure" );
 			
@@ -643,6 +671,7 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_callback fn,
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
 ----------------------------------------------------------------------------- */
 int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 							pregex_callback fn, uchar** result )
@@ -670,6 +699,9 @@ int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 	PARMS( "result", "%p", result );
 	PARMS( "fn", "%p", fn );
 
+	if( !IS_EXECUTABLE( machine->stat ) )
+		RETURN( ERR_UNIMPL );
+
 	*result = (uchar*)NULL;
 
 	if( machine->flags & REGEX_MOD_WCHAR )
@@ -678,13 +710,22 @@ int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
-		if( ( match = pregex_nfa_match( &( machine->machine.nfa ),
-			pstr, &len, &anchors,
-				( ( machine->flags & REGEX_MOD_NO_REFERENCES ) ?
-						(pregex_result**)NULL : &refs ),
-							&refs_cnt, machine->flags ) ) >= 0
-			&& pregex_check_anchors( str, pstr, len,
-					anchors, machine->flags ) )
+
+		if( machine->stat == REGEX_STAT_NFA )
+			match = pregex_nfa_match( &( machine->machine.nfa ), pstr,
+						&len, &anchors,
+							( ( machine->flags & REGEX_MOD_NO_REFERENCES ) ?
+								(pregex_result**)NULL : &refs ), &refs_cnt,
+									machine->flags );
+		else
+			match = pregex_dfa_match( &( machine->machine.dfa ), pstr,
+						&len, &anchors,
+							( ( machine->flags & REGEX_MOD_NO_REFERENCES ) ?
+								(pregex_result**)NULL : &refs ), &refs_cnt,
+									machine->flags );
+
+		if( match >= 0 && pregex_check_anchors( str, pstr, len,
+											anchors, machine->flags ) )
 		{
 			use_replacement = (uchar*)NULL;
 
@@ -789,8 +830,7 @@ int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 
 									if( !( replace = (uchar*)Pstr_append_nchar(
 											(pchar*)replace, refs[ ref ].pbegin,
-												refs[ ref ].pend -
-													refs[ ref ].pbegin ) ) )
+												refs[ ref ].len ) ) )
 										RETURN( ERR_MEM );
 								}
 								
@@ -839,10 +879,9 @@ int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 									VARS( "len", "%d",
 										refs[ ref ].end - refs[ ref ].begin );
 
-									if( !( replace = pstr_append_nchar( replace,
-											refs[ ref ].begin,
-												refs[ ref ].end -
-													refs[ ref ].begin ) ) )
+									if( !( replace = pstr_append_nchar(
+										replace, refs[ ref ].begin,
+											refs[ ref ].len ) ) )
 										RETURN( ERR_MEM );
 								}
 								
