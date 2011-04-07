@@ -6,13 +6,17 @@
 
 include ../../include/Make.inc
 
-SRC			=	dfa.c \
+SRC			=	comp.c \
+				dfa.c \
 				direct.c \
-				nfa.c
+				nfa.c \
+				util.c
 
-OBJ			=	dfa$(OBJEXT) \
+OBJ			=	comp$(OBJEXT) \
+				dfa$(OBJEXT) \
 				direct$(OBJEXT) \
-				nfa$(OBJEXT)
+				nfa$(OBJEXT) \
+				util$(OBJEXT)
 
 PROTO		=	pregex.proto.h
 SPROTO		=	pregex.sproto.h
@@ -22,7 +26,7 @@ HEADERS		=	pregex.h $(SPROTO)
 
 # ------------------------------------------------------------------------------
 
-all: $(PROTO_H) $(PREGEX_LIB)
+all: $(PREGEX_LIB_H) $(PREGEX_LIB)
 	@echo
 	@echo --- Compilation succeeded! ---
 
@@ -30,16 +34,13 @@ $(PREGEX_LIB): $(SRC) $(HEADERS) Makefile
 	$(CC) $(CLIBOPTS) $(DEBUG) $(SRC)
 	$(LLIB) $(LIBOPTS)$(PREGEX_LIB) $(OBJ)
 
-$(PREGEX_LIB_H): $(SRC) $(HEADERS) Makefile
-	$(CP) $(HEADERS) $@
+$(PREGEX_LIB_H): $(SRC) $(HEADERS) Makefile $(PROTO)
+	$(LOCALINCLUDE) pregex.h >$@
 
-$(PROTO_H): $(PROTO)
-	$(CP) $(PROTO) $@
-
-$(PROTO): $(SRC) 
+$(PROTO): $(SRC) $(HEADERS)
 	cproto_all "$(SRC)" $(INCLUDE_DIR) $@
 
-$(SPROTO): $(SRC) $(HEADERS)
+$(SPROTO): $(SRC) 
 	cproto_all "$(SRC)" $(INCLUDE_DIR) $@ -S
 
 clean_obj:
