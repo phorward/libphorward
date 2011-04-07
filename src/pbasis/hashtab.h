@@ -44,5 +44,10 @@ struct _hashelem
 	HASHELEM*	next;					/* Pointer to next item in the bucket */
 };
 
+#define hashelem_access( hl )			(hl)->data
+#define hashelem_key( hl )				(hl)->key
+#define hashelem_prev( hl )				(hl)->prev
+#define hashelem_next( hl )				(hl)->next
+
 #endif
 
