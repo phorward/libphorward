@@ -1,3 +1,14 @@
+/* -MODULE----------------------------------------------------------------------
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
+
+File:	utf8.c
+Author:	Jeff Bezanson, contributions by Jan Max Meyer
+Usage:	Some UTF-8 utility functions.
+----------------------------------------------------------------------------- */
+
 /*
   Basic UTF-8 manipulation routines
   by Jeff Bezanson
@@ -51,7 +62,11 @@ static const uchar trailingBytesForUTF8[256] = {
 ----------------------------------------------------------------------------- */
 int u8_seqlen(uchar *s)
 {
-    return trailingBytesForUTF8[(wchar)s[0]] + 1;
+#ifdef UTF8
+	if( u8_isutf( *s ) )
+	    return trailingBytesForUTF8[(wchar)s[0]] + 1;
+#endif
+	return 1;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -68,6 +83,7 @@ int u8_seqlen(uchar *s)
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
+#ifdef UTF8
 wchar u8_char( uchar* str )
 {
 	int 	nb;
@@ -92,6 +108,12 @@ wchar u8_char( uchar* str )
 
 	return ch;
 }
+#else
+wchar u8_char( uchar* str )
+{
+	return *str;
+}
+#endif
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		u8_move()
@@ -139,9 +161,10 @@ uchar* u8_move( uchar* str, int count )
 wchar u8_parse_char( uchar** ch )
 {
 	wchar	ret;
-	PROC( "ccl_u8_to_char" );
+	PROC( "u8_parse_char" );
 	PARMS( "ch", "%p", ch );
 
+#ifdef UTF8
 	if( u8_char( *ch ) == (wchar)'\\' )
 	{
 		MSG( "Escape sequence detected" );
@@ -157,6 +180,9 @@ wchar u8_parse_char( uchar** ch )
 		ret = u8_char( *ch );
 		(*ch) += u8_seqlen( *ch );
 	}
+#else
+	ret = *( (*ch)++ );
+#endif
 
 	VARS( "ret", "%d", ret );
 	RETURN( ret );
