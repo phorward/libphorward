@@ -22,6 +22,10 @@ Usage:	Main include file for pbasis library
 #include <stdarg.h>
 #include <limits.h>
 #include <time.h>
+#include <fcntl.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #ifdef UNICODE
 #include <locale.h>
@@ -107,6 +111,7 @@ typedef int 					pboolean;	/* Phorward Boolean */
 #include "stack.h"
 #include "string.h"
 #include "utf8.h"
+#include "xml.h"
 
 #ifndef MAKE_PROTOTYPES
 #include "pbasis.proto.h"
