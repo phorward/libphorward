@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Basis Library :: Universal, dynamic stack management functions
-Copyright (C) 2010 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail@phorward-software.com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	stack.c
 Author:	Jan Max Meyer
@@ -53,8 +54,8 @@ void stack_init( STACK* stack, psize size, psize step )
 {
 	PROC( "stack_init" );
 	PARMS( "stack", "%p", stack );
-	PARMS( "size", "%ld", size );
-	PARMS( "step", "%ld", step );
+	PARMS( "size", "%d", size );
+	PARMS( "step", "%d", step );
 	
 	memset( stack, 0, sizeof( STACK ) );
 	stack->size = size;
@@ -95,7 +96,7 @@ void stack_free( STACK* stack, void (*ff)( pbyte* ) )
 		MSG( "Freeing each element" );
 		for( i = 0; i < stack->top; i++ )
 		{
-			VARS( "i", "%ld", i );
+			VARS( "i", "%d", i );
 			(*ff)( stack_access( stack, i ) );
 		}
 	}
@@ -140,11 +141,11 @@ pbyte* stack_push( STACK* stack, pbyte* item )
 	PARMS( "item", "%p", item );
 
 	/* Is memory (re-)allocation required? */
-	VARS( "stack->count", "%ld", stack->count );
+	VARS( "stack->count", "%d", stack->count );
 	if( stack->count == 0 )
 	{
 		MSG( "Performing first allocation" );
-		VARS( "Allocating %ld bytes", stack->step * stack->size );
+		VARS( "Allocating bytes", "%d", stack->step * stack->size );
 		if( !( stack->stack = (pbyte*)pmalloc( stack->step * stack->size ) ) )
 		{
 			MSG( "Memory failure - Can't allocate..." );
@@ -160,7 +161,7 @@ pbyte* stack_push( STACK* stack, pbyte* item )
 		
 		stack->count += stack->step;
 				
-		VARS( "Re-allocating to %ld bytes", stack->step * stack->size );
+		VARS( "Re-allocating bytes", "%d", stack->step * stack->size );
 		if( !( stack->stack = (pbyte*)prealloc( (void*)stack->stack,
 					stack->count * stack->size ) ) )
 		{
@@ -234,7 +235,7 @@ pbyte* stack_access( STACK* stack, psize offset )
 {
 	PROC( "stack_pop" );
 	PARMS( "stack", "%p", stack );
-	PAMRS( "offset", "%ld", offset );
+	PARMS( "offset", "%d", offset );
 
 	if( stack->top == 0 || offset >= stack->top )
 	{
@@ -285,7 +286,7 @@ void stack_dump( uchar* file, int line, uchar* name,
 			fprintf( stderr, "\t%p\n", stack_access( stack, i ) );
 	}
 
-	fprintf( stderr, "%s [%d]: %s %ld active, %ld left empty\n",
+	fprintf( stderr, "%s [%d]: %s %d active, %d left empty\n",
 		file, line, name, stack->top, stack->count - stack->top );
 }
 
