@@ -1,7 +1,7 @@
 @echo off
 rem ----------------------------------------------------------------------------
 rem  Phorward Software Development Kit
-rem Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+rem Copyright (C) 2009-2011 by Phorward Software Technologies, Jan Max Meyer
 rem http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 rem All rights reserved. See $PHOME/LICENSE for more information.
 rem
