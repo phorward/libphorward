@@ -25,6 +25,32 @@ Usage:	DFA creation and transformation functions
 
 /*NO_DOC*/
 
+/* Printing a DFA-state machine to a stream, for debug */
+void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
+{
+	LIST*			l;
+	pregex_dfa_st*	s;
+	pregex_dfa_tr*	e;
+	LIST*			m;
+
+	for( l = dfa->states; l; l = list_next( l ) )
+	{
+		s = (pregex_dfa_st*)list_access( l );
+		fprintf( stream, "*** STATE %d (accepts %d)\n",
+			list_find( dfa->states, (void*)s), s->accept );
+
+		for( m = s->trans; m; m = list_next( m ) )
+		{
+			e = (pregex_dfa_tr*)list_access( m );
+
+			ccl_print( stream, e->ccl, 0 );
+			fprintf( stream, "-> %d\n", e->go_to );
+		}
+
+		fprintf( stream, "\n" );
+	}
+}
+
 /* Creating a new DFA state */
 PRIVATE pregex_dfa_st* pregex_dfa_create_state( pregex_dfa* dfa )
 {
@@ -50,13 +76,13 @@ PRIVATE pregex_dfa_st* pregex_dfa_create_state( pregex_dfa* dfa )
 PRIVATE void pregex_dfa_delete_state( pregex_dfa_st* st )
 {
 	LIST*			l;
-	pregex_dfa_ent*	ent;
+	pregex_dfa_tr*	tr;
 	
 	for( l = st->trans; l; l = list_next( l ) )
 	{
-		ent = (pregex_dfa_ent*)list_access( l );
-		pfree( ent->ccl );
-		pfree( ent );
+		tr = (pregex_dfa_tr*)list_access( l );
+		pfree( tr->ccl );
+		pfree( tr );
 	}
 
 	list_free( st->trans );
@@ -120,7 +146,7 @@ void pregex_dfa_free( pregex_dfa* dfa )
 	LIST*			l;
 	LIST*			m;
 	pregex_dfa_st*	dfa_st;
-	pregex_dfa_ent*	ent;
+	pregex_dfa_tr*	tr;
 
 	PROC( "pregex_dfa_free" );
 	PARMS( "dfa", "%p", dfa );
@@ -131,10 +157,10 @@ void pregex_dfa_free( pregex_dfa* dfa )
 
 		LISTFOR( dfa_st->trans, m )
 		{
-			ent = (pregex_dfa_ent*)list_access( m );
+			tr = (pregex_dfa_tr*)list_access( m );
 			
-			ccl_free( ent->ccl );
-			pfree( ent );
+			ccl_free( tr->ccl );
+			pfree( tr );
 		}
 
 		list_free( dfa_st->trans );
@@ -145,6 +171,77 @@ void pregex_dfa_free( pregex_dfa* dfa )
 	list_free( dfa->states );
 
 	memset( dfa, 0, sizeof( pregex_dfa ) );
+
+	VOIDRET;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_dfa_default_trans()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Performs a check on all DFA state transitions to
+					figure out the default transition for every dfa state.
+					The default-transition is only filled, when any
+					character of the entire character-range results in a 
+					transition, and is set to the transition with the most
+					characters in its class.
+					
+					For example, the regex "[^\"]*" causes a dfa-state
+					with two transitions: On '"', go to state x, on
+					every character other than '"', go to state y.
+					y will be selected as default state.
+					
+	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
+												that will be constructed by
+												this function. The pointer
+												is set to zero before it is
+												used.
+					pregex_nfa*	nfa				Pointer to the NFA-Machine
+												where the DFA-machine should
+												be constructed from.
+																	
+	Returns:		>= 0						The number of DFA states
+												that where constructed.
+					ERR_...						ERR_*-define on error.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+PRIVATE void pregex_dfa_default_trans( pregex_dfa* dfa )
+{
+	LIST*			l;
+	LIST*			m;
+	pregex_dfa_st*	st;
+	pregex_dfa_tr*	tr;
+	int				max;
+	int				all;
+	int				cnt;
+
+	PROC( "pregex_dfa_default_trans" );
+	PARMS( "dfa", "%p", dfa );
+
+	LISTFOR( dfa->states, l )
+	{
+		st = (pregex_dfa_st*)list_access( l );
+
+		max = all = 0;
+		LISTFOR( st->trans, m )
+		{
+			tr = (pregex_dfa_tr*)list_access( m );
+
+			if( max < ( cnt = ccl_count( tr->ccl ) ) )
+			{
+				max = cnt;
+				st->def_trans = tr;
+			}
+
+			all += cnt;
+		}
+
+		if( all != CCL_MAX )
+			st->def_trans = (pregex_dfa_tr*)NULL;
+	}
 
 	VOIDRET;
 }
@@ -178,11 +275,11 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	LIST*			set;
 	LIST*			transitions;
 	LIST*			item;
-	LIST*			ent;
+	LIST*			tr;
 	LIST*			classes;
 	LIST*			l;
 	LIST*			m;
-	pregex_dfa_ent*	entry;
+	pregex_dfa_tr*	trans;
 	pregex_dfa_st*	current;
 	pregex_dfa_st*	tmp;
 	pregex_nfa_st*	nfa_st;
@@ -282,7 +379,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		}
 		while( changed );
 		
-		MSG( "Make transitions from constructed alphabet" );
+		MSG( "Make transitions on constructed alphabet" );
 		/* Make transitions on constructed alphabet */
 		LISTFOR( classes, l )
 		{
@@ -332,43 +429,43 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				VARS( "state_next", "%d", state_next );
 
 				/* Find transition entry with same follow state */
-				for( ent = current->trans; ent; ent = list_next( ent ) )
+				for( tr = current->trans; tr; tr = list_next( tr ) )
 				{
-					entry = (pregex_dfa_ent*)list_access( ent );
+					trans = (pregex_dfa_tr*)list_access( tr );
 				
-					if( entry->go_to == state_next )
+					if( trans->go_to == state_next )
 						break;
 				}
 
-				VARS( "ent", "%p", ent );
+				VARS( "tr", "%p", tr );
 
-				if( !ent )
+				if( !tr )
 				{
 					MSG( "Need to create new transition entry" );
 
 					/* Set the transition into the transition state matrix... */
-					if( !( entry = (pregex_dfa_ent*)pmalloc(
-								sizeof( pregex_dfa_ent ) ) ) )
+					if( !( trans = (pregex_dfa_tr*)pmalloc(
+								sizeof( pregex_dfa_tr ) ) ) )
 						RETURN( ERR_MEM );
 
-					memset( entry, 0, sizeof( pregex_dfa_ent ) );
+					memset( trans, 0, sizeof( pregex_dfa_tr ) );
 
-					if( !( entry->ccl = ccl_addrange(
-							entry->ccl, i->begin, i->end ) ) )
+					if( !( trans->ccl = ccl_addrange(
+							trans->ccl, i->begin, i->end ) ) )
 						RETURN( ERR_MEM );
 
-					entry->go_to = state_next;
+					trans->go_to = state_next;
 
 					if( !( current->trans = list_push( current->trans,
-												(void*)entry ) ) )
+												(void*)trans ) ) )
 						RETURN( ERR_MEM );
 				}
 				else
 				{
 					MSG( "Will extend existing transition entry" );
 
-					if( !( entry->ccl = ccl_addrange(
-							entry->ccl, i->begin, i->end ) ) )
+					if( !( trans->ccl = ccl_addrange(
+							trans->ccl, i->begin, i->end ) ) )
 						RETURN( ERR_MEM );
 				}
 			}
@@ -385,6 +482,9 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		tmp = (pregex_dfa_st*)list_access( item );
 		tmp->nfa_set = list_free( tmp->nfa_set );
 	}
+
+	/* Set default transitions */
+	pregex_dfa_default_trans( dfa );
 	
 	RETURN( list_count( dfa->states ) );
 }
@@ -414,8 +514,8 @@ PRIVATE pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
 	LIST*			l;
 	LIST*			m;
 	LIST*			n;
-	pregex_dfa_ent*	f;
-	pregex_dfa_ent*	s;
+	pregex_dfa_tr*	f;
+	pregex_dfa_tr*	s;
 
 	PROC( "pregex_dfa_equal_states" );
 	PARMS( "first", "%p", first );
@@ -430,8 +530,8 @@ PRIVATE pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
 	for( l = first->trans, m = second->trans; l && m;
 			l = list_next( l ), m = list_next( m ) )
 	{
-		f = (pregex_dfa_ent*)list_access( l );
-		s = (pregex_dfa_ent*)list_access( m );
+		f = (pregex_dfa_tr*)list_access( l );
+		s = (pregex_dfa_tr*)list_access( m );
 
 		/* Equal goto state? */
 		/*
@@ -491,7 +591,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	pregex_dfa		min_dfa;
 	pregex_dfa_st*	dfa_st;
 	pregex_dfa_st*	grp_dfa_st;
-	pregex_dfa_ent*	ent;
+	pregex_dfa_tr*	ent;
 	LIST*			l;
 	LIST*			m;
 	LIST*			n;
@@ -600,7 +700,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 
 		for( m = grp_dfa_st->trans; m; m = list_next( m ) )
 		{
-			ent = (pregex_dfa_ent*)list_access( m );
+			ent = (pregex_dfa_tr*)list_access( m );
 
 			dfa_st = (pregex_dfa_st*)list_getptr( dfa->states, ent->go_to );
 			for( n = groups, i = 0; n; n = list_next( n ), i++ )
@@ -634,32 +734,10 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 
 	memcpy( dfa, &min_dfa, sizeof( pregex_dfa ) );
 
+	/* Set default transitions */
+	pregex_dfa_default_trans( dfa );
+
 	RETURN( list_count( dfa->states ) );
-}
-
-void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
-{
-	LIST*			l;
-	pregex_dfa_st*	s;
-	pregex_dfa_ent*	e;
-	LIST*			m;
-
-	for( l = dfa->states; l; l = list_next( l ) )
-	{
-		s = (pregex_dfa_st*)list_access( l );
-		fprintf( stream, "*** STATE %d (accepts %d)\n",
-			list_find( dfa->states, (void*)s), s->accept );
-
-		for( m = s->trans; m; m = list_next( m ) )
-		{
-			e = (pregex_dfa_ent*)list_access( m );
-
-			ccl_print( stream, e->ccl, 0 );
-			fprintf( stream, "-> %d\n", e->go_to );
-		}
-
-		fprintf( stream, "\n" );
-	}
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -685,7 +763,7 @@ void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
 int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len )
 {
 	pregex_dfa_st*	dfa_st;
-	pregex_dfa_ent*	ent;
+	pregex_dfa_tr*	ent;
 	LIST*			l;
 	uchar*			pstr		= str;
 	size_t			plen		= 0;
@@ -723,7 +801,7 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len )
 
 		LISTFOR( dfa_st->trans, l )
 		{
-			ent = (pregex_dfa_ent*)list_access( l );
+			ent = (pregex_dfa_tr*)list_access( l );
 
 			if( ccl_test( ent->ccl, ch ) )
 			{
