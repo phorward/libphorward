@@ -31,51 +31,6 @@ Usage:	Conversion functions for data type and storage type conversion.
  * Functions
  */
  
- 
-/* Internal functions, not documented! */
-static int digits_of_plong( plong l )
-{
-	int	size		= 0;
-
-	if( l < 0 )
-	{
-		size++;
-		l *= -1;
-	}
-	
-	for( ; l != 0; size++ )
-		l /= 10;
-	
-	return size;
-}
-
-static int digits_of_pulong( pulong ul )
-{
-	int	size		= 0;
-	
-	for( ; ul != 0; size++ )
-		ul /= 10;
-	
-	return size;
-}
-
-static int digits_of_pdouble( pdouble d, int p )
-{
-	int		i;
-	int		size;
-	int		prec = 1;
-	
-	for( i = p; i > 0; i-- )
-		prec *= 10;
-		
-	size = digits_of_plong( (plong)d );
-	size += digits_of_plong( (plong)( d - (plong)d * prec ) );
-	
-	return size + 1;
-}
-
-/* Public functions */
-
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pchar_to_uchar()
 	
@@ -220,17 +175,10 @@ pchar* uchar_to_pchar( uchar* str, pboolean freestr )
 ----------------------------------------------------------------------------- */
 uchar* plong_to_uchar( plong l )
 {
-	uchar*		ret;
-
 	PROC( "plong_to_uchar" );
 	PARMS( "l", "%ld", l );
 	
-	if( !( ret = (uchar*)pmalloc( ( digits_of_plong( l ) + 1 )
-									* sizeof( uchar ) ) ) )
-		RETURN( (uchar*)NULL );
-
-	psprintf( ret, "%ld", l );
-	RETURN( ret );
+	RETURN( pasprintf( "%ld", l ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -254,17 +202,10 @@ uchar* plong_to_uchar( plong l )
 ----------------------------------------------------------------------------- */
 pchar* plong_to_pchar( plong l )
 {
-	pchar*		ret;
-
 	PROC( "plong_to_pchar" );
 	PARMS( "l", "%ld", l );
-	
-	if( !( ret = (pchar*)pmalloc( ( digits_of_plong( l ) + 1 )
-									* sizeof( pchar ) ) ) )
-		RETURN( (pchar*)NULL );
 
-	Psprintf( ret, L"%ld", l );
-	RETURN( ret );
+	RETURN( Pasprintf( L"%ld", l ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -286,17 +227,10 @@ pchar* plong_to_pchar( plong l )
 ----------------------------------------------------------------------------- */
 uchar* pulong_to_uchar( pulong ul )
 {
-	uchar*		ret;
-
 	PROC( "pulong_to_uchar" );
 	PARMS( "l", "%ld", ul );
-	
-	if( !( ret = (uchar*)pmalloc( ( digits_of_pulong( ul ) + 1 )
-									* sizeof( uchar ) ) ) )
-		RETURN( (uchar*)NULL );
 
-	psprintf( ret, "%ld", ul );
-	RETURN( ret );
+	RETURN( pasprintf( "%ld", ul ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -320,17 +254,10 @@ uchar* pulong_to_uchar( pulong ul )
 ----------------------------------------------------------------------------- */
 pchar* pulong_to_pchar( pulong ul )
 {
-	pchar*		ret;
-
 	PROC( "pulong_to_pchar" );
 	PARMS( "ul", "%ld", ul );
 	
-	if( !( ret = (pchar*)pmalloc( ( digits_of_pulong( ul ) + 1 )
-									* sizeof( pchar ) ) ) )
-		RETURN( (pchar*)NULL );
-
-	Psprintf( ret, L"%ld", ul );
-	RETURN( ret );
+	RETURN( Pasprintf( L"%ld", ul ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
