@@ -53,6 +53,12 @@ void string_demo( void )
 		printf( "%d: >%s<\n", i, tokens[i] );
 
 	pfree( tokens );
+	
+	/* Self-allocating sprintf extension */
+	str1 = pasprintf( "current content of str is >%s<, and all has %d",
+						str, all );
+	printf( "str1 = >%s<\n", str1 );
+	pfree( str1 );
 }
 
 /* UTF-8 Functions */
@@ -101,6 +107,11 @@ void unicode_demo( void )
 			L" used the same way as the standard"
 			L" uchar-functions!", FALSE );
 
+	printf( "mydynamicstr = >%ls<\n", mydynamicstr );
+	pfree( mydynamicstr );
+	
+	mydynamicstr = Pasprintf( L"This is €uro symbol %ls of %d",
+						mystr, sizeof( mystr ) );
 	printf( "mydynamicstr = >%ls<\n", mydynamicstr );
 	pfree( mydynamicstr );
 }
@@ -302,17 +313,93 @@ int dbg_demo( int x )
 	RETURN( ret );
 }
 
+void xml_demo( void )
+{
+	XML_T	comp;
+	XML_T	div;
+	XML_T	emp;
+	uchar*	s;
+
+	comp = xml_new( "company" );
+
+	div = xml_add_child( comp, "division", 0 );
+	xml_set_attr( div, "task", "Development" );
+
+	emp = xml_add_child( div, "employee", 0 );
+	xml_set_attr( emp, "name", "Eduard Woodstock" );
+	emp = xml_add_child( div, "employee", 0 );
+	xml_set_attr( emp, "name", "Helga Wacken" );
+	emp = xml_add_child( div, "employee", 0 );
+	xml_set_attr( emp, "name", "Horst Summerbreeze" );
+
+	xml_set_txt( emp, "Das ist ein Test!" );
+
+	div = xml_add_child( comp, "division", 0 );
+	xml_set_attr( div, "task", "Sales" );
+	emp = xml_add_child( div, "employee", 0 );
+	xml_set_attr( emp, "name", "Peter Paris" );
+	emp = xml_add_child( div, "employee", 0 );
+	xml_set_attr( emp, "name", "Josephine Julianadorp" );
+
+	s = xml_toxml( comp );
+
+	printf( "%s\n", s );
+	pfree( s );
+	xml_free( comp );
+}
+
+void var_demo( void )
+{
+	/*
+	 * This is a demonstration of the pvar data type, which implements
+	 * a variant type. A variant type is a variable which is capable to
+	 * store different values, by using a type flag.
+	 *
+	 * The pvar-data type and its support functions of the Phorward
+	 * Foundation Libraries allows to store byte, char, int, long, unsigned
+	 * long (ulong), float, double, string (char*) and wide-character string
+	 * (wstring) and their conversion among each other.
+	 *
+	 * String memory is always hold with the pvar-object, until the structure
+	 * is converted into another type or freed.
+	 *
+	 * It is recommended to clean-up every pvar structure using pvar_reset(),
+	 * to ensure that all used memory is free again.
+	 */
+	pvar	vtest;
+	
+	pvar_init( &vtest );
+	pvar_set_string_d( &vtest, "123 Hello World" );
+	
+	printf( "%d vtest = %s\n", pvar_is_convertible( &vtest ),
+				pvar_get_string( &vtest ) );
+	printf( "%d vtest = %ls\n", pvar_is_convertible( &vtest ),
+				pvar_get_wstring( &vtest ) );
+	
+	pvar_set_convertible( &vtest );
+	printf( "%d vtest = %ls\n", pvar_is_convertible( &vtest ),
+				pvar_get_wstring( &vtest ) );
+	
+	pvar_convert( &vtest, PVAR_INT );
+	printf( "%d vtest = %d\n", pvar_is_convertible( &vtest ),
+				pvar_get_int( &vtest ) );
+	
+	pvar_reset( &vtest );
+}
+
 int main( int argc, char** argv )
 {
 	setlocale( LC_ALL, "" );
 
 	string_demo();
-	utf8_demo();
 	unicode_demo();
+	utf8_demo();
 	list_demo();
 	hashtab_demo();
 	stack_demo();
 	printf( "faculty of 3 is %d\n", dbg_demo( 3 ) );
+	xml_demo();
+	var_demo();
 
 	return EXIT_SUCCESS;
 }
