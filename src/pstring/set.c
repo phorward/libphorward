@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward String Object Library
+Phorward Foundation Libraries :: String Object Library
 Copyright (C) 2010 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	set.c
 Author:	Jan Max Meyer
@@ -31,11 +32,11 @@ Usage:	String object setter functions
 	Utility function for removing trailing zero-floating point digits
 	after a float conversion
 */
-static void _pstring_strip_floating_point( Pstring obj )
+static void strip_floating_point( pstring obj )
 {
 	pchar*		p;
 
-	PROC( "_pstring_strip_floating_point" );
+	PROC( "strip_floating_point" );
 	PARMS( "obj", "%p", obj );
 
 	/* Strip trailing zeros */
@@ -51,20 +52,20 @@ static void _pstring_strip_floating_point( Pstring obj )
 		if( *p != '0' )
 			break;
 	}
-	*(p+1) = '\0';
+	*( p + 1 ) = '\0';
 	
 	VOIDRET;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstring_set_pchar()
+	Function:		pstring_set()
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Sets the content of a Pstring-object according to a
+	Usage:			Sets the content of a pstring-object according to a
 					zero-terminated pchar-String.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The Pstring-object which content
 												will be set.
 					pchar*		str				A pointer to the zero-terminated
 												pchar-string to be set.
@@ -75,9 +76,9 @@ static void _pstring_strip_floating_point( Pstring obj )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pstring_set_pchar( Pstring obj, pchar* str )
+int pstring_set( pstring obj, pchar* str )
 {
-	PROC( "pstring_set_pchar" );
+	PROC( "pstring_set" );
 	PARMS( "obj", "%p", obj );
 	PARMS( "str", "%S", str );
 	
@@ -91,66 +92,16 @@ int pstring_set_pchar( Pstring obj, pchar* str )
 	RETURN( ERR_OK );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pstring_set_uchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Sets the content of a Pstring-object according to a
-					zero-terminated uchar-String.
-					
-	Parameters:		Pstring		obj				The Pstring-object which content
-												will be set.
-					uchar*		str				A pointer to the zero-terminated
-												uchar-string to be set.
-	
-	Returns:		int							Returns an error-code, ERR_OK
-												if everything was fine.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-int pstring_set_uchar( Pstring obj, uchar* str )
-{
-	PROC( "pstring_set_uchar" );
-	PARMS( "obj", "%p", obj );
-	PARMS( "str", "%s", str );
-	
-	pstring_reset( obj );
-
-	if( !str )
-		RETURN( ERR_OK );
-
-#ifdef UTF8
-	obj->len = u8_strlen( str );
-#else
-	obj->len = pstrlen( str );
-#endif
-	VARS( "obj->len", "%ld", obj->len );
-
-	if( !ALLOC_STR( obj, obj->len ) )
-		RETURN( ERR_MEM );
-
-#ifdef UNICODE
-	mbstowcs( obj->str, str, obj->len );
-	VARS( "obj->str", "%S", obj->str );
-#else
-	strcpy( obj->str, str );
-	VARS( "obj->str", "%s", obj->str );
-#endif
-
-	RETURN( ERR_OK );
-}
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pstring_set_int()
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Sets the content of a Pstring-object according
+	Usage:			Sets the content of a pstring-object according
 					to an integer-typed value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The Pstring-object which content
 												will be set.
 					pint			i			Integer value to be set.
 	
@@ -160,7 +111,7 @@ int pstring_set_uchar( Pstring obj, uchar* str )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint pstring_set_int( Pstring obj, pint i )
+pint pstring_set_int( pstring obj, pint i )
 {
 	PROC( "pstring_set_int" );
 	PARMS( "obj", "%p", obj );
@@ -171,13 +122,8 @@ pint pstring_set_int( Pstring obj, pint i )
 	if( !ALLOC_STR( obj, NUMERIC_VALUE_LEN ) )
 		RETURN( ERR_MEM );
 
-#ifdef UNICODE
-	swprintf( obj->str, NUMERIC_VALUE_LEN, L"%d", i );
+	Psprintf( obj->str, L"%d", i );
 	VARS( "obj->str", "%S", obj->str );
-#else
-	sprintf( obj->str, "%d", i );
-	VARS( "obj->str", "%s", obj->str );
-#endif
 
 	obj->len = Pstrlen( obj->str );
 	VARS( "obj->len", "%ld", obj->len );
@@ -190,10 +136,10 @@ pint pstring_set_int( Pstring obj, pint i )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Sets the content of a Pstring-object according
+	Usage:			Sets the content of a pstring-object according
 					to an long-typed value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The Pstring-object which content
 												will be set.
 					long		l				Long value to be set.
 	
@@ -203,7 +149,7 @@ pint pstring_set_int( Pstring obj, pint i )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint pstring_set_long( Pstring obj, plong l )
+pint pstring_set_long( pstring obj, plong l )
 {
 	PROC( "pstring_set_long" );
 	PARMS( "obj", "%p", obj );
@@ -214,13 +160,7 @@ pint pstring_set_long( Pstring obj, plong l )
 	if( !ALLOC_STR( obj, NUMERIC_VALUE_LEN ) )
 		RETURN( ERR_MEM );
 
-#ifdef UNICODE
-	swprintf( obj->str, NUMERIC_VALUE_LEN, L"%ld", l );
-	VARS( "obj->str", "%S", obj->str );
-#else
-	sprintf( obj->str, "%ld", l );
-	VARS( "obj->str", "%s", obj->str );
-#endif
+	Psprintf( obj->str, L"%ld", l );
 
 	obj->len = Pstrlen( obj->str );
 	VARS( "obj->len", "%ld", obj->len );
@@ -233,10 +173,10 @@ pint pstring_set_long( Pstring obj, plong l )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Sets the content of a Pstring-object according
+	Usage:			Sets the content of a pstring-object according
 					to an pulong-typed value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The Pstring-object which content
 												will be set.
 					pulong		ul				Long value to be set.
 	
@@ -246,7 +186,7 @@ pint pstring_set_long( Pstring obj, plong l )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint pstring_set_ulong( Pstring obj, pulong ul )
+pint pstring_set_ulong( pstring obj, pulong ul )
 {
 	PROC( "pstring_set_long" );
 	PARMS( "obj", "%p", obj );
@@ -257,13 +197,7 @@ pint pstring_set_ulong( Pstring obj, pulong ul )
 	if( !ALLOC_STR( obj, NUMERIC_VALUE_LEN ) )
 		RETURN( ERR_MEM );
 
-#ifdef UNICODE
-	swprintf( obj->str, NUMERIC_VALUE_LEN, L"%ld", ul );
-	VARS( "obj->str", "%S", obj->str );
-#else
-	sprintf( obj->str, "%ld", ul );
-	VARS( "obj->str", "%s", obj->str );
-#endif
+	Psprintf( obj->str, L"%ld", ul );
 
 	obj->len = Pstrlen( obj->str );
 	VARS( "obj->len", "%ld", obj->len );
@@ -276,10 +210,10 @@ pint pstring_set_ulong( Pstring obj, pulong ul )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Sets the content of a Pstring-object according
+	Usage:			Sets the content of a pstring-object according
 					to an float-typed value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The Pstring-object which content
 												will be set.
 					float		f				Float value to be set.
 	
@@ -289,7 +223,7 @@ pint pstring_set_ulong( Pstring obj, pulong ul )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint pstring_set_float( Pstring obj, pfloat f )
+pint pstring_set_float( pstring obj, pfloat f )
 {
 	PROC( "pstring_set_float" );
 	PARMS( "obj", "%p", obj );
@@ -300,15 +234,10 @@ pint pstring_set_float( Pstring obj, pfloat f )
 	if( !ALLOC_STR( obj, NUMERIC_VALUE_LEN ) )
 		RETURN( ERR_MEM );
 
-#ifdef UNICODE
-	swprintf( obj->str, NUMERIC_VALUE_LEN, L"%f", f );
-	_pstring_strip_floating_point( obj );
-	VARS( "obj->str", "%S", obj->str );
-#else
-	sprintf( obj->str, "%f", f );
-	_pstring_strip_floating_point( obj );
-	VARS( "obj->str", "%s", obj->str );
-#endif
+	Psprintf( obj->str, L"%f", f );
+	strip_floating_point( obj );
+
+	VARS( "obj->str", "%ls", obj->str );
 
 	obj->len = Pstrlen( obj->str );
 	VARS( "obj->len", "%ld", obj->len );
@@ -321,10 +250,10 @@ pint pstring_set_float( Pstring obj, pfloat f )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Sets the content of a Pstring-object according
+	Usage:			Sets the content of a pstring-object according
 					to an double-typed value.
 					
-	Parameters:		Pstring		obj				The Pstring-object which content
+	Parameters:		pstring		obj				The Pstring-object which content
 												will be set.
 					double		d				Double value to be set.
 	
@@ -334,7 +263,7 @@ pint pstring_set_float( Pstring obj, pfloat f )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint pstring_set_double( Pstring obj, pdouble d )
+pint pstring_set_double( pstring obj, pdouble d )
 {
 	PROC( "pstring_set_double" );
 	PARMS( "obj", "%p", obj );
@@ -345,15 +274,9 @@ pint pstring_set_double( Pstring obj, pdouble d )
 	if( !ALLOC_STR( obj, NUMERIC_VALUE_LEN ) )
 		RETURN( ERR_MEM );
 
-#ifdef UNICODE
-	swprintf( obj->str, NUMERIC_VALUE_LEN, L"%lf", d );
-	_pstring_strip_floating_point( obj );
-	VARS( "obj->str", "%S", obj->str );
-#else
-	sprintf( obj->str, "%lf", d );
-	_pstring_strip_floating_point( obj );
-	VARS( "obj->str", "%s", obj->str );
-#endif
+	Psprintf( obj->str, L"%lf", d );
+	strip_floating_point( obj );
+	VARS( "obj->str", "%ls", obj->str );
 
 	obj->len = Pstrlen( obj->str );
 	VARS( "obj->len", "%ld", obj->len );
