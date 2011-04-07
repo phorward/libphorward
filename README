@@ -1,7 +1,12 @@
-Phorward Foundation Libraries SDK
+Phorward Foundation Libraries & Software Development Kit
 Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ contact<at>phorward-software<dot>com
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 --------------------------------------------------------------------------------
+
+===========================================
+=== THIS MANUAL IS UNDER DEVELOPMENT!!! ===
+===========================================
 
 *******************************************
 WHAT ARE THE PHORWARD FOUNDATION LIBRARIES?
@@ -44,6 +49,9 @@ This you will expect:
 
 + min_lalr1	Minimalist LALR(1) Parser Generator
 			An experimental parser generator.
+			
++ DEMO		A directory of useful demonstration examples on how to use the
+			Phorward Foundation Libraries.
 
 + mkdoc		Phorward Source-Code Documentation Generator
 			An AWK-script to construct manuals from source codes
@@ -142,4 +150,9 @@ environment variables which are necessary to run the SDK.
 COMPILING THE LIBRARIES/TOOLS
 *****************************
 After you ran the 'psh' environment setup script, you're ready to compile the
-libraries. Switch to the 
+libraries.
+
+===========================================
+=== THIS MANUAL IS UNDER DEVELOPMENT!!! ===
+===========================================
+
