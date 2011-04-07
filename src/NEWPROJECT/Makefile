@@ -17,7 +17,8 @@ SOURCE		=	main.c
 
 OBJECTS		=	main$(OBJEXT)
 
-LIBS		=	$(PREGEX_LIB) \
+LIBS		=	$(PSTRING_LIB) \
+				$(PREGEX_LIB) \
 				$(PBASIS_LIB)
 
 PROTOFILE	=	proto.h
