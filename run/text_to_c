@@ -1,0 +1,31 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Phorward SDK - text_to_c :: Convert plain text into C-define
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+#
+# Script:		text_to_c
+# Author:		Jan Max Meyer
+#-------------------------------------------------------------------------------
+
+if [ $# -lt 2 ]
+then
+	echo "usage: $0 DEFINE INPUT-FILES..."
+	exit 1
+fi
+
+echo "#define $1 \\"
+shift
+
+awk '		{
+				gsub( /\\/, "\\\\" )
+				gsub( /\"/, "\\\"" )
+				txt = txt "\t\"" $0 "\\n\" \\\n"
+			}
+
+	END		{
+				print substr( txt, 1, length( txt ) - 2 )
+			}
+	' $*
+
+exit 0
