@@ -78,7 +78,7 @@ if [ "$1" != "--silent" -a "$1" != "-s" ]
 then
 		cat <<ENDL
 :: Phorward Development Environment v`$PHOME/Version`
-:: Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+:: Copyright (C) 2006-2011 by Phorward Software Technologies, Jan Max Meyer
 :: All rights reserved. See LICENSE for more informations.
 :: `uname -n -o -p -r`
    ______________________
