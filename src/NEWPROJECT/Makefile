@@ -43,7 +43,6 @@ clean_obj:
 
 clean: clean_obj
 	-$(RM) $(PROGRAM)
-	-$(RM) cscope.out
 
 backup: clean
 	-@$(RM) ../$(PROJECT).tar
