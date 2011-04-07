@@ -572,6 +572,10 @@ static short xml_internal_dtd( xml_root_t root, uchar* s, size_t len )
 			t = s + strspn( s + 9, XML_WS ) + 9; /* skip whitespace separator */
 			if( !*t )
 			{
+				
+				
+				
+				
 				xml_err( root, t, "unclosed <!ATTLIST" );
 				break;
 			}
@@ -1109,11 +1113,14 @@ static uchar* xml_toxml_r( XML_T xml, uchar** s, size_t*	len, size_t*  max,
 	while( *len + strlen( xml->name ) + 7 + tabs > *max )	/* preallocate s */
 		*s = prealloc( *s, *max += XML_BUFSIZE );
 
-	for( i = 0; i < tabs; i++ ) *len += sprintf( *s +*len, "\t" );
+	for( i = 0; i < tabs; i++ )
+		*len += sprintf( *s + *len, "\t" );
 
 	*len += sprintf( *s +*len, "<%s", xml->name );			/* open tag */
+
 	for( i = 0; xml->attr[i]; i += 2 )
-	{	/* tag attributes */
+	{
+		/* tag attributes */
 		if( xml_attr( xml, xml->attr[i] ) != xml->attr[i + 1] )
 			continue;
 
@@ -1127,8 +1134,10 @@ static uchar* xml_toxml_r( XML_T xml, uchar** s, size_t*	len, size_t*  max,
 
 	for( i = 0; attr[i] && strcmp( attr[i][0], xml->name ); i++ )
 		;
+
 	for( j = 1; attr[i] && attr[i][j]; j += 3 )
-	{	/* default attributes */
+	{
+		/* default attributes */
 		if( !attr[i][j + 1] || xml_attr( xml, attr[i][j] ) != attr[i][j + 1] )
 			continue;	/* skip duplicates and non-values */
 
@@ -1142,7 +1151,7 @@ static uchar* xml_toxml_r( XML_T xml, uchar** s, size_t*	len, size_t*  max,
 
 	if( xml->child || ( xml->txt && *( xml->txt ) ) )
 	{
-		while( *len + strlen( xml->name ) + 5 + tabs > *max )/* preallocate s */
+		while( *len + strlen( xml->name ) + 2 + tabs > *max )/* preallocate s */
 			*s = prealloc( *s, *max += XML_BUFSIZE );
 
 		*len += sprintf( *s +*len, ">" );
@@ -1153,17 +1162,26 @@ static uchar* xml_toxml_r( XML_T xml, uchar** s, size_t*	len, size_t*  max,
 
 			/* child */
 			*s = xml_toxml_r( xml->child, s, len, max, 0, attr, tabs + 1 );
-
+			
+			while( *len + tabs > *max )/* preallocate s */
+				*s = prealloc( *s, *max += XML_BUFSIZE );
+			
 			for( i = 0; i < tabs; i++ )
 				*len += sprintf( *s +*len, "\t" );
-		} else
+		}
+		else
 			/* data */
 			*s = xml_ampencode( xml->txt, -1, s, len, max, 0 );
-
-		*len += sprintf( *s +*len, "</%s>\n", xml->name );		/* close tag */
+	
+		while( *len + strlen( xml->name ) + 4 > *max )/* preallocate s */
+			*s = prealloc( *s, *max += XML_BUFSIZE );
+			
+		*len += sprintf( *s + *len, "</%s>\n", xml->name );		/* close tag */
 	}
 	else
-		*len += sprintf( *s +*len, " />\n" );
+	{
+		*len += sprintf( *s + *len, " />\n" );
+	}
 
 	/* make sure off is within bounds */
 	while( txt[off] && off < xml->off )
@@ -1552,6 +1570,32 @@ XML_T xml_set_flag( XML_T xml, short flag )
 		xml->flags |= flag;
 
 	return xml;
+}
+
+/* =============================================================================
+    count XML elements in current node type
+ ============================================================================ */
+int xml_count( XML_T xml )
+{
+	int		i;
+
+	for( i = 0; xml; xml = xml_next( xml ), i++ )
+		;
+
+	return i;
+}
+
+/* =============================================================================
+    count all XML elements in one level
+ ============================================================================ */
+int xml_count_all( XML_T xml )
+{
+	int		i;
+
+	for( i = 0; xml; xml = xml_next_inorder( xml ), i++ )
+		;
+
+	return i;
 }
 
 /* =============================================================================
