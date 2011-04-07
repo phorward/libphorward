@@ -685,7 +685,7 @@ uchar* xml_str2utf8( uchar ** s, size_t* len )
 /* =============================================================================
     pfrees a tag attribute list
  ============================================================================ */
-void xml_pfree_attr( uchar ** attr )
+void xml_free_attr( uchar ** attr )
 {
 	
 	int		i = 0;
@@ -791,7 +791,7 @@ XML_T xml_parse_str( uchar* s, size_t len )
 															 * attribute val */
 						else
 						{
-							xml_pfree_attr( attr );
+							xml_free_attr( attr );
 							return xml_err( root, d, "missing %c", q );
 						}
 
@@ -826,7 +826,7 @@ XML_T xml_parse_str( uchar* s, size_t len )
 				*( s++ ) = '\0';
 				if( ( *s && *s != '>' ) || ( !*s && e != '>' ) )
 				{
-					if( l ) xml_pfree_attr( attr );
+					if( l ) xml_free_attr( attr );
 					return xml_err( root, d, "missing >" );
 				}
 
@@ -840,7 +840,7 @@ XML_T xml_parse_str( uchar* s, size_t len )
 				*s = q;
 			} else
 			{
-				if( l ) xml_pfree_attr( attr );
+				if( l ) xml_free_attr( attr );
 				return xml_err( root, d, "missing >" );
 			}
 		} 
@@ -960,7 +960,7 @@ XML_T xml_parse_fp( FILE* fp )
 		return (XML_T)NULL;
 
 	root = (xml_root_t)xml_parse_str( s, len );
-	root->len = -1; /* so we know to pfree s in xml_pfree() */
+	root->len = -1; /* so we know to pfree s in xml_free() */
 
 	return &root->xml;
 }
@@ -984,7 +984,7 @@ XML_T xml_parse_fd( int fd )
 
 	l = read( fd, m = pmalloc( st.st_size ), st.st_size );
 	root = (xml_root_t)xml_parse_str( m, l );
-	root->len = -1; /* so we know to pfree s in xml_pfree() */
+	root->len = -1; /* so we know to pfree s in xml_free() */
 
 	return &root->xml;
 }
@@ -1214,7 +1214,7 @@ uchar* xml_toxml( XML_T xml )
 /* =============================================================================
     pfree the memory allocated for the xml structure
  ============================================================================ */
-void xml_pfree( XML_T xml )
+void xml_free( XML_T xml )
 {
 	
 	xml_root_t	root = (xml_root_t)xml;
@@ -1223,8 +1223,8 @@ void xml_pfree( XML_T xml )
 	
 
 	if( !xml ) return;
-	xml_pfree( xml->child );
-	xml_pfree( xml->ordered );
+	xml_free( xml->child );
+	xml_free( xml->ordered );
 
 	if( !xml->parent )
 	{
@@ -1263,7 +1263,7 @@ void xml_pfree( XML_T xml )
 		if( root->u ) pfree( root->u ); /* utf8 conversion */
 	}
 
-	xml_pfree_attr( xml->attr );		/* tag attributes */
+	xml_free_attr( xml->attr );		/* tag attributes */
 
 	if( ( xml->flags & XML_TXTM ) )
 		pfree( xml->txt );		/* character content */
