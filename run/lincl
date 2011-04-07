@@ -1,0 +1,48 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Phorward SDK - lincl :: Local include resolver
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+#
+# Script:		lincl
+# Author:		Jan Max Meyer
+#-------------------------------------------------------------------------------
+
+if [ $# -lt 1 ]
+then
+	echo "usage: $0 <filenames>"
+	exit 1
+fi
+
+while [ "$1" != "" ]
+do
+	awk '
+
+BEGIN				{	FS = "[ \t\"]+"		}
+
+/#include[ \t]+\"/	{
+						if( !system( "test -f " $2 ) )
+						{
+							system( "cat " $2 )
+						}
+						else
+						{
+							print "/* FILE NOT FOUND: " $2 " */"
+							exit 1
+						}
+						next
+					}
+
+					{
+						print
+					}
+	' $1
+
+	if [ $? -ne 0 ]
+	then
+		exit 1
+	fi
+
+	shift
+done
+
