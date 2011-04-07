@@ -1,15 +1,39 @@
 :: Phorward Foundation Libraries & Software Development Kit.
-:: Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+:: Copyright (C) 2006-2011 by Phorward Software Technologies, Jan Max Meyer
 :: All rights reserved. See $PHOME/LICENSE for more informations.
 ::
 :: CHANGE LOG FILE
 --------------------------------------------------------------------------------
 
+LEGEND:
 [+] New features
 [-] Bugfixes
 
 ----------------------------------------
-v0.15.7
+v0.16
+----------------------------------------
+[+] pregex:
+	Implemented feature to finalize a NFA-stated machine into a DFA,
+	the match-, split- and replace-functions can now also be run with
+	DFA-compiled machine, for testing purposes.
+
+----------------------------------------
+v0.15.16 -> v0.15.23
+----------------------------------------
+[-] pregex:
+	Bugfix in DFA subset construction, now the regular expression with the
+	lowest accepting ID takes place over all other matches.
+
+----------------------------------------
+v0.15.9 -> v0.15.15
+----------------------------------------
+[+] pregex:
+	Created some source improvements, default-transition matching
+[+]	pbasis:
+	ccl_end()-macro
+
+----------------------------------------
+v0.15 -> v0.15.8
 ----------------------------------------
 [+] NEWPROJECT:
 	Added a new directory NEWPROJECT, which serves as a project template
