@@ -735,7 +735,7 @@ XML_T xml_parse_str( uchar* s, size_t len )
 
 	e = s[len - 1]; /* save end uchar* s[len - 1]
 					 * '\0';
-					 * /* turn end uchar into null terminator */
+					 * turn end uchar into null terminator */
 
 	while( *s && *s != '<' )
 		s++;	/* find first tag */
