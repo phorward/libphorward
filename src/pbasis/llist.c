@@ -492,6 +492,7 @@ int list_count( LIST* list )
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	04.11.2009	Jan Max Meyer	Fixed this function, it never worked before ;)
 ----------------------------------------------------------------------------- */
 int list_subset( LIST* list, LIST* subset )
 {
@@ -501,7 +502,7 @@ int list_subset( LIST* list, LIST* subset )
 	{
 		for( current = subset; current != (LIST*)NULL; current = current->next )
 		{
-			if( list_find( list, current->pptr ) > -1 )
+			if( list_find( list, current->pptr ) < 0 )
 				break;
 		}
 		
