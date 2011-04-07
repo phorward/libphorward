@@ -1,11 +1,9 @@
-#-------------------------------------------------------------------------------
-# Phorward DevEnv Test Module
-# Copyright (C) 2009 by Phorward Software Technologies
-# http://www.phorward-software.com ++ mail<at>phorward<dash>software<dot>com
-#
-# Make-File:	Makefile
-# Author:		Jan Max Meyer
-#-------------------------------------------------------------------------------
+# -MAKE-------------------------------------------------------------------------
+# Phorward Foundation Libraries :: DEMO
+# Copyright (C) 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
+# ------------------------------------------------------------------------------
 
 include			../../include/Make.inc
 
@@ -30,8 +28,7 @@ DEMO_STRING_LIB	=	$(PSTRING_LIB) \
 
 #-------------------------------------------------------------------------------
 
-#all: $(DEMO_BASIS) $(DEMO_REGEX) $(DEMO_STRING)
-all: $(DEMO_BASIS)
+all: $(DEMO_BASIS) $(DEMO_REGEX) $(DEMO_STRING)
 	@echo
 	@echo --- Compilation succeeded! ---
 	
