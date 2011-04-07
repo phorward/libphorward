@@ -62,10 +62,17 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 	if( !( nfa && str ) )
 		RETURN( ERR_PARMS );
 
+	/* For wide-character execution, copy string content */
+	if( flags & REGEX_MOD_WCHAR )
+	{
+		if( !( str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
+			return ERR_MEM;
+	}
+
 	/* Find node to integrate into existing machine */
 	for( append_to = (pregex_nfa_st*)list_access( nfa->states );
 		append_to && append_to->next2; append_to = append_to->next2 )
-			/* Find last first node ;) ... */ ;
+			; /* Find last first node ;) ... */
 
 	/* Create first state - this is an epsilon node */
 	if( !( first_nfa_st = prev_nfa_st =
@@ -127,6 +134,10 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 	VARS( "append_to", "%p", append_to );
 	if( append_to )
 		append_to->next2 = first_nfa_st;
+
+	/* Free copied string, in wide character mode */
+	if( flags & REGEX_MOD_WCHAR )
+		pfree( str );
 		
 	RETURN( ERR_OK );
 }
