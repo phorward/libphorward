@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Basis Library :: Platform-independent system functions
-Copyright (C) 2008, 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail@phorward-software.com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	system.c
 Author:	Jan Max Meyer
@@ -49,5 +50,40 @@ uchar* pbasename( uchar* path )
 	basename = strrchr( path, PPATHSEP );
 	VARS( "basename", "%s", basename ? basename+1 : path );
 	RETURN( ( basename ) ? ++basename : path );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pfileexists()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Checks wether a file exists or not.
+					
+	Parameters:		uchar*		filename		Path to a file.
+	
+	Returns:		pboolean					TRUE on success, FALSE if not.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pboolean pfileexists( uchar* filename )
+{
+	PROC( "pfileexists" );
+	PARMS( "filename", "%s", filename );
+	
+	if( !
+	#ifndef _WIN32
+		access( filename, F_OK )
+	#else
+		access( filename, 0 )
+	#endif
+	)
+	{
+		MSG( "File exists!" );
+		RETURN( TRUE );
+	}
+		
+	MSG( "File does not exist!" );
+	RETURN( FALSE );
 }
 
