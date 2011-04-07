@@ -413,6 +413,123 @@ int psprintf( uchar* res, uchar* fmt, ... )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		pvasprintf()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Implementation and replacement for vasprintf.
+
+	Parameters:		uchar**		str					A pointer receiving the
+													resultung, allocated string
+													pointer.
+	 				uchar*		fmt					The format string.
+					...								Parameters according to the
+													placeholders set in fmt.
+
+	Returns:		int								Returns the number of
+													characters written.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int pvasprintf( uchar** str, uchar* fmt, va_list ap )
+{
+	uchar*		istr;
+	int			ilen;
+	int			len;
+	va_list		w_ap;
+	
+	PROC( "pvasprintf" );
+	PARMS( "str", "%p", str );
+	PARMS( "fmt", "%s", fmt );
+	PARMS( "ap", "%p", ap );
+	
+	if( !( istr = (uchar*)pmalloc( MALLOC_STEP * sizeof( uchar ) ) ) )
+		RETURN( ERR_MEM );
+	
+	va_copy( w_ap, ap );
+	
+	MSG( "Invoking vsnprintf() for the first time" );
+	len = vsnprintf( istr, MALLOC_STEP, fmt, w_ap );
+	VARS( "len", "%d", len );
+	
+	if( len >= 0 && len < MALLOC_STEP )
+		*str = istr;
+	else if( len == INT_MAX || len < 0 )
+	{
+		MSG( "ret is negative or too big - can't handle this!" );
+		va_end( w_ap );
+		RETURN( ERR_MEM );
+	}
+	else
+	{
+		if( !( istr = prealloc( istr, ( ilen = len + 1 ) * sizeof( uchar ) ) ) )
+		{
+			va_end( w_ap );
+			RETURN( ERR_MEM );
+		}
+		
+		va_end( w_ap );
+		va_copy( w_ap, ap );
+
+		MSG( "Invoking vsnprintf() for the second time" );
+		len = vsnprintf( istr, ilen, fmt, w_ap );
+		VARS( "len", "%d", len );
+		
+		if( len >= 0 && len < ilen )
+			*str = istr;
+		else
+		{
+			pfree( istr );
+			RETURN( ERR_MEM );
+		}
+	}
+	
+	va_end( w_ap );
+	RETURN( len );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pasprintf()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Implementation and replacement for asprintf.
+					pasprintf() takes only the format-string and various
+					arguments. It outputs an allocated string to be freed
+					later on.
+
+	Parameters:		uchar*		fmt					Format string
+					...								Parameters according to the
+													placeholders set in fmt.
+
+	Returns:		uchar*							Returns the allocated string
+													which cointains the format
+													string with inserted values.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* pasprintf( uchar* fmt, ... )
+{
+	uchar*	str;
+	va_list	args;
+
+	PROC( "pasprintf" );
+	PARMS( "fmt", "%s", fmt );
+
+	if( !( fmt ) )
+		RETURN( (uchar*)NULL );
+
+	va_start( args, fmt );
+	pvasprintf( &str, fmt, args );
+	va_end( args );
+	
+	VARS( "str", "%s", str );
+	RETURN( str );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		patol()
 	
 	Author:			Jan Max Meyer
@@ -996,6 +1113,105 @@ int Psprintf( pchar* res, pchar* fmt, ... )
 	
 	VARS( "ret", "%d", ret );
 	RETURN( ret );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		Pvasprintf()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Wide-character implementation of pasprintf().
+
+	Parameters:		pchar**		str					A pointer receiving the
+													resultung, allocated string
+													pointer.
+	 				pchar*		fmt					The format string.
+					...								Parameters according to the
+													placeholders set in fmt.
+
+	Returns:		int								Returns the number of
+													characters written.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int Pvasprintf( pchar** str, pchar* fmt, va_list ap )
+{
+	pchar*		istr;
+	int			ilen;
+	int			len;
+	va_list		w_ap;
+	
+	PROC( "pvasprintf" );
+	PARMS( "str", "%p", str );
+	PARMS( "fmt", "%ls", fmt );
+	PARMS( "ap", "%p", ap );
+	
+	if( !( istr = (pchar*)pmalloc( ( ilen = MALLOC_STEP + 1 )
+				* sizeof( pchar ) ) ) )
+		RETURN( ERR_MEM );
+	
+	do
+	{
+		va_copy( w_ap, ap );
+		len = vswprintf( istr, (psize)ilen, fmt, w_ap );
+		va_end( w_ap );
+		VARS( "len", "%d", len );
+	
+		if( len < 0 )
+		{
+			if( !( istr = prealloc( istr, ( ilen = ilen + MALLOC_STEP + 1 )
+					* sizeof( pchar ) ) ) )
+			{
+				RETURN( ERR_MEM );
+			}
+		}
+	}
+	while( len < 0 || len >= ilen );
+
+	*str = istr;
+	
+	RETURN( len );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		Pasprintf()
+
+	Author:			Jan Max Meyer
+
+	Usage:			An implementation of pasprintf() for wide-character pchar.
+					pasprintf() takes only the format-string and various
+					arguments. It outputs an allocated string to be freed
+					later on.
+
+	Parameters:		pchar*		fmt					Format string
+					...								Parameters according to the
+													placeholders set in fmt.
+
+	Returns:		pchar*							Returns the allocated string
+													which cointains the format
+													string with inserted values.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pchar* Pasprintf( pchar* fmt, ... )
+{
+	pchar*	str;
+	va_list	args;
+
+	PROC( "pasprintf" );
+	PARMS( "fmt", "%ls", fmt );
+
+	if( !( fmt ) )
+		RETURN( (pchar*)NULL );
+
+	va_start( args, fmt );
+	Pvasprintf( &str, fmt, args );
+	va_end( args );
+	
+	VARS( "str", "%ls", str );
+	RETURN( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
