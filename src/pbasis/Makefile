@@ -18,7 +18,8 @@ SRC			=	base64.c \
 				string.c \
 				system.c \
 				utf8.c \
-				util.c
+				util.c \
+				xml.c
 
 SRC_HDR		=	bitset.h \
 				ccl.h \
@@ -27,7 +28,8 @@ SRC_HDR		=	bitset.h \
 				llist.h \
 				stack.h \
 				string.h \
-				utf8.h
+				utf8.h \
+				xml.h
 
 OBJ			=	base64$(OBJEXT) \
 				ccl$(OBJEXT) \
@@ -40,7 +42,8 @@ OBJ			=	base64$(OBJEXT) \
 				string$(OBJEXT) \
 				system$(OBJEXT) \
 				utf8$(OBJEXT) \
-				util$(OBJEXT)
+				util$(OBJEXT) \
+				xml$(OBJEXT)
 
 PROTO		=	pbasis.proto.h
 
