@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Phorward Software Development Kit
-# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# Copyright (C) 2009-2011 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See $PHOME/LICENSE for more information.
 #
