@@ -286,7 +286,7 @@ void stack_dump( uchar* file, int line, uchar* name,
 			fprintf( stderr, "\t%p\n", stack_access( stack, i ) );
 	}
 
-	fprintf( stderr, "%s [%d]: %s %d active, %d left empty\n",
+	fprintf( stderr, "%s [%d]: %s %ld active, %ld left empty\n",
 		file, line, name, stack->top, stack->count - stack->top );
 }
 
