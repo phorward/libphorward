@@ -507,7 +507,8 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_callback fn,
 												*  sizeof( pregex_result ) );
 				if( !*results )
 					RETURN( ERR_MEM );
-
+					
+				(*results)[ matches ].accept = match;
 				(*results)[ matches ].begin = prev;
 				(*results)[ matches ].end = pstr;
 				(*results)[ matches ].pbegin = (pchar*)prev;
@@ -577,6 +578,7 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_callback fn,
 		if( !*results )
 			RETURN( ERR_MEM );
 
+		(*results)[ matches ].accept = -1;
 		(*results)[ matches ].begin = prev;
 		(*results)[ matches ].end = pstr;
 		(*results)[ matches ].pbegin = (pchar*)prev;
@@ -703,7 +705,7 @@ int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 					tmp_result.pos = pstr - str;
 				
 				MSG( "Calling callback-function" );
-				if( ( (*fn)( &tmp_result ) < 0 ) )
+				if( ( ( tmp_result.accept = (*fn)( &tmp_result ) ) < 0 ) )
 				{
 					MSG( "Callback returns value lower than 0" );
 					continue;
@@ -713,6 +715,8 @@ int pregex_comp_replace( pregex* machine, uchar* str, uchar* replacement,
 					regex_result-structure's user-pointer */					
 				use_replacement = (uchar*)tmp_result.user;
 			}
+			
+			matches++;
 
 			if( !use_replacement )
 				use_replacement = replacement;
