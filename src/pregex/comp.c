@@ -227,11 +227,11 @@ void pregex_comp_free( pregex* machine )
 												the accepting IDs of the
 												matching expressions.
 																	
-	Returns:		>= 0						The amount of matches, which
+	Returns:		int		>= 0				The amount of matches, which
 												is the amount of items within
 												the returned results-array.
 												
-					ERR_...						ERR_*-define on error.
+							ERR_...				ERR_*-define on error.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -375,10 +375,10 @@ int pregex_comp_match( pregex* machine, uchar* str, pregex_result** results )
 												related strings within the
 												input-string str.
 																	
-	Returns:		>= 0						The amount of elements within
+	Returns:		int				>= 0		The amount of elements within
 												the returned results-array.
 												
-					ERR_...						ERR_*-define on error.
+									ERR_...		ERR_*-define on error.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
@@ -524,7 +524,7 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 					with $x for each opening bracket within the regular 
 					expression.
 					
-	Parameters:		pregex			machine		The regular expression
+	Parameters:		pregex*			machine		The regular expression
 												pattern
 					uchar*			str			String the pattern
 												will be ran on.
@@ -535,9 +535,8 @@ int pregex_comp_split( pregex* machine, uchar* str, pregex_result** results )
 					uchar**			result		Returns a pointer to the result
 												string.
 																	
-	Returns:		>= 0						The amount of matches.
-												
-					ERR_...						ERR_*-define on error.
+	Returns:		int				>= 0		The amount of matches.
+									ERR_...		ERR_*-define on error.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
