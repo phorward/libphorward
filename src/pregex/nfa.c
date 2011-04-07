@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Regular Expression Library, Version 2
-Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail<at>phorward<dash>software<dot>com
+Phorward Foundation Libraries :: Regular Expression Library, Version 2
+Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	nfa.c
 Author:	Jan Max Meyer
@@ -26,6 +27,7 @@ Usage:	NFA creation and executable functions
  * Functions
  */
 
+/*NO_DOC*/
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_nfa_create_state()
 
@@ -113,20 +115,13 @@ pregex_nfa_st* pregex_nfa_create_state(
 			{
 				for( ch = c->begin; ch <= c->end; ch++ )
 				{
-				
-/* TODO */
-#ifdef UTF8
-					if( iswupper( ch ) )
-						cch = towlower( ch );
+					if( Pisupper( ch ) )
+						cch = Ptolower( ch );
 					else
-						cch = towupper( ch );
-#else
-					if( isupper( ch ) )
-						cch = (uchar)tolower( (int)ch );
-					else
-						cch = (uchar)toupper( (int)ch );
-#endif
+						cch = Ptoupper( ch );
+
 					VARS( "cch", "%d", cch );
+
 					if( !( iccl = ccl_addrange( iccl, cch, cch ) ) )
 						RETURN( (pregex_nfa_st*)NULL );
 				}
@@ -168,18 +163,18 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	LIST*			l;
 	pregex_nfa_st*	s;
 
-	fprintf( stderr, " no next next2 accept ref\n" );
-	fprintf( stderr, "-------------------------\n" );
+	fprintf( stderr, " no next next2 accept ref anchor\n" );
+	fprintf( stderr, "--------------------------------\n" );
 
 	for( l = nfa->states; l; l = list_next( l ) )
 	{
 		s = (pregex_nfa_st*)list_access( l );
 
-		fprintf( stderr, "#% 2d % 4d % 5d  % 5d  % 3d\n",
+		fprintf( stderr, "#% 2d % 4d % 5d  % 5d  % 3d % 6d\n",
 			list_find( nfa->states, (void*)s ),
 			list_find( nfa->states, (void*)s->next ),
 			list_find( nfa->states, (void*)s->next2 ),
-			s->accept, s->ref );
+			s->accept, s->ref, s->anchor );
 		
 		if( s->ccl )
 			ccl_print( stderr, s->ccl, 0 );
@@ -248,8 +243,12 @@ void pregex_nfa_free( pregex_nfa* nfa )
 					set of NFA states.
 
 	Parameters:		LIST*		input			List of input NFA states.
-					wchar		ch				Character where move-operation
-												should be processed on.
+					pchar		from			Character-range begin from which
+												the move-operation should be
+												processed on.
+					pchar		to				Character-range end until
+												the move-operation should be
+												processed.
 
 	Returns:		LIST*		Pointer to the result of the move operation.
 								If this is (LIST*)NULL, there is no possible
@@ -258,8 +257,12 @@ void pregex_nfa_free( pregex_nfa* nfa )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
+	30.05.2010	Jan Max Meyer	Switched function to test for a range of
+								characters instead of only one. This has been
+								done due performance increason of DFA table
+								construction.
 ----------------------------------------------------------------------------- */
-LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, wchar ch )
+LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 {
 	LIST*			hits	= (LIST*)NULL;
 	pregex_nfa_st*	test;
@@ -267,7 +270,8 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, wchar ch )
 	PROC( "pregex_nfa_move" );
 	PARMS( "nfa", "%p", nfa );
 	PARMS( "input", "%p", input );
-	PARMS( "ch", "%d", ch );
+	PARMS( "from", "%d", from );
+	PARMS( "to", "%d", to );
 
 	/* Loop trough the input items */
 	while( input != (LIST*)NULL )
@@ -279,9 +283,10 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, wchar ch )
 		/* Not an epsilon edge? */
 		if( test->ccl )
 		{
-			if( ccl_test( test->ccl, ch ) )
+			/* Test for range */
+			if( ccl_testrange( test->ccl, from, to ) )
 			{
-				MSG( "State matches character!" );
+				MSG( "State matches range!" );
 				hits = list_push( hits, test->next );
 			}
 		}
@@ -307,6 +312,12 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, wchar ch )
 												accept-id. Can be left
 												(int*)NULL, so accept will
 												not be returned.
+					int*		anchors			Return-pointer to a variable
+												to retrieve a possible
+												anchor-configuration. This
+												pointer is associated with
+												accept, so it can even be left
+												(int*)NULL, to not be returned.
 
 	Returns:		LIST*		Pointer to the result of the epsilon closure
 								(a new set of NFA states)
@@ -315,7 +326,8 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, wchar ch )
 	Date:		Author:			Note:
 	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
 ----------------------------------------------------------------------------- */
-LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
+LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
+			int* accept, int* anchors )
 {
 	pregex_nfa_st*	top;
 	pregex_nfa_st*	next;
@@ -327,6 +339,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 	PARMS( "nfa", "%p", nfa );
 	PARMS( "input", "%p", input );
 	PARMS( "accept", "%p", accept );
+	PARMS( "anchors", "%p", anchors );
 
 	if( accept != (int*)NULL )
 		*accept = REGEX_ACCEPT_NONE;
@@ -364,6 +377,12 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 		VARS( "*accept", "%d", *accept );
 	}
 
+	if( anchors && last_accept )
+	{
+		*anchors = last_accept->anchor;
+		VARS( "*anchors", "%d", *anchors );
+	}
+
 	RETURN( input );
 }
 
@@ -379,6 +398,11 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 											work on.
 					psize*			len		Length of the match, -1 on error or
 											no match.
+					int*			anchors	Returns the anchor configuration
+											of the matching state, if it
+											provides anchors. If this is
+											(int*)NULL, anchors will be
+											ignored.
 					pregex_result**	ref		Return array of references; If this
 											pointer is not NULL, the function
 											will allocate memory for a refer-
@@ -408,7 +432,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len,
+int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 		pregex_result** ref, int* ref_count, int flags )
 {
 	LIST*		res			= (LIST*)NULL;
@@ -422,13 +446,15 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len,
 
 	PROC( "pregex_nfa_match" );
 	PARMS( "nfa", "%p", nfa );
-
 	if( flags & REGEX_MOD_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
-
 	PARMS( "len", "%p", len );
+	PARMS( "anchors", "%p", anchors );
+	PARMS( "ref", "%p", ref );
+	PARMS( "ref_count", "%d", ref_count );
+	PARMS( "flags", "%d", flags );
 	
 	/* If ref-pointer is set, then use it! */
 	if( ( ref && nfa->ref_count ) )
@@ -451,14 +477,19 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len,
 		memset( *ref, 0, nfa->ref_count * sizeof( pregex_result ) );
 		*ref_count = nfa->ref_count;
 	}
-	
+
+	/* Initialize */
 	*len = 0;
+	if( anchors )
+		*anchors = REGEX_ANCHOR_NONE;
+
 	res = list_push( res, list_access( nfa->states ) );
 
+	/* Run the engine! */
 	while( res )
 	{
 		MSG( "Performing epsilon closure" );
-		res = pregex_nfa_epsilon_closure( nfa, res, &accept );
+		res = pregex_nfa_epsilon_closure( nfa, res, &accept, anchors );
 		
 		MSG( "Handling References" );
 		if( ref && nfa->ref_count )
@@ -520,7 +551,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len,
 		VARS( "ch", "%d", ch );
 		VARS( "ch", "%lc", ch );
 
-		res = pregex_nfa_move( nfa, res, ch );
+		res = pregex_nfa_move( nfa, res, ch, ch );
 
 		if( flags & REGEX_MOD_WCHAR )
 		{
@@ -570,6 +601,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 {
 	int		ref;
 	int		ret;
+	int		anchor		= REGEX_ANCHOR_NONE;
 	NFA_ST*	estart;
 	NFA_ST*	eend;
 	NFA_ST*	first;
@@ -612,6 +644,22 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	
 	/* Zero reference */
 	ref = nfa->ref_count++;
+
+	/* Parse anchor at begin of regular expression */
+	if( !( flags & REGEX_MOD_NO_ANCHORS ) )
+	{
+		if( *pstr == '^' )
+		{
+			anchor |= REGEX_ANCHOR_BOL;
+			pstr++;
+		}
+		else if( !pstrncmp( pstr, "\\<", 2 ) )
+				/* This is a GNU-like extension */
+		{
+			anchor |= REGEX_ANCHOR_BOW;
+			pstr += 2;
+		}
+	}
 	
 	/* Run the regex parser */
 	if( ( ret = parse_alter( &pstr, nfa, &estart, &eend, flags ) )
@@ -619,6 +667,16 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	{
 		pfree( str );
 		return ( ret > ERR_OK ) ? ERR_FAILURE : ret;
+	}
+
+	/* Parse anchor at end of regular expression */
+	if( !( flags & REGEX_MOD_NO_ANCHORS ) )
+	{
+		if( !pstrcmp( pstr, "$" ) )
+			anchor |= REGEX_ANCHOR_EOL;
+		else if( !pstrcmp( pstr, "\\>" ) )
+			/* This is a GNU-like extension */
+			anchor |= REGEX_ANCHOR_EOW;
 	}
 	
 	/* estart is next of first */
@@ -636,8 +694,6 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 		}
 		
 		eend->next = last;
-
-
 		eend = last;
 	}
 
@@ -646,6 +702,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	
 	/* Accept */
 	eend->accept = accept;
+	eend->anchor = anchor;
 
 	/* Chaining into big machine */
 	if( nfirst )
@@ -655,6 +712,8 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	pfree( str );
 	return ERR_OK;
 }
+
+/*COD_ON*/
 
 /******************************************************************************
  * RECURSIVE DESCENT PARSER FOR REGULAR EXPRESSIONS FOLLOWS HERE...           *
@@ -863,6 +922,12 @@ PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
 
 	while( !( **pstr == '|' || **pstr == ')' || **pstr == '\0' ) )
 	{
+		if( !( flags & REGEX_MOD_NO_ANCHORS ) )
+		{
+			if( !pstrcmp( *pstr, "$" ) || !pstrcmp( *pstr, "\\>" ) )
+				break;
+		}
+
 		if( ( ret = parse_factor( pstr, nfa, &sstart, &send, flags ) )
 				!= ERR_OK )
 			return ret;
@@ -915,11 +980,6 @@ PRIVATE int parse_alter( uchar** pstr, pregex_nfa* nfa,
 
 		(*end) = alter;
 	}
-	/*	
-	fprintf( stderr, "ALT +++\n" );
-	pregex_nfa_print( nfa );
-	getchar();
-	*/
 
 	return ERR_OK;
 }
