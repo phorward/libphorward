@@ -855,12 +855,12 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 {
 	pregex_dfa_st*	dfa_st;
 	pregex_dfa_st*	next_dfa_st;
+	pregex_dfa_st*	last_accept = (pregex_dfa_st*)NULL;
 	pregex_dfa_tr*	ent;
 	LIST*			l;
 	uchar*			pstr		= str;
 	size_t			plen		= 0;
 	pchar			ch;
-	int				last_accept = REGEX_ACCEPT_NONE;
 	int				i;
 
 	PROC( "pregex_dfa_match" );
@@ -876,6 +876,9 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 	PARMS( "flags", "%d", flags );
 
 	/* Initialize! */
+	if( anchors )
+		*anchors = REGEX_ANCHOR_NONE;
+
 	if( ( i = pregex_ref_init( ref, ref_count, dfa->ref_count, flags ) )
 			!= ERR_OK )
 		RETURN( i );
@@ -889,7 +892,7 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 		if( dfa_st->accept > REGEX_ACCEPT_NONE )
 		{
 			MSG( "This state has an accept" );
-			last_accept = dfa_st->accept;
+			last_accept = dfa_st;
 			*len = plen;
 		}
 
@@ -967,10 +970,18 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 	}
 
 	MSG( "Done scanning" );
+
+	if( anchors && last_accept )
+	{
+		*anchors = last_accept->anchor;
+		VARS( "*anchors", "%d", *anchors );
+	}
 	
 	VARS( "*len", "%d", *len );
-	VARS( "last_accept", "%d", last_accept );
-	RETURN( last_accept );
+	VARS( "last_accept->accept", "%d", ( last_accept ? 
+										last_accept->accept :
+											REGEX_ACCEPT_NONE ) );
+	RETURN( ( last_accept ? last_accept->accept : REGEX_ACCEPT_NONE ) );
 }
 
 /*COD_ON*/
