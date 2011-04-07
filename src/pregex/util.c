@@ -77,6 +77,9 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 		append_to && append_to->next2; append_to = append_to->next2 )
 			; /* Find last first node ;) ... */
 
+	/* References */
+	nfa->ref_cur = nfa->ref_count++;
+
 	/* Create first state - this is an epsilon node */
 	if( !( first_nfa_st = prev_nfa_st =
 			pregex_nfa_create_state( nfa, (uchar*)NULL, flags ) ) )
