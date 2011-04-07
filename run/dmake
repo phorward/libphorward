@@ -1,0 +1,17 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# Phorward SDK - dmake :: Debug Make Utility
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ mail<<AT>>phorward-software<<DOT>>com
+#
+# Script:		dmake
+# Author:		Jan Max Meyer
+#-------------------------------------------------------------------------------
+
+echo "***********************"
+echo "* DEBUG MAKE :: START *"
+echo "***********************"
+make DEBUG=-D__WITH_TRACE=1 $*
+echo "**********************"
+echo "* DEBUG MAKE :: DONE *"
+echo "**********************"
