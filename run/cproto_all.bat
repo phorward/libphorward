@@ -1,4 +1,15 @@
 @echo off
+rem ----------------------------------------------------------------------------
+rem  Phorward Software Development Kit
+rem Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+rem http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+rem All rights reserved. See $PHOME/LICENSE for more information.
+rem
+rem Script:		cproto_all.bat
+rem Author:		Jan Max Meyer
+rem Usage:		A wrapper for mkproto (formerly cproto-wapper)
+rem ----------------------------------------------------------------------------
+
 set files=%1
 set files=%files:~1,-1%
 
