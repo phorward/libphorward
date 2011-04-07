@@ -34,5 +34,6 @@ struct _crange
 /* Macros */
 #define ccl_free( ccl )				pfree( ccl )
 #define ccl_replace( ccl, nccl )	free( ccl ), ccl = nccl
+#define ccl_end( ccl )				( (ccl)->begin == CCL_MAX )
 
 #endif
