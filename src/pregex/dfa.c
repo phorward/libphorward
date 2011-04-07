@@ -192,7 +192,6 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	CCL				ccl;
 	CCL				test;
 	CCL				subset;
-	int				ch;
 
 	PROC( "pregex_dfa_from_nfa" );
 	PARMS( "dfa", "%p", dfa );
