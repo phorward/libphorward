@@ -1,7 +1,8 @@
 # -MAKE-------------------------------------------------------------------------
-# Phorward Basis Library
-# Copyright (C) 2006-2009 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ contact<at>phorward-software<dot>com
+# Phorward Foundation Libraries :: Basis Library
+# Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
 # ------------------------------------------------------------------------------
 
 include ../../include/Make.inc
@@ -13,6 +14,7 @@ SRC			=	base64.c \
 				dbg.c \
 				hashtab.c \
 				llist.c \
+				stack.c \
 				string.c \
 				system.c \
 				utf8.c \
@@ -23,6 +25,7 @@ SRC_HDR		=	bitset.h \
 				dbg.h \
 				hashtab.h \
 				llist.h \
+				stack.h \
 				string.h \
 				utf8.h
 
@@ -33,6 +36,7 @@ OBJ			=	base64$(OBJEXT) \
 				dbg$(OBJEXT) \
 				hashtab$(OBJEXT) \
 				llist$(OBJEXT) \
+				stack$(OBJEXT) \
 				string$(OBJEXT) \
 				system$(OBJEXT) \
 				utf8$(OBJEXT) \
@@ -42,7 +46,7 @@ PROTO		=	pbasis.proto.h
 
 HEADERS		=	pbasis.h
 
-DOC			=	$(DOC_DIR)$(PATH_SEP)pbasis$(DOCEXT)
+DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pbasis.html
 
 # ------------------------------------------------------------------------------
 
@@ -72,14 +76,10 @@ backup: clean
 	tar cvf ../pbasis.tar ../pbasis
 
 #make doc
-doc: $(DOC)
+doc: 
+	-$(MKDIR) $(DOC_DIR)
+	$(MKDOC) -t "pbasis" -u "Phorward Basis Library" \
+		-i $(SRC) >$(DOCFILE)
 	@echo
 	@echo --- Done making documentation! ---
-
-docclean: $(DOC)
-	$(RM) -f $?
-
-$(DOC): $(SRC)
-	-$(RM) $@
-	$(MKDOC) $(SRC) >$@
 
