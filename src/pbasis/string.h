@@ -1,11 +1,12 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Basis Library :: String utility functions
-Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail@phorward-software.com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	string.h
 Author:	Jan Max Meyer
-Usage:	Header for string utility functions
+Usage:	Header for string functions and standard library replacements
 ----------------------------------------------------------------------------- */
 
 #ifndef STRUTIL_H
@@ -32,6 +33,9 @@ Usage:	Header for string utility functions
 #define Ptoupper				towupper
 #define Ptolower				towlower
 #define Pisdigit				iswdigit
+#define Pisblank				iswblank
+#define Pisalnum				iswalnum
+#define Pisalpha				iswalpha
 
 #else
 
@@ -54,6 +58,9 @@ Usage:	Header for string utility functions
 #define Ptoupper				ptoupper
 #define Ptolower				ptolower
 #define Pisdigit				pisdigit
+#define Pisblank				pisblank
+#define Pisalnum				pisalnum
+#define Pisalpha				pisalpha
 
 /* UNICODE-only helper functions are replaced by uchar-pendants */
 #define Pstrlen					pstrlen
@@ -67,7 +74,7 @@ Usage:	Header for string utility functions
 
 /* Standard string function replacements */
 #define pstrcmp( s1, s2 )		strcmp( pstrzero( s1 ), pstrzero( s2 ) )
-#define pstrncmp( s1, s2, n )	strcmp( pstrzero( s1 ), pstrzero( s2 ), n )
+#define pstrncmp( s1, s2, n )	strncmp( pstrzero( s1 ), pstrzero( s2 ), n )
 #define pstrcpy( s1, s2 )		strcpy( s1, pstrzero( s2 ) )
 #define pstrncpy( s1, s2, n )	strncpy( s1, pstrzero( s2 ), n )
 #define pstrstr( s1, s2 )		strstr( s1, pstrzero( s2 ) )
@@ -84,5 +91,8 @@ Usage:	Header for string utility functions
 #define ptoupper( c )			toupper( c )
 #define ptolower( c )			tolower( c )
 #define pisdigit( c )			isdigit( c )
+#define pisblank( c )			isblank( c )
+#define pisalnum( c )			isalnum( c )
+#define pisalpha( c )			isalpha( c )
 
 #endif
