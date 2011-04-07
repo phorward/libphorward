@@ -101,6 +101,28 @@ struct xml
 		pstrdup( name ), \
 		pstrdup( value ) \
 	)
+	
+#define xml_add_child_f( xml, name, off ) \
+	xml_set_flag \
+	( \
+		xml_add_child( xml, name, off ), \
+		XML_NAMEM \
+	)
+	
+#define xml_set_txt_f( xml, txt ) \
+	xml_set_flag \
+	( \
+		xml_set_txt( xml, txt ), \
+		XML_TXTM \
+	)
+
+#define xml_set_attr_f( xml, name, value ) \
+	xml_set_attr \
+	( \
+		xml_set_flag( xml, XML_DUP ), \
+		pstrdup( name ), \
+		(value) \
+	)
 
 #define xml_move( xml, dest, off )	\
 	xml_insert( xml_cut( xml ),dest,off )
