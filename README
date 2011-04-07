@@ -4,14 +4,9 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See $PHOME/LICENSE for more information.
 --------------------------------------------------------------------------------
 
-===========================================
-=== THIS MANUAL IS UNDER DEVELOPMENT!!! ===
-===========================================
-
 *******************************************
 WHAT ARE THE PHORWARD FOUNDATION LIBRARIES?
 *******************************************
-
 Welcome to the Phorward Foundation Libraries SDK ReadMe!
 
 This software package unions a set of universal C libraries, utility programs
@@ -19,27 +14,32 @@ and shell scripts into a platform-independent development environment for C
 programs. The initial purpose of this project is that it serves as a build-
 environment and toolkit library for various software projects which have
 their origin at Phorward Software Technologies, but can also be used for any
-other kind of software. Especially the platform-independent approach as well
-as many of the useful tools, libraries and functions provided by the Phorward
-Foundation Libraries make the entire package suitable for many C-programmers.
+other kind of software developments.
+Especially the platform-independent approach as well as many of the useful
+tools, libraries and functions provided by the Phorward Foundation Libraries
+and Software Development Kit make the entire package suitable for many
+C programmers.
 
-This you will expect:
+This is what the Phorward Foundation Libraries & SDK provide. Please note,
+that all libraries and tools are under recent development within the Phorward
+Software projects, so they will always be extended and enhanced from time to
+time.
 
-+ pbasis	Phorward Basis Library
-			A base library providing a bunch of useful, dynamic utilites.
-			This includes functions for linked lists, hash-tables, stacks,
-			multi-byte and wide-character strings, character-class handling
-			(sets of values), trace messaging tools, base64-functions and some
-			utility and system functions.
++ pbasis	The Phorward Basis Library
+			A basic function library providing a bunch of useful, dynamic
+			utilites. This includes functions for linked lists, hash-tables,
+			stacks, multi-byte and wide-character strings, character-class
+			handling (sets of values), trace tools and some utility and
+			system functions.
 
-+ pregex	Phorward Regular Expression Library
++ pregex	The Phorward Regular Expression Library
 			An implementation of a Unicode-enabled regular expression library
 			for C programs. This includes a build-in regular expression parser, 
 			NFA construction and definition, (DFA) subset construction and
 			minimization, functions for string matching, splitting and
 			replacing using regular expressions, and much more.
 
-+ pstring	Phorward String Object Library
++ pstring	The Phorward String Object Library
 			A unicode-enabled, dynamic string object to be used within C
 			programs.
 
@@ -48,10 +48,12 @@ This you will expect:
 			public-domain ezXML library.
 
 + min_lalr1	Minimalist LALR(1) Parser Generator
-			An experimental parser generator.
+			An simple, quick&dirty-written parser generator.
 			
 + DEMO		A directory of useful demonstration examples on how to use the
 			Phorward Foundation Libraries.
+
+These are some of the tools you get:
 
 + mkdoc		Phorward Source-Code Documentation Generator
 			An AWK-script to construct manuals from source codes
@@ -60,14 +62,6 @@ This you will expect:
 + mkproto	Phorward Function Prototype Generator
 			A shell-script to generate C-function prototypes from source code;
 			Requires a C-compiler as preprocessor.
-
-+ sget,		Various shell scripts for SCCS (CSSC) version control access.
-  screate,
-  sinfo,
-  sdiff
-  .
-  .
-  .
 
 + ppp,		Various utility programs used within Makefiles and other scripts
   lincl,	to process files and get the build-environment run.
@@ -98,61 +92,78 @@ which can quickly be accessed.
 				mkdoc is placed here.
 	tpl/		The template directory holds several template files needed by
 				different tools.
+	etc/		The etc-folder is used for several files. Its existence is not
+				required.
 
 The development environment will install aliases within your session to access
 every directory from anywhere just by enterng the first character of the
 folder you want to change to. So type 's' to switch to $PHOME/src, or 'r' to
 enter the $PHOME/run directory.
 
-$PHOME will always contain the path to the Phorward Foundation L
+$PHOME will always contain the path to the Phorward Foundation Libraries root.
+Say 'phelp' to quickly get a short help on all aliases.
 
-************
-REQUIREMENTS
-************
-
+*******************
+SYSTEM REQUIREMENTS
+*******************
 To get the Phorward Foundation Libraries compiled and run, you need either a
-Linux/Unix system,in combination with gcc, or a Windows-system with a
+Linux/Unix system, in combination with gcc, or a Windows-system with a
 Unix-like script execution environment, e.g. Minimal System (MSYS).
 
 Phorward Foundation Libraries compile both with GNU gcc and Microsoft Visual
-C++ 2005 (or higher), command-line compiler.
+C++ 2005 (or higher), command-line compiler. Other compilers are currently
+not supported, but by changing the settings in $PHOME/include/Make.inc, you
+will properly be able to change them.
 
+If you want to compile under Windows, make sure the vcvarsall.bat environment
+setup script of Visual C++ was run first before you go into your MSYS
+enironment.
 
 *********************
 INSTALLATION / UPDATE
 *********************
-To install the Phorward Foundation Libraries, unzip the whole package into one
-folder of your choice. If you already run a Phorward Foundation Library
+To install the Phorward Foundation Libraries, extract the whole package into
+one folder of your choice. If you already run a Phorward Foundation Library
 installation and want to upgrade it, choose the same way - your own projects
-are not effected during the installation.
+are not affected during the installation.
 
 Then, sh into the installation base directory and run
 
 	. run/psetup
 
-which runs a simple installation script.
-Answer the questions in the script.
+which runs a simple installation script. Answer the questions in the script.
 After this has finished, the Foundation Libraries are ready to run.
 
 ******************
 GET THE SDK TO RUN
 ******************
 Whenever you want to compile something within the Phorward Foundation
-Libraries, you have to run
+Libraries, you first have to run
 
 	. ./psh
 
-This will run the environment setup script, and installs some aliases and
-environment variables which are necessary to run the SDK.
-
+to set up your environment. This will run the environment setup script, and
+installs some aliases and environment variables which are necessary to run
+the SDK.
 
 *****************************
 COMPILING THE LIBRARIES/TOOLS
 *****************************
 After you ran the 'psh' environment setup script, you're ready to compile the
-libraries.
+libraries:
 
-===========================================
-=== THIS MANUAL IS UNDER DEVELOPMENT!!! ===
-===========================================
+	s
+	makeall
 
+*************
+DEMO PROGRAMS
+*************
+Please take a look at the commented demonstration programs you can find in
+$PHOME/src/DEMO.
+
+
+
+OK. That's it right now! There will soon be made more help available!
+If you have any questions, ideas or critics, don't miss to drop a mail!
+
+Have fun!
