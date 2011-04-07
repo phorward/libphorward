@@ -1,7 +1,8 @@
 # -MAKE-------------------------------------------------------------------------
-# Phorward Regular Expression Library
-# Copyright (C) 2009 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ mail<at>phorward<dash>software<dot>com
+# Phorward Foundation Libraries :: Regular Expression Library, Version 2
+# Copyright (C) 2009, 2010 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
 # ------------------------------------------------------------------------------
 
 include ../../include/Make.inc
@@ -23,6 +24,8 @@ SPROTO		=	pregex.sproto.h
 PROTO_H		=	$(INCLUDE_DIR)$(PATH_SEP)$(PROTO)
 
 HEADERS		=	pregex.h $(SPROTO)
+
+DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pregex.html
 
 # ------------------------------------------------------------------------------
 
@@ -55,3 +58,12 @@ clean: clean_obj
 backup: clean
 	-@$(RM) ../pregex.tar
 	tar cvf ../pregex.tar ../pregex
+
+#make doc
+doc: 
+	-$(MKDIR) $(DOC_DIR)
+	$(MKDOC) -ns -i -t pregex -u "Phorward Regular Expression Library" \
+		 $(SRC) >$(DOCFILE)
+	@echo
+	@echo --- Done making documentation! ---
+
