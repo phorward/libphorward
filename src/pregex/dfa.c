@@ -98,6 +98,55 @@ PRIVATE int pregex_dfa_same_transitions( pregex_dfa* dfa, LIST* trans )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_dfa_free()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Frees and resets a DFA state machine.
+					
+	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
+												to be reset.
+																	
+	Returns:		void
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+void pregex_dfa_free( pregex_dfa* dfa )
+{
+	LIST*			l;
+	LIST*			m;
+	pregex_dfa_st*	dfa_st;
+	pregex_dfa_ent*	ent;
+
+	PROC( "pregex_dfa_free" );
+	PARMS( "dfa", "%p", dfa );
+
+	LISTFOR( dfa->states, l )
+	{
+		dfa_st = (pregex_dfa_st*)list_access( l );
+
+		LISTFOR( dfa_st->trans, m )
+		{
+			ent = (pregex_dfa_ent*)list_access( m );
+			
+			ccl_free( ent->ccl );
+			pfree( ent );
+		}
+
+		list_free( dfa_st->trans );
+		list_free( dfa_st->nfa_set );
+		pfree( dfa_st );
+	}
+
+	list_free( dfa->states );
+
+	memset( dfa, 0, sizeof( pregex_dfa ) );
+
+	VOIDRET;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_dfa_from_nfa()
 	
 	Author:			Jan Max Meyer
@@ -134,7 +183,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	int				state_next	= 0;
 	CCL				alphabet	= (CCL)NULL;
 	CCL				i;
-	u_int			ch;
+	wchar			ch;
 
 	PROC( "pregex_dfa_from_nfa" );
 	PARMS( "dfa", "%p", dfa );
@@ -142,7 +191,6 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 	/* Initialize */
 	memset( dfa, 0, sizeof( pregex_dfa ) );
-	dfa->nfa = nfa;
 	
 	if( !( current = pregex_dfa_create_state( dfa ) ) )
 		RETURN( ERR_MEM );
@@ -151,8 +199,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	if( !( set = list_push( (LIST*)NULL, list_access( nfa->states ) ) ) )
 		RETURN( ERR_MEM );
 
-	current->nfa_set = pregex_nfa_epsilon_closure(
-						dfa->nfa, set, (int*)NULL );
+	current->nfa_set = pregex_nfa_epsilon_closure( nfa, set, (int*)NULL );
 
 	/* Perform algorithm until all states are done */
 	while( ( current = pregex_dfa_get_undone_state( dfa ) ) )
@@ -191,10 +238,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				transitions = list_dup( current->nfa_set );
 				
 				if( ( transitions = pregex_nfa_move(
-						dfa->nfa, transitions, ch ) ) )
+						nfa, transitions, ch ) ) )
 				{
 					transitions = pregex_nfa_epsilon_closure(
-						dfa->nfa, transitions, (int*)NULL );
+						nfa, transitions, (int*)NULL );
 				}
 						
 				if( !transitions )
@@ -265,9 +312,15 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 			}
 		}
 
-		pfree( alphabet );
+		ccl_free( alphabet );
 	}
 	
+	/* Remove NFA structs */
+	for( item = dfa->states; item; item = list_next( item ) )
+	{
+		tmp = (pregex_dfa_st*)list_access( item );
+		tmp->nfa_set = list_free( tmp->nfa_set );
+	}
 	
 	RETURN( list_count( dfa->states ) );
 }
@@ -291,7 +344,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-static pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
+PRIVATE pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
 	pregex_dfa_st* first, pregex_dfa_st* second )
 {
 	LIST*			l;
@@ -323,7 +376,7 @@ static pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
 		*/
 
 		/* Equal Character class selection? */
-		if( ccl_diff( f->ccl, s->ccl ) )
+		if( ccl_compare( f->ccl, s->ccl ) )
 		{
 			MSG( "Character classes are not equal" );
 			RETURN( FALSE );
@@ -543,5 +596,84 @@ void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
 
 		fprintf( stream, "\n" );
 	}
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_dfa_match()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Tries to match a pattern using a DFA-machine.
+
+	Parameters:		pregex_dfa*	dfa			The DFA machine to be executed.
+					uchar*		str			A test string where the DFA should
+											work on.
+					int*		len			Length of the match, -1 on error or
+											no match.
+
+	Returns:		int						REGEX_ACCEPT_NONE, if no match was
+											found, else the number of the
+											bestmost (=longes) match.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len )
+{
+	pregex_dfa_st*	dfa_st;
+	pregex_dfa_ent*	ent;
+	LIST*			l;
+	LIST*			m;
+	uchar*			pstr		= str;
+	size_t			plen		= 0;
+	wchar			ch;
+	int				accept		= REGEX_ACCEPT_NONE;
+	int				last_accept = REGEX_ACCEPT_NONE;
+
+	PROC( "pregex_dfa_match" );
+	PARMS( "dfa", "%p", dfa );
+	PARMS( "str", "%s", str );
+	PARMS( "len", "%p", len );
+	
+	*len = 0;
+
+	dfa_st = (pregex_dfa_st*)list_access( dfa->states );
+
+	while( dfa_st )
+	{
+		if( dfa_st->accept > REGEX_ACCEPT_NONE )
+		{
+			last_accept = dfa_st->accept;
+			*len = plen;
+		}
+
+		if( dfa_st != (pregex_dfa_st*)list_access( dfa->states ) )
+		{
+			pstr += u8_seqlen( pstr );
+			plen++;
+		}
+
+		ch = u8_char( pstr );
+		VARS( "ch", "%d", ch );
+		VARS( "pstr", "%s", pstr );
+
+		dfa_st = (pregex_dfa_st*)NULL;
+
+		LISTFOR( dfa_st->trans, l )
+		{
+			ent = (pregex_dfa_ent*)list_access( l );
+
+			if( ccl_test( ent->ccl, ch ) )
+			{
+				MSG( "Having a character match!" );
+				dfa_st = list_getptr( dfa->states, ent->go_to );
+				break;
+			}
+		}
+	}
+	
+	VARS( "*len", "%d", *len );
+	VARS( "last_accept", "%d", last_accept );
+	RETURN( last_accept );
 }
 
