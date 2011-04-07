@@ -89,7 +89,8 @@ struct _regex_nfa
 	LIST*			empty;		/* List to pointers of states to be used */
 	pbyte			modifiers;	/* Regex-modifiers */
 	
-	int				ref_count;	/* Number of last reference */
+	int				ref_count;	/* Number of references */
+	int				ref_cur;	/* Current reference */
 };
 
 struct _regex_dfa_tr
@@ -106,14 +107,18 @@ struct _regex_dfa_st
 									the most character of the entire character
 									range */
 	int				accept;		/* Accepting state and ID */
+	int*			ref;		/* Reference level depths */
+	int				ref_cnt;	/* Number of reference level depths */
+	int				anchor;		/* State anchoring */
+
 	BOOLEAN			done;		/* Done-Flag */
-	
 	LIST*			nfa_set;	/* List of closed sets of NFA-states */
 };
 
 struct _regex_dfa
 {
 	LIST*			states;		/* List of dfa-states */
+	int				ref_count;	/* Number of references */
 };
 
 struct _regex
@@ -125,7 +130,7 @@ struct _regex
 		pregex_nfa	nfa;
 
 		/* For later extensions... */
-		/* pregex_dfa	dfa; */
+		pregex_dfa	dfa;
 	} machine;
 
 	int				flags;		/* Several flags */
