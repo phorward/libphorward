@@ -6,29 +6,37 @@
 
 include ../../include/Make.inc
 
-SRC			=	ccl.c \
+SRC			=	base64.c \
+				ccl.c \
+				convert.c \
 				bitset.c \
 				dbg.c \
-				llist.c \
 				hashtab.c \
-				util.c \
+				llist.c \
+				string.c \
 				system.c \
-				utf8.c
+				utf8.c \
+				util.c
 
-SRC_HDR		=	ccl.h \
-				bitset.h \
+SRC_HDR		=	bitset.h \
+				ccl.h \
 				dbg.h \
+				hashtab.h \
 				llist.h \
-				hashtab.h
+				string.h \
+				utf8.h
 
-OBJ			=	ccl$(OBJEXT) \
+OBJ			=	base64$(OBJEXT) \
+				ccl$(OBJEXT) \
+				convert$(OBJEXT) \
 				bitset$(OBJEXT) \
 				dbg$(OBJEXT) \
-				llist$(OBJEXT) \
 				hashtab$(OBJEXT) \
-				util$(OBJEXT) \
+				llist$(OBJEXT) \
+				string$(OBJEXT) \
 				system$(OBJEXT) \
-				utf8$(OBJEXT)
+				utf8$(OBJEXT) \
+				util$(OBJEXT)
 
 PROTO		=	pbasis.proto.h
 
