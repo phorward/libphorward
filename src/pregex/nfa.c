@@ -16,94 +16,133 @@ Usage:	NFA creation and executable functions
 /*
  * Global variables
  */
+#define NFA_ST				pregex_nfa_st
+#define INC( i )			(i)++
+#define VALID_CHAR( ch )	!pstrchr( "|()[]*+?", (ch) )
 
 /*
  * Functions
  */
 
-/* Creating a new NFA */
-pregex_nfa* regex_create_nfa()
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_nfa_create_state()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Creates a new NFA-state within an NFA state machine.
+					The function first checks if there are recyclable states.
+					If so, the state is re-used and re-configured, else a new
+					state is allocated in memory.
+
+	Parameters:		pregex_nfa*		nfa			NFA to output.
+					uchar*			chardef		An optional charset definition
+												for the new state. If this is
+												(uchar*)NULL, then a new epsi-
+												lon state is created.
+
+	Returns:		pregex_nfa_st*				Pointer to the created state.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pregex_nfa_st* pregex_nfa_create_state( pregex_nfa* nfa, uchar* chardef )
 {
-	regex_nfa* ptr;
-	
-	if( !( ptr = (pregex_nfa*)MALLOC( sizeof( pregex_nfa ) ) ) )
-		return (pregex_nfa*)NULL;
-		
-	memset( ptr, 0, sizeof( pregex_nfa ) );
-	
-	if( !( ptr->start = pregex_create_nfa_st( ptr ) ) )
+	pregex_nfa_st* 	ptr;
+
+	PROC( "pregex_nfa_create_state" );
+	PARMS( "nfa", "%p", nfa );
+	PARMS( "chardef", "%s", chardef ? chardef : "NULL" );
+
+	/* Use state from empty stack? */
+	if( nfa->empty )
 	{
-		FREE( ptr );
-		return (pregex_nfa*)NULL;
+		MSG( "Re-using existing state" );
+		nfa->empty = list_pop( nfa->empty, (void**)&ptr );
+	}
+	else
+	{
+		MSG( "Get new state" );
+		if( !( ptr = pmalloc( sizeof( pregex_nfa_st ) ) ) )
+		{
+			MSG( "Out of memory error" );
+			RETURN( (pregex_nfa_st*)NULL );
+		}
+	}
+
+	memset( ptr, 0, sizeof( pregex_nfa_st ) );
+	ptr->accept = REGEX_ACCEPT_NONE;
+
+	/* Put into list of NFA states */
+	if( !( nfa->states = list_push( nfa->states, (void*)ptr ) ) )
+	{
+		pfree( ptr );
+
+		MSG( "Out of memory error!" );
+		RETURN( (pregex_nfa_st*)NULL );
+	}
+
+	/* Define character edge? */
+	if( chardef )
+	{
+		MSG( "Required to parse chardef" );
+		VARS( "chardef", "%s", chardef );
+
+		if( !( ptr->ccl = ccl_create( chardef ) ) )
+		{
+			MSG( "Out of memory error" );
+			RETURN( 0 );
+		}
+
+		VARS( "ptr->ccl", "%p", ptr->ccl );
 	}
 	
-	return ptr;
-}
-
-/* Freeing a NFA */
-void regex_free_nfa( regex_nfa* nfa )
-{
-	int		i;
-	
-	for( i = 0; i < nfa->states_cnt; i++ )
-		regex_free_nfa_st( &( nfa->states[ i ] ) );
-		
-	FREE( nfa->states );
-	FREE( nfa );
-}
-
-/* Creating a new NFA state */
-pregex_nfa_st* regex_create_nfa_st( pregex_nfa* nfa )
-{
-	int 			i;
-	regex_nfa_st* 	ptr;
-	
-	for( i = 0; i < nfa->states_cnt; i++ )
-		if( nfa->states[i].edge == REGEX_EDGE_EMPTY )
-		{
-			nfa->states[i].edge = REGEX_EDGE_EPSILON;
-			return &( nfa->states[i] );
-		}
-	
-	if( !( nfa->states_cnt ) )
-		nfa->states = (regex_nfa_st*)MALLOC( REGEX_ALLOC_STEP
-			* sizeof( regex_nfa_st ) );
-	else if( ( nfa->states_cnt % REGEX_ALLOC_STEP ) == 0 )
-		nfa->states = (regex_nfa_st*)REALLOC( (regex_nfa_st*)nfa->states,
-			( ( nfa->states_cnt / REGEX_ALLOC_STEP ) + REGEX_ALLOC_STEP )
-				* sizeof( regex_nfa_st ) );
-				
-	if( !( nfa->states ) )
-		return (regex_nfa_st*)NULL;
-	
-	ptr = &( nfa->states[ nfa->states_cnt ] );
-
-	memset( ptr, 0, sizeof( regex_nfa_st ) );	
-	ptr->edge = REGEX_EDGE_EPSILON;
-	ptr->next = -1;
-	ptr->next2 = -1;
-	
-	nfa->states_cnt++;
-	
-	return ptr;
-}
-
-/* Freeing a NFA-state; The state will be marked as EMPTY, so it can be
-	re-used within a machine */
-void regex_free_nfa_st( pregex_nfa_st* st )
-{
-	if( !st )
-		return;
-		
-	if( st->edge == REGEX_EDGE_CCL && st->cclass )
-		bitset_free( st->cclass );
-	
-	memset( st, 0, sizeof( regex_nfa_st ) );
-	st->edge = REGEX_EDGE_EMPTY;
+	RETURN( ptr );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		regex_move_nfa()
+	Function:		pregex_nfa_print()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Prints an NFA for debug purposes on a output stream.
+
+	Parameters:		FILE*		stream		The output stream where to print
+											the NFA to.
+					pregex_nfa*	nfa			Pointer to the NFA to be output.
+
+	Returns:		void
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+void pregex_nfa_print( pregex_nfa* nfa )
+{
+	LIST*			l;
+	pregex_nfa_st*	s;
+
+	fprintf( stderr, " no next next2 accept\n" );
+	fprintf( stderr, "---------------------\n" );
+
+	for( l = nfa->states; l; l = list_next( l ) )
+	{
+		s = (pregex_nfa_st*)list_access( l );
+
+		fprintf( stderr, "#% 2d % 4d % 5d  % 5d\n",
+			list_find( nfa->states, (void*)s ),
+			list_find( nfa->states, (void*)s->next ),
+			list_find( nfa->states, (void*)s->next2 ),
+			s->accept );
+		
+		if( s->ccl )
+			ccl_print( stderr, s->ccl );
+		fprintf( stderr, "\n" );
+	}
+
+	fprintf( stderr, "---------------------\n" );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_nfa_move()
 
 	Author:			Jan Max Meyer
 
@@ -111,7 +150,7 @@ void regex_free_nfa_st( pregex_nfa_st* st )
 					set of NFA states.
 
 	Parameters:		LIST*		input			List of input NFA states.
-					int			ch				Character where move-operation
+					u_int		ch				Character where move-operation
 												should be processed on.
 
 	Returns:		LIST*		Pointer to the result of the move operation.
@@ -122,42 +161,54 @@ void regex_free_nfa_st( pregex_nfa_st* st )
 	Date:		Author:			Note:
 	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
 ----------------------------------------------------------------------------- */
-PRIVATE LIST* regex_move_nfa( regex_nfa* nfa, LIST* input, int ch )
+LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, u_int ch )
 {
 	LIST*			hits	= (LIST*)NULL;
-	regex_nfa_st*	test;
+	pregex_nfa_st*	test;
+
+	PROC( "pregex_nfa_move" );
+	PARMS( "nfa", "%p", nfa );
+	PARMS( "input", "%p", input );
+	PARMS( "ch", "%d", ch );
 
 	/* Loop trough the input items */
-	while( input != (LIST*)NULL );
+	while( input != (LIST*)NULL )
 	{
-		input = list_pop( input, &test );
+		input = list_pop( input, (void**)&test );
+		VARS( "input", "%p", input );
+		VARS( "test", "%p", test );
 
-		if( test->edge != REGEX_EDGE_EPSILON )
+		/* Not an epsilon edge? */
+		if( test->ccl )
 		{
-			if( ( test->cclass && bitset_get( test->cclass, ch ) )
-					|| test->edge == ch )
+			if( ccl_test( test->ccl, ch ) )
 			{
-				hits = list_push( hits, &( nfa->states[ test->next ] ) );
+				MSG( "State matches character!" );
+				hits = list_push( hits, test->next );
 			}
 		}
 	}
+
+	VARS( "hits", "%p", hits );
+	VARS( "hits count", "%d", list_count( hits ) );
 	
-	return hits;
+	RETURN( hits );
 }
 
-
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		regex_epsilon_closure_nfa()
+	Function:		pregex_nfa_epsilon_closure()
 
 	Author:			Jan Max Meyer
 
 	Usage:			Performs an epsilon closure from a set of NFA states.
 
-	Parameters:		regex_nfa*	nfa				NFA state machine
+	Parameters:		pregex_nfa*	nfa				NFA state machine
 					LIST*		input			List of input NFA states
 					int*		accept			Return-pointer to a variable
-												to retrieve a possible accept-id.
-												Can be (int*)NULL.
+												to retrieve a possible
+												accept-id. Can be left
+												(u_int*)NULL, so accept will
+												not be returned.
 
 	Returns:		LIST*		Pointer to the result of the epsilon closure
 								(a new set of NFA states)
@@ -166,337 +217,375 @@ PRIVATE LIST* regex_move_nfa( regex_nfa* nfa, LIST* input, int ch )
 	Date:		Author:			Note:
 	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
 ----------------------------------------------------------------------------- */
-PRIVATE LIST* regex_epsilon_closure_nfa( regex_nfa* nfa, LIST* input, int* accept )
+LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 {
-	regex_nfa_st*	top;
-	regex_nfa_st*	next;
+	pregex_nfa_st*	top;
+	pregex_nfa_st*	next;
+	pregex_nfa_st*	last_accept	= (pregex_nfa_st*)NULL;
 	LIST*			stack;
 	int				pos			= 0;
 	short			i;
 
+	PROC( "pregex_nfa_epsilon_closure" );
+	PARMS( "nfa", "%p", nfa );
+	PARMS( "input", "%p", input );
+	PARMS( "accept", "%p", accept );
+
 	if( accept != (int*)NULL )
 		*accept = REGEX_ACCEPT_NONE;
-		
+
 	stack = list_dup( input );
 
 	/* Loop trough the items */
 	while( stack != (LIST*)NULL )
 	{
-		stack = list_pop( stack, &top );
+		stack = list_pop( stack, (void**)&top );
 
-		if( accept != (int*)NULL )
+		if( accept && top->accept != REGEX_ACCEPT_NONE )
 		{
-			if( top->accept > REGEX_ACCEPT_NONE && 
-				( *accept <= REGEX_ACCEPT_NONE ||
-					(int)( top - nfa->states ) < *accept ) )
-				*accept = top->accept;
+			if( !last_accept || last_accept < top )
+				last_accept = top;
 		}
 
-		if( top->edge == REGEX_EDGE_EPSILON )
+		if( !top->ccl )
 		{
 			for( i = 0; i < 2; i++ )
 			{
-				next = (regex_nfa_st*)NULL;
-				
-				if( i == 0 && top->next > -1 )
-					next = &( nfa->states[ top->next ] );
-				else if( i == 1 && top->next2 > -1 )
-					next = &( nfa->states[ top->next2 ] );
-					
-				if( list_find( input, next ) == -1 )
+				next = ( !i ? top->next : top->next2 );
+				if( next && list_find( input, (void*)next ) == -1 )
 				{
-					input = list_push( input, next );
-					stack = list_push( stack, next );
+					input = list_push( input, (void*)next );
+					stack = list_push( stack, (void*)next );
 				}
 			}
 		}
 	}
 
-	return input;
+	if( accept && last_accept )
+	{
+		*accept = last_accept->accept;
+		VARS( "*accept", "%d", *accept );
+	}
+
+	RETURN( input );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		regex_nfa_match()
+	Function:		pregex_nfa_match()
 
 	Author:			Jan Max Meyer
 
 	Usage:			Tries to match a pattern using an NFA-machine.
 
-	Parameters:		regex_nfa*	nfa				The NFA machine to be executed.
-					uchar*		str				A test string where the NFA
-												should work on.
-					int*		len				Length of the match, -1 on error
-												or no match.
+	Parameters:		pregex_nfa*	nfa			The NFA machine to be executed.
+					uchar*		str			A test string where the NFA should
+											work on.
+					int*		len			Length of the match, -1 on error or
+											no match.
 
-	Returns:		int							REGEX_ACCEPT_NONE, if no match was
-												found, else the number of the
-												bestmost match.
+	Returns:		int						REGEX_ACCEPT_NONE, if no match was
+											found, else the number of the
+											bestmost (=longes) match.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
-	10.12.2007	Jan Max Meyer	Added new match_len-Parameter.
-	16.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
 ----------------------------------------------------------------------------- */
-int regex_nfa_match( regex_nfa* nfa, uchar* str, int* len )
+int pregex_nfa_match( pregex_nfa* nfa, uchar* str, u_int* len )
 {
 	LIST*		res			= (LIST*)NULL;
-	uchar*		ptr			= str;
+	uchar*		pstr		= str;
+	u_int		plen		= 0;
 	int			accept		= REGEX_ACCEPT_NONE;
 	int			last_accept = REGEX_ACCEPT_NONE;
+
+	PROC( "pregex_nfa_match" );
+	PARMS( "nfa", "%p", nfa );
+	PARMS( "str", "%s", str );
+	PARMS( "len", "%p", len );
 	
 	*len = 0;
 	
-	res = list_push( res, nfa->start );
-	while( res != (LIST*)NULL )
-	{
-		res = regex_epsilon_closure_nfa( nfa, res, &accept );
+	res = list_push( res, list_access( nfa->states ) );
 
+	while( res )
+	{
+		MSG( "Performing epsilon closure" );
+		res = pregex_nfa_epsilon_closure( nfa, res, &accept );
+
+		VARS( "accept", "%d", accept );
 		if( accept > REGEX_ACCEPT_NONE )
 		{
+			MSG( "New accepting state takes place!" );
 			last_accept = accept;
-			*len = (int)( ptr - str );
+			*len = plen;
+
+			VARS( "last_accept", "%d", last_accept );
+			VARS( "*len", "%d", *len );
 		}
 
-		res = regex_move_nfa( nfa, res, *ptr );
-		ptr++;
+		VARS( "pstr", "%s", pstr );
+		VARS( "u8_char( pstr )", "%d", u8_char( pstr ) );
+
+		res = pregex_nfa_move( nfa, res, u8_char( pstr ) );
+		pstr += u8_seqlen( pstr );
+		plen++;
 	}
 	
-	return last_accept;
+	VARS( "*len", "%d", *len );
+	VARS( "last_accept", "%d", last_accept );
+	RETURN( last_accept );
 }
-
-/* Creating a new DFA */
-PRIVATE regex_dfa* regex_create_dfa( regex_nfa* nfa )
-{
-	regex_dfa* ptr;
-	
-	if( !nfa )
-		return (regex_dfa*)NULL;
-	
-	if( !( ptr = (regex_dfa*)MALLOC( sizeof( regex_dfa ) ) ) )
-		return (regex_dfa*)NULL;
-		
-	memset( ptr, 0, sizeof( regex_dfa ) );
-	ptr->nfa = nfa;
-	
-	return ptr;
-}
-
-/* Dump NFA (for debug purposes!) */
-void regex_print_nfa( regex_nfa* nfa )
-{
-	int		i;
-	int		j;
-	
-	for( i = 0; i < nfa->states_cnt; i++ )
-	{
-		printf( "%03d: " );
-		
-		switch( nfa->states[i].edge )
-		{
-			case REGEX_EDGE_EPSILON:
-				printf( "[EPSILON]   " );
-				break;
-
-			case REGEX_EDGE_EMPTY:
-				printf( "[EMPTY]     " );
-				break;
-
-			case REGEX_EDGE_CCL:
-				printf( "[CCL]       " );
-				
-				break;
-		}
-		
-	}
-}
-
-
-/* Freeing a DFA */
-void regex_free_dfa( regex_dfa* dfa, BOOLEAN even_nfa )
-{
-	int		i;
-	
-	for( i = 0; i < dfa->states_cnt; i++ )
-		FREE( dfa->states[ i ].line );
-		
-	FREE( dfa->states );
-	
-	if( even_nfa )
-		regex_free_nfa( dfa->nfa );
-
-	FREE( dfa );
-}
-
-/* Creating a new DFA state */
-PRIVATE regex_dfa_st* regex_create_dfa_st( regex_dfa* dfa )
-{
-	int 			i;
-	regex_dfa_st* 	ptr;
-		
-	if( !( dfa->states_cnt ) )
-		dfa->states = (regex_dfa_st*)MALLOC( REGEX_ALLOC_STEP
-			* sizeof( regex_dfa_st ) );
-	else if( ( dfa->states_cnt % REGEX_ALLOC_STEP ) == 0 )
-		dfa->states = (regex_dfa_st*)REALLOC( (regex_dfa_st*)dfa->states,
-			( ( dfa->states_cnt / REGEX_ALLOC_STEP ) + REGEX_ALLOC_STEP )
-				* sizeof( regex_dfa_st ) );
-				
-	if( !( dfa->states ) )
-		return (regex_dfa_st*)NULL;
-	
-	ptr = &( dfa->states[ dfa->states_cnt ] );
-
-	memset( ptr, 0, sizeof( regex_dfa_st ) );
-	ptr->accept = REGEX_ACCEPT_NONE;
-	ptr->done = FALSE;
-
-	if( !( ptr->line = MALLOC( dfa->nfa->alphabet * sizeof( int ) ) ) )
-		return (regex_dfa_st*)NULL;
-
-	dfa->states_cnt++;
-
-	return ptr;
-}
-
-/* Checks the unfinished DFA state machine for states having the done-flag
-	set to FALSE and returns the first occurence. If no more undone states
-	are found, (regex_dfa*)NULL is returned. */
-PRIVATE regex_dfa_st* regex_get_undone_dfa_st( regex_dfa* dfa )
-{
-	int		i;
-
-	for( i = 0; i < dfa->states_cnt; i++ )
-		if( !( dfa->states[i].done ) )
-			return &( dfa->states[i] );
-
-	return (regex_dfa_st*)NULL;
-}
-
-/* Checks for DFA-states with same NFA-epsilon transitions than the specified
-	one within the DFA-state machine. If an equal item is found, the offset of
-		that DFA-state is returned, else -1. */
-PRIVATE int regex_dfa_st_with_same_trans( regex_dfa* dfa, LIST* trans )
-{
-	int		i;
-	
-	for( i = 0; i < dfa->states_cnt; i++ )
-		if( list_diff( dfa->states[i].nfa_set, trans ) )
-			return i;
-
-	return -1;
-}
-
-
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		regex_nfa_to_dfa()
-	
+	Function:		pregex_compile_to_nfa()
+
 	Author:			Jan Max Meyer
-	
-	Usage:			Turns a NFA-state machine to a DFA-state machine using
-					the subset-construction algorithm.
-					
-	Parameters:		regex_nfa*	nfa				Pointer to the NFA-Machine
-												where the DFA-machine should
-												be constructed from.
-																	
-	Returns:		regex_dfa*					Pointer to dynamically created
-												DFA state machine constructed
-												from the NFA state machine.
-												The NFA becomes part of the
-												DFA, but will also exist
-												separately.
+
+	Usage:			Compiles a regular expression into a NFA, to be processed
+					for pattern matching or DFA generation.
+
+	Parameters:		uchar*		str			The regular expression pattern
+											to be compiled into an NFA.
+					pregex_nfa*	nfa			A pointer to the NFA-machine to be
+											generated and/or extended.
+					int			accept		Identifying number for the accepting
+											state if the expression is matched.
+
+	Returns:		int						1 if a parse error occured.
+											ERR_OK on no error.
+											ERR_-define else.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
-	03.06.2007	JMM				Parameter characters_cnt inserted
 ----------------------------------------------------------------------------- */
-regex_dfa* regex_nfa_to_dfa( regex_nfa* nfa )
+int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int accept )
 {
-	regex_dfa*		dfa;
-	LIST*			set;
-	LIST*			transitions;
-	LIST*			item;
-	regex_dfa_st*	current;
-	regex_dfa_st*	tmp;
-	regex_nfa_st*	nfa_st;
-	int				state_next	= 0;
-	int				ch			= 0;
-	
-	if( !( dfa = regex_create_dfa( nfa ) ) )
-		return (regex_dfa*)NULL;
+	int		ret;
+	NFA_ST*	estart;
+	NFA_ST*	eend;
+	NFA_ST*	first;
+	uchar*	pstr;
 
-	if( !( current = regex_create_dfa_st( dfa ) ) )
+	if( !( str && nfa && accept >= 0 ) )
+		return ERR_PARMS;
+
+	if( !( pstr = str = pstrdup( str ) ) )
+		return ERR_MEM;
+
+	if( !( first = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
 	{
-		regex_free_dfa( dfa, FALSE );
-		return (regex_dfa*)NULL;
+		pfree( str );
+		return ERR_MEM;
 	}
-	
-	/* Seed start set */
-	if( set = list_push( (LIST*)NULL, nfa->start ) )
+
+	if( ( ret = parse_alter( &pstr, nfa, &estart, &eend ) ) != ERR_OK )
 	{
-		regex_free_dfa( dfa, FALSE );
-		return (regex_dfa*)NULL;
+		pfree( str );
+		return ret;
 	}
 
-	current->nfa_set = regex_epsilon_closure_nfa( dfa->nfa, set, (int*)NULL );
+	first->next = estart;
+	eend->accept = accept;
 
-	/* Perform algorithm until all states are done */
-	while( current = regex_get_undone_dfa_st( dfa ) )
-	{		
-		current->done = TRUE;
-		current->accept = REGEX_ACCEPT_NONE;
-
-		for( item = current->nfa_set; item; item = item->next )
-		{
-			nfa_st = (regex_nfa_st*)( item->pptr );
-
-			if( nfa_st->accept > REGEX_ACCEPT_NONE )
-			{
-				if( current->accept == REGEX_ACCEPT_NONE
-					|| current->accept == nfa_st->accept )
-					current->accept = nfa_st->accept;
-			}
-		}
-		
-		/* Make transitions on whole alphabet */
-		for( ch = 0; ch < dfa->nfa->alphabet; ch++ )
-		{
-			transitions = list_dup( current->nfa_set );
-			
-			if( transitions = regex_move_nfa( dfa->nfa, transitions, ch ) )
-			{
-				transitions = regex_epsilon_closure_nfa( dfa->nfa, transitions , (int*)NULL );
-			}
-					
-			if( !transitions )
-				/* There is no move on this character! */
-				state_next = -1;
-			else if( ( state_next = regex_dfa_st_with_same_trans( dfa, transitions ) ) < 0 )
-				/* This transition is already existing in the DFA
-					- discard the transition table! */
-				transitions = list_free( transitions );
-			else
-			{				
-				/* Create a new DFA as undone with this transition! */
-				if( !( tmp = regex_create_dfa_st( dfa ) ) )
-				{
-					regex_free_dfa( dfa, FALSE );
-					return (regex_dfa*)NULL;
-				}
-				
-				tmp->nfa_set = transitions;
-				transitions = (LIST*)NULL;
-				
-				state_next = dfa->states_cnt - 1;
-			}
-
-			/* Set the transition into the transition state matrix... */
-			
-			/* printf( "ch = %d, state_next = %d\n", ch, state_next ); */			
-			current->line[ch] = state_next;
-		}
-	}
-	
-	return dfa;
+	pfree( str );
+	return ERR_OK;
 }
+
+/******************************************************************************
+ * RECURSIVE DESCENT PARSER FOR REGULAR EXPRESSIONS FOLLOWS HERE...           *
+ ******************************************************************************/
+
+PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
+	NFA_ST** start, NFA_ST** end )
+{
+	int		ret;
+	uchar	restore;
+	uchar*	zero;
+
+	switch( **pstr )
+	{
+		case '(':
+			INC( *pstr );
+
+			if( ( ret = parse_alter( pstr, nfa, start, end ) ) != ERR_OK )
+				return ret;
+
+			if( **pstr != ')' )
+				return 1;
+
+			INC( *pstr );
+			break;
+
+		case '[':
+			if( ( zero = pstrchr( *(pstr+1), ']' ) ) )
+			{
+				restore = *zero;
+				*zero = '\0';
+
+				if( !( *start = pregex_nfa_create_state( nfa, *(pstr+1) ) ) )
+					return ERR_MEM;
+
+				if( !( *end = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+					return ERR_MEM;
+				(*start)->next = *end;
+
+				*zero = restore;
+				*pstr = zero + 1;
+				break;
+			}
+
+		default:
+			zero = *pstr + u8_seqlen( *pstr );
+			restore = *zero;
+			*zero = '\0';
+
+			if( !( *start = pregex_nfa_create_state( nfa, *pstr ) ) )
+				return ERR_MEM;
+			if( !( *end = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+				return ERR_MEM;
+
+			(*start)->next = *end;
+
+			*zero = restore;
+			*pstr = zero;
+			break;
+	}
+
+	return ERR_OK;
+}
+
+PRIVATE int parse_factor( uchar** pstr, pregex_nfa* nfa,
+	NFA_ST** start, NFA_ST** end )
+{
+	int		ret;
+	NFA_ST*	fstart;
+	NFA_ST*	fend;
+
+	if( ( ret = parse_char( pstr, nfa, start, end ) ) != ERR_OK )
+		return ret;
+
+	switch( **pstr )
+	{
+		case '*':
+		case '+':
+		case '?':
+
+			if( !( fstart = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+				return ERR_MEM;
+			if( !( fend = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+				return ERR_MEM;
+
+			fstart->next = *start;
+			(*end)->next = fend;
+
+			switch( **pstr )
+			{
+				case '*':
+					/*
+								________________________
+							   |                        |
+							   |                        v
+							fstart -> start -> end -> fend
+										^       |
+										|_______|
+					*/
+					fstart->next2 = fend;
+					(*end)->next2 = *start;
+					break;
+
+				case '+':
+					/*
+							fstart -> start -> end -> fend
+										^       |
+										|_______|
+					*/
+					(*end)->next2 = *start;
+					break;
+
+				case '?':
+					/*
+								________________________
+							   |                        |
+							   |                        v
+							fstart -> start -> end -> fend
+					*/
+					fstart->next2 = fend;
+					break;
+				
+				default:
+					break;
+			}
+
+			*start = fstart;
+			*end = fend;
+			INC( *pstr );
+
+		default:
+			break;
+	}
+
+	return ERR_OK;
+}
+
+PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
+	NFA_ST** start, NFA_ST** end )
+{
+	int		ret;
+	NFA_ST*	sstart;
+	NFA_ST*	send;
+
+	if( ( ret = parse_factor( pstr, nfa, start, end ) ) != ERR_OK )
+		return ret;
+
+	while( !( **pstr == '|' || **pstr == ')' || **pstr == '\0' ) )
+	{
+		if( ( ret = parse_factor( pstr, nfa, &sstart, &send ) ) != ERR_OK )
+			return ret;
+
+		memcpy( *end, sstart, sizeof( pregex_nfa_st ) );
+		memset( sstart, 0, sizeof( pregex_nfa_st ) );
+		if( !( nfa->empty = list_push( nfa->empty, (void*)sstart ) ) )
+			return ERR_MEM;
+
+		*end = send;
+	}
+
+	return ERR_OK;
+}
+
+PRIVATE int parse_alter( uchar** pstr, pregex_nfa* nfa,
+	NFA_ST** start, NFA_ST** end )
+{
+	int		ret;
+	NFA_ST*	astart;
+	NFA_ST*	aend;
+	NFA_ST*	alter;
+
+	if( ( ret = parse_sequence( pstr, nfa, start, end ) ) != ERR_OK )
+		return ret;
+
+	while( **pstr == '|' )
+	{
+		INC( *pstr );
+
+		if( ( ret = parse_sequence( pstr, nfa, &astart, &aend ) ) != ERR_OK )
+			return ret;
+
+		if( !( alter = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+			return ERR_MEM;
+		alter->next = *start;
+		alter->next2 = astart;
+
+		*start = alter;
+
+		if( !( alter = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+			return ERR_MEM;
+		(*end)->next = alter;
+		aend->next2 = alter;
+
+		(*end) = alter;
+	}
+
+	return ERR_OK;
+}
+
