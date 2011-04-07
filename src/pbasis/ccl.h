@@ -26,8 +26,8 @@ typedef struct _crange*	CCL;
 
 struct _crange
 {
-	wchar	begin;
-	wchar	end;
+	pchar	begin;
+	pchar	end;
 };
 
 /* Macros */
