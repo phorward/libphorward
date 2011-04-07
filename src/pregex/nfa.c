@@ -6,6 +6,7 @@ http://www.phorward-software.com ++ mail<at>phorward<dash>software<dot>com
 File:	nfa.c
 Author:	Jan Max Meyer
 Usage:	NFA creation and executable functions
+		and simple, independent parser for regular expressions
 ----------------------------------------------------------------------------- */
 
 /*
@@ -40,13 +41,16 @@ Usage:	NFA creation and executable functions
 												for the new state. If this is
 												(uchar*)NULL, then a new epsi-
 												lon state is created.
+					int				flags		Modifier flags that belongs to
+												the chardef-parameter.
 
 	Returns:		pregex_nfa_st*				Pointer to the created state.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pregex_nfa_st* pregex_nfa_create_state( pregex_nfa* nfa, uchar* chardef )
+pregex_nfa_st* pregex_nfa_create_state(
+	pregex_nfa* nfa, uchar* chardef, int flags )
 {
 	pregex_nfa_st* 	ptr;
 
@@ -69,9 +73,11 @@ pregex_nfa_st* pregex_nfa_create_state( pregex_nfa* nfa, uchar* chardef )
 			RETURN( (pregex_nfa_st*)NULL );
 		}
 	}
-
+	
+	/* Initialize */
 	memset( ptr, 0, sizeof( pregex_nfa_st ) );
 	ptr->accept = REGEX_ACCEPT_NONE;
+	ptr->ref = -1;
 
 	/* Put into list of NFA states */
 	if( !( nfa->states = list_push( nfa->states, (void*)ptr ) ) )
@@ -91,7 +97,46 @@ pregex_nfa_st* pregex_nfa_create_state( pregex_nfa* nfa, uchar* chardef )
 		if( !( ptr->ccl = ccl_create( chardef ) ) )
 		{
 			MSG( "Out of memory error" );
-			RETURN( 0 );
+			RETURN( (pregex_nfa_st*)NULL );
+		}
+		
+		/* Is case-insensitive flag set? */
+		if( flags & REGEX_MOD_INSENSITIVE )
+		{
+			CCL		iccl	= (CCL)NULL;
+			CCL		c;
+			wchar	ch;
+			wchar	cch;
+			
+			MSG( "REGEX_MOD_INSENSITIVE set" );
+			for( c = ptr->ccl; c && c->begin != CCL_MAX; c++ )
+			{
+				for( ch = c->begin; ch <= c->end; ch++ )
+				{
+#ifdef UTF8
+					if( iswupper( ch ) )
+						cch = towlower( ch );
+					else
+						cch = towupper( ch );
+#else
+					if( isupper( ch ) )
+						cch = (uchar)tolower( (int)ch );
+					else
+						cch = (uchar)toupper( (int)ch );
+#endif
+					VARS( "cch", "%d", cch );
+					if( !( iccl = ccl_addrange( iccl, cch, cch ) ) )
+						RETURN( (pregex_nfa_st*)NULL );
+				}
+			}
+			
+			if( !( ptr->ccl = ccl_union( ptr->ccl, iccl ) ) )
+			{
+				ccl_free( iccl );
+				RETURN( (pregex_nfa_st*)NULL );
+			}
+			
+			ccl_free( iccl );
 		}
 
 		VARS( "ptr->ccl", "%p", ptr->ccl );
@@ -121,18 +166,18 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	LIST*			l;
 	pregex_nfa_st*	s;
 
-	fprintf( stderr, " no next next2 accept\n" );
-	fprintf( stderr, "---------------------\n" );
+	fprintf( stderr, " no next next2 accept ref\n" );
+	fprintf( stderr, "-------------------------\n" );
 
 	for( l = nfa->states; l; l = list_next( l ) )
 	{
 		s = (pregex_nfa_st*)list_access( l );
 
-		fprintf( stderr, "#% 2d % 4d % 5d  % 5d\n",
+		fprintf( stderr, "#% 2d % 4d % 5d  % 5d  % 3d\n",
 			list_find( nfa->states, (void*)s ),
 			list_find( nfa->states, (void*)s->next ),
 			list_find( nfa->states, (void*)s->next2 ),
-			s->accept );
+			s->accept, s->ref );
 		
 		if( s->ccl )
 			ccl_print( stderr, s->ccl, 0 );
@@ -140,6 +185,58 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	}
 
 	fprintf( stderr, "---------------------\n" );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_nfa_free()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Frees and resets a NFA-state machine.
+
+	Parameters:		pregex_nfa*	nfa			A pointer to the NFA-machine to be
+											freed and reset.
+
+	Returns:		void
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+void pregex_nfa_free( pregex_nfa* nfa )
+{
+	LIST*			l;
+	pregex_nfa_st*	nfa_st;
+
+	PROC( "pregex_nfa_free" );
+	PARMS( "nfa", "%p", nfa );
+	
+	pregex_nfa_print( nfa );
+
+	MSG( "Clearing states" );
+	for( l = nfa->states; l; l = list_next( l ) )
+	{
+		nfa_st = (pregex_nfa_st*)list_access( l );
+		if( nfa_st->ccl )
+			ccl_free( nfa_st->ccl );
+
+		pfree( nfa_st );
+	}
+
+	MSG( "Clearing empty state stack" );
+	for( l = nfa->empty; l; l = list_next( l ) )
+	{
+		nfa_st = (pregex_nfa_st*)list_access( l );
+		ccl_free( nfa_st->ccl );
+
+		pfree( nfa_st );
+	}
+
+	list_free( nfa->states );
+	list_free( nfa->empty );
+	
+	memset( nfa, 0, sizeof( pregex_nfa ) );
+
+	VOIDRET;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -151,7 +248,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 					set of NFA states.
 
 	Parameters:		LIST*		input			List of input NFA states.
-					u_int		ch				Character where move-operation
+					wchar		ch				Character where move-operation
 												should be processed on.
 
 	Returns:		LIST*		Pointer to the result of the move operation.
@@ -162,7 +259,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	Date:		Author:			Note:
 	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
 ----------------------------------------------------------------------------- */
-LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, u_int ch )
+LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, wchar ch )
 {
 	LIST*			hits	= (LIST*)NULL;
 	pregex_nfa_st*	test;
@@ -208,7 +305,7 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, u_int ch )
 					int*		accept			Return-pointer to a variable
 												to retrieve a possible
 												accept-id. Can be left
-												(u_int*)NULL, so accept will
+												(int*)NULL, so accept will
 												not be returned.
 
 	Returns:		LIST*		Pointer to the result of the epsilon closure
@@ -280,7 +377,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 	Parameters:		pregex_nfa*	nfa			The NFA machine to be executed.
 					uchar*		str			A test string where the NFA should
 											work on.
-					int*		len			Length of the match, -1 on error or
+					size_t*		len			Length of the match, -1 on error or
 											no match.
 
 	Returns:		int						REGEX_ACCEPT_NONE, if no match was
@@ -290,11 +387,15 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, int* accept )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_nfa_match( pregex_nfa* nfa, uchar* str, u_int* len )
+int pregex_nfa_match( pregex_nfa* nfa, uchar* str, size_t* len,
+		pregex_result** ref, int* ref_count )
 {
 	LIST*		res			= (LIST*)NULL;
+	LIST*		l;
+	LIST*		m;
+	NFA_ST*		st;
 	uchar*		pstr		= str;
-	u_int		plen		= 0;
+	size_t		plen		= 0;
 	int			accept		= REGEX_ACCEPT_NONE;
 	int			last_accept = REGEX_ACCEPT_NONE;
 
@@ -303,14 +404,50 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, u_int* len )
 	PARMS( "str", "%s", str );
 	PARMS( "len", "%p", len );
 	
-	*len = 0;
+	/* If ref-pointer is set, then use it! */
+	if( ref && nfa->ref_count )
+	{
+		if( !( *ref = (pregex_result*)pmalloc( nfa->ref_count *
+					sizeof( pregex_result ) ) ) )
+		{
+			MSG( "Can't allocate references array" );
+			RETURN( ERR_MEM );
+		}
+		
+		memset( *ref, 0, nfa->ref_count * sizeof( pregex_result ) );
+		*ref_count = nfa->ref_count;
+	}
 	
+	*len = 0;
 	res = list_push( res, list_access( nfa->states ) );
 
 	while( res )
 	{
 		MSG( "Performing epsilon closure" );
 		res = pregex_nfa_epsilon_closure( nfa, res, &accept );
+		
+		MSG( "Handling References" );
+		if( ref && nfa->ref_count )
+		{
+			LISTFOR( res, l )
+			{
+				st = (NFA_ST*)list_access( l );
+				if( st->ref > -1 )
+				{
+					MSG( "Reference found" );
+					VARS( "State", "%d", list_find(
+									nfa->states, (void*)st ) );
+					VARS( "st->ref", "%d", st->ref );
+					VARS( "(*ref)[ st->ref ].begin", "%p",
+							(*ref)[ st->ref ].begin );
+					
+					if( !( (*ref)[ st->ref ].begin ) )
+						(*ref)[ st->ref ].begin = pstr;
+					else
+						(*ref)[ st->ref ].end = pstr;
+				}
+			}
+		}
 
 		VARS( "accept", "%d", accept );
 		if( accept > REGEX_ACCEPT_NONE )
@@ -358,7 +495,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, u_int* len )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int accept )
+int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 {
 	int		ret;
 	NFA_ST*	estart;
@@ -377,13 +514,15 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int accept )
 		nfirst && nfirst->next2; nfirst = nfirst->next2 )
 			/* Find last first node ;) ... */ ;
 
-	if( !( first = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+	if( !( first = pregex_nfa_create_state( nfa,
+			(uchar*)NULL, flags ) ) )
 	{
 		pfree( str );
 		return ERR_MEM;
 	}
 
-	if( ( ret = parse_alter( &pstr, nfa, &estart, &eend ) ) != ERR_OK )
+	if( ( ret = parse_alter( &pstr, nfa, &estart, &eend, flags ) )
+			!= ERR_OK )
 	{
 		pfree( str );
 		return ret;
@@ -405,38 +544,91 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int accept )
  ******************************************************************************/
 
 PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end )
+	NFA_ST** start, NFA_ST** end, int flags )
 {
-	int		ret;
-	uchar	restore;
-	uchar*	zero;
+	int			ret;
+	uchar		restore;
+	uchar*		zero;
+	pboolean	neg		= FALSE;
+	int			ref;
+	
+	NFA_ST*		cstart;
+	NFA_ST*		cend;
 
 	switch( **pstr )
 	{
 		case '(':
-			INC( *pstr );
+			INC( *pstr );			
+			ref = nfa->ref_count++;
 
-			if( ( ret = parse_alter( pstr, nfa, start, end ) ) != ERR_OK )
+			if( ( ret = parse_alter( pstr, nfa, start, end, flags ) )
+					!= ERR_OK )
 				return ret;
 
 			if( **pstr != ')' )
 				return 1;
 
 			INC( *pstr );
+			
+			(*start)->ref = ref;
+			(*end)->ref = ref;			
+			/*
+
+			if( !( *start = pregex_nfa_create_state(
+					nfa, (uchar*)NULL, flags ) ) )
+				return ERR_MEM;
+				
+			(*start)->next = cstart;
+			(*start)->ref = ref;
+				
+			if( !( *end = pregex_nfa_create_state(
+					nfa, (uchar*)NULL, flags ) ) )
+				return ERR_MEM;
+				
+			cend->next = *end;
+			(*end)->ref = ref;
+			*/
+			break;
+
+		case '.':
+			if( !( *start = pregex_nfa_create_state(
+					nfa, (uchar*)NULL, flags ) ) )
+				return ERR_MEM;
+				
+			if( !( (*start)->ccl = ccl_addrange(
+					(*start)->ccl, CCL_MIN, CCL_MAX ) ) )
+				return ERR_MEM;
+
+			if( !( *end = pregex_nfa_create_state( nfa,
+					(uchar*)NULL, flags ) ) )
+				return ERR_MEM;
+		
+				(*start)->next = *end;
 			break;
 
 		case '[':
-			if( ( zero = pstrchr( *(pstr+1), ']' ) ) )
+			if( ( zero = pstrchr( (*pstr)+1, ']' ) ) )
 			{
 				restore = *zero;
 				*zero = '\0';
 
-				if( !( *start = pregex_nfa_create_state( nfa, *(pstr+1) ) ) )
+				if( (*pstr) + 1 < zero && *((*pstr)+1) == '^' )
+				{
+					neg = TRUE;
+					(*pstr)++;
+				}
+
+				if( !( *start = pregex_nfa_create_state(
+						nfa, (*pstr)+1, flags ) ) )
 					return ERR_MEM;
 
-				if( !( *end = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+				if( !( *end = pregex_nfa_create_state(
+						nfa, (uchar*)NULL, flags ) ) )
 					return ERR_MEM;
 				(*start)->next = *end;
+
+				if( neg )
+					ccl_negate( (*start)->ccl );
 
 				*zero = restore;
 				*pstr = zero + 1;
@@ -448,9 +640,11 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 			restore = *zero;
 			*zero = '\0';
 
-			if( !( *start = pregex_nfa_create_state( nfa, *pstr ) ) )
+			if( !( *start = pregex_nfa_create_state(
+					nfa, *pstr, flags ) ) )
 				return ERR_MEM;
-			if( !( *end = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+			if( !( *end = pregex_nfa_create_state(
+					nfa, (uchar*)NULL, flags ) ) )
 				return ERR_MEM;
 
 			(*start)->next = *end;
@@ -464,13 +658,14 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 }
 
 PRIVATE int parse_factor( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end )
+	NFA_ST** start, NFA_ST** end, int flags )
 {
 	int		ret;
 	NFA_ST*	fstart;
 	NFA_ST*	fend;
 
-	if( ( ret = parse_char( pstr, nfa, start, end ) ) != ERR_OK )
+	if( ( ret = parse_char( pstr, nfa, start, end, flags ) )
+			!= ERR_OK )
 		return ret;
 
 	switch( **pstr )
@@ -479,9 +674,11 @@ PRIVATE int parse_factor( uchar** pstr, pregex_nfa* nfa,
 		case '+':
 		case '?':
 
-			if( !( fstart = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+			if( !( fstart = pregex_nfa_create_state(
+					nfa, (uchar*)NULL, flags ) ) )
 				return ERR_MEM;
-			if( !( fend = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+			if( !( fend = pregex_nfa_create_state(
+					nfa, (uchar*)NULL, flags ) ) )
 				return ERR_MEM;
 
 			fstart->next = *start;
@@ -537,63 +734,76 @@ PRIVATE int parse_factor( uchar** pstr, pregex_nfa* nfa,
 }
 
 PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end )
+	NFA_ST** start, NFA_ST** end, int flags )
 {
 	int		ret;
 	NFA_ST*	sstart;
 	NFA_ST*	send;
 
-	if( ( ret = parse_factor( pstr, nfa, start, end ) ) != ERR_OK )
+	if( ( ret = parse_factor( pstr, nfa, start, end, flags ) )
+			!= ERR_OK )
 		return ret;
+
 
 	while( !( **pstr == '|' || **pstr == ')' || **pstr == '\0' ) )
 	{
-		if( ( ret = parse_factor( pstr, nfa, &sstart, &send ) ) != ERR_OK )
+		if( ( ret = parse_factor( pstr, nfa, &sstart, &send, flags ) )
+				!= ERR_OK )
 			return ret;
 
 		memcpy( *end, sstart, sizeof( pregex_nfa_st ) );
 		memset( sstart, 0, sizeof( pregex_nfa_st ) );
 		if( !( nfa->empty = list_push( nfa->empty, (void*)sstart ) ) )
 			return ERR_MEM;
+		nfa->states = list_remove( nfa->states, (void*)sstart );
 
 		*end = send;
 	}
-
+	
 	return ERR_OK;
 }
 
 PRIVATE int parse_alter( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end )
+	NFA_ST** start, NFA_ST** end, int flags )
 {
 	int		ret;
 	NFA_ST*	astart;
 	NFA_ST*	aend;
 	NFA_ST*	alter;
 
-	if( ( ret = parse_sequence( pstr, nfa, start, end ) ) != ERR_OK )
+	if( ( ret = parse_sequence( pstr, nfa, start, end, flags ) )
+			!= ERR_OK )
 		return ret;
 
 	while( **pstr == '|' )
 	{
 		INC( *pstr );
 
-		if( ( ret = parse_sequence( pstr, nfa, &astart, &aend ) ) != ERR_OK )
+		if( ( ret = parse_sequence( pstr, nfa, &astart, &aend, flags ) )
+				!= ERR_OK )
 			return ret;
 
-		if( !( alter = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+		if( !( alter = pregex_nfa_create_state(
+				nfa, (uchar*)NULL, flags ) ) )
 			return ERR_MEM;
 		alter->next = *start;
 		alter->next2 = astart;
 
 		*start = alter;
 
-		if( !( alter = pregex_nfa_create_state( nfa, (uchar*)NULL ) ) )
+		if( !( alter = pregex_nfa_create_state(
+				nfa, (uchar*)NULL, flags ) ) )
 			return ERR_MEM;
 		(*end)->next = alter;
 		aend->next2 = alter;
 
 		(*end) = alter;
 	}
+	/*	
+	fprintf( stderr, "ALT +++\n" );
+	pregex_nfa_print( nfa );
+	getchar();
+	*/
 
 	return ERR_OK;
 }
