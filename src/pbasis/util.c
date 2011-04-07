@@ -1,7 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Basis Library :: Utility functions
-Copyright (C) 2008, 2009 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ mail@phorward-software.com
+Phorward Foundation Libraries :: Basis Library
+Copyright (C) 2006-2010 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	util.c
 Author:	Jan Max Meyer
