@@ -1,0 +1,106 @@
+#!/bin/sh
+
+hg_opts=""
+while [ "$1" ]
+do
+	case "$1" in
+		-R)
+			hg_opts="$hg_opts -R $2"
+			shift
+			;;
+		*)
+			break
+			;;
+	esac
+
+	shift
+done
+
+dir=`pwd`
+logfile=/dev/null
+
+echo $dir
+
+while [ "$1" ]
+do
+	cd $1
+	if [ $? -ne 0 ]
+	then
+		exit 1
+	fi
+
+	sccs clean
+	for i in SCCS/s.*
+	do
+		i=`echo $i | sed -e "s/SCCS\/s\.//"`
+		echo "*** Checking out file history of $i..."
+
+		rev=0
+		err=0
+		while [ 0 ]
+		do
+			rev=`expr $rev + 1`
+			delta="1.$rev"
+
+			sccs get -r$delta $i >$logfile 2>&1
+			if [ $? -ne 0 ]
+			then
+				break
+			fi
+
+			sccs prs $i | awk -vdelta=$delta -vfile=$i '
+	/D 1.[0-9]+/	{
+						if( date != "" )
+							exit
+						if( $2 != delta )
+							next
+
+						date=$3
+						time=$4
+						user=$5
+
+						printf "SCCS " file " " $3 " " $4 ": "
+					}
+
+	/MRs:/			{
+						next
+					}
+
+	/COMMENTS:/		{
+						if( date != "" )
+							print_ok = 1
+						next
+					}
+					
+					{
+						if( print_ok == 1 )
+							printf $0
+					}' >$i.comment$delta
+
+			if [ "$delta" = "1.1" ]
+			then
+				echo "    Adding file $i..."
+				hg add $hg_cur_opts $i
+			fi
+
+			echo "    Committing revision $delta..."
+			hg commit -m "`cat $i.comment$delta`"
+
+			rm -f $i.comment$delta
+
+			#echo "Weiter?"
+			#read x
+			#if [ "$x" != "j" ]
+			#then
+			#	exit
+			#fi
+		done
+
+		echo "    Done."
+	done
+
+	shift
+
+	cd $dir
+done
+
