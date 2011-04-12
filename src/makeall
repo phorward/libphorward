@@ -1,0 +1,32 @@
+#!/bin/sh
+
+#Target
+target=$1
+
+#Build sequence;
+#There can be individual build orders put into the makeall-seq file.
+if [ -f makeall-seq ]
+then
+	sequence="`cat makeall-seq`"
+else
+	#Use default sequence
+	sequence="pbasis pstring pregex min_lalr1 DEMO NEWPROJECT"
+fi
+
+if [ -z "$PMAKE" ]
+then
+	PMAKE=make
+fi
+
+for i in $sequence
+do
+	echo
+	echo
+	echo ":: $i"
+	echo
+	cd $i
+	$PMAKE $target
+	cd $PHOME/src
+done
+echo "--- All done ---"
+exit 0
