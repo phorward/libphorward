@@ -103,6 +103,27 @@ BEGIN	{
 				gsub( "!!" "manual", manual, document )
 				gsub( "!!" "index", allindex, document )
 				gsub( "!!" "reference", all_text, document )
+
+
+				cmd = "date +\"%d/%m/%Y\""
+				cmd | getline date_now
+				close( cmd )
+				gsub( "!!" "date", date_now, document )
+
+				cmd = "date +\"%H:%M\""
+				cmd | getline time_now
+				close( cmd )
+				gsub( "!!" "time", time_now, document )
+
+				cmd = "uname -n"
+				cmd | getline node_name
+				close( cmd )
+				gsub( "!!" "system", node_name, document )
+
+				cmd = "uname -o"
+				cmd | getline operating_system
+				close( cmd )
+				gsub( "!!" "os", operating_system, document )
 			}
 			else
 				document = all_text

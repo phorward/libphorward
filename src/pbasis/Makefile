@@ -101,7 +101,7 @@ backup: clean
 #make doc
 doc: 
 	-$(MKDIR) $(DOC_DIR)
-	$(MKDOC) -t "pbasis" -u "Phorward Basis Library" \
+	$(MKDOC) -ns -t "pbasis" -u "Phorward Basis Library" \
 		-i $(SRC) >$(DOCFILE)
 	@echo
 	@echo --- Done making documentation! ---

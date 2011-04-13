@@ -5,7 +5,7 @@ all:
 	@echo
 	@echo --- $@ done. ---
 
-clean:
+clean doc:
 	makeall $@
 	rm -f tags
 	@echo

@@ -1,0 +1,115 @@
+html, body, table
+{
+	font-family: Helvetica, Consolas, sans-serif;
+	font-size: 10pt;
+}
+
+a
+{
+	text-decoration: none;
+}
+
+a, a:link, a:visited
+{
+	color: #0066CC;
+	padding: 2px;
+}
+
+a:hover
+{
+	color: #FF9933;
+}
+
+li
+{
+	padding-bottom: 8px;
+}
+
+div#header
+{
+	text-align: center;
+	border-bottom: 1px solid black;
+	font-size: 18pt;
+	padding-bottom: 10px;
+	margin-bottom: 5px;
+}
+
+div#footer
+{
+	text-align: center;
+	border-top: 1px solid black;
+	font-size: 8pt;
+	padding-top: 10px;
+	margin-top: 5px;
+}			
+
+h1
+{
+	font-size: 20pt;
+	margin: 0;
+}
+
+div.function
+{
+	page-break-before:auto;
+	border-top: 1px dotted #000066;
+	border-left: 1px groove #000066;
+	margin-top: 50px;
+}
+
+h2
+{
+	font-size: 12pt;
+	text-align: center;
+	padding: 0;
+	/* margin: 15px 20% 10px 20%; */
+}
+
+a.back_to_top
+{
+	font-size: 8pt;
+}
+
+@media print
+{
+	a.back_to_top
+	{
+		visible: none;
+	}
+}
+
+table.ref
+{
+}
+
+table.ref li
+{
+}
+
+td.reftitle
+{
+	width: 10%;
+	color: #707070;
+}
+
+td.refsynopsis, div.codestyle
+{
+	font-family: courier;
+}
+
+td.refusage
+{
+}
+
+td.refauthor
+{
+}
+
+td.refparameters
+{
+}
+
+td.refreturns
+{
+}
+
