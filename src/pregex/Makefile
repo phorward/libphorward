@@ -52,10 +52,10 @@ clean_obj:
 	-@$(RM) $(OBJ)
 
 clean: clean_obj
-	-@$(RM) $(PREGEX_LIB)
-	-@$(RM) $(PREGEX_LIB_H)
-	-@$(RM) $(PROTO_H)
-	-@$(RM) cscope.out
+	-$(RM) $(PREGEX_LIB)
+	-$(RM) $(PREGEX_LIB_H)
+	-$(RM) $(PROTO_H)
+	-$(RM) $(DOCFILE)
 
 backup: clean
 	-@$(RM) ../pregex.tar
@@ -63,8 +63,10 @@ backup: clean
 
 #make doc
 doc: 
-	-$(MKDIR) $(DOC_DIR)
-	$(MKDOC) -ns -i -t pregex -u "Phorward Regular Expression Library" \
+	$(MKDOC) -ns -i \
+		-var module pregex \
+		-var title "Phorward Regular Expression Library" \
+		-var libext $(LIBEXT) \
 		 $(SRC) >$(DOCFILE)
 	@echo
 	@echo --- Done making documentation! ---

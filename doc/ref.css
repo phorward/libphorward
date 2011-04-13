@@ -34,6 +34,15 @@ div#header
 	margin-bottom: 5px;
 }
 
+div#menu
+{
+	text-align: center;
+	border-bottom: 1px solid black;
+	font-size: 14pt;
+	padding: 8px;
+	margin-bottom: 20px;
+}
+
 div#footer
 {
 	text-align: center;
@@ -54,7 +63,7 @@ div.function
 	page-break-before:auto;
 	border-top: 1px dotted #000066;
 	border-left: 1px groove #000066;
-	margin-top: 50px;
+	margin-bottom: 50px;
 }
 
 h2

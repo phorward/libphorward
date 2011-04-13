@@ -2,18 +2,25 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>!!usage</title>
-		<link rel="stylesheet" href="doc.css" type="text/css" />
+		<title>Phorward Foundation Libraries :: !!title</title>
+		<link rel="stylesheet" href="ref.css" type="text/css" />
 	</head>
 	<body>
 		<div id="header">
-			<img src="logo_huge.png" title="Phorward Software Technologies Logo" alt="A picture showing the logo of Phorward Software Technologies" /><br />
-			<h1>!!title <i>!!usage</i></h1>
-			Function Reference
+			<img src="phorward.png" title="Phorward Software Technologies" alt="A picture showing the logo of Phorward Software Technologies" /><br />
+			<h1>!!module <i>!!title</i></h1>
+			!!module!!libext Functions Reference
+		</div>
+
+		<div id="menu">
+			<a href="pbasis.html">pbasis</a>
+			|
+			<a href="pregex.html">pregex</a>
+			|
+			<a href="pstring.html">pstring</a>
 		</div>
 
 <div style="margin: 0 5% 0 5%;">
-!!manual
 !!index
 !!reference
 </div>
@@ -31,7 +38,8 @@
 			</a>
 			
 			<br /><br />
-			All rights reserved. See file LICENSE for more information.<br />
+			All rights reserved. See file $PHOME/LICENSE for more information.
+			<br />
 			<br />
 
 			<i>This file was generated on !!system (!!os) at !!date !!time.</i>

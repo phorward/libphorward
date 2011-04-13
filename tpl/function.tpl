@@ -1,5 +1,6 @@
+<a name="!!function"></a>
 <div class="function">
-	<h2><a name="!!function">!!function()</a></h2>
+	<h2>!!function()</h2>
 
 	<table width="100%" class="ref">
 	<tr>

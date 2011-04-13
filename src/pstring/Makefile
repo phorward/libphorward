@@ -44,9 +44,10 @@ clean_obj:
 	-@$(RM) $(OBJ)
 
 clean: clean_obj
-	-@$(RM) $(PSTRING_LIB)
-	-@$(RM) $(PSTRING_LIB_H)
-	-@$(RM) $(PROTO_H)
+	-$(RM) $(PSTRING_LIB)
+	-$(RM) $(PSTRING_LIB_H)
+	-$(RM) $(PROTO_H)
+	-$(RM) $(DOCFILE)
 
 backup: clean
 	-@$(RM) ../pstring.tar
@@ -54,8 +55,10 @@ backup: clean
 
 #make doc
 doc: 
-	-$(MKDIR) $(DOC_DIR)
-	$(MKDOC) -ns -i -t pstring -u "Phorward String Object Library" \
+	$(MKDOC) -ns -i \
+		-var module pstring \
+		-var title "Phorward String Object Library" \
+		-var libext $(LIBEXT) \
 		 $(SRC) >$(DOCFILE)
 	@echo
 	@echo --- Done making documentation! ---

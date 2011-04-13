@@ -93,6 +93,7 @@ clean_obj:
 clean: clean_obj
 	-$(RM) $(PBASIS_LIB)
 	-$(RM) $(PBASIS_LIB_H)
+	-$(RM) $(DOCFILE)
 
 backup: clean
 	-$(RM) ../pbasis.tar
@@ -100,9 +101,11 @@ backup: clean
 
 #make doc
 doc: 
-	-$(MKDIR) $(DOC_DIR)
-	$(MKDOC) -ns -t "pbasis" -u "Phorward Basis Library" \
-		-i $(SRC) >$(DOCFILE)
+	$(MKDOC) -ns -i \
+		-var module "pbasis" \
+		-var title "Phorward Basis Library" \
+		-var libext $(LIBEXT) \
+		$(SRC) >$(DOCFILE)
 	@echo
 	@echo --- Done making documentation! ---
 

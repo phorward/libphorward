@@ -28,16 +28,23 @@ BEGIN	{
 					full_index = 1
 				else if( ARGV[i] == "-ns" )
 					print_sections = 0
-				else if( ARGV[i] == "-tpl" && i+1 < ARGC )
-					tpldir = ARGV[++i]
-				else if( ARGV[i] == "-m" && i+1 < ARGC )
-					manual = readfile( ARGV[++i] )
-				else if( ARGV[i] == "-c" && i+1 < ARGC )
-					allcopyright = ARGV[++i]
-				else if( ARGV[i] == "-t" && i+1 < ARGC )
-					alltitle = ARGV[++i]
-				else if( ARGV[i] == "-u" && i+1 < ARGC )
-					allusage = ARGV[++i]
+				#JMM 13.04.2011: Templates are also replacable now
+				else if( ARGV[i] == "-tpl" && i+2 < ARGC )
+					tpl[ ARGV[++i] ] = readfile( ARGV[++i] )
+				#JMM 13.04.2011: Ok, mkdoc now features some kind of
+				#variables to be defined, and later on replaced anywhere
+				#in the output files.
+				#It is specified as: -v varname Value
+				#If value begins with "@", then it is assumed as a file,
+				#and read.
+				else if( ( ARGV[i] == "-var" || ARGV[i] == "-v" ) \
+							&& i+2 < ARGC )
+				{
+					if( substr( ARGV[i+2], 1, 1 ) == "@" )
+						variable[ARGV[++i]] = readfile( substr( ARGV[++i], 2 ) )
+					else
+						variable[ARGV[++i]] = ARGV[++i]
+				}
 				else
 					files[ j++ ] = ARGV[i]
 			}
@@ -46,12 +53,18 @@ BEGIN	{
 				tpldir = tpldir "/"
 			
 			# Read all templates
-			tpl[ "DOCUMENT" ] = readfile( tpldir "document.tpl" )
-			tpl[ "MODULE" ] = readfile( tpldir "module.tpl" )
-			tpl[ "FUNCTION" ] = readfile( tpldir "function.tpl" )
-			tpl[ "parameters" ] = readfile( tpldir "parameter.tpl" )
-			tpl[ "returns" ] = readfile( tpldir "returns.tpl" )
-			tpl[ "refentry" ] = readfile( tpldir "refentry.tpl" )
+			if( tpl[ "DOCUMENT" ] == "" )
+				tpl[ "DOCUMENT" ] = readfile( tpldir "document.tpl" )
+			if( tpl[ "MODULE" ] == "" )
+				tpl[ "MODULE" ] = readfile( tpldir "module.tpl" )
+			if( tpl[ "FUNCTION" ] == "" )
+				tpl[ "FUNCTION" ] = readfile( tpldir "function.tpl" )
+			if( tpl[ "parameters" ] == "" )
+				tpl[ "parameters" ] = readfile( tpldir "parameter.tpl" )
+			if( tpl[ "returns" ] == "" )
+				tpl[ "returns" ] = readfile( tpldir "returns.tpl" )
+			if( tpl[ "refentry" ] == "" )
+				tpl[ "refentry" ] = readfile( tpldir "refentry.tpl" )
 			
 			document = tpl[ "DOCUMENT" ]
 			
@@ -78,7 +91,7 @@ BEGIN	{
 				{
 					for( s in functions )
 						all_functions[ s ] = functions[ s ]
-				} 
+				}
 				
 				for( s in functions )
 					delete functions[s]
@@ -97,33 +110,36 @@ BEGIN	{
 			
 			if( document != "" )
 			{
-				gsub( "!!" "title", alltitle, document )
-				gsub( "!!" "usage", allusage, document )
-				gsub( "!!" "copyright", allcopyright, document )
-				gsub( "!!" "manual", manual, document )
 				gsub( "!!" "index", allindex, document )
 				gsub( "!!" "reference", all_text, document )
 
-
-				cmd = "date +\"%d/%m/%Y\""
+				#Date
+				cmd = "date +\"%d.%m.%Y\""
 				cmd | getline date_now
 				close( cmd )
 				gsub( "!!" "date", date_now, document )
 
+				#Time
 				cmd = "date +\"%H:%M\""
 				cmd | getline time_now
 				close( cmd )
 				gsub( "!!" "time", time_now, document )
 
+				#System name
 				cmd = "uname -n"
 				cmd | getline node_name
 				close( cmd )
 				gsub( "!!" "system", node_name, document )
 
+				#Operating system
 				cmd = "uname -o"
 				cmd | getline operating_system
 				close( cmd )
 				gsub( "!!" "os", operating_system, document )
+
+				#Replace Variables
+				for( v in variable )
+					gsub( "!!" variable[v], v, document )
 			}
 			else
 				document = all_text
