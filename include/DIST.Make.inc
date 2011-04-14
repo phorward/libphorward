@@ -15,11 +15,18 @@ PLATFORM			=	$(PSYSTEM)
 #Misc
 PROTOP				=	.proto
 
+#Documentation Generator
+TXT2TAGS			=	t2t
+HTML				=	html
+DOCTARGET			=	$(HTML)
+
 #Extensions
 OBJEXT				=	.o
 LIBEXT				=	.a
 EXEEXT				=	
-DOCEXT				=	.tex
+TXT2TAGSEXT			=	.$(TXT2TAGS)
+HTMLEXT				=	.$(HTML)
+DOCEXT				=	$(HTMLEXT)
 
 #Main C compiler
 CC					=	gcc

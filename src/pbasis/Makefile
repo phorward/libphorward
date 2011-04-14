@@ -58,7 +58,7 @@ PROTO		=	pbasis.proto.h
 
 HEADERS		=	pbasis.h
 
-DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pbasis.html
+DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pbasis$(DOCEXT)
 
 # ------------------------------------------------------------------------------
 
@@ -102,6 +102,7 @@ backup: clean
 #make doc
 doc: 
 	$(MKDOC) -ns -i \
+		-t $(DOCTARGET) \
 		-var module "pbasis" \
 		-var title "Phorward Basis Library" \
 		-var libext $(LIBEXT) \

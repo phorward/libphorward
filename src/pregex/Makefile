@@ -27,7 +27,7 @@ PROTO_H		=	$(INCLUDE_DIR)$(PATH_SEP)$(PROTO)
 
 HEADERS		=	pregex.h $(SPROTO)
 
-DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pregex.html
+DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pregex$(DOCEXT)
 
 # ------------------------------------------------------------------------------
 
@@ -64,6 +64,7 @@ backup: clean
 #make doc
 doc: 
 	$(MKDOC) -ns -i \
+		-t $(DOCTARGET) \
 		-var module pregex \
 		-var title "Phorward Regular Expression Library" \
 		-var libext $(LIBEXT) \

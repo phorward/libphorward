@@ -10,6 +10,21 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
+v0.16.4
+----------------------------------------
+[+] mkdoc:
+	Documentation generator extended to nicer HTML-output and support for
+	txt2tags templates. Take a look into run/mkdoc.awk and your
+	include/Make.inc, and the /doc-directory in $PHOME.
+
+----------------------------------------
+v0.16.3
+----------------------------------------
+Entire development moved from SCCS to the Mercurial SCM, project maintenance
+and repository now entirely hosted on SourceForge.net. Now development is more
+transparent and faster than before. Enjoy!
+
+----------------------------------------
 v0.16
 ----------------------------------------
 [+] pregex:

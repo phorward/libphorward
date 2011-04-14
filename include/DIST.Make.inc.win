@@ -15,11 +15,19 @@ PLATFORM			=	WINDOWS
 #Misc
 PROTOP				=	.proto
 
+#Documentation Generator
+TXT2TAGS			=	t2t
+HTML				=	html
+DOCTARGET			=	$(HTML)
+
 #Extensions
 OBJEXT				=	.obj
 LIBEXT				=	.lib
 EXEEXT				=	.exe
-DOCEXT				=	.tex
+TXT2TAGSEXT			=	.$(TXT2TAGS)
+HTMLEXT				=	.$(HTML)
+
+DOCEXT				=	$(HTMLEXT)
 
 #Main C compiler
 CC					=	cl

@@ -21,30 +21,3 @@ echo "P         Move to $PHOME (Phorward SDK root folder)"
 echo "phelp     Shows this quick help"
 echo "r         Move to $PHOME/run (Tools/Executable Directory)"
 echo "s         Move to $PHOME/src (Source Directory)"
-
-if [ -x "$PHOME/run/screate" ]
-then
-	echo "screate   Create SCCS file"
-fi
-if [ -x "$PHOME/run/sget" ]
-then
-	echo "sget      Get (check-out) file from SCCS"
-fi
-if [ -x "$PHOME/run/shist" ]
-then
-	echo "shist     Show SCCS file history"
-fi
-if [ -x "$PHOME/run/sinfo" ]
-then
-	echo "sinfo     Shows which files are checked-out from SCCS"
-fi
-if [ -x "$PHOME/run/sput" ]
-then
-	echo "sput      Put (check-in) file back into SCCS"
-fi
-if [ -x "$PHOME/run/sunget" ]
-then
-	echo "sunget    Unget file from SCCS, no changes are taken"
-fi
-
-echo "t         Move to $PHOME/tpl (Template Directory)"

@@ -22,7 +22,7 @@ PROTO		=	pstring.proto.h
 HEADERS		=	pstring.h
 LHEADERS	=	local.h
 
-DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pstring.html
+DOCFILE		= 	$(DOC_DIR)$(PATH_SEP)pstring$(DOCEXT)
 
 # ------------------------------------------------------------------------------
 
@@ -56,6 +56,7 @@ backup: clean
 #make doc
 doc: 
 	$(MKDOC) -ns -i \
+		-t $(DOCTARGET) \
 		-var module pstring \
 		-var title "Phorward String Object Library" \
 		-var libext $(LIBEXT) \

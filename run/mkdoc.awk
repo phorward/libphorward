@@ -14,7 +14,9 @@ BEGIN	{
 
 			print_sections = 1 
 			full_index = 0
-			tpldir = getenv( "PHOME" ) "/tpl"
+			no_html_reformat = 0
+			tpldir = getenv( "PHOME" ) "/doc/tpl"
+			target = "html"
 			manual = ""
 
 			t = 1
@@ -26,8 +28,12 @@ BEGIN	{
 					output = ARGV[++i]
 				else if( ARGV[i] == "-i" )
 					full_index = 1
+				else if( ARGV[i] == "-nh" )
+					no_html_reformat = 1
 				else if( ARGV[i] == "-ns" )
 					print_sections = 0
+				else if( ARGV[i] == "-t" && i+1 < ARGC )
+					target = ARGV[++i]
 				#JMM 13.04.2011: Templates are also replacable now
 				else if( ARGV[i] == "-tpl" && i+2 < ARGC )
 					tpl[ ARGV[++i] ] = readfile( ARGV[++i] )
@@ -48,9 +54,11 @@ BEGIN	{
 				else
 					files[ j++ ] = ARGV[i]
 			}
-			
+
 			if( substr( tpldir, length( tpldir ) - 1, 1 ) != "/" )
 				tpldir = tpldir "/"
+
+			tpldir = tpldir target "/"
 			
 			# Read all templates
 			if( tpl[ "DOCUMENT" ] == "" )
