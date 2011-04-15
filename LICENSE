@@ -44,12 +44,22 @@ this license; Everything else covers different license agreements, and is NOT
 part of the development environment on its own:
 
 CHANGES
-doc/NOTEMPTY
+doc/phorward.png
+doc/ref.css
+doc/tpl/html/document.tpl
+doc/tpl/html/function.tpl
+doc/tpl/html/module.tpl
+doc/tpl/html/parameter.tpl
+doc/tpl/html/refentry.tpl
+doc/tpl/html/returns.tpl
+doc/tpl/t2t/document.tpl
+doc/tpl/t2t/function.tpl
+doc/tpl/t2t/parameter.tpl
+doc/tpl/t2t/returns.tpl
 etc/NOTEMPTY
 include/DIST.Make.inc
 include/DIST.Make.inc.win
 lib/NOTEMPTY
-LICENSE
 README
 run/cproto_all
 run/cproto_all.bat
@@ -120,10 +130,4 @@ src/pstring/pstring.c
 src/pstring/pstring.h
 src/pstring/set.c
 src/pstring/util.c
-tpl/document.tpl
-tpl/function.tpl
-tpl/module.tpl
-tpl/parameter.tpl
-tpl/refentry.tpl
-tpl/returns.tpl
 Version
