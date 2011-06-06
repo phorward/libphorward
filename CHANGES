@@ -10,6 +10,14 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
+v0.16.5
+----------------------------------------
+[+] pbasis:
+	Memory leaks and overlaps removed from ccl.c
+[+] pregex:
+	Memory leaks (lost pointers) removed from dfa.c
+
+----------------------------------------
 v0.16.4
 ----------------------------------------
 [+] mkdoc:

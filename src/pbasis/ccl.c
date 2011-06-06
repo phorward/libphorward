@@ -703,7 +703,9 @@ CCL ccl_delrange( CCL ccl, pchar begin, pchar end )
 				else
 				{
 					/* Removing whole element required */
-					memcpy( i, &( ccl[ size - 1 ] ), sizeof( CRANGE ) );
+					if( i != &( ccl[ size - 1 ] ) )
+						memcpy( i, &( ccl[ size - 1 ] ), sizeof( CRANGE ) );
+
 					ccl[ size - 1 ].begin = CCL_MAX;
 					ccl_normalize( ccl, FALSE );
 				}
@@ -963,7 +965,7 @@ CCL ccl_intersect( CCL first, CCL second )
 				
 				VARS( "intersections", "%p", intersections );
 				if( !( intersections = (CCL)prealloc( (CCL)intersections,
-						( ccl_size( intersections ) + 1 + 2 )
+						( ccl_size( intersections ) + 1 + 1 )
 							* sizeof( CRANGE ) ) ) )
 					RETURN( (CCL)NULL );
 					
@@ -971,8 +973,8 @@ CCL ccl_intersect( CCL first, CCL second )
 				intersections[cnt].begin = CCL_MAX;
 			}
 
-	RETURN( intersections ? ccl_normalize( intersections, TRUE )
-				: intersections );
+	RETURN( ( ( intersections ) ? ccl_normalize( intersections, TRUE )
+				: intersections ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------

@@ -96,6 +96,8 @@ PRIVATE void pregex_dfa_delete_state( pregex_dfa_st* st )
 	}
 
 	list_free( st->trans );
+
+	pfree( st->ref );
 	pfree( st );
 }
 
@@ -368,6 +370,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	CCL				i;
 	CCL				ccl;
 	CCL				test;
+	CCL				del;
 	CCL				subset;
 
 	PROC( "pregex_dfa_from_nfa" );
@@ -451,7 +454,12 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					if( ccl_size( ( subset = ccl_intersect( ccl, test ) ) ) )
 					{
 						test = ccl_diff( test, subset );
+
+						del = (CCL)list_access( m );
+						ccl_free( del );
+
 						list_replace( m, test );
+
 						changed = TRUE;
 					}
 
@@ -489,6 +497,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				{
 					/* There is no move on this character! */
 					MSG( "transition set is empty, will continue" );
+
+					ccl_free( ccl );
 					continue;
 				}
 				else if( ( state_next = pregex_dfa_same_transitions(
@@ -809,7 +819,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	{
 		group = (LIST*)list_access( l );
 
-		for( m = list_next( group->next ); m; m = list_next( m ) )
+		for( m = list_next( group ); m; m = list_next( m ) )
 		{
 			dfa_st = (pregex_dfa_st*)list_access( m );
 			pregex_dfa_delete_state( dfa_st );

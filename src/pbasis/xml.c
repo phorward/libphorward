@@ -1173,7 +1173,7 @@ static uchar* xml_toxml_r( XML_T xml, uchar** s, size_t*	len, size_t*  max,
 			/* data */
 			*s = xml_ampencode( xml->txt, -1, s, len, max, 0 );
 	
-		while( *len + strlen( xml->name ) + 4 > *max )/* preallocate s */
+		while( *len + strlen( xml->name ) + 4 + 1 > *max )/* preallocate s */
 			*s = prealloc( *s, *max += XML_BUFSIZE );
 			
 		*len += sprintf( *s + *len, "</%s>\n", xml->name );		/* close tag */
