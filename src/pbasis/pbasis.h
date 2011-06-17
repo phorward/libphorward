@@ -21,8 +21,9 @@ Usage:	Main include file for pbasis library
 #include <ctype.h>
 
 #include <stdarg.h>
-#if !defined( va_copy ) && _WIN32 /* MSVC does not know about va_copy... */
-#define va_copy( dst, src )		((void)((dst) = (src)))
+
+#if !defined(va_copy)
+#define va_copy __va_copy
 #endif
 
 #include <limits.h>
