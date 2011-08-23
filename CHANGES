@@ -10,10 +10,20 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
+v0.16.7
+----------------------------------------
+[+] pbasis:
+	system.c extended to new function pgetopt(), a
+	command-line argument parser supporting short-
+	and long-options including parameters.
+[+] NEWPROJECT:
+	Extended base project to new pgetopt() function.
+
+----------------------------------------
 v0.16.6
 ----------------------------------------
 [+] pbasis:
-	pregex.h now defines va_copy-macro on older systems.
+	pbasis.h now defines va_copy-macro on older systems.
 
 ----------------------------------------
 v0.16.5

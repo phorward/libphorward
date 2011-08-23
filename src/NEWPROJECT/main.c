@@ -22,7 +22,7 @@ Usage:	Program entry and parameter parsing.
 /*
  * Defines
  */
-#define VERSION		"0.3"
+#define VERSION		"0.4"
 
 /*
  * Functions
@@ -71,7 +71,7 @@ void copyright( void )
 ----------------------------------------------------------------------------- */
 void usage( uchar* progname )
 {
-	fprintf( stderr, "usage: %s [options]\n\n"
+	fprintf( stderr, "Usage: %s OPTIONS...\n\n"
 		"\t-h   --help            Print this help\n"
 		"\t-V   --version         Print version and copyright\n",
 
@@ -96,28 +96,34 @@ void usage( uchar* progname )
 ----------------------------------------------------------------------------- */
 BOOLEAN get_command_line( int argc, char** argv )
 {
+	int		rc;
 	int		i;
-	uchar*	opt;
+	uchar	opt[ 20 + 1 ];
+	uchar*	param;
 
-	for( i = 1; i < argc; i++ )
+	for( i = 0; ( rc = pgetopt( opt, &param, argc, argv,
+						"Vh", "version help", i ) ) == ERR_OK; i++ )
 	{
-		if( *(argv[i]) == '-' )
+		switch( *opt )
 		{
-			opt = argv[i] + 1;
-			if( *opt == '-' )
-				opt++;
-
-			if( !pstrcmp( opt, "version" ) || !pstrcmp( opt, "V" ) )
-			{
+			case 'V':
+			case 'v':
 				copyright();
 				exit( EXIT_SUCCESS );
-			}
-			else if( !pstrcmp( opt, "help" ) || !pstrcmp( opt, "h" ) )
-			{
+
+			case 'h':
 				usage( *argv );
 				exit( EXIT_SUCCESS );
-			}
+
+			default:
+				break;
 		}
+	}
+
+	if( rc == ERR_FAILURE )
+	{
+		fprintf( stderr, "Unknown command-line option: %s\n", param );
+		exit( EXIT_FAILURE );
 	}
 
 	return TRUE;

@@ -87,3 +87,196 @@ pboolean pfileexists( uchar* filename )
 	RETURN( FALSE );
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pgetopt()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Implementation of a command-line option interpreter.
+					This function works similar to the getopt() functions
+					of the GNU Standard Library, but uses a different style
+					of parameter submit. It supports both short- and long-
+					option-style parameters.
+					
+	Parameters:		uchar*		opt				Requires a pointer to a buffer
+												with enough space to store the
+												requested parameter to. For
+												short parameters, this is only
+												one char, for long-parameters
+												the full name. The string will
+												be zero-terminated.
+					uchar**		param			A pointer to uchar* to store
+												a possible parameter value to,
+												if the detected option allows
+												for parameters.
+					pint		argc			Argument count as taken from
+												the main() function.
+					uchar**		argv			Argument values as taken from
+												the main() function.
+					uchar*		optstr			The possible short-options.
+												This is a string where each
+												character defines an option.
+												If an option takes a parameter,
+												a colon is submitted. E.g.
+												"abc:def:g". The Options "-c"
+												and "-f" will take a parameter
+												that is returned to param.
+												This parameter can be (uchar*)
+												NULL.
+					uchar*		loptstr			The possible long-options.
+												This is a string containing all
+												long option names, each
+												separated by a blank. Long
+												options taking parameters have
+												an attached colon to the name.
+												E.g. "hello world: next" defines
+												three long options, where option
+												'world' takes one parameter that
+												is returned to param. This
+												parameter can be (uchar*)NULL.
+					pint		idx				The index of the requested
+												option, 0 for the first
+												option behind argv[0].
+	
+	Returns:		pint						Returns ERR_OK, if no 
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pint pgetopt( uchar* opt, uchar** param,
+				pint argc, uchar** argv, uchar* optstr,
+					uchar* loptstr, pint idx )
+{
+	BOOLEAN		has_parm;
+	BOOLEAN		found;
+	BOOLEAN		lopt;
+	int			i;
+	uchar*		str;
+	uchar*		pos;
+	uchar*		del;
+	int			cnt		= 0;
+
+	PROC( "pgetopt" );
+	PARMS( "opt", "%p", opt );
+	PARMS( "param", "%p", param );
+	PARMS( "argc", "%d", argc );
+	PARMS( "argv", "%p", argv );
+	PARMS( "optstr", "%s", optstr );
+	PARMS( "loptstr", "%s", loptstr );
+	PARMS( "idx", "%d", idx );
+
+	if( !( opt && param && idx >= 0 && ( optstr || loptstr ) ) )
+	{
+		RETURN( ERR_PARMS );
+	}
+
+	*param = (uchar*)NULL;
+
+	if( argc < 2 )
+		RETURN( 1 );
+
+	for( i = 1; i < argc; i++ )
+	{
+		found = FALSE;
+		str = argv[i];
+		lopt = FALSE;
+
+		if( *str == '-' )
+		{
+			str++;
+			if( *str == '-' )
+			{
+				str++;
+				lopt = TRUE;
+			}
+		}
+		else
+		{
+			*param = argv[i];
+			RETURN( 1 );
+		}
+
+		if( !lopt && optstr && *optstr )
+		{
+			while( *str && idx >= 0 )
+			{
+				for( pos = optstr; *pos; pos++ )
+				{
+					if( *pos == ':' )
+						continue;
+
+					if( *pos == *str )
+					{
+						if( *( pos + 1 ) == ':' )
+						{
+							if( argc > ++i )
+							{
+								if( !idx )
+									*param = argv[ i ];
+							}
+						}
+
+						if( !idx )
+						{
+							psprintf( opt, "%c", *pos );
+							RETURN( ERR_OK );
+						}
+
+						found = TRUE;
+						break;
+					}
+				}
+
+				idx--;
+				str++;
+			}
+
+			if( !found )
+				break;
+		}
+		else if( lopt && loptstr && *loptstr )
+		{
+			for( pos = loptstr; *pos; pos = ( *del ? del + 1 : del ) )
+			{
+				if( !( del = pstrstr( pos, " " ) ) )
+					del = pos + pstrlen( pos );
+
+				if( del > pos && *( del - 1 ) == ':' )
+				{
+					has_parm = TRUE;
+					del--;
+				}
+				else
+					has_parm = FALSE;
+
+				if( pstrncmp( pos, str, del - pos ) == 0 )
+				{
+					if( has_parm && argc > ++i )
+					{
+						if( !idx )
+							*param = argv[ i ];
+					}
+
+					if( !idx )
+					{
+						psprintf( opt, "%.*s", (int)( del - pos ), str );
+						RETURN( ERR_OK );
+					}
+
+					found = TRUE;
+					break;
+				}
+			}
+
+			if( !found )
+				break;
+
+			idx--;
+		}
+		else
+			break;
+	}
+
+	*param = argv[ i ];
+	RETURN( ERR_FAILURE );
+}
