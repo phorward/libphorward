@@ -120,7 +120,7 @@ BOOLEAN get_command_line( int argc, char** argv )
 		}
 	}
 
-	if( rc == ERR_FAILURE )
+	if( rc == ERR_FAILURE && *param )
 	{
 		fprintf( stderr, "Unknown command-line option: %s\n", param );
 		exit( EXIT_FAILURE );

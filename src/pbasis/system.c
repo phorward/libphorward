@@ -277,6 +277,8 @@ pint pgetopt( uchar* opt, uchar** param,
 			break;
 	}
 
-	*param = argv[ i ];
+	if( i < argc )
+		*param = argv[ i ];
+
 	RETURN( ERR_FAILURE );
 }
