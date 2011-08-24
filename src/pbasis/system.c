@@ -155,6 +155,7 @@ pint pgetopt( uchar* opt, uchar** param,
 	uchar*		pos;
 	uchar*		del;
 	int			cnt		= 0;
+	static char	optinfo	[ 2+1 ];
 
 	PROC( "pgetopt" );
 	PARMS( "opt", "%p", opt );
@@ -200,6 +201,7 @@ pint pgetopt( uchar* opt, uchar** param,
 		{
 			while( *str && idx >= 0 )
 			{
+				found = FALSE;
 				for( pos = optstr; *pos; pos++ )
 				{
 					if( *pos == ':' )
@@ -227,12 +229,16 @@ pint pgetopt( uchar* opt, uchar** param,
 					}
 				}
 
+				if( !found )
+				{
+					sprintf( optinfo, "-%c", *str );
+					*param = optinfo;
+					RETURN( ERR_FAILURE );
+				}
+
 				idx--;
 				str++;
 			}
-
-			if( !found )
-				break;
 		}
 		else if( lopt && loptstr && *loptstr )
 		{
@@ -240,6 +246,9 @@ pint pgetopt( uchar* opt, uchar** param,
 			{
 				if( !( del = pstrstr( pos, " " ) ) )
 					del = pos + pstrlen( pos );
+
+				if( del == pos )
+					continue;
 
 				if( del > pos && *( del - 1 ) == ':' )
 				{
@@ -269,16 +278,16 @@ pint pgetopt( uchar* opt, uchar** param,
 			}
 
 			if( !found )
-				break;
+			{
+				*param = argv[ i ];
+				RETURN( ERR_FAILURE );
+			}
 
 			idx--;
 		}
 		else
 			break;
 	}
-
-	if( i < argc )
-		*param = argv[ i ];
 
 	RETURN( ERR_FAILURE );
 }
