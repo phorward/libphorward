@@ -351,6 +351,7 @@ PRIVATE int pregex_dfa_collect_ref( pregex_dfa_st* st )
 								place over all other accepting states. The
 								bug raise up in UniCC during a special test
 								stage, fine to have this fixed! :)
+	27.08.2011	Jan Max Meyer	Added the greedyness handling.
 ----------------------------------------------------------------------------- */
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 {
@@ -388,7 +389,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		RETURN( ERR_MEM );
 
 	current->nfa_set = pregex_nfa_epsilon_closure( nfa, set,
-							(int*)NULL, (int*)NULL );
+							(int*)NULL, (BOOLEAN*)NULL, (int*)NULL );
 	pregex_dfa_collect_ref( current );
 
 	/* Perform algorithm until all states are done */
@@ -409,6 +410,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					|| current->accept >= nfa_st->accept )
 				{
 					current->accept = nfa_st->accept;
+					current->greedy = nfa_st->greedy;
 					current->anchor = nfa_st->anchor;
 				}
 			}
@@ -490,7 +492,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 						nfa, transitions, i->begin, i->end ) ) )
 				{
 					transitions = pregex_nfa_epsilon_closure(
-						nfa, transitions, (int*)NULL, (int*)NULL );
+						nfa, transitions, (int*)NULL, (BOOLEAN*)NULL,
+							(int*)NULL );
 				}
 					
 				if( !transitions )
@@ -904,6 +907,14 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 			MSG( "This state has an accept" );
 			last_accept = dfa_st;
 			*len = plen;
+
+			VARS( "last_accept->greedy", "%s",
+				BOOLEAN_STR( last_accept->greedy ) );
+			if( last_accept->greedy )
+			{
+				MSG( "This match is not greedy, so matching will stop now" );
+				break;
+			}
 		}
 
 		MSG( "Handling References" );

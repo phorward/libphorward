@@ -10,7 +10,19 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
-v0.16.7
+v0.16.9
+----------------------------------------
+[+] pregex:
+	Added possibilities to define
+	greedyness of the regular expression
+	execution machine via the NFA/DFA
+	regular expression itself.
+	Greedyness is set TRUE by default,
+	but switched FALSE when any char
+	calls are done.
+
+----------------------------------------
+v0.16.7 -> v0.16.8
 ----------------------------------------
 [+] pbasis:
 	system.c extended to new function pgetopt(), a

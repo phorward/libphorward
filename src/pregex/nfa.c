@@ -312,6 +312,11 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 												accept-id. Can be left
 												(int*)NULL, so accept will
 												not be returned.
+					BOOLEAN*	greedy			Return-pointer to a variable
+												to retrieve the greedyness
+												of the last accepting state.
+												It should be set to TRUE by
+												default.
 					int*		anchors			Return-pointer to a variable
 												to retrieve a possible
 												anchor-configuration. This
@@ -329,9 +334,10 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 								outgoing transitions recognized (this may
 								happen if the NFA machine was constructed
 								manually and incorrectly).
+	27.08.2011	Jan Max Meyer	Added greedyness parameter.
 ----------------------------------------------------------------------------- */
 LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
-			int* accept, int* anchors )
+			int* accept, BOOLEAN* greedy, int* anchors )
 {
 	pregex_nfa_st*	top;
 	pregex_nfa_st*	next;
@@ -343,6 +349,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 	PARMS( "nfa", "%p", nfa );
 	PARMS( "input", "%p", input );
 	PARMS( "accept", "%p", accept );
+	PARMS( "greedy", "%p", greedy );
 	PARMS( "anchors", "%p", anchors );
 
 	if( accept )
@@ -391,6 +398,12 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 	{
 		*accept = last_accept->accept;
 		VARS( "*accept", "%d", *accept );
+
+		if( greedy )
+		{
+			*greedy = last_accept->greedy;
+			VARS( "*greedy", "%s", BOOLEAN_STR( *greedy ) );
+		}
 	}
 
 	if( anchors && last_accept )
@@ -460,6 +473,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	int			last_accept = REGEX_ACCEPT_NONE;
 	int			rc;
 	pchar		ch;
+	BOOLEAN		greedy		= TRUE;
 
 	PROC( "pregex_nfa_match" );
 	PARMS( "nfa", "%p", nfa );
@@ -488,7 +502,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	while( res )
 	{
 		MSG( "Performing epsilon closure" );
-		res = pregex_nfa_epsilon_closure( nfa, res, &accept, anchors );
+		res = pregex_nfa_epsilon_closure( nfa, res, &accept, &greedy, anchors );
 		
 		MSG( "Handling References" );
 		if( ref && nfa->ref_count )
@@ -517,6 +531,14 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 
 			VARS( "last_accept", "%d", last_accept );
 			VARS( "*len", "%d", *len );
+
+			VARS( "greedy", "%s", BOOLEAN_STR( greedy ) );
+			if( !greedy )
+			{
+				MSG( "Greedy is set, will stop recognition with this match" );
+				break;
+			}
+
 		}
 
 		if( flags & REGEX_MOD_WCHAR )
@@ -594,6 +616,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	NFA_ST*	last;
 	NFA_ST*	nfirst;
 	uchar*	pstr;
+	BOOLEAN	greedy		= TRUE;
 
 	if( !( str && nfa && accept >= 0 ) )
 		return ERR_PARMS;
@@ -649,7 +672,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	}
 
 	/* Run the regex parser */
-	if( ( ret = parse_alter( &pstr, nfa, &estart, &eend, flags ) )
+	if( ( ret = parse_alter( &pstr, nfa, &estart, &eend, &greedy, flags ) )
 			!= ERR_OK )
 	{
 		pfree( str );
@@ -669,26 +692,10 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	/* estart is next of first */
 	first->next = estart;
 
-	/* Build references; If eend has already one reference, 
-			append one more epsilon node */
-	/*
-	if( eend->ref != ( first->ref = nfa->ref_cur ) )
-	{
-		if( !( last = pregex_nfa_create_state( nfa,
-				(uchar*)NULL, flags ) ) )
-		{
-			pfree( str );
-			return ERR_MEM;
-		}
-		
-		eend->next = last;
-		eend = last;
-	}
-	*/
-
 	/* Accept */
 	eend->accept = accept;
 	eend->anchor = anchor;
+	eend->greedy = greedy;
 
 	/* Chaining into big machine */
 	if( nfirst )
@@ -702,11 +709,11 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 /*COD_ON*/
 
 /******************************************************************************
- * RECURSIVE DESCENT PARSER FOR REGULAR EXPRESSIONS FOLLOWS HERE...           *
+ *      RECURSIVE DESCENT PARSER FOR REGULAR EXPRESSIONS FOLLOWS HERE...      *
  ******************************************************************************/
 
 PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end, int flags )
+	NFA_ST** start, NFA_ST** end, BOOLEAN* greedy, int flags )
 {
 	int			ret;
 	wchar		single;
@@ -723,11 +730,11 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 			nfa->ref_cur++;
 			nfa->ref_count++;
 
-			if( ( ret = parse_alter( pstr, nfa, start, end, flags ) )
+			if( ( ret = parse_alter( pstr, nfa, start, end, greedy, flags ) )
 					!= ERR_OK )
 				return ret;
 
-			/* Patch last transition to previous reference */
+			/* Patch the last transition to previous reference */
 			(*end)->ref = --nfa->ref_cur;
 
 			if( **pstr != ')' && !( flags & REGEX_MOD_NO_ERRORS ) )
@@ -735,25 +742,15 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 
 			INC( *pstr );
 
-			/*
-
-			if( !( *start = pregex_nfa_create_state(
-					nfa, (uchar*)NULL, flags ) ) )
-				return ERR_MEM;
-				
-			(*start)->next = cstart;
-			(*start)->ref = ref;
-				
-			if( !( *end = pregex_nfa_create_state(
-					nfa, (uchar*)NULL, flags ) ) )
-				return ERR_MEM;
-				
-			cend->next = *end;
-			(*end)->ref = ref;
-			*/
 			break;
 
 		case '.':
+			/* 
+				If ANY_CHAR is used, then greedyness should be set to
+				non-greedy by default
+			*/
+			*greedy = FALSE;
+
 			if( !( *start = pregex_nfa_create_state(
 					nfa, (uchar*)NULL, flags ) ) )
 				return ERR_MEM;
@@ -822,13 +819,13 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 }
 
 PRIVATE int parse_factor( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end, int flags )
+	NFA_ST** start, NFA_ST** end, BOOLEAN* greedy, int flags )
 {
 	int		ret;
 	NFA_ST*	fstart;
 	NFA_ST*	fend;
 
-	if( ( ret = parse_char( pstr, nfa, start, end, flags ) )
+	if( ( ret = parse_char( pstr, nfa, start, end, greedy, flags ) )
 			!= ERR_OK )
 		return ret;
 
@@ -898,13 +895,13 @@ PRIVATE int parse_factor( uchar** pstr, pregex_nfa* nfa,
 }
 
 PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end, int flags )
+	NFA_ST** start, NFA_ST** end, BOOLEAN* greedy, int flags )
 {
 	int		ret;
 	NFA_ST*	sstart;
 	NFA_ST*	send;
 
-	if( ( ret = parse_factor( pstr, nfa, start, end, flags ) )
+	if( ( ret = parse_factor( pstr, nfa, start, end, greedy, flags ) )
 			!= ERR_OK )
 		return ret;
 
@@ -917,7 +914,7 @@ PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
 				break;
 		}
 
-		if( ( ret = parse_factor( pstr, nfa, &sstart, &send, flags ) )
+		if( ( ret = parse_factor( pstr, nfa, &sstart, &send, greedy, flags ) )
 				!= ERR_OK )
 			return ret;
 
@@ -935,14 +932,14 @@ PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
 }
 
 PRIVATE int parse_alter( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end, int flags )
+	NFA_ST** start, NFA_ST** end, BOOLEAN* greedy, int flags )
 {
 	int		ret;
 	NFA_ST*	astart;
 	NFA_ST*	aend;
 	NFA_ST*	alter;
 
-	if( ( ret = parse_sequence( pstr, nfa, start, end, flags ) )
+	if( ( ret = parse_sequence( pstr, nfa, start, end, greedy, flags ) )
 			!= ERR_OK )
 		return ret;
 
@@ -950,7 +947,7 @@ PRIVATE int parse_alter( uchar** pstr, pregex_nfa* nfa,
 	{
 		INC( *pstr );
 
-		if( ( ret = parse_sequence( pstr, nfa, &astart, &aend, flags ) )
+		if( ( ret = parse_sequence( pstr, nfa, &astart, &aend, greedy, flags ) )
 				!= ERR_OK )
 			return ret;
 

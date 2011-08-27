@@ -1,0 +1,18 @@
+syntax: glob
+
+*.o
+*proto.h
+pbasis/var.*.c
+src/makeall-seq
+include/*.h
+include/Make.inc
+etc/userenv
+lib/*.a
+psh
+
+run/min_lalr1
+run/unicc
+src/NEWPROJECT/NEWPROJECT
+src/DEMO/basis
+src/DEMO/regex
+src/DEMO/string

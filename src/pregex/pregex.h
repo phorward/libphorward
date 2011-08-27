@@ -78,7 +78,10 @@ struct _regex_nfa_st
 									then this is an epsilon edge */
 	pregex_nfa_st*	next;		/* First following NFA-state */
 	pregex_nfa_st*	next2;		/* Second following NFA-state */
+
 	int				accept;		/* Accepting state ID */
+	BOOLEAN			greedy;		/* Greedyness */
+
 	int				ref;		/* Reference level depth */
 	int				anchor;		/* State anchor */
 };
@@ -109,7 +112,9 @@ struct _regex_dfa_st
 	int				accept;		/* Accepting state and ID */
 	int*			ref;		/* Reference level depths */
 	int				ref_cnt;	/* Number of reference level depths */
+
 	int				anchor;		/* State anchoring */
+	BOOLEAN			greedy;		/* Greedyness */
 
 	BOOLEAN			done;		/* Done-Flag */
 	LIST*			nfa_set;	/* List of closed sets of NFA-states */
