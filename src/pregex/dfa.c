@@ -902,18 +902,24 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 	while( dfa_st )
 	{
 		MSG( "At begin of loop" );
+
+		VARS( "dfa_st->accept", "%d", dfa_st->accept );
 		if( dfa_st->accept > REGEX_ACCEPT_NONE )
 		{
 			MSG( "This state has an accept" );
 			last_accept = dfa_st;
 			*len = plen;
 
-			VARS( "last_accept->greedy", "%s",
-				BOOLEAN_STR( last_accept->greedy ) );
-			if( last_accept->greedy )
+			if( !( flags & REGEX_MOD_GREEDY ) )
 			{
-				MSG( "This match is not greedy, so matching will stop now" );
-				break;
+				VARS( "last_accept->greedy", "%s",
+					BOOLEAN_STR( last_accept->greedy ) );
+				if(	!last_accept->greedy || ( flags & REGEX_MOD_NONGREEDY ) )
+				{
+					MSG( "This match is not greedy, "
+							"so matching will stop now" );
+					break;
+				}
 			}
 		}
 

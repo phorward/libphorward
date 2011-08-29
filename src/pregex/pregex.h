@@ -44,6 +44,10 @@ Usage:	Header for regex lib
 										much as possible */
 #define REGEX_MOD_NO_ANCHORS	64	/* Ignore anchor tokens, handle them as
 										normal characters */
+#define REGEX_MOD_GREEDY		128	/* Parse or run regular expression
+										greedy */
+#define REGEX_MOD_NONGREEDY		256	/* Parse or run regular expression
+										nongreedy */
 
 /* Regular Expression anchors */
 #define REGEX_ANCHOR_NONE		0	/* No anchor defined */

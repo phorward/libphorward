@@ -532,13 +532,16 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 			VARS( "last_accept", "%d", last_accept );
 			VARS( "*len", "%d", *len );
 
-			VARS( "greedy", "%s", BOOLEAN_STR( greedy ) );
-			if( !greedy )
+			if( !( flags & REGEX_MOD_GREEDY ) )
 			{
-				MSG( "Greedy is set, will stop recognition with this match" );
-				break;
+				VARS( "greedy", "%s", BOOLEAN_STR( greedy ) );
+				if(	!greedy || ( flags & REGEX_MOD_NONGREEDY ) )
+				{
+					MSG( "Greedy is set, will stop recognition with "
+							"this match" );
+					break;
+				}
 			}
-
 		}
 
 		if( flags & REGEX_MOD_WCHAR )
@@ -695,7 +698,14 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	/* Accept */
 	eend->accept = accept;
 	eend->anchor = anchor;
-	eend->greedy = greedy;
+
+	/* Greedyness */
+	if( flags & REGEX_MOD_GREEDY )
+		eend->greedy = TRUE;
+	else if( flags & REGEX_MOD_NONGREEDY )
+		eend->greedy = FALSE;
+	else
+		eend->greedy = greedy;
 
 	/* Chaining into big machine */
 	if( nfirst )
