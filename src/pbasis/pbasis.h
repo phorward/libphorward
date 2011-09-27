@@ -22,8 +22,8 @@ Usage:	Main include file for pbasis library
 
 #include <stdarg.h>
 
-#if !defined(va_copy)
-#define va_copy __va_copy
+#ifndef va_copy
+#define va_copy( a, b )	(a) = (b)
 #endif
 
 #include <limits.h>
