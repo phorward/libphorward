@@ -16,43 +16,26 @@ then
 	exit 1
 fi
 
-if [ "$PSYSTEM" = "WINDOWS" ]
-then
-	optbegin="//"
-	cc="cl"
-	opt="//nologo"
-else
-	optbegin="-"
-	cc="cc"
-	opt=""
-fi
+#find cc
+cc=`awk '/^CC[ \t]*=/	{	split( $0, line, "=" )
+									print line[2]
+								}' $PHOME/include/Make.inc`
 
 #find stdopts
 cstdopts=`awk '/^CFLAGS[ \t]*=/	{	split( $0, line, "=" )
 									print line[2]
 								}' $PHOME/include/Make.inc`
 
-if [ "$PSYSTEM" = "WINDOWS" ]
-then
-	cstdopts=`echo $cstdopts | sed -e "s/\//\/\//g"`
-	#echo $cstdopts
-fi
-								
 while [ "$1" ]
 do
 	case "$1" in
 		-I)
-			if [ "$PSYSTEM" = "WINDOWS" ]
-			then
-				opt="$opt ${optbegin}I \"$2\""
-			else
-				opt="$opt ${optbegin}I$2"
-			fi
+			opt="$opt -I$2"
 
 			shift
 			;;
 		-D)
-			opt="$opt ${optbegin}D$2"
+			opt="$opt -D$2"
 			shift
 			;;
 		*)
@@ -66,9 +49,7 @@ done
 while [ "$1" ]
 do
 	#zum glueck sind die Parameter bei MS und GNU gleich :D
-	#$cc ${optbegin}E $opt $1
-	#echo $cc ${optbegin}E $opt $cstdopts $1 1>&2
-	$cc ${optbegin}E $opt $cstdopts $1
+	$cc -E $opt $cstdopts $1
 	shift
 done
 

@@ -43,10 +43,10 @@ $(PREGEX_LIB_H): $(SRC) $(HEADERS) Makefile $(PROTO)
 	$(LOCALINCLUDE) pregex.h >$@
 
 $(PROTO): $(SRC) $(HEADERS)
-	cproto_all "$(SRC)" $(INCLUDE_DIR) $@
+	$(MKPROTO) $(SRC) >$@
 
 $(SPROTO): $(SRC) 
-	cproto_all "$(SRC)" $(INCLUDE_DIR) $@ -S
+	$(MKPROTO) -S $(SRC) >$@
 
 clean_obj:
 	-@$(RM) $(OBJ)

@@ -38,7 +38,7 @@ $(PSTRING_LIB_H): $(SRC) $(HEADERS) $(PROTO) Makefile
 	$(LOCALINCLUDE) pstring.h >$@
 
 $(PROTO): $(SRC) $(HEADERS)
-	cproto_all "$(SRC)" $(INCLUDE_DIR) $@
+	$(MKPROTO) $(SRC) >$@
 
 clean_obj:
 	-@$(RM) $(OBJ)

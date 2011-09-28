@@ -19,7 +19,6 @@ Usage:	NFA creation and executable functions
 /*
  * Global variables
  */
-#define NFA_ST				pregex_nfa_st
 #define INC( i )			(i)++
 #define VALID_CHAR( ch )	!pstrchr( "|()[]*+?", (ch) )
 
@@ -466,7 +465,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 {
 	LIST*		res			= (LIST*)NULL;
 	LIST*		l;
-	NFA_ST*		st;
+	pregex_nfa_st*		st;
 	uchar*		pstr		= str;
 	psize		plen		= 0;
 	int			accept		= REGEX_ACCEPT_NONE;
@@ -509,7 +508,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 		{
 			LISTFOR( res, l )
 			{
-				st = (NFA_ST*)list_access( l );
+				st = (pregex_nfa_st*)list_access( l );
 				if( st->ref > -1 )
 				{
 					MSG( "Reference found" );
@@ -613,11 +612,11 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	int		ref;
 	int		ret;
 	int		anchor		= REGEX_ANCHOR_NONE;
-	NFA_ST*	estart;
-	NFA_ST*	eend;
-	NFA_ST*	first;
-	NFA_ST*	last;
-	NFA_ST*	nfirst;
+	pregex_nfa_st*	estart;
+	pregex_nfa_st*	eend;
+	pregex_nfa_st*	first;
+	pregex_nfa_st*	last;
+	pregex_nfa_st*	nfirst;
 	uchar*	pstr;
 	BOOLEAN	greedy		= TRUE;
 
@@ -643,7 +642,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	}
 	
 	/* Find last first node ;) ... */
-	for( nfirst = (NFA_ST*)list_access( nfa->states );
+	for( nfirst = (pregex_nfa_st*)list_access( nfa->states );
 		nfirst && nfirst->next2; nfirst = nfirst->next2 )
 			;
 
@@ -723,7 +722,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
  ******************************************************************************/
 
 PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end, BOOLEAN* greedy, int flags )
+	pregex_nfa_st** start, pregex_nfa_st** end, BOOLEAN* greedy, int flags )
 {
 	int			ret;
 	wchar		single;
@@ -829,11 +828,11 @@ PRIVATE int parse_char( uchar** pstr, pregex_nfa* nfa,
 }
 
 PRIVATE int parse_factor( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end, BOOLEAN* greedy, int flags )
+	pregex_nfa_st** start, pregex_nfa_st** end, BOOLEAN* greedy, int flags )
 {
-	int		ret;
-	NFA_ST*	fstart;
-	NFA_ST*	fend;
+	int				ret;
+	pregex_nfa_st*	fstart;
+	pregex_nfa_st*	fend;
 
 	if( ( ret = parse_char( pstr, nfa, start, end, greedy, flags ) )
 			!= ERR_OK )
@@ -905,11 +904,11 @@ PRIVATE int parse_factor( uchar** pstr, pregex_nfa* nfa,
 }
 
 PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end, BOOLEAN* greedy, int flags )
+	pregex_nfa_st** start, pregex_nfa_st** end, BOOLEAN* greedy, int flags )
 {
-	int		ret;
-	NFA_ST*	sstart;
-	NFA_ST*	send;
+	int				ret;
+	pregex_nfa_st*	sstart;
+	pregex_nfa_st*	send;
 
 	if( ( ret = parse_factor( pstr, nfa, start, end, greedy, flags ) )
 			!= ERR_OK )
@@ -942,12 +941,12 @@ PRIVATE int parse_sequence( uchar** pstr, pregex_nfa* nfa,
 }
 
 PRIVATE int parse_alter( uchar** pstr, pregex_nfa* nfa,
-	NFA_ST** start, NFA_ST** end, BOOLEAN* greedy, int flags )
+	pregex_nfa_st** start, pregex_nfa_st** end, BOOLEAN* greedy, int flags )
 {
-	int		ret;
-	NFA_ST*	astart;
-	NFA_ST*	aend;
-	NFA_ST*	alter;
+	int				ret;
+	pregex_nfa_st*	astart;
+	pregex_nfa_st*	aend;
+	pregex_nfa_st*	alter;
 
 	if( ( ret = parse_sequence( pstr, nfa, start, end, greedy, flags ) )
 			!= ERR_OK )

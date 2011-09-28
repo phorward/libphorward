@@ -74,7 +74,7 @@ $(PBASIS_LIB_H): $(SRC) $(HEADERS) $(SRC_HDR) $(PROTO) Makefile
 	$(LOCALINCLUDE) $(HEADERS) >$@
 
 $(PROTO): $(SRC) $(HEADERS)
-	cproto_all "$(SRC)" $(INCLUDE_DIR) $@
+	$(MKPROTO) $(SRC) >$@
 
 #-- Variant Generator	
 var.get.c: var.h var.gen.awk

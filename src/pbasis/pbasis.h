@@ -129,9 +129,7 @@ typedef int 					pboolean;	/* Phorward Boolean */
 #include "var.h"
 #include "xml.h"
 
-#ifndef MAKE_PROTOTYPES
 #include "pbasis.proto.h"
-#endif
 
 #endif /* _PBASIS_H */
 

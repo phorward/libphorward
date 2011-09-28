@@ -163,13 +163,10 @@ struct _regex_result
 };
 
 /* Prototypes */
-#ifndef MAKE_PROTOTYPES
 #include "pregex.proto.h"
 
 #ifdef PREGEX_LOCAL
 #include "pregex.sproto.h"
-#endif
-
 #endif
 
 #endif

@@ -10,6 +10,21 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
+v0.16.10
+----------------------------------------
+[+] Preparatories for a new build
+	concept, because there are
+	problems on Windows-platform
+	relating the UniCC release soon.
+[+] Improved mkproto to generate
+	function prototypes with only one
+	script.
+[+] Removed cproto_all scripts, they
+	are not necessary anymore.
+[+] Rewrote Makefiles according to
+	use mkproto for now and in future.
+
+----------------------------------------
 v0.16.9
 ----------------------------------------
 [+] pregex:

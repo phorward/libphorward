@@ -12,7 +12,7 @@
 
 if [ $# -lt 1 ]
 then
-	echo "usage: $0 [OPTIONS] <filenames>"
+	echo "usage: $0 [OPTION...] FILE..."
 	echo
 	echo "          -s        Output static declarations also"
 	echo "          -S        Only output static declarations"
@@ -39,10 +39,17 @@ do
 	shift
 done
 
-#make prototypes
+#build the prototypes
+
+echo "/*"
+echo " * This is a generated file - manual editing is not recommended!"
+echo " */" 
+echo
 
 while [ "$1" != "" ]
 do
+	echo "/* $1 */"
+
 	rem_comments < $1 | awk $options '
 
 BEGIN				{	FS = "[ \t]+"
@@ -50,11 +57,64 @@ BEGIN				{	FS = "[ \t]+"
 
 						if( only_static )
 							with_static = 1
+
+						entry = 1
+					}
+
+END					{
+						in_block = 0
+						begin_at = 0
+
+						/* First, delete all empty preprocessor blocks */
+						for( i = 1; i < entry; i++ )
+						{
+							if( match( entries[ i ], /^# ?if/ ) == 1 )
+							{
+								in_block = 1
+								begin_at = i
+							}
+							else if( match( entries[ i ], /^# ?(else|elif)/ ) \
+										== 1 )
+							{
+								if( !in_block )
+								{
+									in_block = 1
+									begin_at = i
+								}
+								#This may run into an error, but I
+								#dont want to fix this now ;( ...
+							}
+							else if( match( entries[ i ], /^# ?endif/ ) == 1 \
+										&& in_block )
+							{
+								for( j = begin_at; j <= i; j++ )
+									entries[j] = ""
+
+								in_block = 0
+							}
+							else
+								in_block = 0
+						}
+
+						/* Then, print the remaining lines */
+						for( i = 1; i < entry; i++ )
+						{
+							if( entries[ i ] != "" )
+								print entries[ i ]
+						}
+					}
+
+/#[ \t]*(if|else|elif|ifdef|ifndef|endif)/	{
+						line = $0
+						gsub( "[ \t]+", " ", line )
+						gsub( "^[ \t]+", "", line )
+						entries[ entry++ ] = line
+						next
 					}
 
 /^[ \t]*([A-Za-z_]+[ \t]+)?[A-Za-z_][A-Za-z0-9_]*[ \t*]+[A-Za-z_][A-Za-z0-9_]*[ \t]*\(/ \
 					{
-						if( $1 == "static" )
+						if( $1 == "static" || $1 == "PRIVATE" )
 						{
 							if( !with_static )
 								next
@@ -70,7 +130,7 @@ BEGIN				{	FS = "[ \t]+"
 						if( akt_proto != "" )
 						{
 							gsub( "[ \t]+", " ", akt_proto )
-							print akt_proto ";"
+							entries[ entry++ ] = akt_proto ";"
 							akt_proto = ""
 						}
 
@@ -105,6 +165,7 @@ BEGIN				{	FS = "[ \t]+"
 		exit 1
 	fi
 
+	echo
 	shift
 done
 

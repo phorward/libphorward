@@ -22,9 +22,7 @@ typedef struct
 typedef _pstring*	pstring;
 
 /* Prototypes */
-#ifndef MAKE_PROTOTYPES
 #include "pstring.proto.h"
-#endif
 
 #endif
 

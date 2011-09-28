@@ -36,7 +36,7 @@ $(OBJECTS): $(SOURCE)
 	$(CC) $(CEXEOPTS) $(DEBUG) $(SOURCE)
 
 $(PROTOFILE): $(SOURCE)
-	cproto_all "$(SOURCE)" $(INCLUDE_DIR) $(PROTOFILE)
+	$(MKPROTO) $(SOURCE) >$@
 
 clean_obj:
 	-$(RM) $(OBJECTS)
