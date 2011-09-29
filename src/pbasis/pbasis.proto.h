@@ -214,7 +214,6 @@ uchar* xml_str2utf8( uchar ** s, size_t* len );
 void xml_free_attr( uchar ** attr );
 XML_T xml_parse_str( uchar* s, size_t len );
 XML_T xml_parse_fp( FILE* fp );
-XML_T xml_parse_fd( int fd );
 XML_T xml_parse_file( uchar* file );
 uchar* xml_ampencode( uchar* s, size_t len, uchar ** dst, size_t* dlen, size_t* max, short a );
 uchar* xml_toxml( XML_T xml );

@@ -269,7 +269,7 @@ uchar* xml_decode( uchar* s, uchar ** ent, uchar t )
 	
 
 	for( ; *s; s++ )
-	{		/* normalize line endings */
+	{		/* normalize line endings */		
 		while( *s == '\r' )
 		{
 			*( s++ ) = '\n';
@@ -774,6 +774,9 @@ XML_T xml_parse_str( uchar* s, size_t len )
 
 	for( ;; )
 	{
+		/*
+		fprintf( stderr, "loop = >%s<\n", s );
+		*/
 		attr = (uchar**)XML_NIL;
 		d = ++s;
 
@@ -885,12 +888,10 @@ XML_T xml_parse_str( uchar* s, size_t len )
 		}
 		else if( !strncmp( s, "!--", 3 ) )
 		{	/* xml comment */
-			if
-			(
-				!( s = strstr(s + 3, "--") )
-			||	( *(s += 2) != '>' && *s )
-			||	( !*s && e != '>' )
-			) return xml_err( root, d, "unclosed <!--" );
+			if( !( s = strstr(s + 3, "--") )
+				||	( *(s += 2) != '>' && *s )
+				||	( !*s && e != '>' ) )
+				return xml_err( root, d, "unclosed <!--" );
 		} 
 		else if( !strncmp( s, "![CDATA[", 8 ) )
 		{	/* cdata */
@@ -970,7 +971,6 @@ XML_T xml_parse_str( uchar* s, size_t len )
  ============================================================================ */
 XML_T xml_parse_fp( FILE* fp )
 {
-	
 	xml_root_t	root;
 	size_t		l, len = 0;
 	uchar*		s;
@@ -990,32 +990,7 @@ XML_T xml_parse_fp( FILE* fp )
 		return (XML_T)NULL;
 
 	root = (xml_root_t)xml_parse_str( s, len );
-	root->len = -1; /* so we know to pfree s in xml_free() */
-
-	return &root->xml;
-}
-
-/* =============================================================================
-    A wrapper for xml_parse_str() that accepts a file descriptor. First ;
-    attempts to mem map the file. Failing that, reads the file into memory. ;
-    Returns NULL on failure.
- ============================================================================ */
-XML_T xml_parse_fd( int fd )
-{
-	
-	xml_root_t	root;
-	struct stat st;
-	size_t		l;
-	void*		m;
-	
-
-	if( fd < 0 ) return NULL;
-	fstat( fd, &st );
-
-	l = read( fd, m = pmalloc( ( st.st_size + 1 ) * sizeof( uchar ) ),
-			st.st_size );
-	root = (xml_root_t)xml_parse_str( m, l );
-	root->len = -1; /* so we know to pfree s in xml_free() */
+	root->len = -1; /* so we know to free s in xml_free() */
 
 	return &root->xml;
 }
@@ -1025,13 +1000,16 @@ XML_T xml_parse_fd( int fd )
  ============================================================================ */
 XML_T xml_parse_file( uchar* file )
 {
+	xml_root_t	root;
+	uchar*		s;
 	
-	int		fd = open( file, O_RDONLY, 0 );
-	XML_T	xml = xml_parse_fd( fd );
+	if( map_file( &s, file ) != ERR_OK )
+		return (XML_T)NULL;
 	
+	root = (xml_root_t)xml_parse_str( s, pstrlen( s ) );
+	root->len = -1; /* so we know to free s in xml_free() */
 
-	if( fd >= 0 ) close( fd );
-	return xml;
+	return &root->xml;
 }
 
 /* =============================================================================

@@ -10,6 +10,17 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
+v0.16.11
+----------------------------------------
+[-]	pbasis: Bugfix in xml.c, relating
+	the function xml_parse_file()
+	and xml_parse_fd(). Now removed
+	xml_parse_fd(), xml_parse_file()
+	uses the map_file() function of
+	util.c now. The problem only
+	existed on the Windows port.
+
+----------------------------------------
 v0.16.10
 ----------------------------------------
 [+] Preparatories for a new build
