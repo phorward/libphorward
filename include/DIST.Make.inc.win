@@ -58,9 +58,9 @@ MIN_LALR1			=	min_lalr1
 UNICC				=	unicc
 VMEXPRESS			=	vmexpress
 MKDOC				=	$(AWK) -f $(RUN_DIR)$(PATH_SEP)mkdoc.awk
-LOCALINCLUDE		=	lincl
-PPP					=	ppp
-MKPROTO				=	mkproto
+LOCALINCLUDE		=	sh lincl
+PPP					=	sh ppp
+MKPROTO				=	sh mkproto
 
 #Standard options
 CFLAGS				= /J /DUTF8 /DUNICODE
