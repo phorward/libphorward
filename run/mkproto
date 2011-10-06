@@ -63,23 +63,24 @@ BEGIN				{	FS = "[ \t]+"
 
 END					{
 						in_block = 0
-						begin_at = 0
+						begin_at[ 1 ] = 0
 
 						/* First, delete all empty preprocessor blocks */
 						for( i = 1; i < entry; i++ )
 						{
 							if( match( entries[ i ], /^# ?if/ ) == 1 )
 							{
-								in_block = 1
-								begin_at = i
+								in_block++
+								begin_at[ in_block ] = i
 							}
 							else if( match( entries[ i ], /^# ?(else|elif)/ ) \
 										== 1 )
 							{
-								if( !in_block )
+								#ok, better to do nothing here...
+								if( 0 && !in_block )
 								{
-									in_block = 1
-									begin_at = i
+									in_block++
+									begin_at[ in_block ] = i
 								}
 								#This may run into an error, but I
 								#dont want to fix this now ;( ...
@@ -87,13 +88,15 @@ END					{
 							else if( match( entries[ i ], /^# ?endif/ ) == 1 \
 										&& in_block )
 							{
-								for( j = begin_at; j <= i; j++ )
+								for( j = begin_at[ in_block ]; j <= i; j++ )
 									entries[j] = ""
 
+								in_block--
+							}
+							else if( in_block )
+							{
 								in_block = 0
 							}
-							else
-								in_block = 0
 						}
 
 						/* Then, print the remaining lines */
