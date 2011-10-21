@@ -95,8 +95,7 @@
 	To provide no flag to a regex-function, use the define REGEX_MOD_NONE.
 */
 
-#include <pbasis.h>
-#include <pregex.h>
+#include <phorward.h>
 
 /* =============================================================================
 	QUICK REGULAR EXPRESSION USAGE
@@ -202,7 +201,7 @@ void direct_regex_demo( void )
 	pfree( res );
 	
 	/* Now, let's replace 'gliding' with an HTML-bold-tag! */
-	pregex_replace( "(gliding)", str, "<b>$1</b>",
+	pregex_replace( "([gG]liding)", str, "<b>$1</b>",
 						REGEX_MOD_GLOBAL | REGEX_MOD_INSENSITIVE, &result );
 	printf( "This is the modified string:\n%s\n\n", result );
 	pfree( result );

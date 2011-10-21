@@ -117,7 +117,9 @@ END					{
 
 /^[ \t]*([A-Za-z_]+[ \t]+)?[A-Za-z_][A-Za-z0-9_]*[ \t*]+[A-Za-z_][A-Za-z0-9_]*[ \t]*\(/ \
 					{
-						if( $1 == "static" || $1 == "PRIVATE" )
+						if( $1 == "static" \
+							|| $1 == "PRIVATE" \
+							|| $1 == "UNICC_STATIC" )
 						{
 							if( !with_static )
 								next

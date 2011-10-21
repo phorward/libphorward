@@ -1,0 +1,29 @@
+/* -HEADER----------------------------------------------------------------------
+Phorward Foundation Libraries :: Base Library
+Copyright (C) 2006-2011 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See $PHOME/LICENSE for more information.
+
+File:	stack.h
+Author:	Jan Max Meyer
+Usage:	Universal, dynamic stack management functions
+----------------------------------------------------------------------------- */
+
+#ifndef STACK_H
+#define STACK_H
+
+typedef struct
+{
+	pbyte*	stack;
+	psize	size;
+	psize	top;
+	psize	count;
+	psize	step;
+} STACK;
+
+#define STACK_CALLBACK		void(*) ( pbyte* )
+#define STACK_NO_CALLBACK	( (STACK_CALLBACK)NULL )
+
+#define stack_count( s )	( s )->top
+
+#endif

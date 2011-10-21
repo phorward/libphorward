@@ -10,7 +10,7 @@ then
 	sequence="`cat makeall-seq`"
 else
 	#Use default sequence
-	sequence="pbasis pstring pregex min_lalr1 DEMO NEWPROJECT"
+	sequence="phorward min_lalr1 DEMO NEWPROJECT"
 fi
 
 if [ -z "$PMAKE" ]

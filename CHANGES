@@ -10,7 +10,14 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
-v0.16.11
+v0.17.xx (changeset >= 330)
+----------------------------------------
+This version is currently under development.
+The entire make system is rebuild currently
+with some extensions.
+
+----------------------------------------
+v0.16.11 (changeset 329)
 ----------------------------------------
 [-]	pbasis: Bugfix in xml.c, relating
 	the function xml_parse_file()

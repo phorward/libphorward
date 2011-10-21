@@ -4,18 +4,14 @@
 ``` !!synopsis
 
 //Description://
-
 !!usage
 
 //Author://
-
 !!author
 
 //Parameters://
 !!parameters
 
-
 //Returns://
 !!returns
-
 

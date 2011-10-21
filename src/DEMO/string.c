@@ -7,8 +7,7 @@
 	objects user doesn't need to take care of it.
 */
 
-#include <pbasis.h>
-#include <pstring.h>
+#include <phorward.h>
 
 int main( int argc, char** argv )
 {

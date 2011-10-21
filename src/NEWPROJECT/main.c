@@ -11,9 +11,8 @@ Usage:	Program entry and parameter parsing.
 /*
  * Includes
  */
-#include <pbasis.h>
-#include <pregex.h>
-#include <pstring.h>
+#include <phorward.h>
+#include "proto.h"
 
 /*
  * Global variables
@@ -22,7 +21,7 @@ Usage:	Program entry and parameter parsing.
 /*
  * Defines
  */
-#define VERSION		"0.4"
+#define VERSION		"0.5"
 
 /*
  * Functions
