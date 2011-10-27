@@ -13,7 +13,6 @@ Usage:	NFA creation and executable functions
 /*
  * Includes
  */
-#define PREGEX_LOCAL
 #include <phorward.h>
 
 /*
@@ -150,11 +149,69 @@ pregex_nfa_st* pregex_nfa_create_state(
 }
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		under development()
+
+	Author:			Jan Max Meyer
+
+	Usage:			
+
+	Parameters:		
+
+	Returns:		void
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+static void pregex_nfa_state_print_regex(
+	pregex_nfa* nfa, pregex_nfa_st* state, int ref )
+{
+	if( state->ref > ref )
+		fprintf( stderr, "(" );
+
+	if( state->ccl )
+	{
+		fprintf( stderr, "[" );
+		ccl_print( stderr, state->ccl, 0 );
+		fprintf( stderr, "]" );
+	}
+
+	if( state->operator == '?'
+		|| state->operator == '*'
+			|| state->operator == '+' )
+	{
+		pregex_nfa_state_print_regex( nfa, state->next, state->ref );
+		fprintf( stderr, "%c", state->operator );
+	}
+	else if( state->next )
+	{
+		pregex_nfa_state_print_regex( nfa, state->next, state->ref );
+		
+		if( state->next2 && state->operator == '|' )
+		{
+			fprintf( stderr, "%c", state->operator );
+			pregex_nfa_state_print_regex( nfa, state->next2, state->ref );
+		}
+	}
+	
+	if( state->ref > ref )
+		fprintf( stderr, ")" );
+}
+
+void pregex_nfa_print_regex( pregex_nfa* nfa )
+{
+	LIST*			l;
+	pregex_nfa_st*	s;
+
+	pregex_nfa_state_print_regex( nfa,
+		(pregex_nfa_st*)list_access( nfa->states ), 0 );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_nfa_print()
 
 	Author:			Jan Max Meyer
 
-	Usage:			Prints an NFA for debug purposes on a output stream.
+	Usage:			Prints an NFA for debug purposes on an output stream.
 
 	Parameters:		FILE*		stream		The output stream where to print
 											the NFA to.
@@ -701,6 +758,7 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	
 	/* estart is next of first */
 	first->next = estart;
+	first->operator = '|';
 
 	/* Accept */
 	eend->accept = accept;
@@ -875,6 +933,7 @@ static int parse_factor( uchar** pstr, pregex_nfa* nfa,
 					*/
 					fstart->next2 = fend;
 					(*end)->next2 = *start;
+					fstart->operator = '*';
 					break;
 
 				case '+':
@@ -884,6 +943,7 @@ static int parse_factor( uchar** pstr, pregex_nfa* nfa,
 										|_______|
 					*/
 					(*end)->next2 = *start;
+					fstart->operator = '+';
 					break;
 
 				case '?':
@@ -894,6 +954,7 @@ static int parse_factor( uchar** pstr, pregex_nfa* nfa,
 							fstart -> start -> end -> fend
 					*/
 					fstart->next2 = fend;
+					fstart->operator = '?';
 					break;
 				
 				default:
@@ -973,6 +1034,7 @@ static int parse_alter( uchar** pstr, pregex_nfa* nfa,
 			return ERR_MEM;
 		alter->next = *start;
 		alter->next2 = astart;
+		alter->operator = '|';
 
 		*start = alter;
 

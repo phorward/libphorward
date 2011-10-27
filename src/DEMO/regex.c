@@ -292,7 +292,7 @@ void compiled_regex_demo( void )
 	pregex_comp_init( &rx, REGEX_MOD_GLOBAL );
 	pregex_comp_compile( &rx, "\\<[A-Z]+\\>", 0 );
 	pregex_comp_compile( &rx, "[0-9]+", 1 );
-	pregex_comp_compile( &rx, "[0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+", 2 );	
+	pregex_comp_compile( &rx, "[0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+", 2 );
 	
 	/* First, we're extracting tokens from a string */
 	matches = pregex_comp_match( &rx, simple, REGEX_NO_CALLBACK, &res );
@@ -322,10 +322,18 @@ void compiled_regex_demo( void )
 
 int main( int argc, char** argv )
 {
+	pregex rx;
 	setlocale( LC_ALL, "" );
-	
+
 	direct_regex_demo();
 	compiled_regex_demo();
+	/*
+	pregex_comp_init( &rx, REGEX_MOD_GLOBAL );
+	pregex_comp_compile( &rx, "[0-9]+|((Worl)+d)*|Hblöd", 1 );
+	
+	pregex_nfa_print( &( rx.machine.nfa ) );
+	pregex_nfa_print_regex( &( rx.machine.nfa ) );
+	*/
 
 	return EXIT_SUCCESS;
 }
