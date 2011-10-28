@@ -254,7 +254,7 @@ int pregex_replace( uchar* regex, uchar* str, uchar* replacement, int flags, uch
 
 /* regex/nfa.c */
 pregex_nfa_st* pregex_nfa_create_state( pregex_nfa* nfa, uchar* chardef, int flags );
-void pregex_nfa_print_regex( pregex_nfa* nfa );
+uchar* pregex_nfa_to_regex( pregex_nfa* nfa );
 void pregex_nfa_print( pregex_nfa* nfa );
 void pregex_nfa_free( pregex_nfa* nfa );
 LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to );

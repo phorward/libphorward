@@ -325,15 +325,17 @@ int main( int argc, char** argv )
 	pregex rx;
 	setlocale( LC_ALL, "" );
 
+	/*
 	direct_regex_demo();
 	compiled_regex_demo();
-	/*
+	*/
+	
 	pregex_comp_init( &rx, REGEX_MOD_GLOBAL );
-	pregex_comp_compile( &rx, "[0-9]+|((Worl)+d)*|Hblöd", 1 );
+	pregex_comp_compile( &rx, "[0-9]+|((Wo|rl)+d)*", 1 );
+	pregex_comp_compile( &rx, "((wo|rli)+y)*|x", 2 );
 	
 	pregex_nfa_print( &( rx.machine.nfa ) );
-	pregex_nfa_print_regex( &( rx.machine.nfa ) );
-	*/
+	printf( "%s\n", pregex_nfa_to_regex( &( rx.machine.nfa ) ) );
 
 	return EXIT_SUCCESS;
 }

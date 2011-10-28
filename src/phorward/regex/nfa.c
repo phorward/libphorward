@@ -148,63 +148,137 @@ pregex_nfa_st* pregex_nfa_create_state(
 	RETURN( ptr );
 }
 
+/*NO_DOC*/
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		under development()
+	Function:		pregex_nfa_to_regex() - UNDER DEVELOPMENT!!!
 
 	Author:			Jan Max Meyer
 
-	Usage:			
+	Usage:			Turns a NFA state machine back into a well formatted
+	 				regular expression string. The function
+	 				pregex_nfa_to_REGEX() is only internally used for
+	 				recursion.
 
-	Parameters:		
+	Parameters:		pregex_nfa*		nfa			NFA state machine that should
+												be turned back into a regular
+												expression string.
 
-	Returns:		void
+	Returns:		uchar*						Returns a well-formatted regular
+												expression that can be parsed
+												by the pregex regular expression
+												parser. The string is allocated
+												dynamically and must be freed
+												by the function caller.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-static void pregex_nfa_state_print_regex(
-	pregex_nfa* nfa, pregex_nfa_st* state, int ref )
+static pregex_nfa_st* pregex_nfa_to_REGEX( uchar** str, pregex_nfa* nfa,
+				pregex_nfa_st* state, int ref, int rec )
 {
-	if( state->ref > ref )
-		fprintf( stderr, "(" );
+	pregex_nfa_st*	end;
 
-	if( state->ccl )
+	uchar*			tmp;
+	uchar			gap[80+1];
+	int				i;
+	
+	for( i = 0; i < rec; i++ )
+		gap[i] = ' ';
+	gap[i] = 0;
+	
+	/* Begin */	
+	while( state )
 	{
-		fprintf( stderr, "[" );
-		ccl_print( stderr, state->ccl, 0 );
-		fprintf( stderr, "]" );
-	}
-
-	if( state->operator == '?'
-		|| state->operator == '*'
-			|| state->operator == '+' )
-	{
-		pregex_nfa_state_print_regex( nfa, state->next, state->ref );
-		fprintf( stderr, "%c", state->operator );
-	}
-	else if( state->next )
-	{
-		pregex_nfa_state_print_regex( nfa, state->next, state->ref );
-		
-		if( state->next2 && state->operator == '|' )
+		printf( "%sCurrent state %d\n", gap, list_find( nfa->states, state ) );
+		if( state->ref > ref )
 		{
-			fprintf( stderr, "%c", state->operator );
-			pregex_nfa_state_print_regex( nfa, state->next2, state->ref );
+			printf( "%sState ref %d too high for %d\n", gap, state->ref, ref );
+			*str = pstr_append_char( *str, '(' );
+			ref = state->ref;
 		}
+		else if( state->ref < ref )
+		{
+			printf( "%sState ref %d too low for %d\n", gap, state->ref, ref );
+			*str = pstr_append_char( *str, ')' );
+			ref = state->ref;
+		}
+
+		if( state->operator == '|' )
+		{
+			printf( "%sAlternative ref %d\n", gap, ref );
+			end = pregex_nfa_to_REGEX( str, nfa, state->next, ref, rec + 1 );
+			ref = end->ref;
+
+			if( state->next2 && state->operator == '|' )
+			{
+				printf( "%sAlternative 2 ref %d\n", gap, ref );
+				*str = pstr_append_char( *str, state->operator );
+				state = pregex_nfa_to_REGEX( str, nfa, state->next2,
+											ref, rec + 1 );
+				ref = state->ref;
+			}
+			else
+			{
+				state = end;
+			}
+		}
+		/* Node with operator */
+		else if( state->operator )
+		{
+			printf( "%sModifier %c ref %d\n", gap, state->operator, ref );
+			end = pregex_nfa_to_REGEX( str, nfa, state->next,
+						ref, rec + 1 );
+			*str = pstr_append_char( *str, state->operator );
+			
+			state = end;
+			ref = state->ref;
+		}
+		/* Character node */
+		else if( state->ccl )
+		{
+			tmp = ccl_to_str( state->ccl, TRUE );
+			printf( "%sCharclass: %s\n", gap, tmp );
+			pfree( tmp );
+			
+			if( ccl_count( state->ccl ) == 1 )
+				*str = pstr_append_str( *str,
+						ccl_to_str( state->ccl, TRUE ), TRUE );
+			else
+			{
+				*str = pstr_append_char( *str, '[' );
+				*str = pstr_append_str( *str,
+						ccl_to_str( state->ccl, TRUE ), TRUE );
+				*str = pstr_append_char( *str, ']' );
+			}
+		}
+		else
+			break;
+		
+		if( !state )
+			break;
+				
+		if( state->next )
+			state = state->next;
+		else if( state->next2 )
+			state = state->next2;
 	}
 	
-	if( state->ref > ref )
-		fprintf( stderr, ")" );
+	return state;
 }
 
-void pregex_nfa_print_regex( pregex_nfa* nfa )
+uchar* pregex_nfa_to_regex( pregex_nfa* nfa )
 {
-	LIST*			l;
-	pregex_nfa_st*	s;
+	uchar*	str		= (uchar*)NULL;
+	if( !nfa )
+		return (uchar*)NULL;
 
-	pregex_nfa_state_print_regex( nfa,
-		(pregex_nfa_st*)list_access( nfa->states ), 0 );
+	pregex_nfa_to_REGEX( &str, nfa,
+		(pregex_nfa_st*)list_access( nfa->states ), 0, 0 );
+		
+	return str;
 }
+
+/*DOC_ON*/
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_nfa_print()
@@ -227,25 +301,25 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	LIST*			l;
 	pregex_nfa_st*	s;
 
-	fprintf( stderr, " no next next2 accept ref anchor\n" );
-	fprintf( stderr, "--------------------------------\n" );
+	fprintf( stderr, " no next next2 accept ref anchor op\n" );
+	fprintf( stderr, "-----------------------------------\n" );
 
 	for( l = nfa->states; l; l = list_next( l ) )
 	{
 		s = (pregex_nfa_st*)list_access( l );
 
-		fprintf( stderr, "#% 2d % 4d % 5d  % 5d  % 3d % 6d\n",
+		fprintf( stderr, "#% 2d % 4d % 5d  % 5d  % 3d % 6d %c\n",
 			list_find( nfa->states, (void*)s ),
 			list_find( nfa->states, (void*)s->next ),
 			list_find( nfa->states, (void*)s->next2 ),
-			s->accept, s->ref, s->anchor );
+			s->accept, s->ref, s->anchor, s->operator );
 		
 		if( s->ccl )
 			ccl_print( stderr, s->ccl, 0 );
 		fprintf( stderr, "\n\n" );
 	}
 
-	fprintf( stderr, "---------------------\n" );
+	fprintf( stderr, "-----------------------------------\n" );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -933,7 +1007,6 @@ static int parse_factor( uchar** pstr, pregex_nfa* nfa,
 					*/
 					fstart->next2 = fend;
 					(*end)->next2 = *start;
-					fstart->operator = '*';
 					break;
 
 				case '+':
@@ -943,7 +1016,6 @@ static int parse_factor( uchar** pstr, pregex_nfa* nfa,
 										|_______|
 					*/
 					(*end)->next2 = *start;
-					fstart->operator = '+';
 					break;
 
 				case '?':
@@ -954,7 +1026,6 @@ static int parse_factor( uchar** pstr, pregex_nfa* nfa,
 							fstart -> start -> end -> fend
 					*/
 					fstart->next2 = fend;
-					fstart->operator = '?';
 					break;
 				
 				default:
@@ -963,7 +1034,11 @@ static int parse_factor( uchar** pstr, pregex_nfa* nfa,
 
 			*start = fstart;
 			*end = fend;
+
+			fstart->operator = **pstr;
+			
 			INC( *pstr );
+			break;
 
 		default:
 			break;
@@ -978,6 +1053,7 @@ static int parse_sequence( uchar** pstr, pregex_nfa* nfa,
 	int				ret;
 	pregex_nfa_st*	sstart;
 	pregex_nfa_st*	send;
+	uchar			save_op;
 
 	if( ( ret = parse_factor( pstr, nfa, start, end, greedy, flags ) )
 			!= ERR_OK )
@@ -995,9 +1071,11 @@ static int parse_sequence( uchar** pstr, pregex_nfa* nfa,
 		if( ( ret = parse_factor( pstr, nfa, &sstart, &send, greedy, flags ) )
 				!= ERR_OK )
 			return ret;
-
-		memcpy( *end, sstart, sizeof( pregex_nfa_st ) );
+		
+		save_op = (*end)->operator;
+		memcpy( *end, sstart, sizeof( pregex_nfa_st ) );	
 		memset( sstart, 0, sizeof( pregex_nfa_st ) );
+		(*end)->operator = save_op;
 
 		nfa->states = list_remove( nfa->states, (void*)sstart );
 		if( !( nfa->empty = list_push( nfa->empty, (void*)sstart ) ) )
