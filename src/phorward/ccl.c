@@ -540,7 +540,6 @@ uchar* ccl_to_str( CCL ccl, pboolean escape )
 			else
 				u8_toutf8( to, sizeof( to ), &( i->end ), 1 );
 
-			/* can't use pstring-tools here... they are one level below! */
 			sprintf( from + strlen( from ), "-%s", to );
 		}
 

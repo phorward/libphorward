@@ -148,16 +148,16 @@ pregex_nfa_st* pregex_nfa_create_state(
 	RETURN( ptr );
 }
 
-/*NO_DOC*/
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_nfa_to_regex() - UNDER DEVELOPMENT!!!
+	Function:		pregex_nfa_to_regex()
 
 	Author:			Jan Max Meyer
 
 	Usage:			Turns a NFA state machine back into a well formatted
-	 				regular expression string. The function
-	 				pregex_nfa_to_REGEX() is only internally used for
-	 				recursion.
+	 				regular expression string. The functions
+	 				pregex_nfa_to_REGEX(), pregex_ccl_to_REGEX() and
+	 				pregex_char_to_REGEX() are only internally used for
+	 				recursion. The function is currently in testing mode.
 
 	Parameters:		pregex_nfa*		nfa			NFA state machine that should
 												be turned back into a regular
@@ -173,6 +173,76 @@ pregex_nfa_st* pregex_nfa_create_state(
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
+static void pregex_char_to_REGEX( uchar* str, int size,
+				pchar ch, pboolean escape )
+{
+	if( ch == '[' || ch == ']' )
+		psprintf( str, "\\%c", (uchar)ch );
+	else if( escape )
+		u8_escape_wchar( str, size, ch );
+	else
+		u8_toutf8( str, size, &ch, 1 );
+}
+
+static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
+{
+	pregex_ccl		neg		= (pregex_ccl)NULL;
+	pregex_ccl		i;
+	uchar			from	[ 40 + 1 ];
+	uchar			to		[ 20 + 1 ];
+	
+	if( ccl_count( ccl ) == CCL_MAX )
+	{
+		*str = pstr_append_char( *str, '.' );
+		return;
+	}
+	
+	/* 
+	 * Always duplicate character-class,
+	 * we sometimes will modify it
+	 */
+	ccl = ccl_dup( ccl );
+
+	if( ccl_count( ccl ) > 128 )
+		ccl = neg = ccl_negate( ccl );
+	
+	if( neg || ccl_count( ccl) > 1 )
+	{
+		*str = pstr_append_char( *str, '[' );
+		if( neg )
+			*str = pstr_append_char( *str, '^' );
+	}
+	
+	/*
+	 * If ccl contains a dash,
+	 * it should be printed first!
+	 */
+	if( ccl_test( ccl, '-' ) )
+	{			
+		*str = pstr_append_char( *str, '-' );
+		ccl = ccl_delrange( ccl, '-', '-' );
+	}
+	
+	/* Go trough ccl... */
+	for( i = ccl; !ccl_end( i ); i++ )
+	{
+		pregex_char_to_REGEX( from, (int)sizeof( from ), i->begin, escape );
+
+		if( i->begin != i->end )
+		{
+			pregex_char_to_REGEX( to, (int)sizeof( to ), i->end, escape );
+			psprintf( from + strlen( from ), "-%s", to );
+		}
+		
+		*str = pstr_append_str( *str, from, FALSE );
+	}
+	
+	if( neg || ccl_count( ccl) > 1 )
+		*str = pstr_append_char( *str, ']' );
+		
+	ccl_free( ccl );
+}
+
 static pregex_nfa_st* pregex_nfa_to_REGEX( uchar** str, pregex_nfa* nfa,
 				pregex_nfa_st* state, int rec )
 {
@@ -238,7 +308,7 @@ static pregex_nfa_st* pregex_nfa_to_REGEX( uchar** str, pregex_nfa* nfa,
 			fprintf( stderr, "%sCharclass: %s\n", gap, tmp );
 			pfree( tmp );
 #endif
-			
+			/*
 			if( ccl_count( state->ccl ) == 1 )
 				*str = pstr_append_str( *str,
 						ccl_to_str( state->ccl, TRUE ), TRUE );
@@ -249,6 +319,8 @@ static pregex_nfa_st* pregex_nfa_to_REGEX( uchar** str, pregex_nfa* nfa,
 						ccl_to_str( state->ccl, TRUE ), TRUE );
 				*str = pstr_append_char( *str, ']' );
 			}
+			*/
+			pregex_ccl_to_REGEX( str, state->ccl, TRUE );
 		}
 		else
 			break;
@@ -277,7 +349,6 @@ uchar* pregex_nfa_to_regex( pregex_nfa* nfa )
 	return str;
 }
 
-/*DOC_ON*/
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_nfa_print()
