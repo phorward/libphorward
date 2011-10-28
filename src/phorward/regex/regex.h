@@ -84,6 +84,8 @@ struct _regex_nfa_st
 	int				ref;		/* Reference level depth */
 	int				anchor;		/* State anchor */
 	uchar			operator;	/* Operator from original regex */
+	uchar			op_br;		/* Opening bracket */ 
+	uchar			cl_br;		/* Opening bracket */
 };
 
 struct _regex_nfa

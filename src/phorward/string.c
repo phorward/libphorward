@@ -65,6 +65,9 @@ uchar* pstr_append_char( uchar* str, wchar chr )
 	PROC( "pstr_append_char" );
 	PARMS( "str", "%p", str );
 	PARMS( "chr", "%d", chr );
+	
+	if( !chr )
+		return str;
 
 	if( !str )
 	{

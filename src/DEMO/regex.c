@@ -332,7 +332,7 @@ int main( int argc, char** argv )
 	
 	pregex_comp_init( &rx, REGEX_MOD_GLOBAL );
 	pregex_comp_compile( &rx, "[0-9]+|((Wo|rl)+d)*", 1 );
-	pregex_comp_compile( &rx, "((wo|rli)+y)*|x", 2 );
+	pregex_comp_compile( &rx, "((wo|rli)+y)*|x|Hei*nbl(öh)+d", 2 );
 	
 	pregex_nfa_print( &( rx.machine.nfa ) );
 	printf( "%s\n", pregex_nfa_to_regex( &( rx.machine.nfa ) ) );
