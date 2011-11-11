@@ -322,6 +322,8 @@ void compiled_regex_demo( void )
 
 int main( int argc, char** argv )
 {
+	pregex_nfa		nfa;
+	pregex_ptn*		ptn;
 	pregex rx;
 	setlocale( LC_ALL, "" );
 
@@ -330,12 +332,25 @@ int main( int argc, char** argv )
 	compiled_regex_demo();
 	*/
 	
+	/*
 	pregex_comp_init( &rx, REGEX_MOD_GLOBAL );
 	pregex_comp_compile( &rx, "[0-9]+|((Wo|rl)+d)*", 1 );
 	pregex_comp_compile( &rx, "((wo|rli)+y)*|x|Hei*nbl(öh)+d", 2 );
 	
 	pregex_nfa_print( &( rx.machine.nfa ) );
 	printf( "%s\n", pregex_nfa_to_regex( &( rx.machine.nfa ) ) );
+	*/
+
+	/* pregex_ptn_parse( "Hello|Wo(r|[A-Z])*d" ); */
+	memset( &nfa, 0, sizeof( pregex_nfa ) );
+	//pregex_ptn_parse( &ptn, "((wo|rli)+y)*|x|Hei*nbl(öh)+d" );
+	pregex_ptn_parse( &ptn, (pregex_accept*)NULL,
+						"hello|world*", REGEX_MOD_NONE );
+	pregex_ptn_print( ptn, 0 );
+	pregex_ptn_to_nfa( &nfa, ptn, (pregex_accept*)NULL );
+	pregex_nfa_print( &nfa );
+	
+	/* pregex_ptn_free( ptn ); */
 
 	return EXIT_SUCCESS;
 }

@@ -81,8 +81,6 @@ typedef int 					pboolean;	/* Phorward Boolean */
  */
 
 /* This can be replaced by some special malloc macros or functions later on */
-#define pmalloc( size )			malloc( size )
-#define prealloc( ptr, size )	realloc( ptr, size )
 #define pfree( ptr )			do { free( ( ptr ) ); \
 								( ptr ) = NULL; } while( 0 )
 
@@ -96,6 +94,17 @@ typedef int 					pboolean;	/* Phorward Boolean */
 #define ERR_SYSTEM				-4		/* System call error */
 #define ERR_UNIMPL				-5		/* Unimplemented */
 #define ERR_OTHER				-6		/* Any other error */
+
+/*
+ * Generic macros
+ */
+#define OUTOFMEM				fprintf( stderr, \
+									"%s, %d: Ran out of memory\n", \
+										__FILE__, __LINE__ ), exit( 1 )
+#define WRONGPARAM				fprintf( stderr, \
+									"%s, %d: Function called with wrong or " \
+									"incomplete parameters, fix your call!\n", \
+										__FILE__, __LINE__ )
 
 /*
  * Path separator

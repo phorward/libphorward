@@ -16,6 +16,7 @@ SOURCES		=	base64.c \
 				dbg.c \
 				hashtab.c \
 				llist.c \
+				memory.c \
 				stack.c \
 				string.c \
 				system.c \
@@ -31,8 +32,9 @@ SOURCES		=	base64.c \
 				regex/dfa.c \
 				regex/direct.c \
 				regex/nfa.c \
+				regex/pattern.c \
 				regex/ref.c \
-				regex/util.c \
+				regex/misc.c \
 				\
 				string/get.c \
 				string/set.c \
@@ -73,6 +75,7 @@ $(LIBPHORWARD_H): $(HEADERS)
 
 clean:
 	-$(RM) $(OBJECTS)
+	-$(RM) $(PROTOFILE)
 
 #------------------------------------------------------------------------------
 

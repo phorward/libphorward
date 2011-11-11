@@ -84,7 +84,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 	
 	/* Initialize */
 	memset( ptr, 0, sizeof( pregex_nfa_st ) );
-	ptr->accept = REGEX_ACCEPT_NONE;
+	pregex_accept_init( &( ptr->accept ) );
 	ptr->ref = nfa->ref_cur;
 
 	/* Put into list of NFA states */
@@ -173,10 +173,11 @@ pregex_nfa_st* pregex_nfa_create_state(
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
+#if 0
 static void pregex_char_to_REGEX( uchar* str, int size,
 				pchar ch, pboolean escape )
 {
-	if( ch == '[' || ch == ']' )
+	if( ch == '[' || ch == ']' || ch == '*' || ch == '+' || ch == '?' )
 		psprintf( str, "\\%c", (uchar)ch );
 	else if( escape )
 		u8_escape_wchar( str, size, ch );
@@ -190,6 +191,7 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
 	pregex_ccl		i;
 	uchar			from	[ 40 + 1 ];
 	uchar			to		[ 20 + 1 ];
+	pboolean		range	= FALSE;
 	
 	if( ccl_count( ccl ) == CCL_MAX )
 	{
@@ -208,6 +210,7 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
 	
 	if( neg || ccl_count( ccl) > 1 )
 	{
+		range = TRUE;
 		*str = pstr_append_char( *str, '[' );
 		if( neg )
 			*str = pstr_append_char( *str, '^' );
@@ -218,7 +221,7 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
 	 * it should be printed first!
 	 */
 	if( ccl_test( ccl, '-' ) )
-	{			
+	{
 		*str = pstr_append_char( *str, '-' );
 		ccl = ccl_delrange( ccl, '-', '-' );
 	}
@@ -237,7 +240,7 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
 		*str = pstr_append_str( *str, from, FALSE );
 	}
 	
-	if( neg || ccl_count( ccl) > 1 )
+	if( range )
 		*str = pstr_append_char( *str, ']' );
 		
 	ccl_free( ccl );
@@ -247,11 +250,12 @@ static pregex_nfa_st* pregex_nfa_to_REGEX( uchar** str, pregex_nfa* nfa,
 				pregex_nfa_st* state, int rec )
 {
 	pregex_nfa_st*	end;
+	int				i;
 
 #ifdef REGEXGEN_DBG
 	uchar*			tmp;
 	uchar			gap[80+1];
-	int				i;
+
 	
 	for( i = 0; i < rec; i++ )
 		gap[i] = ' ';
@@ -265,8 +269,12 @@ static pregex_nfa_st* pregex_nfa_to_REGEX( uchar** str, pregex_nfa* nfa,
 		fprintf( stderr, "%sCurrent state %d\n",
 			gap, list_find( nfa->states, state ) );
 #endif
-		*str = pstr_append_char( *str, state->cl_br );
-		*str = pstr_append_char( *str, state->op_br );
+		if( state->brackets > 0 )
+			for( i = 0; i < state->brackets; i++ )
+				*str = pstr_append_char( *str, '(' );
+		else if( state->brackets < 0 )
+			for( i = 0; i < ( state->brackets * -1 ); i++ )
+				*str = pstr_append_char( *str, ')' );
 		
 		if( state->operator == '|' )
 		{
@@ -348,7 +356,7 @@ uchar* pregex_nfa_to_regex( pregex_nfa* nfa )
 		
 	return str;
 }
-
+#endif
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_nfa_print()
@@ -371,18 +379,18 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	LIST*			l;
 	pregex_nfa_st*	s;
 
-	fprintf( stderr, " no next next2 accept ref anchor op\n" );
-	fprintf( stderr, "-----------------------------------\n" );
+	fprintf( stderr, " no next next2 accept ref anchor\n" );
+	fprintf( stderr, "--------------------------------\n" );
 
 	for( l = nfa->states; l; l = list_next( l ) )
 	{
 		s = (pregex_nfa_st*)list_access( l );
 
-		fprintf( stderr, "#% 2d % 4d % 5d  % 6d  % 3d % 6d %c\n",
+		fprintf( stderr, "#% 2d % 4d % 5d  % 6d  % 3d % 6d\n",
 			list_find( nfa->states, (void*)s ),
 			list_find( nfa->states, (void*)s->next ),
 			list_find( nfa->states, (void*)s->next2 ),
-			s->accept, s->ref, s->anchor, s->operator );
+			s->accept.accept, s->ref, s->accept.anchors );
 		
 		if( s->ccl )
 			ccl_print( stderr, s->ccl, 0 );
@@ -513,24 +521,11 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 
 	Usage:			Performs an epsilon closure from a set of NFA states.
 
-	Parameters:		pregex_nfa*	nfa				NFA state machine
-					LIST*		input			List of input NFA states
-					int*		accept			Return-pointer to a variable
-												to retrieve a possible
-												accept-id. Can be left
-												(int*)NULL, so accept will
-												not be returned.
-					BOOLEAN*	greedy			Return-pointer to a variable
-												to retrieve the greedyness
-												of the last accepting state.
-												It should be set to TRUE by
-												default.
-					int*		anchors			Return-pointer to a variable
-												to retrieve a possible
-												anchor-configuration. This
-												pointer is associated with
-												accept, so it can even be left
-												(int*)NULL, to not be returned.
+	Parameters:		pregex_nfa*		nfa			NFA state machine
+					LIST*			input		List of input NFA states
+					pregex_accept*	accept		Match information structure,
+												which can be left empty
+												(pregex_accept*)NULL.
 
 	Returns:		LIST*		Pointer to the result of the epsilon closure
 								(a new set of NFA states)
@@ -543,9 +538,12 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 								happen if the NFA machine was constructed
 								manually and incorrectly).
 	27.08.2011	Jan Max Meyer	Added greedyness parameter.
+	11.11.2011	Jan Max Meyer	Merged accept, anchor and greedyness flags
+								into a new struct pregex_accept, and using it
+								here now.
 ----------------------------------------------------------------------------- */
 LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
-			int* accept, BOOLEAN* greedy, int* anchors )
+			pregex_accept* accept )
 {
 	pregex_nfa_st*	top;
 	pregex_nfa_st*	next;
@@ -557,24 +555,18 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 	PARMS( "nfa", "%p", nfa );
 	PARMS( "input", "%p", input );
 	PARMS( "accept", "%p", accept );
-	PARMS( "greedy", "%p", greedy );
-	PARMS( "anchors", "%p", anchors );
 
 	if( accept )
-		*accept = REGEX_ACCEPT_NONE;
-
-	if( anchors )
-		*anchors = REGEX_ANCHOR_NONE;
+		pregex_accept_init( accept );
 
 	stack = list_dup( input );
-
 
 	/* Loop trough the items */
 	while( stack != (LIST*)NULL )
 	{
 		stack = list_pop( stack, (void**)&top );
 
-		if( accept && top->accept != REGEX_ACCEPT_NONE )
+		if( accept && top->accept.accept != REGEX_ACCEPT_NONE )
 		{
 			if( !last_accept || last_accept < top )
 				last_accept = top;
@@ -604,20 +596,14 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 
 	if( accept && last_accept )
 	{
-		*accept = last_accept->accept;
-		VARS( "*accept", "%d", *accept );
+		accept->accept = last_accept->accept.accept;
+		VARS( "accept->accept", "%d", accept->accept );
 
-		if( greedy )
-		{
-			*greedy = last_accept->greedy;
-			VARS( "*greedy", "%s", BOOLEAN_STR( *greedy ) );
-		}
-	}
+		accept->greedy = last_accept->accept.greedy;
+		VARS( "accept->greedy", "%s", BOOLEAN_STR( accept->greedy ) );
 
-	if( anchors && last_accept )
-	{
-		*anchors = last_accept->anchor;
-		VARS( "*anchors", "%d", *anchors );
+		accept->anchors = last_accept->accept.anchors;
+		VARS( "accept->anchors", "%d", accept->anchors );
 	}
 
 	RETURN( input );
@@ -672,16 +658,15 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 		pregex_result** ref, int* ref_count, int flags )
 {
-	LIST*		res			= (LIST*)NULL;
-	LIST*		l;
-	pregex_nfa_st*		st;
-	uchar*		pstr		= str;
-	psize		plen		= 0;
-	int			accept		= REGEX_ACCEPT_NONE;
-	int			last_accept = REGEX_ACCEPT_NONE;
-	int			rc;
-	pchar		ch;
-	BOOLEAN		greedy		= TRUE;
+	LIST*			res			= (LIST*)NULL;
+	LIST*			l;
+	pregex_nfa_st*	st;
+	uchar*			pstr		= str;
+	psize			plen		= 0;
+	int				last_accept = REGEX_ACCEPT_NONE;
+	int				rc;
+	pchar			ch;
+	pregex_accept	accept;
 
 	PROC( "pregex_nfa_match" );
 	PARMS( "nfa", "%p", nfa );
@@ -696,6 +681,8 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	PARMS( "flags", "%d", flags );
 
 	/* Initialize */
+	pregex_accept_init( &accept );
+
 	if( ( rc = pregex_ref_init( ref, ref_count, nfa->ref_count, flags ) )
 			!= ERR_OK )
 		RETURN( rc );
@@ -710,7 +697,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	while( res )
 	{
 		MSG( "Performing epsilon closure" );
-		res = pregex_nfa_epsilon_closure( nfa, res, &accept, &greedy, anchors );
+		res = pregex_nfa_epsilon_closure( nfa, res, &accept );
 		
 		MSG( "Handling References" );
 		if( ref && nfa->ref_count )
@@ -730,11 +717,11 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 			}
 		}
 
-		VARS( "accept", "%d", accept );
-		if( accept > REGEX_ACCEPT_NONE )
+		VARS( "accept.accept", "%d", accept.accept );
+		if( accept.accept > REGEX_ACCEPT_NONE )
 		{
 			MSG( "New accepting state takes place!" );
-			last_accept = accept;
+			last_accept = accept.accept;
 			*len = plen;
 
 			VARS( "last_accept", "%d", last_accept );
@@ -742,8 +729,8 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 
 			if( !( flags & REGEX_MOD_GREEDY ) )
 			{
-				VARS( "greedy", "%s", BOOLEAN_STR( greedy ) );
-				if(	!greedy || ( flags & REGEX_MOD_NONGREEDY ) )
+				VARS( "accept.greedy", "%s", BOOLEAN_STR( accept.greedy ) );
+				if(	!accept.greedy || ( flags & REGEX_MOD_NONGREEDY ) )
 				{
 					MSG( "Greedy is set, will stop recognition with "
 							"this match" );
@@ -794,6 +781,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	RETURN( last_accept );
 }
 
+#if 0
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_compile_to_nfa()
 
@@ -902,7 +890,6 @@ int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept )
 	
 	/* estart is next of first */
 	first->next = estart;
-	first->operator = '|';
 
 	/* Accept */
 	eend->accept = accept;
@@ -955,9 +942,6 @@ static int parse_char( uchar** pstr, pregex_nfa* nfa,
 
 			/* Patch the last transition to previous reference */
 			(*end)->ref = --nfa->ref_cur;
-			
-			(*start)->op_br = '(';
-			(*end)->cl_br = ')';
 
 			if( **pstr != ')' && !( flags & REGEX_MOD_NO_ERRORS ) )
 				return 1;
@@ -1107,8 +1091,6 @@ static int parse_factor( uchar** pstr, pregex_nfa* nfa,
 
 			*start = fstart;
 			*end = fend;
-
-			fstart->operator = **pstr;
 			
 			INC( *pstr );
 			break;
@@ -1182,7 +1164,6 @@ static int parse_alter( uchar** pstr, pregex_nfa* nfa,
 			return ERR_MEM;
 		alter->next = *start;
 		alter->next2 = astart;
-		alter->operator = '|';
 
 		*start = alter;
 
@@ -1197,4 +1178,4 @@ static int parse_alter( uchar** pstr, pregex_nfa* nfa,
 
 	return ERR_OK;
 }
-
+#endif

@@ -4,9 +4,10 @@ Copyright (C) 2009-2011 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See $PHOME/LICENSE for more information.
 
-File:	util.c
+File:	misc.c
 Author:	Jan Max Meyer
-Usage:	Utility functions for additional usage that belong to the regex library
+Usage:	Utility and miscelleanous functions for additional usage that
+		belong to the regex library.
 ----------------------------------------------------------------------------- */
 
 /*
@@ -22,7 +23,27 @@ Usage:	Utility functions for additional usage that belong to the regex library
  * Functions
  */
  
- /*NO_DOC*/
+/*NO_DOC*/
+
+/*
+	This function initializes a pregex_accept structure.
+*/
+pregex_accept* pregex_accept_init( pregex_accept* accept )
+{
+	if( !accept )
+	{
+		WRONGPARAM;
+		return (pregex_accept*)NULL;
+	}
+
+	memset( accept, 0, sizeof( pregex_accept ) );
+
+	accept->accept = REGEX_ACCEPT_NONE;
+	accept->anchors = REGEX_ANCHOR_NONE;
+	accept->greedy = TRUE;
+	
+	return accept;	
+}
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_nfa_from_string()
@@ -133,7 +154,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 			(uchar*)NULL, flags ) ) )
 		RETURN( ERR_MEM );
 
-	nfa_st->accept = acc;
+	nfa_st->accept.accept = acc;
 	prev_nfa_st->next = nfa_st;
 
 	/* Append to existing machine, if required */

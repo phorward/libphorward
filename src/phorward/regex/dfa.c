@@ -37,9 +37,9 @@ void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
 	for( l = dfa->states; l; l = list_next( l ) )
 	{
 		s = (pregex_dfa_st*)list_access( l );
-		fprintf( stream, "*** STATE %d (accepts %d, ref_cnt %d, anchor %d)\n",
-			list_find( dfa->states, (void*)s ), s->accept, 
-				s->ref_cnt, s->anchor );
+		fprintf( stream, "*** STATE %d (accepts %d, ref_cnt %d, anchors %d)\n",
+			list_find( dfa->states, (void*)s ), s->accept.accept, 
+				s->ref_cnt, s->accept.anchors );
 
 		if( s->ref_cnt )
 		{
@@ -70,7 +70,8 @@ static pregex_dfa_st* pregex_dfa_create_state( pregex_dfa* dfa )
 		return (pregex_dfa_st*)NULL;
 
 	memset( ptr, 0, sizeof( pregex_dfa_st ) );
-	ptr->accept = REGEX_ACCEPT_NONE;
+
+	pregex_accept_init( &( ptr->accept ) );
 	ptr->done = FALSE;
 
 	if( !( dfa->states = list_push( dfa->states, (void*)ptr ) ) )
@@ -352,6 +353,7 @@ static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 								bug raise up in UniCC during a special test
 								stage, fine to have this fixed! :)
 	27.08.2011	Jan Max Meyer	Added the greedyness handling.
+	11.11.2011	Jan Max Meyer	Applied new pregex_accept structure handling.
 ----------------------------------------------------------------------------- */
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 {
@@ -389,29 +391,31 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		RETURN( ERR_MEM );
 
 	current->nfa_set = pregex_nfa_epsilon_closure( nfa, set,
-							(int*)NULL, (BOOLEAN*)NULL, (int*)NULL );
+							(pregex_accept*)NULL );
 	pregex_dfa_collect_ref( current );
 
 	/* Perform algorithm until all states are done */
 	while( ( current = pregex_dfa_get_undone_state( dfa ) ) )
 	{
 		current->done = TRUE;
-		current->accept = REGEX_ACCEPT_NONE;
+		current->accept.accept = REGEX_ACCEPT_NONE;
 
 		/* Assemble all character sets in the alphabet list */
 		classes = (LIST*)NULL;
+
 		for( item = current->nfa_set; item; item = list_next( item ) )
 		{
 			nfa_st = (pregex_nfa_st*)list_access( item );
 
-			if( nfa_st->accept > REGEX_ACCEPT_NONE )
+			if( nfa_st->accept.accept > REGEX_ACCEPT_NONE )
 			{
-				if( current->accept == REGEX_ACCEPT_NONE
-					|| current->accept >= nfa_st->accept )
+				MSG( "NFA is an accepting state" );
+				if( current->accept.accept == REGEX_ACCEPT_NONE
+					|| current->accept.accept >= nfa_st->accept.accept )
 				{
-					current->accept = nfa_st->accept;
-					current->greedy = nfa_st->greedy;
-					current->anchor = nfa_st->anchor;
+					MSG( "Copying accept information" );
+					memcpy( &( current->accept ), &( nfa_st->accept ),
+								sizeof( pregex_accept ) );
 				}
 			}
 
@@ -492,8 +496,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 						nfa, transitions, i->begin, i->end ) ) )
 				{
 					transitions = pregex_nfa_epsilon_closure(
-						nfa, transitions, (int*)NULL, (BOOLEAN*)NULL,
-							(int*)NULL );
+						nfa, transitions, (pregex_accept*)NULL );
 				}
 					
 				if( !transitions )
@@ -723,7 +726,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 			group = (LIST*)list_access( m );
 			grp_dfa_st = (pregex_dfa_st*)list_access( group );
 
-			if( grp_dfa_st->accept == dfa_st->accept )
+			if( grp_dfa_st->accept.accept == dfa_st->accept.accept )
 				break;
 		}
 
@@ -903,8 +906,8 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 	{
 		MSG( "At begin of loop" );
 
-		VARS( "dfa_st->accept", "%d", dfa_st->accept );
-		if( dfa_st->accept > REGEX_ACCEPT_NONE )
+		VARS( "dfa_st->accept.accept", "%d", dfa_st->accept.accept );
+		if( dfa_st->accept.accept > REGEX_ACCEPT_NONE )
 		{
 			MSG( "This state has an accept" );
 			last_accept = dfa_st;
@@ -912,9 +915,9 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 
 			if( !( flags & REGEX_MOD_GREEDY ) )
 			{
-				VARS( "last_accept->greedy", "%s",
-					BOOLEAN_STR( last_accept->greedy ) );
-				if(	!last_accept->greedy || ( flags & REGEX_MOD_NONGREEDY ) )
+				VARS( "last_accept->accept.greedy", "%s",
+					BOOLEAN_STR( last_accept->accept.greedy ) );
+				if(	!last_accept->accept.greedy || ( flags & REGEX_MOD_NONGREEDY ) )
 				{
 					MSG( "This match is not greedy, "
 							"so matching will stop now" );
@@ -1000,15 +1003,15 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 
 	if( anchors && last_accept )
 	{
-		*anchors = last_accept->anchor;
+		*anchors = last_accept->accept.anchors;
 		VARS( "*anchors", "%d", *anchors );
 	}
 	
 	VARS( "*len", "%d", *len );
-	VARS( "last_accept->accept", "%d", ( last_accept ? 
-										last_accept->accept :
+	VARS( "last_accept->accept.accept", "%d", ( last_accept ? 
+										last_accept->accept.accept :
 											REGEX_ACCEPT_NONE ) );
-	RETURN( ( last_accept ? last_accept->accept : REGEX_ACCEPT_NONE ) );
+	RETURN( ( last_accept ? last_accept->accept.accept : REGEX_ACCEPT_NONE ) );
 }
 
 /*COD_ON*/

@@ -57,20 +57,36 @@ Usage:	Header for regex lib
 
 /* Typedefs */
 typedef CCL						pregex_ccl;
-typedef struct _regex_nfa_st	pregex_nfa_st;
-typedef struct _regex_dfa_tr	pregex_dfa_tr;
-typedef struct _regex_dfa_st	pregex_dfa_st;
-typedef struct _regex_nfa		pregex_nfa;
-typedef struct _regex_dfa		pregex_dfa;
-typedef struct _regex			pregex;
-typedef	struct _regex_result	pregex_result;
+
+typedef struct	_regex_match	pregex_accept;
+
+typedef struct	_regex_nfa_st	pregex_nfa_st;
+typedef struct	_regex_dfa_tr	pregex_dfa_tr;
+typedef struct	_regex_dfa_st	pregex_dfa_st;
+typedef struct	_regex_nfa		pregex_nfa;
+typedef struct	_regex_dfa		pregex_dfa;
+
+typedef enum 	_regex_ptntype	pregex_ptntype;
+typedef struct	_regex_ptn		pregex_ptn;
+typedef struct	_regex_ptndesc	pregex_ptndesc;
+
+typedef struct	_regex			pregex;
+typedef	struct	_regex_result	pregex_result;
 
 /* Callback-Functions */
 typedef	int 					(*pregex_callback)( pregex_result* );
-#define REGEX_NO_CALLBACK	( (pregex_callback)NULL )
+#define REGEX_NO_CALLBACK		( (pregex_callback)NULL )
 
 
 /* Structs */
+
+struct _regex_match
+{
+	int				accept;		/* Accepting state ID */
+	BOOLEAN			greedy;		/* Greedyness */
+	int				anchors;	/* State anchors */
+};
+
 struct _regex_nfa_st
 {
 	pregex_ccl		ccl;		/* Char-class; if ccl == (pregex_ccl*)NULL,
@@ -78,14 +94,9 @@ struct _regex_nfa_st
 	pregex_nfa_st*	next;		/* First following NFA-state */
 	pregex_nfa_st*	next2;		/* Second following NFA-state */
 
-	int				accept;		/* Accepting state ID */
-	BOOLEAN			greedy;		/* Greedyness */
-
 	int				ref;		/* Reference level depth */
-	int				anchor;		/* State anchor */
-	uchar			operator;	/* Operator from original regex */
-	uchar			op_br;		/* Opening bracket */ 
-	uchar			cl_br;		/* Opening bracket */
+	
+	pregex_accept	accept;		/* Match parameters */
 };
 
 struct _regex_nfa
@@ -111,12 +122,10 @@ struct _regex_dfa_st
 									to a default dfa transition, which covers
 									the most character of the entire character
 									range */
-	int				accept;		/* Accepting state and ID */
 	int*			ref;		/* Reference level depths */
 	int				ref_cnt;	/* Number of reference level depths */
 
-	int				anchor;		/* State anchoring */
-	BOOLEAN			greedy;		/* Greedyness */
+	pregex_accept	accept;		/* Match parameters */
 
 	BOOLEAN			done;		/* Done-Flag */
 	LIST*			nfa_set;	/* List of closed sets of NFA-states */
@@ -128,19 +137,49 @@ struct _regex_dfa
 	int				ref_count;	/* Number of references */
 };
 
+/*
+ * Patterns
+ */
+
+enum _regex_ptntype
+{
+	PREGEX_PTN_NULL,
+	PREGEX_PTN_CHAR,
+	PREGEX_PTN_SUB,
+	PREGEX_PTN_ALT,
+	PREGEX_PTN_KLE,
+	PREGEX_PTN_POS,
+	PREGEX_PTN_OPT
+};
+
+struct _regex_ptn
+{
+	pregex_ptntype	type;		/* Pattern state element type */
+	CCL				ccl;		/* Character-class for PREGEX_PTN_CHAR */
+	
+	pregex_ptn*		child[ 2 ];	/* Links to child */
+	pregex_ptn*		next;		/* Next sequence element */
+};
+
+struct _regex_ptndesc
+{
+	pregex_ptn*		pattern;	/* Pointer to pattern root */
+	pregex_accept	accept;		/* Match parameters */
+};
+
 struct _regex
 {
-	byte			stat;		/* Current regex status */
+	pbyte			stat;		/* Current regex status */
 
+	LIST*			patterns;	/* List of pattern descriptions
+									holding the patterns */
 	union
 	{
-		pregex_nfa	nfa;
-
-		/* For later extensions... */
-		pregex_dfa	dfa;
+		pregex_nfa	nfa;		/* NFA state machine */
+		pregex_dfa	dfa;		/* DFA state machine */
 	} machine;
 
-	int				flags;		/* Several flags */
+	int				flags;		/* Compile- and runtime flags */
 };
 
 struct _regex_result

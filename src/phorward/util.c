@@ -47,7 +47,7 @@ void* memdup( void* ptr, psize size )
 {
 	void*	ret;
 	
-	if( !( ptr || size ) )
+	if( !( ptr && size ) )
 		return (void*)NULL;
 		
 	ret = pmalloc( size );

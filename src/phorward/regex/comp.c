@@ -105,9 +105,11 @@ int pregex_comp_compile( pregex* machine, uchar* pattern, int accept )
 		memset( &( machine->machine.nfa ), 0, sizeof( pregex_nfa ) );
 		machine->stat = REGEX_STAT_NFA;
 	}
-	
+
+	/* TODO
 	ret = pregex_compile_to_nfa( pattern,
 				&( machine->machine.nfa ), machine->flags, accept );
+	*/
 
 	RETURN( ret );
 }
