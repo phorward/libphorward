@@ -58,7 +58,7 @@ Usage:	Header for regex lib
 /* Typedefs */
 typedef CCL						pregex_ccl;
 
-typedef struct	_regex_match	pregex_accept;
+typedef struct	_regex_accept	pregex_accept;
 
 typedef struct	_regex_nfa_st	pregex_nfa_st;
 typedef struct	_regex_dfa_tr	pregex_dfa_tr;
@@ -68,7 +68,7 @@ typedef struct	_regex_dfa		pregex_dfa;
 
 typedef enum 	_regex_ptntype	pregex_ptntype;
 typedef struct	_regex_ptn		pregex_ptn;
-typedef struct	_regex_ptndesc	pregex_ptndesc;
+typedef struct	_regex_ptndef	pregex_ptndef;
 
 typedef struct	_regex			pregex;
 typedef	struct	_regex_result	pregex_result;
@@ -80,7 +80,7 @@ typedef	int 					(*pregex_callback)( pregex_result* );
 
 /* Structs */
 
-struct _regex_match
+struct _regex_accept
 {
 	int				accept;		/* Accepting state ID */
 	BOOLEAN			greedy;		/* Greedyness */
@@ -161,7 +161,7 @@ struct _regex_ptn
 	pregex_ptn*		next;		/* Next sequence element */
 };
 
-struct _regex_ptndesc
+struct _regex_ptndef
 {
 	pregex_ptn*		pattern;	/* Pointer to pattern root */
 	pregex_accept	accept;		/* Match parameters */
@@ -171,7 +171,7 @@ struct _regex
 {
 	pbyte			stat;		/* Current regex status */
 
-	LIST*			patterns;	/* List of pattern descriptions
+	LIST*			defs;		/* List of pattern definitions
 									holding the patterns */
 	union
 	{

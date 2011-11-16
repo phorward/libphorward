@@ -6,7 +6,7 @@ All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	pattern.c
 Author:	Jan Max Meyer
-Usage:	Regular expression pattern management functions
+Usage:	Regular expression pattern construction and conversion functions
 ----------------------------------------------------------------------------- */
 
 /*
@@ -32,6 +32,9 @@ static int parse_alter( pregex_ptn** ptn, uchar** pstr, pregex_accept* accept, i
  * Functions
  */
 
+/*
+ * General pattern constructor
+ */
 static pregex_ptn* pregex_ptn_create( pregex_ptntype type )
 {
 	pregex_ptn*		pattern;
@@ -42,6 +45,25 @@ static pregex_ptn* pregex_ptn_create( pregex_ptntype type )
 	return pattern;	
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_create_char()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Constructs a character-class pattern.
+					
+	Parameters:		CCL			ccl				A pointer to a character class.
+												This pointer is not duplicated,
+												and directly assigned.
+																	
+	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
+												can be child of another
+												pattern construct or part of
+												a sequence.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 pregex_ptn* pregex_ptn_create_char( CCL ccl )
 {
 	pregex_ptn*		pattern;
@@ -58,6 +80,24 @@ pregex_ptn* pregex_ptn_create_char( CCL ccl )
 	return pattern;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_create_sub()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Constructs a sub-pattern (like with parantheses).
+					
+	Parameters:		pregex_ptn*		pnt			Pattern that becomes the
+												sub-ordered pattern.
+																	
+	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
+												can be child of another
+												pattern construct or part of
+												a sequence.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
 {
 	pregex_ptn*		pattern;
@@ -74,6 +114,32 @@ pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
 	return pattern;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_create_alt()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Constructs alternations of multiple patterns.
+					
+	Parameters:		pregex_ptn*		left		First pattern of the
+												alternation.
+					...							Multiple pregex_ptn-pointers
+												follow which become part of
+												the alternation. The last
+												node must be specified as
+												(pregex_ptn*)NULL.
+																	
+	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
+												can be child of another
+												pattern construct or part of
+												a sequence. If there is only
+												left assigned without other
+												alternation patterns, left
+												will be returned back.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ...  )
 {
 	pregex_ptn*		pattern;
@@ -102,6 +168,25 @@ pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ...  )
 	return left;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_create_kle()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Constructs a kleene-closure repetition, allowing for
+					multiple or none repetitions of the specified pattern.
+					
+	Parameters:		pregex_ptn*		pnt			Pattern that will be allowed
+												for repetition.
+																	
+	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
+												can be child of another
+												pattern construct or part of
+												a sequence.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
 {
 	pregex_ptn*		pattern;
@@ -118,6 +203,25 @@ pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
 	return pattern;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_create_pos()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Constructs a positive-closure repetition, allowing for
+					one or multiple repetitions of the specified pattern.
+					
+	Parameters:		pregex_ptn*		pnt			Pattern that will be allowed
+												for repetition.
+																	
+	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
+												can be child of another
+												pattern construct or part of
+												a sequence.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
 {
 	pregex_ptn*		pattern;
@@ -134,6 +238,25 @@ pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
 	return pattern;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_create_pos()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Constructs an optional-closure, allowing for
+					one or none of the specified pattern.
+					
+	Parameters:		pregex_ptn*		pnt			Pattern that will be allowed
+												optionally.
+																	
+	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
+												can be child of another
+												pattern construct or part of
+												a sequence.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
 {
 	pregex_ptn*		pattern;
@@ -150,6 +273,26 @@ pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
 	return pattern;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_create_seq()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Constructs a sequence of multiple patterns.
+					
+	Parameters:		pregex_ptn*		first		Begin pattern
+					...							Multiple patterns that become
+												part of the sequence, the last
+												pointer must be specified as
+												(pregex_ptn*)NULL to mark the
+												end.
+																	
+	Returns:		pregex_ptn*					Always returns the pointer to
+												first.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
 {
 	pregex_ptn*		prev	= first;
@@ -182,6 +325,22 @@ pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
 	return first;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_free()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Frees a pattern including all its subsequent als following
+					links.
+					
+	Parameters:		pregex_ptn*		ptn			Pattern object to be freed.
+																	
+	Returns:		pregex_ptn*					Always returns
+												(pregex_ptn*)NULL.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 {
 	pregex_ptn*		next;
@@ -211,6 +370,23 @@ pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 	return (pregex_ptn*)NULL;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_print()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			A debug function to print a pattern's hierarchical
+					structure to stderr.
+					
+	Parameters:		pregex_ptn*		ptn			Pattern object to be freed.
+					int				rec			Recursion depth, set this to
+												0 at initial call.
+																	
+	Returns:		void
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 void pregex_ptn_print( pregex_ptn* ptn, int rec )
 {
 	int			i;
@@ -257,6 +433,33 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 	while( ptn );
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_to_nfa()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			
+					
+	Parameters:		pregex_nfa*		nfa			NFA state machine structure
+												that receives the compiled
+												result of the pattern.
+					pregex_ptn*		pattern		A pattern structure that will
+												be converted and extended into
+												the NFA state machine.
+					pregex_accept*	accept		Accept structure that will be
+												assigned to the last NFA
+												node. This structure is
+												optional, and can be left-out
+												as (pregex_accept*)NULL.
+																	
+	Returns:		int							Returns a standard error
+												define on failure, and ERR_OK
+												on success.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+/* Internal function for pregex_ptn_to_nfa() */
 static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 	pregex_nfa_st** start, pregex_nfa_st** end )
 {
@@ -343,7 +546,7 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 								&m_start, &m_end ) ) != ERR_OK )
 					return ret;
 
-				/* Standard chain linkng */
+				/* Standard chain linking */
 				n_start->next = m_start;
 				m_end->next = n_end;
 				
@@ -355,8 +558,8 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 								|                            |
 								|                            v
 							n_start -> m_start -> m_end -> n_end
-										^           |
-										|___________|
+										  ^         |
+										  |_________|
 						*/
 						n_start->next2 = n_end;
 						m_end->next2 = m_start;
@@ -364,11 +567,11 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 					
 					case PREGEX_PTN_POS:
 						/*
-								m_start -> n_start -> n_end -> m_end
+								n_start -> m_start -> m_end -> n_end
 											  ^         |
 											  |_________|
 						*/
-						n_end->next2 = n_start;
+						m_end->next2 = m_start;
 						break;
 						
 					case PREGEX_PTN_OPT:
@@ -376,12 +579,11 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 									_____________________________
 								   |                             |
 								   |                             v
-								m_start -> n_start -> n_end -> m_end
+								n_start -> m_start -> m_end -> n_end
 						*/
 						n_start->next2 = n_end;
 						break;
-				}
-				
+				}				
 				break;
 			}
 										
@@ -438,16 +640,14 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 	for( n_first = (pregex_nfa_st*)list_access( nfa->states );
 		n_first && n_first->next2; n_first = n_first->next2 )
 			;
-			
+
 	/* Reference counter */
 	nfa->ref_cur = nfa->ref_count++;
 	
 	/* Create first epsilon node */
 	if( !( first = pregex_nfa_create_state( nfa,
 			(uchar*)NULL, REGEX_MOD_NONE ) ) )
-	{
 		RETURN( ERR_MEM );
-	}
 	
 	/* Turn pattern into NFA */
 	if( ( ret = pregex_ptn_to_NFA( nfa, pattern, &start, &end ) ) != ERR_OK )
@@ -464,14 +664,129 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 	if( accept )
 		memcpy( &( end->accept ), accept, sizeof( pregex_accept ) );
 	
-	return ERR_OK;
+	RETURN( ERR_OK );
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_from_string()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Compiles a static string into a regular expression pattern.
+					
+	Parameters:		pregex_ptn**	ptn			Return pointer receiving the
+												root node of the generated
+												pattern.
+					uchar*			str			Pointer to the string that
+												defines the pattern. If
+												REGEX_MOD_WCHAR is assigned as
+												flags, this pointer must be
+												set to a pchar-array holding
+												wide-character strings.
+					int				flags		Compile-time flags to be used.
+																	
+	Returns:		int							Returns a standard error
+												define on failure, and ERR_OK
+												on success.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int pregex_ptn_from_string( pregex_ptn** ptn, uchar* str, int flags )
+{
+	uchar*		ptr;
+	wchar		ch;
+	pregex_ptn*	chr;
+	pregex_ccl	ccl;
+
+	PROC( "pregex_ptn_parse" );
+	PARMS( "ptn", "%p", ptn );
+	PARMS( "str", "%s", str );
+	PARMS( "accept", "%p", accept );
+	PARMS( "flags", "%d", flags );
+
+	/* Check parameters */
+	if( !( ptn && str ) )
+	{
+		WRONGPARAM;
+		RETURN( ERR_PARMS );
+	}
+
+	*ptn = (pregex_ptn*)NULL;
+
+	/* Copy input string - this is required,
+		because of memory modification during the parse */
+	if( flags & REGEX_MOD_WCHAR )
+	{
+		if( !( str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
+			RETURN( ERR_MEM );
+	}
+
+	/* Loop through the string */
+	for( ptr = str; *ptr; )
+	{
+		VARS( "ptr", "%s", ptr );
+		ch = u8_parse_char( &ptr );
+
+		VARS( "ch", "%d", ch );
+
+		if( !( ccl = ccl_addrange( (CCL)NULL, ch, ch ) ) )
+			RETURN( ERR_MEM );
+
+		chr = pregex_ptn_create_char( ccl );
+
+		if( ! *ptn )
+			*ptn = chr;
+		else
+			*ptn = pregex_ptn_create_seq( *ptn, chr, (pregex_ptn*)NULL );
+	}
+
+	/* Free duplicated string */
+	if( flags & REGEX_MOD_WCHAR )
+		pfree( str );
+
+	RETURN( ERR_OK );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_parse()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Parse a regular expression pattern string into a pregex_ptn
+					structure.
+					
+	Parameters:		pregex_ptn**	ptn			Return pointer receiving the
+												root node of the generated
+												pattern.
+					pregex_accept*	accept		Pointer to a pregex_accept
+												structure that receives the
+												members greedy and anchors.
+												The accept member must be
+												changed by the caller. This
+												parameter is optional, and
+												can be left-out as
+												(pregex_accept*)NULL.
+					uchar*			str			Pointer to the string that
+												defines the pattern. If
+												REGEX_MOD_WCHAR is assigned as
+												flags, this pointer must be
+												set to a pchar-array holding
+												wide-character strings.
+					int				flags		Compile-time flags to be used.
+																	
+	Returns:		int							Returns a standard error
+												define on failure, and ERR_OK
+												on success.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
 int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
-						char* str, int flags )
+						uchar* str, int flags )
 {
 	int			ret;
-	char*		ptr;
+	uchar*		ptr;
 	
 	PROC( "pregex_ptn_parse" );
 	PARMS( "ptn", "%p", ptn );
@@ -485,6 +800,17 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 		RETURN( ERR_PARMS );
 	}
 
+	/* Set default values into accept structure, except accept member! */
+	if( accept )
+	{
+		accept->greedy = TRUE;
+		accept->anchors = REGEX_ANCHOR_NONE;
+	}
+
+	/* If REGEX_MOD_STATIC_STRING is set, parsing is not required! */
+	if( flags & REGEX_MOD_STATIC_STRING )
+		RETURN( pregex_ptn_from_string( ptn, str, flags ) );
+
 	/* Copy input string - this is required,
 		because of memory modification during the parse */
 	if( flags & REGEX_MOD_WCHAR )
@@ -497,12 +823,8 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 		if( !( ptr = str = pstrdup( str ) ) )
 			RETURN( ERR_MEM );
 	}
-		
+
 	VARS( "ptr", "%s", ptr );
-		
-	/* Initialize parameters */	
-	if( accept )
-		pregex_accept_init( accept );
 	
 	/* Parse anchor at begin of regular expression */
 	if( accept && !( flags & REGEX_MOD_NO_ANCHORS ) )
@@ -515,7 +837,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 			ptr++;
 		}
 		else if( !pstrncmp( ptr, "\\<", 2 ) )
-				/* This is a GNU-like extension */
+			/* This is a GNU-like extension */
 		{
 			accept->anchors |= REGEX_ANCHOR_BOW;
 			ptr += 2;

@@ -74,6 +74,7 @@ $(LIBPHORWARD_H): $(HEADERS)
 	$(LOCALINCLUDE) phorward.h >$@
 
 clean:
+	-$(RM) $(LIBPHORWARD_H)
 	-$(RM) $(OBJECTS)
 	-$(RM) $(PROTOFILE)
 

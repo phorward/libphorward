@@ -23,7 +23,7 @@ Usage:	Direct regular expression access functions
  */
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_match()
+	Function:		pregex_qmatch()
 	
 	Author:			Jan Max Meyer
 	
@@ -50,23 +50,23 @@ Usage:	Direct regular expression access functions
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_match( uchar* regex, uchar* str, int flags, pregex_result** results )
+int pregex_qmatch( uchar* regex, uchar* str, int flags, pregex_result** results )
 {
 	int			matches	= 0;
 	pregex		re;
 
-	PROC( "pregex_match" );
+	PROC( "pregex_qmatch" );
 	PARMS( "regex", "%s", regex );
 	PARMS( "str", "%s", str );
 	PARMS( "flags", "%d", flags );
 	PARMS( "results", "%p", results );
 	
-	pregex_comp_init( &re, flags );
-	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
+	pregex_init( &re, flags );
+	if( ( matches = pregex_compile( &re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
-	matches = pregex_comp_match( &re, str, REGEX_NO_CALLBACK, results );
-	pregex_comp_free( &re );
+	matches = pregex_match( &re, str, REGEX_NO_CALLBACK, results );
+	pregex_free( &re );
 	
 	VARS( "matches", "%d", matches );
 
@@ -74,7 +74,7 @@ int pregex_match( uchar* regex, uchar* str, int flags, pregex_result** results )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_split()
+	Function:		pregex_qsplit()
 	
 	Author:			Jan Max Meyer
 	
@@ -106,30 +106,31 @@ int pregex_match( uchar* regex, uchar* str, int flags, pregex_result** results )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_split( uchar* regex, uchar* str, int flags, pregex_result** results )
+int pregex_qsplit( uchar* regex, uchar* str,
+					int flags, pregex_result** results )
 {
 	int			matches	= 0;
 	pregex		re;
 
-	PROC( "pregex_split" );
+	PROC( "pregex_qsplit" );
 	PARMS( "regex", "%s", regex );
 	PARMS( "str", "%s", str );
 	PARMS( "flags", "%d", flags );
 	PARMS( "results", "%p", results );
 	
-	pregex_comp_init( &re, flags );
-	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
+	pregex_init( &re, flags );
+	if( ( matches = pregex_compile( &re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
-	matches = pregex_comp_split( &re, str, REGEX_NO_CALLBACK, results );
-	pregex_comp_free( &re );
+	matches = pregex_split( &re, str, REGEX_NO_CALLBACK, results );
+	pregex_free( &re );
 
 	VARS( "matches", "%d", matches );	
 	RETURN( matches );	
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_replace()
+	Function:		pregex_qreplace()
 	
 	Author:			Jan Max Meyer
 	
@@ -161,28 +162,28 @@ int pregex_split( uchar* regex, uchar* str, int flags, pregex_result** results )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_replace( uchar* regex, uchar* str, uchar* replacement,
+int pregex_qreplace( uchar* regex, uchar* str, uchar* replacement,
 	int flags, uchar** result )
 {
 	int			matches		= 0;
 	pregex		re;
 
-	PROC( "pregex_replace" );
+	PROC( "pregex_qreplace" );
 	PARMS( "regex", "%s", regex );
 	PARMS( "str", "%s", str );
 	PARMS( "replacement", "%s", replacement );
 	PARMS( "flags", "%d", flags );
 	PARMS( "result", "%p", result );
 
-	pregex_comp_init( &re, flags );
-	if( ( matches = pregex_comp_compile( &re, regex, 0 ) ) < 0 )
+	pregex_init( &re, flags );
+	if( ( matches = pregex_compile( &re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
-	matches = pregex_comp_replace( &re, str, replacement,
+	matches = pregex_replace( &re, str, replacement,
 					REGEX_NO_CALLBACK, result );
-	pregex_comp_free( &re );
+	pregex_free( &re );
 
 	VARS( "matches", "%d", matches );
-	RETURN( matches );	
+	RETURN( matches );
 }
 

@@ -12,7 +12,7 @@
 	1) The compiler-functions are working with regular expression objects, which
 	   are compiled once into an NFA, and then can be used for various subse-
 	   quent matching, replacement and splitting operations using these compiled
-	   "machines". These functions begin with "pregex_comp_", the regex-objects
+	   "machines". These functions begin with "pregex_", the regex-objects
 	   are represented by the data-type "pregex". Using the compiler-functions
 	   lets you use the entire power of the Phorward Regular Expression
 	   implementation.
@@ -151,13 +151,13 @@ void direct_regex_demo( void )
 	
 	/* First, a simple match. We want to match all words that consist of one
 		or two characters! */
-	matches = pregex_match(	"\\<[A-Za-z_][A-Za-z_]?\\>", str,
+	matches = pregex_qmatch(	"\\<[A-Za-z_][A-Za-z_]?\\>", str,
 								REGEX_MOD_GLOBAL, &res );
 
 	printf( "we got %d matches:\n", matches );
 	for( i = 0; i < matches; i++ )
 		printf( "  match %d: >%.*s<\n", i, (int)res[i].len, res[i].begin );
-		
+
 	/*
 		Various functions make use of the pregex_result-structure, as you can
 		see above. This structure contains various pointers that describe the
@@ -192,7 +192,7 @@ void direct_regex_demo( void )
 	
 	/* Now, let's split at each comma and dot, and remove optionally following
 		space characters. */
-	matches = pregex_split(	"[.,;] ?", str, REGEX_MOD_GLOBAL, &res );
+	matches = pregex_qsplit(	"[.,;] ?", str, REGEX_MOD_GLOBAL, &res );
 
 	printf( "we got %d split results:\n", matches );
 	for( i = 0; i < matches; i++ )
@@ -201,7 +201,7 @@ void direct_regex_demo( void )
 	pfree( res );
 	
 	/* Now, let's replace 'gliding' with an HTML-bold-tag! */
-	pregex_replace( "([gG]liding)", str, "<b>$1</b>",
+	pregex_qreplace( "([gG]liding)", str, "<b>$1</b>",
 						REGEX_MOD_GLOBAL | REGEX_MOD_INSENSITIVE, &result );
 	printf( "This is the modified string:\n%s\n\n", result );
 	pfree( result );
@@ -209,7 +209,7 @@ void direct_regex_demo( void )
 	/* Matching with wide-character strings and regular expressions... */
 	/* First, a simple match. We want to match all words that consist of one
 		or two characters! */
-	matches = pregex_replace( (uchar*)L"(wide-character)", (uchar*)lstr,
+	matches = pregex_qreplace( (uchar*)L"(wide-character)", (uchar*)lstr,
 								(uchar*)L"$1 (also known as 'pchar')",
 								REGEX_MOD_GLOBAL | REGEX_MOD_WCHAR,
 									(uchar**)&lresult );
@@ -218,7 +218,7 @@ void direct_regex_demo( void )
 					"\n%ls\n\n", lresult );
 	pfree( lresult );
 	
-	matches = pregex_replace( (uchar*)L"€+", (uchar*)lstr, (uchar*)L"EUR",
+	matches = pregex_qreplace( (uchar*)L"€+", (uchar*)lstr, (uchar*)L"EUR",
 								REGEX_MOD_GLOBAL | REGEX_MOD_WCHAR,
 									(uchar**)&lresult );
 
@@ -289,13 +289,13 @@ void compiled_regex_demo( void )
 
 	printf( "\n*** compiled_regex_demo ***\n\n" );
 
-	pregex_comp_init( &rx, REGEX_MOD_GLOBAL );
-	pregex_comp_compile( &rx, "\\<[A-Z]+\\>", 0 );
-	pregex_comp_compile( &rx, "[0-9]+", 1 );
-	pregex_comp_compile( &rx, "[0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+", 2 );
+	pregex_init( &rx, REGEX_MOD_GLOBAL );
+	pregex_compile( &rx, "\\<[A-Z]+\\>", 0 );
+	pregex_compile( &rx, "[0-9]+", 1 );
+	pregex_compile( &rx, "[0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+", 2 );
 	
 	/* First, we're extracting tokens from a string */
-	matches = pregex_comp_match( &rx, simple, REGEX_NO_CALLBACK, &res );
+	matches = pregex_match( &rx, simple, REGEX_NO_CALLBACK, &res );
 	printf( "compiled regex returned %d matches\n", matches );
 
 	for( i = 0; i < matches; i++ )
@@ -303,21 +303,21 @@ void compiled_regex_demo( void )
 			(int)res[i].len, res[i].begin );
 	
 	/* Now, we replace these tokens on the fly, using a callback-function! */
-	matches = pregex_comp_replace( &rx, simple,
+	matches = pregex_replace( &rx, simple,
 				(uchar*)NULL, regex_callback1, &newstr );
 	printf( "compiled regex returned %d matches, and is: >%s<\n",
 				matches, newstr );
 	pfree( newstr ); /* the returned string must be freed after usage! */
 	
 	/* We only want to accept floats in this callback-example run: */
-	matches = pregex_comp_match( &rx, simple, regex_callback2, &res );
+	matches = pregex_match( &rx, simple, regex_callback2, &res );
 	printf( "compiled regex returned %d matches\n", matches );
 
 	for( i = 0; i < matches; i++ )
 		printf( "%d: id %d >%.*s<\n", i, res[i].accept,
 			(int)res[i].len, res[i].begin );
 	
-	pregex_comp_free( &rx );
+	pregex_free( &rx );
 }
 
 int main( int argc, char** argv )
@@ -327,23 +327,23 @@ int main( int argc, char** argv )
 	pregex rx;
 	setlocale( LC_ALL, "" );
 
-	/*
 	direct_regex_demo();
 	compiled_regex_demo();
-	*/
 	
 	/*
-	pregex_comp_init( &rx, REGEX_MOD_GLOBAL );
-	pregex_comp_compile( &rx, "[0-9]+|((Wo|rl)+d)*", 1 );
-	pregex_comp_compile( &rx, "((wo|rli)+y)*|x|Hei*nbl(öh)+d", 2 );
+		TEST AREA
+	*/
+#if 0
+	pregex_init( &rx, REGEX_MOD_GLOBAL );
+	pregex_compile( &rx, "[0-9]+|((Wo|rl)+d)*", 1 );
+	pregex_compile( &rx, "((wo|rli)+y)*|x|Hei*nbl(öh)+d", 2 );
 	
 	pregex_nfa_print( &( rx.machine.nfa ) );
 	printf( "%s\n", pregex_nfa_to_regex( &( rx.machine.nfa ) ) );
-	*/
 
 	/* pregex_ptn_parse( "Hello|Wo(r|[A-Z])*d" ); */
 	memset( &nfa, 0, sizeof( pregex_nfa ) );
-	//pregex_ptn_parse( &ptn, "((wo|rli)+y)*|x|Hei*nbl(öh)+d" );
+	/* pregex_ptn_parse( &ptn, "((wo|rli)+y)*|x|Hei*nbl(öh)+d" ); */
 	pregex_ptn_parse( &ptn, (pregex_accept*)NULL,
 						"hello|world*", REGEX_MOD_NONE );
 	pregex_ptn_print( ptn, 0 );
@@ -351,7 +351,7 @@ int main( int argc, char** argv )
 	pregex_nfa_print( &nfa );
 	
 	/* pregex_ptn_free( ptn ); */
-
+#endif
 	return EXIT_SUCCESS;
 }
 

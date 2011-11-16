@@ -28,8 +28,8 @@ Usage:	Provides functions for simple, universal linked-list management.
 	Author:			Jan Max Meyer
 						
 	Usage:			Pushes a pointer of any type to a linked list of pointers.
-					Therefore, the list can act as a stack when using the function
-					list_pop() to pop items off this "stack".
+					Therefore, the list can act as a stack when using the
+					function list_pop() to pop items off this "stack".
 
 					If not used as a stack, list_push() simply appends a node
 					to a linked list of nodes.
@@ -52,7 +52,7 @@ LIST* list_push( LIST* list, void* ptr )
 	LIST*	elem	= (LIST*)NULL;
 	LIST*	item	= (LIST*)NULL;
 
-	elem = (LIST*)malloc( sizeof( LIST ) );
+	elem = (LIST*)pmalloc( sizeof( LIST ) );
 	if( elem )
 	{
 		memset( elem, 0, sizeof( LIST ) );
@@ -130,7 +130,7 @@ LIST* list_pop( LIST* list, void** ptr )
 		if( item == list )
 			list = (LIST*)NULL;
 			
-		free( item );
+		pfree( item );
 
 		item = (LIST*)NULL;		
 	}
@@ -184,7 +184,7 @@ LIST* list_remove( LIST* list, void* ptr )
 				prev->next = item->next;
 			}
 			
-			free( item );
+			pfree( item );
 			break;
 		}
 			
@@ -218,7 +218,7 @@ LIST* list_free( LIST* list )
 	while( item != (LIST*)NULL )
 	{			
 		next = item->next;
-		free( item );
+		pfree( item );
 
 		item = next;
 	}
