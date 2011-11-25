@@ -81,6 +81,78 @@ pregex_ptn* pregex_ptn_create_char( CCL ccl )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_create_string()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Constructs a pattern for a static string.
+					
+	Parameters:		uchar*			str			Input string to be converted.
+					int				flags		Optional flags for
+												wide-character support.
+																	
+	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
+												can be child of another
+												pattern construct or part of
+												a sequence.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
+{
+	uchar*		ptr;
+	wchar		ch;
+	pregex_ptn*	chr;
+	pregex_ptn*	seq		= (pregex_ptn*)NULL;
+	pregex_ccl	ccl;
+
+	PROC( "pregex_ptn_create_string" );
+	PARMS( "str", "%s", str );
+	PARMS( "flags", "%d", flags );
+
+	/* Check parameters */
+	if( !( str ) )
+	{
+		WRONGPARAM;
+		RETURN( (pregex_ptn*)NULL );
+	}
+
+	/* Convert string to UTF-8, if in wide-character mode */
+	if( flags & REGEX_MOD_WCHAR )
+	{
+		if( !( str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
+			RETURN( (pregex_ptn*)NULL );
+	}
+
+	/* Loop through the string */
+	for( ptr = str; *ptr; )
+	{
+		VARS( "ptr", "%s", ptr );
+		ch = u8_parse_char( &ptr );
+
+		VARS( "ch", "%d", ch );
+
+		if( !( ccl = ccl_addrange( (CCL)NULL, ch, ch ) ) )
+			RETURN( (pregex_ptn*)NULL );
+
+		if( !( chr = pregex_ptn_create_char( ccl ) ) )
+			RETURN( (pregex_ptn*)NULL );
+
+		if( ! seq )
+			seq = chr;
+		else
+			seq = pregex_ptn_create_seq( seq, chr, (pregex_ptn*)NULL );
+	}
+
+	/* Free duplicated string */
+	if( flags & REGEX_MOD_WCHAR )
+		pfree( str );
+
+	RETURN( seq );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_ptn_create_sub()
 	
 	Author:			Jan Max Meyer
@@ -668,87 +740,6 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_from_string()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Compiles a static string into a regular expression pattern.
-					
-	Parameters:		pregex_ptn**	ptn			Return pointer receiving the
-												root node of the generated
-												pattern.
-					uchar*			str			Pointer to the string that
-												defines the pattern. If
-												REGEX_MOD_WCHAR is assigned as
-												flags, this pointer must be
-												set to a pchar-array holding
-												wide-character strings.
-					int				flags		Compile-time flags to be used.
-																	
-	Returns:		int							Returns a standard error
-												define on failure, and ERR_OK
-												on success.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-int pregex_ptn_from_string( pregex_ptn** ptn, uchar* str, int flags )
-{
-	uchar*		ptr;
-	wchar		ch;
-	pregex_ptn*	chr;
-	pregex_ccl	ccl;
-
-	PROC( "pregex_ptn_parse" );
-	PARMS( "ptn", "%p", ptn );
-	PARMS( "str", "%s", str );
-	PARMS( "accept", "%p", accept );
-	PARMS( "flags", "%d", flags );
-
-	/* Check parameters */
-	if( !( ptn && str ) )
-	{
-		WRONGPARAM;
-		RETURN( ERR_PARMS );
-	}
-
-	*ptn = (pregex_ptn*)NULL;
-
-	/* Copy input string - this is required,
-		because of memory modification during the parse */
-	if( flags & REGEX_MOD_WCHAR )
-	{
-		if( !( str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
-			RETURN( ERR_MEM );
-	}
-
-	/* Loop through the string */
-	for( ptr = str; *ptr; )
-	{
-		VARS( "ptr", "%s", ptr );
-		ch = u8_parse_char( &ptr );
-
-		VARS( "ch", "%d", ch );
-
-		if( !( ccl = ccl_addrange( (CCL)NULL, ch, ch ) ) )
-			RETURN( ERR_MEM );
-
-		chr = pregex_ptn_create_char( ccl );
-
-		if( ! *ptn )
-			*ptn = chr;
-		else
-			*ptn = pregex_ptn_create_seq( *ptn, chr, (pregex_ptn*)NULL );
-	}
-
-	/* Free duplicated string */
-	if( flags & REGEX_MOD_WCHAR )
-		pfree( str );
-
-	RETURN( ERR_OK );
-}
-
-/* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_ptn_parse()
 	
 	Author:			Jan Max Meyer
@@ -809,7 +800,12 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 
 	/* If REGEX_MOD_STATIC_STRING is set, parsing is not required! */
 	if( flags & REGEX_MOD_STATIC_STRING )
-		RETURN( pregex_ptn_from_string( ptn, str, flags ) );
+	{	
+		if( !( *ptn = pregex_ptn_create_string( str, flags ) ) )
+			RETURN( ERR_MEM );
+
+		RETURN( ERR_OK );
+	}
 
 	/* Copy input string - this is required,
 		because of memory modification during the parse */
