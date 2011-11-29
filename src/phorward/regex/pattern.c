@@ -450,7 +450,7 @@ pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 	Usage:			A debug function to print a pattern's hierarchical
 					structure to stderr.
 					
-	Parameters:		pregex_ptn*		ptn			Pattern object to be freed.
+	Parameters:		pregex_ptn*		ptn			Pattern object to be printed.
 					int				rec			Recursion depth, set this to
 												0 at initial call.
 																	
@@ -503,6 +503,185 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 		ptn = ptn->next;
 	}
 	while( ptn );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_ptn_to_regex()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Turns a regular expression pattern back into a regular
+					expression.
+					
+	Parameters:		uchar**			regex		Return pointer for the regular
+												expression string. This must
+												be freed by the caller, if the
+												function returns ERR_OK.
+					pregex_ptn*		ptn			Pattern object to be turned
+												into a regex.
+																	
+	Returns:		int							Returns a standard error
+												define on failure, and ERR_OK
+												on success.					
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+static void pregex_char_to_REGEX( uchar* str, int size,
+				pchar ch, pboolean escape )
+{
+	if( ch == '[' || ch == ']' || ch == '*' || ch == '+' || ch == '?' )
+		psprintf( str, "\\%c", (uchar)ch );
+	else if( escape )
+		u8_escape_wchar( str, size, ch );
+	else
+		u8_toutf8( str, size, &ch, 1 );
+}
+
+static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
+{
+	pregex_ccl		neg		= (pregex_ccl)NULL;
+	pregex_ccl		i;
+	uchar			from	[ 40 + 1 ];
+	uchar			to		[ 20 + 1 ];
+	pboolean		range	= FALSE;
+	
+	if( ccl_count( ccl ) == CCL_MAX )
+	{
+		*str = pstr_append_char( *str, '.' );
+		return;
+	}
+	
+	/* 
+	 * Always duplicate character-class,
+	 * we sometimes will modify it
+	 */
+	ccl = ccl_dup( ccl );
+
+	if( ccl_count( ccl ) > 128 )
+		ccl = neg = ccl_negate( ccl );
+	
+	if( neg || ccl_count( ccl) > 1 )
+	{
+		range = TRUE;
+		*str = pstr_append_char( *str, '[' );
+		if( neg )
+			*str = pstr_append_char( *str, '^' );
+	}
+	
+	/*
+	 * If ccl contains a dash,
+	 * it should be printed first!
+	 */
+	if( ccl_test( ccl, '-' ) )
+	{
+		*str = pstr_append_char( *str, '-' );
+		ccl = ccl_delrange( ccl, '-', '-' );
+	}
+	
+	/* Go trough ccl... */
+	for( i = ccl; !ccl_end( i ); i++ )
+	{
+		pregex_char_to_REGEX( from, (int)sizeof( from ), i->begin, escape );
+
+		if( i->begin != i->end )
+		{
+			pregex_char_to_REGEX( to, (int)sizeof( to ), i->end, escape );
+			psprintf( from + strlen( from ), "-%s", to );
+		}
+		
+		*str = pstr_append_str( *str, from, FALSE );
+	}
+	
+	if( range )
+		*str = pstr_append_char( *str, ']' );
+		
+	ccl_free( ccl );
+}
+
+
+int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
+{
+	int		ret;
+
+	if( !( regex && ptn ) )
+	{
+		WRONGPARAM;
+		return ERR_PARMS;
+	}
+
+	*regex = (uchar*)NULL;
+	
+	while( ptn )
+	{
+		switch( ptn->type )
+		{
+			case PREGEX_PTN_NULL:
+				return ERR_OK;
+
+			case PREGEX_PTN_CHAR:
+				pregex_ccl_to_REGEX( regex, ptn->ccl, TRUE );
+				break;
+
+			case PREGEX_PTN_SUB:
+				pstr_append_char( *regex, '(' );
+
+				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+						!= ERR_OK )
+					return ret;
+
+				pstr_append_char( *regex, ')' );
+				break;
+				
+			case PREGEX_PTN_ALT:
+
+				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+						!= ERR_OK )
+					return ret;
+
+				pstr_append_char( *regex, '|' );
+
+				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 1 ] ) )
+						!= ERR_OK )
+					return ret;
+
+				break;
+	
+			case PREGEX_PTN_KLE:
+
+				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+						!= ERR_OK )
+					return ret;
+
+				pstr_append_char( *regex, '*' );
+				break;
+
+			case PREGEX_PTN_POS:
+
+				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+						!= ERR_OK )
+					return ret;
+					
+				pstr_append_char( *regex, '+' );
+				break;
+
+			case PREGEX_PTN_OPT:
+			
+				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+						!= ERR_OK )
+					return ret;
+
+				pstr_append_char( *regex, '?' );
+				break;
+
+			default:
+				return ERR_UNIMPL;
+		}
+				
+		ptn = ptn->next;
+	}
+	
+	return ERR_OK;
 }
 
 /* -FUNCTION--------------------------------------------------------------------

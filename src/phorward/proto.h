@@ -258,21 +258,16 @@ int pregex_qreplace( uchar* regex, uchar* str, uchar* replacement, int flags, uc
 
 /* regex/nfa.c */
 pregex_nfa_st* pregex_nfa_create_state( pregex_nfa* nfa, uchar* chardef, int flags );
-#if 0
-uchar* pregex_nfa_to_regex( pregex_nfa* nfa );
-#endif
 void pregex_nfa_print( pregex_nfa* nfa );
 void pregex_nfa_free( pregex_nfa* nfa );
 LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to );
 LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input, pregex_accept* accept );
 int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors, pregex_result** ref, int* ref_count, int flags );
 int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc );
-#if 0
-int pregex_compile_to_nfa( uchar* str, pregex_nfa* nfa, int flags, int accept );
-#endif
 
 /* regex/pattern.c */
 pregex_ptn* pregex_ptn_create_char( CCL ccl );
+pregex_ptn* pregex_ptn_create_string( uchar* str, int flags );
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... );
 pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn );
@@ -281,8 +276,8 @@ pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... );
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn );
 void pregex_ptn_print( pregex_ptn* ptn, int rec );
+int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn );
 int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern, pregex_accept* accept );
-int pregex_ptn_from_string( pregex_ptn** ptn, uchar* str, int flags );
 int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept, uchar* str, int flags );
 
 /* regex/ref.c */

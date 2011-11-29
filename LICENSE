@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following files may be used and modified under the terms and conditions of
 this license; Everything else covers different license agreements, and is NOT
-part of the development environment on its own:
+part of the development environment on its own.
 
 CHANGES
 doc/phorward.png
@@ -58,6 +58,8 @@ doc/tpl/t2t/function.tpl
 doc/tpl/t2t/parameter.tpl
 doc/tpl/t2t/returns.tpl
 etc/NOTEMPTY
+.hgignore
+.hgtags
 include/DIST.Make.inc
 include/DIST.Make.inc.win
 lib/NOTEMPTY
@@ -99,15 +101,17 @@ src/phorward/hashtab.h
 src/phorward/llist.c
 src/phorward/llist.h
 src/phorward/Makefile
+src/phorward/memory.c
 src/phorward/phorward.h
 src/phorward/proto.h
 src/phorward/regex/comp.c
 src/phorward/regex/dfa.c
 src/phorward/regex/direct.c
+src/phorward/regex/misc.c
 src/phorward/regex/nfa.c
+src/phorward/regex/pattern.c
 src/phorward/regex/ref.c
 src/phorward/regex/regex.h
-src/phorward/regex/util.c
 src/phorward/stack.c
 src/phorward/stack.h
 src/phorward/string.c
