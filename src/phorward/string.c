@@ -325,6 +325,62 @@ uchar* pstrzero( uchar* str )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		psetstr()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Manages the assignment of an dynamically allocated string.
+
+	Parameters:		uchar**		str			Pointer to the target string pointer
+											to be (re)allocated.
+	 				uchar*		val			The string to be set as value.
+					
+	Returns:		uchar*					Allocated heap memory pointer on
+											success, (uchar*)NULL else. This
+											is the same pointer like *str.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* psetstr( uchar** str, uchar* val )
+{
+	if( *str )
+	{
+		if( pstrcmp( *str, val ) == 0 )
+			return *str;
+
+		pfree( *str );
+	}
+
+	*str = pstrdup( val );
+	return *str;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pgetstr()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Reads a string. If its value is (char*)NULL, it will return
+					a pointer to a static empty string.
+
+	Parameters:		uchar*		str			String pointer to be savely read.
+					
+	Returns:		uchar*					Returns str, or a pointer to a
+											static, empty string.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+char* pgetstr( char* str )
+{
+	if( !str )
+		return "";
+
+	return str;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		pstrdup()
 	
 	Author:			Jan Max Meyer
@@ -347,6 +403,39 @@ uchar* pstrdup( uchar* str )
 		return (uchar*)NULL;
 		
 	return (uchar*)memdup( str, ( pstrlen( str ) + 1 ) * sizeof( uchar ) );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pstrndup()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			A function mixing strdup() with strncpy(). The resulting
+					string will be zero-terminated.
+					
+	Parameters:		uchar*		str					Parameter string to be
+													dupped. If (uchar*)NULL,
+													the function returns
+													(uchar*)NULL.
+					psize		len					The length to be copied.
+	
+	Returns:		uchar*							Returns an allocated
+													memory pointer holding
+													the zero-terminated string
+													duplicate. Must be freed
+													with pfree().
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* pstrndup( char* str, psize len )
+{
+	uchar*	ret;
+
+	ret = (uchar*)pmalloc( ( len + 1 ) * sizeof( uchar ) );
+	pstrncpy( ret, str, len );
+	ret[ len ] = '\0';
+
+	return ret;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
