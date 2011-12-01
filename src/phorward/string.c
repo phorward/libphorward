@@ -427,9 +427,15 @@ uchar* pstrdup( uchar* str )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pstrndup( char* str, psize len )
+uchar* pstrndup( uchar* str, psize len )
 {
 	uchar*	ret;
+
+	if( !str )
+		return (uchar*)NULL;
+
+	if( pstrlen( str ) < len )
+		len = pstrlen( str );
 
 	ret = (uchar*)pmalloc( ( len + 1 ) * sizeof( uchar ) );
 	pstrncpy( ret, str, len );
