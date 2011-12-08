@@ -262,8 +262,8 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, uchar* key, void* data )
 	
 	Usage:			Gets an element from the hash table.
 					
-	Parameters:		HASHTAB*	hashtab				Hash-table to update
-													element at
+	Parameters:		HASHTAB*	hashtab				Hash-table to get element
+													from
 					uchar*		key					Element key
 	
 	Returns:		HASHELEM*						Desired hash table element,
@@ -414,8 +414,8 @@ HASHELEM* hashtab_discard( HASHTAB* hashtab, uchar* key,
 					freed in memory; This function is not recommended for
 					a frequently use, instead, use hashtab_discard().
 					
-	Parameters:		HASHTAB*	hashtab				Hash-table to discard element
-													from
+	Parameters:		HASHTAB*	hashtab				Hash-table to delete 
+													element from
 					uchar*		key					Element key
 					void		(*freefct)(void*)	Optional pointer to data
 													element cleanup function.

@@ -96,7 +96,7 @@ uchar* pstrzero( uchar* str );
 uchar* psetstr( uchar** str, uchar* val );
 char* pgetstr( char* str );
 uchar* pstrdup( uchar* str );
-uchar* pstrndup( char* str, psize len );
+uchar* pstrndup( uchar* str, psize len );
 psize pstrlen( uchar* str );
 int psprintf( uchar* res, uchar* fmt, ... );
 int pvasprintf( uchar** str, uchar* fmt, va_list ap );

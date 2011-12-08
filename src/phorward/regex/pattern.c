@@ -530,7 +530,8 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 static void pregex_char_to_REGEX( uchar* str, int size,
 				pchar ch, pboolean escape )
 {
-	if( ch == '[' || ch == ']' || ch == '*' || ch == '+' || ch == '?' )
+	if( ch == '[' || ch == ']' || ch == '*' ||
+			ch == '+' || ch == '?' || ch == '.' )
 		psprintf( str, "\\%c", (uchar)ch );
 	else if( escape )
 		u8_escape_wchar( str, size, ch );
@@ -599,8 +600,7 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
 	ccl_free( ccl );
 }
 
-
-int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
+static int pregex_ptn_to_REGEX( uchar** regex, pregex_ptn* ptn )
 {
 	int		ret;
 
@@ -609,8 +609,6 @@ int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
 		WRONGPARAM;
 		return ERR_PARMS;
 	}
-
-	*regex = (uchar*)NULL;
 	
 	while( ptn )
 	{
@@ -624,24 +622,23 @@ int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
 				break;
 
 			case PREGEX_PTN_SUB:
-				pstr_append_char( *regex, '(' );
+				*regex = pstr_append_char( *regex, '(' );
 
-				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
 						!= ERR_OK )
 					return ret;
 
-				pstr_append_char( *regex, ')' );
+				*regex = pstr_append_char( *regex, ')' );
 				break;
 				
 			case PREGEX_PTN_ALT:
-
-				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
 						!= ERR_OK )
 					return ret;
 
-				pstr_append_char( *regex, '|' );
+				*regex = pstr_append_char( *regex, '|' );
 
-				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 1 ] ) )
+				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 1 ] ) )
 						!= ERR_OK )
 					return ret;
 
@@ -649,29 +646,29 @@ int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
 	
 			case PREGEX_PTN_KLE:
 
-				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
 						!= ERR_OK )
 					return ret;
 
-				pstr_append_char( *regex, '*' );
+				*regex = pstr_append_char( *regex, '*' );
 				break;
 
 			case PREGEX_PTN_POS:
 
-				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
 						!= ERR_OK )
 					return ret;
 					
-				pstr_append_char( *regex, '+' );
+				*regex = pstr_append_char( *regex, '+' );
 				break;
 
 			case PREGEX_PTN_OPT:
 			
-				if( ( ret = pregex_ptn_to_regex( regex, ptn->child[ 0 ] ) )
+				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
 						!= ERR_OK )
 					return ret;
 
-				pstr_append_char( *regex, '?' );
+				*regex = pstr_append_char( *regex, '?' );
 				break;
 
 			default:
@@ -682,6 +679,20 @@ int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
 	}
 	
 	return ERR_OK;
+}
+
+
+int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
+{
+	if( !( regex && ptn ) )
+	{
+		WRONGPARAM;
+		return ERR_PARMS;
+	}
+
+	*regex = (uchar*)NULL;
+
+	return pregex_ptn_to_REGEX( regex, ptn );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
