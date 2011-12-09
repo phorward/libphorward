@@ -546,7 +546,11 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
 	uchar			from	[ 40 + 1 ];
 	uchar			to		[ 20 + 1 ];
 	pboolean		range	= FALSE;
-	
+
+	/*
+	 * If this caracter class contains CCL_MAX characters, then simply
+	 * print a dot.
+	 */
 	if( ccl_count( ccl ) == CCL_MAX )
 	{
 		*str = pstr_append_char( *str, '.' );
@@ -888,11 +892,12 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 	PROC( "pregex_ptn_to_nfa" );
 	PARMS( "nfa", "%p", nfa );
 	PARMS( "pattern", "%p", pattern );
-	PARMS( "anchors", "%d", anchors );
-	PARMS( "accept", "%d", accept );
-	PARMS( "greedy", "%s", BOOLEAN_STR( greedy ) );
+	PARMS( "accept->anchors", "%d", accept ? accept->anchors : -999 );
+	PARMS( "accept->accept", "%d", accept ? accept->accept : -999 );
+	PARMS( "accept->greedy", "%s", BOOLEAN_STR(
+									accept ? accept->greedy : FALSE ) );
 	
-	if( !( nfa && pattern && accept >= 0 ) )
+	if( !( nfa && pattern ) )
 	{
 		WRONGPARAM;
 		RETURN( ERR_PARMS );

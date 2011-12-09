@@ -106,7 +106,7 @@ CCL ccl_dup( CCL ccl )
 		the terminator, for negating character-classes.
 		
 		This way won't come up in valgrind.
-	*/	
+	*/
 	if( !( dup = (CCL)pmalloc( ( ccl_size( ccl ) + 1 + 1 )
 						* sizeof( CRANGE ) ) ) )
 		return (CCL)NULL;
@@ -115,7 +115,6 @@ CCL ccl_dup( CCL ccl )
 
 	return dup;
 }
-
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		ccl_normalize()
@@ -963,6 +962,7 @@ CCL ccl_intersect( CCL first, CCL second )
 				inter.end = ( i->end > j->end ) ? j->end : i->end;
 				
 				VARS( "intersections", "%p", intersections );
+				VARS( "size", "%d", ccl_size( intersections ) + 1 + 1 );
 				if( !( intersections = (CCL)prealloc( (CCL)intersections,
 						( ccl_size( intersections ) + 1 + 1 )
 							* sizeof( CRANGE ) ) ) )
@@ -972,8 +972,10 @@ CCL ccl_intersect( CCL first, CCL second )
 				intersections[cnt].begin = CCL_MAX;
 			}
 
-	RETURN( ( ( intersections ) ? ccl_normalize( intersections, TRUE )
-				: intersections ) );
+	if( intersections )
+		intersections = ccl_normalize( intersections, TRUE );
+
+	RETURN( intersections );
 }
 
 /* -FUNCTION--------------------------------------------------------------------

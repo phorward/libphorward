@@ -62,8 +62,9 @@ PPP					=	ppp
 MKPROTO				=	mkproto
 
 #Standard options
-CFLAGS				=	-funsigned-char -DUTF8 -DUNICODE
-CSTDOPTS			=	-I"$(INCLUDE_DIR)" $(CFLAGS)
+CFLAGS				=	-I"$(INCLUDE_DIR)" $(DEBUG -funsigned-char \
+							-DUTF8 -DUNICODE
+CSTDOPTS			=	$(CFLAGS)
 COPTS				=	-c $(CSTDOPTS)
 CLIBOPTS			=	$(COPTS)
 CEXEOPTS			=	$(COPTS)

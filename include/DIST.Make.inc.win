@@ -63,8 +63,8 @@ PPP					=	sh ppp
 MKPROTO				=	sh mkproto
 
 #Standard options
-CFLAGS				= /J /DUTF8 /DUNICODE
-CSTDOPTS			= /O2 /I"$(INCLUDE_DIR)" /nologo /c $(CFLAGS)
+CFLAGS				= /I"$(INCLUDE_DIR)" $(DEBUG) /J /DUTF8 /DUNICODE
+CSTDOPTS			= /O2 /nologo /c $(CFLAGS)
 COPTS				= /O2 $(CSTDOPTS) 
 CLIBOPTS			= $(CSTDOPTS)
 CEXEOPTS			= $(CSTDOPTS)
