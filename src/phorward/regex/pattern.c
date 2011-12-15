@@ -18,7 +18,7 @@ Usage:	Regular expression pattern construction and conversion functions
  * Global variables
  */
 #define INC( i )			(i)++
-#define VALID_CHAR( ch )	!pstrchr( "|()[]*+?", (ch) )
+#define VALID_CHAR( ch )	( !pstrchr( "|()[]*+?", (ch) ) )
 
 /*
  * Local prototypes
@@ -528,10 +528,10 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 static void pregex_char_to_REGEX( uchar* str, int size,
-				pchar ch, pboolean escape )
+				pchar ch, pboolean escape, pboolean in_range )
 {
-	if( ch == '[' || ch == ']' || ch == '*' ||
-			ch == '+' || ch == '?' || ch == '.' )
+	if( ( !in_range && ( !VALID_CHAR( ch ) || ch == '.' ) ) ||
+			( in_range && ch == ']' ) )
 		psprintf( str, "\\%c", (uchar)ch );
 	else if( escape )
 		u8_escape_wchar( str, size, ch );
@@ -539,7 +539,7 @@ static void pregex_char_to_REGEX( uchar* str, int size,
 		u8_toutf8( str, size, &ch, 1 );
 }
 
-static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
+static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl )
 {
 	pregex_ccl		neg		= (pregex_ccl)NULL;
 	pregex_ccl		i;
@@ -587,11 +587,13 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl, pboolean escape )
 	/* Go trough ccl... */
 	for( i = ccl; !ccl_end( i ); i++ )
 	{
-		pregex_char_to_REGEX( from, (int)sizeof( from ), i->begin, escape );
+		pregex_char_to_REGEX( from, (int)sizeof( from ),
+								i->begin, TRUE, range );
 
 		if( i->begin != i->end )
 		{
-			pregex_char_to_REGEX( to, (int)sizeof( to ), i->end, escape );
+			pregex_char_to_REGEX( to, (int)sizeof( to ),
+									i->end, TRUE, range );
 			psprintf( from + strlen( from ), "-%s", to );
 		}
 		
@@ -622,7 +624,7 @@ static int pregex_ptn_to_REGEX( uchar** regex, pregex_ptn* ptn )
 				return ERR_OK;
 
 			case PREGEX_PTN_CHAR:
-				pregex_ccl_to_REGEX( regex, ptn->ccl, TRUE );
+				pregex_ccl_to_REGEX( regex, ptn->ccl );
 				break;
 
 			case PREGEX_PTN_SUB:
