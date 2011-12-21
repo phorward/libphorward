@@ -873,6 +873,105 @@ uchar* pstr_strip( uchar* str )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		pstr_ltrim()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Removes whitespace on the left of a string.
+
+	Parameters:		uchar*		s				String to be left-trimmed.
+					
+	Returns:		uchar*						Trimmed string, zero terminated.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+char* pstr_ltrim( char* s )
+{
+	char*	c;
+
+	PROC( "pstr_ltrim" );
+	PARMS( "s", "%s", pgetstr( s ) );
+
+	if( !( s && *s ) )
+	{
+		RETURN( pgetstr( s ) );
+	}
+
+	for( c = s; *c; c++ )
+		if( !( *c == ' ' || *c == '\t' || *c == '\r' || *c == '\n' ) )
+			break;
+
+	memmove( s, c, ( pstrlen( c ) + 1 ) * sizeof( char ) );
+
+	RETURN( s );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pstr_rtrim()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Removes trailing whitespace on the right of a string.
+
+	Parameters:		uchar*		s				String to be right-trimmed.
+					
+	Returns:		uchar*						Trimmed string, zero terminated.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+char* pstr_rtrim( char* s )
+{
+	char*	c;
+
+	PROC( "pstr_rtrim" );
+	PARMS( "s", "%s", pgetstr( s ) );
+
+	if( !( s && *s ) )
+	{
+		RETURN( pgetstr( s ) );
+	}
+
+	for( c = s + pstrlen( s ) - 1; c > s; c-- )
+		if( !( *c == ' ' || *c == '\t' || *c == '\r' || *c == '\n' ) )
+			break;
+
+	*( c + 1 ) = '\0';
+
+	RETURN( s );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pstr_trim()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Removes beginning and trailing whitespace from a string.
+
+	Parameters:		uchar*		s				String to be trimmed.
+					
+	Returns:		uchar*						Trimmed string, zero terminated.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+char* pstr_trim( char* s )
+{
+	PROC( "pstr_trim" );
+	PARMS( "s", "%s", pgetstr( s ) );
+
+	if( !( s && *s ) )
+	{
+		RETURN( pgetstr( s ) );
+	}
+
+	s = pstr_ltrim( pstr_rtrim( s ) );
+
+	RETURN( s );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		pstr_tok()
 
 	Author:			Jan Max Meyer
