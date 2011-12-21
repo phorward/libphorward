@@ -90,3 +90,32 @@ void* prealloc( void* oldptr, psize size )
 
 	return ptr;
 }
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pfree()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			An implementation of free(), but accepts NULL-pointers
+					and returns a (void*)NULL pointer for direct pointer memory
+					reset.
+
+					Use it always with
+
+					ptr = pfree( ptr );
+
+	Parameters:		void*	ptr				Pointer to be freed.
+					
+	Returns:		void*					Returns always (void*)NULL.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+void* pfree( void* ptr )
+{
+	if( ptr )
+		free( ptr );
+
+	return (void*)NULL;
+}
+

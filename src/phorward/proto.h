@@ -78,6 +78,7 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 /* memory.c */
 void* pmalloc( psize size );
 void* prealloc( void* oldptr, psize size );
+void* pfree( void* ptr );
 
 /* stack.c */
 void stack_init( STACK* stack, psize size, psize step );

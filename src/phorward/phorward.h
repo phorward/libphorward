@@ -77,14 +77,6 @@ typedef int 					pboolean;	/* Phorward Boolean */
 #define FALSE	0
 
 /*
- * Dynamic memory management macros
- */
-
-/* This can be replaced by some special malloc macros or functions later on */
-#define pfree( ptr )			do { free( ( ptr ) ); \
-								( ptr ) = NULL; } while( 0 )
-
-/*
  * Generic error codes
  */
 #define ERR_OK					0		/* OK */

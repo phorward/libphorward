@@ -232,8 +232,7 @@ static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 	if( mem_opt )
 	{
 		nccl = ccl_dup( ccl );
-		pfree( ccl );
-
+		ccl = ccl_free( ccl );
 		ccl = nccl;
 	}
 
@@ -509,7 +508,7 @@ void ccl_print( FILE* stream, CCL ccl, int break_after )
 	
 	Returns:		uchar*						Returns the generated string
 												that represents the charclass.
-												Must be freed with pfree().
+												Must be freed with ccl_free().
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:

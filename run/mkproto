@@ -127,6 +127,10 @@ END					{
 						else if( only_static )
 							next
 
+						if( match( $2, /^main/ ) == 1 )
+							next
+
+
 						akt_proto = akt_proto $0
 						same_line = 1
 					}
