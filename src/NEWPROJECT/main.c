@@ -96,11 +96,12 @@ void usage( uchar* progname )
 BOOLEAN get_command_line( int argc, char** argv )
 {
 	int		rc;
+	int		next;
 	int		i;
 	uchar	opt[ 20 + 1 ];
 	uchar*	param;
 
-	for( i = 0; ( rc = pgetopt( opt, &param, argc, argv,
+	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
 						"Vh", "version help", i ) ) == ERR_OK; i++ )
 	{
 		switch( *opt )

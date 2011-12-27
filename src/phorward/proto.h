@@ -135,8 +135,8 @@ psize Pstrlen( pchar* str );
 /* system.c */
 uchar* pbasename( uchar* path );
 pboolean pfileexists( uchar* filename );
-pint pgetopt( uchar* opt, uchar** param, pint argc, uchar** argv, uchar* optstr, uchar* loptstr, pint idx );
 int map_file( char** cont, uchar* filename );
+pint pgetopt( uchar* opt, uchar** param, pint* next, pint argc, uchar** argv, uchar* optstr, uchar* loptstr, pint idx );
 
 /* utf8.c */
 int u8_seqlen(uchar *s);
