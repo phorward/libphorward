@@ -291,3 +291,77 @@ pint pgetopt( uchar* opt, uchar** param,
 
 	RETURN( ERR_FAILURE );
 }
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		map_file()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Maps the content of a file into memory.
+					
+	Parameters:		uchar**		cont			The file content, return
+												pointer.
+					uchar*		filename		Path to file to be mapped
+	
+	Returns:		int			ERR_OK			On success
+								1				If the file could not be found
+								ERR...			ERR-define according to its
+												meaning
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+int map_file( char** cont, uchar* filename )
+{
+	FILE*	f;
+	uchar*	c;
+
+	PROC( "map_file" );
+	PARMS( "cont", "%p", cont );
+	PARMS( "filename", "%s", filename );
+	
+	/* Check parameters */
+	if( !( cont && filename && *filename ) )
+	{
+		MSG( "Incomplete parameters!" );
+		RETURN( ERR_PARMS );
+	}
+	
+	/* Open file */
+	if( !( f = fopen( filename, "rb" ) ) )
+	{
+		MSG( "File could not be opened - wrong path?" );
+		RETURN( 1 );
+	}
+	
+	/* Allocate memory for file */
+	fseek( f, 0L, SEEK_END );
+	if( !( c = *cont = (uchar*)pmalloc( ( ftell( f ) + 1 )
+			* sizeof( uchar ) ) ) )
+	{
+		MSG( "Unable to allocate required memory" );
+		
+		fclose( f );
+		RETURN( ERR_MEM );
+	}
+	
+	/* Read entire file into buffer */
+	fseek( f, 0L, SEEK_SET );
+
+	while( !feof( f ) )
+		*(c++) = fgetc( f );
+
+	/* Case: File is empty */
+	if( c == *cont )
+		c++;
+		
+	*( c - 1 ) = '\0';
+	
+	fclose( f );
+	
+	VARS( "Entire file", "%s", *cont );
+	MSG( "All right!" );
+	
+	RETURN( ERR_OK );
+}
+

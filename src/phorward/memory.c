@@ -119,3 +119,35 @@ void* pfree( void* ptr )
 	return (void*)NULL;
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pmemdup()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Duplicates a memory entry onto the heap.
+					
+	Parameters:		void*		ptr				Pointer to memory
+					size_t		size			Size of pointer
+	
+	Returns:		void*						Pointer to memory copy.
+												Cast this with your type!
+												Returns (void*)NULL on error!
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+void* pmemdup( void* ptr, psize size )
+{
+	void*	ret;
+	
+	if( !( ptr && size ) )
+	{
+		WRONGPARAM;
+		return (void*)NULL;
+	}
+		
+	ret = pmalloc( size );
+	memcpy( ret, ptr, size );
+		
+	return ret;
+}

@@ -680,3 +680,103 @@ HASHELEM* hashtab_fetch( HASHTAB* hashtab, HASHELEM* current )
 	RETURN( (HASHELEM*)NULL );
 }
 
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		hashelem_access()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Function to access an hash table element's data part.
+					
+	Parameters:		HASHELEM*	hashelem			Hash table element.
+	
+	Returns:		void*							Returns the hash table
+													element's data part, or
+													(void*)NULL in case of
+													a nullpointer.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+void* hashelem_access( HASHELEM* hashelem )
+{
+	if( !( hashelem ) )
+		return (void*)NULL;
+
+	return hashelem->data;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		hashelem_key()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Function to access an hash table element's key string.
+					
+	Parameters:		HASHELEM*	hashelem			Hash table element.
+	
+	Returns:		uchar*							Returns the hash table
+													element's key string, or
+													(char*)NULL in case of
+													a nullpointer.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* hashelem_key( HASHELEM* hashelem )
+{
+	if( !( hashelem ) )
+		return (uchar*)NULL;
+
+	return hashelem->key;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		hashelem_next()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Function to access an hash table element's follower.
+					
+	Parameters:		HASHELEM*	hashelem			Hash table element.
+
+	Returns:		HASHELEM*						Returns the hash table
+													element's follower, or
+													(HASHELEM*)NULL in case of
+													a nullpointer.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+HASHELEM* hashelem_next( HASHELEM* hashelem )
+{
+	if( !( hashelem ) )
+		return (HASHELEM*)NULL;
+
+	return hashelem->next;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		hashelem_prev()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Function to access an hash table element's precessor.
+					
+	Parameters:		HASHELEM*	hashelem			Hash table element.
+
+	Returns:		HASHELEM*						Returns the hash table
+													element's precessor, or
+													(HASHELEM*)NULL in case of
+													a nullpointer.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+HASHELEM* hashelem_prev( HASHELEM* hashelem )
+{
+	if( !( hashelem ) )
+		return (HASHELEM*)NULL;
+
+	return hashelem->prev;
+}
+

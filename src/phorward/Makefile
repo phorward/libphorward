@@ -21,7 +21,6 @@ SOURCES		=	base64.c \
 				string.c \
 				system.c \
 				utf8.c \
-				util.c \
 				var.c \
 				var.get.c \
 				var.set.c \

@@ -64,6 +64,7 @@ MKPROTO				=	mkproto
 #Standard options
 CFLAGS				=	-I"$(INCLUDE_DIR)" $(DEBUG -funsigned-char \
 							-DUTF8 -DUNICODE
+LDFLAGS				=	-lrt
 CSTDOPTS			=	$(CFLAGS)
 COPTS				=	-c $(CSTDOPTS)
 CLIBOPTS			=	$(COPTS)

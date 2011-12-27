@@ -402,7 +402,7 @@ uchar* pstrdup( uchar* str )
 	if( !str )
 		return (uchar*)NULL;
 		
-	return (uchar*)memdup( str, ( pstrlen( str ) + 1 ) * sizeof( uchar ) );
+	return (uchar*)pmemdup( str, ( pstrlen( str ) + 1 ) * sizeof( uchar ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -1321,8 +1321,7 @@ pchar* Pstrdup( pchar* str )
 	if( !str )
 		return (pchar*)NULL;
 		
-	return (pchar*)memdup( str, ( Pstrlen( str ) + 1 ) * sizeof( pchar ) );
-		return (pchar*)NULL;
+	return (pchar*)pmemdup( str, ( Pstrlen( str ) + 1 ) * sizeof( pchar ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------

@@ -59,6 +59,10 @@ pint hashtab_delete( HASHTAB* hashtab, uchar* key, void (*freefct)(void*) );
 void hashtab_print( HASHTAB* hashtab, FILE* channel );
 pint hashtab_count( HASHTAB* hashtab );
 HASHELEM* hashtab_fetch( HASHTAB* hashtab, HASHELEM* current );
+void* hashelem_access( HASHELEM* hashelem );
+uchar* hashelem_key( HASHELEM* hashelem );
+HASHELEM* hashelem_next( HASHELEM* hashelem );
+HASHELEM* hashelem_prev( HASHELEM* hashelem );
 
 /* llist.c */
 LIST* list_push( LIST* list, void* ptr );
@@ -79,6 +83,7 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 void* pmalloc( psize size );
 void* prealloc( void* oldptr, psize size );
 void* pfree( void* ptr );
+void* pmemdup( void* ptr, psize size );
 
 /* stack.c */
 void stack_init( STACK* stack, psize size, psize step );
@@ -131,6 +136,7 @@ psize Pstrlen( pchar* str );
 uchar* pbasename( uchar* path );
 pboolean pfileexists( uchar* filename );
 pint pgetopt( uchar* opt, uchar** param, pint argc, uchar** argv, uchar* optstr, uchar* loptstr, pint idx );
+int map_file( char** cont, uchar* filename );
 
 /* utf8.c */
 int u8_seqlen(uchar *s);
@@ -163,11 +169,6 @@ int u8_is_locale_utf8(uchar *locale);
 int u8_vprintf(uchar *fmt, va_list ap);
 int u8_printf(uchar *fmt, ...);
 #endif
-
-/* util.c */
-void* memdup( void* ptr, psize size );
-int hash_from_str( uchar* str, int size );
-int map_file( char** cont, uchar* filename );
 
 /* var.c */
 void pvar_init( pvar* var );
