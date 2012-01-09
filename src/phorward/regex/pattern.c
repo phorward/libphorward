@@ -136,6 +136,30 @@ pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
 		if( !( ccl = ccl_addrange( (CCL)NULL, ch, ch ) ) )
 			RETURN( (pregex_ptn*)NULL );
 
+		/* Is case-insensitive flag set? */
+		if( flags & REGEX_MOD_INSENSITIVE )
+		{
+#ifdef UTF8
+			MSG( "UTF-8 mode, trying to convert" );
+			if( iswupper( ch ) )
+				ch = towlower( ch );
+			else
+				ch = towupper( ch );
+#else
+			MSG( "non UTF-8 mode, trying to convert" );
+			if( isupper( ch ) )
+				ch = (uchar)tolower( (int)ch );
+			else
+				ch = (uchar)toupper( (int)ch );
+#endif
+
+			MSG( "Case-insensity set, new character evaluated is:" );
+			VARS( "ch", "%d", ch );
+
+			if( !( ccl = ccl_addrange( ccl, ch, ch ) ) )
+				RETURN( (pregex_ptn*)NULL );
+		}
+
 		if( !( chr = pregex_ptn_create_char( ccl ) ) )
 			RETURN( (pregex_ptn*)NULL );
 

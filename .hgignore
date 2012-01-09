@@ -9,6 +9,7 @@ etc/userenv
 lib/*.a
 psh
 
+tmp
 run/min_lalr1
 run/unicc
 src/NEWPROJECT/NEWPROJECT
