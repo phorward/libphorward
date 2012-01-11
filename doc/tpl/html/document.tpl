@@ -27,7 +27,7 @@
 
 		<div id="footer">
 			<b>!!title <i>!!usage</i><br /></b>
-			Copyright &copy; 2006-2011 by
+			Copyright &copy; 2006-2012 by
 			Phorward Software Technologies, Jan Max Meyer<br />
 			<a href="http://www.phorward-software.com" target="_blank">
 			http://www.phorward-software.com

@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # NEWPROJECT
-# Copyright (C) 2010, 2011 by Phorward Software Technologies, Jan Max Meyer
+# Copyright (C) 2010-2012 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<AT>phorward<DASH>software<DOT>com
 #
 # Make-File:	Makefile

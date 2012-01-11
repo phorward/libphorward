@@ -1,5 +1,5 @@
 :: Phorward Foundation Libraries & Software Development Kit.
-:: Copyright (C) 2006-2011 by Phorward Software Technologies, Jan Max Meyer
+:: Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 :: All rights reserved. See $PHOME/LICENSE for more informations.
 ::
 :: LICENSE AGREEMENTS
@@ -45,6 +45,7 @@ this license; Everything else covers different license agreements, and is NOT
 part of the development environment on its own.
 
 CHANGES
+doc/foundation_libraries.odg
 doc/phorward.png
 doc/ref.css
 doc/tpl/html/document.tpl
@@ -125,7 +126,6 @@ src/phorward/string/util.c
 src/phorward/system.c
 src/phorward/utf8.c
 src/phorward/utf8.h
-src/phorward/util.c
 src/phorward/var.c
 src/phorward/var.conv.c
 src/phorward/var.gen.awk

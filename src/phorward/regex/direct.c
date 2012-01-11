@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Libraries :: Regular Expression Library, Version 2
-Copyright (C) 2009-2011 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See $PHOME/LICENSE for more information.
 

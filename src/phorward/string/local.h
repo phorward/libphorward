@@ -1,6 +1,6 @@
 /* -HEADER----------------------------------------------------------------------
 Phorward Foundation Libraries :: String Object Library
-Copyright (C) 2010, 2011 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2010-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See $PHOME/LICENSE for more information.
 
