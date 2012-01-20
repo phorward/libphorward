@@ -13,7 +13,7 @@ Usage:	Functions for base64-string encoding and decoding
 /*
  * Includes
  */
-#include "phorward.h"
+#include "../phorward.h"
 
 /*
  * Global variables

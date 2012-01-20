@@ -39,7 +39,7 @@ Usage:	Macros and functions for trace output.
 /* ---------------- */
 /* --- Includes --- */
 /* ---------------- */
-#include "phorward.h"
+#include "../phorward.h"
 
 /* ------------------------ */
 /* --- Global variables --- */

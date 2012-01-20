@@ -13,7 +13,7 @@ Usage:	DFA creation and transformation functions
  * Includes
  */
 #define PREGEX_LOCAL
-#include <phorward.h>
+#include "../phorward.h"
 
 /*
  * Global variables

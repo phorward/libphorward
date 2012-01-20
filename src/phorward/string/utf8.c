@@ -23,7 +23,7 @@ Usage:	Some UTF-8 utility functions.
   valid.
 */
 
-#include "phorward.h"
+#include "../phorward.h"
 
 #if _WIN32
 #define snprintf _snprintf

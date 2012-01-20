@@ -13,7 +13,7 @@ Usage:	pvar implements a variant data type, which can hold any of
 /*
  * Includes
  */
-#include "phorward.h"
+#include "../phorward.h"
 
 /*
  * Global variables

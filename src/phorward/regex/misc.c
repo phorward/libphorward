@@ -13,7 +13,7 @@ Usage:	Utility and miscelleanous functions for additional usage that
 /*
  * Includes
  */
-#include <phorward.h>
+#include "../phorward.h"
 
 /*
  * Global variables

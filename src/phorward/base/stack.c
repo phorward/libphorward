@@ -12,7 +12,7 @@ Usage:	Universal, dynamic stack management functions
 /*
  * Includes
  */
-#include "phorward.h"
+#include "../phorward.h"
 
 /*
  * Global variables

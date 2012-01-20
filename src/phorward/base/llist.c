@@ -12,7 +12,7 @@ Usage:	Provides functions for simple, universal linked-list management.
 /* ---------------- */
 /* --- Includes --- */
 /* ---------------- */
-#include "phorward.h"
+#include "../phorward.h"
 
 /* ------------------------ */
 /* --- Global variables --- */

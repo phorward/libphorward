@@ -10,7 +10,7 @@ WHAT ARE THE PHORWARD FOUNDATION LIBRARIES?
 *******************************************
 Welcome to the Phorward Foundation Libraries & SDK!
 
-This software package unions a set of universal C libraries, utility programs
+This software package unions a universal C libraries and some utility programs
 and shell scripts into a platform-independent development environment for C
 programs. The initial purpose of this project is that it serves as a build-
 environment and toolkit library for various software projects which have
@@ -34,7 +34,7 @@ that all libraries and tools are under recent development within the Phorward
 software projects, so they will always be extended and enhanced from time to
 time.
 
-+ pbasis		The Phorward Basis Library
++ libphorward.a	The Phorward Foundation Library
 				A basic function library providing a bunch of useful,
 				dynamic utilites. This includes functions for linked
 				lists, hash-tables, stacks, multi-byte and wide-char-

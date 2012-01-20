@@ -3,7 +3,7 @@
  * THIS FILE IS GENERATED - DO NOT EDIT MANUALLY - IT WILL GO AWAY!
  */
 
-#include "phorward.h"
+#include "../phorward.h"
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pvar_set_byte()

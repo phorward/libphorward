@@ -13,7 +13,7 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
 /*
  * Includes
  */
-#include <phorward.h>
+#include "../phorward.h"
 
 /*
  * Global variables

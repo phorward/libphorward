@@ -12,7 +12,7 @@ Usage:	Direct regular expression access functions
 /*
  * Includes
  */
-#include <phorward.h>
+#include "../phorward.h"
 
 /*
  * Global variables

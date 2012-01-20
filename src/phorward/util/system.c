@@ -12,7 +12,7 @@ Usage:	System functions for various usages.
 /*
  * Includes
  */
-#include "phorward.h"
+#include "../phorward.h"
 
 /*
  * Global variables

@@ -1,0 +1,87 @@
+# -MAKE-------------------------------------------------------------------------
+# Phorward Foundation Libraries :: pbasis
+# Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
+# ------------------------------------------------------------------------------
+
+include $(PHOME)/include/Make.inc
+
+PROTOFILE =	proto.h
+
+lib_LIBRARIES = libphorward.a
+
+libphorward_a_SOURCES = \
+	base/bitset.c \
+	base/dbg.c \
+	base/hashtab.c \
+	base/llist.c \
+	base/memory.c \
+	base/stack.c \
+	ccl/ccl.c \
+	regex/comp.c \
+	regex/dfa.c \
+	regex/direct.c \
+	regex/misc.c \
+	regex/nfa.c \
+	regex/pattern.c \
+	regex/ref.c \
+	string/convert.c \
+	string/string.c \
+	string/utf8.c \
+	util/base64.c \
+	util/system.c \
+	variant/var.c \
+	xml/xml.c
+
+noinst_HEADERS = \
+	base/bitset.h \
+	base/dbg.h \
+	base/hashtab.h \
+	base/llist.h \
+	base/stack.h \
+	ccl/ccl.h \
+	phorward.tpl.h \
+	regex/regex.h \
+	string/string.h \
+	string/utf8.h \
+	variant/var.h \
+	xml/xml.h 
+
+include_HEADERS = \
+	phorward.h
+
+BUILT_SOURCES = \
+	variant/var.conv.c \
+	variant/var.get.c \
+	variant/var.set.c \
+	$(PROTOFILE) \
+	phorward.h
+
+CLEANFILES = \
+	phorward.h
+
+#
+# Generated targets
+#
+
+# Prototypes Files
+
+$(PROTOFILE): $(libphorward_a_SOURCES)
+	$(MKPROTO) $(libphorward_a_SOURCES) >$@
+
+# Library Header
+phorward.h: $(noinst_HEADERS) $(PROTOFILE)
+	$(LOCALINCLUDE) phorward.tpl.h >$@
+
+# Variant Data Type Modules (generated from definitions in var.h comments)
+
+variant/var.get.c: variant/var.h variant/var.gen.awk
+	$(AWK) -f variant/var.gen.awk -vwith_get=1 variant/var.h >$@
+
+variant/var.set.c: variant/var.h variant/var.gen.awk
+	$(AWK) -f variant/var.gen.awk -vwith_set=1 variant/var.h >$@
+
+variant/var.conv.c: variant/var.h variant/var.gen.awk
+	$(AWK) -f variant/var.gen.awk -vwith_conv=1 variant/var.h >$@
+

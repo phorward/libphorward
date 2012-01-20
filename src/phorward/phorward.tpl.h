@@ -11,6 +11,9 @@ Usage:	Main include file for phorward library
 #ifndef _PHORWARD_H
 #define _PHORWARD_H
 
+#define UNICODE
+#define UTF8
+
 /*
  * Standard System Includes
  * They're always required, in all of our programs!
@@ -117,28 +120,20 @@ typedef int 					pboolean;	/* Phorward Boolean */
  								( ( (val) & (bit) ) == 0 )
 
 /*
- * Basis Library modules
+ * Library modules
  */
-#include "bitset.h"
-#include "ccl.h"
-#include "dbg.h"
-#include "llist.h"
-#include "hashtab.h"
-#include "stack.h"
-#include "string.h"
-#include "utf8.h"
-#include "var.h"
-#include "xml.h"
 
-/*
- * Regex Library modules
- */
+#include "base/bitset.h"
+#include "base/dbg.h"
+#include "base/llist.h"
+#include "base/hashtab.h"
+#include "base/stack.h"
+#include "ccl/ccl.h"
 #include "regex/regex.h"
-
-/*
- * String Library modules
- */
 #include "string/string.h"
+#include "string/utf8.h"
+#include "variant/var.h"
+#include "xml/xml.h"
 
 /*
  * Function Prototypes

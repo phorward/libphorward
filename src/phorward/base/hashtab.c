@@ -12,7 +12,7 @@ Usage:	Hash Table Library
 /* ---------------- */
 /* --- Includes --- */
 /* ---------------- */
-#include "phorward.h"
+#include "../phorward.h"
 
 /* ------------------------ */
 /* --- Global variables --- */
