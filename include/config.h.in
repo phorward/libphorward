@@ -15,6 +15,9 @@
    */
 #undef HAVE_ALLOCA_H
 
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
@@ -98,6 +101,10 @@
 /* Define to 1 if you have the <wctype.h> header file. */
 #undef HAVE_WCTYPE_H
 
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
 /* Name of package */
 #undef PACKAGE
 
@@ -129,6 +136,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Enabling UNICODE build */
+#undef UNICODE
 
 /* Version number of package */
 #undef VERSION

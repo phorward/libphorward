@@ -1,3 +1,3 @@
 
-SUBDIRS = src
+SUBDIRS = src min_lalr1
 
