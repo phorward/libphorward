@@ -224,7 +224,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 PROTOFILE = proto.h
 LIBHEADER = phorward.h
-PATHEXT = PATH=../run:$(PATH)
+PATHEXT = PATH="../run:$(PATH)"
 lib_LTLIBRARIES = libphorward.la
 libphorward_la_SOURCES = \
 	base/bitset.c \

@@ -7,7 +7,7 @@
 
 PROTOFILE =	proto.h
 LIBHEADER = phorward.h
-PATHEXT = PATH=../run:$(PATH)
+PATHEXT = PATH="../run:$(PATH)"
 
 lib_LTLIBRARIES = libphorward.la
 
