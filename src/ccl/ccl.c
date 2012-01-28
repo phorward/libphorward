@@ -12,7 +12,7 @@ Usage:	Charclass-Handling
 /*
  * Includes
  */
-#include "../phorward.h"
+#include <phorward.h>
 
 /*
  * Global variables

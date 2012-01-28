@@ -12,7 +12,7 @@ Usage:	Memory management functions / malloc replacements
 /*
  * Includes
  */
-#include "../phorward.h"
+#include <phorward.h>
 
 /*
  * Global variables

@@ -17,7 +17,7 @@ Usage:	Conversion functions for data type and storage type conversion.
 /*
  * Includes
  */
-#include "../phorward.h"
+#include <phorward.h>
 
 /*
  * Global variables

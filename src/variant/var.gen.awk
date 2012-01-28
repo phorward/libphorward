@@ -1,4 +1,4 @@
-#!/bin/awk
+#!/bin/awk -f
 #This is a utility script to generate get-/set and conversion-functions for the
 #variant data type pvar implemented in var.h
 #
@@ -21,7 +21,7 @@ BEGIN								{
 										print " * THIS FILE IS GENERATED - DO NOT EDIT MANUALLY - IT WILL GO AWAY!"
 										print " */"
 										print ""
-										print "#include \"phorward.h\""
+										print "#include <phorward.h>"
 										print ""
 									}
 									

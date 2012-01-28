@@ -36,7 +36,7 @@ Usage:	XML processing functions (based on ezXML)
 /*
  * Includes
  */
-#include "../phorward.h"
+#include <phorward.h>
 
 /*
  * Global variables

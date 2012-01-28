@@ -12,7 +12,7 @@ Usage:	Regular expression pattern construction and conversion functions
 /*
  * Includes
  */
-#include "../phorward.h"
+#include <phorward.h>
 
 /*
  * Global variables
