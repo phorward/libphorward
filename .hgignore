@@ -1,18 +1,16 @@
 syntax: glob
 
+Makefile
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+
 *.o
-pbasis/var.*.c
-src/makeall-seq
-include/*.h
-include/Make.inc
-etc/userenv
-lib/*.a
-psh
+lib
 
 tmp
 run/min_lalr1
-run/unicc
-src/NEWPROJECT/NEWPROJECT
-src/DEMO/basis
-src/DEMO/regex
-src/DEMO/string
+NEWPROJECT/NEWPROJECT
+DEMO/basis
+DEMO/regex
