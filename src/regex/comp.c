@@ -12,7 +12,7 @@ Usage:	Compilation of multiple patterns into one state regex structure
 /*
  * Includes
  */
-#include "../phorward.h"
+#include <phorward.h>
 
 #define IS_EXECUTABLE( stat )	( (stat) == REGEX_STAT_NFA || \
 									(stat) == REGEX_STAT_DFA )

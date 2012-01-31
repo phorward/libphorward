@@ -12,7 +12,7 @@ Usage:	Bitset processing library
 /*
  * Includes
  */
-#include "../phorward.h"
+#include <phorward.h>
 
 /*
  * Global variables

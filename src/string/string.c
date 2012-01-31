@@ -15,7 +15,7 @@ Usage:	Some extended functions for zero-terminated byte- and wide-character
 /*
  * Includes
  */
-#include "../phorward.h"
+#include <phorward.h>
 
 /*
  * Defines

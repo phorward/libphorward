@@ -11,9 +11,6 @@ Usage:	Main include file for phorward library
 #ifndef _PHORWARD_H
 #define _PHORWARD_H
 
-#define UNICODE
-#define UTF8
-
 /*
  * Standard System Includes
  * They're always required, in all of our programs!
