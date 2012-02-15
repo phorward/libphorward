@@ -1,13 +1,19 @@
-# -MAKE-------------------------------------------------------------------------
-# Phorward Foundation Libraries :: pbasis
+# -MAKEFILE---------------------------------------------------------------------
+# Phorward Foundation Libraries :: libphorward
 # Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See $PHOME/LICENSE for more information.
 # ------------------------------------------------------------------------------
 
+include ../Make.inc
+
 VAR_GET = variant/var.get.c
 VAR_SET = variant/var.set.c
 VAR_CONV = variant/var.conv.c
+
+PROTOFILE =	proto.h
+LIBHEADER = ../include/phorward.h
+RUNDIR = PATH="../run:$(PATH)"
 
 SRC = 	\
 		base/bitset.c \
@@ -35,13 +41,19 @@ SRC = 	\
 		$(VAR_CONV) \
 		xml/xml.c
 
-PROTOFILE =	proto.h
-LIBHEADER = ../include/phorward.h
-RUNDIR = PATH="../run:$(PATH)"
+OBJ	=	$(patsubst %.c, %$(OBJEXT), $(SRC))
 
-all: $(VAR_GET) $(VAR_SET) $(VAR_CONV) $(PROTOFILE) $(LIBHEADER) 
+# ---
+
+all: $(LIBPHORWARD)
+
+$(LIBPHORWARD): $(VAR_GET) $(VAR_SET) $(VAR_CONV) \
+					$(PROTOFILE) $(LIBHEADER) $(OBJ)
+	$(AR) $(ARFLAGS) $@ $(OBJ)
 
 clean:
+	-rm $(LIBPHORWARD)
+	-rm $(OBJ)
 	-rm $(VAR_GET) $(VAR_SET) $(VAR_CONV)
 	-rm $(PROTOFILE)
 	-rm $(LIBHEADER)
@@ -49,12 +61,12 @@ clean:
 # Prototypes Files
 
 $(PROTOFILE): $(SRC)
-	$(RUNDIR) mkproto $(SRC) >$@
+	$(RUNDIR) pproto $(SRC) >$@
 
 # Library Header
 
 $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE) phorward.tpl.h
-	$(RUNDIR) lincl phorward.tpl.h >$@
+	$(RUNDIR) pinclude phorward.tpl.h >$@
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 

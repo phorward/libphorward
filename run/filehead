@@ -1,0 +1,76 @@
+#!/bin/sh
+
+file="$1"
+
+if [ -z "$file" ]
+then
+	file="noname"
+fi
+
+ARSCH=`echo $HOME | sed -e "s/\//#/g"`
+module=`pwd | sed -e "s/\//#/g" | sed -e "s/$ARSCH//" | awk -F '#' '{print $2}'`
+
+if [ "$module" ]
+then
+	module=" :: $module"
+fi
+
+ext=`echo $file | awk -F . '{print $NF}'`
+what=""
+source="c"
+case "$ext" in
+	"c")
+		what="MODULE--"
+		;;
+	"h")
+		what="HEADER--"
+		;;
+	"y"|"par")
+		what="PARSER--"
+		;;
+	"sh")
+		what="SCRIPT--"
+		source="sh"
+		;;
+	*)
+		if [ "$file" = "Makefile" ]
+		then
+			what="MAKEFILE"
+			source="sh"
+		else
+			what="FILE---"
+		fi
+		break
+		;;
+esac
+
+if [ "$source" = "c" ]
+then
+	echo "/* -$what--------------------------------------------------------------------"
+	echo "Phorward Foundation Toolkit"
+	echo "Copyright (C) 2006-`date +\"%Y\"` by Phorward Software Technologies, Jan Max Meyer"
+	echo "http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com"
+	echo "All rights reserved. See \$PHOME/LICENSE for more information."
+	echo ""
+	echo "File:	$file"
+	echo "Usage:	"
+	echo "----------------------------------------------------------------------------- */"
+	echo ""
+elif [ "$source" = "sh" ]
+then
+	if [ "$file" != "Makefile" ]
+	then
+		echo "#!/bin/sh"
+	fi
+
+	echo "# -$what---------------------------------------------------------------------"
+	echo "# Phorward Foundation Toolkit"
+	echo "# Copyright (C) 2006-`date +\"%Y\"` by Phorward Software Technologies, Jan Max Meyer"
+	echo "# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com"
+	echo "# All rights reserved. See \$PHOME/LICENSE for more information."
+	echo "#"
+	echo "# File:	$file"
+	echo "# Usage:	"
+	echo "# ------------------------------------------------------------------------------"
+	echo ""
+fi

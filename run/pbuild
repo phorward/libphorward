@@ -1,0 +1,255 @@
+#!/bin/sh
+# -SCRIPT-----------------------------------------------------------------------
+# Phorward Foundation Toolkit
+# Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
+#
+# File:		pbuild
+# Usage:	Phorward Build System Tools Wrapper
+# ------------------------------------------------------------------------------
+
+########
+# Init #
+########
+
+#set -x
+
+OPTSTR="C:cD:hI:O:o:sv"
+USAGE="usage: `basename $0` ACTION [$OPTSTR] FILES"
+
+PBS_CONFIG=""
+PBS_OUTPUT=""
+PBS_COMPILE=0
+PBS_OPTIONS=""
+PBS_DEFINES=""
+PBS_HAS_CONFIG=0
+
+PBS_VERBOSE=0
+PBS_SHOWCOMMANDS=0
+
+################################################
+# Get Phorward Build System configuration file #
+################################################
+
+get_config()
+{
+	if [ -z "$PBS_CONFIG" ]
+	then
+		PBS_CONFIG=".pconfig"
+	elif [ ! -r "$PBS_CONFIG" ]
+	then
+		echo "The configuration file '$PBS_CONFIG' does not exist." >&2
+		exit 1
+	fi
+
+	# Are all required variables already defined?
+	for cnt in `seq 2`
+	do
+		count=0
+		for i in $*
+		do
+			if [ "`eval echo \\$$i`" ]
+			then
+				count=`expr $count + 1`
+			fi
+		done
+
+		if [ $count -eq $# ]
+		then
+			break
+		elif [ $cnt -eq 2 ]
+		then
+			for i in $*
+			do
+				if [ -z "`eval echo \\$$i`" ]
+				then
+					echo "Missing configuration $i" >&2
+				fi
+			done
+
+			exit 1
+		fi
+
+		# Search upward in the directory hierarchy to find configuration
+		here=`pwd`
+		while [ `pwd` != "/" ]
+		do
+			if [ -x "$PBS_CONFIG" ]
+			then
+				# TODO: Test for already defined variables
+				. ./$PBS_CONFIG
+				break
+			fi
+
+			# One up, Maurice!
+			cd ..
+			if [ $? -ne 0 ]
+			then
+				break
+			fi
+		done
+
+		cd $here
+	done
+}
+
+run_command()
+{
+	if [ $PBS_SHOWCOMMANDS -eq 1 ]
+	then
+		echo "$*"
+	fi
+
+	if [ $PBS_VERBOSE -eq 1 ]
+	then
+		$*
+	else
+		$* >/dev/null 2>&1
+	fi
+
+	err=$?
+
+	if [ $err -ne 0 ]
+	then
+		exit $err
+	fi
+}
+
+message()
+{
+	if [ $PBS_VERBOSE -eq 1 ]
+	then
+		echo "$*"
+	fi
+}
+
+######################
+# C-Compiler wrapper #
+######################
+
+build_cc()
+{
+	get_config PCONF_CC PCONF_CC_FLAG_COMPILE PCONF_CC_FLAG_DEFINE \
+				PCONF_CC_FLAG_INCLUDE PCONF_CC_FLAG_OUTPUT
+
+	# Now that we have the right config, parse ALL options!
+	files=""
+	output=""
+	includes=""
+	defines=""
+	while [ $# -gt 0 ]
+	do
+		case "$1" in
+			-C)
+				# This parameter is parsed before, so do nothing here now,
+				# simply skip and ignore.
+				shift
+				;;
+			-D)
+				defines="$defines $PCONF_CC_FLAG_DEFINE$2"
+				shift
+				;;
+			-I)
+				includes="$includes $PCONF_CC_FLAG_INCLUDE$2"
+				shift
+				;;
+			-o)
+				output="$PARAMS $PCONF_CC_FLAG_OUTPUT$2"
+				shift
+				;;
+			-O)
+				params="$param $2"
+				shift
+				;;
+			-c)
+				params="$params $PCONF_CC_FLAG_COMPILE"
+				;;
+			-*)
+				echo "Unknown option: $1" >&2
+				echo $USAGE
+				exit 1
+				;;
+			*)
+				files="$files $1"
+				;;
+		esac
+
+		shift
+	done
+
+	params="$PCONF_CC_FLAG_COMPILE $params $defines $includes"
+	for file in $files
+	do
+		if [ "$output" ]
+		then
+			out=$output
+		else
+			out="$PCONF_CC_FLAG_OUTPUT`echo $file|sed \"s/\.c$/$PCONF_OBJEXT/\"`"
+		fi
+
+		message "Compiling $file..."
+		run_command $PCONF_CC $params $out $obj_file $file
+	done
+}
+
+#########
+# Start #
+#########
+
+# Get the action
+if [ $# -eq 0 ]
+then
+	echo "Error: ACTION parameter is required." >&2
+	echo $USAGE >&2
+	exit 1
+fi
+
+PBS_ACTION=$1
+shift
+
+set -- `getopt "$OPTSTR" "$@"`
+[ $# -lt 1 ] && exit 1
+
+# Check if configuation file location is supplied
+OPTIONS=""
+while [ "$1" ]
+do
+	case "$1" in
+		-C) 
+			PBS_CONFIG=$2
+			shift
+			;;
+		-v)
+			PBS_VERBOSE=1
+			;;
+		-s)
+			PBS_SHOWCOMMANDS=1
+			;;
+		--)
+			;;
+		*)
+			OPTIONS="$OPTIONS $1"
+			;;
+	esac
+
+	shift
+done
+
+case "$PBS_ACTION" in
+	cc)
+		build_cc $OPTIONS
+		;;
+
+	program)
+		build_program "$OPTIONS"
+		;;
+
+	*)
+		echo "Unknown action: $ACTION" >&2
+		exit 1
+		;;
+esac
+
+exit 0
+

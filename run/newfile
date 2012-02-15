@@ -1,0 +1,25 @@
+#!/bin/sh
+# -SCRIPT-----------------------------------------------------------------------
+# Phorward Foundation Toolkit
+# Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See $PHOME/LICENSE for more information.
+#
+# File:		newfile
+# Usage:	File creation tool
+# ------------------------------------------------------------------------------
+
+if [ "$1" ]
+then
+	if [ -f "$1" ]
+	then
+		echo "File $1 already exists, sorry!"
+		exit 1
+	fi
+
+	filehead $1 >$1
+else
+	echo "Usage: $0 FILENAME"
+	exit 1
+fi
+

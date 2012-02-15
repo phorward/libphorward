@@ -1,33 +1,19 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
-# Phorward Software Development Kit
+# Phorward Software Development Toolkit
 # Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See $PHOME/LICENSE for more information.
 #
-# Script:		text_to_c
+# Script:		pdostounix
 # Author:		Jan Max Meyer
-# Usage:		Convert ASCII-text-file into C define.
+# Usage:		DOS to Unix ASCII-file conversion
 #-------------------------------------------------------------------------------
 
 if [ $# -lt 2 ]
 then
-	echo "usage: $0 DEFINE INPUT-FILES..."
+	echo "usage: $0 infile outfile"
 	exit 1
 fi
 
-echo "#define $1 \\"
-shift
-
-awk '		{
-				gsub( /\\/, "\\\\" )
-				gsub( /\"/, "\\\"" )
-				txt = txt "\t\"" $0 "\\n\" \\\n"
-			}
-
-	END		{
-				print substr( txt, 1, length( txt ) - 2 )
-			}
-	' $*
-
-exit 0
+tr -d '\r' <$1 >$2

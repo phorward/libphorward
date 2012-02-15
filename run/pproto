@@ -1,11 +1,11 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
-# Phorward Software Development Kit
+# Phorward Software Development Toolkit
 # Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See $PHOME/LICENSE for more information.
 #
-# Script:		mkproto
+# Script:		pproto
 # Author:		Jan Max Meyer
 # Usage:		C function prototype generator
 #-------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ while [ "$1" != "" ]
 do
 	echo "/* $1 */"
 
-	rem_comments < $1 | awk $options '
+	premcomments < $1 | awk $options '
 
 BEGIN				{	FS = "[ \t]+"
 						same_line = 0

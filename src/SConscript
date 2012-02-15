@@ -1,0 +1,43 @@
+#
+# Build Phorward Foundation Library
+#
+
+Import( 'env' )
+
+phorward_src = [
+				"base/bitset.c", \
+				"base/dbg.c", \
+				"base/hashtab.c", \
+				"base/llist.c", \
+				"base/memory.c", \
+				"base/stack.c", \
+				"ccl/ccl.c", \
+				"regex/comp.c", \
+				"regex/dfa.c", \
+				"regex/direct.c", \
+				"regex/misc.c", \
+				"regex/nfa.c", \
+				"regex/pattern.c", \
+				"regex/ref.c", \
+				"string/convert.c", \
+				"string/string.c", \
+				"string/utf8.c", \
+				"util/base64.c", \
+				"util/system.c", \
+				"variant/var.c", \
+				"variant/var.conv.c", \
+				"variant/var.get.c", \
+				"variant/var.set.c", \
+				"xml/xml.c" \
+				]
+
+# Generate proto.h
+tproto = env.mkproto( "proto.h", phorward_src )
+env.NoClean( tproto )
+
+# Generate Library Header
+theader = env.lincl( '$incdir/phorward.h', "phorward.tpl.h" )
+env.Depends( '$incdir/phorward.h', "proto.h" )
+env.NoClean( theader )
+
+env.Library( '${libdir}/${lphorward}', phorward_src )

@@ -5,7 +5,7 @@
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See $PHOME/LICENSE for more information.
 #
-# Script:		dmake
+# Script:		pdbgmake
 # Author:		Jan Max Meyer
 # Usage:		Run 'make' with Debug-Flag
 #-------------------------------------------------------------------------------
