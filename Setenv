@@ -5,10 +5,18 @@
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See $PHOME/LICENSE for more information.
 #
-# Script:		psh
+# Script:		Setenv (formerly psh)
 # Author:		Jan Max Meyer
 # Usage:		Phorward SDK shell configuration script
 #-------------------------------------------------------------------------------
+
+#Set PHOME
+PHOME=`pwd`
+
+if [ "`dirname $0`" != "." ]
+then
+	PHOME="$PHOME/`dirname $0`"
+fi
 
 #Setup development environment
 SRCD=$PHOME/src
@@ -27,33 +35,6 @@ fi
 export CDPATH
 
 #Aliases
-if [ "$PSYSTEM" = "WINDOWS" ]
-then
-	# WINDOWS PORT ENVIRONMENT REQUIREMENTS
-	# +++++++++++++++++++++++++++++++++++++
-	# Unix-Environment:		Msys
-	# Compiler:				Microsoft Visual C++
-	# Local File Editor:	Notepad2
-
-	WINDOW_EXPLORER=start
-	EDITOR=notepad2
-
-	alias make='nmake //nologo $*'
-	alias vi='$EDITOR $*'
-
-	#Use Microsoft NMake on Windows
-	PMAKE="nmake //nologo"
-	export PMAKE
-else
-	WINDOW_EXPLORER=efm
-	EDITOR=gedit
-	USERNAME=`whoami`
-
-	#Use GNU Make on Linux
-	PMAKE=make
-	export PMAKE
-fi
-
 alias s='cd $PHOME/src'
 alias i='cd $PHOME/include'
 alias l='cd $PHOME/lib'
@@ -61,8 +42,6 @@ alias r='cd $PHOME/run'
 alias d='cd $PHOME/doc'
 alias e='cd $PHOME/etc'
 alias P='cd $PHOME'
-alias ex='$WINDOW_EXPLORER . &'
-alias ed='$EDITOR $1'
 alias quit='exit'
 alias q='exit'
 
@@ -95,17 +74,8 @@ then
           \  /   /	PHORWARD SOFTWARE TECHNOLOGIES
            \/___/              ... all systems go!
 
-Your shell is configured with the following parameters:
+PHOME directory is set to "$PHOME"
 ENDL
 
-		if [ -f "$PHOME/include/Commercial.inc" ]
-		then
-			echo "PSYSTEM=$PSYSTEM PHOME=$PHOME (PRIVATE SOURCES REPOSITORY)"
-		else
-			echo "PSYSTEM=$PSYSTEM PHOME=$PHOME"
-		fi
-
-		echo
-		echo "Type 'phelp' to get a command reference of all relevant commands and tools."
 fi
 

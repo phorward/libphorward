@@ -1,5 +1,5 @@
 #
-# SCons build file for Phorward Foundation Toolkit
+# SCons build file for Phorward Foundation Libraries
 #
 
 import os
@@ -36,10 +36,19 @@ env.Decider( "timestamp-newer" )
 
 Export( 'env' )
 
+# libphorward.a
 SConscript( 'src/SConscript' )
 
+# min_lalr1 Parser Generator
 env.Program( "#run/min_lalr1", "min_lalr1/min_lalr1.c" )
+
+# DEMO
 env.Program( "DEMO/basis", "DEMO/basis.c",
 				LIBS = '$lphorward', LIBPATH = '$libdir' )
 env.Program( "DEMO/regex", "DEMO/regex.c", 
 				LIBS = '$lphorward', LIBPATH = '$libdir' )
+
+# NEWPROJECT
+env.Program( "NEWPROJECT/newproject", "NEWPROJECT/main.c",
+				LIBS = '$lphorward', LIBPATH = '$libdir' )
+				

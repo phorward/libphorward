@@ -1,5 +1,5 @@
 # -MAKEFILE---------------------------------------------------------------------
-# Phorward Foundation Libraries :: NEWPROJECT
+# Phorward Foundation Libraries :: DEMO
 # Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See $PHOME/LICENSE for more information.
@@ -7,19 +7,17 @@
 
 include ../Make.inc
 
-NEWPROJECT = newproject$(EXEEXT)
-NEWPROJECT_SRC = main.c
-NEWPROJECT_PROTO = proto.h
+BASIS = basis$(EXEEXT)
+REGEX = regex$(EXEEXT)
 
-RUNDIR = PATH="../run:$(PATH)"
+all: $(BASIS) $(REGEX)
 
-all: $(NEWPROJECT) 
+$(BASIS): basis.c
+	$(CC) $(CFLAGS) -o $@ $+ $(LDFLAGS)
 
-$(NEWPROJECT_PROTO): $(NEWPROJECT_SRC)
-	$(RUNDIR) pproto $(NEWPROJECT_SRC) >$@
-
-$(NEWPROJECT): $(NEWPROJECT_SRC) $(NEWPROJECT_PROTO)
-	$(CC) $(CFLAGS) -o $@ $(NEWPROJECT_SRC) $(LDFLAGS)
+$(REGEX): regex.c
+	$(CC) $(CFLAGS) -o $@ $+ $(LDFLAGS)
 
 clean:
-	-rm $(NEWPROJECT)
+	-rm $(BASIS)
+	-rm $(REGEX)
