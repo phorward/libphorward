@@ -5,11 +5,17 @@
 # All rights reserved. See $PHOME/LICENSE for more information.
 # ------------------------------------------------------------------------------
 
-DIRS = src min_lalr1 DEMO NEWPROJECT
+DIRS = src min_lalr1 run DEMO NEWPROJECT
 
 all:
-	for i in $(DIRS); do make -C $$i $@; done
+	for i in $(DIRS); do $(MAKE) -C $$i $@; done
+
+install:
+	for i in $(DIRS); do $(MAKE) -C $$i $@; done
+
+uninstall:
+	for i in $(DIRS); do $(MAKE) -C $$i $@; done
 
 clean:
-	for i in $(DIRS); do make -C $$i $@; done
+	for i in $(DIRS); do $(MAKE) -C $$i $@; done
 	

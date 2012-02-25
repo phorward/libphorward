@@ -12,8 +12,8 @@ VAR_SET = variant/var.set.c
 VAR_CONV = variant/var.conv.c
 
 PROTOFILE =	proto.h
-LIBHEADER = ../include/phorward.h
-RUNDIR = PATH="../run:$(PATH)"
+LIBHEADER = $(PHOME)/include/phorward.h
+RUNDIR = PATH="$(PHOME)/run:$(PATH)"
 
 SRC = 	\
 		base/bitset.c \
@@ -57,6 +57,14 @@ clean:
 	-rm $(VAR_GET) $(VAR_SET) $(VAR_CONV)
 	-rm $(PROTOFILE)
 	-rm $(LIBHEADER)
+
+install: $(LIBPHORWARD) $(INSTPATH_LIB) $(INSTPATH_INC)
+	cp $(LIBPHORWARD) $(INSTPATH_LIB)
+	cp $(LIBHEADER) $(INSTPATH_INC)
+
+uninstall:
+	-rm -f $(INSTPATH_LIB)/$(shell basename $(LIBPHORWARD))
+	-rm -f $(INSTPATH_INC)/$(shell basename $(LIBHEADER))
 
 # Prototypes Files
 

@@ -1,6 +1,26 @@
+PHOME ?= $(shell pwd)/..
+
 OBJEXT = .o
 EXEEXT =
-CFLAGS = -DUNICODE -DUTF8 -I../include -funsigned-char
-LDFLAGS = -L../lib -lphorward
 
-LIBPHORWARD = ../lib/libphorward.a
+CFLAGS += -DUNICODE -DUTF8 -I$(PHOME)/include -funsigned-char
+LDFLAGS += -L$(PHOME)/lib -lphorward
+
+INSTPATH ?= /usr
+INSTPATH_BIN ?= $(INSTPATH)/bin
+INSTPATH_LIB ?= $(INSTPATH)/lib
+INSTPATH_INC ?= $(INSTPATH)/include
+
+LIBPHORWARD = $(PHOME)/lib/libphorward.a
+
+$(INSTPATH):
+	test -d $(INSTPATH) || mkdir $(INSTPATH)
+
+$(INSTPATH_BIN): $(INSTPATH)
+	test -d $(INSTPATH_BIN) || mkdir $(INSTPATH_BIN)
+
+$(INSTPATH_LIB): $(INSTPATH)
+	test -d $(INSTPATH_LIB) || mkdir $(INSTPATH_LIB)
+
+$(INSTPATH_INC): $(INSTPATH)
+	test -d $(INSTPATH_INC) || mkdir $(INSTPATH_INC)

@@ -21,5 +21,9 @@ $(NEWPROJECT_PROTO): $(NEWPROJECT_SRC)
 $(NEWPROJECT): $(NEWPROJECT_SRC) $(NEWPROJECT_PROTO)
 	$(CC) $(CFLAGS) -o $@ $(NEWPROJECT_SRC) $(LDFLAGS)
 
+install:
+
+uninstall:
+
 clean:
 	-rm $(NEWPROJECT)

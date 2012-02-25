@@ -18,6 +18,10 @@ $(BASIS): basis.c
 $(REGEX): regex.c
 	$(CC) $(CFLAGS) -o $@ $+ $(LDFLAGS)
 
+install:
+
+uninstall:
+
 clean:
 	-rm $(BASIS)
 	-rm $(REGEX)

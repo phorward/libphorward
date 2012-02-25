@@ -7,12 +7,18 @@
 
 include ../Make.inc
 
-MIN_LALR1 = ../run/min_lalr1$(EXEEXT)
+MIN_LALR1 = $(PHOME)/run/min_lalr1$(EXEEXT)
 
 all: $(MIN_LALR1)
 
 $(MIN_LALR1): min_lalr1.c
 	$(CC) $(CFLAGS) -o $@ $+
+
+install: $(MIN_LALR1) $(INSTPATH_BIN)
+	cp $(MIN_LALR1) $(INSTPATH_BIN)
+
+uninstall: 
+	-rm -f $(INSTPATH_BIN)/$(shell basename $(MIN_LALR1))
 
 clean:
 	-rm $(MIN_LALR1)
