@@ -102,7 +102,7 @@ void unicode_demo( void )
 	printf( "mystr = >%ls<\n", mystr );
 
 	mydynamicstr = Pstrdup( mystr );
-	mydynamicstr = Pstr_append_str( mydynamicstr,
+	mydynamicstr = Pstrcatstr( mydynamicstr,
 			L" You can see: The functions are"
 			L" used the same way as the standard"
 			L" uchar-functions!", FALSE );

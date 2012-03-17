@@ -39,33 +39,33 @@ Usage:	Some extended functions for zero-terminated byte- and wide-character
  ******************************************************************************/
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_append_char()
-	
+	Function:		pstrcatchar()
+
 	Author:			Jan Max Meyer
-	
-	Usage:			Appends a character to a dynamic string.
-					
+
+	Usage:			Dynamically appends a character to a string.
+
 	Parameters:		uchar*		str				Pointer to a string to be
 												appended.
 												If this is (uchar*)NULL, the
 												string is newly allocated.
 					wchar		chr				The character to be appended to
 												str.
-	
+
 	Returns:		uchar*						Pointer to (possibly re-)
 												allocated and appended string.
 												(uchar*)NULL is returned if no
 												memory could be (re)allocated.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pstr_append_char( uchar* str, wchar chr )
+uchar* pstrcatchar( uchar* str, wchar chr )
 {
-	PROC( "pstr_append_char" );
+	PROC( "pstrcatchar" );
 	PARMS( "str", "%p", str );
 	PARMS( "chr", "%d", chr );
-	
+
 	if( !chr )
 		return str;
 
@@ -73,7 +73,7 @@ uchar* pstr_append_char( uchar* str, wchar chr )
 	{
 		MSG( "Allocating new string" );
 		str = (uchar*)pmalloc( ( 1 + 1 ) * sizeof( uchar ) );
-		
+
 		if( str )
 			*str = '\0';
 	}
@@ -83,7 +83,7 @@ uchar* pstr_append_char( uchar* str, wchar chr )
 		str = (uchar*)prealloc( (uchar*)str,
 				( pstrlen( str ) + 1 + 1) * sizeof( uchar ) );
 	}
-	
+
 	VARS( "str", "%p", str );
 	if( !str )
 	{
@@ -92,17 +92,18 @@ uchar* pstr_append_char( uchar* str, wchar chr )
 	}
 
 	sprintf( str + pstrlen( str ), "%c", (int)chr );
-	
+
 	RETURN( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_append_str()
-	
+	Function:		pstrcatstr()
+
 	Author:			Jan Max Meyer
-	
-	Usage:			Appends a (possibly dynamic) string to a dynamic string.
-					
+
+	Usage:			Dynamically appends a zero-terminated string to a
+					dynamic string.
+
 	Parameters:		uchar*		str				Pointer to a string to be
 												appended.
 												If this is (uchar*)NULL, the
@@ -110,19 +111,19 @@ uchar* pstr_append_char( uchar* str, wchar chr )
 					uchar*		append			The string to be appended.
 					boolean		release_append	If true, append is free'd
 												automatically by this function.
-	
+
 	Returns:		uchar*						Pointer to (possibly re-)
 												allocated and appended string.
 												(uchar*)NULL is returned if no
 												memory could be (re)allocated,
 												or both strings where NULL.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pstr_append_str( uchar* dest, uchar* src, boolean freesrc )
+uchar* pstrcatstr( uchar* dest, uchar* src, boolean freesrc )
 {
-	PROC( "pstr_append_str" );
+	PROC( "pstrcatstr" );
 	PARMS( "dest", "%p", dest );
 	PARMS( "src", "%p", src );
 	PARMS( "freesrc", "%d", freesrc );
@@ -146,7 +147,7 @@ uchar* pstr_append_str( uchar* dest, uchar* src, boolean freesrc )
 						* sizeof( uchar ) );
 			strcat( dest, src );
 		}
-	
+
 		if( freesrc )
 			pfree( src );
 	}
@@ -155,13 +156,13 @@ uchar* pstr_append_str( uchar* dest, uchar* src, boolean freesrc )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_append_nchar()
-	
+	Function:		pstrncatstr()
+
 	Author:			Jan Max Meyer
-	
-	Usage:			Appends a number of N characters from one string
-					to a dynamic string.
-					
+
+	Usage:			Dynamicaly appends a number of N characters from one string
+					to a string.
+
 	Parameters:		uchar*		str				Pointer to a string to be
 												appended.
 												If this is (uchar*)NULL, the
@@ -170,30 +171,30 @@ uchar* pstr_append_str( uchar* dest, uchar* src, boolean freesrc )
 												to be appended.
 					psize		num				Number of characters to be
 												appended to str.
-	
+
 	Returns:		uchar*						Pointer to (possibly re-)
 												allocated and appended string.
 												(uchar*)NULL is returned if no
 												memory could be (re)allocated,
 												or both strings where NULL.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pstr_append_nchar( uchar* str, uchar* append, psize num )
+uchar* pstrncatstr( uchar* str, uchar* append, psize n )
 {
 	psize	len		= 0;
 
-	PROC( "pstr_append_nchar" );
+	PROC( "pstrncatstr" );
 	PARMS( "str", "%p", str );
 	PARMS( "append", "%p", append );
-	PARMS( "num", "%d", num );
-	
+	PARMS( "n", "%d", n );
+
 	if( append )
 	{
 		if( !str )
 		{
-			if( !( str = (uchar*)pmalloc( ( num + 1 ) * sizeof( uchar ) ) ) )
+			if( !( str = (uchar*)pmalloc( ( n + 1 ) * sizeof( uchar ) ) ) )
 				RETURN( (uchar*)NULL );
 		}
 		else
@@ -201,24 +202,24 @@ uchar* pstr_append_nchar( uchar* str, uchar* append, psize num )
 			len = pstrlen( str );
 
 			if( !( str = (uchar*)prealloc( (uchar*)str,
-					( len + num + 1 ) * sizeof( uchar ) ) ) )
+					( len + n + 1 ) * sizeof( uchar ) ) ) )
 				RETURN( (uchar*)NULL );
 		}
 
-		strncpy( str + len, append, num );
-		str[ len + num ] = '\0';
+		strncpy( str + len, append, n );
+		str[ len + n ] = '\0';
 	}
-	
+
 	RETURN( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_replace()
-	
+	Function:		pstrreplace()
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Replace a substring sequence within a string.
-					
+
 	Parameters:		uchar*		str					String to be replaced in
 					uchar*		find				The string to be found
 					uchar*		replace				The string to be inserted
@@ -226,11 +227,11 @@ uchar* pstr_append_nchar( uchar* str, uchar* append, psize num )
 
 	Returns:		uchar*							An allocated string which
 													is the resulting source.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pstr_replace( uchar* str, uchar* find, uchar* replace )
+uchar* pstrreplace( uchar* str, uchar* find, uchar* replace )
 {
 	uchar*			match;
 	uchar*			str_ptr			= str;
@@ -239,8 +240,8 @@ uchar* pstr_replace( uchar* str, uchar* find, uchar* replace )
 	unsigned long	len;
 	unsigned long	rlen;
 	unsigned long	size			= 0L;
-	
-	PROC( "pstr_replace" );
+
+	PROC( "pstrreplace" );
 	PARMS( "str", "%s", str );
 	PARMS( "find", "%s", find );
 	PARMS( "replace", "%s", replace );
@@ -258,9 +259,9 @@ uchar* pstr_replace( uchar* str, uchar* find, uchar* replace )
 		}
 		else
 			size = rlen;
-			
+
 		size += (unsigned long)( match - str_ptr );
-		
+
 		VARS( "size", "%ld", size );
 		VARS( "match", "%s", match );
 
@@ -279,19 +280,19 @@ uchar* pstr_replace( uchar* str, uchar* find, uchar* replace )
 			MSG( "Ran out of memory!" );
 			exit( 1 );
 		}
-		
+
 		pstrncpy( result_end, str_ptr, match - str_ptr );
 		result_end += match - str_ptr;
 		*result_end = '\0';
-		
+
 		VARS( "result", "%s", result );
-		
+
 		if( !*match )
 			break;
 
 		strcat( result_end, replace );
 		VARS( "result", "%s", result );
-		
+
 		result_end += rlen;
 		str_ptr = match + len;
 	}
@@ -300,98 +301,17 @@ uchar* pstr_replace( uchar* str, uchar* find, uchar* replace )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstrzero()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Check string for NULL.
-					
-	Parameters:		uchar*		str					Parameter string to be
-													tested.
-	
-	Returns:		uchar*							Returns an empty string,
-													if parameter is
-													(uchar*)NULL, else the
-													parameter.
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-uchar* pstrzero( uchar* str )
-{
-	if( !str )
-		return "";
-		
-	return str;
-}
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		psetstr()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Manages the assignment of an dynamically allocated string.
-
-	Parameters:		uchar**		str			Pointer to the target string pointer
-											to be (re)allocated.
-	 				uchar*		val			The string to be set as value.
-					
-	Returns:		uchar*					Allocated heap memory pointer on
-											success, (uchar*)NULL else. This
-											is the same pointer like *str.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-uchar* psetstr( uchar** str, uchar* val )
-{
-	if( *str )
-	{
-		if( pstrcmp( *str, val ) == 0 )
-			return *str;
-
-		pfree( *str );
-	}
-
-	*str = pstrdup( val );
-	return *str;
-}
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pgetstr()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Reads a string. If its value is (char*)NULL, it will return
-					a pointer to a static empty string.
-
-	Parameters:		uchar*		str			String pointer to be savely read.
-					
-	Returns:		uchar*					Returns str, or a pointer to a
-											static, empty string.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-char* pgetstr( char* str )
-{
-	if( !str )
-		return "";
-
-	return str;
-}
-
-/* -FUNCTION--------------------------------------------------------------------
 	Function:		pstrdup()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Saver strdup replacement.
-					
+
 	Parameters:		uchar*		str					Parameter string to be
 													dupped. If (uchar*)NULL,
 													the function returns
 													(uchar*)NULL.
-	
+
 	Returns:		uchar*							Same as strdup, (uchar*)
 													NULL if NULL-parameter.
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -401,24 +321,24 @@ uchar* pstrdup( uchar* str )
 {
 	if( !str )
 		return (uchar*)NULL;
-		
+
 	return (uchar*)pmemdup( str, ( pstrlen( str ) + 1 ) * sizeof( uchar ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pstrndup()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			A function mixing strdup() with strncpy(). The resulting
 					string will be zero-terminated.
-					
+
 	Parameters:		uchar*		str					Parameter string to be
 													dupped. If (uchar*)NULL,
 													the function returns
 													(uchar*)NULL.
 					psize		len					The length to be copied.
-	
+
 	Returns:		uchar*							Returns an allocated
 													memory pointer holding
 													the zero-terminated string
@@ -446,16 +366,16 @@ uchar* pstrndup( uchar* str, psize len )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pstrlen()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Saver strlen replacement.
-					
+
 	Parameters:		uchar*		str					Parameter string to be
 													evaluated. If (uchar*)NULL,
 													the function returns
 													(uchar*)NULL.
-	
+
 	Returns:		psize							Same as strlen, 0 in case
 													of (uchar*)NULL.
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -465,7 +385,7 @@ psize pstrlen( uchar* str )
 {
 	if( !str )
 		return 0;
-		
+
 	return strlen( (char*)str );
 }
 
@@ -501,11 +421,11 @@ int psprintf( uchar* res, uchar* fmt, ... )
 		RETURN( -1 );
 
 	va_start( args, fmt );
-	
+
 	ret = vsprintf( res, fmt, args );
-	
+
 	va_end( args );
-	
+
 	VARS( "ret", "%d", ret );
 	RETURN( ret );
 }
@@ -536,21 +456,21 @@ int pvasprintf( uchar** str, uchar* fmt, va_list ap )
 	int			ilen;
 	int			len;
 	va_list		w_ap;
-	
+
 	PROC( "pvasprintf" );
 	PARMS( "str", "%p", str );
 	PARMS( "fmt", "%s", fmt );
 	PARMS( "ap", "%p", ap );
-	
+
 	if( !( istr = (uchar*)pmalloc( MALLOC_STEP * sizeof( uchar ) ) ) )
 		RETURN( ERR_MEM );
-	
+
 	va_copy( w_ap, ap );
-	
+
 	MSG( "Invoking vsnprintf() for the first time" );
 	len = vsnprintf( istr, MALLOC_STEP, fmt, w_ap );
 	VARS( "len", "%d", len );
-	
+
 	if( len >= 0 && len < MALLOC_STEP )
 		*str = istr;
 	else if( len == INT_MAX || len < 0 )
@@ -566,14 +486,14 @@ int pvasprintf( uchar** str, uchar* fmt, va_list ap )
 			va_end( w_ap );
 			RETURN( ERR_MEM );
 		}
-		
+
 		va_end( w_ap );
 		va_copy( w_ap, ap );
 
 		MSG( "Invoking vsnprintf() for the second time" );
 		len = vsnprintf( istr, ilen, fmt, w_ap );
 		VARS( "len", "%d", len );
-		
+
 		if( len >= 0 && len < ilen )
 			*str = istr;
 		else
@@ -582,7 +502,7 @@ int pvasprintf( uchar** str, uchar* fmt, va_list ap )
 			RETURN( ERR_MEM );
 		}
 	}
-	
+
 	va_end( w_ap );
 	RETURN( len );
 }
@@ -622,21 +542,78 @@ uchar* pasprintf( uchar* fmt, ... )
 	va_start( args, fmt );
 	pvasprintf( &str, fmt, args );
 	va_end( args );
-	
+
 	VARS( "str", "%s", str );
 	RETURN( str );
 }
 
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		psetstr()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Manages the assignment of an dynamically allocated string.
+
+	Parameters:		uchar**		str			Pointer to the target string pointer
+											to be (re)allocated.
+	 				uchar*		val			The string to be set as value.
+
+	Returns:		uchar*					Allocated heap memory pointer on
+											success, (uchar*)NULL else. This
+											is the same pointer like *str.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* psetstr( uchar** str, uchar* val )
+{
+	if( *str )
+	{
+		if( pstrcmp( *str, val ) == 0 )
+			return *str;
+
+		pfree( *str );
+	}
+
+	*str = pstrdup( val );
+	return *str;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pgetstr()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Reads a string. If its value is (char*)NULL, it will return
+					a pointer to a static empty string.
+
+	Parameters:		uchar*		str			String pointer to be savely read.
+
+	Returns:		uchar*					Returns str, or a pointer to a
+											static, empty string.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+char* pgetstr( char* str )
+{
+	if( !str )
+		return "";
+
+	return str;
+}
+
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		patol()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			A safer atol() replacement.
-					
+
 	Parameters:		uchar*		str					Parameter string to be
 													converted to long.
-													
+
 	Returns:		long							Same as atol, 0L in case
 													of (uchar*)NULL.
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -646,20 +623,20 @@ long patol( uchar* str )
 {
 	if( !str )
 		return 0L;
-		
+
 	return atol( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		patof()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			A safer atof() replacement.
-					
+
 	Parameters:		uchar*		str					Parameter string to be
 													converted to double.
-													
+
 	Returns:		double							Same as atol, 0.0 in case
 													of (uchar*)NULL.
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -669,20 +646,20 @@ double patof( uchar* str )
 {
 	if( !str )
 		return (double)0.0;
-		
+
 	return atof( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		patoi()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			A safer atoi() replacement.
-					
+
 	Parameters:		uchar*		str					Parameter string to be
 													converted to int.
-													
+
 	Returns:		double							Same as atoi, 0 in case
 													of (uchar*)NULL.
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -692,18 +669,18 @@ int patoi( uchar* str )
 {
 	if( !str )
 		return 0;
-		
+
 	return atoi( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_render()
-	
+	Function:		pstrrender()
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Inserts values dynamically into the according wildcards
 					positions of a template string
-					
+
 	Parameters:		uchar*		tpl				The template to be
 												rendered with values.
 					...							Set of values to be inserted
@@ -725,11 +702,11 @@ int patoi( uchar* str )
 
 	Returns:		uchar*						An allocated string which
 												is the resulting source.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pstr_render( uchar* tpl, ... )
+uchar* pstrrender( uchar* tpl, ... )
 {
 	struct
 	{
@@ -796,7 +773,7 @@ uchar* pstr_render( uchar* tpl, ... )
 		size += copy_size;
 
 		if( result )
-			result = (uchar*)prealloc( (uchar*)result, 
+			result = (uchar*)prealloc( (uchar*)result,
 				( size + 1 ) * sizeof( uchar ) );
 		else
 			result = (uchar*)pmalloc( ( size + 1 ) * sizeof( uchar ) );
@@ -825,68 +802,20 @@ uchar* pstr_render( uchar* tpl, ... )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_strip()
-	
+	Function:		pstrltrim()
+
 	Author:			Jan Max Meyer
-	
-	Usage:			Removes trailing and ending whitespaces (tabs, space) from
-					a string.
 
-	Parameters:		uchar*		str				String to be trimmed.
-					
-	Returns:		uchar*						Trimmed string, zero terminated.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-uchar* pstr_strip( uchar* str )
-{
-	uchar*		ptr;
-	uchar*		start;
-	uchar*		end;
-
-	PROC( "pstr_strip" );
-	PARMS( "str", "%s", str );
-	
-	if( !( str && *str ) )
-		return str;
-
-	for( start = str; *start; start++ )
-		if( *start != ' ' && *start != '\t' )
-			break;
-
-	for( end = str + pstrlen( str ) - 1; end > start; end-- )
-		if( *end != ' ' && *end != '\t' )
-			break;
-	*( end + 1 ) = '\0';
-
-	if( start > str )
-	{
-		for( ptr = str; *start; start++, ptr++ )
-			*ptr = *start;
-
-		*ptr = '\0';
-	}
-	
-	VARS( "str", "%s", str );
-	RETURN( str );
-}
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_ltrim()
-	
-	Author:			Jan Max Meyer
-	
 	Usage:			Removes whitespace on the left of a string.
 
 	Parameters:		uchar*		s				String to be left-trimmed.
-					
+
 	Returns:		uchar*						Trimmed string, zero terminated.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-char* pstr_ltrim( char* s )
+char* pstrltrim( char* s )
 {
 	char*	c;
 
@@ -908,20 +837,20 @@ char* pstr_ltrim( char* s )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_rtrim()
-	
+	Function:		pstrrtrim()
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Removes trailing whitespace on the right of a string.
 
 	Parameters:		uchar*		s				String to be right-trimmed.
-					
+
 	Returns:		uchar*						Trimmed string, zero terminated.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-char* pstr_rtrim( char* s )
+char* pstrrtrim( char* s )
 {
 	char*	c;
 
@@ -943,20 +872,20 @@ char* pstr_rtrim( char* s )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_trim()
-	
+	Function:		pstrtrim()
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Removes beginning and trailing whitespace from a string.
 
 	Parameters:		uchar*		s				String to be trimmed.
-					
+
 	Returns:		uchar*						Trimmed string, zero terminated.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-char* pstr_trim( char* s )
+char* pstrtrim( char* s )
 {
 	PROC( "pstr_trim" );
 	PARMS( "s", "%s", pgetstr( s ) );
@@ -972,12 +901,12 @@ char* pstr_trim( char* s )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_tok()
+	Function:		pstrsplit()
 
 	Author:			Jan Max Meyer
 
-	Usage:			Tokenizes a string and returns an allocated array of
-					token reference pointers.
+	Usage:			Splits a string at a delimiting token and returns an
+					allocated array of token reference pointers.
 
 	Parameters:		uchar***		tokens			An allocated array of to-
 													kenized array values.
@@ -988,7 +917,7 @@ char* pstr_trim( char* s )
 					int				limit			Token limit; If set to 0,
 													there is no token limit
 													available.
-					
+
 
 	Returns:		int								Returns the number of
 													separated tokens, RB_ERR-
@@ -997,18 +926,18 @@ char* pstr_trim( char* s )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pstr_tok( uchar*** tokens, uchar* str, uchar* sep, int limit )
+int pstrsplit( uchar*** tokens, uchar* str, uchar* sep, int limit )
 {
 	uchar*	next;
 	uchar*	tok		= str;
 	int		cnt		= 0;
-	
-	PROC( "pstr_tok" );
+
+	PROC( "pstrsplit" );
 	PARMS( "tokens", "%p", tokens );
 	PARMS( "str", "%s", str );
 	PARMS( "sep", "%p", sep );
 	PARMS( "limit", "%d", limit );
-	
+
 	if( !( tokens && str && sep && *sep ) )
 		RETURN( ERR_PARMS );
 
@@ -1018,8 +947,8 @@ int pstr_tok( uchar*** tokens, uchar* str, uchar* sep, int limit )
 	VARS( "cnt", "%d", cnt );
 	VARS( "tok", "%s", tok );
 	(*tokens)[ cnt++ ] = tok;
-		
-	while( ( next = pstrstr( tok, sep ) ) 
+
+	while( ( next = pstrstr( tok, sep ) )
 			&& ( ( limit > 0 ) ? cnt < limit : 1 ) )
 	{
 		tok = next + pstrlen( sep );
@@ -1041,22 +970,22 @@ int pstr_tok( uchar*** tokens, uchar* str, uchar* sep, int limit )
 
 	if( limit > 0 )
 		*next = '\0';
-	
+
 	RETURN( cnt );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pstrupr()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Serves a platform-independent strupr-function.
 
 	Parameters:		uchar*	str				Acts both as input and
 											output-string.
-					
+
 	Returns:		Pointer to the input string.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -1076,16 +1005,16 @@ uchar* pstrupr( uchar* str )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pstrlwr()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Serves a platform-independent strlwr-function.
 
 	Parameters:		uchar*	str				Acts both as input and
 											output-string.
-					
+
 	Returns:		Pointer to the input string.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -1105,17 +1034,17 @@ uchar* pstrlwr( uchar* str )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pstrcasecmp()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			A pstrcmp-pendant matching strings with different
 					case order.
 
 	Parameters:		uchar*		s1			First string to compare
 					uchar*		s2			Second string to compare with s1.
-					
+
 	Returns:		The same result as pstrcmp().
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -1132,9 +1061,9 @@ int	pstrcasecmp( uchar* s1, uchar* s2 )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pstrncasecmp()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			A pstrncmp-pendant matching strings with different
 					case order.
 
@@ -1142,9 +1071,9 @@ int	pstrcasecmp( uchar* s1, uchar* s2 )
 					uchar*		s2			Second string to compare with s1.
 					int			n			Number of characters to be
 											count until matching test stops.
-					
+
 	Returns:		The same result as pstrncmp().
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -1161,10 +1090,10 @@ int	pstrncasecmp( uchar* s1, uchar* s2, pint n )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pstr_char()
-	
+	Function:		pstrparsechar()
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Reads a character from a byte stream. The character may
 					exist of one single character or it may be made up of an
 					escape sequence or UTF-8 character. The function returns
@@ -1175,21 +1104,21 @@ int	pstrncasecmp( uchar* s1, uchar* s2, pint n )
 					uchar*		str			Begin pointer where string
 					BOOLEAN		escapeseq	TRUE: Regards escape sequences
 											FALSE: Ignores escape sequences
-					
+
 	Returns:		int						The number of bytes that had been
 											read for the character.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pstr_char( wchar* retc, uchar *str, pboolean escapeseq )
+int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq )
 {
 	wchar	ch;
     uchar 	digs[9]		=	"\0\0\0\0\0\0\0\0";
     int		dno 		= 0;
 	uchar*	p			= str;
 
-	PROC( "pstr_char" );
+	PROC( "pstrparsechar" );
 	PARMS( "retc", "%p", retc );
 	PARMS( "str", "%s", str );
 	PARMS( "escapeseq", "%s", BOOLEAN_STR( escapeseq ) );
@@ -1308,7 +1237,7 @@ int pstr_char( wchar* retc, uchar *str, pboolean escapeseq )
 
 	Usage:			Character-set independent strdup replacement.
 
-	Parameters:		pchar*		str					String to be copied in 
+	Parameters:		pchar*		str					String to be copied in
 														memory.
 
 	Returns:		pchar*							Returns a copy of 'str'.
@@ -1317,10 +1246,10 @@ int pstr_char( wchar* retc, uchar *str, pboolean escapeseq )
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 pchar* Pstrdup( pchar* str )
-{	
+{
 	if( !str )
 		return (pchar*)NULL;
-		
+
 	return (pchar*)pmemdup( str, ( Pstrlen( str ) + 1 ) * sizeof( pchar ) );
 }
 
@@ -1361,9 +1290,9 @@ int Psprintf( pchar* res, pchar* fmt, ... )
 	va_start( args, fmt );
 
 	ret = vswprintf( res, 256 * 1024 * 1024, fmt, args );
-	
+
 	va_end( args );
-	
+
 	VARS( "ret", "%d", ret );
 	RETURN( ret );
 }
@@ -1394,23 +1323,23 @@ int Pvasprintf( pchar** str, pchar* fmt, va_list ap )
 	int			ilen;
 	int			len;
 	va_list		w_ap;
-	
+
 	PROC( "pvasprintf" );
 	PARMS( "str", "%p", str );
 	PARMS( "fmt", "%ls", fmt );
 	PARMS( "ap", "%p", ap );
-	
+
 	if( !( istr = (pchar*)pmalloc( ( ilen = MALLOC_STEP + 1 )
 				* sizeof( pchar ) ) ) )
 		RETURN( ERR_MEM );
-	
+
 	do
 	{
 		va_copy( w_ap, ap );
 		len = vswprintf( istr, (psize)ilen, fmt, w_ap );
 		va_end( w_ap );
 		VARS( "len", "%d", len );
-	
+
 		if( len < 0 )
 		{
 			if( !( istr = prealloc( istr, ( ilen = ilen + MALLOC_STEP + 1 )
@@ -1423,7 +1352,7 @@ int Pvasprintf( pchar** str, pchar* fmt, va_list ap )
 	while( len < 0 || len >= ilen );
 
 	*str = istr;
-	
+
 	RETURN( len );
 }
 
@@ -1462,36 +1391,36 @@ pchar* Pasprintf( pchar* fmt, ... )
 	va_start( args, fmt );
 	Pvasprintf( &str, fmt, args );
 	va_end( args );
-	
+
 	VARS( "str", "%ls", str );
 	RETURN( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		Pstr_append_char()
-	
+	Function:		Pstrcatchar()
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Appends a character to a dynamic wide-character string.
-					
+
 	Parameters:		pchar*		str				Pointer to a pchar-string to be
 												appended.
 												If this is (pchar*)NULL, the
 												string is newly allocated.
 					wchar		chr				The character to be appended to
 												str.
-	
+
 	Returns:		pchar*						Pointer to (possibly re-)allo-
 												cated and appended string.
 												(pchar*)NULL is returned if no
 												memory could be (re)allocated.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pchar* Pstr_append_char( pchar* str, wchar chr )
+pchar* Pstrcatchar( pchar* str, wchar chr )
 {
-	PROC( "Pstr_append_char" );
+	PROC( "Pstrcatchar" );
 	PARMS( "str", "%p", str );
 	PARMS( "chr", "%d", chr );
 
@@ -1499,7 +1428,7 @@ pchar* Pstr_append_char( pchar* str, wchar chr )
 	{
 		MSG( "Allocating new string" );
 		str = (pchar*)pmalloc( ( 1 + 1 ) * sizeof( pchar ) );
-		
+
 		if( str )
 			*str = L'\0';
 	}
@@ -1509,7 +1438,7 @@ pchar* Pstr_append_char( pchar* str, wchar chr )
 		str = (pchar*)prealloc( (pchar*)str,
 				( Pstrlen( str ) + 1 + 1) * sizeof( pchar ) );
 	}
-	
+
 	VARS( "str", "%p", str );
 	if( !str )
 	{
@@ -1518,18 +1447,18 @@ pchar* Pstr_append_char( pchar* str, wchar chr )
 	}
 
 	Psprintf( str + Pstrlen( str ), L"%lc", chr );
-	
+
 	RETURN( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		Pstr_append_str()
-	
+	Function:		Pstrcatstr()
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Appends a (possibly dynamic) wide-character string to a
 					dynamic wide-character string.
-					
+
 	Parameters:		pchar*		str				Pointer to a pchar-string to be
 												appended.
 												If this is (pchar*)NULL, the
@@ -1537,19 +1466,19 @@ pchar* Pstr_append_char( pchar* str, wchar chr )
 					pchar*		append			The string to be appended.
 					boolean		release_append	If true, append is free'd
 												automatically by this function.
-	
+
 	Returns:		pchar*						Pointer to (possibly re-)allo-
 												cated and appended string.
 												(pchar*)NULL is returned if no
 												memory could be (re)allocated,
 												or both strings where NULL.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pchar* Pstr_append_str( pchar* dest, pchar* src, boolean freesrc )
+pchar* Pstrcatstr( pchar* dest, pchar* src, boolean freesrc )
 {
-	PROC( "Pstr_append_str" );
+	PROC( "Pstrcatstr" );
 	PARMS( "dest", "%p", dest );
 	PARMS( "src", "%p", src );
 	PARMS( "freesrc", "%d", freesrc );
@@ -1573,7 +1502,7 @@ pchar* Pstr_append_str( pchar* dest, pchar* src, boolean freesrc )
 						* sizeof( pchar ) );
 			Pstrcat( dest, src );
 		}
-	
+
 		if( freesrc )
 			pfree( src );
 	}
@@ -1582,13 +1511,13 @@ pchar* Pstr_append_str( pchar* dest, pchar* src, boolean freesrc )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		Pstr_append_nchar()
-	
+	Function:		Pstrncatstr()
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Appends a number of N characters from one wide-character
 					string to a dynamic string.
-					
+
 	Parameters:		pchar*		str				Pointer to a pchar-string to be
 												appended.
 												If this is (pchar*)NULL, the
@@ -1597,25 +1526,25 @@ pchar* Pstr_append_str( pchar* dest, pchar* src, boolean freesrc )
 												to be appended.
 					psize		num				Number of characters to be
 												appended to str.
-	
+
 	Returns:		pchar*						Pointer to (possibly re-)allo-
 												cated and appended string.
 												(pchar*)NULL is returned if no
 												memory could be (re)allocated,
 												or both strings where NULL.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pchar* Pstr_append_nchar( pchar* str, pchar* append, psize num )
+pchar* Pstrncatstr( pchar* str, pchar* append, psize num )
 {
 	psize	len		= 0;
 
-	PROC( "Pstr_append_nchar" );
+	PROC( "Pstrncatstr" );
 	PARMS( "str", "%p", str );
 	PARMS( "append", "%p", append );
 	PARMS( "num", "%d", num );
-	
+
 	if( append )
 	{
 		if( !str )
@@ -1635,21 +1564,21 @@ pchar* Pstr_append_nchar( pchar* str, pchar* append, psize num )
 		Pstrncpy( str + len, append, num );
 		str[ len + num ] = L'\0';
 	}
-	
+
 	RETURN( str );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		Pstrlen()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Saver strlen replacement for wide-character.
-					
+
 	Parameters:		pchar*		str					Parameter string to be
 													evaluated. If (pchar*)NULL,
 													the function returns 0.
-	
+
 	Returns:		psize							Same as strlen, 0 in case
 													of (pchar*)NULL.
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1659,7 +1588,7 @@ psize Pstrlen( pchar* str )
 {
 	if( !str )
 		return 0;
-		
+
 	return wcslen( str );
 }
 

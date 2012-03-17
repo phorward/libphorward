@@ -27,23 +27,23 @@ Usage:	Compilation of multiple patterns into one state regex structure
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_init()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Initializes a pregex-structure. This structure can be used
 					to compile multiple regular expressions into one regex.
-					
+
 	Parameters:		pregex*			regex		Pointer to a pregex-structure,
 												which will be initizalized for
 												further usage.
 					int				flags		Flags to modifiy compiler- and
 												execution-options. Use the
 												REGEX_MOD_-flags. To specify
-												more than one flag, use the 
+												more than one flag, use the
 												or-operator (|).
-																	
+
 	Returns:		void
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -61,25 +61,25 @@ void pregex_init( pregex* regex, int flags )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_compile()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Compiles a regular expression into an NFA within
 					a regex.
-					
+
 	Parameters:		pregex*			regex		Pointer to a pregex-structure,
-												that will hold the compiled 
+												that will hold the compiled
 												pattern.
 					uchar*			pattern		The pattern to be compiled.
 					int				accept		Accepting ID if the pattern
 												is correctly matched.
-																	
+
 	Returns:		int				ERR_OK		on success
 									ERR_FAILURE	if the regex is not
 												initialized or already turned
 												into a different state.
 									ERR...		error define else
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	16.11.2011	Jan Max Meyer	Switched this function to new regular expression
@@ -95,7 +95,7 @@ int pregex_compile( pregex* regex, uchar* pattern, int accept )
 	PARMS( "pattern", "%s", pattern );
 	PARMS( "accept", "%d",accept );
 
-	if( !( regex->stat == REGEX_STAT_NONE 
+	if( !( regex->stat == REGEX_STAT_NONE
 			|| regex->stat == REGEX_STAT_NFA ) )
 	{
 		MSG( "The regex is not inizialized or already turned into DFA!" );
@@ -161,20 +161,20 @@ int pregex_compile( pregex* regex, uchar* pattern, int accept )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_finalize()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Finalizes a pregex-compiled regex to a minimized DFA.
 					After finalization, new expressions can't be added.
-					
+
 	Parameters:		pregex*			regex		Pointer to a pregex-structure,
 												that will be finalized.
-																	
+
 	Returns:		int				ERR_OK		on success
 									ERR_FAILURE	if the regex is not in
 												compiled-state
 									ERR...		error define else
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Finalize NFA to DFA now activated.
@@ -186,7 +186,7 @@ int pregex_finalize( pregex* regex )
 
 	PROC( "pregex_finalize" );
 	PARMS( "regex", "%p", regex );
-	
+
 	/* This will be enabled later! */
 
 	if( !( regex->stat == REGEX_STAT_NFA ) )
@@ -194,7 +194,7 @@ int pregex_finalize( pregex* regex )
 		MSG( "The regex must be in compiled state." );
 		RETURN( ERR_FAILURE );
 	}
-	
+
 	memset( &dfa, 0, sizeof( pregex_dfa ) );
 
 	/* Perform subset construction algorithm */
@@ -234,16 +234,16 @@ int pregex_finalize( pregex* regex )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_free()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Frees a pregex-structure and resets it.
-					
+
 	Parameters:		pregex*			regex		Pointer to a pregex-structure,
 												that will be reset.
-																	
+
 	Returns:		void
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	16.11.2011	Jan Max Meyer	Switched this function to new regular expression
@@ -291,14 +291,14 @@ void pregex_free( pregex* regex )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_match()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Performs a regular expression search with a pre-compiled
 					regex on a string, and returns an array of matches via a
 					pregex_result-structure, which holds pointers to the begin-
 					and end-addresses of the matches.
-					
+
 	Parameters:		pregex*			regex		Pointer to a pre-compiled
 												regex state regex.
 					uchar*			str			Pointer to input string where
@@ -319,14 +319,14 @@ void pregex_free( pregex* regex )
 												after usage. It will even hold
 												the accepting IDs of the
 												matching expressions.
-																	
+
 	Returns:		int							Returns the amount of matches,
 												which is the amount of items
 												within the returned
-												results-array. If the 
+												results-array. If the
 												value is negative,
 												it is an error define.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
@@ -356,7 +356,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 
 	if( !IS_EXECUTABLE( regex->stat ) )
 		RETURN( ERR_UNIMPL );
-	
+
 	if( results )
 		*results = (pregex_result*)NULL;
 
@@ -375,24 +375,24 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 			match = pregex_dfa_match( &( regex->machine.dfa ), pstr,
 						&len, &anchors, (pregex_result**)NULL, (int*)NULL,
 							regex->flags );
-	
+
 		if( match >= 0 && pregex_check_anchors( str, pstr, len,
 							anchors, regex->flags ) )
 		{
 			MSG( "pregex_nfa_match found a match!" );
 			VARS( "match", "%d", match );
 			VARS( "len", "%ld", len );
-			
+
 			if( results || fn )
-			{							
+			{
 				memset( &tmp_result, 0, sizeof( pregex_result ) );
-		
+
 				tmp_result.accept = match;
 				tmp_result.begin = pstr;
 				tmp_result.end = pstr + len;
 				tmp_result.pbegin = (pchar*)pstr;
 				tmp_result.pend = (pchar*)pstr + len;
-			
+
 				if( regex->flags & REGEX_MOD_WCHAR )
 					tmp_result.pos = (pchar*)pstr - (pchar*)str;
 				else
@@ -401,13 +401,13 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 				tmp_result.len = len;
 				VARS( "len of result", "%ld", tmp_result.len );
 			}
-			
+
 			if( fn )
 			{
 				MSG( "Calling callback-function" );
 				match = (*fn)( &tmp_result );
 			}
-			
+
 			VARS( "match", "%d", match );
 			if( match >= 0 )
 			{
@@ -427,7 +427,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 
 					if( !*results )
 						RETURN( ERR_MEM );
-					
+
 					memcpy( *results + matches, &tmp_result,
 								sizeof( pregex_result ) );
 				}
@@ -458,7 +458,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 
 				if( !( regex->flags & REGEX_MOD_GLOBAL ) )
 					break;
-				
+
 				continue;
 			}
 		}
@@ -483,12 +483,12 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 	Function:		pregex_split()
 
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Performs a regular expression with a pre-compiled regex
 					on a string and uses the expression as separator; All
 					strings that where split are returned as results-array.
-					
-					
+
+
 	Parameters:		pregex*			regex		Pointer to a pre-compiled
 												regex state regex.
 					uchar*			str			Searchstring the pattern
@@ -506,14 +506,14 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 												and end-pointer to the
 												related strings within the
 												input-string str.
-																	
+
 	Returns:		int							Returns the amount of matches,
 												which is the amount of items
 												within the returned
-												results-array. If the 
+												results-array. If the
 												value is negative,
 												it is an error define.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
@@ -562,7 +562,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 							anchors, regex->flags ) )
 		{
 			MSG( "Write information into temporary result structure" );
-			
+
 			if( fn )
 			{
 				memset( &tmp_result, 0, sizeof( pregex_result ) );
@@ -578,11 +578,11 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 					tmp_result.pos = (pchar*)pstr - (pchar*)str;
 				else
 					tmp_result.pos = pstr - str;
-			
+
 				MSG( "Calling callback-function" );
 				match = (*fn)( &tmp_result );
 			}
-			
+
 			VARS( "match", "%d", match );
 			if( match >= 0 )
 			{
@@ -598,7 +598,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 												*  sizeof( pregex_result ) );
 				if( !*results )
 					RETURN( ERR_MEM );
-					
+
 				(*results)[ matches ].accept = match;
 				(*results)[ matches ].begin = prev;
 				(*results)[ matches ].end = pstr;
@@ -611,7 +611,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 				}
 				else
 				{
-					(*results)[ matches ].pos = prev - str;	
+					(*results)[ matches ].pos = prev - str;
 					(*results)[ matches ].len = pstr - prev;
 				}
 				(*results)[ matches ].user = tmp_result.user;
@@ -636,7 +636,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 					pstr += pstrlen( pstr );
 					break;
 				}
-			
+
 				continue;
 			}
 		}
@@ -652,7 +652,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 #endif
 		}
 	}
-	
+
 	/* Put last one if required! */
 	if( prev != pstr )
 	{
@@ -681,27 +681,27 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 		}
 		else
 		{
-			(*results)[ matches ].pos = prev - str;	
+			(*results)[ matches ].pos = prev - str;
 			(*results)[ matches ].len = pstr - prev;
 		}
 
 		matches++;
 	}
-	
+
 	VARS( "matches", "%d", matches );
 	RETURN( matches );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_replace()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Replaces all matches of a regular expression pattern within
 					a string with the replacement. Backreferences can be used
-					with $x for each opening bracket within the regular 
+					with $x for each opening bracket within the regular
 					expression.
-					
+
 	Parameters:		pregex*			regex		The regular expression
 												pattern
 					uchar*			str			String the pattern
@@ -727,11 +727,11 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 					uchar**			result		Returns a pointer to the result
 												string. This must be freed by
 												the caller after its use.
-																	
+
 	Returns:		int							Returns the amount of matches.
 												If the value is negative,
 												it is an error define.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
@@ -808,7 +808,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 					tmp_result.pos = (pchar*)pstr - (pchar*)str;
 				else
 					tmp_result.pos = pstr - str;
-				
+
 				MSG( "Calling callback-function" );
 				if( (*fn)( &tmp_result ) < 0 )
 				{
@@ -822,17 +822,17 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 #endif
 					continue;
 				}
-				
+
 				/* An alternative replacement string can be saved into the
-					regex_result-structure's user-pointer */					
+					regex_result-structure's user-pointer */
 				use_replacement = (uchar*)tmp_result.user;
 			}
-			
+
 			matches++;
 
 			if( !use_replacement )
 				use_replacement = replacement;
-		
+
 			if( regex->flags & REGEX_MOD_NO_REFERENCES )
 			{
 				MSG( "No references wanted by caller" );
@@ -868,18 +868,18 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 								_rpstr = end;
 
 								/* Extend first from prev of replacement */
-								if( !( replace = (uchar*)Pstr_append_nchar(
+								if( !( replace = (uchar*)Pstrncatstr(
 										(pchar*)replace, (pchar*)rprev,
 											(pchar*)rbegin - (pchar*)rprev ) ) )
 									RETURN( ERR_MEM );
 
 								VARS( "replace", "%ls", (pchar*)replace );
-								
+
 								VARS( "refs[ ref ].pbegin", "%p",
 										refs[ ref ].pbegin );
 								VARS( "refs[ ref ].pend", "%p",
 										refs[ ref ].pend );
-										
+
 								VARS( "ref", "%d", ref );
 
 								/* Obtain reference information */
@@ -891,12 +891,12 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 									VARS( "len", "%d",
 										refs[ ref ].pend - refs[ ref ].pbegin );
 
-									if( !( replace = (uchar*)Pstr_append_nchar(
+									if( !( replace = (uchar*)Pstrncatstr(
 											(pchar*)replace, refs[ ref ].pbegin,
 												refs[ ref ].len ) ) )
 										RETURN( ERR_MEM );
 								}
-								
+
 								VARS( "replace", "%ls", (pchar*)replace );
 								rprev = rpstr = (uchar*)_rpstr;
 							}
@@ -925,12 +925,12 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 									RETURN( ERR_MEM );
 
 								VARS( "replace", "%s", replace );
-								
+
 								VARS( "refs[ ref ].begin", "%p",
 										refs[ ref ].begin );
 								VARS( "refs[ ref ].end", "%p",
 										refs[ ref ].end );
-										
+
 								VARS( "ref", "%d", ref );
 
 								/* Obtain reference information */
@@ -947,8 +947,8 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 											refs[ ref ].len ) ) )
 										RETURN( ERR_MEM );
 								}
-								
-								VARS( "replace", "%s", replace );						
+
+								VARS( "replace", "%s", replace );
 								rprev = rpstr;
 							}
 						}
@@ -963,7 +963,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 				if( regex->flags & REGEX_MOD_WCHAR )
 				{
 					if( rpstr != rprev &&
-							!( replace = (uchar*)Pstr_append_str(
+							!( replace = (uchar*)Pstrcatstr(
 									(pchar*)replace, (pchar*)rprev, FALSE ) ) )
 						RETURN( ERR_MEM );
 				}
@@ -980,32 +980,32 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 			if( regex->flags & REGEX_MOD_WCHAR )
 			{
 				MSG( "Switching to wide-character mode" );
-				VARS( "replace", "%ls", replace );		
-				
+				VARS( "replace", "%ls", replace );
+
 				/* Extend result */
-				if( !( *result = (uchar*)Pstr_append_nchar(
+				if( !( *result = (uchar*)Pstrncatstr(
 						(pchar*)*result, (pchar*)prev,
 							(pchar*)pstr - (pchar*)prev ) ) )
 					RETURN( ERR_MEM );
 
-				if( !( *result = (uchar*)Pstr_append_str( (pchar*)*result,
+				if( !( *result = (uchar*)Pstrcatstr( (pchar*)*result,
 						(pchar*)replace,( ( replace == use_replacement )
 								? FALSE : TRUE ) ) ) )
 					RETURN( ERR_MEM );
-				
+
 				VARS( "len", "%d", len );
 				VARS( "pstr", "%ls", (pchar*)pstr );
 
 				pstr += len * charsize;
 				prev = pstr;
-				
+
 				VARS( "my pstr", "%ls", (pchar*)pstr );
 			}
 			else
 			{
 				MSG( "Switching to byte-character mode" );
-				VARS( "replace", "%s", replace );		
-				
+				VARS( "replace", "%s", replace );
+
 				/* Extend result */
 				if( !( *result = pstr_append_nchar(
 						*result, prev, pstr - prev ) ) )
@@ -1014,7 +1014,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 				if( !( *result = pstr_append_str( *result, replace,
 						( ( replace == use_replacement ) ? FALSE : TRUE ) ) ) )
 					RETURN( ERR_MEM );
-				
+
 				VARS( "len", "%d", len );
 				VARS( "pstr", "%s", pstr );
 
@@ -1025,10 +1025,10 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 				pstr += len;
 #endif
 				prev = pstr;
-				
+
 				VARS( "my pstr", "%s", pstr );
 			}
-			
+
 			if( !( regex->flags & REGEX_MOD_GLOBAL ) )
 				break;
 		}
@@ -1044,14 +1044,14 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 #endif
 		}
 	}
-	
+
 	if( refs_cnt )
 		pfree( refs );
 
 	if( regex->flags & REGEX_MOD_WCHAR )
 	{
 		VARS( "*result", "%s", *result );
-		if( prev != pstr && !( *result = (uchar*)Pstr_append_str(
+		if( prev != pstr && !( *result = (uchar*)Pstrcatstr(
 						(pchar*)*result, (pchar*)prev, FALSE ) ) )
 			RETURN( ERR_MEM );
 

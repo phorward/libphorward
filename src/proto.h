@@ -143,41 +143,39 @@ uchar* pdouble_to_uchar( pdouble d );
 pchar* pdouble_to_pchar( pdouble d );
 
 /* string/string.c */
-uchar* pstr_append_char( uchar* str, wchar chr );
-uchar* pstr_append_str( uchar* dest, uchar* src, boolean freesrc );
-uchar* pstr_append_nchar( uchar* str, uchar* append, psize num );
-uchar* pstr_replace( uchar* str, uchar* find, uchar* replace );
-uchar* pstrzero( uchar* str );
-uchar* psetstr( uchar** str, uchar* val );
-char* pgetstr( char* str );
+uchar* pstrcatchar( uchar* str, wchar chr );
+uchar* pstrcatstr( uchar* dest, uchar* src, boolean freesrc );
+uchar* pstrncatstr( uchar* str, uchar* append, psize n );
+uchar* pstrreplace( uchar* str, uchar* find, uchar* replace );
 uchar* pstrdup( uchar* str );
 uchar* pstrndup( uchar* str, psize len );
 psize pstrlen( uchar* str );
 int psprintf( uchar* res, uchar* fmt, ... );
 int pvasprintf( uchar** str, uchar* fmt, va_list ap );
 uchar* pasprintf( uchar* fmt, ... );
+uchar* psetstr( uchar** str, uchar* val );
+char* pgetstr( char* str );
 long patol( uchar* str );
 double patof( uchar* str );
 int patoi( uchar* str );
-uchar* pstr_render( uchar* tpl, ... );
-uchar* pstr_strip( uchar* str );
-char* pstr_ltrim( char* s );
-char* pstr_rtrim( char* s );
-char* pstr_trim( char* s );
-int pstr_tok( uchar*** tokens, uchar* str, uchar* sep, int limit );
+uchar* pstrrender( uchar* tpl, ... );
+char* pstrltrim( char* s );
+char* pstrrtrim( char* s );
+char* pstrtrim( char* s );
+int pstrsplit( uchar*** tokens, uchar* str, uchar* sep, int limit );
 uchar* pstrupr( uchar* str );
 uchar* pstrlwr( uchar* str );
 int pstrcasecmp( uchar* s1, uchar* s2 );
 int pstrncasecmp( uchar* s1, uchar* s2, pint n );
-int pstr_char( wchar* retc, uchar *str, pboolean escapeseq );
+int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq );
 #ifdef UNICODE
 pchar* Pstrdup( pchar* str );
 int Psprintf( pchar* res, pchar* fmt, ... );
 int Pvasprintf( pchar** str, pchar* fmt, va_list ap );
 pchar* Pasprintf( pchar* fmt, ... );
-pchar* Pstr_append_char( pchar* str, wchar chr );
-pchar* Pstr_append_str( pchar* dest, pchar* src, boolean freesrc );
-pchar* Pstr_append_nchar( pchar* str, pchar* append, psize num );
+pchar* Pstrcatchar( pchar* str, wchar chr );
+pchar* Pstrcatstr( pchar* dest, pchar* src, boolean freesrc );
+pchar* Pstrncatstr( pchar* str, pchar* append, psize num );
 psize Pstrlen( pchar* str );
 #endif
 

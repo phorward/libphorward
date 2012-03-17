@@ -11,6 +11,8 @@ SCRIPTS = pdbgmake pdoc pdostounix pinclude pproto premcomments
 
 all: $(SCRIPTS)
 
+include ../Install.inc
+
 install: $(SCRIPTS)
 	for i in $(SCRIPTS); do cp $$i $(INSTPATH_BIN); done
 

@@ -58,6 +58,8 @@ clean:
 	-rm $(PROTOFILE)
 	-rm $(LIBHEADER)
 
+include ../Install.inc
+
 install: $(LIBPHORWARD) $(INSTPATH_LIB) $(INSTPATH_INC)
 	cp $(LIBPHORWARD) $(INSTPATH_LIB)
 	cp $(LIBHEADER) $(INSTPATH_INC)

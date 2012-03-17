@@ -571,86 +571,98 @@ struct _regex_result
 
 #ifdef UNICODE
 
-#define Pstrcpy					wcscpy
-#define Pstrcat					wcscat
-#define Pstrncpy				wcsncpy
-#define Pstrcmp					wcscmp
-#define Pstrncmp				wcsncmp	
-#define Pstrtol					wcstol
-#define Pstrtoul				wcstoul
-#define Pstrtod					wcstod
-#define Pstrstr					wcsstr
-#define Pstrchr					wcschr
-#define Pstrrchr				wcsrchr
+#define Pstrcpy							wcscpy
+#define Pstrcat							wcscat
+#define Pstrncpy						wcsncpy
+#define Pstrcmp							wcscmp
+#define Pstrncmp						wcsncmp
+#define Pstrtol							wcstol
+#define Pstrtoul						wcstoul
+#define Pstrtod							wcstod
+#define Pstrstr							wcsstr
+#define Pstrchr							wcschr
+#define Pstrrchr						wcsrchr
 
-#define Pisupper				iswupper
-#define Pislower				iswlower
-#define Ptoupper				towupper
-#define Ptolower				towlower
-#define Pisdigit				iswdigit
-#define Pisblank				iswblank
-#define Pisalnum				iswalnum
-#define Pisalpha				iswalpha
+#define Pisupper						iswupper
+#define Pislower						iswlower
+#define Ptoupper						towupper
+#define Ptolower						towlower
+#define Pisdigit						iswdigit
+#define Pisblank						iswblank
+#define Pisalnum						iswalnum
+#define Pisalpha						iswalpha
 
 #else
 
 
-#define Pstrlen					pstrlen
-#define Pstrcpy					pstrcpy
-#define Pstrcat					pstrcat
-#define Pstrncpy				pstrncpy
-#define Pstrcmp					pstrcmp
-#define Pstrncmp				pstrncmp
-#define Pstrtol					pstrtol
-#define Pstrtoul				pstrtoul
-#define Pstrtod					pstrtoud
-#define Pstrchr					pstrchr
-#define Pstrrchr				pstrrchr
-#define Pstrstr					pstrstr
+#define Pstrlen							pstrlen
+#define Pstrcpy							pstrcpy
+#define Pstrcat							pstrcat
+#define Pstrncpy						pstrncpy
+#define Pstrcmp							pstrcmp
+#define Pstrncmp						pstrncmp
+#define Pstrtol							pstrtol
+#define Pstrtoul						pstrtoul
+#define Pstrtod							pstrtoud
+#define Pstrchr							pstrchr
+#define Pstrrchr						pstrrchr
+#define Pstrstr							pstrstr
 
-#define Pisupper				pisupper
-#define Pislower				pislower
-#define Ptoupper				ptoupper
-#define Ptolower				ptolower
-#define Pisdigit				pisdigit
-#define Pisblank				pisblank
-#define Pisalnum				pisalnum
-#define Pisalpha				pisalpha
+#define Pisupper						pisupper
+#define Pislower						pislower
+#define Ptoupper						ptoupper
+#define Ptolower						ptolower
+#define Pisdigit						pisdigit
+#define Pisblank						pisblank
+#define Pisalnum						pisalnum
+#define Pisalpha						pisalpha
 
 
-#define Pstrlen					pstrlen
-#define Psprintf				psprintf
-#define Pstrdup					pstrdup
-#define Pstr_append_str			pstr_append_str
-#define Pstr_append_char 		pstr_append_char
-#define Pstr_append_nchar 		pstr_append_nchar
-#define Pvasprintf				pvasprintf
-#define Pasprintf				pasprintf
+#define Pstrlen							pstrlen
+#define Psprintf						psprintf
+#define Pstrdup							pstrdup
+#define Pstrcatstr						pstrcatstr
+#define Pstrcatchar 					pstrcatchar
+#define Pstrncatstr 					pstrncatchar
+#define Pvasprintf						pvasprintf
+#define Pasprintf						pasprintf
 
 #endif
 
 
-#define pstrcmp( s1, s2 )		strcmp( pstrzero( s1 ), pstrzero( s2 ) )
-#define pstrncmp( s1, s2, n )	strncmp( pstrzero( s1 ), pstrzero( s2 ), n )
-#define pstrcpy( s1, s2 )		strcpy( s1, pstrzero( s2 ) )
-#define pstrncpy( s1, s2, n )	strncpy( s1, pstrzero( s2 ), n )
-#define pstrstr( s1, s2 )		strstr( s1, pstrzero( s2 ) )
-#define pstrtok( s1, s2 )		strtok( s1, s2 )
-#define pstrchr( s1, ch )		strchr( s1, ch )
-#define pstrrchr( s1, ch )		strrchr( s1, ch )
-#define pstrcat( s1, s2 )		strcat( s1, s2 )
-#define pstrtol( s, p, b )		strtol( s, p, b )
-#define pstrtoul( s, p, b )		strtoul( s, p, b )
-#define pstrtod( s, p )			strtod( s, p )
+#define pstrcmp( s1, s2 )				strcmp( pgetstr( s1 ), pgetstr( s2 ) )
+#define pstrncmp( s1, s2, n )			strncmp( pgetstr( s1 ), pgetstr( s2 ), n )
+#define pstrcpy( s1, s2 )				strcpy( s1, pgetstr( s2 ) )
+#define pstrncpy( s1, s2, n )			strncpy( s1, pgetstr( s2 ), n )
+#define pstrstr( s1, s2 )				strstr( s1, pgetstr( s2 ) )
+#define pstrchr( s1, ch )				strchr( s1, ch )
+#define pstrrchr( s1, ch )				strrchr( s1, ch )
+#define pstrcat( s1, s2 )				strcat( s1, pgetstr( s2 ) )
+#define pstrtol( s, p, b )				strtol( pgetstr( s ), p, b )
+#define pstrtoul( s, p, b )				strtoul( pgetstr( s ), p, b )
+#define pstrtod( s, p )					strtod( pgetstr( s ), p )
 
-#define pisupper( c )			isupper( c )
-#define pislower( c )			islower( c )
-#define ptoupper( c )			toupper( c )
-#define ptolower( c )			tolower( c )
-#define pisdigit( c )			isdigit( c )
-#define pisblank( c )			isblank( c )
-#define pisalnum( c )			isalnum( c )
-#define pisalpha( c )			isalpha( c )
+#define pisupper( c )					isupper( c )
+#define pislower( c )					islower( c )
+#define ptoupper( c )					toupper( c )
+#define ptolower( c )					tolower( c )
+#define pisdigit( c )					isdigit( c )
+#define pisblank( c )					isblank( c )
+#define pisalnum( c )					isalnum( c )
+#define pisalpha( c )					isalpha( c )
+
+
+#define pstrzero( s )					pgetstr( s )
+#define pstr_append_char(s, c )			pstrcatchar( s, c )
+#define pstr_append_str( s, c, d )		pstrcatstr( s, c, d )
+#define pstr_append_nchar( s, c, n )	pstrncatstr( s, c, n )
+#define	pstr_replace( s, f, r )			pstrreplace( s, f, r )
+#define	pstr_render						pstrrender
+#define pstr_ltrim( s )					pstrltrim( s )
+#define pstr_rtrim( s )					pstrrtrim( s )
+#define pstr_trim( s )					pstrtrim( s )
+#define pstr_tok( t, s, d, m )			pstrsplit( t, s, d, m )
+#define pstr_char( r, s, e )			pstrparsechar( r, s, e )
 
 #endif
 
@@ -990,41 +1002,39 @@ uchar* pdouble_to_uchar( pdouble d );
 pchar* pdouble_to_pchar( pdouble d );
 
 
-uchar* pstr_append_char( uchar* str, wchar chr );
-uchar* pstr_append_str( uchar* dest, uchar* src, boolean freesrc );
-uchar* pstr_append_nchar( uchar* str, uchar* append, psize num );
-uchar* pstr_replace( uchar* str, uchar* find, uchar* replace );
-uchar* pstrzero( uchar* str );
-uchar* psetstr( uchar** str, uchar* val );
-char* pgetstr( char* str );
+uchar* pstrcatchar( uchar* str, wchar chr );
+uchar* pstrcatstr( uchar* dest, uchar* src, boolean freesrc );
+uchar* pstrncatstr( uchar* str, uchar* append, psize n );
+uchar* pstrreplace( uchar* str, uchar* find, uchar* replace );
 uchar* pstrdup( uchar* str );
 uchar* pstrndup( uchar* str, psize len );
 psize pstrlen( uchar* str );
 int psprintf( uchar* res, uchar* fmt, ... );
 int pvasprintf( uchar** str, uchar* fmt, va_list ap );
 uchar* pasprintf( uchar* fmt, ... );
+uchar* psetstr( uchar** str, uchar* val );
+char* pgetstr( char* str );
 long patol( uchar* str );
 double patof( uchar* str );
 int patoi( uchar* str );
-uchar* pstr_render( uchar* tpl, ... );
-uchar* pstr_strip( uchar* str );
-char* pstr_ltrim( char* s );
-char* pstr_rtrim( char* s );
-char* pstr_trim( char* s );
-int pstr_tok( uchar*** tokens, uchar* str, uchar* sep, int limit );
+uchar* pstrrender( uchar* tpl, ... );
+char* pstrltrim( char* s );
+char* pstrrtrim( char* s );
+char* pstrtrim( char* s );
+int pstrsplit( uchar*** tokens, uchar* str, uchar* sep, int limit );
 uchar* pstrupr( uchar* str );
 uchar* pstrlwr( uchar* str );
 int pstrcasecmp( uchar* s1, uchar* s2 );
 int pstrncasecmp( uchar* s1, uchar* s2, pint n );
-int pstr_char( wchar* retc, uchar *str, pboolean escapeseq );
+int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq );
 #ifdef UNICODE
 pchar* Pstrdup( pchar* str );
 int Psprintf( pchar* res, pchar* fmt, ... );
 int Pvasprintf( pchar** str, pchar* fmt, va_list ap );
 pchar* Pasprintf( pchar* fmt, ... );
-pchar* Pstr_append_char( pchar* str, wchar chr );
-pchar* Pstr_append_str( pchar* dest, pchar* src, boolean freesrc );
-pchar* Pstr_append_nchar( pchar* str, pchar* append, psize num );
+pchar* Pstrcatchar( pchar* str, wchar chr );
+pchar* Pstrcatstr( pchar* dest, pchar* src, boolean freesrc );
+pchar* Pstrncatstr( pchar* str, pchar* append, psize num );
 psize Pstrlen( pchar* str );
 #endif
 

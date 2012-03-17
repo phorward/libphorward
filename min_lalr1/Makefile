@@ -14,6 +14,8 @@ all: $(MIN_LALR1)
 $(MIN_LALR1): min_lalr1.c
 	$(CC) $(CFLAGS) -o $@ $+
 
+include ../Install.inc
+
 install: $(MIN_LALR1) $(INSTPATH_BIN)
 	cp $(MIN_LALR1) $(INSTPATH_BIN)
 
