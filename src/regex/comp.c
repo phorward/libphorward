@@ -920,7 +920,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 								rpstr = end;
 
 								/* Extend first from prev of replacement */
-								if( !( replace = pstr_append_nchar( replace,
+								if( !( replace = pstrncatstr( replace,
 											rprev, rbegin - rprev ) ) )
 									RETURN( ERR_MEM );
 
@@ -942,7 +942,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 									VARS( "len", "%d",
 										refs[ ref ].end - refs[ ref ].begin );
 
-									if( !( replace = pstr_append_nchar(
+									if( !( replace = pstrncatstr(
 										replace, refs[ ref ].begin,
 											refs[ ref ].len ) ) )
 										RETURN( ERR_MEM );
@@ -969,7 +969,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 				}
 				else
 				{
-					if( rpstr != rprev && !( replace = pstr_append_str(
+					if( rpstr != rprev && !( replace = pstrcatstr(
 												replace, rprev, FALSE ) ) )
 						RETURN( ERR_MEM );
 				}
@@ -1007,11 +1007,11 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 				VARS( "replace", "%s", replace );
 
 				/* Extend result */
-				if( !( *result = pstr_append_nchar(
+				if( !( *result = pstrncatstr(
 						*result, prev, pstr - prev ) ) )
 					RETURN( ERR_MEM );
 
-				if( !( *result = pstr_append_str( *result, replace,
+				if( !( *result = pstrcatstr( *result, replace,
 						( ( replace == use_replacement ) ? FALSE : TRUE ) ) ) )
 					RETURN( ERR_MEM );
 
@@ -1059,7 +1059,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 	}
 	else
 	{
-		if( prev != pstr && !( *result = pstr_append_str(
+		if( prev != pstr && !( *result = pstrcatstr(
 						*result, prev, FALSE ) ) )
 			RETURN( ERR_MEM );
 	}

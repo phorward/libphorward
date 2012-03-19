@@ -819,7 +819,7 @@ char* pstrltrim( char* s )
 {
 	char*	c;
 
-	PROC( "pstr_ltrim" );
+	PROC( "pstrltrim" );
 	PARMS( "s", "%s", pgetstr( s ) );
 
 	if( !( s && *s ) )
@@ -854,7 +854,7 @@ char* pstrrtrim( char* s )
 {
 	char*	c;
 
-	PROC( "pstr_rtrim" );
+	PROC( "pstrrtrim" );
 	PARMS( "s", "%s", pgetstr( s ) );
 
 	if( !( s && *s ) )
@@ -887,7 +887,7 @@ char* pstrrtrim( char* s )
 ----------------------------------------------------------------------------- */
 char* pstrtrim( char* s )
 {
-	PROC( "pstr_trim" );
+	PROC( "pstrtrim" );
 	PARMS( "s", "%s", pgetstr( s ) );
 
 	if( !( s && *s ) )
@@ -895,7 +895,7 @@ char* pstrtrim( char* s )
 		RETURN( pgetstr( s ) );
 	}
 
-	s = pstr_ltrim( pstr_rtrim( s ) );
+	s = pstrltrim( pstrrtrim( s ) );
 
 	RETURN( s );
 }

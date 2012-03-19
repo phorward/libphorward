@@ -45,7 +45,7 @@ OBJ	=	$(patsubst %.c, %$(OBJEXT), $(SRC))
 
 # ---
 
-all: $(LIBPHORWARD)
+all: $(LIBPHORWARD) $(LIBHEADER)
 
 $(LIBPHORWARD): $(VAR_GET) $(VAR_SET) $(VAR_CONV) \
 					$(PROTOFILE) $(LIBHEADER) $(OBJ)
