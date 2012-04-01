@@ -102,8 +102,10 @@ typedef int 					pboolean;	/* Phorward Boolean */
  * Path separator
  */
 #ifndef _WIN32
+#define PDIRSEP					':'
 #define PPATHSEP				'/'
 #else
+#define PDIRSEP					';'
 #define PPATHSEP				'\\'
 #endif
 

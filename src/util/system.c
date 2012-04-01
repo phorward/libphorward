@@ -27,6 +27,71 @@ Usage:	System functions for various usages.
  */
 
 /* -FUNCTION--------------------------------------------------------------------
+	Function:		pwhich()
+	
+	Author:			Jan Max Meyer
+	
+	Usage:			Figures out a filepath by searching in a PATH definition.
+					
+	Parameters:		uchar*		filename		The filename to be searched for.
+					uchar*		directories		A string specifying the
+												directories to search in.
+												If this is (char*)NULL, the
+												environment variable PATH will
+												be used and evaluated,
+												depending on the current
+												platform.
+
+
+	Returns:		uchar*						Static pointer to the absolute
+												path that contains the file
+												specifed as filename, else
+												it will return (char*)NULL.
+  
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+uchar* pwhich( uchar* filename, uchar* directories )
+{
+	static uchar	path	[ BUFSIZ + 1 ];
+	uchar*			start;
+	uchar*			end;
+
+	if( !( filename && *filename ) )
+	{
+		WRONGPARAM;
+		return (char*)NULL;
+	}
+
+	if( !directories )
+		directories = getenv( "PATH" );
+	
+	start = directories;
+	while( start && *start )
+	{
+		if( !( end = strchr( start, PDIRSEP ) ) )
+			end = start + pstrlen( start );
+
+		if( ( end - start ) + pstrlen( filename ) <= BUFSIZ )
+		{
+			sprintf( path, "%.*s%c%s",
+				( end - start ) - ( ( *( end - 1 ) == PPATHSEP ) ? 1 : 0 ),
+					start, PPATHSEP, filename );
+
+			if( pfileexists( path ) )
+				return path;
+		}
+
+		if( ! *end )
+			break;
+
+		start = end + 1;
+	}
+
+	return (uchar*)NULL;
+}
+
+/* -FUNCTION--------------------------------------------------------------------
 	Function:		pbasename()
 	
 	Author:			Jan Max Meyer

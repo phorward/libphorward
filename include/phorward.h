@@ -88,8 +88,10 @@ typedef int 					pboolean;
 
 
 #ifndef _WIN32
+#define PDIRSEP					':'
 #define PPATHSEP				'/'
 #else
+#define PDIRSEP					';'
 #define PPATHSEP				'\\'
 #endif
 
@@ -1062,6 +1064,7 @@ pint to_base64( uchar** outstream, uchar* instream, psize size );
 pint from_base64( uchar** outstream, psize* outsize, uchar* instream );
 
 
+uchar* pwhich( uchar* filename, uchar* directories );
 uchar* pbasename( uchar* path );
 pboolean pfileexists( uchar* filename );
 int map_file( char** cont, uchar* filename );
