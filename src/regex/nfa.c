@@ -49,7 +49,7 @@ Usage:	NFA creation and executable functions
 												the chardef-parameter.
 
 	Returns:		pregex_nfa_st*				Pointer to the created state.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -77,7 +77,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 			RETURN( (pregex_nfa_st*)NULL );
 		}
 	}
-	
+
 	/* Initialize */
 	memset( ptr, 0, sizeof( pregex_nfa_st ) );
 	pregex_accept_init( &( ptr->accept ) );
@@ -103,16 +103,16 @@ pregex_nfa_st* pregex_nfa_create_state(
 			MSG( "Out of memory error" );
 			RETURN( (pregex_nfa_st*)NULL );
 		}
-		
+
 		/* Is case-insensitive flag set? */
-		if( flags & REGEX_MOD_INSENSITIVE )
+		if( flags & PREGEX_MOD_INSENSITIVE )
 		{
 			CCL		iccl	= (CCL)NULL;
 			CCL		c;
 			wchar	ch;
 			wchar	cch;
-			
-			MSG( "REGEX_MOD_INSENSITIVE set" );
+
+			MSG( "PREGEX_MOD_INSENSITIVE set" );
 			for( c = ptr->ccl; c && c->begin != CCL_MAX; c++ )
 			{
 				for( ch = c->begin; ch <= c->end; ch++ )
@@ -128,19 +128,19 @@ pregex_nfa_st* pregex_nfa_create_state(
 						RETURN( (pregex_nfa_st*)NULL );
 				}
 			}
-			
+
 			if( !( ptr->ccl = ccl_union( ptr->ccl, iccl ) ) )
 			{
 				ccl_free( iccl );
 				RETURN( (pregex_nfa_st*)NULL );
 			}
-			
+
 			ccl_free( iccl );
 		}
 
 		VARS( "ptr->ccl", "%p", ptr->ccl );
 	}
-	
+
 	RETURN( ptr );
 }
 
@@ -156,7 +156,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 					pregex_nfa*	nfa			Pointer to the NFA to be output.
 
 	Returns:		void
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -177,7 +177,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 			list_find( nfa->states, (void*)s->next ),
 			list_find( nfa->states, (void*)s->next2 ),
 			s->accept.accept, s->ref, s->accept.anchors );
-		
+
 		if( s->ccl )
 			ccl_print( stderr, s->ccl, 0 );
 		fprintf( stderr, "\n\n" );
@@ -197,7 +197,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 											freed and reset.
 
 	Returns:		void
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -230,7 +230,7 @@ void pregex_nfa_free( pregex_nfa* nfa )
 
 	list_free( nfa->states );
 	list_free( nfa->empty );
-	
+
 	memset( nfa, 0, sizeof( pregex_nfa ) );
 
 	VOIDRET;
@@ -255,7 +255,7 @@ void pregex_nfa_free( pregex_nfa* nfa )
 	Returns:		LIST*		Pointer to the result of the move operation.
 								If this is (LIST*)NULL, there is no possible
 								transition on the given input character.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
@@ -296,7 +296,7 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 
 	VARS( "hits", "%p", hits );
 	VARS( "hits count", "%d", list_count( hits ) );
-	
+
 	RETURN( hits );
 }
 
@@ -315,7 +315,7 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 
 	Returns:		LIST*		Pointer to the result of the epsilon closure
 								(a new set of NFA states)
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
@@ -352,10 +352,10 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 	{
 		stack = list_pop( stack, (void**)&top );
 
-		if( accept && top->accept.accept != REGEX_ACCEPT_NONE )
+		if( accept && top->accept.accept != PREGEX_ACCEPT_NONE )
 		{
 			if( !last_accept || last_accept->accept.accept >
-									top->accept.accept )			
+									top->accept.accept )
 				last_accept = top;
 		}
 
@@ -388,7 +388,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 
 		accept->greedy = last_accept->accept.greedy;
 		VARS( "accept->greedy", "%s", BOOLEAN_STR( accept->greedy ) );
-		
+
 		accept->anchors = last_accept->accept.anchors;
 		VARS( "accept->anchors", "%d", accept->anchors );
 	}
@@ -419,11 +419,11 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 											ence array. This array is only
 											allocated if the following dependen
 											cies are met:
-											
+
 											1. The NFA has references
 											2. ref_count is zero
 											3. ref points to a pregex_result*
-											
+
 					int*			ref_count Retrieves the number of
 											references.
 											This value MUST be zero, if the
@@ -435,10 +435,10 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 					int				flags	Flags to modify regular expression
 											behavior.
 
-	Returns:		int						REGEX_ACCEPT_NONE, if no match was
+	Returns:		int						PREGEX_ACCEPT_NONE, if no match was
 											found, else the number of the
 											bestmost (=longes) match.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -450,14 +450,14 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	pregex_nfa_st*	st;
 	uchar*			pstr		= str;
 	psize			plen		= 0;
-	int				last_accept = REGEX_ACCEPT_NONE;
+	int				last_accept = PREGEX_ACCEPT_NONE;
 	int				rc;
 	pchar			ch;
 	pregex_accept	accept;
 
 	PROC( "pregex_nfa_match" );
 	PARMS( "nfa", "%p", nfa );
-	if( flags & REGEX_MOD_WCHAR )
+	if( flags & PREGEX_MOD_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
@@ -476,7 +476,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 
 	*len = 0;
 	if( anchors )
-		*anchors = REGEX_ANCHOR_NONE;
+		*anchors = PREGEX_ANCHOR_NONE;
 
 	res = list_push( res, list_access( nfa->states ) );
 
@@ -485,7 +485,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	{
 		MSG( "Performing epsilon closure" );
 		res = pregex_nfa_epsilon_closure( nfa, res, &accept );
-		
+
 		MSG( "Handling References" );
 		if( ref && nfa->ref_count )
 		{
@@ -505,7 +505,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 		}
 
 		VARS( "accept.accept", "%d", accept.accept );
-		if( accept.accept > REGEX_ACCEPT_NONE )
+		if( accept.accept > PREGEX_ACCEPT_NONE )
 		{
 			MSG( "New accepting state takes place!" );
 			last_accept = accept.accept;
@@ -517,10 +517,10 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 			VARS( "last_accept", "%d", last_accept );
 			VARS( "*len", "%d", *len );
 
-			if( !( flags & REGEX_MOD_GREEDY ) )
+			if( !( flags & PREGEX_MOD_GREEDY ) )
 			{
 				VARS( "accept.greedy", "%s", BOOLEAN_STR( accept.greedy ) );
-				if(	!accept.greedy || ( flags & REGEX_MOD_NONGREEDY ) )
+				if(	!accept.greedy || ( flags & PREGEX_MOD_NONGREEDY ) )
 				{
 					MSG( "Greedy is set, will stop recognition with "
 							"this match" );
@@ -529,7 +529,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 			}
 		}
 
-		if( flags & REGEX_MOD_WCHAR )
+		if( flags & PREGEX_MOD_WCHAR )
 		{
 			VARS( "pstr", "%ls", (pchar*)pstr );
 			ch = *((pchar*)pstr);
@@ -549,7 +549,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 
 		res = pregex_nfa_move( nfa, res, ch, ch );
 
-		if( flags & REGEX_MOD_WCHAR )
+		if( flags & PREGEX_MOD_WCHAR )
 		{
 			pstr += sizeof( pchar );
 		}
@@ -565,7 +565,7 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 		plen++;
 		VARS( "plen", "%ld", plen );
 	}
-	
+
 	VARS( "*len", "%d", *len );
 	VARS( "last_accept", "%d", last_accept );
 	RETURN( last_accept );
@@ -573,24 +573,24 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_nfa_from_string()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Builds or extends an NFA from a string. The string is
 					simply converted into a state machine that exactly matches
 					the desired string.
-					
+
 	Parameters:		pregex_nfa*		nfa			Pointer to the NFA state machine
 												to be extended.
 					uchar*			str			The sequence of chatacters to
 												be converted one-to-one into an
 												NFA.
-					int				flags		Flags 
+					int				flags		Flags
 					int				acc			Acceping identifier
-																	
+
 	Returns:		int							ERR_OK on success,
 												ERR... error code else
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -613,7 +613,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 		RETURN( ERR_PARMS );
 
 	/* For wide-character execution, copy string content */
-	if( flags & REGEX_MOD_WCHAR )
+	if( flags & PREGEX_MOD_WCHAR )
 	{
 		if( !( str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
 			return ERR_MEM;
@@ -648,7 +648,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 			RETURN( ERR_MEM );
 
 		/* Is case-insensitive flag set? */
-		if( flags & REGEX_MOD_INSENSITIVE )
+		if( flags & PREGEX_MOD_INSENSITIVE )
 		{
 #ifdef UTF8
 			MSG( "UTF-8 mode, trying to convert" );
@@ -689,8 +689,8 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 		append_to->next2 = first_nfa_st;
 
 	/* Free copied string, in wide character mode */
-	if( flags & REGEX_MOD_WCHAR )
+	if( flags & PREGEX_MOD_WCHAR )
 		pfree( str );
-		
+
 	RETURN( ERR_OK );
 }

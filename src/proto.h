@@ -79,15 +79,6 @@ int ccl_compare( CCL first, CCL second );
 CCL ccl_intersect( CCL first, CCL second );
 CCL ccl_diff( CCL first, CCL second );
 
-/* regex/comp.c */
-void pregex_init( pregex* regex, int flags );
-int pregex_compile( pregex* regex, uchar* pattern, int accept );
-int pregex_finalize( pregex* regex );
-void pregex_free( pregex* regex );
-int pregex_match( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
-int pregex_split( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
-int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_callback fn, uchar** result );
-
 /* regex/dfa.c */
 void pregex_dfa_print( FILE* stream, pregex_dfa* dfa );
 void pregex_dfa_free( pregex_dfa* dfa );
@@ -127,6 +118,17 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec );
 int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn );
 int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern, pregex_accept* accept );
 int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept, uchar* str, int flags );
+
+/* regex/pregex.c */
+pregex* pregex_create( void );
+pregex* pregex_free( pregex* regex );
+int pregex_compile( pregex* regex, uchar* pattern, int accept );
+int pregex_finalize( pregex* regex );
+int pregex_match( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
+int pregex_split( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
+int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_callback fn, uchar** result );
+int pregex_get_flags( pregex* regex );
+BOOLEAN pregex_set_flags( pregex* regex, int flags );
 
 /* regex/ref.c */
 int pregex_ref_init( pregex_result** ref, int* ref_count, int ref_all, int flags );

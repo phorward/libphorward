@@ -23,12 +23,12 @@ SRC = 	\
 		base/memory.c \
 		base/stack.c \
 		ccl/ccl.c \
-		regex/comp.c \
 		regex/dfa.c \
 		regex/direct.c \
 		regex/misc.c \
 		regex/nfa.c \
 		regex/pattern.c \
+		regex/pregex.c \
 		regex/ref.c \
 		string/convert.c \
 		string/string.c \

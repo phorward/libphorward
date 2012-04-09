@@ -400,37 +400,33 @@ struct _crange
 
 
 
-#define REGEX_ACCEPT_NONE		-1
+#define PREGEX_ACCEPT_NONE		-1
 
-#define REGEX_ALLOC_STEP		16
-
-
-#define REGEX_STAT_NONE			0
-#define REGEX_STAT_NFA			1
-#define REGEX_STAT_DFA			2
+#define PREGEX_ALLOC_STEP		16
 
 
-#define REGEX_MOD_NONE			0	
-#define REGEX_MOD_WCHAR			1	
-#define REGEX_MOD_INSENSITIVE	2	
-#define REGEX_MOD_GLOBAL		4	
-#define REGEX_MOD_STATIC_STRING	8	
-#define REGEX_MOD_NO_REFERENCES	16	
-#define REGEX_MOD_NO_ERRORS		32	
-#define REGEX_MOD_NO_ANCHORS	64	
-#define REGEX_MOD_GREEDY		128	
-#define REGEX_MOD_NONGREEDY		256	
+#define PREGEX_STAT_NONE			0
+#define PREGEX_STAT_NFA			1
+#define PREGEX_STAT_DFA			2
 
 
-#define REGEX_ANCHOR_NONE		0	
-#define REGEX_ANCHOR_BOL		1	
-#define REGEX_ANCHOR_EOL		2	
-#define REGEX_ANCHOR_BOW		4	
-#define REGEX_ANCHOR_EOW		8	
+#define PREGEX_MOD_NONE			0	
+#define PREGEX_MOD_WCHAR		1	
+#define PREGEX_MOD_INSENSITIVE	2	
+#define PREGEX_MOD_GLOBAL		4	
+#define PREGEX_MOD_STATIC		8	
+#define PREGEX_MOD_NO_REF		16	
+#define PREGEX_MOD_NO_ERRORS	32	
+#define PREGEX_MOD_NO_ANCHORS	64	
+#define PREGEX_MOD_GREEDY		128	
+#define PREGEX_MOD_NONGREEDY	256	
 
-#ifndef PRIVATE
-#define PRIVATE static
-#endif
+
+#define PREGEX_ANCHOR_NONE		0	
+#define PREGEX_ANCHOR_BOL		1	
+#define PREGEX_ANCHOR_EOL		2	
+#define PREGEX_ANCHOR_BOW		4	
+#define PREGEX_ANCHOR_EOW		8	
 
 
 typedef CCL						pregex_ccl;
@@ -452,9 +448,7 @@ typedef	struct	_regex_result	pregex_result;
 
 
 typedef	int 					(*pregex_callback)( pregex_result* );
-#define REGEX_NO_CALLBACK		( (pregex_callback)NULL )
-
-
+#define PREGEX_NO_CALLBACK		( (pregex_callback)NULL )
 
 
 struct _regex_accept
@@ -471,16 +465,16 @@ struct _regex_nfa_st
 	pregex_nfa_st*	next2;		
 
 	int				ref;		
-	
+
 	pregex_accept	accept;		
 };
 
 struct _regex_nfa
-{	
+{
 	LIST*			states;		
 	LIST*			empty;		
 	pbyte			modifiers;	
-	
+
 	int				ref_count;	
 	int				ref_cur;	
 };
@@ -527,7 +521,7 @@ struct _regex_ptn
 {
 	pregex_ptntype	type;		
 	CCL				ccl;		
-	
+
 	pregex_ptn*		child[ 2 ];	
 	pregex_ptn*		next;		
 };
@@ -928,15 +922,6 @@ CCL ccl_intersect( CCL first, CCL second );
 CCL ccl_diff( CCL first, CCL second );
 
 
-void pregex_init( pregex* regex, int flags );
-int pregex_compile( pregex* regex, uchar* pattern, int accept );
-int pregex_finalize( pregex* regex );
-void pregex_free( pregex* regex );
-int pregex_match( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
-int pregex_split( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
-int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_callback fn, uchar** result );
-
-
 void pregex_dfa_print( FILE* stream, pregex_dfa* dfa );
 void pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
@@ -975,6 +960,17 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec );
 int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn );
 int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern, pregex_accept* accept );
 int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept, uchar* str, int flags );
+
+
+pregex* pregex_create( void );
+pregex* pregex_free( pregex* regex );
+int pregex_compile( pregex* regex, uchar* pattern, int accept );
+int pregex_finalize( pregex* regex );
+int pregex_match( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
+int pregex_split( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
+int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_callback fn, uchar** result );
+int pregex_get_flags( pregex* regex );
+BOOLEAN pregex_set_flags( pregex* regex, int flags );
 
 
 int pregex_ref_init( pregex_result** ref, int* ref_count, int ref_all, int flags );

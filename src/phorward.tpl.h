@@ -128,7 +128,7 @@ typedef int 					pboolean;	/* Phorward Boolean */
 #include "base/hashtab.h"
 #include "base/stack.h"
 #include "ccl/ccl.h"
-#include "regex/regex.h"
+#include "regex/pregex.h"
 #include "string/string.h"
 #include "string/utf8.h"
 #include "variant/var.h"

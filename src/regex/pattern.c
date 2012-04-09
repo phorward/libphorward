@@ -119,7 +119,7 @@ pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
 	}
 
 	/* Convert string to UTF-8, if in wide-character mode */
-	if( flags & REGEX_MOD_WCHAR )
+	if( flags & PREGEX_MOD_WCHAR )
 	{
 		if( !( str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
 			RETURN( (pregex_ptn*)NULL );
@@ -137,7 +137,7 @@ pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
 			RETURN( (pregex_ptn*)NULL );
 
 		/* Is case-insensitive flag set? */
-		if( flags & REGEX_MOD_INSENSITIVE )
+		if( flags & PREGEX_MOD_INSENSITIVE )
 		{
 #ifdef UTF8
 			MSG( "UTF-8 mode, trying to convert" );
@@ -170,7 +170,7 @@ pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
 	}
 
 	/* Free duplicated string */
-	if( flags & REGEX_MOD_WCHAR )
+	if( flags & PREGEX_MOD_WCHAR )
 		pfree( str );
 
 	RETURN( seq );
@@ -776,9 +776,9 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 
 			case PREGEX_PTN_CHAR:
 				n_start = pregex_nfa_create_state( nfa,
-							(char*)NULL, REGEX_MOD_NONE );
+							(char*)NULL, PREGEX_MOD_NONE );
 				n_end = pregex_nfa_create_state( nfa,
-							(uchar*)NULL, REGEX_MOD_NONE );
+							(uchar*)NULL, PREGEX_MOD_NONE );
 
 				n_start->ccl = ccl_dup( pattern->ccl );
 				n_start->next = n_end;
@@ -802,9 +802,9 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				pregex_nfa_st*	a_end;
 
 				n_start = pregex_nfa_create_state( nfa,
-							(char*)NULL, REGEX_MOD_NONE );
+							(char*)NULL, PREGEX_MOD_NONE );
 				n_end = pregex_nfa_create_state( nfa,
-							(uchar*)NULL, REGEX_MOD_NONE );
+							(uchar*)NULL, PREGEX_MOD_NONE );
 
 				if( ( ret = pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
 						&a_start, &a_end ) ) != ERR_OK )
@@ -830,9 +830,9 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				pregex_nfa_st*	m_end;
 
 				n_start = pregex_nfa_create_state( nfa,
-							(char*)NULL, REGEX_MOD_NONE );
+							(char*)NULL, PREGEX_MOD_NONE );
 				n_end = pregex_nfa_create_state( nfa,
-							(uchar*)NULL, REGEX_MOD_NONE );
+							(uchar*)NULL, PREGEX_MOD_NONE );
 
 				if( ( ret = pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
 								&m_start, &m_end ) ) != ERR_OK )
@@ -939,7 +939,7 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 
 	/* Create first epsilon node */
 	if( !( first = pregex_nfa_create_state( nfa,
-			(uchar*)NULL, REGEX_MOD_NONE ) ) )
+			(uchar*)NULL, PREGEX_MOD_NONE ) ) )
 		RETURN( ERR_MEM );
 
 	/* Turn pattern into NFA */
@@ -981,7 +981,7 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 												(pregex_accept*)NULL.
 					uchar*			str			Pointer to the string that
 												defines the pattern. If
-												REGEX_MOD_WCHAR is assigned as
+												PREGEX_MOD_WCHAR is assigned as
 												flags, this pointer must be
 												set to a pchar-array holding
 												wide-character strings.
@@ -1016,11 +1016,11 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 	if( accept )
 	{
 		accept->greedy = TRUE;
-		accept->anchors = REGEX_ANCHOR_NONE;
+		accept->anchors = PREGEX_ANCHOR_NONE;
 	}
 
-	/* If REGEX_MOD_STATIC_STRING is set, parsing is not required! */
-	if( flags & REGEX_MOD_STATIC_STRING )
+	/* If PREGEX_MOD_STATIC is set, parsing is not required! */
+	if( flags & PREGEX_MOD_STATIC )
 	{
 		if( !( *ptn = pregex_ptn_create_string( str, flags ) ) )
 			RETURN( ERR_MEM );
@@ -1030,7 +1030,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 
 	/* Copy input string - this is required,
 		because of memory modification during the parse */
-	if( flags & REGEX_MOD_WCHAR )
+	if( flags & PREGEX_MOD_WCHAR )
 	{
 		if( !( ptr = str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
 			RETURN( ERR_MEM );
@@ -1044,19 +1044,19 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 	VARS( "ptr", "%s", ptr );
 
 	/* Parse anchor at begin of regular expression */
-	if( accept && !( flags & REGEX_MOD_NO_ANCHORS ) )
+	if( accept && !( flags & PREGEX_MOD_NO_ANCHORS ) )
 	{
 		MSG( "Anchors at begin" );
 
 		if( *ptr == '^' )
 		{
-			accept->anchors |= REGEX_ANCHOR_BOL;
+			accept->anchors |= PREGEX_ANCHOR_BOL;
 			ptr++;
 		}
 		else if( !pstrncmp( ptr, "\\<", 2 ) )
 			/* This is a GNU-like extension */
 		{
-			accept->anchors |= REGEX_ANCHOR_BOW;
+			accept->anchors |= PREGEX_ANCHOR_BOW;
 			ptr += 2;
 		}
 	}
@@ -1071,14 +1071,14 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 	VARS( "ptr", "%s", ptr );
 
 	/* Parse anchor at end of regular expression */
-	if( accept && !( flags & REGEX_MOD_NO_ANCHORS ) )
+	if( accept && !( flags & PREGEX_MOD_NO_ANCHORS ) )
 	{
 		MSG( "Anchors at end" );
 		if( !pstrcmp( ptr, "$" ) )
-			accept->anchors |= REGEX_ANCHOR_EOL;
+			accept->anchors |= PREGEX_ANCHOR_EOL;
 		else if( !pstrcmp( ptr, "\\>" ) )
 			/* This is a GNU-style extension */
-			accept->anchors |= REGEX_ANCHOR_EOW;
+			accept->anchors |= PREGEX_ANCHOR_EOW;
 	}
 
 	/* Free duplicated string */
@@ -1114,7 +1114,7 @@ static int parse_char( pregex_ptn** ptn, uchar** pstr,
 			if( !( *ptn = pregex_ptn_create_sub( alter ) ) )
 				return ERR_MEM;
 
-			if( **pstr != ')' && !( flags & REGEX_MOD_NO_ERRORS ) )
+			if( **pstr != ')' && !( flags & PREGEX_MOD_NO_ERRORS ) )
 				return 1;
 
 			INC( *pstr );
@@ -1233,7 +1233,7 @@ static int parse_sequence( pregex_ptn** ptn, uchar** pstr,
 
 	while( !( **pstr == '|' || **pstr == ')' || **pstr == '\0' ) )
 	{
-		if( !( flags & REGEX_MOD_NO_ANCHORS ) )
+		if( !( flags & PREGEX_MOD_NO_ANCHORS ) )
 		{
 			if( !pstrcmp( *pstr, "$" ) || !pstrcmp( *pstr, "\\>" ) )
 				break;

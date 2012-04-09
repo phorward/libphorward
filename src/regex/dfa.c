@@ -38,7 +38,7 @@ void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
 	{
 		s = (pregex_dfa_st*)list_access( l );
 		fprintf( stream, "*** STATE %d (accepts %d, ref_cnt %d, anchors %d)\n",
-			list_find( dfa->states, (void*)s ), s->accept.accept, 
+			list_find( dfa->states, (void*)s ), s->accept.accept,
 				s->ref_cnt, s->accept.anchors );
 
 		if( s->ref_cnt )
@@ -88,7 +88,7 @@ static void pregex_dfa_delete_state( pregex_dfa_st* st )
 {
 	LIST*			l;
 	pregex_dfa_tr*	tr;
-	
+
 	for( l = st->trans; l; l = list_next( l ) )
 	{
 		tr = (pregex_dfa_tr*)list_access( l );
@@ -109,14 +109,14 @@ static pregex_dfa_st* pregex_dfa_get_undone_state( pregex_dfa* dfa )
 {
 	LIST*			l;
 	pregex_dfa_st*	ptr;
-	
+
 	for( l = dfa->states; l; l = list_next( l ) )
 	{
 		ptr = (pregex_dfa_st*)list_access( l );
 		if( !ptr->done )
 			return ptr;
 	}
-		
+
 	return (pregex_dfa_st*)NULL;
 }
 
@@ -135,22 +135,22 @@ static int pregex_dfa_same_transitions( pregex_dfa* dfa, LIST* trans )
 		if( list_diff( ptr->nfa_set, trans ) )
 			return list_find( dfa->states, (void*)ptr );
 	}
-	
+
 	return -1;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_dfa_free()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Frees and resets a DFA state machine.
-					
+
 	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
 												to be reset.
-																	
+
 	Returns:		void
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -171,7 +171,7 @@ void pregex_dfa_free( pregex_dfa* dfa )
 		LISTFOR( dfa_st->trans, m )
 		{
 			tr = (pregex_dfa_tr*)list_access( m );
-			
+
 			ccl_free( tr->ccl );
 			pfree( tr );
 		}
@@ -192,21 +192,21 @@ void pregex_dfa_free( pregex_dfa* dfa )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_dfa_default_trans()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Performs a check on all DFA state transitions to
 					figure out the default transition for every dfa state.
 					The default-transition is only filled, when any
-					character of the entire character-range results in a 
+					character of the entire character-range results in a
 					transition, and is set to the transition with the most
 					characters in its class.
-					
+
 					For example, the regex "[^\"]*" causes a dfa-state
 					with two transitions: On '"', go to state x, on
 					every character other than '"', go to state y.
 					y will be selected as default state.
-					
+
 	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
 												that will be constructed by
 												this function. The pointer
@@ -215,11 +215,11 @@ void pregex_dfa_free( pregex_dfa* dfa )
 					pregex_nfa*	nfa				Pointer to the NFA-Machine
 												where the DFA-machine should
 												be constructed from.
-																	
+
 	Returns:		>= 0						The number of DFA states
 												that where constructed.
 					ERR_...						ERR_*-define on error.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -263,19 +263,19 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_dfa_collect_ref()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Collects all references by the NFA-states forming a
 					DFA-state, and puts them into an dynamically allocated
 					array for later re-use.
-					
+
 	Parameters:		pregex_dfa_st*	nfa			DFA-state, for which
 												references shall be collected.
 
 	Returns:		ERR_OK						On success.
 					ERR_...						ERR_*-define on error.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -308,10 +308,10 @@ static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 
 				if( !st->ref )
 					st->ref = (int*)pmalloc(
-								REGEX_ALLOC_STEP * sizeof( int ) );
-				else if( st->ref_cnt % REGEX_ALLOC_STEP )
-					st->ref = (int*)prealloc( (void*)st->ref, 
-								( st->ref_cnt + REGEX_ALLOC_STEP )
+								PREGEX_ALLOC_STEP * sizeof( int ) );
+				else if( st->ref_cnt % PREGEX_ALLOC_STEP )
+					st->ref = (int*)prealloc( (void*)st->ref,
+								( st->ref_cnt + PREGEX_ALLOC_STEP )
 									* sizeof( int ) );
 
 				if( !st->ref )
@@ -321,18 +321,18 @@ static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 			}
 		}
 	}
-				
+
 	RETURN( ERR_OK );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_dfa_from_nfa()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Turns a NFA-state machine into a DFA-state machine using
 					the subset-construction algorithm.
-					
+
 	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
 												that will be constructed by
 												this function. The pointer
@@ -341,11 +341,11 @@ static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 					pregex_nfa*	nfa				Pointer to the NFA-Machine
 												where the DFA-machine should
 												be constructed from.
-																	
+
 	Returns:		>= 0						The number of DFA states
 												that where constructed.
 					ERR_...						ERR_*-define on error.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.01.2011	Jan Max Meyer	Removed bug; The lowest accepting ID takes
@@ -382,10 +382,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 	/* Initialize */
 	memset( dfa, 0, sizeof( pregex_dfa ) );
-	
+
 	if( !( current = pregex_dfa_create_state( dfa ) ) )
 		RETURN( ERR_MEM );
-	
+
 	/* Set starting seed */
 	if( !( set = list_push( (LIST*)NULL, list_access( nfa->states ) ) ) )
 		RETURN( ERR_MEM );
@@ -398,7 +398,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	while( ( current = pregex_dfa_get_undone_state( dfa ) ) )
 	{
 		current->done = TRUE;
-		current->accept.accept = REGEX_ACCEPT_NONE;
+		current->accept.accept = PREGEX_ACCEPT_NONE;
 
 		/* Assemble all character sets in the alphabet list */
 		classes = (LIST*)NULL;
@@ -407,10 +407,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		{
 			nfa_st = (pregex_nfa_st*)list_access( item );
 
-			if( nfa_st->accept.accept > REGEX_ACCEPT_NONE )
+			if( nfa_st->accept.accept > PREGEX_ACCEPT_NONE )
 			{
 				MSG( "NFA is an accepting state" );
-				if( current->accept.accept == REGEX_ACCEPT_NONE
+				if( current->accept.accept == PREGEX_ACCEPT_NONE
 					|| current->accept.accept >= nfa_st->accept.accept )
 				{
 					MSG( "Copying accept information" );
@@ -428,16 +428,16 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				MSG( "Adding character class to list" );
 				if( !( ccl = ccl_dup( nfa_st->ccl ) ) )
 					RETURN( ERR_MEM );
-					
+
 				if( !( classes = list_push( classes, (void*)ccl ) ) )
 					RETURN( ERR_MEM );
-					
+
 				VARS( "count (classes)", "%d", list_count( classes ) );
 			}
 		}
-		
+
 		VARS( "current->accept", "%d", current->accept );
-		
+
 		MSG( "Removing intersections within character classes" );
 		do
 		{
@@ -451,9 +451,9 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				{
 					if( l == m )
 						continue;
-						
+
 					test = (CCL)list_access( m );
-					
+
 					if( ccl_count( ccl ) > ccl_count( test ) )
 						continue;
 
@@ -472,18 +472,18 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					ccl_free( subset );
 				}
 			}
-			
+
 			VARS( "changed", "%s", BOOLEAN_STR( changed ) );
 		}
 		while( changed );
-		
+
 		MSG( "Make transitions on constructed alphabet" );
 		/* Make transitions on constructed alphabet */
 		LISTFOR( classes, l )
 		{
 			ccl = (CCL)list_access( l );
 
-			MSG( "Check char class" );			
+			MSG( "Check char class" );
 			for( i = ccl; i && i->begin != CCL_MAX; i++ )
 			{
 				VARS( "i->begin", "%d", i->begin );
@@ -491,14 +491,14 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 				if( !( transitions = list_dup( current->nfa_set ) ) )
 					RETURN( ERR_MEM );
-				
+
 				if( ( transitions = pregex_nfa_move(
 						nfa, transitions, i->begin, i->end ) ) )
 				{
 					transitions = pregex_nfa_epsilon_closure(
 						nfa, transitions, (pregex_accept*)NULL );
 				}
-					
+
 				if( !transitions )
 				{
 					/* There is no move on this character! */
@@ -520,7 +520,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					/* Create a new DFA as undone with this transition! */
 					if( !( tmp = pregex_dfa_create_state( dfa ) ) )
 						RETURN( ERR_MEM );
-				
+
 					tmp->nfa_set = transitions;
 					transitions = (LIST*)NULL;
 
@@ -535,7 +535,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				for( tr = current->trans; tr; tr = list_next( tr ) )
 				{
 					trans = (pregex_dfa_tr*)list_access( tr );
-				
+
 					if( trans->go_to == state_next )
 						break;
 				}
@@ -578,7 +578,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 		list_free( classes );
 	}
-	
+
 	/* Remove NFA structs */
 	for( item = dfa->states; item; item = list_next( item ) )
 	{
@@ -591,26 +591,26 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 	/* Maximum number of references does not change */
 	dfa->ref_count = nfa->ref_count;
-	
+
 	RETURN( list_count( dfa->states ) );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_dfa_equal_trans()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Checks for transition equality within two dfa states.
 
 	Parameters:		pregex_dfa*		dfa			Pointer to DFA machine
 					LIST*			groups		List of DFA groups
 					pregex_dfa_st*	first		First state to check
 					pregex_dfa_st*	second		Second state to check
-																	
+
 	Returns:		pboolean					TRUE if both states are
 												totally equal,
 												FALSE else.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -672,9 +672,9 @@ static pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_dfa_minimize()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Minimizes a DFA to lesser states by grouping
 					equivalent states to new states, and transforming
 					transitions to them.
@@ -684,11 +684,11 @@ static pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
 												The content of dfa will be
 												replaced with the reduced
 												machine.
-																	
+
 	Returns:		>= 0						The number of DFA states
 												that where constructed.
 					ERR_...						ERR_*-define on error.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -859,10 +859,10 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 					int*		len			Length of the match, -1 on error or
 											no match.
 
-	Returns:		int						REGEX_ACCEPT_NONE, if no match was
+	Returns:		int						PREGEX_ACCEPT_NONE, if no match was
 											found, else the number of the
 											bestmost (=longes) match.
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
@@ -881,7 +881,7 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 
 	PROC( "pregex_dfa_match" );
 	PARMS( "dfa", "%p", dfa );
-	if( flags & REGEX_MOD_WCHAR )
+	if( flags & PREGEX_MOD_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
@@ -893,7 +893,7 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 
 	/* Initialize! */
 	if( anchors )
-		*anchors = REGEX_ANCHOR_NONE;
+		*anchors = PREGEX_ANCHOR_NONE;
 
 	if( ( i = pregex_ref_init( ref, ref_count, dfa->ref_count, flags ) )
 			!= ERR_OK )
@@ -907,17 +907,17 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 		MSG( "At begin of loop" );
 
 		VARS( "dfa_st->accept.accept", "%d", dfa_st->accept.accept );
-		if( dfa_st->accept.accept > REGEX_ACCEPT_NONE )
+		if( dfa_st->accept.accept > PREGEX_ACCEPT_NONE )
 		{
 			MSG( "This state has an accept" );
 			last_accept = dfa_st;
 			*len = plen;
 
-			if( !( flags & REGEX_MOD_GREEDY ) )
+			if( !( flags & PREGEX_MOD_GREEDY ) )
 			{
 				VARS( "last_accept->accept.greedy", "%s",
 					BOOLEAN_STR( last_accept->accept.greedy ) );
-				if(	!last_accept->accept.greedy || ( flags & REGEX_MOD_NONGREEDY ) )
+				if(	!last_accept->accept.greedy || ( flags & PREGEX_MOD_NONGREEDY ) )
 				{
 					MSG( "This match is not greedy, "
 							"so matching will stop now" );
@@ -944,7 +944,7 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 		}
 
 		/* Get next character */
-		if( flags & REGEX_MOD_WCHAR )
+		if( flags & PREGEX_MOD_WCHAR )
 		{
 			VARS( "pstr", "%ls", (pchar*)pstr );
 			ch = *((pchar*)pstr);
@@ -982,7 +982,7 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 		}
 
 		/* Move to next char */
-		if( flags & REGEX_MOD_WCHAR )
+		if( flags & PREGEX_MOD_WCHAR )
 			pstr += sizeof( pchar );
 		else
 		{
@@ -1006,12 +1006,12 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 		*anchors = last_accept->accept.anchors;
 		VARS( "*anchors", "%d", *anchors );
 	}
-	
+
 	VARS( "*len", "%d", *len );
-	VARS( "last_accept->accept.accept", "%d", ( last_accept ? 
+	VARS( "last_accept->accept.accept", "%d", ( last_accept ?
 										last_accept->accept.accept :
-											REGEX_ACCEPT_NONE ) );
-	RETURN( ( last_accept ? last_accept->accept.accept : REGEX_ACCEPT_NONE ) );
+											PREGEX_ACCEPT_NONE ) );
+	RETURN( ( last_accept ? last_accept->accept.accept : PREGEX_ACCEPT_NONE ) );
 }
 
 /*COD_ON*/

@@ -4,9 +4,9 @@ Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See $PHOME/LICENSE for more information.
 
-File:	comp.c
+File:	pregex.c
 Author:	Jan Max Meyer
-Usage:	Compilation of multiple patterns into one state regex structure
+Usage:	The pregex object functions.
 ----------------------------------------------------------------------------- */
 
 /*
@@ -14,50 +14,101 @@ Usage:	Compilation of multiple patterns into one state regex structure
  */
 #include <phorward.h>
 
-#define IS_EXECUTABLE( stat )	( (stat) == REGEX_STAT_NFA || \
-									(stat) == REGEX_STAT_DFA )
-
-/*
- * Global variables
- */
-
+#define IS_EXECUTABLE( stat )	( (stat) == PREGEX_STAT_NFA || \
+									(stat) == PREGEX_STAT_DFA )
 /*
  * Functions
  */
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_init()
+	Function:		pregex_create()
 
 	Author:			Jan Max Meyer
 
-	Usage:			Initializes a pregex-structure. This structure can be used
-					to compile multiple regular expressions into one regex.
+	Usage:			Constructor function to create a new pregex object.
 
-	Parameters:		pregex*			regex		Pointer to a pregex-structure,
-												which will be initizalized for
-												further usage.
-					int				flags		Flags to modifiy compiler- and
-												execution-options. Use the
-												REGEX_MOD_-flags. To specify
-												more than one flag, use the
-												or-operator (|).
+	Parameters:		void
 
-	Returns:		void
+	Returns:		pregex*						Returns an initialized instance
+												of pregex. This can be used and
+												modified with subsequent pregex
+												functions.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-void pregex_init( pregex* regex, int flags )
+pregex* pregex_create( void )
 {
-	PROC( "pregex_init" );
+	pregex*		regex;
+
+	PROC( "pregex_create" );
+
+	regex = (pregex*)pmalloc( sizeof( pregex ) );
+	pregex_set_flags( regex, PREGEX_MOD_GLOBAL );
+
+	RETURN( regex );
+}
+
+/* -FUNCTION--------------------------------------------------------------------
+	Function:		pregex_free()
+
+	Author:			Jan Max Meyer
+
+	Usage:			Destructor function for a pregex-object.
+
+	Parameters:		pregex*			regex		Pointer to a pregex-structure,
+												that will be reset.
+
+	Returns:		pregex*						Always (pregex*)NULL.
+
+	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Date:		Author:			Note:
+----------------------------------------------------------------------------- */
+pregex* pregex_free( pregex* regex )
+{
+	LIST*			l;
+	pregex_ptndef*	def;
+
+	PROC( "pregex_free" );
 	PARMS( "regex", "%p", regex );
 
-	memset( regex, 0, sizeof( pregex ) );
-	regex->stat = REGEX_STAT_NONE;
-	regex->flags = flags;
+	if( !( regex ) )
+	{
+		WRONGPARAM;
+		RETURN( (pregex*)NULL );
+	}
 
-	VOIDRET;
+	/* Freeing the state machine */
+	switch( regex->stat )
+	{
+		case PREGEX_STAT_NFA:
+			pregex_nfa_free( &( regex->machine.nfa ) );
+			break;
+
+		case PREGEX_STAT_DFA:
+			pregex_dfa_free( &( regex->machine.dfa ) );
+			break;
+
+		default:
+			break;
+	}
+
+	/* Freeing the pattern definitions */
+	LISTFOR( regex->defs, l )
+	{
+		def = (pregex_ptndef*)list_access( l );
+
+		pregex_ptn_free( def->pattern );
+		pfree( def );
+	}
+
+	regex->defs = list_free( regex->defs );
+
+	pfree( regex );
+
+	RETURN( (pregex*)NULL );
 }
+
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_compile()
@@ -95,8 +146,8 @@ int pregex_compile( pregex* regex, uchar* pattern, int accept )
 	PARMS( "pattern", "%s", pattern );
 	PARMS( "accept", "%d",accept );
 
-	if( !( regex->stat == REGEX_STAT_NONE
-			|| regex->stat == REGEX_STAT_NFA ) )
+	if( !( regex->stat == PREGEX_STAT_NONE
+			|| regex->stat == PREGEX_STAT_NFA ) )
 	{
 		MSG( "The regex is not inizialized or already turned into DFA!" );
 		RETURN( ERR_FAILURE );
@@ -118,11 +169,11 @@ int pregex_compile( pregex* regex, uchar* pattern, int accept )
 	/* pregex_ptn_print( def->pattern, 0 ); */
 
 	/* Conversion to NFA */
-	if( regex->stat == REGEX_STAT_NONE )
+	if( regex->stat == PREGEX_STAT_NONE )
 	{
 		MSG( "Machine is only self-inizialized yet - inizializing NFA!" );
 		memset( &( regex->machine.nfa ), 0, sizeof( pregex_nfa ) );
-		regex->stat = REGEX_STAT_NFA;
+		regex->stat = PREGEX_STAT_NFA;
 	}
 
 	/*
@@ -165,7 +216,8 @@ int pregex_compile( pregex* regex, uchar* pattern, int accept )
 	Author:			Jan Max Meyer
 
 	Usage:			Finalizes a pregex-compiled regex to a minimized DFA.
-					After finalization, new expressions can't be added.
+					After finalization, new expressions can't be added anymore
+					to the object.
 
 	Parameters:		pregex*			regex		Pointer to a pregex-structure,
 												that will be finalized.
@@ -189,7 +241,7 @@ int pregex_finalize( pregex* regex )
 
 	/* This will be enabled later! */
 
-	if( !( regex->stat == REGEX_STAT_NFA ) )
+	if( !( regex->stat == PREGEX_STAT_NFA ) )
 	{
 		MSG( "The regex must be in compiled state." );
 		RETURN( ERR_FAILURE );
@@ -227,66 +279,9 @@ int pregex_finalize( pregex* regex )
 	pregex_dfa_print( stderr, &dfa );
 	*/
 	memcpy( &( regex->machine.dfa ), &dfa, sizeof( pregex_dfa ) );
-	regex->stat = REGEX_STAT_DFA;
+	regex->stat = PREGEX_STAT_DFA;
 
 	RETURN( ERR_OK );
-}
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_free()
-
-	Author:			Jan Max Meyer
-
-	Usage:			Frees a pregex-structure and resets it.
-
-	Parameters:		pregex*			regex		Pointer to a pregex-structure,
-												that will be reset.
-
-	Returns:		void
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	16.11.2011	Jan Max Meyer	Switched this function to new regular expression
-								pattern definition structures.
------------------------------------------------------------------------------ */
-void pregex_free( pregex* regex )
-{
-	LIST*			l;
-	pregex_ptndef*	def;
-
-	PROC( "pregex_free" );
-	PARMS( "regex", "%p", regex );
-
-	/* Freeing the state machine */
-	switch( regex->stat )
-	{
-		case REGEX_STAT_NFA:
-			pregex_nfa_free( &( regex->machine.nfa ) );
-			break;
-
-		case REGEX_STAT_DFA:
-			pregex_dfa_free( &( regex->machine.dfa ) );
-			break;
-
-		default:
-			break;
-	}
-
-	/* Freeing the pattern definitions */
-	LISTFOR( regex->defs, l )
-	{
-		def = (pregex_ptndef*)list_access( l );
-
-		pregex_ptn_free( def->pattern );
-		pfree( def );
-	}
-
-	regex->defs = list_free( regex->defs );
-
-	/* Resetting the state machine structure */
-	pregex_init( regex, REGEX_MOD_NONE );
-
-	VOIDRET;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -311,7 +306,7 @@ void pregex_free( pregex* regex )
 												to 0. If the return value is
 												negative, the match will be
 												ignored. Use the macro
-												REGEX_NO_CALLBACK to disable a
+												PREGEX_NO_CALLBACK to disable a
 												callback-function usage.
 					pregex_result**	results		Array of results to the
 												matched substrings within
@@ -345,7 +340,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 	PARMS( "regex", "%p", regex );
 
 #ifdef __WITH_TRACE
-	if( regex->flags & REGEX_MOD_WCHAR )
+	if( regex->flags & PREGEX_MOD_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
@@ -362,12 +357,12 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 
 	for( pstr = str; *pstr; )
 	{
-		if( regex->flags & REGEX_MOD_WCHAR )
+		if( regex->flags & PREGEX_MOD_WCHAR )
 			PARMS( "pstr", "%ls", pstr );
 		else
 			PARMS( "pstr", "%s", pstr );
 
-		if( regex->stat == REGEX_STAT_NFA )
+		if( regex->stat == PREGEX_STAT_NFA )
 			match = pregex_nfa_match( &( regex->machine.nfa ), pstr,
 						&len, &anchors, (pregex_result**)NULL, (int*)NULL,
 							regex->flags );
@@ -393,7 +388,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 				tmp_result.pbegin = (pchar*)pstr;
 				tmp_result.pend = (pchar*)pstr + len;
 
-				if( regex->flags & REGEX_MOD_WCHAR )
+				if( regex->flags & PREGEX_MOD_WCHAR )
 					tmp_result.pos = (pchar*)pstr - (pchar*)str;
 				else
 					tmp_result.pos = pstr - str;
@@ -415,14 +410,18 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 				{
 					tmp_result.accept = match;
 
+					/* len could have be changed by the callback function */
+					if( fn && tmp_result.len > len )
+						len = tmp_result.len;
+
 					if( !matches )
-						*results = (pregex_result*)pmalloc( REGEX_ALLOC_STEP
+						*results = (pregex_result*)pmalloc( PREGEX_ALLOC_STEP
 										* sizeof( pregex_result ) );
-					else if( !( matches % REGEX_ALLOC_STEP ) )
+					else if( !( matches % PREGEX_ALLOC_STEP ) )
 						*results = (pregex_result*)prealloc(
 										(pregex_result*)*results,
-										( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
-											* REGEX_ALLOC_STEP )
+										( ( ( matches / PREGEX_ALLOC_STEP ) + 1 )
+											* PREGEX_ALLOC_STEP )
 												*  sizeof( pregex_result ) );
 
 					if( !*results )
@@ -432,7 +431,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 								sizeof( pregex_result ) );
 				}
 
-				if( regex->flags & REGEX_MOD_WCHAR )
+				if( regex->flags & PREGEX_MOD_WCHAR )
 					pstr += len * sizeof( pchar );
 				else
 				{
@@ -448,7 +447,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 				{
 					(*results)[ matches ].end = pstr;
 #ifdef UTF8
-					if( !( regex->flags & REGEX_MOD_WCHAR ) )
+					if( !( regex->flags & PREGEX_MOD_WCHAR ) )
 						(*results)[ matches ].len =
 								pstr - (*results)[ matches ].begin;
 #endif
@@ -456,14 +455,14 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 
 				matches++;
 
-				if( !( regex->flags & REGEX_MOD_GLOBAL ) )
+				if( !( regex->flags & PREGEX_MOD_GLOBAL ) )
 					break;
 
 				continue;
 			}
 		}
 
-		if( regex->flags & REGEX_MOD_WCHAR )
+		if( regex->flags & PREGEX_MOD_WCHAR )
 			pstr += sizeof( pchar );
 		else
 		{
@@ -497,7 +496,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 												is called for each split match.
 												If the return value is negative,
 												the match will be ignored.
-												Use the macro REGEX_NO_CALLBACK
+												Use the macro PREGEX_NO_CALLBACK
 												to disable a callback-function
 												usage.
 					pregex_result**	results		Array of results to the
@@ -532,7 +531,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 	PROC( "pregex_split" );
 	PARMS( "regex", "%p", regex );
 #ifdef __WITH_TRACE
-	if( regex->flags & REGEX_MOD_WCHAR )
+	if( regex->flags & PREGEX_MOD_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
@@ -549,7 +548,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 	{
 		VARS( "pstr", "%s", pstr );
 
-		if( regex->stat == REGEX_STAT_NFA )
+		if( regex->stat == PREGEX_STAT_NFA )
 			match = pregex_nfa_match( &( regex->machine.nfa ), pstr,
 						&len, &anchors, (pregex_result**)NULL, (int*)NULL,
 							regex->flags );
@@ -574,7 +573,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 				tmp_result.pend = (pchar*)pstr + len;
 				tmp_result.len = len;
 
-				if( regex->flags & REGEX_MOD_WCHAR )
+				if( regex->flags & PREGEX_MOD_WCHAR )
 					tmp_result.pos = (pchar*)pstr - (pchar*)str;
 				else
 					tmp_result.pos = pstr - str;
@@ -586,15 +585,19 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 			VARS( "match", "%d", match );
 			if( match >= 0 )
 			{
+				/* len could have be changed by the callback function */
+				if( fn && tmp_result.len > len )
+					len = tmp_result.len;
+
 				if( !matches )
 					*results = (pregex_result*)pmalloc(
-									REGEX_ALLOC_STEP *
+									PREGEX_ALLOC_STEP *
 										sizeof( pregex_result ) );
-				else if( !( matches % REGEX_ALLOC_STEP ) )
+				else if( !( matches % PREGEX_ALLOC_STEP ) )
 					*results = (pregex_result*)prealloc(
 									(pregex_result*)*results,
-										( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
-											* REGEX_ALLOC_STEP )
+										( ( ( matches / PREGEX_ALLOC_STEP ) + 1 )
+											* PREGEX_ALLOC_STEP )
 												*  sizeof( pregex_result ) );
 				if( !*results )
 					RETURN( ERR_MEM );
@@ -604,7 +607,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 				(*results)[ matches ].end = pstr;
 				(*results)[ matches ].pbegin = (pchar*)prev;
 				(*results)[ matches ].pend = (pchar*)pstr;
-				if( regex->flags & REGEX_MOD_WCHAR )
+				if( regex->flags & PREGEX_MOD_WCHAR )
 				{
 					(*results)[ matches ].pos = (pchar*)prev - (pchar*)str;
 					(*results)[ matches ].len = (pchar*)pstr - (pchar*)prev;
@@ -618,7 +621,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 
 				matches++;
 
-				if( regex->flags & REGEX_MOD_WCHAR )
+				if( regex->flags & PREGEX_MOD_WCHAR )
 					pstr += len * sizeof( pchar );
 				else
 				{
@@ -631,7 +634,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 				}
 				prev = pstr;
 
-				if( !( regex->flags & REGEX_MOD_GLOBAL ) )
+				if( !( regex->flags & PREGEX_MOD_GLOBAL ) )
 				{
 					pstr += pstrlen( pstr );
 					break;
@@ -641,7 +644,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 			}
 		}
 
-		if( regex->flags & REGEX_MOD_WCHAR )
+		if( regex->flags & PREGEX_MOD_WCHAR )
 			pstr += sizeof( pchar );
 		else
 		{
@@ -658,12 +661,12 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 	{
 		if( !matches )
 			*results = (pregex_result*)pmalloc(
-							REGEX_ALLOC_STEP * sizeof( pregex_result ) );
-		else if( !( matches % REGEX_ALLOC_STEP ) )
+							PREGEX_ALLOC_STEP * sizeof( pregex_result ) );
+		else if( !( matches % PREGEX_ALLOC_STEP ) )
 			*results = (pregex_result*)prealloc(
 							(pregex_result*)*results,
-								( ( ( matches / REGEX_ALLOC_STEP ) + 1 )
-									* REGEX_ALLOC_STEP )
+								( ( ( matches / PREGEX_ALLOC_STEP ) + 1 )
+									* PREGEX_ALLOC_STEP )
 										*  sizeof( pregex_result ) );
 
 		if( !*results )
@@ -674,7 +677,8 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 		(*results)[ matches ].end = pstr;
 		(*results)[ matches ].pbegin = (pchar*)prev;
 		(*results)[ matches ].pend = (pchar*)pstr;
-		if( regex->flags & REGEX_MOD_WCHAR )
+
+		if( regex->flags & PREGEX_MOD_WCHAR )
 		{
 			(*results)[ matches ].pos = (pchar*)prev - (pchar*)str;
 			(*results)[ matches ].len = (pchar*)pstr - (pchar*)prev;
@@ -721,7 +725,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 												The alternative replacement
 												string can contain reference
 												wildcards, if not disabled.
-												Use the macro REGEX_NO_CALLBACK
+												Use the macro PREGEX_NO_CALLBACK
 												to hand over an empty callback
 												function.
 					uchar**			result		Returns a pointer to the result
@@ -758,32 +762,39 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 
 	PROC( "pregex_replace" );
 	PARMS( "regex", "%p", regex );
-	PARMS( "str", "%s", str );
+	PARMS( "str", "%s", pgetstr( str ) );
+	PARMS( "replacement", "%s", pgetstr( replacement ) );
 	PARMS( "result", "%p", result );
 	PARMS( "fn", "%p", fn );
+
+	if( !( str ) )
+	{
+		WRONGPARAM;
+		RETURN( ERR_PARMS );
+	}
 
 	if( !IS_EXECUTABLE( regex->stat ) )
 		RETURN( ERR_UNIMPL );
 
 	*result = (uchar*)NULL;
 
-	if( regex->flags & REGEX_MOD_WCHAR )
+	if( regex->flags & PREGEX_MOD_WCHAR )
 		charsize = sizeof( pchar );
 
 	for( prev = pstr = str; *pstr; )
 	{
 		VARS( "pstr", "%s", pstr );
 
-		if( regex->stat == REGEX_STAT_NFA )
+		if( regex->stat == PREGEX_STAT_NFA )
 			match = pregex_nfa_match( &( regex->machine.nfa ), pstr,
 						&len, &anchors,
-							( ( regex->flags & REGEX_MOD_NO_REFERENCES ) ?
+							( ( regex->flags & PREGEX_MOD_NO_REF ) ?
 								(pregex_result**)NULL : &refs ), &refs_cnt,
 									regex->flags );
 		else
 			match = pregex_dfa_match( &( regex->machine.dfa ), pstr,
 						&len, &anchors,
-							( ( regex->flags & REGEX_MOD_NO_REFERENCES ) ?
+							( ( regex->flags & PREGEX_MOD_NO_REF ) ?
 								(pregex_result**)NULL : &refs ), &refs_cnt,
 									regex->flags );
 
@@ -804,7 +815,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 				tmp_result.pend = (pchar*)pstr + len;
 				tmp_result.len = len;
 
-				if( regex->flags & REGEX_MOD_WCHAR )
+				if( regex->flags & PREGEX_MOD_WCHAR )
 					tmp_result.pos = (pchar*)pstr - (pchar*)str;
 				else
 					tmp_result.pos = pstr - str;
@@ -833,7 +844,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 			if( !use_replacement )
 				use_replacement = replacement;
 
-			if( regex->flags & REGEX_MOD_NO_REFERENCES )
+			if( regex->flags & PREGEX_MOD_NO_REF )
 			{
 				MSG( "No references wanted by caller" );
 				replace = use_replacement;
@@ -850,7 +861,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 					{
 						rbegin = rpstr;
 
-						if( regex->flags & REGEX_MOD_WCHAR )
+						if( regex->flags & PREGEX_MOD_WCHAR )
 						{
 							pchar*		end;
 							pchar*		_rpstr = (pchar*)rpstr;
@@ -960,7 +971,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 				VARS( "rpstr", "%p", rpstr );
 				VARS( "rprev", "%p", rprev );
 
-				if( regex->flags & REGEX_MOD_WCHAR )
+				if( regex->flags & PREGEX_MOD_WCHAR )
 				{
 					if( rpstr != rprev &&
 							!( replace = (uchar*)Pstrcatstr(
@@ -977,7 +988,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 
 			MSG( "Extend result string" );
 
-			if( regex->flags & REGEX_MOD_WCHAR )
+			if( regex->flags & PREGEX_MOD_WCHAR )
 			{
 				MSG( "Switching to wide-character mode" );
 				VARS( "replace", "%ls", replace );
@@ -1029,12 +1040,12 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 				VARS( "my pstr", "%s", pstr );
 			}
 
-			if( !( regex->flags & REGEX_MOD_GLOBAL ) )
+			if( !( regex->flags & PREGEX_MOD_GLOBAL ) )
 				break;
 		}
 		else
 		{
-			if( regex->flags & REGEX_MOD_WCHAR )
+			if( regex->flags & PREGEX_MOD_WCHAR )
 				pstr += charsize;
 			else
 #ifdef UTF8
@@ -1048,7 +1059,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 	if( refs_cnt )
 		pfree( refs );
 
-	if( regex->flags & REGEX_MOD_WCHAR )
+	if( regex->flags & PREGEX_MOD_WCHAR )
 	{
 		VARS( "*result", "%s", *result );
 		if( prev != pstr && !( *result = (uchar*)Pstrcatstr(
@@ -1067,3 +1078,29 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 	RETURN( matches );
 }
 
+/*
+ * Get- and Set-Functions
+ */
+
+int pregex_get_flags( pregex* regex )
+{
+	if( !( regex ) )
+	{
+		WRONGPARAM;
+		return PREGEX_MOD_NONE;
+	}
+
+	return regex->flags;
+}
+
+BOOLEAN pregex_set_flags( pregex* regex, int flags )
+{
+	if( !( regex && flags >= 0 ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	regex->flags = flags;
+	return TRUE;
+}

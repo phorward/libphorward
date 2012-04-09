@@ -6,54 +6,50 @@ All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	regex.h
 Author:	Jan Max Meyer
-Usage:	Header for regex lib
+Usage:	Header for the pregex object and functions
 ----------------------------------------------------------------------------- */
 
 /* Defines */
-#define REGEX_ACCEPT_NONE		-1
+#define PREGEX_ACCEPT_NONE		-1
 
-#define REGEX_ALLOC_STEP		16
+#define PREGEX_ALLOC_STEP		16
 
 /* Regular expression compile states */
-#define REGEX_STAT_NONE			0
-#define REGEX_STAT_NFA			1
-#define REGEX_STAT_DFA			2
+#define PREGEX_STAT_NONE			0
+#define PREGEX_STAT_NFA			1
+#define PREGEX_STAT_DFA			2
 
 /* Regex Modifiers */
-#define REGEX_MOD_NONE			0	/* No modification (for the sake
+#define PREGEX_MOD_NONE			0	/* No modification (for the sake
 										of completeness) */
-#define REGEX_MOD_WCHAR			1	/* Regular expression and/or search string
+#define PREGEX_MOD_WCHAR		1	/* Regular expression and/or search string
 										for direct pattern executions are
 											of type pchar (wide character,
 												if UNICODE is flagged!) */
-#define REGEX_MOD_INSENSITIVE	2	/* Regular expression is case insensitive */
-#define REGEX_MOD_GLOBAL		4	/* Regular expression is run globally, not
+#define PREGEX_MOD_INSENSITIVE	2	/* Regular expression is case insensitive */
+#define PREGEX_MOD_GLOBAL		4	/* Regular expression is run globally, not
 										only for the first match */
-#define REGEX_MOD_STATIC_STRING	8	/* The regular expression passed for to the
+#define PREGEX_MOD_STATIC		8	/* The regular expression passed for to the
 										compiler should be converted 1:1 as
 											it where a string-constant.
 												Any regex-specific symbols will
 												be ignored! */
-#define REGEX_MOD_NO_REFERENCES	16	/* Don't create references */
-#define REGEX_MOD_NO_ERRORS		32	/* Don't report errors, try to compile as
+#define PREGEX_MOD_NO_REF		16	/* Don't create references */
+#define PREGEX_MOD_NO_ERRORS	32	/* Don't report errors, try to compile as
 										much as possible */
-#define REGEX_MOD_NO_ANCHORS	64	/* Ignore anchor tokens, handle them as
+#define PREGEX_MOD_NO_ANCHORS	64	/* Ignore anchor tokens, handle them as
 										normal characters */
-#define REGEX_MOD_GREEDY		128	/* Parse or run regular expression
+#define PREGEX_MOD_GREEDY		128	/* Parse or run regular expression
 										greedy */
-#define REGEX_MOD_NONGREEDY		256	/* Parse or run regular expression
+#define PREGEX_MOD_NONGREEDY	256	/* Parse or run regular expression
 										nongreedy */
 
 /* Regular Expression anchors */
-#define REGEX_ANCHOR_NONE		0	/* No anchor defined */
-#define REGEX_ANCHOR_BOL		1	/* Begin of line */
-#define REGEX_ANCHOR_EOL		2	/* End of line */
-#define REGEX_ANCHOR_BOW		4	/* Begin of word */
-#define REGEX_ANCHOR_EOW		8	/* End of word */
-
-#ifndef PRIVATE
-#define PRIVATE static
-#endif
+#define PREGEX_ANCHOR_NONE		0	/* No anchor defined */
+#define PREGEX_ANCHOR_BOL		1	/* Begin of line */
+#define PREGEX_ANCHOR_EOL		2	/* End of line */
+#define PREGEX_ANCHOR_BOW		4	/* Begin of word */
+#define PREGEX_ANCHOR_EOW		8	/* End of word */
 
 /* Typedefs */
 typedef CCL						pregex_ccl;
@@ -75,11 +71,9 @@ typedef	struct	_regex_result	pregex_result;
 
 /* Callback-Functions */
 typedef	int 					(*pregex_callback)( pregex_result* );
-#define REGEX_NO_CALLBACK		( (pregex_callback)NULL )
-
+#define PREGEX_NO_CALLBACK		( (pregex_callback)NULL )
 
 /* Structs */
-
 struct _regex_accept
 {
 	int				accept;		/* Accepting state ID */
@@ -95,16 +89,16 @@ struct _regex_nfa_st
 	pregex_nfa_st*	next2;		/* Second following NFA-state */
 
 	int				ref;		/* Reference level depth */
-	
+
 	pregex_accept	accept;		/* Match parameters */
 };
 
 struct _regex_nfa
-{	
+{
 	LIST*			states;		/* List of nfa-states */
 	LIST*			empty;		/* List to pointers of states to be used */
 	pbyte			modifiers;	/* Regex-modifiers */
-	
+
 	int				ref_count;	/* Number of references */
 	int				ref_cur;	/* Current reference */
 };
@@ -156,7 +150,7 @@ struct _regex_ptn
 {
 	pregex_ptntype	type;		/* Pattern state element type */
 	CCL				ccl;		/* Character-class for PREGEX_PTN_CHAR */
-	
+
 	pregex_ptn*		child[ 2 ];	/* Links to child */
 	pregex_ptn*		next;		/* Next sequence element */
 };
@@ -190,7 +184,7 @@ struct _regex_result
 	pchar*			pend;		/* Wide-character end pointer */
 	psize			pos;		/* Position from string begin in bytes */
 	psize			len;		/* Length of result in bytes */
-	int				accept;		/* The ID of the accepting state;	
+	int				accept;		/* The ID of the accepting state;
 									This is only filled in a pattern match */
 	pbyte*			user;		/* User data pointer; This can be set from
 									within callback-functions and is copied
