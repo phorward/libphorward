@@ -737,7 +737,7 @@ uchar* pstrrender( uchar* tpl, ... )
 			break;
 
 		values[vcount].value = va_arg( args, uchar* );
-		values[vcount].clear = va_arg( args, BOOLEAN );
+		values[vcount].clear = (pboolean)va_arg( args, int );
 
 		if( !values[vcount].value )
 		{

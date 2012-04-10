@@ -59,14 +59,14 @@ typedef long					plong;
 typedef size_t					pulong;		
 typedef size_t					psize;		
 
-typedef int 					pboolean;	
+typedef char 					pboolean;	
 #define BOOLEAN					pboolean
 #define boolean 				pboolean
 
-#define BOOLEAN_STR( b ) ( ( b ) ? "TRUE" : "FALSE" )
+#define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
 
-#define TRUE	1
-#define FALSE	0
+#define TRUE					1
+#define FALSE					0
 
 
 #define ERR_OK					0		
@@ -96,11 +96,10 @@ typedef int 					pboolean;
 #endif
 
 
-#define bit_set( val, bit )		( (val) |= (bit) )
-#define bit_unset( val, bit )	( (val) &= ~(bit) )
-#define bit_is_set( val, bit )	( ( (val) & (bit) ) == (bit) )
-#define bit_is_unset( val, bit ) \
- 								( ( (val) & (bit) ) == 0 )
+#define bit_set( val, bit )			( (val) |= (bit) )
+#define bit_unset( val, bit )		( (val) &= ~(bit) )
+#define bit_is_set( val, bit )		( ( (val) & (bit) ) == (bit) )
+#define bit_is_unset( val, bit )	( ( (val) & (bit) ) == 0 )
 
 
 
@@ -405,7 +404,7 @@ struct _crange
 #define PREGEX_ALLOC_STEP		16
 
 
-#define PREGEX_STAT_NONE			0
+#define PREGEX_STAT_NONE		0
 #define PREGEX_STAT_NFA			1
 #define PREGEX_STAT_DFA			2
 
