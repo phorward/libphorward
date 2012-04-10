@@ -15,7 +15,7 @@ Usage:	Header for the pregex object and functions
 #define PREGEX_ALLOC_STEP		16
 
 /* Regular expression compile states */
-#define PREGEX_STAT_NONE			0
+#define PREGEX_STAT_NONE		0
 #define PREGEX_STAT_NFA			1
 #define PREGEX_STAT_DFA			2
 

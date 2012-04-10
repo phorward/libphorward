@@ -36,6 +36,9 @@ Usage:	The pregex object functions.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	09.04.2012	Jan Max Meyer	Removed the function pregex_init() and replaced
+								it with pregex_create(). pregex will now be
+								turned into an object oriented way.
 ----------------------------------------------------------------------------- */
 pregex* pregex_create( void )
 {
@@ -115,8 +118,8 @@ pregex* pregex_free( pregex* regex )
 
 	Author:			Jan Max Meyer
 
-	Usage:			Compiles a regular expression into an NFA within
-					a regex.
+	Usage:			Compiles a regular expression into an pattern and
+					NFA within a regex object.
 
 	Parameters:		pregex*			regex		Pointer to a pregex-structure,
 												that will hold the compiled

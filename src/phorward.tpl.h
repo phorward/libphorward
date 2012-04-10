@@ -67,14 +67,14 @@ typedef long					plong;		/* Long-type */
 typedef size_t					pulong;		/* Unsigned long */
 typedef size_t					psize;		/* Size-type */
 
-typedef int 					pboolean;	/* Phorward Boolean */
+typedef char 					pboolean;	/* Phorward Boolean */
 #define BOOLEAN					pboolean
 #define boolean 				pboolean
 
-#define BOOLEAN_STR( b ) ( ( b ) ? "TRUE" : "FALSE" )
+#define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
 
-#define TRUE	1
-#define FALSE	0
+#define TRUE					1
+#define FALSE					0
 
 /*
  * Generic error codes
@@ -112,11 +112,10 @@ typedef int 					pboolean;	/* Phorward Boolean */
 /*
  * Bitwise value modifiers
  */
-#define bit_set( val, bit )		( (val) |= (bit) )
-#define bit_unset( val, bit )	( (val) &= ~(bit) )
-#define bit_is_set( val, bit )	( ( (val) & (bit) ) == (bit) )
-#define bit_is_unset( val, bit ) \
- 								( ( (val) & (bit) ) == 0 )
+#define bit_set( val, bit )			( (val) |= (bit) )
+#define bit_unset( val, bit )		( (val) &= ~(bit) )
+#define bit_is_set( val, bit )		( ( (val) & (bit) ) == (bit) )
+#define bit_is_unset( val, bit )	( ( (val) & (bit) ) == 0 )
 
 /*
  * Library modules
