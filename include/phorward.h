@@ -446,8 +446,8 @@ typedef struct	_regex			pregex;
 typedef	struct	_regex_result	pregex_result;
 
 
-typedef	int 					(*pregex_callback)( pregex_result* );
-#define PREGEX_NO_CALLBACK		( (pregex_callback)NULL )
+typedef	int 					(*pregex_fn)( pregex*, pregex_result* );
+#define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
 
 struct _regex_accept
@@ -531,20 +531,6 @@ struct _regex_ptndef
 	pregex_accept	accept;		
 };
 
-struct _regex
-{
-	pbyte			stat;		
-
-	LIST*			defs;		
-	union
-	{
-		pregex_nfa	nfa;		
-		pregex_dfa	dfa;		
-	} machine;
-
-	int				flags;		
-};
-
 struct _regex_result
 {
 	uchar*			begin;		
@@ -557,6 +543,23 @@ struct _regex_result
 	pbyte*			user;		
 };
 
+struct _regex
+{
+	pbyte			stat;		
+
+	LIST*			defs;		
+	union
+	{
+		pregex_nfa	nfa;		
+		pregex_dfa	dfa;		
+	} machine;
+
+	int				flags;		
+
+	pregex_fn		match_fn;	
+	pregex_result	last_match;	
+
+};
 
 
 
@@ -965,9 +968,9 @@ pregex* pregex_create( void );
 pregex* pregex_free( pregex* regex );
 int pregex_compile( pregex* regex, uchar* pattern, int accept );
 int pregex_finalize( pregex* regex );
-int pregex_match( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
-int pregex_split( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
-int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_callback fn, uchar** result );
+int pregex_match( pregex* regex, uchar* str, pregex_fn fn, pregex_result** results );
+int pregex_split( pregex* regex, uchar* str, pregex_fn fn, pregex_result** results );
+int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_fn fn, uchar** result );
 int pregex_get_flags( pregex* regex );
 BOOLEAN pregex_set_flags( pregex* regex, int flags );
 

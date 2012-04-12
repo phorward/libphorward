@@ -301,7 +301,7 @@ int pregex_finalize( pregex* regex )
 												regex state regex.
 					uchar*			str			Pointer to input string where
 												the pattern will be executed on.
-					pregex_callback	fn			A callback-function which
+					pregex_fn		fn			A callback-function which
 												is called for each match.
 												The returned value is set for
 												the match within the results
@@ -309,7 +309,7 @@ int pregex_finalize( pregex* regex )
 												to 0. If the return value is
 												negative, the match will be
 												ignored. Use the macro
-												PREGEX_NO_CALLBACK to disable a
+												PREGEX_FN_NULL to disable a
 												callback-function usage.
 					pregex_result**	results		Array of results to the
 												matched substrings within
@@ -329,10 +329,9 @@ int pregex_finalize( pregex* regex )
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
 ----------------------------------------------------------------------------- */
-int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
+int pregex_match( pregex* regex, uchar* str, pregex_fn fn,
 							pregex_result** results )
 {
-	pregex_result	tmp_result;
 	int				match;
 	int				matches	= 0;
 	int				anchors;
@@ -383,27 +382,27 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 
 			if( results || fn )
 			{
-				memset( &tmp_result, 0, sizeof( pregex_result ) );
+				memset( &( regex->last_match ), 0, sizeof( pregex_result ) );
 
-				tmp_result.accept = match;
-				tmp_result.begin = pstr;
-				tmp_result.end = pstr + len;
-				tmp_result.pbegin = (pchar*)pstr;
-				tmp_result.pend = (pchar*)pstr + len;
+				regex->last_match.accept = match;
+				regex->last_match.begin = pstr;
+				regex->last_match.end = pstr + len;
+				regex->last_match.pbegin = (pchar*)pstr;
+				regex->last_match.pend = (pchar*)pstr + len;
 
 				if( regex->flags & PREGEX_MOD_WCHAR )
-					tmp_result.pos = (pchar*)pstr - (pchar*)str;
+					regex->last_match.pos = (pchar*)pstr - (pchar*)str;
 				else
-					tmp_result.pos = pstr - str;
+					regex->last_match.pos = pstr - str;
 
-				tmp_result.len = len;
-				VARS( "len of result", "%ld", tmp_result.len );
+				regex->last_match.len = len;
+				VARS( "len of result", "%ld", regex->last_match.len );
 			}
 
 			if( fn )
 			{
 				MSG( "Calling callback-function" );
-				match = (*fn)( &tmp_result );
+				match = (*fn)( regex, &( regex->last_match ) );
 			}
 
 			VARS( "match", "%d", match );
@@ -411,11 +410,11 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 			{
 				if( results )
 				{
-					tmp_result.accept = match;
+					regex->last_match.accept = match;
 
 					/* len could have be changed by the callback function */
-					if( fn && tmp_result.len > len )
-						len = tmp_result.len;
+					if( fn && regex->last_match.len > len )
+						len = regex->last_match.len;
 
 					if( !matches )
 						*results = (pregex_result*)pmalloc( PREGEX_ALLOC_STEP
@@ -430,7 +429,7 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 					if( !*results )
 						RETURN( ERR_MEM );
 
-					memcpy( *results + matches, &tmp_result,
+					memcpy( *results + matches, &( regex->last_match ),
 								sizeof( pregex_result ) );
 				}
 
@@ -495,11 +494,11 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 												regex state regex.
 					uchar*			str			Searchstring the pattern
 												will be ran on.
-					pregex_callback	fn			A callback-function which
+					pregex_fn		fn			A callback-function which
 												is called for each split match.
 												If the return value is negative,
 												the match will be ignored.
-												Use the macro PREGEX_NO_CALLBACK
+												Use the macro PREGEX_FN_NULL
 												to disable a callback-function
 												usage.
 					pregex_result**	results		Array of results to the
@@ -520,10 +519,9 @@ int pregex_match( pregex* regex, uchar* str, pregex_callback fn,
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
 ----------------------------------------------------------------------------- */
-int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
+int pregex_split( pregex* regex, uchar* str, pregex_fn fn,
 							pregex_result** results )
 {
-	pregex_result	tmp_result;
 	int				match;
 	int				matches	= 0;
 	int				anchors;
@@ -567,30 +565,30 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 
 			if( fn )
 			{
-				memset( &tmp_result, 0, sizeof( pregex_result ) );
+				memset( &( regex->last_match ), 0, sizeof( pregex_result ) );
 
-				tmp_result.accept = match;
-				tmp_result.begin = pstr;
-				tmp_result.end = pstr + len;
-				tmp_result.pbegin = (pchar*)pstr;
-				tmp_result.pend = (pchar*)pstr + len;
-				tmp_result.len = len;
+				regex->last_match.accept = match;
+				regex->last_match.begin = pstr;
+				regex->last_match.end = pstr + len;
+				regex->last_match.pbegin = (pchar*)pstr;
+				regex->last_match.pend = (pchar*)pstr + len;
+				regex->last_match.len = len;
 
 				if( regex->flags & PREGEX_MOD_WCHAR )
-					tmp_result.pos = (pchar*)pstr - (pchar*)str;
+					regex->last_match.pos = (pchar*)pstr - (pchar*)str;
 				else
-					tmp_result.pos = pstr - str;
+					regex->last_match.pos = pstr - str;
 
 				MSG( "Calling callback-function" );
-				match = (*fn)( &tmp_result );
+				match = (*fn)( regex, &( regex->last_match ) );
 			}
 
 			VARS( "match", "%d", match );
 			if( match >= 0 )
 			{
 				/* len could have be changed by the callback function */
-				if( fn && tmp_result.len > len )
-					len = tmp_result.len;
+				if( fn && regex->last_match.len > len )
+					len = regex->last_match.len;
 
 				if( !matches )
 					*results = (pregex_result*)pmalloc(
@@ -620,7 +618,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 					(*results)[ matches ].pos = prev - str;
 					(*results)[ matches ].len = pstr - prev;
 				}
-				(*results)[ matches ].user = tmp_result.user;
+				(*results)[ matches ].user = regex->last_match.user;
 
 				matches++;
 
@@ -717,7 +715,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 												as replacement for each pattern
 												match. $x backreferences
 												can be used
-					pregex_callback	fn			An optional callback function.
+					pregex_fn	fn			An optional callback function.
 												If the return value is negative,
 												it ignores the current match.
 												If there is an alternative
@@ -728,7 +726,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 												The alternative replacement
 												string can contain reference
 												wildcards, if not disabled.
-												Use the macro PREGEX_NO_CALLBACK
+												Use the macro PREGEX_FN_NULL
 												to hand over an empty callback
 												function.
 					uchar**			result		Returns a pointer to the result
@@ -744,10 +742,9 @@ int pregex_split( pregex* regex, uchar* str, pregex_callback fn,
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
 ----------------------------------------------------------------------------- */
 int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
-							pregex_callback fn, uchar** result )
+							pregex_fn fn, uchar** result )
 {
 	pregex_result*	refs		= (pregex_result*)NULL;
-	pregex_result	tmp_result;
 	int				refs_cnt	= 0;
 	int				matches		= 0;
 	int				match;
@@ -810,21 +807,21 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 			{
 				MSG( "Prepare pregex_result-structure for callback" );
 
-				memset( &tmp_result, 0, sizeof( pregex_result ) );
-				tmp_result.accept = match;
-				tmp_result.begin = pstr;
-				tmp_result.end = pstr + len;
-				tmp_result.pbegin = (pchar*)pstr;
-				tmp_result.pend = (pchar*)pstr + len;
-				tmp_result.len = len;
+				memset( &( regex->last_match ), 0, sizeof( pregex_result ) );
+				regex->last_match.accept = match;
+				regex->last_match.begin = pstr;
+				regex->last_match.end = pstr + len;
+				regex->last_match.pbegin = (pchar*)pstr;
+				regex->last_match.pend = (pchar*)pstr + len;
+				regex->last_match.len = len;
 
 				if( regex->flags & PREGEX_MOD_WCHAR )
-					tmp_result.pos = (pchar*)pstr - (pchar*)str;
+					regex->last_match.pos = (pchar*)pstr - (pchar*)str;
 				else
-					tmp_result.pos = pstr - str;
+					regex->last_match.pos = pstr - str;
 
 				MSG( "Calling callback-function" );
-				if( (*fn)( &tmp_result ) < 0 )
+				if( (*fn)( regex, &( regex->last_match ) ) < 0 )
 				{
 					MSG( "Callback function returns negative value, will"
 							"discard this match" );
@@ -839,7 +836,7 @@ int pregex_replace( pregex* regex, uchar* str, uchar* replacement,
 
 				/* An alternative replacement string can be saved into the
 					regex_result-structure's user-pointer */
-				use_replacement = (uchar*)tmp_result.user;
+				use_replacement = (uchar*)regex->last_match.user;
 			}
 
 			matches++;

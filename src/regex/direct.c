@@ -75,7 +75,7 @@ int pregex_qmatch( uchar* regex, uchar* str,
 	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
-	matches = pregex_match( re, str, PREGEX_NO_CALLBACK, results );
+	matches = pregex_match( re, str, PREGEX_FN_NULL, results );
 	re = pregex_free( re );
 
 	VARS( "matches", "%d", matches );
@@ -140,7 +140,7 @@ int pregex_qsplit( uchar* regex, uchar* str,
 	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
-	matches = pregex_split( re, str, PREGEX_NO_CALLBACK, results );
+	matches = pregex_split( re, str, PREGEX_FN_NULL, results );
 	re = pregex_free( re );
 
 	VARS( "matches", "%d", matches );
@@ -206,7 +206,7 @@ int pregex_qreplace( uchar* regex, uchar* str, uchar* replacement,
 		RETURN( matches );
 
 	matches = pregex_replace( re, str, replacement,
-					PREGEX_NO_CALLBACK, result );
+					PREGEX_FN_NULL, result );
 	re = pregex_free( re );
 
 	VARS( "matches", "%d", matches );

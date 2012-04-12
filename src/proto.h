@@ -124,9 +124,9 @@ pregex* pregex_create( void );
 pregex* pregex_free( pregex* regex );
 int pregex_compile( pregex* regex, uchar* pattern, int accept );
 int pregex_finalize( pregex* regex );
-int pregex_match( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
-int pregex_split( pregex* regex, uchar* str, pregex_callback fn, pregex_result** results );
-int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_callback fn, uchar** result );
+int pregex_match( pregex* regex, uchar* str, pregex_fn fn, pregex_result** results );
+int pregex_split( pregex* regex, uchar* str, pregex_fn fn, pregex_result** results );
+int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_fn fn, uchar** result );
 int pregex_get_flags( pregex* regex );
 BOOLEAN pregex_set_flags( pregex* regex, int flags );
 

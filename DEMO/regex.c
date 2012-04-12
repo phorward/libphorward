@@ -235,9 +235,9 @@ void direct_regex_demo( void )
 	Using callback functions allows to run individual code on each matched
 	token within a match, replace or split function. It allows to modify
 	a match, return an entirely different match result or simply declare a
-	match to be invalid, by returning -1.
+	match to be invalid, by letting it return a value lower-than 0.
 */
-static int regex_callback1( pregex_result* res )
+static int regex_callback1( pregex* regex, pregex_result* res )
 {
 	/*
 		This is a special case usage: By writing something into the
@@ -270,7 +270,7 @@ static int regex_callback1( pregex_result* res )
 	return res->accept;
 }
 
-static int regex_callback2( pregex_result* res )
+static int regex_callback2( pregex* regex, pregex_result* res )
 {
 	if( res->accept < 2 )
 		return -1;
@@ -296,7 +296,7 @@ void compiled_regex_demo( void )
 	pregex_compile( rx, "[0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+", 2 );
 
 	/* First, we're extracting tokens from a string */
-	matches = pregex_match( rx, simple, PREGEX_NO_CALLBACK, &res );
+	matches = pregex_match( rx, simple, PREGEX_FN_NULL, &res );
 	printf( "compiled regex returned %d matches\n", matches );
 
 	for( i = 0; i < matches; i++ )

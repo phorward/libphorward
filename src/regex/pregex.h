@@ -69,9 +69,9 @@ typedef struct	_regex_ptndef	pregex_ptndef;
 typedef struct	_regex			pregex;
 typedef	struct	_regex_result	pregex_result;
 
-/* Callback-Functions */
-typedef	int 					(*pregex_callback)( pregex_result* );
-#define PREGEX_NO_CALLBACK		( (pregex_callback)NULL )
+/* Regular expression functions */
+typedef	int 					(*pregex_fn)( pregex*, pregex_result* );
+#define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
 /* Structs */
 struct _regex_accept
@@ -161,21 +161,6 @@ struct _regex_ptndef
 	pregex_accept	accept;		/* Match parameters */
 };
 
-struct _regex
-{
-	pbyte			stat;		/* Current regex status */
-
-	LIST*			defs;		/* List of pattern definitions
-									holding the patterns */
-	union
-	{
-		pregex_nfa	nfa;		/* NFA state machine */
-		pregex_dfa	dfa;		/* DFA state machine */
-	} machine;
-
-	int				flags;		/* Compile- and runtime flags */
-};
-
 struct _regex_result
 {
 	uchar*			begin;		/* Begin pointer */
@@ -193,3 +178,22 @@ struct _regex_result
 									backs to point to a replacement string! */
 };
 
+struct _regex
+{
+	pbyte			stat;		/* Current regex status */
+
+	LIST*			defs;		/* List of pattern definitions
+									holding the patterns */
+	union
+	{
+		pregex_nfa	nfa;		/* NFA state machine */
+		pregex_dfa	dfa;		/* DFA state machine */
+	} machine;
+
+	int				flags;		/* Compile- and runtime flags */
+
+	pregex_fn		match_fn;	/* General match function to be invoked
+									at every match */
+	pregex_result	last_match;	/* Holds the last pattern match */
+
+};
