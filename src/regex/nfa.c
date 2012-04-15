@@ -413,7 +413,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 											provides anchors. If this is
 											(int*)NULL, anchors will be
 											ignored.
-					pregex_result**	ref		Return array of references; If this
+					pregex_range**	ref		Return array of references; If this
 											pointer is not NULL, the function
 											will allocate memory for a refer-
 											ence array. This array is only
@@ -422,7 +422,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 
 											1. The NFA has references
 											2. ref_count is zero
-											3. ref points to a pregex_result*
+											3. ref points to a pregex_range*
 
 					int*			ref_count Retrieves the number of
 											references.
@@ -443,7 +443,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
-		pregex_result** ref, int* ref_count, int flags )
+		pregex_range** ref, int* ref_count, int flags )
 {
 	LIST*			res			= (LIST*)NULL;
 	LIST*			l;

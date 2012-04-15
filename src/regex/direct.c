@@ -29,7 +29,7 @@ Usage:	Direct regular expression access functions running an internal pregex
 	Author:			Jan Max Meyer
 
 	Usage:			Performs a regular expression search on a string, and
-					returns an array of matches via a pregex_result-structure,
+					returns an array of matches via a pregex_range-structure,
 					which holds pointers to the begin- and end-addresses
 					of the matches.
 
@@ -39,7 +39,7 @@ Usage:	Direct regular expression access functions running an internal pregex
 												will be ran on.
 					int				flags		Flags for regular
 												expression mode switching
-					pregex_result**	results		Array of results to the
+					pregex_range**	results		Array of results to the
 												matched substrings within
 												str. results must be freed
 												after usage.
@@ -52,7 +52,7 @@ Usage:	Direct regular expression access functions running an internal pregex
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 int pregex_qmatch( uchar* regex, uchar* str,
-					int flags, pregex_result** results )
+					int flags, pregex_range** results )
 {
 	int			matches	= 0;
 	pregex*		re;
@@ -74,8 +74,9 @@ int pregex_qmatch( uchar* regex, uchar* str,
 
 	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
 		RETURN( matches );
-
+	/*
 	matches = pregex_match( re, str, PREGEX_FN_NULL, results );
+	*/
 	re = pregex_free( re );
 
 	VARS( "matches", "%d", matches );
@@ -99,7 +100,7 @@ int pregex_qmatch( uchar* regex, uchar* str,
 												will be ran on.
 					int				flags		Flags for regular
 												expression mode switching
-					pregex_result**	results		Array of results to the
+					pregex_range**	results		Array of results to the
 												split substrings. Each element
 												of this array contains begin-
 												and end-pointer to the
@@ -117,7 +118,7 @@ int pregex_qmatch( uchar* regex, uchar* str,
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 int pregex_qsplit( uchar* regex, uchar* str,
-					int flags, pregex_result** results )
+					int flags, pregex_range** results )
 {
 	int			matches	= 0;
 	pregex*		re;
@@ -139,8 +140,9 @@ int pregex_qsplit( uchar* regex, uchar* str,
 
 	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
 		RETURN( matches );
-
+	/*
 	matches = pregex_split( re, str, PREGEX_FN_NULL, results );
+	*/
 	re = pregex_free( re );
 
 	VARS( "matches", "%d", matches );
@@ -205,8 +207,10 @@ int pregex_qreplace( uchar* regex, uchar* str, uchar* replacement,
 	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
 		RETURN( matches );
 
+	/*
 	matches = pregex_replace( re, str, replacement,
 					PREGEX_FN_NULL, result );
+	*/
 	re = pregex_free( re );
 
 	VARS( "matches", "%d", matches );

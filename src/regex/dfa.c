@@ -867,7 +867,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
-		int* anchors, pregex_result** ref, int* ref_count, int flags )
+		int* anchors, pregex_range** ref, int* ref_count, int flags )
 {
 	pregex_dfa_st*	dfa_st;
 	pregex_dfa_st*	next_dfa_st;

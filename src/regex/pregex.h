@@ -20,29 +20,34 @@ Usage:	Header for the pregex object and functions
 #define PREGEX_STAT_DFA			2
 
 /* Regex Modifiers */
-#define PREGEX_MOD_NONE			0	/* No modification (for the sake
-										of completeness) */
-#define PREGEX_MOD_WCHAR		1	/* Regular expression and/or search string
-										for direct pattern executions are
+#define PREGEX_MOD_NONE			0		/* 	No modification (for the sake
+											of completeness) */
+#define PREGEX_MOD_WCHAR		1		/* 	Regular expression and/or
+											search string for direct
+											pattern executions are
 											of type pchar (wide character,
-												if UNICODE is flagged!) */
-#define PREGEX_MOD_INSENSITIVE	2	/* Regular expression is case insensitive */
-#define PREGEX_MOD_GLOBAL		4	/* Regular expression is run globally, not
-										only for the first match */
-#define PREGEX_MOD_STATIC		8	/* The regular expression passed for to the
-										compiler should be converted 1:1 as
-											it where a string-constant.
-												Any regex-specific symbols will
-												be ignored! */
-#define PREGEX_MOD_NO_REF		16	/* Don't create references */
-#define PREGEX_MOD_NO_ERRORS	32	/* Don't report errors, try to compile as
-										much as possible */
-#define PREGEX_MOD_NO_ANCHORS	64	/* Ignore anchor tokens, handle them as
-										normal characters */
-#define PREGEX_MOD_GREEDY		128	/* Parse or run regular expression
-										greedy */
-#define PREGEX_MOD_NONGREEDY	256	/* Parse or run regular expression
-										nongreedy */
+											if UNICODE is flagged!) */
+#define PREGEX_MOD_INSENSITIVE	2		/* 	Regular expression is case
+											insensitive */
+#define PREGEX_MOD_GLOBAL		4		/* 	Regular expression is run
+											globally, not only for the first
+											match */
+#define PREGEX_MOD_STATIC		8		/*	The regular expression passed for
+											to the compiler should be converted
+											1:1 as it where a string-constant.
+											Any regex-specific symbol will
+											be ignored. */
+#define PREGEX_MOD_NO_REF		16		/*	Don't create references */
+#define PREGEX_MOD_NO_ERRORS	32		/*	Don't report errors, and try to
+											compile as much as possible */
+#define PREGEX_MOD_NO_ANCHORS	64		/* 	Ignore anchor tokens, handle them
+											as normal characters */
+#define PREGEX_MOD_GREEDY		128		/*	Parse or run regular expression
+											greedy */
+#define PREGEX_MOD_NONGREEDY	256		/*	Parse or run regular expression
+											nongreedy */
+
+#define PREGEX_MOD_DEBUG		1024 	/*	Output some debug to stderr */
 
 /* Regular Expression anchors */
 #define PREGEX_ANCHOR_NONE		0	/* No anchor defined */
@@ -67,10 +72,10 @@ typedef struct	_regex_ptn		pregex_ptn;
 typedef struct	_regex_ptndef	pregex_ptndef;
 
 typedef struct	_regex			pregex;
-typedef	struct	_regex_result	pregex_result;
+typedef	struct	_pregex_range	pregex_range;
 
 /* Regular expression functions */
-typedef	int 					(*pregex_fn)( pregex*, pregex_result* );
+typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
 /* Structs */
@@ -161,7 +166,7 @@ struct _regex_ptndef
 	pregex_accept	accept;		/* Match parameters */
 };
 
-struct _regex_result
+struct _pregex_range
 {
 	uchar*			begin;		/* Begin pointer */
 	pchar*			pbegin;		/* Wide-character begin pointer */
@@ -178,9 +183,15 @@ struct _regex_result
 									backs to point to a replacement string! */
 };
 
+/*
+ * The pregex object structure.
+ */
 struct _regex
 {
+	/* Definition elements */
+
 	pbyte			stat;		/* Current regex status */
+	int				flags;		/* Compile- and runtime flags */
 
 	LIST*			defs;		/* List of pattern definitions
 									holding the patterns */
@@ -190,10 +201,19 @@ struct _regex
 		pregex_dfa	dfa;		/* DFA state machine */
 	} machine;
 
-	int				flags;		/* Compile- and runtime flags */
+	/* Runtime elements */
 
-	pregex_fn		match_fn;	/* General match function to be invoked
+	pregex_fn		match_fn;	/* A match function to be invoked
 									at every match */
-	pregex_result	last_match;	/* Holds the last pattern match */
+
+	/* Ephemerial elements */
+
+	int				match_count;/* Number of matches since last match
+									function restart */
+	uchar*			last_str;	/* Begin pointer of last string that was
+									analyzed */
+	uchar*			last_pos;	/* Holds last string position within
+									multiple matches */
+	pregex_range	range;		/* Holds the last pattern match range */
 
 };

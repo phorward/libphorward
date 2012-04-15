@@ -141,7 +141,7 @@ void direct_regex_demo( void )
 								L"Yeahhh! ÖÜÄ€€€öäü€€ß and the €uro-Symbol";
 
 
-	pregex_result*	res;
+	pregex_range*	res;
 	int				matches;
 	int				i;
 	uchar*			result;
@@ -159,7 +159,7 @@ void direct_regex_demo( void )
 		printf( "  match %d: >%.*s<\n", i, (int)res[i].len, res[i].begin );
 
 	/*
-		Various functions make use of the pregex_result-structure, as you can
+		Various functions make use of the pregex_range-structure, as you can
 		see above. This structure contains various pointers that describe the
 		match of the regular expression. Member variables are:
 
@@ -237,11 +237,11 @@ void direct_regex_demo( void )
 	a match, return an entirely different match result or simply declare a
 	match to be invalid, by letting it return a value lower-than 0.
 */
-static int regex_callback1( pregex* regex, pregex_result* res )
+static int regex_callback1( pregex* regex, pregex_range* res )
 {
 	/*
 		This is a special case usage: By writing something into the
-		'user'-pointer of the pregex_result-structure, this pointer will
+		'user'-pointer of the pregex_range-structure, this pointer will
 		be used for the replacement instead of the standard replacement
 		string.
 	*/
@@ -265,12 +265,12 @@ static int regex_callback1( pregex* regex, pregex_result* res )
 		To modify a match without declaring it invalid or as another identified
 		object, always return the original matching identifier which is
 		pre-written to the accept-member of the provided
-		pregex_result-structure.
+		pregex_range-structure.
 	*/
 	return res->accept;
 }
 
-static int regex_callback2( pregex* regex, pregex_result* res )
+static int regex_callback2( pregex* regex, pregex_range* res )
 {
 	if( res->accept < 2 )
 		return -1;
@@ -283,7 +283,7 @@ void compiled_regex_demo( void )
 	pregex*			rx;
 	uchar*			simple = "Hello WORLD this is 876 a funny 123.3 test .4 :)";
 	uchar*			newstr;
-	pregex_result*	res;
+	pregex_range*	res;
 	int				matches;
 	int				i;
 

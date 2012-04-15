@@ -33,7 +33,7 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
 	Usage:			Initializes a reference pointer array, according to the
 					maximum count of reference pointers and flags.
 
-	Parameters:		pregex_result**	ref		Return array of references; If this
+	Parameters:		pregex_range**	ref		Return array of references; If this
 											pointer is not NULL, the function
 											will allocate memory for a refer-
 											ence array. This array is only
@@ -42,7 +42,7 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
 
 											1. ref_all is not zero
 											2. ref_count is zero
-											3. ref points to a pregex_result*
+											3. ref points to a pregex_range*
 
 					int*			ref_count Retrieves the number of
 											references.
@@ -64,7 +64,7 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int pregex_ref_init( pregex_result** ref, int* ref_count,
+int pregex_ref_init( pregex_range** ref, int* ref_count,
 						int ref_all, int flags )
 {
 	PROC( "pregex_ref_init" );
@@ -82,8 +82,8 @@ int pregex_ref_init( pregex_result** ref, int* ref_count,
 		if( ( *ref_count != ref_all ) )
 		{
 			MSG( "Allocating reference array" );
-			if( !( *ref = (pregex_result*)pmalloc(
-						ref_all * sizeof( pregex_result ) ) ) )
+			if( !( *ref = (pregex_range*)pmalloc(
+						ref_all * sizeof( pregex_range ) ) ) )
 			{
 				MSG( "Can't allocate references array" );
 				RETURN( ERR_MEM );
@@ -91,7 +91,7 @@ int pregex_ref_init( pregex_result** ref, int* ref_count,
 		}
 
 		MSG( "Initalizing reference array to zero" );
-		memset( *ref, 0, ref_all * sizeof( pregex_result ) );
+		memset( *ref, 0, ref_all * sizeof( pregex_range ) );
 		*ref_count = ref_all;
 	}
 
@@ -106,7 +106,7 @@ int pregex_ref_init( pregex_result** ref, int* ref_count,
 	Usage:			Updates a reference according to provided string pointer
 					and offset information.
 
-	Parameters:		pregex_result*	ref		Pointer to reference (from the
+	Parameters:		pregex_range*	ref		Pointer to reference (from the
 											array created with above function)
 					uchar*			strp	Current string pointer within the
 											currently parsed string.
@@ -118,7 +118,7 @@ int pregex_ref_init( pregex_result** ref, int* ref_count,
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-void pregex_ref_update( pregex_result* ref, uchar* strp, psize off )
+void pregex_ref_update( pregex_range* ref, uchar* strp, psize off )
 {
 	PROC( "pregex_ref_update" );
 	PARMS( "ref", "%p", ref );

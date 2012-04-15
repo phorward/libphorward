@@ -12,10 +12,10 @@ REGEX = regex$(EXEEXT)
 
 all: $(BASIS) $(REGEX)
 
-$(BASIS): basis.c
+$(BASIS): basis.c $(LIBPHORWARD)
 	$(CC) $(CFLAGS) -o $@ $+ $(LDFLAGS)
 
-$(REGEX): regex.c
+$(REGEX): regex.c $(LIBPHORWARD)
 	$(CC) $(CFLAGS) -o $@ $+ $(LDFLAGS)
 
 install:
