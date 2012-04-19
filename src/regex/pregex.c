@@ -153,6 +153,9 @@ pregex* pregex_reset( pregex* regex )
 	memset( &( regex->range ), 0, sizeof( pregex_range ) );
 	regex->range.accept = PREGEX_ACCEPT_NONE;
 
+	pfree( regex->refs );
+	regex->refs_cnt = 0;
+
 	RETURN( regex );
 }
 
@@ -237,9 +240,8 @@ int pregex_compile( pregex* regex, uchar* pattern, int accept )
 		RETURN( ret );
 	}
 
-	/*
-	pregex_nfa_print( &( regex->machine.nfa ) );
-	*/
+	if( regex->flags & PREGEX_MOD_DEBUG )
+		pregex_nfa_print( &( regex->machine.nfa ) );
 
 	/*
 		Chaining the regular expression pattern definition into
@@ -252,6 +254,9 @@ int pregex_compile( pregex* regex, uchar* pattern, int accept )
 
 		RETURN( ERR_MEM );
 	}
+
+	/* Increment age */
+	regex->age++;
 
 	RETURN( ret );
 }
@@ -339,31 +344,39 @@ int pregex_finalize( pregex* regex )
 
 	Author:			Jan Max Meyer
 
-	Usage:			Performs a regex match on a string using a compiled (nfa)
-					or finalized (dfa) regular expression object. The function
-					stops at the first occurence, and must be called multiple
-					times. The result string range
+	Usage:			The function pregex_match() is used to run a regular
+					expression object on a string, to match patterns. The
+					function is called as long as no more matches are be
+					found.
+
+					The function is used similar to strtok(). The first call
+					requires a pointer to the string where the regular
+					expression will tested against. Any subsequent calls to
+					pregex_match() must provide a (uchar*)NULL pointer as
+					string, so that the previous string position will be
+					re-used.
 
 	Parameters:		pregex*			regex		Pointer to a pre-compiled
 												regex state regex.
 					uchar*			str			Pointer to input string where
-												the pattern will be executed on.
+												the pattern will be run against.
 												This shall be set at the first
 												call of pregex_match() and later
 												on as (uchar*)NULL.
 
-	Returns:		int							Returns the id of the regular
-												expression that was matched, or
-												ERR_FAILURE (PREGEX_ACCEPT_NONE)
-												if no more matches where found.
-												Any other ERR_-define will be
-												returned in case of an error.
+	Returns:		pregex_range*				Returns a pointer to a pregex-
+												structure describing the matched
+												area in case of a successful
+												match, else a pointer to
+												(pregex_range*)NULL.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
+	15.04.2012	Jan Max Meyer	Changed the entire function to the new concept
+								using a pregex-object.
 ----------------------------------------------------------------------------- */
-int pregex_match( pregex* regex, uchar* str )
+pregex_range* pregex_match( pregex* regex, uchar* str )
 {
 	int				match	= PREGEX_ACCEPT_NONE;
 	int				anchors;
@@ -387,13 +400,13 @@ int pregex_match( pregex* regex, uchar* str )
 	if( !( regex ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( (pregex_range*)NULL );
 	}
 
 	if( !IS_EXECUTABLE( regex->stat ) )
 	{
 		MSG( "This regex-object can't be executed." );
-		RETURN( ERR_UNIMPL );
+		RETURN( (pregex_range*)NULL );
 	}
 
 	/* Reset accept structure */
@@ -401,22 +414,32 @@ int pregex_match( pregex* regex, uchar* str )
 	regex->range.accept = PREGEX_ACCEPT_NONE;
 
 	/* Is this an initial or subsequent call? */
-	if( !str || str == regex->last_str )
+	if( !str || str == regex->last_str ) /* TODO: Really?? */
 	{
+		if( regex->age != regex->last_age )
+		{
+			MSG( "The regular expression object was modified during last call."
+					" It must be reset first." );
+			RETURN( (pregex_range*)NULL );
+		}
+
 		pstr = regex->last_pos;
 
+		/* This pregex will not match globally */
 		if( !( regex->flags & PREGEX_MOD_GLOBAL ) )
 		{
 			MSG( "pregex will only match globally" );
-			RETURN( match );
+			RETURN( (pregex_range*)NULL );
 		}
 	}
 	else
 	{
 		pregex_reset( regex );
 		regex->last_str = str;
+		regex->last_age = regex->age;
 	}
 
+	/* Search for matching patterns */
 	while( pstr && *pstr )
 	{
 #ifdef __WITH_TRACE
@@ -428,11 +451,11 @@ int pregex_match( pregex* regex, uchar* str )
 
 		if( regex->stat == PREGEX_STAT_NFA )
 			match = pregex_nfa_match( &( regex->machine.nfa ), pstr,
-						&len, &anchors, (pregex_range**)NULL, (int*)NULL,
+						&len, &anchors, &( regex->refs ), &( regex->refs_cnt ),
 							regex->flags );
 		else
 			match = pregex_dfa_match( &( regex->machine.dfa ), pstr,
-						&len, &anchors, (pregex_range**)NULL, (int*)NULL,
+						&len, &anchors, &( regex->refs ), &( regex->refs_cnt ),
 							regex->flags );
 
 		if( match > PREGEX_ACCEPT_NONE &&
@@ -446,14 +469,15 @@ int pregex_match( pregex* regex, uchar* str )
 			/* Fill the match structure */
 			regex->range.accept = match;
 			regex->range.begin = pstr;
-			regex->range.end = pstr + len;
 			regex->range.pbegin = (pchar*)pstr;
+
+			regex->range.end = pstr + len;
 			regex->range.pend = (pchar*)pstr + len;
 
 			if( regex->flags & PREGEX_MOD_WCHAR )
-				regex->range.pos = (pchar*)pstr - (pchar*)str;
+				regex->range.pos = (pchar*)pstr - (pchar*)regex->last_str;
 			else
-				regex->range.pos = pstr - str;
+				regex->range.pos = pstr - regex->last_str;
 
 			regex->range.len = len;
 			VARS( "len of result", "%ld", regex->range.len );
@@ -474,7 +498,7 @@ int pregex_match( pregex* regex, uchar* str )
 				if( regex->range.len > len )
 					len = regex->range.len;
 
-				/* Move pstr len characters forward */
+				/* Move pstr to len characters forward */
 				if( regex->flags & PREGEX_MOD_WCHAR )
 					pstr += len * sizeof( pchar );
 				else
@@ -514,7 +538,11 @@ int pregex_match( pregex* regex, uchar* str )
 		}
 	}
 
-	RETURN( match );
+	VARS( "match", "%d", match );
+	VARS( "RETURN", "%p", match >= 0 ?
+			&( regex->range ) : (pregex_range*)NULL );
+
+	RETURN( match >= 0 ? &( regex->range ) : (pregex_range*)NULL  );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -522,203 +550,142 @@ int pregex_match( pregex* regex, uchar* str )
 
 	Author:			Jan Max Meyer
 
-	Usage:			blabla
+	Usage:			TODO
 
-	Parameters:		pregex*			regex		Pointer to a pre-compiled
-												regex state regex.
-					uchar*			str			Pointer to input string where
-												the pattern will be executed on.
-												This shall be set at the first
-												call of pregex_match() and later
-												on as (uchar*)NULL.
+	Parameters:		TODO
 
-	Returns:		int							Returns the id of the regular
-												expression that was matched, or
-												ERR_FAILURE (PREGEX_ACCEPT_NONE)
-												if no more matches where found.
-												Any other ERR_-define will be
-												returned in case of an error.
+	Returns:		TODO
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
 ----------------------------------------------------------------------------- */
-int pregex_split( pregex* regex, uchar* str, pregex_fn fn,
-							pregex_range** results )
+pregex_range* pregex_split( pregex* regex, uchar* str )
 {
-	int				match;
-	int				matches	= 0;
-	int				anchors;
-	psize			len;
-	uchar*			pstr;
-	uchar*			prev;
+	uchar*			last;
+	pregex_range	range;
+	pregex_range*	match;
 
 	PROC( "pregex_split" );
 	PARMS( "regex", "%p", regex );
+	PARMS( "str", "%p", str );
+
 #ifdef __WITH_TRACE
-	if( regex->flags & PREGEX_MOD_WCHAR )
-		PARMS( "str", "%ls", str );
-	else
-		PARMS( "str", "%s", str );
+	if( str )
+	{
+		if( regex->flags & PREGEX_MOD_WCHAR )
+			PARMS( "str", "%ls", str );
+		else
+			PARMS( "str", "%s", str );
+	}
 #endif
-	PARMS( "fn", "%p", fn );
-	PARMS( "results", "%p", results );
+
+	if( !( regex ) )
+	{
+		WRONGPARAM;
+		RETURN( (pregex_range*)NULL );
+	}
 
 	if( !IS_EXECUTABLE( regex->stat ) )
-		RETURN( ERR_UNIMPL );
-
-	*results = (pregex_range*)NULL;
-
-	for( prev = pstr = str; *pstr; )
 	{
-		VARS( "pstr", "%s", pstr );
+		MSG( "This regex-object can't be executed." );
+		RETURN( (pregex_range*)NULL );
+	}
 
-		if( regex->stat == PREGEX_STAT_NFA )
-			match = pregex_nfa_match( &( regex->machine.nfa ), pstr,
-						&len, &anchors, (pregex_range**)NULL, (int*)NULL,
-							regex->flags );
-		else
-			match = pregex_dfa_match( &( regex->machine.dfa ), pstr,
-						&len, &anchors, (pregex_range**)NULL, (int*)NULL,
-							regex->flags );
-
-		if( match >= 0 && pregex_check_anchors( str, pstr, len,
-							anchors, regex->flags ) )
+	/* Is this an initial or a subsequent call? */
+	if( !str || str == regex->last_str ) /* TODO: Really?? */
+	{
+		if( regex->age != regex->last_age )
 		{
-			MSG( "Write information into temporary result structure" );
-
-			if( fn )
-			{
-				memset( &( regex->range ), 0, sizeof( pregex_range ) );
-
-				regex->range.accept = match;
-				regex->range.begin = pstr;
-				regex->range.end = pstr + len;
-				regex->range.pbegin = (pchar*)pstr;
-				regex->range.pend = (pchar*)pstr + len;
-				regex->range.len = len;
-
-				if( regex->flags & PREGEX_MOD_WCHAR )
-					regex->range.pos = (pchar*)pstr - (pchar*)str;
-				else
-					regex->range.pos = pstr - str;
-
-				MSG( "Calling callback-function" );
-				match = (*fn)( regex, &( regex->range ) );
-			}
-
-			VARS( "match", "%d", match );
-			if( match >= 0 )
-			{
-				/* len could have be changed by the callback function */
-				if( fn && regex->range.len > len )
-					len = regex->range.len;
-
-				if( !matches )
-					*results = (pregex_range*)pmalloc(
-									PREGEX_ALLOC_STEP *
-										sizeof( pregex_range ) );
-				else if( !( matches % PREGEX_ALLOC_STEP ) )
-					*results = (pregex_range*)prealloc(
-									(pregex_range*)*results,
-										( ( ( matches / PREGEX_ALLOC_STEP ) + 1 )
-											* PREGEX_ALLOC_STEP )
-												*  sizeof( pregex_range ) );
-				if( !*results )
-					RETURN( ERR_MEM );
-
-				(*results)[ matches ].accept = match;
-				(*results)[ matches ].begin = prev;
-				(*results)[ matches ].end = pstr;
-				(*results)[ matches ].pbegin = (pchar*)prev;
-				(*results)[ matches ].pend = (pchar*)pstr;
-				if( regex->flags & PREGEX_MOD_WCHAR )
-				{
-					(*results)[ matches ].pos = (pchar*)prev - (pchar*)str;
-					(*results)[ matches ].len = (pchar*)pstr - (pchar*)prev;
-				}
-				else
-				{
-					(*results)[ matches ].pos = prev - str;
-					(*results)[ matches ].len = pstr - prev;
-				}
-				(*results)[ matches ].user = regex->range.user;
-
-				matches++;
-
-				if( regex->flags & PREGEX_MOD_WCHAR )
-					pstr += len * sizeof( pchar );
-				else
-				{
-#ifdef UTF8
-					for( ; len > 0; len-- )
-						pstr += u8_seqlen( pstr );
-#else
-					pstr += len;
-#endif
-				}
-				prev = pstr;
-
-				if( !( regex->flags & PREGEX_MOD_GLOBAL ) )
-				{
-					pstr += pstrlen( pstr );
-					break;
-				}
-
-				continue;
-			}
+			MSG( "The regular expression object was modified during last call."
+					" It must be reset first." );
+			RETURN( (pregex_range*)NULL );
 		}
+
+		if( !( regex->flags & PREGEX_MOD_GLOBAL ) )
+		{
+			MSG( "pregex will only match globally" );
+			RETURN( (pregex_range*)NULL );
+		}
+	}
+
+	if( !( last = regex->last_pos ) )
+		last = str;
+
+	if( ( match = pregex_match( regex, str ) ) )
+	{
+		VARS( "match->accept", "%d", match->accept );
+
+		memset( &range, 0, sizeof( range ) );
+		range.accept = match->accept;
+
+		range.begin = last;
+		range.pbegin = (pchar*)last;
+
+		range.end = match->begin;
+		range.pend = match->pbegin;
 
 		if( regex->flags & PREGEX_MOD_WCHAR )
-			pstr += sizeof( pchar );
+		{
+			range.pos = range.pbegin - (pchar*)regex->last_str;
+			range.len = (pchar*)range.end - (pchar*)range.begin;
+		}
 		else
 		{
-#ifdef UTF8
-			pstr += u8_seqlen( pstr );
-#else
-			pstr++;
-#endif
+			range.pos = range.pbegin - (pchar*)regex->last_str;
+			range.len = range.end - range.begin;
 		}
+
+		memcpy( &( regex->range ), &range, sizeof( pregex_range ) );
+		RETURN( &( regex->range ) );
 	}
 
 	/* Put last one if required! */
-	if( prev != pstr )
+	if( *last )
 	{
-		if( !matches )
-			*results = (pregex_range*)pmalloc(
-							PREGEX_ALLOC_STEP * sizeof( pregex_range ) );
-		else if( !( matches % PREGEX_ALLOC_STEP ) )
-			*results = (pregex_range*)prealloc(
-							(pregex_range*)*results,
-								( ( ( matches / PREGEX_ALLOC_STEP ) + 1 )
-									* PREGEX_ALLOC_STEP )
-										*  sizeof( pregex_range ) );
+		memset( &range, 0, sizeof( range ) );
+		range.accept = PREGEX_ACCEPT_NONE; /* We dont't have any match here! */
+		
+		range.begin = last;
+		range.pbegin = (pchar*)last;
 
-		if( !*results )
-			RETURN( ERR_MEM );
+		while( *last )
+		{
+			/* Move one character forward to try out next match */
+			if( regex->flags & PREGEX_MOD_WCHAR )
+				last += sizeof( pchar );
+			else
+			{
+#ifdef UTF8
+				last += u8_seqlen( last );
+#else
+				last++;
+#endif
+			}
+		}
 
-		(*results)[ matches ].accept = -1;
-		(*results)[ matches ].begin = prev;
-		(*results)[ matches ].end = pstr;
-		(*results)[ matches ].pbegin = (pchar*)prev;
-		(*results)[ matches ].pend = (pchar*)pstr;
+		range.end = last;
+		range.pend = (pchar*)last;
 
 		if( regex->flags & PREGEX_MOD_WCHAR )
 		{
-			(*results)[ matches ].pos = (pchar*)prev - (pchar*)str;
-			(*results)[ matches ].len = (pchar*)pstr - (pchar*)prev;
+			range.pos = range.pbegin - (pchar*)regex->last_str;
+			range.len = (pchar*)range.end - (pchar*)range.begin;
 		}
 		else
 		{
-			(*results)[ matches ].pos = prev - str;
-			(*results)[ matches ].len = pstr - prev;
+			range.pos = range.pbegin - (pchar*)regex->last_str;
+			range.len = range.end - range.begin;
 		}
 
-		matches++;
+		regex->last_pos = last;
+
+		memcpy( &( regex->range ), &range, sizeof( pregex_range ) );
+		RETURN( &( regex->range ) );
 	}
 
-	VARS( "matches", "%d", matches );
-	RETURN( matches );
+	MSG( "No more matches to split" );
+	RETURN( (pregex_range*)NULL );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -739,7 +706,7 @@ int pregex_split( pregex* regex, uchar* str, pregex_fn fn,
 												as replacement for each pattern
 												match. $x backreferences
 												can be used
-					pregex_fn	fn			An optional callback function.
+					pregex_fn	fn				An optional callback function.
 												If the return value is negative,
 												it ignores the current match.
 												If there is an alternative
@@ -1122,6 +1089,23 @@ pregex_range* pregex_get_range( pregex* regex )
 	return (pregex_range*)NULL;
 }
 
+/* GET ONLY! */
+pregex_range* pregex_get_ref( pregex* regex, int offset )
+{
+	if( !( regex && offset >= 0 ) )
+	{
+		WRONGPARAM;
+		return (pregex_range*)NULL;
+	}
+
+	/* ref will only be returned when it is a match. */
+	if( regex->range.accept > PREGEX_ACCEPT_NONE
+			&& offset < regex->refs_cnt )
+		return &( regex->refs[ offset ] );
+
+	return (pregex_range*)NULL;
+}
+
 int pregex_get_flags( pregex* regex )
 {
 	if( !( regex ) )
@@ -1140,6 +1124,9 @@ BOOLEAN pregex_set_flags( pregex* regex, int flags )
 		WRONGPARAM;
 		return FALSE;
 	}
+
+	if( pregex_get_flags( regex ) == flags )
+		return FALSE;
 
 	regex->flags = flags;
 	return TRUE;

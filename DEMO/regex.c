@@ -295,6 +295,8 @@ void compiled_regex_demo( void )
 	pregex_compile( rx, "[0-9]+", 1 );
 	pregex_compile( rx, "[0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+", 2 );
 
+#if 0
+
 	/* First, we're extracting tokens from a string */
 	matches = pregex_match( rx, simple, PREGEX_FN_NULL, &res );
 	printf( "compiled regex returned %d matches\n", matches );
@@ -317,19 +319,31 @@ void compiled_regex_demo( void )
 	for( i = 0; i < matches; i++ )
 		printf( "%d: id %d >%.*s<\n", i, res[i].accept,
 			(int)res[i].len, res[i].begin );
+#endif
 
 	pregex_free( rx );
 }
 
 int main( int argc, char** argv )
 {
-	pregex_nfa		nfa;
-	pregex_ptn*		ptn;
-	pregex rx;
+	pregex* 		rx;
+	pregex_range* 	range;
+
 	setlocale( LC_ALL, "" );
 
+	/*
 	direct_regex_demo();
 	compiled_regex_demo();
+	*/
+	rx = pregex_create();
+
+	pregex_compile( rx, "[ \t]+", 0 );
+
+	while( ( range = pregex_split( rx,
+				"Hallo Leute das		ist ein  Test." ) ) )
+		printf( ">%.*s<\n", range->len, range->begin );
+
+	pregex_free( rx );
 
 	return EXIT_SUCCESS;
 }

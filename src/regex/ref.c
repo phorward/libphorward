@@ -23,7 +23,13 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
  * Functions
  */
 
- /*NO_DOC*/
+/*
+	The functions in here are internally handled,
+	and should not be covered when the documentation
+	is generated.
+*/
+
+/*NO_DOC*/
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pregex_ref_init()

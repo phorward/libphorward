@@ -203,6 +203,10 @@ struct _regex
 
 	/* Runtime elements */
 
+	int				age;		/* The objects age; This value is incremented
+									each time a change to the object that
+									affects its runtime validity. */
+
 	pregex_fn		match_fn;	/* A match function to be invoked
 									at every match */
 
@@ -210,10 +214,16 @@ struct _regex
 
 	int				match_count;/* Number of matches since last match
 									function restart */
+	int				last_age;	/* Age of the pregex object at the last
+									call */
 	uchar*			last_str;	/* Begin pointer of last string that was
 									analyzed */
 	uchar*			last_pos;	/* Holds last string position within
 									multiple matches */
 	pregex_range	range;		/* Holds the last pattern match range */
-
+	pregex_range*	refs;		/* Holds all references within the last
+									pattern match range */
+	int				refs_cnt;	/* The number of references; This remains
+									constant, unless other expressions are
+									added to the pregex-object */
 };
