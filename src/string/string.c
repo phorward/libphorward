@@ -1542,7 +1542,9 @@ pchar* Pstrncatstr( pchar* str, pchar* append, psize num )
 
 	PROC( "Pstrncatstr" );
 	PARMS( "str", "%p", str );
+	PARMS( "str", "%ls", str );
 	PARMS( "append", "%p", append );
+	PARMS( "append", "%ls", append );
 	PARMS( "num", "%d", num );
 
 	if( append )
@@ -1556,13 +1558,17 @@ pchar* Pstrncatstr( pchar* str, pchar* append, psize num )
 		{
 			len = Pstrlen( str );
 
+			VARS( "len", "%d", len );
+			VARS( "( len + num + 1 ) * sizeof( pchar )",
+						"%d", ( len + num + 1 ) * sizeof( pchar ) );
+
 			if( !( str = (pchar*)prealloc( (pchar*)str,
 					( len + num + 1 ) * sizeof( pchar ) ) ) )
 				RETURN( (pchar*)NULL );
 		}
 
 		Pstrncpy( str + len, append, num );
-		str[ len + num ] = L'\0';
+		str[ len + num ] = 0;
 	}
 
 	RETURN( str );

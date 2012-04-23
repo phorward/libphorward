@@ -54,8 +54,9 @@ Usage:	Direct regular expression access functions running an internal pregex
 int pregex_qmatch( uchar* regex, uchar* str,
 					int flags, pregex_range** results )
 {
-	int			matches	= 0;
-	pregex*		re;
+	int				matches		= 0;
+	pregex*			re;
+	pregex_range*	range;
 
 	PROC( "pregex_qmatch" );
 	PARMS( "regex", "%s", pgetstr( regex ) );
@@ -69,18 +70,20 @@ int pregex_qmatch( uchar* regex, uchar* str,
 		RETURN( ERR_PARMS );
 	}
 
+	if( results )
+		*results = (pregex_range*)NULL;
+
 	re = pregex_create();
 	pregex_set_flags( re, flags );
 
 	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
 		RETURN( matches );
-	/*
-	matches = pregex_match( re, str, PREGEX_FN_NULL, results );
-	*/
+
+	matches = pregex_match( re, str, results );
+
 	re = pregex_free( re );
 
 	VARS( "matches", "%d", matches );
-
 	RETURN( matches );
 }
 
@@ -120,8 +123,9 @@ int pregex_qmatch( uchar* regex, uchar* str,
 int pregex_qsplit( uchar* regex, uchar* str,
 					int flags, pregex_range** results )
 {
-	int			matches	= 0;
-	pregex*		re;
+	int				matches	= 0;
+	pregex*			re;
+	pregex_range*	range;
 
 	PROC( "pregex_qsplit" );
 	PARMS( "regex", "%s", pgetstr( regex ) );
@@ -138,12 +142,13 @@ int pregex_qsplit( uchar* regex, uchar* str,
 	re = pregex_create();
 	pregex_set_flags( re, flags );
 
+	if( results )
+		*results = (pregex_range*)NULL;
+
 	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
 		RETURN( matches );
-	/*
-	matches = pregex_split( re, str, PREGEX_FN_NULL, results );
-	*/
-	re = pregex_free( re );
+
+	matches = pregex_split( re, str, results );
 
 	VARS( "matches", "%d", matches );
 	RETURN( matches );
@@ -163,57 +168,59 @@ int pregex_qsplit( uchar* regex, uchar* str,
 												pattern
 					uchar*			str			String the pattern
 												will be ran on.
-					uchar*			replacement	String that will be inserted
+					uchar*			replace		String that will be inserted
 												as replacement for each pattern
 												match. $x backreferences
 												can be used
 					int				flags		Flags for regular
 												expression mode switching
-					uchar**			result		Returns a pointer to the result
-												string.
 
-	Returns:		int							Returns the amount of matches,
-												which is the amount of items
-												within the returned
-												results-array. If the
-												value is negative,
-												it is an error define.
+	Returns:		uchar*						Returns the string with the
+												replacements. This string must
+												be freed manually by the caller.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	22.04.2012	Jan Max Meyer	Changed entire function calling style to new
+								regular expression object handling.
 ----------------------------------------------------------------------------- */
-int pregex_qreplace( uchar* regex, uchar* str, uchar* replacement,
-	int flags, uchar** result )
+uchar* pregex_qreplace( uchar* regex, uchar* str, uchar* replace, int flags )
 {
-	int			matches		= 0;
-	pregex*		re;
+	uchar*			ret;
+	int				matches		= 0;
+	pregex*			re;
 
 	PROC( "pregex_qreplace" );
 	PARMS( "regex", "%s", pgetstr( regex ) );
 	PARMS( "str", "%s", pgetstr( str ) );
-	PARMS( "replacement", "%s", pgetstr( replacement ) );
+	PARMS( "replace", "%s", pgetstr( replace ) );
 	PARMS( "flags", "%d", flags );
-	PARMS( "result", "%p", result );
 
 	if( !( regex && str ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( (uchar*)NULL );
 	}
 
 	re = pregex_create();
 	pregex_set_flags( re, flags );
 
-	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
-		RETURN( matches );
+	if( pregex_compile( re, regex, 0 ) < 0 )
+	{
+		pregex_free( re );
+		RETURN( (uchar*)NULL );
+	}
 
-	/*
-	matches = pregex_replace( re, str, replacement,
-					PREGEX_FN_NULL, result );
-	*/
-	re = pregex_free( re );
+	if( !( ret = pregex_replace( re, str, replace ) ) )
+	{
+		pregex_free( re );
+		RETURN( (uchar*)NULL );
+	}
 
-	VARS( "matches", "%d", matches );
-	RETURN( matches );
+	re->tmp_str = (uchar*)NULL;
+	pregex_free( re );
+
+	VARS( "ret", "%s", ret );
+	RETURN( ret );
 }
 

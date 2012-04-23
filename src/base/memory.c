@@ -25,17 +25,17 @@ Usage:	Memory management functions / malloc replacements
 /*
  * Functions
  */
- 
+
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pmalloc()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Like malloc(), but with memory initialization to zero.
 
 	Parameters:		psize		size		Size of memory to be allocated,
 											in bytes.
-					
+
 	Returns:		void*					Allocated heap memory pointer on
 											success, (void*)NULL else.
 
@@ -45,22 +45,22 @@ Usage:	Memory management functions / malloc replacements
 void* pmalloc( psize size )
 {
 	void*	ptr;
-	
+
 	if( !( ptr = malloc( size ) ) )
 	{
 		OUTOFMEM;
 		return (void*)NULL;
 	}
-		
+
 	memset( ptr, 0, size );
 	return ptr;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		prealloc()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Realloc replacement.
 
 	Parameters:		void*		oldptr		Pointer to be reallocated, if this
@@ -68,7 +68,7 @@ void* pmalloc( psize size )
 											like pmalloc().
 	 				psize		size		Size of memory to be reallocated,
 											in bytes.
-					
+
 	Returns:		void*					Allocated heap memory pointer on
 											success, (void*)NULL else.
 
@@ -93,9 +93,9 @@ void* prealloc( void* oldptr, psize size )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pfree()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			An implementation of free(), but accepts NULL-pointers
 					and returns a (void*)NULL pointer for direct pointer memory
 					reset.
@@ -105,7 +105,7 @@ void* prealloc( void* oldptr, psize size )
 					ptr = pfree( ptr );
 
 	Parameters:		void*	ptr				Pointer to be freed.
-					
+
 	Returns:		void*					Returns always (void*)NULL.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -121,33 +121,33 @@ void* pfree( void* ptr )
 
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		pmemdup()
-	
+
 	Author:			Jan Max Meyer
-	
+
 	Usage:			Duplicates a memory entry onto the heap.
-					
+
 	Parameters:		void*		ptr				Pointer to memory
 					size_t		size			Size of pointer
-	
+
 	Returns:		void*						Pointer to memory copy.
 												Cast this with your type!
 												Returns (void*)NULL on error!
-  
+
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
 void* pmemdup( void* ptr, psize size )
 {
 	void*	ret;
-	
+
 	if( !( ptr && size ) )
 	{
 		WRONGPARAM;
 		return (void*)NULL;
 	}
-		
+
 	ret = pmalloc( size );
 	memcpy( ret, ptr, size );
-		
+
 	return ret;
 }

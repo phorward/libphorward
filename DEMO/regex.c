@@ -153,7 +153,6 @@ void direct_regex_demo( void )
 		or two characters! */
 	matches = pregex_qmatch(	"\\<[A-Za-z_][A-Za-z_]?\\>", str,
 								PREGEX_MOD_GLOBAL, &res );
-
 	printf( "we got %d matches:\n", matches );
 	for( i = 0; i < matches; i++ )
 		printf( "  match %d: >%.*s<\n", i, (int)res[i].len, res[i].begin );
@@ -192,7 +191,7 @@ void direct_regex_demo( void )
 
 	/* Now, let's split at each comma and dot, and remove optionally following
 		space characters. */
-	matches = pregex_qsplit(	"[.,;] ?", str, PREGEX_MOD_GLOBAL, &res );
+	matches = pregex_qsplit( "[.,;] ?", str, PREGEX_MOD_GLOBAL, &res );
 
 	printf( "we got %d split results:\n", matches );
 	for( i = 0; i < matches; i++ )
@@ -201,28 +200,32 @@ void direct_regex_demo( void )
 	pfree( res );
 
 	/* Now, let's replace 'gliding' with an HTML-bold-tag! */
-	pregex_qreplace( "([gG]liding)", str, "<b>$1</b>",
-						PREGEX_MOD_GLOBAL | PREGEX_MOD_INSENSITIVE, &result );
+	result = pregex_qreplace( "([gG]liding)", str, "<b>$1</b>",
+						PREGEX_MOD_GLOBAL | PREGEX_MOD_INSENSITIVE);
 	printf( "This is the modified string:\n%s\n\n", result );
+	pfree( result );
+
+	result = pregex_qreplace( "€uro", "This is €uro symbol in UTF-8",
+				"¥en", PREGEX_MOD_GLOBAL );
+
+	printf( "1) This is the modified string:\n%s\n\n", result );
 	pfree( result );
 
 	/* Matching with wide-character strings and regular expressions... */
 	/* First, a simple match. We want to match all words that consist of one
 		or two characters! */
-	matches = pregex_qreplace( (uchar*)L"(wide-character)", (uchar*)lstr,
-								(uchar*)L"$1 (also known as 'pchar')",
-								PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR,
-									(uchar**)&lresult );
+	lresult = (pchar*)pregex_qreplace( (uchar*)L"(wide-character)",
+						(uchar*)lstr, (uchar*)L"$1 (also known as 'pchar')",
+								PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR );
 
-	printf( "1) This is the modified wide-character string:"
+	printf( "2) This is the modified wide-character string:"
 					"\n%ls\n\n", lresult );
 	pfree( lresult );
 
-	matches = pregex_qreplace( (uchar*)L"€+", (uchar*)lstr, (uchar*)L"EUR",
-								PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR,
-									(uchar**)&lresult );
+	lresult = (pchar*)pregex_qreplace( (uchar*)L"€+", (uchar*)lstr,
+						(uchar*)L"EUR", PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR );
 
-	printf( "2) This is the modified wide-character string:"
+	printf( "3) This is the modified wide-character string:"
 					"\n%ls\n\n", lresult );
 	pfree( lresult );
 }
@@ -295,31 +298,41 @@ void compiled_regex_demo( void )
 	pregex_compile( rx, "[0-9]+", 1 );
 	pregex_compile( rx, "[0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+", 2 );
 
-#if 0
-
 	/* First, we're extracting tokens from a string */
-	matches = pregex_match( rx, simple, PREGEX_FN_NULL, &res );
-	printf( "compiled regex returned %d matches\n", matches );
+	for( res = pregex_match_next( rx, simple ), i = 0; res;
+			res = pregex_match_next( rx, (uchar*)NULL ), i++ )
+	{
+		printf( "%d: id %d >%.*s<\n", i, res->accept,
+			(int)res->len, res->begin );
+	}
+
+	/* This is a nother way of how to extract the tokens */
+	matches = pregex_match( rx, simple, &res );
 
 	for( i = 0; i < matches; i++ )
-		printf( "%d: id %d >%.*s<\n", i, res[i].accept,
-			(int)res[i].len, res[i].begin );
+	{
+		printf( "match %d of %d: id %d >%.*s<\n", i + 1, matches,
+			res[i].accept, (int)res[i].len, res[i].begin );
+	}
+
+	pfree( res ); /* the array 'res' must be freed manually! */
 
 	/* Now, we replace these tokens on the fly, using a callback-function! */
-	matches = pregex_replace( rx, simple,
-				(char*)NULL, regex_callback1, &newstr );
-	printf( "compiled regex returned %d matches, and is: >%s<\n",
-				matches, newstr );
-	pfree( newstr ); /* the returned string must be freed after usage! */
+	pregex_set_match_fn( rx, regex_callback1 );
+
+	newstr = pregex_replace( rx, simple, (char*)NULL );
+	printf( "replaced string is: >%s<\n", newstr );
+	/* newstr must not be freed manually - it is part of the pregex-object */
 
 	/* We only want to accept floats in this callback-example run: */
-	matches = pregex_match( rx, simple, regex_callback2, &res );
-	printf( "compiled regex returned %d matches\n", matches );
+	pregex_set_match_fn( rx, regex_callback2 );
 
-	for( i = 0; i < matches; i++ )
-		printf( "%d: id %d >%.*s<\n", i, res[i].accept,
-			(int)res[i].len, res[i].begin );
-#endif
+	for( res = pregex_match_next( rx, simple ), i = 0; res;
+			res = pregex_match_next( rx, (uchar*)NULL ), i++ )
+	{
+		printf( "%d: id %d >%.*s<\n", i, res->accept,
+			(int)res->len, res->begin );
+	}
 
 	pregex_free( rx );
 }
@@ -331,10 +344,9 @@ int main( int argc, char** argv )
 
 	setlocale( LC_ALL, "" );
 
-	/*
 	direct_regex_demo();
 	compiled_regex_demo();
-	*/
+/*
 	rx = pregex_create();
 
 	pregex_compile( rx, "[ \t]+", 0 );
@@ -344,7 +356,7 @@ int main( int argc, char** argv )
 		printf( ">%.*s<\n", range->len, range->begin );
 
 	pregex_free( rx );
-
+*/
 	return EXIT_SUCCESS;
 }
 

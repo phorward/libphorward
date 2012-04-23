@@ -459,6 +459,7 @@ struct _regex_accept
 	int				anchors;	
 };
 
+
 struct _regex_nfa_st
 {
 	pregex_ccl		ccl;		
@@ -470,21 +471,24 @@ struct _regex_nfa_st
 	pregex_accept	accept;		
 };
 
+
 struct _regex_nfa
 {
 	LIST*			states;		
 	LIST*			empty;		
-	pbyte			modifiers;	
+	int				modifiers;	
 
 	int				ref_count;	
 	int				ref_cur;	
 };
+
 
 struct _regex_dfa_tr
 {
 	pregex_ccl		ccl;		
 	unsigned int	go_to;		
 };
+
 
 struct _regex_dfa_st
 {
@@ -498,6 +502,7 @@ struct _regex_dfa_st
 	BOOLEAN			done;		
 	LIST*			nfa_set;	
 };
+
 
 struct _regex_dfa
 {
@@ -567,14 +572,19 @@ struct _regex
 	pregex_fn		match_fn;	
 
 	
-
+	int				last_err;	
 	int				match_count;
 	int				last_age;	
+
 	uchar*			last_str;	
 	uchar*			last_pos;	
+
 	pregex_range	range;		
+
 	pregex_range*	refs;		
 	int				refs_cnt;	
+
+	uchar*			tmp_str;	
 };
 
 
@@ -949,7 +959,7 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len, int* anchors, pr
 
 int pregex_qmatch( uchar* regex, uchar* str, int flags, pregex_range** results );
 int pregex_qsplit( uchar* regex, uchar* str, int flags, pregex_range** results );
-int pregex_qreplace( uchar* regex, uchar* str, uchar* replacement, int flags, uchar** result );
+uchar* pregex_qreplace( uchar* regex, uchar* str, uchar* replace, int flags );
 
 
 pregex_accept* pregex_accept_init( pregex_accept* accept );
@@ -985,11 +995,14 @@ pregex* pregex_free( pregex* regex );
 pregex* pregex_reset( pregex* regex );
 int pregex_compile( pregex* regex, uchar* pattern, int accept );
 int pregex_finalize( pregex* regex );
-pregex_range* pregex_match( pregex* regex, uchar* str );
-pregex_range* pregex_split( pregex* regex, uchar* str );
-int pregex_replace( pregex* regex, uchar* str, uchar* replacement, pregex_fn fn, uchar** result );
+pregex_range* pregex_match_next( pregex* regex, uchar* str );
+int pregex_match( pregex* regex, uchar* str, pregex_range** results );
+pregex_range* pregex_split_next( pregex* regex, uchar* str );
+int pregex_split( pregex* regex, uchar* str, pregex_range** results );
+uchar* pregex_replace( pregex* regex, uchar* str, uchar* replacement );
 pregex_range* pregex_get_range( pregex* regex );
 pregex_range* pregex_get_ref( pregex* regex, int offset );
+int pregex_get_match_count( pregex* regex );
 int pregex_get_flags( pregex* regex );
 BOOLEAN pregex_set_flags( pregex* regex, int flags );
 pregex_fn pregex_get_match_fn( pregex* regex );

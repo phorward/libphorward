@@ -74,11 +74,11 @@ typedef struct	_regex_ptndef	pregex_ptndef;
 typedef struct	_regex			pregex;
 typedef	struct	_pregex_range	pregex_range;
 
-/* Regular expression functions */
+/* Callback function */
 typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
-/* Structs */
+/* Accepting state definition */
 struct _regex_accept
 {
 	int				accept;		/* Accepting state ID */
@@ -86,6 +86,7 @@ struct _regex_accept
 	int				anchors;	/* State anchors */
 };
 
+/* NFA state */
 struct _regex_nfa_st
 {
 	pregex_ccl		ccl;		/* Char-class; if ccl == (pregex_ccl*)NULL,
@@ -98,22 +99,25 @@ struct _regex_nfa_st
 	pregex_accept	accept;		/* Match parameters */
 };
 
+/* NFA state machine */
 struct _regex_nfa
 {
 	LIST*			states;		/* List of nfa-states */
 	LIST*			empty;		/* List to pointers of states to be used */
-	pbyte			modifiers;	/* Regex-modifiers */
+	int				modifiers;	/* Regex-modifiers */
 
 	int				ref_count;	/* Number of references */
 	int				ref_cur;	/* Current reference */
 };
 
+/* DFA transition */
 struct _regex_dfa_tr
 {
 	pregex_ccl		ccl;		/* Matching character range */
 	unsigned int	go_to;		/* Go-To state */
 };
 
+/* DFA state */
 struct _regex_dfa_st
 {
 	LIST*			trans;		/* Transition table row for this DFA state */
@@ -130,6 +134,7 @@ struct _regex_dfa_st
 	LIST*			nfa_set;	/* List of closed sets of NFA-states */
 };
 
+/* DFA state machine */
 struct _regex_dfa
 {
 	LIST*			states;		/* List of dfa-states */
@@ -183,9 +188,7 @@ struct _pregex_range
 									backs to point to a replacement string! */
 };
 
-/*
- * The pregex object structure.
- */
+/* The pregex object structure */
 struct _regex
 {
 	/* Definition elements */
@@ -211,19 +214,26 @@ struct _regex
 									at every match */
 
 	/* Ephemerial elements */
-
-	int				match_count;/* Number of matches since last match
-									function restart */
+	int				last_err;	/* Last error code (one of the Phorward
+									standard error level defines */
+	int				match_count;/* Number of total matches since last
+									match function restart */
 	int				last_age;	/* Age of the pregex object at the last
-									call */
+									match function restart */
+
 	uchar*			last_str;	/* Begin pointer of last string that was
 									analyzed */
 	uchar*			last_pos;	/* Holds last string position within
 									multiple matches */
+
 	pregex_range	range;		/* Holds the last pattern match range */
+
 	pregex_range*	refs;		/* Holds all references within the last
 									pattern match range */
 	int				refs_cnt;	/* The number of references; This remains
 									constant, unless other expressions are
 									added to the pregex-object */
+
+	uchar*			tmp_str;	/* Temporary string pointer that is bound
+									to the object */
 };
