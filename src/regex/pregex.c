@@ -356,7 +356,7 @@ int pregex_finalize( pregex* regex )
 					The function is used similar to strtok(). The first call
 					requires a pointer to the string where the regular
 					expression will tested against. Any subsequent calls to
-					pregex_match() must provide a (uchar*)NULL pointer as
+					pregex_match_next() must provide a (uchar*)NULL pointer as
 					string, so that the previous string position will be
 					re-used.
 
@@ -560,28 +560,35 @@ pregex_range* pregex_match_next( pregex* regex, uchar* str )
 
 	Author:			Jan Max Meyer
 
-	Usage:			TODO
+	Usage:			Runs a regular expression match on a string as long as
+					matches are found. All matches will be collected into
+					return array results, if a pointer is provided.
 
 	Parameters:		pregex*			regex		The regular expression
 												object pointer.
 					uchar*			str			Searchstring the pattern
 												will be ran on.
-					pregex_range**	results		Array of ranges to the
-												matched substrings within
-												str. ranges must be freed
+					pregex_range**	results		Return pointer for an array of
+												ranges to the matched substrings
+												within str.
+												The pointer ranges must be freed
 												after usage. The parameter
 												can be left (pregex_range**)
-												NULL.
+												NULL, so only the number of
+												matches will be returned by the
+												function.
 
 	Returns:		int							Returns the total number of
 												matches. If the value is
 												negative, it is an error
-												define. The returned number
+												code. The returned number
 												is the number of elements in
 												the results-array.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	25.04.2012	Jan Max Meyer	Changed the function to work with the new
+								pregex-object structures.
 ----------------------------------------------------------------------------- */
 int pregex_match( pregex* regex, uchar* str, pregex_range** results )
 {
@@ -642,15 +649,39 @@ int pregex_match( pregex* regex, uchar* str, pregex_range** results )
 
 	Author:			Jan Max Meyer
 
-	Usage:			TODO
+	Usage:			The function pregex_split_next() is used to run a regular
+					expression object on a string, and split this string
+					when a pattern is matched. The function is called as long
+					as no more matches are be found.
 
-	Parameters:		TODO
+					The function is used similar to strtok(). The first call
+					requires a pointer to the string where the regular
+					expression will tested against. Any subsequent calls to
+					pregex_split_next() must provide a (uchar*)NULL pointer as
+					string, so that the previous string position will be
+					re-used.
 
-	Returns:		TODO
+	Parameters:		pregex*			regex		Pointer to a pre-compiled
+												regex state regex.
+					uchar*			str			Pointer to input string where
+												the pattern will be run against.
+												This shall be set at the first
+												call of pregex_match() and later
+												on as (uchar*)NULL.
+
+	Returns:		pregex_range*				Returns a pointer to a pregex-
+												structure describing the
+												splitted area in case of a
+												successful match, else a pointer
+												to (pregex_range*)NULL if no
+												more splits are found or an
+												error occured.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
+	15.04.2012	Jan Max Meyer	Changed the entire function to the new concept
+								using a pregex-object.
 ----------------------------------------------------------------------------- */
 pregex_range* pregex_split_next( pregex* regex, uchar* str )
 {
@@ -686,6 +717,9 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 		RETURN( (pregex_range*)NULL );
 	}
 
+	/* Reset accept structure */
+	memset( &( regex->split ), 0, sizeof( pregex_range ) );
+
 	/* Is this an initial or a subsequent call? */
 	if( !str )
 	{
@@ -714,38 +748,39 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 	{
 		VARS( "match->accept", "%d", match->accept );
 
-		memset( &range, 0, sizeof( range ) );
-		range.accept = match->accept;
+		/* We dont't have any match here! */
+		regex->split.accept = PREGEX_ACCEPT_NONE;
 
-		range.begin = last;
-		range.pbegin = (pchar*)last;
+		regex->split.begin = last;
+		regex->split.pbegin = (pchar*)last;
 
-		range.end = match->begin;
-		range.pend = match->pbegin;
+		regex->split.end = match->begin;
+		regex->split.pend = match->pbegin;
 
 		if( regex->flags & PREGEX_MOD_WCHAR )
 		{
-			range.pos = range.pbegin - (pchar*)regex->last_str;
-			range.len = (pchar*)range.end - (pchar*)range.begin;
+			regex->split.pos = regex->split.pbegin
+									- (pchar*)regex->last_str;
+			regex->split.len = (pchar*)regex->split.end
+									- (pchar*)regex->split.begin;
 		}
 		else
 		{
-			range.pos = range.pbegin - (pchar*)regex->last_str;
-			range.len = range.end - range.begin;
+			regex->split.pos = regex->split.pbegin - (pchar*)regex->last_str;
+			regex->split.len = regex->split.end - regex->split.begin;
 		}
 
-		memcpy( &( regex->range ), &range, sizeof( pregex_range ) );
-		RETURN( &( regex->range ) );
+		RETURN( &( regex->split ) );
 	}
 
 	/* Put last one if required! */
 	if( *last )
 	{
-		memset( &range, 0, sizeof( range ) );
-		range.accept = PREGEX_ACCEPT_NONE; /* We dont't have any match here! */
+		/* We dont't have any match here! */
+		regex->split.accept = PREGEX_ACCEPT_NONE;
 
-		range.begin = last;
-		range.pbegin = (pchar*)last;
+		regex->split.begin = last;
+		regex->split.pbegin = (pchar*)last;
 
 		while( *last )
 		{
@@ -762,24 +797,24 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 			}
 		}
 
-		range.end = last;
-		range.pend = (pchar*)last;
+		regex->split.end = last;
+		regex->split.pend = (pchar*)last;
 
 		if( regex->flags & PREGEX_MOD_WCHAR )
 		{
-			range.pos = range.pbegin - (pchar*)regex->last_str;
-			range.len = (pchar*)range.end - (pchar*)range.begin;
+			regex->split.pos = regex->split.pbegin
+									- (pchar*)regex->last_str;
+			regex->split.len = (pchar*)regex->split.end
+									- (pchar*)regex->split.begin;
 		}
 		else
 		{
-			range.pos = range.pbegin - (pchar*)regex->last_str;
-			range.len = range.end - range.begin;
+			regex->split.pos = regex->split.pbegin - (pchar*)regex->last_str;
+			regex->split.len = regex->split.end - regex->split.begin;
 		}
 
 		regex->last_pos = last;
-
-		memcpy( &( regex->range ), &range, sizeof( pregex_range ) );
-		RETURN( &( regex->range ) );
+		RETURN( &( regex->split ) );
 	}
 
 	MSG( "No more matches for split" );
@@ -791,29 +826,36 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 
 	Author:			Jan Max Meyer
 
-	Usage:			TODO
-
+	Usage:			Runs a regular expression split on a string as long as
+					the string can be splitted at the given compiled pattern.
+					All matches will be collected into return array results,
+					if a pointer is provided.
 
 	Parameters:		pregex*			regex		The regular expression
 												object pointer.
 					uchar*			str			Searchstring the pattern
 												will be ran on.
-					pregex_range**	results		Array of results to the
-												split substrings. Each element
-												of this array contains begin-
-												and end-pointer to the
-												related strings within the
-												input-string str.
+					pregex_range**	results		Return pointer for an array of
+												ranges to the split substrings
+												within str.
+												The pointer ranges must be freed
+												after usage. The parameter
+												can be left (pregex_range**)
+												NULL, so only the number of
+												splits will be returned by the
+												function.
 
 	Returns:		int							Returns the total number of
-												matches, which is the amount
-												of items within the returned
-												results-array. If the value is
+												splits. If the value is
 												negative, it is an error
-												define.
+												code. The returned number
+												is the number of elements in
+												the results-array.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
+	25.04.2012	Jan Max Meyer	Changed the function to work with the new
+								pregex-object structures.
 ----------------------------------------------------------------------------- */
 int pregex_split( pregex* regex, uchar* str, pregex_range** results )
 {
@@ -895,6 +937,8 @@ int pregex_split( pregex* regex, uchar* str, pregex_range** results )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
+	25.04.2012	Jan Max Meyer	Changed the function to work with the new
+								pregex-object usability and behaviors.
 ----------------------------------------------------------------------------- */
 uchar* pregex_replace( pregex* regex, uchar* str, uchar* replacement )
 {
@@ -1243,6 +1287,22 @@ pregex_range* pregex_get_range( pregex* regex )
 	/* range will only be returned when it is a match. */
 	if( regex->range.accept > PREGEX_ACCEPT_NONE )
 		return &regex->range;
+
+	return (pregex_range*)NULL;
+}
+
+/* GET ONLY! */
+pregex_range* pregex_get_split( pregex* regex )
+{
+	if( !( regex ) )
+	{
+		WRONGPARAM;
+		return (pregex_range*)NULL;
+	}
+
+	/* split will only be returned if it is NOT a match!! */
+	if( regex->split.accept == PREGEX_ACCEPT_NONE )
+		return &regex->split;
 
 	return (pregex_range*)NULL;
 }

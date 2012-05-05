@@ -227,6 +227,8 @@ struct _regex
 									multiple matches */
 
 	pregex_range	range;		/* Holds the last pattern match range */
+	pregex_range	split;		/* Holds the last pattern split range,
+									if the split function has been invoked */
 
 	pregex_range*	refs;		/* Holds all references within the last
 									pattern match range */

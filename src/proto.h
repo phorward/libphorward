@@ -131,6 +131,7 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str );
 int pregex_split( pregex* regex, uchar* str, pregex_range** results );
 uchar* pregex_replace( pregex* regex, uchar* str, uchar* replacement );
 pregex_range* pregex_get_range( pregex* regex );
+pregex_range* pregex_get_split( pregex* regex );
 pregex_range* pregex_get_ref( pregex* regex, int offset );
 int pregex_get_match_count( pregex* regex );
 int pregex_get_flags( pregex* regex );
