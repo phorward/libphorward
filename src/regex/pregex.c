@@ -478,16 +478,19 @@ pregex_range* pregex_match_next( pregex* regex, uchar* str )
 
 			/* Fill the match structure */
 			regex->range.accept = match;
-			regex->range.begin = pstr;
-			regex->range.pbegin = (pchar*)pstr;
 
-			regex->range.end = pstr + len;
-			regex->range.pend = (pchar*)pstr + len;
-
-			if( regex->flags & PREGEX_MOD_WCHAR )
+			if( !( regex->flags & PREGEX_MOD_WCHAR ) )
+			{
+				regex->range.begin = pstr;
+				regex->range.end = pstr + len;
 				regex->range.pos = (pchar*)pstr - (pchar*)regex->last_str;
+			}
 			else
+			{
+				regex->range.pbegin = (pchar*)pstr;
+				regex->range.pend = (pchar*)pstr + len;
 				regex->range.pos = pstr - regex->last_str;
+			}
 
 			regex->range.len = len;
 			VARS( "len of result", "%ld", regex->range.len );
@@ -501,16 +504,20 @@ pregex_range* pregex_match_next( pregex* regex, uchar* str )
 			VARS( "match", "%d", match );
 			if( match >= 0 )
 			{
-				regex->range.accept = match;
-
 				/* accept and len could have been changed by
 						the callback function */
+				regex->range.accept = match;
+
 				if( regex->range.len > len )
 					len = regex->range.len;
 
 				/* Move pstr to len characters forward */
 				if( regex->flags & PREGEX_MOD_WCHAR )
+				{
 					pstr += len * sizeof( pchar );
+					regex->range.pend = (pchar*)pstr;
+					regex->range.len = (pchar*)pstr - regex->range.pbegin;
+				}
 				else
 				{
 #ifdef UTF8
@@ -519,18 +526,13 @@ pregex_range* pregex_match_next( pregex* regex, uchar* str )
 #else
 					pstr += len;
 #endif
-				}
-
-				regex->range.end = pstr;
-#ifdef UTF8
-				if( !( regex->flags & PREGEX_MOD_WCHAR ) )
+					regex->range.end = pstr;
 					regex->range.len = pstr - regex->range.begin;
-#endif
+				}
 
 				/* Update pregex object runtime values */
 				regex->last_pos = pstr;
 				regex->match_count++;
-
 				break;
 			}
 		}
@@ -751,23 +753,21 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 		/* We dont't have any match here! */
 		regex->split.accept = PREGEX_ACCEPT_NONE;
 
-		regex->split.begin = last;
-		regex->split.pbegin = (pchar*)last;
-
-		regex->split.end = match->begin;
-		regex->split.pend = match->pbegin;
-
-		if( regex->flags & PREGEX_MOD_WCHAR )
+		if( !( regex->flags & PREGEX_MOD_WCHAR ) )
 		{
+			regex->split.begin = last;
+			regex->split.end = match->begin;
+			regex->split.pos = regex->split.pbegin - (pchar*)regex->last_str;
+			regex->split.len = regex->split.end - regex->split.begin;
+		}
+		else
+		{
+			regex->split.pbegin = (pchar*)last;
+			regex->split.pend = match->pbegin;
 			regex->split.pos = regex->split.pbegin
 									- (pchar*)regex->last_str;
 			regex->split.len = (pchar*)regex->split.end
 									- (pchar*)regex->split.begin;
-		}
-		else
-		{
-			regex->split.pos = regex->split.pbegin - (pchar*)regex->last_str;
-			regex->split.len = regex->split.end - regex->split.begin;
 		}
 
 		RETURN( &( regex->split ) );
@@ -779,8 +779,10 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 		/* We dont't have any match here! */
 		regex->split.accept = PREGEX_ACCEPT_NONE;
 
-		regex->split.begin = last;
-		regex->split.pbegin = (pchar*)last;
+		if( !( regex->flags & PREGEX_MOD_WCHAR ) )
+			regex->split.begin = last;
+		else
+			regex->split.pbegin = (pchar*)last;
 
 		while( *last )
 		{
@@ -797,20 +799,19 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 			}
 		}
 
-		regex->split.end = last;
-		regex->split.pend = (pchar*)last;
-
-		if( regex->flags & PREGEX_MOD_WCHAR )
+		if( !( regex->flags & PREGEX_MOD_WCHAR ) )
 		{
+			regex->split.end = last;
+			regex->split.pos = regex->split.pbegin - (pchar*)regex->last_str;
+			regex->split.len = regex->split.end - regex->split.begin;
+		}
+		else
+		{
+			regex->split.pend = (pchar*)last;
 			regex->split.pos = regex->split.pbegin
 									- (pchar*)regex->last_str;
 			regex->split.len = (pchar*)regex->split.end
 									- (pchar*)regex->split.begin;
-		}
-		else
-		{
-			regex->split.pos = regex->split.pbegin - (pchar*)regex->last_str;
-			regex->split.len = regex->split.end - regex->split.begin;
 		}
 
 		regex->last_pos = last;

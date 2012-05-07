@@ -29,6 +29,7 @@ SRC = 	\
 		regex/nfa.c \
 		regex/pattern.c \
 		regex/pregex.c \
+		regex/range.c \
 		regex/ref.c \
 		string/convert.c \
 		string/string.c \

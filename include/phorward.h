@@ -1011,6 +1011,9 @@ pregex_fn pregex_get_match_fn( pregex* regex );
 BOOLEAN pregex_set_match_fn( pregex* regex, pregex_fn match_fn );
 
 
+uchar* pregex_range_to_string( pregex_range* range );
+
+
 int pregex_ref_init( pregex_range** ref, int* ref_count, int ref_all, int flags );
 void pregex_ref_update( pregex_range* ref, uchar* strp, psize off );
 

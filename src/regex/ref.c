@@ -41,8 +41,8 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
 
 	Parameters:		pregex_range**	ref		Return array of references; If this
 											pointer is not NULL, the function
-											will allocate memory for a refer-
-											ence array. This array is only
+											will allocate memory for a reference
+											array. This array is only
 											allocated if the following dependen
 											cies are met:
 
