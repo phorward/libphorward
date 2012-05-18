@@ -507,6 +507,16 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 		VARS( "accept.accept", "%d", accept.accept );
 		if( accept.accept > PREGEX_ACCEPT_NONE )
 		{
+			if( flags & PREGEX_MOD_DEBUG )
+			{
+				if( flags & PREGEX_MOD_WCHAR )
+					fprintf( stderr, "accept %d, len %d >%.*ls<\n",
+						accept.accept, plen, plen, (pchar*)str );
+				else
+					fprintf( stderr, "accept %d, len %d >%.*s<\n",
+						accept.accept, plen, plen, str );
+			}
+
 			MSG( "New accepting state takes place!" );
 			last_accept = accept.accept;
 			*len = plen;
@@ -522,6 +532,9 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 				VARS( "accept.greedy", "%s", BOOLEAN_STR( accept.greedy ) );
 				if(	!accept.greedy || ( flags & PREGEX_MOD_NONGREEDY ) )
 				{
+					if( flags & PREGEX_MOD_DEBUG )
+						fprintf( stderr, "greedy set, match terminates\n" );
+
 					MSG( "Greedy is set, will stop recognition with "
 							"this match" );
 					break;
@@ -533,6 +546,9 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 		{
 			VARS( "pstr", "%ls", (pchar*)pstr );
 			ch = *((pchar*)pstr);
+
+			if( flags & PREGEX_MOD_DEBUG )
+				fprintf( stderr, "reading >%lc< %d\n", ch, ch );
 		}
 		else
 		{
@@ -542,6 +558,9 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 #else
 			ch = *pstr;
 #endif
+
+			if( flags & PREGEX_MOD_DEBUG )
+				fprintf( stderr, "reading >%c< %d\n", ch, ch );
 		}
 
 		VARS( "ch", "%d", ch );

@@ -25,12 +25,14 @@ uchar* pregex_range_to_string( pregex_range* range )
 
 	if( !range->pbegin )
 	{
+		MSG( "In utf-8/ascii character mode" );
 		str = (uchar*)pmalloc( ( range->len + 1 ) * sizeof( uchar ) );
 		psprintf( str, "%.*s", range->len, range->begin );
 		VARS( "str", "%s", str );
 	}
 	else
 	{
+		MSG( "In wide-character mode" );
 		str = (uchar*)pmalloc( ( range->len + 1 ) * sizeof( pchar ) );
 		Psprintf( (pchar*)str, L"%.*s", range->len, range->pbegin );
 		VARS( "str", "%ls", (pchar*)str );

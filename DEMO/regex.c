@@ -346,17 +346,25 @@ int main( int argc, char** argv )
 
 	direct_regex_demo();
 	compiled_regex_demo();
+
 /*
 	rx = pregex_create();
 
-	pregex_compile( rx, "[ \t]+", 0 );
+	pregex_set_flags( rx, PREGEX_MOD_GLOBAL | PREGEX_MOD_DEBUG );
 
-	while( ( range = pregex_split( rx,
-				"Hallo Leute das		ist ein  Test." ) ) )
-		printf( ">%.*s<\n", range->len, range->begin );
+	pregex_compile( rx, "@[a-z]+", 0 );
+	pregex_compile( rx, "^@[^\\0]*\n", 1 );
+
+	for( mr = pregex_match_next( rx,
+			"hallo\n@leute das\nist ein @test mit" );
+			mr; mr = pregex_match_next( rx, (uchar*)NULL ) )
+	{
+		printf( ">%.*s<\n", mr->len, mr->begin );
+	}
 
 	pregex_free( rx );
 */
+
 	return EXIT_SUCCESS;
 }
 

@@ -12,7 +12,6 @@ Usage:	The pregex object functions.
 /*
  * Includes
  */
-
 #include <phorward.h>
 
 #define IS_EXECUTABLE( stat )	( (stat) == PREGEX_STAT_NFA || \
@@ -469,7 +468,7 @@ pregex_range* pregex_match_next( pregex* regex, uchar* str )
 							regex->flags );
 
 		if( match > PREGEX_ACCEPT_NONE &&
-				pregex_check_anchors( str, pstr, len,
+				pregex_check_anchors( regex->last_str, pstr, len,
 					anchors, regex->flags ) )
 		{
 			MSG( "pregex_nfa_match found a match!" );
@@ -533,7 +532,8 @@ pregex_range* pregex_match_next( pregex* regex, uchar* str )
 				/* Update pregex object runtime values */
 				regex->last_pos = pstr;
 				regex->match_count++;
-				break;
+
+				return &( regex->range );
 			}
 		}
 
@@ -550,11 +550,8 @@ pregex_range* pregex_match_next( pregex* regex, uchar* str )
 		}
 	}
 
-	VARS( "match", "%d", match );
-	VARS( "RETURN", "%p", match >= 0 ?
-			&( regex->range ) : (pregex_range*)NULL );
-
-	RETURN( match >= 0 ? &( regex->range ) : (pregex_range*)NULL  );
+	regex->last_pos = (uchar*)NULL;
+	RETURN( (pregex_range*)NULL  );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -742,6 +739,8 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 			RETURN( (pregex_range*)NULL );
 		}
 	}
+	else
+		regex->last_pos = (uchar*)NULL;
 
 	if( !( last = regex->last_pos ) )
 		last = str;
@@ -774,7 +773,7 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 	}
 
 	/* Put last one if required! */
-	if( *last )
+	if( last && *last )
 	{
 		/* We dont't have any match here! */
 		regex->split.accept = PREGEX_ACCEPT_NONE;
@@ -786,7 +785,7 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 
 		while( *last )
 		{
-			/* Move one character forward to try out next match */
+			/* Move one character forward */
 			if( regex->flags & PREGEX_MOD_WCHAR )
 				last += sizeof( pchar );
 			else
@@ -814,7 +813,7 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 									- (pchar*)regex->split.begin;
 		}
 
-		regex->last_pos = last;
+		regex->last_pos = (uchar*)NULL;
 		RETURN( &( regex->split ) );
 	}
 
