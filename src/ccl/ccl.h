@@ -14,12 +14,7 @@ Usage:	Structures for character-class handling
 
 /* Defines */
 #define CCL_MIN			0x0
-
-#ifdef UTF8
-#define CCL_MAX			0xffff
-#else
-#define CCL_MAX			0xff
-#endif
+#define CCL_MAX			ccl_max()
 
 /* Typedefs */
 typedef struct _crange	CRANGE;

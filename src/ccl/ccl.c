@@ -26,6 +26,17 @@ Usage:	Charclass-Handling
  * Functions
  */
 
+/* Internal */
+pchar ccl_max( void )
+{
+#ifdef UTF8
+	return (pchar)0xffff;
+#else
+	return (pchar)0xff;
+#endif
+}
+
+
 /* -FUNCTION--------------------------------------------------------------------
 	Function:		ccl_size()
 

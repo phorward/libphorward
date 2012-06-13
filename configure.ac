@@ -26,15 +26,17 @@ AC_CHECK_LIB([rt], [main])
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h limits.h unistd.h])
 AC_CHECK_HEADERS([locale.h wchar.h wctype.h],
-	[AC_DEFINE([UNICODE],[1],[Enabling UNICODE build])])
+	[AC_DEFINE([UNICODE],[1],[Enabling UNICODE build])
+	AC_DEFINE([UTF8],[1],[Enabling UTF8 build])
+	])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_FUNC_ALLOCA
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
+#AC_FUNC_ALLOCA
+#AC_FUNC_MALLOC
+#AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memmove memset setlocale strchr strcspn strdup strrchr strspn strstr strtol])
 
 AC_CONFIG_FILES([Makefile

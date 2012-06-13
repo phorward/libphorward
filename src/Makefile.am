@@ -50,20 +50,18 @@ noinst_HEADERS = \
 	string/string.h \
 	string/utf8.h \
 	variant/var.h \
-	xml/xml.h 
+	xml/xml.h \
+	$(PROTOFILE)
 
 include_HEADERS = \
 	$(LIBHEADER)
 
-BUILT_SOURCES = \
-	variant/var.conv.c \
-	variant/var.get.c \
-	variant/var.set.c \
-	$(PROTOFILE) \
-	$(LIBHEADER)
-
-CLEANFILES = \
-	$(LIBHEADER)
+#BUILT_SOURCES = \
+#	variant/var.conv.c \
+#	variant/var.get.c \
+#	variant/var.set.c \
+#	$(PROTOFILE) \
+#	$(LIBHEADER)
 
 #
 # Generated targets
