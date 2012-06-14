@@ -221,10 +221,6 @@ int u8_escape(uchar *buf, int sz, uchar *src, int escape_quotes);
 uchar *u8_strchr(uchar *s, wchar ch, int *charn);
 uchar *u8_memchr(uchar *s, wchar ch, size_t sz, int *charn);
 int u8_is_locale_utf8(uchar *locale);
-#if 0
-int u8_vprintf(uchar *fmt, va_list ap);
-int u8_printf(uchar *fmt, ...);
-#endif
 
 /* util/base64.c */
 pint to_base64( uchar** outstream, uchar* instream, psize size );
