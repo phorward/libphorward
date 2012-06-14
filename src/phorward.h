@@ -127,7 +127,7 @@ typedef byte* bitset;
 
 
 #ifndef __DBG_LOCAL_COMPILE
-	#ifdef __WITH_TRACE
+	#ifdef DEBUG
 		extern int _dbg_indent;
 		extern FILE* _dbg_tracefile;
 	#endif
@@ -138,7 +138,7 @@ typedef byte* bitset;
 
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define MAIN( tracefile ) \
 		char*	_dbg_proc_name	= "main"; \
 		do { \
@@ -155,7 +155,7 @@ typedef byte* bitset;
 
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define PROC( name ) \
 		char*	_dbg_proc_name	= name; \
 		do { \
@@ -170,7 +170,7 @@ typedef byte* bitset;
 
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define RETURN( val ) \
 		do \
 		{ _dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
@@ -186,7 +186,7 @@ typedef byte* bitset;
 
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define VOIDRET \
 		do \
 		{ \
@@ -202,7 +202,7 @@ typedef byte* bitset;
 #endif
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define MAINRET( val ) \
 		do \
 		{ \
@@ -220,7 +220,7 @@ typedef byte* bitset;
 
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define MSG( text ) \
 		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
 			_dbg_proc_name, "MSG   ", "%s", text )
@@ -230,7 +230,7 @@ typedef byte* bitset;
 
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define VARS( name, format, val ) \
 		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
 			_dbg_proc_name, "VARS  ", "%s = >" format "<", name, val )
@@ -240,7 +240,7 @@ typedef byte* bitset;
 
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define PARMS( name, format, val ) \
 		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
 			_dbg_proc_name, "PARMS ", "%s = >" format "<", name, val )
@@ -249,7 +249,7 @@ typedef byte* bitset;
 #endif
 
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define TIMEDUMP \
 		_dbg_time( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
 			_dbg_proc_name )
@@ -585,8 +585,8 @@ struct _regex
 
 
 
-#ifndef STRING_H
-#define STRING_H
+#ifndef PHORWARD_STRING_H
+#define PHORWARD_STRING_H
 
 
 #ifdef UNICODE

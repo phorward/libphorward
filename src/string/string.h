@@ -9,8 +9,8 @@ Author:	Jan Max Meyer
 Usage:	Header for string functions and standard library replacements
 ----------------------------------------------------------------------------- */
 
-#ifndef STRING_H
-#define STRING_H
+#ifndef PHORWARD_STRING_H
+#define PHORWARD_STRING_H
 
 /* pchar wide-character replacements for standard string functions
 	do all begin with uppercase 'P'. */

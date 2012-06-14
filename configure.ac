@@ -6,6 +6,15 @@ AC_CONFIG_SRCDIR([src/phorward.tpl.h])
 #AC_CONFIG_HEADERS([include/config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
+# Enable Trace facilities?
+AC_MSG_CHECKING([wether Phorward trace facilities will be integrated])
+AC_ARG_WITH([trace],
+	[AS_HELP_STRING([--with-trace],
+		[enable trace macro facilities (huger binary files)])],
+		[with_trace="yes" AC_DEFINE([DEBUG])],
+		[with_trace="no"])
+AC_MSG_RESULT([$with_trace])
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_AWK
@@ -19,8 +28,7 @@ LT_INIT
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lrt':
-AC_CHECK_LIB([rt], [main])
+AC_CHECK_LIB([rt], [sprintf])
 
 # Checks for header files.
 AC_HEADER_STDC

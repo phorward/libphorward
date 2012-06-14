@@ -6,7 +6,7 @@ All rights reserved. See $PHOME/LICENSE for more information.
 
 File:	dbg.h
 Usage:	Program Trace Facilities
-		These facilities require to switch __WITH_TRACE on before including
+		These facilities require to switch DEBUG on before including
 		this file.
 ----------------------------------------------------------------------------- */
 
@@ -17,7 +17,7 @@ Usage:	Program Trace Facilities
 /* --- DEBUG VARIABLES --- */
 /* ----------------------- */
 #ifndef __DBG_LOCAL_COMPILE
-	#ifdef __WITH_TRACE
+	#ifdef DEBUG
 		extern int _dbg_indent;
 		extern FILE* _dbg_tracefile;
 	#endif
@@ -28,7 +28,7 @@ Usage:	Program Trace Facilities
 /* -------------- */
 
 /* Macro: MAIN */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define MAIN( tracefile ) \
 		char*	_dbg_proc_name	= "main"; \
 		do { \
@@ -60,7 +60,7 @@ Usage:	Program Trace Facilities
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define PROC( name ) \
 		char*	_dbg_proc_name	= name; \
 		do { \
@@ -92,7 +92,7 @@ Usage:	Program Trace Facilities
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define RETURN( val ) \
 		do \
 		{ _dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
@@ -121,7 +121,7 @@ Usage:	Program Trace Facilities
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define VOIDRET \
 		do \
 		{ \
@@ -137,7 +137,7 @@ Usage:	Program Trace Facilities
 #endif
 
 /* Macro: MAINRET */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define MAINRET( val ) \
 		do \
 		{ \
@@ -168,7 +168,7 @@ Usage:	Program Trace Facilities
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define MSG( text ) \
 		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
 			_dbg_proc_name, "MSG   ", "%s", text )
@@ -188,14 +188,14 @@ Usage:	Program Trace Facilities
 											variable.
 					uchar*	format			printf-Format string for the
 											variable value, e.g. "%s"
-					<var>	var				The variable itself.
+					<var>	val				The variable itself.
 
 	Returns:		void
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define VARS( name, format, val ) \
 		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
 			_dbg_proc_name, "VARS  ", "%s = >" format "<", name, val )
@@ -224,7 +224,7 @@ Usage:	Program Trace Facilities
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define PARMS( name, format, val ) \
 		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
 			_dbg_proc_name, "PARMS ", "%s = >" format "<", name, val )
@@ -233,7 +233,7 @@ Usage:	Program Trace Facilities
 #endif
 
 /* Macro: TIME */
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	#define TIMEDUMP \
 		_dbg_time( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
 			_dbg_proc_name )

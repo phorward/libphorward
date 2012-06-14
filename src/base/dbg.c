@@ -10,10 +10,7 @@ Usage:	Macros and functions for trace output.
 ----------------------------------------------------------------------------- */
 
 /*
-	Trace is activated in any program if the __WITH_TRACE-macro is defined.
-	Use the dmake-command of the Phorward Development Environment to compile
-	a module with trace enabled.
-	
+	Trace is activated in any program if the DEBUG-macro is defined.
 	A function which uses trace looks like the following:
 
 	int func( int a, uchar* b )
@@ -197,7 +194,27 @@ FILE* 		_dbg_tracefile;
 void _dbg_trace( FILE* f, int indent, char* file, int line, char* proc, 
 			char* type, char* format, ... )
 {
-	va_list			arg;
+	char*		modules;
+	char*		basename;
+	int			maxdepth;
+	va_list		arg;
+
+	/* Find out if this module should be traced */
+	if( !( modules = getenv( "TRACEMODULE" ) ) )
+		return;
+
+	if( !( basename = strrchr( file, PPATHSEP ) ) )
+		basename = file;
+	else
+		basename++;
+
+	if( pstrcmp( modules, "*" ) != 0 
+		&& !pstrstr( modules, basename ) )
+		return;
+
+	if( ( maxdepth = patoi( getenv( "TRACEDEPTH" ) ) ) > 0
+			&& indent > maxdepth )
+		return;
 	
 	va_start( arg, format );
 	

@@ -1326,7 +1326,7 @@ int Pvasprintf( pchar** str, pchar* fmt, va_list ap )
 	int			len;
 	va_list		w_ap;
 
-	PROC( "pvasprintf" );
+	PROC( "Pvasprintf" );
 	PARMS( "str", "%p", str );
 	PARMS( "fmt", "%ls", fmt );
 	PARMS( "ap", "%p", ap );
@@ -1338,9 +1338,7 @@ int Pvasprintf( pchar** str, pchar* fmt, va_list ap )
 	do
 	{
 		va_copy( w_ap, ap );
-		/*
 		len = vswprintf( istr, (psize)ilen, fmt, w_ap );
-		*/
 		va_end( w_ap );
 		VARS( "len", "%d", len );
 
