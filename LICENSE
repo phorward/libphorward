@@ -1,17 +1,9 @@
-:: Phorward Foundation Libraries & Software Development Kit.
+:: Phorward Foundation Toolkit
 :: Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
-:: All rights reserved. See $PHOME/LICENSE for more informations.
+:: All rights reserved. See LICENSE for more informations.
 ::
 :: LICENSE AGREEMENTS
 --------------------------------------------------------------------------------
-
-This license agreements fits to all files that are part of the Phorward
-Software Technologies Foundation Libraries Environment. The files are
-listed below.
-
-All files that are NOT explicitly listed are NOT part of this license, and
-use a different, possibly closed-source, or other type of open source
-license.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -39,99 +31,3 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The following files may be used and modified under the terms and conditions of
-this license; Everything else covers different license agreements, and is NOT
-part of the development environment on its own.
-
-CHANGES
-doc/foundation_libraries.odg
-doc/phorward.png
-doc/ref.css
-doc/tpl/html/document.tpl
-doc/tpl/html/function.tpl
-doc/tpl/html/module.tpl
-doc/tpl/html/parameter.tpl
-doc/tpl/html/refentry.tpl
-doc/tpl/html/returns.tpl
-doc/tpl/t2t/document.tpl
-doc/tpl/t2t/function.tpl
-doc/tpl/t2t/parameter.tpl
-doc/tpl/t2t/returns.tpl
-etc/NOTEMPTY
-.hgignore
-.hgtags
-include/DIST.Make.inc
-include/DIST.Make.inc.win
-lib/NOTEMPTY
-LICENSE
-README
-run/dmake
-run/dos_to_unix
-run/lincl
-run/mkdoc.awk
-run/mkproto
-run/phelp
-run/ppp
-run/psetup
-run/psh
-run/rem_comments
-run/sccs2hg
-run/text_to_c
-src/DEMO/basis.c
-src/DEMO/Makefile
-src/DEMO/regex.c
-src/DEMO/string.c
-src/makeall
-src/Makefile
-src/min_lalr1/Makefile
-src/min_lalr1/min_lalr1.c
-src/NEWPROJECT/main.c
-src/NEWPROJECT/Makefile
-src/NEWPROJECT/proto.h
-src/phorward/base64.c
-src/phorward/bitset.c
-src/phorward/bitset.h
-src/phorward/ccl.c
-src/phorward/ccl.h
-src/phorward/convert.c
-src/phorward/dbg.c
-src/phorward/dbg.h
-src/phorward/hashtab.c
-src/phorward/hashtab.h
-src/phorward/llist.c
-src/phorward/llist.h
-src/phorward/Makefile
-src/phorward/memory.c
-src/phorward/phorward.h
-src/phorward/proto.h
-src/phorward/regex/comp.c
-src/phorward/regex/dfa.c
-src/phorward/regex/direct.c
-src/phorward/regex/misc.c
-src/phorward/regex/nfa.c
-src/phorward/regex/pattern.c
-src/phorward/regex/ref.c
-src/phorward/regex/regex.h
-src/phorward/stack.c
-src/phorward/stack.h
-src/phorward/string.c
-src/phorward/string/get.c
-src/phorward/string.h
-src/phorward/string/local.h
-src/phorward/string/pstring.c
-src/phorward/string/set.c
-src/phorward/string/string.h
-src/phorward/string/util.c
-src/phorward/system.c
-src/phorward/utf8.c
-src/phorward/utf8.h
-src/phorward/var.c
-src/phorward/var.conv.c
-src/phorward/var.gen.awk
-src/phorward/var.get.c
-src/phorward/var.h
-src/phorward/var.set.c
-src/phorward/xml.c
-src/phorward/xml.h
-Version

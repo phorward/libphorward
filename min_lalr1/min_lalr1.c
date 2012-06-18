@@ -2,7 +2,7 @@
 	min_lalr1 - Experimental Minimalist LALR(1) Parser Generator
 	Copyright (C) 2007-2012 by Phorward Software Technologies, Jan Max Meyer
 	http://www.phorward-software.com  contact<at>phorward<dash>software<dot>com
-	All rights reserved. See $PHOME/LICENSE for more information.
+	All rights reserved. See LICENSE for more information.
 	
 	This program represents a modified experimental implementation of the
 	LALR(1) parse table construction algorithm for testing and experimental
@@ -2259,7 +2259,7 @@ int main( int argc, char** argv )
 			"Phorward Software Technologies, Jan Max Meyer\n" );
 	fprintf( stderr, "http://www.phorward-software.com   "
 				"contact<at>phorward<dash>software<dot>com\n" );
-	fprintf( stderr, "All rights reserved. See $PHOME/LICENSE for more"
+	fprintf( stderr, "All rights reserved. See LICENSE for more"
 						"information.\n\n" );				
 	
 	if( argc < 2 )

@@ -1,8 +1,8 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Foundation Libraries :: Basis Library
+Phorward Foundation Toolkit
 Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-All rights reserved. See $PHOME/LICENSE for more information.n.
+All rights reserved. See LICENSE for more information.n.
 
 File:	xml.c
 Author:	Aaron Voisine, contributions and code-formatting by Jan Max Meyer

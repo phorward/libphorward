@@ -1,13 +1,13 @@
 /* -MODULE----------------------------------------------------------------------
-Phorward Foundation Libraries :: Basis Library
+Phorward Foundation Toolkit
 Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-All rights reserved. See $PHOME/LICENSE for more information.n.
+All rights reserved. See LICENSE for more information.n.
 
 File:	var.c
 Author:	Jan Max Meyer
 Usage:	pvar implements a variant data type, which can hold any of
-		Phorward Foundation Libraries' generic types as declared in pbasis.h.
+		Phorward Foundation Toolkit' generic types as declared in pbasis.h.
 ----------------------------------------------------------------------------- */
 
 /*

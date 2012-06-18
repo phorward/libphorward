@@ -29,6 +29,10 @@ AM_PROG_CC_C_O
 LT_INIT
 AC_PROG_LIBTOOL
 
+# Check if txt2tags is installed here
+AC_CHECK_PROG([TXT2TAGS], [txt2tags], "yes", "no")
+AM_CONDITIONAL([WITH_TXT2TAGS],[test "$TXT2TAGS" = "yes"])
+
 # Checks for libraries.
 AC_CHECK_LIB([rt], [sprintf])
 

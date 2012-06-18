@@ -1,8 +1,8 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Foundation Libraries :: General Header
+Phorward Foundation Toolkit :: General Header
 Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-All rights reserved. See $PHOME/LICENSE for more information.
+All rights reserved. See LICENSE for more information.
 
 File:	phorward.h
 Usage:	Main include file for phorward library

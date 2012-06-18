@@ -1,0 +1,24 @@
+#!/bin/sh
+
+cat <<ENDL
+:: Phorward Foundation Toolkit v`./Version`
+:: Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
+:: All rights reserved. See LICENSE for more informations.
+:: `uname -n -o -p -r`
+   ______________________
+  /\\                     \\
+ /  \\    _________________\\
+ \   \\   \\                /
+  \   \\   \\__________    /
+   \   \\   \\    /   /   /
+    \   \\   \\  /   /   /
+     \   \\   \\/   /   /
+      \   \\  /   /   /
+       \   \\/   /   /
+        \      /   /
+         \    /   /
+          \  /   /	PHORWARD SOFTWARE TECHNOLOGIES
+           \/___/              ... all systems go!
+
+ENDL
+
