@@ -1289,9 +1289,13 @@ int Psprintf( pchar* res, pchar* fmt, ... )
 
 	va_start( args, fmt );
 
-/*
-	ret = vswprintf( res, 256 * 1024 * 1024, fmt, args );
-*/
+	ret = 
+#ifdef __MINGW32__
+	_vsnwprintf
+#else
+	vswprintf
+#endif
+	( res, 256 * 1024 * 1024, fmt, args );
 
 	va_end( args );
 
@@ -1338,7 +1342,15 @@ int Pvasprintf( pchar** str, pchar* fmt, va_list ap )
 	do
 	{
 		va_copy( w_ap, ap );
-		len = vswprintf( istr, (psize)ilen, fmt, w_ap );
+
+		len = 
+#ifdef __MINGW32__
+		_vsnwprintf
+#else
+		vswprintf
+#endif
+		( istr, (psize)ilen, fmt, w_ap );
+
 		va_end( w_ap );
 		VARS( "len", "%d", len );
 
