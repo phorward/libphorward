@@ -4,14 +4,10 @@
 .SH DESCRIPTION
 
 .P
-The Phorward Foundation Toolkit is a package consisting of a powerful C
-functions library, also called Phorward Foundation Library (libphorward), and
-some console\-based scripts and programs.
+The Phorward Foundation Toolkit is a package consisting of a powerful C functions library, also called Phorward Foundation Library (libphorward), and some console\-based scripts and programs.
 
 .P
-The toolkit can be used for enhanced, general\-purpose software development in C.
-The library provides many useful and extending features to C applications,
-including
+The toolkit can be used for enhanced, general\-purpose software development in C. The library provides many useful and extending features to C applications, including
 
 .RS
 .IP \(bu 3
@@ -21,7 +17,7 @@ Extending string functions for dynamic string management
 .IP \(bu 3
 Functions to work with sets (set theory functions)
 .IP \(bu 3
-A full\-fledged regular expression parser, engine and management tools
+A full\-fledged regular expression parser, engine and management suite
 .IP \(bu 3
 Platform\-independent, system\-specific functions
 .IP \(bu 3
@@ -39,26 +35,27 @@ Furthermore, the package provides
 
 .RS
 .IP \(bu 3
-min_lalr1, an experimental LALR(1) parser generator (used to bootstrap UniCC)
+\fBmin_lalr1\fR, an experimental LALR(1) parser generator (used to bootstrap UniCC)
 .IP \(bu 3
-pdoc, a source\-code to documentation generator
+\fBpdoc\fR, a source\-code to documentation generator
 .IP \(bu 3
-pproto, a C\-functions prototype generator
+\fBpproto\fR, a C\-functions prototype generator
 .IP \(bu 3
 Several scripts for quick source code maintenance
 .RE
 
 .P
-Please check out http://phorward.phorward\-software.com/ from time to time to get
-the latest news, documentation, updates and support on the Phorward Foundation
-Toolkit.
+Please check out http://phorward.phorward\-software.com/ from time to time to get the latest news, documentation, updates and support on the Phorward Foundation Toolkit.
 
-.SH INSTALLATION
+.SH EXAMPLES
 
 .P
-Installation of the Phorward Foundation Toolkit is simple as every GNU\-style
-open source program. Extract the release tarball or clone the Mercurial
-repository into a directory of your choice.
+TODO
+
+.SH BUILDING
+
+.P
+Building the Phorward Foundation Toolkit is simple as every GNU\-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
 
 .P
 Then, run
@@ -69,8 +66,7 @@ Then, run
 
 
 .P
-to configure the build\-system and generate the Makefiles.
-Type
+to configure the build\-system and generate the Makefiles for your current platform. After successful configuration, run
 
 .nf
 make
@@ -86,17 +82,31 @@ make install
 
 
 .P
-(properly as root) then, to install the toolkit into your system.
+(properly as root), to install the toolkit into your system.
 
 .P
-On Windows systems, the usage of Cygwin or another Unix shell environment is
-required.
+On Windows systems, the usage of http://cygwin.org/ or another Unix shell environment is required. The Phorward Foundation Toolkit also perfectly cross\-compiles on Linux using the MinGW and MinGW_x86\-64 compilers.
+
+.P
+To compile into 32\-Bit Windows executables, configure with
+
+.nf
+\&./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
+.fi
+
+
+.P
+To compile into 64\-Bit Windows executables, configure with
+
+.nf
+\&./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
+.fi
+
 
 .SH AUTHOR
 
 .P
-The Phorward Foundation Toolkit is developed and maintained by
-Jan Max Meyer, Phorward Software Technologies.
+The Phorward Foundation Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
 .P
 Help of any kind to extend and improve this product is always appreciated.
@@ -107,8 +117,7 @@ Help of any kind to extend and improve this product is always appreciated.
 Copyright (C) 2006\-2012 by Phorward Software Technologies, Jan Max Meyer.
 
 .P
-You may use, modify and distribute this software under the terms and conditions
-of the 3\-clause BSD license. The full license terms can be obtained from the file LICENSE.
+You may use, modify and distribute this software under the terms and conditions of the 3\-clause BSD license. The full license terms can be obtained from the file LICENSE.
 
 .P
 THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
