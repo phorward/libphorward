@@ -2,7 +2,7 @@
 :: Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 :: All rights reserved. See LICENSE for more informations.
 ::
-:: CHANGE LOG FILE
+:: CHANGELOG
 --------------------------------------------------------------------------------
 
 LEGEND:
@@ -10,57 +10,62 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
-v0.17.xx (changeset >= 330)
+v0.17 (changeset 394)
 ----------------------------------------
-This version is currently under development.
-The entire make system is rebuild currently
-with some extensions.
+[+] New string functions pstrltrim(), pstrrtrim(), pstrtrim(), pstrndup(),
+	pstrset(), pstrget(). There had also been some renamings on existing
+	functions to follow an integrative naming convention (without underscore
+	in its name).
+[+] Added pregex_ptn-structure (pregex-pattern) and rewrote the entire
+	parsing and modification tools of regular expressions.
+[+] Extended the regular expression facilities to an object-oriented access
+	using the pregex-object. This will give much more flexibility and a
+	better handling for various purposes.
+[+] New regular expression object functions for matching, splitting and
+	replacing.
+[+] The trace facilities are now handled in a different way. To switch them
+	on, use the environment variable TRACEMODULE and configure the build
+	system with the --with-trace option.
+[+] New README documentation generated with txt2tags, with installation of
+	a manpage also.
+[+] Moved entire directory and installation structure to fit the
+	GNU coding standards.
+[+] Removed own build toolchain and moved to GNU autotools as the main
+	development toolchain. There is also a support for scons and Visual C++
+	integrated currently.
 
 ----------------------------------------
 v0.16.11 (changeset 329)
 ----------------------------------------
-[-]	pbasis: Bugfix in xml.c, relating
-	the function xml_parse_file()
-	and xml_parse_fd(). Now removed
-	xml_parse_fd(), xml_parse_file()
-	uses the map_file() function of
-	util.c now. The problem only
+[-]	pbasis: Bugfix in xml.c, relating the function xml_parse_file()
+	and xml_parse_fd(). Now removed xml_parse_fd(), xml_parse_file()
+	uses the map_file() function of util.c now. The problem only
 	existed on the Windows port.
 
 ----------------------------------------
 v0.16.10
 ----------------------------------------
-[+] Preparatories for a new build
-	concept, because there are
-	problems on Windows-platform
-	relating the UniCC release soon.
-[+] Improved mkproto to generate
-	function prototypes with only one
-	script.
-[+] Removed cproto_all scripts, they
-	are not necessary anymore.
-[+] Rewrote Makefiles according to
-	use mkproto for now and in future.
+[+] Preparatories for a new build concept, because there are
+	problems on Windows-platform relating the UniCC release soon.
+[+] Improved mkproto to generate function prototypes with only one script.
+[+] Removed cproto_all scripts, they are not necessary anymore.
+[+] Rewrote Makefiles according to use mkproto for now and in future.
 
 ----------------------------------------
 v0.16.9
 ----------------------------------------
 [+] pregex:
-	Added possibilities to define
-	greedyness of the regular expression
-	execution machine via the NFA/DFA
-	regular expression itself.
-	Greedyness is set TRUE by default,
-	but switched FALSE when any char
+	Added possibilities to define greedyness of the regular expression
+	execution machine via the NFA/DFA regular expression itself.
+	Greedyness is set TRUE by default, but switched FALSE when any char
 	calls are done.
 
 ----------------------------------------
 v0.16.7 -> v0.16.8
 ----------------------------------------
 [+] pbasis:
-	system.c extended to new function pgetopt(), a
-	command-line argument parser supporting short-
-	and long-options including parameters.
+	system.c extended to new function pgetopt(), a command-line argument
+	parser supporting short- and long-options including parameters.
 [+] NEWPROJECT:
 	Extended base project to new pgetopt() function.
 

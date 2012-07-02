@@ -1,0 +1,75 @@
+Phorward Foundation Toolkit (libphorward)
+libphorward 0.17
+June 2012
+
+= DESCRIPTION =
+
+The Phorward Foundation Toolkit is a package consisting of a powerful C
+functions library, also called Phorward Foundation Library (libphorward), and
+some console-based scripts and programs.
+
+The toolkit can be used for enhanced, general software development in C.
+The library provides many useful and extending features to C application and
+systems programmers, including
+
+- Standard data structures: Linked lists, hash tables, dynamic stacks, bitsets
+- Extending string functions for dynamic string management
+- Functions to work with sets (set theory)
+- Full-fledged regular expression parser, engine and management tools
+- Platform-independent, system-specific functions
+- XML-parser (DOM) and management tools
+- Variant data type structure to work with arbitrary values in one object
+- Consistent Unicode and UTF-8 support
+- Object-oriented fashion of some function interfaces (e.g. regular expressions)
+-
+
+Furthermore, the package provides
+
+- min_lalr1, an experimental LALR(1) parser generator (used to bootstrap UniCC)
+- pdoc, a source-code to documentation generator
+- pproto, a C-functions prototype generator
+- Several scripts for quick source code maintenance
+-
+
+Please check out http://phorward.phorward-software.com/ from time to time to get
+the latest news, documentation, updates and support on the Phorward Foundation
+Toolkit.
+
+= INSTALLATION =
+
+Installation of the Phorward Foundation Toolkit is simple as every GNU-style
+open source program. Extract the release tarball or clone the Mercurial
+repository into a directory of your choice.
+
+Run
+
+``` ./configure
+
+to configure the build-system and generate the Makefiles.
+Then type
+
+``` make
+
+and
+
+``` make install
+
+(properly as root) to install the toolkit into your system.
+
+On Windows systems, the usage of Cygwin or another Unix shell environment is
+reqired.
+
+= AUTHOR =
+
+The UniCC LALR(1) Parser Generator and the UniCC Standard C Parser Template is
+written and maintained by Jan Max Meyer, Phorward Software Technologies.
+
+= COPYRIGHT =
+
+Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
+
+You may use, modify and distribute this software under the terms and conditions
+of the Artistic License, version 2.
+
+The full license terms can be obtained from the file LICENSE, provided
+with both the source and binary packages of UniCC.
