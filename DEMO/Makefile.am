@@ -1,5 +1,5 @@
 
-noinst_PROGRAMS = basis regex
+noinst_PROGRAMS = basis$(EXEEXT) regex$(EXEEXT)
 
 basis_SOURCES = basis.c
 basis_LDADD = ../src/libphorward.la

@@ -1,5 +1,5 @@
 
-SUBDIRS = src run min_lalr1 DEMO
+SUBDIRS = src run DEMO
 
 man1_MANS = phorward.man
 phorwarddir = $(datadir)/phorward

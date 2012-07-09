@@ -50,7 +50,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = basis$(EXEEXT) regex$(EXEEXT)
 subdir = DEMO
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
@@ -210,6 +209,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+noinst_PROGRAMS = basis$(EXEEXT) regex$(EXEEXT)
 basis_SOURCES = basis.c
 basis_LDADD = ../src/libphorward.la
 basis_CFLAGS = -I$(top_srcdir)/src

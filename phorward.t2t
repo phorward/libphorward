@@ -25,7 +25,6 @@ systems programmers, including
 
 Furthermore, the package provides
 
-- min_lalr1, an experimental LALR(1) parser generator (used to bootstrap UniCC)
 - pdoc, a source-code to documentation generator
 - pproto, a C-functions prototype generator
 - Several scripts for quick source code maintenance
