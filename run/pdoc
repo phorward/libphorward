@@ -16,7 +16,7 @@ BEGIN	{
 			print_sections = 1 
 			full_index = 0
 			no_html_reformat = 0
-			tpldir = getenv( "PHOME" ) "/doc/tpl"
+			tpldir = "/usr/share/phorward/doc/tpl"
 			target = "html"
 			manual = ""
 
@@ -25,18 +25,20 @@ BEGIN	{
 			# Begin of program
 			for( i = 1; i < ARGC; i++ )
 			{
-				if( ARGV[i] == "-o" )
+				if( ARGV[i] == "--output" && i+1 < ARGC )
 					output = ARGV[++i]
-				else if( ARGV[i] == "-i" )
+				else if( ARGV[i] == "--full-index" )
 					full_index = 1
-				else if( ARGV[i] == "-nh" )
+				else if( ARGV[i] == "--no-html-reformatting" )
 					no_html_reformat = 1
-				else if( ARGV[i] == "-ns" )
+				else if( ARGV[i] == "--no-sections" )
 					print_sections = 0
-				else if( ARGV[i] == "-t" && i+1 < ARGC )
+				else if( ARGV[i] == "--target" && i+1 < ARGC )
 					target = ARGV[++i]
 				#JMM 13.04.2011: Templates are also replacable now
-				else if( ARGV[i] == "-tpl" && i+2 < ARGC )
+				else if( ARGV[i] == "--tpldir" && i+2 < ARGC )
+					tpldir = ARGV[++i]
+				else if( ARGV[i] == "--tpl" && i+2 < ARGC )
 					tpl[ ARGV[++i] ] = readfile( ARGV[++i] )
 				#JMM 13.04.2011: Ok, mkdoc now features some kind of
 				#variables to be defined, and later on replaced anywhere
@@ -44,8 +46,7 @@ BEGIN	{
 				#It is specified as: -v varname Value
 				#If value begins with "@", then it is assumed as a file,
 				#and read.
-				else if( ( ARGV[i] == "-var" || ARGV[i] == "-v" ) \
-							&& i+2 < ARGC )
+				else if( ARGV[i] == "--var" && i+2 < ARGC )
 				{
 					if( substr( ARGV[i+2], 1, 1 ) == "@" )
 						variable[ARGV[++i]] = readfile( substr( ARGV[++i], 2 ) )

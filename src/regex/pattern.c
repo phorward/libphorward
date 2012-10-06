@@ -730,7 +730,7 @@ int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
 
 	Author:			Jan Max Meyer
 
-	Usage:
+	Usage:			Converts a pattern-structure into a NFA state machine.
 
 	Parameters:		pregex_nfa*		nfa			NFA state machine structure
 												that receives the compiled

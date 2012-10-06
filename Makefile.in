@@ -852,7 +852,7 @@ uninstall-man: uninstall-man1
 	uninstall-dist_phorwardDATA uninstall-man uninstall-man1
 
 
-# --- UniCC Documentation ------------------------------------------------------
+# --- Phorward Documentation --------------------------------------------------
 #
 # Now documentation generation follows, using txt2tags.
 #

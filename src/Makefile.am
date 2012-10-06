@@ -7,6 +7,7 @@
 
 PROTOFILE =	proto.h
 LIBHEADER = phorward.h
+DOCFILE = ../doc/phorward.html
 PATHEXT = PATH="../run:$(PATH)"
 
 lib_LTLIBRARIES = libphorward.la
@@ -56,6 +57,10 @@ noinst_HEADERS = \
 include_HEADERS = \
 	$(LIBHEADER)
 
+phorwarddir = $(datadir)/phorward
+dist_phorward_DATA = \
+	$(DOCFILE)
+
 #BUILT_SOURCES = \
 #	variant/var.conv.c \
 #	variant/var.get.c \
@@ -87,3 +92,8 @@ variant/var.set.c: variant/var.h variant/var.gen.awk
 variant/var.conv.c: variant/var.h variant/var.gen.awk
 	$(AWK) -f variant/var.gen.awk -vwith_conv=1 variant/var.h >$@
 
+# Phorward Foundation Library Documentation
+$(DOCFILE): $(libphorward_la_SOURCES)
+	$(PATHEXT) $(AWK) -f ../run/pdoc \
+	--tpldir ../doc/tpl --no-sections --full-index \
+		$(libphorward_la_SOURCES) >$@

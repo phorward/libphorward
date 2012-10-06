@@ -6,7 +6,7 @@ phorwarddir = $(datadir)/phorward
 dist_phorward_DATA = LICENSE README
 
 if WITH_TXT2TAGS
-# --- UniCC Documentation ------------------------------------------------------
+# --- Phorward Documentation --------------------------------------------------
 #
 # Now documentation generation follows, using txt2tags.
 #

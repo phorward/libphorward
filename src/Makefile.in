@@ -22,6 +22,7 @@
 # ------------------------------------------------------------------------------
 
 
+
 VPATH = @srcdir@
 am__make_dryrun = \
   { \
@@ -59,8 +60,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = src
-DIST_COMMON = $(include_HEADERS) $(noinst_HEADERS) \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+DIST_COMMON = $(dist_phorward_DATA) $(include_HEADERS) \
+	$(noinst_HEADERS) $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -96,7 +97,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(phorwarddir)" \
+	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libphorward_la_LIBADD =
 am_libphorward_la_OBJECTS = bitset.lo dbg.lo hashtab.lo llist.lo \
@@ -125,6 +127,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+DATA = $(dist_phorward_DATA)
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -245,6 +248,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 PROTOFILE = proto.h
 LIBHEADER = phorward.h
+DOCFILE = ../doc/phorward.html
 PATHEXT = PATH="../run:$(PATH)"
 lib_LTLIBRARIES = libphorward.la
 libphorward_la_SOURCES = \
@@ -291,6 +295,10 @@ noinst_HEADERS = \
 
 include_HEADERS = \
 	$(LIBHEADER)
+
+phorwarddir = $(datadir)/phorward
+dist_phorward_DATA = \
+	$(DOCFILE)
 
 all: all-am
 
@@ -596,6 +604,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-dist_phorwardDATA: $(dist_phorward_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_phorward_DATA)'; test -n "$(phorwarddir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(phorwarddir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(phorwarddir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(phorwarddir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(phorwarddir)" || exit $$?; \
+	done
+
+uninstall-dist_phorwardDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_phorward_DATA)'; test -n "$(phorwarddir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(phorwarddir)'; $(am__uninstall_files_from_dir)
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
@@ -716,9 +745,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(phorwarddir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -774,7 +803,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-includeHEADERS
+install-data-am: install-dist_phorwardDATA install-includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -820,7 +849,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
+uninstall-am: uninstall-dist_phorwardDATA uninstall-includeHEADERS \
+	uninstall-libLTLIBRARIES
 
 .MAKE: install-am install-strip
 
@@ -828,16 +858,17 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 	clean-libLTLIBRARIES clean-libtool cscopelist ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-includeHEADERS install-info \
-	install-info-am install-libLTLIBRARIES install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install install-am install-data install-data-am \
+	install-dist_phorwardDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-includeHEADERS install-info install-info-am \
+	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES
+	tags uninstall uninstall-am uninstall-dist_phorwardDATA \
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
 
 #BUILT_SOURCES = \
@@ -870,6 +901,12 @@ variant/var.set.c: variant/var.h variant/var.gen.awk
 
 variant/var.conv.c: variant/var.h variant/var.gen.awk
 	$(AWK) -f variant/var.gen.awk -vwith_conv=1 variant/var.h >$@
+
+# Phorward Foundation Library Documentation
+$(DOCFILE): $(libphorward_la_SOURCES)
+	$(PATHEXT) $(AWK) -f ../run/pdoc \
+	--tpldir ../doc/tpl --no-sections --full-index \
+		$(libphorward_la_SOURCES) >$@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

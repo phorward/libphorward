@@ -1,3 +1,3 @@
 <li>
-	<b><a href="#!!function">!!function()</a></b><br />!!usage
+	<b><a href="#!!function">!!function()</a></b> - !!usage
 </li>
