@@ -95,10 +95,10 @@ pint hashtab_init( HASHTAB* ht, pint size, pint flags )
 	ht->flags = flags;
 	ht->size = size;
 
-	if( !( ht->buckets = (BUCKET*)pmalloc( size * sizeof( BUCKET ) ) ) )
+	if( !( ht->buckets = (HASHBUCKET*)pmalloc( size * sizeof( HASHBUCKET ) ) ) )
 		RETURN( ERR_MEM );
 
-	memset( ht->buckets, 0, size * sizeof( BUCKET ) );
+	memset( ht->buckets, 0, size * sizeof( HASHBUCKET ) );
 
 	RETURN( ERR_OK );
 }

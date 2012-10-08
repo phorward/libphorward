@@ -33,7 +33,7 @@ Usage:	Hash Table Library / Structures and Definitions
  * Type definitions
  */
 typedef struct _hashtab 	HASHTAB;
-typedef struct _bucket		BUCKET;
+typedef struct _bucket		HASHBUCKET;
 typedef struct _hashelem	HASHELEM;
 
 /*
@@ -45,7 +45,7 @@ struct _hashtab
 										   	with the individual hash-table */
 	int			size;					/* Size of the table
 										   	(number of buckets) */
-	BUCKET*		buckets;				/* Array of buckets */
+	HASHBUCKET*	buckets;				/* Array of buckets */
 	HASHELEM*	discarded;				/* Discarded elements */
 	LIST*		list;					/* Hash element adjustment
 											list (HASHTAB_MOD_LIST only) */

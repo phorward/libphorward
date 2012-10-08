@@ -312,7 +312,7 @@ typedef struct llist
 
 
 typedef struct _hashtab 	HASHTAB;
-typedef struct _bucket		BUCKET;
+typedef struct _bucket		HASHBUCKET;
 typedef struct _hashelem	HASHELEM;
 
 
@@ -320,7 +320,7 @@ struct _hashtab
 {
 	int			flags;					
 	int			size;					
-	BUCKET*		buckets;				
+	HASHBUCKET*	buckets;				
 	HASHELEM*	discarded;				
 	LIST*		list;					
 };
