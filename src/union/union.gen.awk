@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #This is a utility script to generate get-/set and conversion-functions for the
-#variant data type pvar implemented in var.h
+#union data type punion implemented in union.h
 #
 #I was lazy, had not the wish to write every of  this functions by hand... so
 #I'm sorry for yet another generator script...
@@ -66,7 +66,7 @@ END									{
 										var_emptyval = types[5]
 										
 										if( var_define == "" )
-											var_define = "PVAR_" \
+											var_define = "PUNION_" \
 												toupper( var_type )
 										
 										variants[ ++variants_cnt ] = datatype
@@ -145,13 +145,13 @@ END									{
 function setfunc()
 {
 	print "/* -FUNCTION--------------------------------------------------------------------"
-	print "	Function:		pvar_set_" var_type "()"
+	print "	Function:		punion_set_" var_type "()"
 	print ""	
 	print "	Author:			Jan Max Meyer (generated with var.gen.awk)"
 	print ""	
 	print "	Usage:			Sets a variant's " datatype " data value and type."
 	print ""					
-	print "	Parameters:		pvar*	var	Pointer to pvar structure."
+	print "	Parameters:		punion*	var	Pointer to punion structure."
 	print "					" datatype "	" member "	Value to be assigned."
 	print ""
 	print "	Returns:		" datatype "		The value of " member "."
@@ -160,14 +160,14 @@ function setfunc()
 	print "	Date:		Author:			Note:"
 	print "----------------------------------------------------------------------------- */"
 
-	print datatype " pvar_set_" var_type "( pvar* var, " \
+	print datatype " punion_set_" var_type "( punion* var, " \
 				datatype " " member " )"
 	print "{"
-	print "	PROC( \"pvar_set_" var_type "\" );"
+	print "	PROC( \"punion_set_" var_type "\" );"
 	print "	PARMS( \"var\", \"%p\", var );"
 	print "	PARMS( \"" member "\", \"" var_format "\", " member " );"
 	print ""
-	print "	pvar_reset( var );"	
+	print "	punion_reset( var );"	
 	print " var->type &= ~0x0F;"
 	print "	var->type |= " var_define ";"
 	print "	var->val." member " = " member ";"
@@ -183,15 +183,15 @@ function setfunc()
 function getfunc()
 {
 	print "/* -FUNCTION--------------------------------------------------------------------"
-	print "	Function:		pvar_get_" var_type "()"
+	print "	Function:		punion_get_" var_type "()"
 	print ""	
 	print "	Author:			Jan Max Meyer (generated with var.gen.awk)"
 	print ""	
-	print "	Usage:			Returns a variant's " datatype " data value and type."
+	print "	Usage:			Returns a punion's " datatype " data value and type."
 	print "					If the variant exists in another data type, it will be"
 	print "					converted, so use it carefully if data loss is not desired!"
 	print ""
-	print "	Parameters:		pvar*	var	Pointer to pvar structure."
+	print "	Parameters:		punion*	var	Pointer to punion structure."
 	print ""
 	print "	Returns:		" datatype "		The " datatype "-value of the variant."
 	print ""  
@@ -199,17 +199,17 @@ function getfunc()
 	print "	Date:		Author:			Note:"
 	print "----------------------------------------------------------------------------- */"
 
-	print datatype " pvar_get_" var_type "( pvar* var )"
+	print datatype " punion_get_" var_type "( punion* var )"
 	print "{"
-	print "	PROC( \"pvar_get_" var_type "\" );"
+	print "	PROC( \"punion_get_" var_type "\" );"
 	print "	PARMS( \"var\", \"%p\", var );"
 	print ""
-	print "	if( pvar_type( var ) != " var_define ")"
+	print "	if( punion_type( var ) != " var_define ")"
 	print "	{"
-	print "		if( pvar_is_convertible( var ) )"
+	print "		if( punion_is_convertible( var ) )"
 	print "		{"
 	print "			MSG( \"Conversion allowed and required\" );"
-	print "			if( pvar_convert( var, " var_define " ) != ERR_OK )"
+	print "			if( punion_convert( var, " var_define " ) != ERR_OK )"
 	print "				RETURN( (" datatype ")" var_emptyval " );"
 	print "		}"
 	print "		else"
@@ -232,7 +232,7 @@ function convfunc( type )
 	var_emptyval = members[ type SUBSEP "var_emptyval" ]
 
 	print "/* -FUNCTION--------------------------------------------------------------------"
-	print "	Function:		pvar_to_" var_type "()"
+	print "	Function:		punion_to_" var_type "()"
 	print ""	
 	print "	Author:			Jan Max Meyer (generated with var.gen.awk)"
 	print ""	
@@ -242,7 +242,7 @@ function convfunc( type )
 		print "					The returned memory is allocated, and must be freed by the caller."
 
 	print ""
-	print "	Parameters:		pvar*	var	Pointer to pvar structure."
+	print "	Parameters:		punion*	var	Pointer to punion structure."
 	print ""
 	print "	Returns:		" type "		The " type "-value of the variant."
 
@@ -254,13 +254,13 @@ function convfunc( type )
 	print "	Date:		Author:			Note:"
 	print "----------------------------------------------------------------------------- */"
 
-	print type " pvar_to_" var_type "( pvar* var )"
+	print type " punion_to_" var_type "( punion* var )"
 	print "{"
-	print "	PROC( \"pvar_to_" var_type "\" );"
+	print "	PROC( \"punion_to_" var_type "\" );"
 	print "	PARMS( \"var\", \"%p\", var );"
 	print ""
 	
-	print "	switch( pvar_type( var ) )"
+	print "	switch( punion_type( var ) )"
 	print "	{"
 	
 	for( j = 1; j <= variants_cnt; j++ )
@@ -295,13 +295,13 @@ function allconv_func()
 		okdone[ ok ] = 0
 
 	print "/* -FUNCTION--------------------------------------------------------------------"
-	print "	Function:		pvar_convert()"
+	print "	Function:		punion_convert()"
 	print ""	
 	print "	Author:			Jan Max Meyer (generated with var.gen.awk)"
 	print ""	
-	print "	Usage:			Converts a pvar-structure to any supported type."
+	print "	Usage:			Converts a punion-structure to any supported type."
 	print ""
-	print "	Parameters:		pvar*	var		Pointer to pvar structure."
+	print "	Parameters:		punion*	var		Pointer to punion structure."
 	print "					pbyte	type	Type to which var should be converted to."	
 	print ""
 	print "	Returns:		pint	ERR_OK	on success, else an ERR_-define."
@@ -310,13 +310,13 @@ function allconv_func()
 	print "	Date:		Author:			Note:"
 	print "----------------------------------------------------------------------------- */"
 
-	print "pint pvar_convert( pvar* var, pbyte type )"
+	print "pint punion_convert( punion* var, pbyte type )"
 	print "{"
-	print "	PROC( \"pvar_convert\" );"
+	print "	PROC( \"punion_convert\" );"
 	print "	PARMS( \"var\", \"%p\", var );"
 	print "	PARMS( \"type\", \"%d\", type );"
 	print ""
-	print "	if( pvar_type( var ) == type )"
+	print "	if( punion_type( var ) == type )"
 	print "		RETURN( ERR_OK );"
 	print ""
 	print "	switch( type )"
@@ -330,8 +330,8 @@ function allconv_func()
 		okdone[ variants[i] ] = 1	
 	
 		print "		case " members[ variants[i] SUBSEP "var_define" ] ":"
-		print "			pvar_set_" members[ variants[i] SUBSEP "var_type" ] \
-			  "( var, pvar_to_" members[ variants[i] SUBSEP "var_type" ] \
+		print "			punion_set_" members[ variants[i] SUBSEP "var_type" ] \
+			  "( var, punion_to_" members[ variants[i] SUBSEP "var_type" ] \
 			  "( var ) );"
 		print "			RETURN( ERR_OK );\n"
 	}

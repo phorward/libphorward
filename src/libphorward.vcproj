@@ -230,19 +230,19 @@
 				>
 			</File>
 			<File
-				RelativePath="variant\var.c"
+				RelativePath="union\union.c"
 				>
 			</File>
 			<File
-				RelativePath="variant\var.conv.c"
+				RelativePath="union\union.conv.c"
 				>
 			</File>
 			<File
-				RelativePath="variant\var.get.c"
+				RelativePath="union\union.get.c"
 				>
 			</File>
 			<File
-				RelativePath="variant\var.set.c"
+				RelativePath="union\union.set.c"
 				>
 			</File>
 			<File

@@ -685,23 +685,23 @@ struct _regex
 
 
 
-#ifndef VAR_H
-#define VAR_H
+#ifndef PUNION_H
+#define PUNION_H
 
 
-#define PVAR_NULL			0	
-#define PVAR_BYTE			1
-#define PVAR_CHAR			2
-#define PVAR_INT			3
-#define PVAR_LONG			4
-#define PVAR_ULONG			5
-#define PVAR_FLOAT			6
-#define PVAR_DOUBLE			7
-#define PVAR_STRING			8
-#define PVAR_WSTRING		9
+#define PUNION_NULL			0	
+#define PUNION_BYTE			1
+#define PUNION_CHAR			2
+#define PUNION_INT			3
+#define PUNION_LONG			4
+#define PUNION_ULONG		5
+#define PUNION_FLOAT		6
+#define PUNION_DOUBLE		7
+#define PUNION_STRING		8
+#define PUNION_WSTRING		9
 
-#define PVAR_IS_CONSTANT	16	
-#define PVAR_IS_CONVERT		32	
+#define PUNION_IS_CONSTANT	16	
+#define PUNION_IS_CONVERT	32	
 
 
 typedef struct 
@@ -739,29 +739,29 @@ typedef struct
 		
 		
 	} val;
-} pvar;
+} punion;
 
 
-#define pvar_set_string_d( var, val ) \
-			pvar_set_string( var, pstrdup( val ) )
-#define pvar_set_wstring_d( var, val ) \
-			pvar_set_wstring( var, Pstrdup( val ) )
+#define punion_set_string_d( var, val ) \
+			punion_set_string( var, pstrdup( val ) )
+#define punion_set_wstring_d( var, val ) \
+			punion_set_wstring( var, Pstrdup( val ) )
 
-#define pvar_set_constant( var ) \
-			bit_set( (var)->type, PVAR_IS_CONSTANT )
-#define pvar_unset_constant( var ) \
-			bit_unset( (var)->type, PVAR_IS_CONSTANT )
-#define pvar_set_convertible( var ) \
-			bit_set( (var)->type, PVAR_IS_CONVERT )
-#define pvar_unset_convertible( var ) \
-			bit_unset( (var)->type, PVAR_IS_CONVERT )
+#define punion_set_constant( var ) \
+			bit_set( (var)->type, PUNION_IS_CONSTANT )
+#define punion_unset_constant( var ) \
+			bit_unset( (var)->type, PUNION_IS_CONSTANT )
+#define punion_set_convertible( var ) \
+			bit_set( (var)->type, PUNION_IS_CONVERT )
+#define punion_unset_convertible( var ) \
+			bit_unset( (var)->type, PUNION_IS_CONVERT )
 
-#define pvar_type( var ) \
+#define punion_type( var ) \
 			( ( var )->type & 0x0F )
-#define pvar_is_constant( var ) \
-			( ( var )->type & PVAR_IS_CONSTANT )
-#define pvar_is_convertible( var ) \
-			( ( var )->type & PVAR_IS_CONVERT )
+#define punion_is_constant( var ) \
+			( ( var )->type & PUNION_IS_CONSTANT )
+#define punion_is_convertible( var ) \
+			( ( var )->type & PUNION_IS_CONVERT )
 
 #endif
 
@@ -1100,46 +1100,46 @@ int map_file( char** cont, uchar* filename );
 pint pgetopt( uchar* opt, uchar** param, pint* next, pint argc, uchar** argv, uchar* optstr, uchar* loptstr, pint idx );
 
 
-void pvar_init( pvar* var );
-void pvar_reset( pvar* var );
+void punion_init( punion* var );
+void punion_reset( punion* var );
 
 
-pbyte pvar_to_byte( pvar* var );
-uchar pvar_to_char( pvar* var );
-pint pvar_to_int( pvar* var );
-plong pvar_to_long( pvar* var );
-pulong pvar_to_ulong( pvar* var );
-pfloat pvar_to_float( pvar* var );
-pdouble pvar_to_double( pvar* var );
-uchar* pvar_to_string( pvar* var );
-pchar* pvar_to_wstring( pvar* var );
-pint pvar_convert( pvar* var, pbyte type );
+pbyte punion_to_byte( punion* var );
+uchar punion_to_char( punion* var );
+pint punion_to_int( punion* var );
+plong punion_to_long( punion* var );
+pulong punion_to_ulong( punion* var );
+pfloat punion_to_float( punion* var );
+pdouble punion_to_double( punion* var );
+uchar* punion_to_string( punion* var );
+pchar* punion_to_wstring( punion* var );
+pint punion_convert( punion* var, pbyte type );
 
 
-pbyte pvar_get_byte( pvar* var );
-uchar pvar_get_char( pvar* var );
-pint pvar_get_int( pvar* var );
-plong pvar_get_long( pvar* var );
-pulong pvar_get_ulong( pvar* var );
-pfloat pvar_get_float( pvar* var );
-pdouble pvar_get_double( pvar* var );
-uchar* pvar_get_cstring( pvar* var );
-uchar* pvar_get_string( pvar* var );
-pchar* pvar_get_wcstring( pvar* var );
-pchar* pvar_get_wstring( pvar* var );
+pbyte punion_get_byte( punion* var );
+uchar punion_get_char( punion* var );
+pint punion_get_int( punion* var );
+plong punion_get_long( punion* var );
+pulong punion_get_ulong( punion* var );
+pfloat punion_get_float( punion* var );
+pdouble punion_get_double( punion* var );
+uchar* punion_get_cstring( punion* var );
+uchar* punion_get_string( punion* var );
+pchar* punion_get_wcstring( punion* var );
+pchar* punion_get_wstring( punion* var );
 
 
-pbyte pvar_set_byte( pvar* var, pbyte b );
-uchar pvar_set_char( pvar* var, uchar c );
-pint pvar_set_int( pvar* var, pint i );
-plong pvar_set_long( pvar* var, plong l );
-pulong pvar_set_ulong( pvar* var, pulong ul );
-pfloat pvar_set_float( pvar* var, pfloat f );
-pdouble pvar_set_double( pvar* var, pdouble d );
-uchar* pvar_set_cstring( pvar* var, uchar* s );
-uchar* pvar_set_string( pvar* var, uchar* s );
-pchar* pvar_set_wcstring( pvar* var, pchar* ws );
-pchar* pvar_set_wstring( pvar* var, pchar* ws );
+pbyte punion_set_byte( punion* var, pbyte b );
+uchar punion_set_char( punion* var, uchar c );
+pint punion_set_int( punion* var, pint i );
+plong punion_set_long( punion* var, plong l );
+pulong punion_set_ulong( punion* var, pulong ul );
+pfloat punion_set_float( punion* var, pfloat f );
+pdouble punion_set_double( punion* var, pdouble d );
+uchar* punion_set_cstring( punion* var, uchar* s );
+uchar* punion_set_string( punion* var, uchar* s );
+pchar* punion_set_wcstring( punion* var, pchar* ws );
+pchar* punion_set_wstring( punion* var, pchar* ws );
 
 
 XML_T xml_child( XML_T xml, uchar* name );

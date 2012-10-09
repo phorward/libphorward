@@ -6,32 +6,32 @@
 #include <phorward.h>
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_byte()
+	Function:		punion_get_byte()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's pbyte data value and type.
+	Usage:			Returns a punion's pbyte data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		pbyte		The pbyte-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pbyte pvar_get_byte( pvar* var )
+pbyte punion_get_byte( punion* var )
 {
-	PROC( "pvar_get_byte" );
+	PROC( "punion_get_byte" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_BYTE)
+	if( punion_type( var ) != PUNION_BYTE)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_BYTE ) != ERR_OK )
+			if( punion_convert( var, PUNION_BYTE ) != ERR_OK )
 				RETURN( (pbyte)0 );
 		}
 		else
@@ -42,32 +42,32 @@ pbyte pvar_get_byte( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_char()
+	Function:		punion_get_char()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's uchar data value and type.
+	Usage:			Returns a punion's uchar data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		uchar		The uchar-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar pvar_get_char( pvar* var )
+uchar punion_get_char( punion* var )
 {
-	PROC( "pvar_get_char" );
+	PROC( "punion_get_char" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_CHAR)
+	if( punion_type( var ) != PUNION_CHAR)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_CHAR ) != ERR_OK )
+			if( punion_convert( var, PUNION_CHAR ) != ERR_OK )
 				RETURN( (uchar)0 );
 		}
 		else
@@ -78,32 +78,32 @@ uchar pvar_get_char( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_int()
+	Function:		punion_get_int()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's pint data value and type.
+	Usage:			Returns a punion's pint data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		pint		The pint-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint pvar_get_int( pvar* var )
+pint punion_get_int( punion* var )
 {
-	PROC( "pvar_get_int" );
+	PROC( "punion_get_int" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_INT)
+	if( punion_type( var ) != PUNION_INT)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_INT ) != ERR_OK )
+			if( punion_convert( var, PUNION_INT ) != ERR_OK )
 				RETURN( (pint)0 );
 		}
 		else
@@ -114,32 +114,32 @@ pint pvar_get_int( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_long()
+	Function:		punion_get_long()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's plong data value and type.
+	Usage:			Returns a punion's plong data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		plong		The plong-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-plong pvar_get_long( pvar* var )
+plong punion_get_long( punion* var )
 {
-	PROC( "pvar_get_long" );
+	PROC( "punion_get_long" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_LONG)
+	if( punion_type( var ) != PUNION_LONG)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_LONG ) != ERR_OK )
+			if( punion_convert( var, PUNION_LONG ) != ERR_OK )
 				RETURN( (plong)0 );
 		}
 		else
@@ -150,32 +150,32 @@ plong pvar_get_long( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_ulong()
+	Function:		punion_get_ulong()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's pulong data value and type.
+	Usage:			Returns a punion's pulong data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		pulong		The pulong-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pulong pvar_get_ulong( pvar* var )
+pulong punion_get_ulong( punion* var )
 {
-	PROC( "pvar_get_ulong" );
+	PROC( "punion_get_ulong" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_ULONG)
+	if( punion_type( var ) != PUNION_ULONG)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_ULONG ) != ERR_OK )
+			if( punion_convert( var, PUNION_ULONG ) != ERR_OK )
 				RETURN( (pulong)0 );
 		}
 		else
@@ -186,32 +186,32 @@ pulong pvar_get_ulong( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_float()
+	Function:		punion_get_float()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's pfloat data value and type.
+	Usage:			Returns a punion's pfloat data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		pfloat		The pfloat-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pfloat pvar_get_float( pvar* var )
+pfloat punion_get_float( punion* var )
 {
-	PROC( "pvar_get_float" );
+	PROC( "punion_get_float" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_FLOAT)
+	if( punion_type( var ) != PUNION_FLOAT)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_FLOAT ) != ERR_OK )
+			if( punion_convert( var, PUNION_FLOAT ) != ERR_OK )
 				RETURN( (pfloat)0.0 );
 		}
 		else
@@ -222,32 +222,32 @@ pfloat pvar_get_float( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_double()
+	Function:		punion_get_double()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's pdouble data value and type.
+	Usage:			Returns a punion's pdouble data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		pdouble		The pdouble-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pdouble pvar_get_double( pvar* var )
+pdouble punion_get_double( punion* var )
 {
-	PROC( "pvar_get_double" );
+	PROC( "punion_get_double" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_DOUBLE)
+	if( punion_type( var ) != PUNION_DOUBLE)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_DOUBLE ) != ERR_OK )
+			if( punion_convert( var, PUNION_DOUBLE ) != ERR_OK )
 				RETURN( (pdouble)0.0 );
 		}
 		else
@@ -258,32 +258,32 @@ pdouble pvar_get_double( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_cstring()
+	Function:		punion_get_cstring()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's uchar* data value and type.
+	Usage:			Returns a punion's uchar* data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		uchar*		The uchar*-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pvar_get_cstring( pvar* var )
+uchar* punion_get_cstring( punion* var )
 {
-	PROC( "pvar_get_cstring" );
+	PROC( "punion_get_cstring" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_STRING)
+	if( punion_type( var ) != PUNION_STRING)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_STRING ) != ERR_OK )
+			if( punion_convert( var, PUNION_STRING ) != ERR_OK )
 				RETURN( (uchar*)NULL );
 		}
 		else
@@ -294,32 +294,32 @@ uchar* pvar_get_cstring( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_string()
+	Function:		punion_get_string()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's uchar* data value and type.
+	Usage:			Returns a punion's uchar* data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		uchar*		The uchar*-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pvar_get_string( pvar* var )
+uchar* punion_get_string( punion* var )
 {
-	PROC( "pvar_get_string" );
+	PROC( "punion_get_string" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_STRING)
+	if( punion_type( var ) != PUNION_STRING)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_STRING ) != ERR_OK )
+			if( punion_convert( var, PUNION_STRING ) != ERR_OK )
 				RETURN( (uchar*)NULL );
 		}
 		else
@@ -330,32 +330,32 @@ uchar* pvar_get_string( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_wcstring()
+	Function:		punion_get_wcstring()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's pchar* data value and type.
+	Usage:			Returns a punion's pchar* data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		pchar*		The pchar*-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pchar* pvar_get_wcstring( pvar* var )
+pchar* punion_get_wcstring( punion* var )
 {
-	PROC( "pvar_get_wcstring" );
+	PROC( "punion_get_wcstring" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_WSTRING)
+	if( punion_type( var ) != PUNION_WSTRING)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_WSTRING ) != ERR_OK )
+			if( punion_convert( var, PUNION_WSTRING ) != ERR_OK )
 				RETURN( (pchar*)NULL );
 		}
 		else
@@ -366,32 +366,32 @@ pchar* pvar_get_wcstring( pvar* var )
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_get_wstring()
+	Function:		punion_get_wstring()
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a variant's pchar* data value and type.
+	Usage:			Returns a punion's pchar* data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
-	Parameters:		pvar*	var	Pointer to pvar structure.
+	Parameters:		punion*	var	Pointer to punion structure.
 
 	Returns:		pchar*		The pchar*-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pchar* pvar_get_wstring( pvar* var )
+pchar* punion_get_wstring( punion* var )
 {
-	PROC( "pvar_get_wstring" );
+	PROC( "punion_get_wstring" );
 	PARMS( "var", "%p", var );
 
-	if( pvar_type( var ) != PVAR_WSTRING)
+	if( punion_type( var ) != PUNION_WSTRING)
 	{
-		if( pvar_is_convertible( var ) )
+		if( punion_is_convertible( var ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( pvar_convert( var, PVAR_WSTRING ) != ERR_OK )
+			if( punion_convert( var, PUNION_WSTRING ) != ERR_OK )
 				RETURN( (pchar*)NULL );
 		}
 		else

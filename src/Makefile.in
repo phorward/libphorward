@@ -104,8 +104,8 @@ libphorward_la_LIBADD =
 am_libphorward_la_OBJECTS = bitset.lo dbg.lo hashtab.lo llist.lo \
 	memory.lo stack.lo ccl.lo dfa.lo direct.lo misc.lo nfa.lo \
 	pattern.lo pregex.lo range.lo ref.lo convert.lo string.lo \
-	utf8.lo base64.lo system.lo var.lo var.conv.lo var.get.lo \
-	var.set.lo xml.lo
+	utf8.lo base64.lo system.lo union.lo union.conv.lo \
+	union.get.lo union.set.lo xml.lo
 libphorward_la_OBJECTS = $(am_libphorward_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -193,6 +193,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 TXT2TAGS = @TXT2TAGS@
+UNSIGNED_CHAR = @UNSIGNED_CHAR@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -272,10 +273,10 @@ libphorward_la_SOURCES = \
 	string/utf8.c \
 	util/base64.c \
 	util/system.c \
-	variant/var.c \
-	variant/var.conv.c \
-	variant/var.get.c \
-	variant/var.set.c \
+	union/union.c \
+	union/union.conv.c \
+	union/union.get.c \
+	union/union.set.c \
 	xml/xml.c
 
 noinst_HEADERS = \
@@ -289,7 +290,7 @@ noinst_HEADERS = \
 	regex/pregex.h \
 	string/string.h \
 	string/utf8.h \
-	variant/var.h \
+	union/union.h \
 	xml/xml.h \
 	$(PROTOFILE)
 
@@ -396,11 +397,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stack.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/system.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union.conv.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union.get.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/union.set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utf8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.conv.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.get.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xml.Plo@am__quote@
 
 .c.o:
@@ -564,33 +565,33 @@ system.lo: util/system.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o system.lo `test -f 'util/system.c' || echo '$(srcdir)/'`util/system.c
 
-var.lo: variant/var.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT var.lo -MD -MP -MF $(DEPDIR)/var.Tpo -c -o var.lo `test -f 'variant/var.c' || echo '$(srcdir)/'`variant/var.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/var.Tpo $(DEPDIR)/var.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='variant/var.c' object='var.lo' libtool=yes @AMDEPBACKSLASH@
+union.lo: union/union.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT union.lo -MD -MP -MF $(DEPDIR)/union.Tpo -c -o union.lo `test -f 'union/union.c' || echo '$(srcdir)/'`union/union.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/union.Tpo $(DEPDIR)/union.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='union/union.c' object='union.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o var.lo `test -f 'variant/var.c' || echo '$(srcdir)/'`variant/var.c
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o union.lo `test -f 'union/union.c' || echo '$(srcdir)/'`union/union.c
 
-var.conv.lo: variant/var.conv.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT var.conv.lo -MD -MP -MF $(DEPDIR)/var.conv.Tpo -c -o var.conv.lo `test -f 'variant/var.conv.c' || echo '$(srcdir)/'`variant/var.conv.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/var.conv.Tpo $(DEPDIR)/var.conv.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='variant/var.conv.c' object='var.conv.lo' libtool=yes @AMDEPBACKSLASH@
+union.conv.lo: union/union.conv.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT union.conv.lo -MD -MP -MF $(DEPDIR)/union.conv.Tpo -c -o union.conv.lo `test -f 'union/union.conv.c' || echo '$(srcdir)/'`union/union.conv.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/union.conv.Tpo $(DEPDIR)/union.conv.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='union/union.conv.c' object='union.conv.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o var.conv.lo `test -f 'variant/var.conv.c' || echo '$(srcdir)/'`variant/var.conv.c
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o union.conv.lo `test -f 'union/union.conv.c' || echo '$(srcdir)/'`union/union.conv.c
 
-var.get.lo: variant/var.get.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT var.get.lo -MD -MP -MF $(DEPDIR)/var.get.Tpo -c -o var.get.lo `test -f 'variant/var.get.c' || echo '$(srcdir)/'`variant/var.get.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/var.get.Tpo $(DEPDIR)/var.get.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='variant/var.get.c' object='var.get.lo' libtool=yes @AMDEPBACKSLASH@
+union.get.lo: union/union.get.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT union.get.lo -MD -MP -MF $(DEPDIR)/union.get.Tpo -c -o union.get.lo `test -f 'union/union.get.c' || echo '$(srcdir)/'`union/union.get.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/union.get.Tpo $(DEPDIR)/union.get.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='union/union.get.c' object='union.get.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o var.get.lo `test -f 'variant/var.get.c' || echo '$(srcdir)/'`variant/var.get.c
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o union.get.lo `test -f 'union/union.get.c' || echo '$(srcdir)/'`union/union.get.c
 
-var.set.lo: variant/var.set.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT var.set.lo -MD -MP -MF $(DEPDIR)/var.set.Tpo -c -o var.set.lo `test -f 'variant/var.set.c' || echo '$(srcdir)/'`variant/var.set.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/var.set.Tpo $(DEPDIR)/var.set.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='variant/var.set.c' object='var.set.lo' libtool=yes @AMDEPBACKSLASH@
+union.set.lo: union/union.set.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT union.set.lo -MD -MP -MF $(DEPDIR)/union.set.Tpo -c -o union.set.lo `test -f 'union/union.set.c' || echo '$(srcdir)/'`union/union.set.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/union.set.Tpo $(DEPDIR)/union.set.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='union/union.set.c' object='union.set.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o var.set.lo `test -f 'variant/var.set.c' || echo '$(srcdir)/'`variant/var.set.c
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o union.set.lo `test -f 'union/union.set.c' || echo '$(srcdir)/'`union/union.set.c
 
 xml.lo: xml/xml.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xml.lo -MD -MP -MF $(DEPDIR)/xml.Tpo -c -o xml.lo `test -f 'xml/xml.c' || echo '$(srcdir)/'`xml/xml.c
@@ -893,14 +894,14 @@ $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 
-variant/var.get.c: variant/var.h variant/var.gen.awk
-	$(AWK) -f variant/var.gen.awk -vwith_get=1 variant/var.h >$@
+union/union.get.c: union/union.h union/union.gen.awk
+	$(AWK) -f union/union.gen.awk -vwith_get=1 union/union.h >$@
 
-variant/var.set.c: variant/var.h variant/var.gen.awk
-	$(AWK) -f variant/var.gen.awk -vwith_set=1 variant/var.h >$@
+union/union.set.c: union/union.h union/union.gen.awk
+	$(AWK) -f union/union.gen.awk -vwith_set=1 union/union.h >$@
 
-variant/var.conv.c: variant/var.h variant/var.gen.awk
-	$(AWK) -f variant/var.gen.awk -vwith_conv=1 variant/var.h >$@
+union/union.conv.c: union/union.h union/union.gen.awk
+	$(AWK) -f union/union.gen.awk -vwith_conv=1 union/union.h >$@
 
 # Phorward Foundation Library Documentation
 $(DOCFILE): $(libphorward_la_SOURCES)

@@ -4,9 +4,9 @@ Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.n.
 
-File:	var.c
+File:	union.c
 Author:	Jan Max Meyer
-Usage:	pvar implements a variant data type, which can hold any of
+Usage:	punion implements a variant data type, which can hold any of
 		Phorward Foundation Toolkit' generic types as declared in pbasis.h.
 ----------------------------------------------------------------------------- */
 
@@ -28,58 +28,58 @@ Usage:	pvar implements a variant data type, which can hold any of
  */
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_init()
+	Function:		punion_init()
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Initializes a pvar-element.
+	Usage:			Initializes a punion-element.
 					
-	Parameters:		pvar*		var			Pointer to pvar structure.
+	Parameters:		punion*		var			Pointer to punion structure.
 	
 	Returns:		void
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-void pvar_init( pvar* var )
+void punion_init( punion* var )
 {
-	PROC( "pvar_init" );
+	PROC( "punion_init" );
 	PARMS( "var", "%p", var );
 
-	memset( var, 0, sizeof( pvar ) );
-	var->type = PVAR_NULL;
+	memset( var, 0, sizeof( punion ) );
+	var->type = PUNION_NULL;
 
 	VOIDRET;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
-	Function:		pvar_reset()
+	Function:		punion_reset()
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Frees all memory used by a pvar-element.
+	Usage:			Frees all memory used by a punion-element.
 					All memory used by the element is freed, and the variant
-					structure is reset to be of type PVAR_NULL.
+					structure is reset to be of type PUNION_NULL.
 					
-	Parameters:		pvar*		var			Pointer to pvar structure.
+	Parameters:		punion*		var			Pointer to punion structure.
 	
 	Returns:		void
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-void pvar_reset( pvar* var )
+void punion_reset( punion* var )
 {
-	PROC( "pvar_free" );
+	PROC( "punion_free" );
 	PARMS( "var", "%p", var );
 
-	switch( pvar_type( var ) )
+	switch( punion_type( var ) )
 	{
-		case PVAR_STRING:
+		case PUNION_STRING:
 			pfree( var->val.s );
 			break;
 
-		case PVAR_WSTRING:
+		case PUNION_WSTRING:
 			pfree( var->val.ws );
 			break;
 

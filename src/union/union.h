@@ -4,35 +4,35 @@ Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	var.h
+File:	union.h
 Author:	Jan Max Meyer
-Usage:	Structures and definitions for a variant-style data storage type pvar.
-		The only hand-written modules of the pvar variant data type exists in
+Usage:	Structures and definitions for a variant-style data storage type punion.
+		The only hand-written modules of the punion variant data type exists in
 		var.h and var.c. The files var.get.c, var.set.c and var.conv.c are
 		automatically generated from the definitions below, using var.gen.awk.
 		Due this automatic generation of the get/set/conversion functions, the
-		pvar data type can easily be changed and extended to new data types
+		punion data type can easily be changed and extended to new data types
 		without huger code changes.
 ----------------------------------------------------------------------------- */
 
-#ifndef VAR_H
-#define VAR_H
+#ifndef PUNION_H
+#define PUNION_H
 
 /* Defines */
-#define PVAR_NULL			0	/* Please watch out for binary order!! */
-#define PVAR_BYTE			1
-#define PVAR_CHAR			2
-#define PVAR_INT			3
-#define PVAR_LONG			4
-#define PVAR_ULONG			5
-#define PVAR_FLOAT			6
-#define PVAR_DOUBLE			7
-#define PVAR_STRING			8
-#define PVAR_WSTRING		9
+#define PUNION_NULL			0	/* Please watch out for binary order!! */
+#define PUNION_BYTE			1
+#define PUNION_CHAR			2
+#define PUNION_INT			3
+#define PUNION_LONG			4
+#define PUNION_ULONG		5
+#define PUNION_FLOAT		6
+#define PUNION_DOUBLE		7
+#define PUNION_STRING		8
+#define PUNION_WSTRING		9
 
-#define PVAR_IS_CONSTANT	16	/* Const-value flag for strings, so no automatic
+#define PUNION_IS_CONSTANT	16	/* Const-value flag for strings, so no automatic
 									free is done on these variables */
-#define PVAR_IS_CONVERT		32	/* Allow on-the-fly type conversion with
+#define PUNION_IS_CONVERT	32	/* Allow on-the-fly type conversion with
 									(possible) data-loss */
 
 /* Typedefs */
@@ -85,8 +85,8 @@ typedef struct
 		*/
 
 		uchar*	s;
-		/*vargen:cstring:%s:PVAR_STRING:NULL
-			set: pvar_set_constant( var );
+		/*vargen:cstring:%s:PUNION_STRING:NULL
+			set: punion_set_constant( var );
 		*/
 		/*vargen:string:%s::NULL
 			to pbyte: pstrtol( var->val.s, (uchar**)NULL, 0 )
@@ -100,8 +100,8 @@ typedef struct
 		*/
 
 		pchar*	ws;
-		/*vargen:wcstring:%ls:PVAR_WSTRING:NULL
-			set: pvar_set_constant( var );
+		/*vargen:wcstring:%ls:PUNION_WSTRING:NULL
+			set: punion_set_constant( var );
 		*/
 		/*vargen:wstring:%ls::NULL
 			to pbyte: Pstrtol( var->val.ws, (pchar**)NULL, 0 )
@@ -114,29 +114,29 @@ typedef struct
 			to uchar*: pchar_to_uchar( var->val.ws, FALSE )
 		*/
 	} val;
-} pvar;
+} punion;
 
 /* Macros */
-#define pvar_set_string_d( var, val ) \
-			pvar_set_string( var, pstrdup( val ) )
-#define pvar_set_wstring_d( var, val ) \
-			pvar_set_wstring( var, Pstrdup( val ) )
+#define punion_set_string_d( var, val ) \
+			punion_set_string( var, pstrdup( val ) )
+#define punion_set_wstring_d( var, val ) \
+			punion_set_wstring( var, Pstrdup( val ) )
 
-#define pvar_set_constant( var ) \
-			bit_set( (var)->type, PVAR_IS_CONSTANT )
-#define pvar_unset_constant( var ) \
-			bit_unset( (var)->type, PVAR_IS_CONSTANT )
-#define pvar_set_convertible( var ) \
-			bit_set( (var)->type, PVAR_IS_CONVERT )
-#define pvar_unset_convertible( var ) \
-			bit_unset( (var)->type, PVAR_IS_CONVERT )
+#define punion_set_constant( var ) \
+			bit_set( (var)->type, PUNION_IS_CONSTANT )
+#define punion_unset_constant( var ) \
+			bit_unset( (var)->type, PUNION_IS_CONSTANT )
+#define punion_set_convertible( var ) \
+			bit_set( (var)->type, PUNION_IS_CONVERT )
+#define punion_unset_convertible( var ) \
+			bit_unset( (var)->type, PUNION_IS_CONVERT )
 
-#define pvar_type( var ) \
+#define punion_type( var ) \
 			( ( var )->type & 0x0F )
-#define pvar_is_constant( var ) \
-			( ( var )->type & PVAR_IS_CONSTANT )
-#define pvar_is_convertible( var ) \
-			( ( var )->type & PVAR_IS_CONVERT )
+#define punion_is_constant( var ) \
+			( ( var )->type & PUNION_IS_CONSTANT )
+#define punion_is_convertible( var ) \
+			( ( var )->type & PUNION_IS_CONVERT )
 
 #endif
 

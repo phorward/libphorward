@@ -103,20 +103,35 @@ $ ./hello
 2: 50
 ```
 
-== System-independent data-types ==
+== Phorward Data Types ==[data_types]
 
-The Phorward Foundation Toolkit provides the following standard data types in general.
+The Phorward Foundation Toolkit provides some self-defined data-types. They are used by many of the library functions, but are only pendants to standard C data-types. It is not explicitly required to use these data-types in your projects, but they may be used for a clean code integrity with the Phorward coding convention, if wanted.
 
 || Type | Alias | C-type | used for |
 | uchar | - | unsigned char | UTF-8-enabled character string, this is **unsigned char**. |
 | pchar | wchar | wchar_t or unsigned int | If unicode-support enabled, pchar is of type **wchar_t**, else of type **unsigned int**. |
 | pboolean | BOOLEAN, boolean | char | A type to store TRUE or FALSE. |
+| pbyte | | unsigned char | Byte and pointer data type, mostly used instead of **void***. |
 | pint | | int | Integer value type. |
 | plong | | long | Long value type. |
 | pfloat | | float | Floating point value type. |
 | pdouble | | double | Double floating point value type. |
 | pulong | | size_t | Unsigned long value type. |
 | psize | | size_t | Unsigned size-type. |
+
+
+The following data-types are Phorward-specific for various library implementations.
+
+|| Type | Description |
+| HASHTAB | [Hash table #hash_table] |
+| HASHELEM | [Hash table entry #hash_table] |
+| LIST | [Linked pointer list #linked_list] |
+| STACK | [Dynamic stack #stack] |
+| pregex | [Regular expression #regular_expression] |
+| pregex_ptn | [Regular expression pattern #regular_expression] |
+| pregex_range | [Regular expression match range #regular_expression] |
+| punion | [Phorward Universal Datatype #union] |
+
 
 == Errorcodes ==
 
@@ -202,8 +217,9 @@ mylist = list_free( mylist );
 
 The HASHTAB-structure and related functions implement an easy-to-handle and flexible hash-table implementation. Hash-tables can perfectly be used to implement symbol tables using string identifiers, including element overloading.
 
-A hash-table consists of the elements HASHTAB, describing the hash-table, HASHBUCKET, describing an hash-table bucket, and HASHELEM, describing the final hash-table element that is stored.
-Hash-tables in the Phorward Foundation Toolkit can be configured to allow for collisions or not. If collisions are enabled, the hash-table permits to add multiple elements with the same key, so it is possible to overwrite and hide general elements with more specific ones. It is also possible to discard elements for later use or to entirely destroy them. Discarding elements is more memory friendly, because the elements memory will be reused after anoter insert-operation. Calling an delete-operation also frees the used memory.
+A hash-table consists of the elements HASHTAB, describing the hash-table and HASHELEM, describing the final hash-table entry that is hold.
+
+Hash-tables in the Phorward Foundation Toolkit can be configured to allow for collisions or not (HASHTAB_MOD_NO_COLL). If collisions are enabled, the hash-table permits to add multiple elements with the same key, so it is possible to overwrite and hide general elements with more specific ones. It is also possible to discard elements for later use or to entirely destroy them. Discarding elements is more memory friendly, because the elements memory will be reused after anoter insert-operation. Calling an delete-operation also frees the used memory.
 
 ```
 HASHTAB		ht;
@@ -276,3 +292,66 @@ Hash-tables allow for the following flags at initialization:
 - **HASHTAB_MOD_LIST** - All table elements are additionally hold in a [linked list #linked_list], to keep the insertation order of the hash table elements. This requires a little more memory.
 - **HASHTAB_MOD_NO_COLL** - Disallow collisions of hash table elements; When inserted, (HASHELEM*) NULL will be returned if a collision occurs!
 -
+
+=== Stacks ===[stack]
+
+The stack feature provides a possibility to create software that uses dynamic stacks. A stack is a data structure working with the first-in-first-out principle. The stack feature is provided using the STACK data-structure. At initializiation, it is required to specify the element size of one stack element and the allocation step size, which means how many elements should be allocated in a row.
+
+```
+struct person
+{
+    uchar   first_name  [ 30 + 1 ];
+    uchar   last_name   [ 30 + 1 ];
+};
+
+int             i;
+struct person   x;
+struct person*  p;
+STACK           s;
+
+/* Initialization: Element size, three elements in a row */
+stack_init( &s, sizeof( struct person ), 3 );
+
+/* Fill and insert first element */
+pstrcpy( x.last_name, "Zufall" );
+pstrcpy( x.first_name, "Reiner" );
+stack_push( &s, (pbyte*)&x );
+
+/* Fill and insert second element */
+pstrcpy( x.last_name, "Pfahl" );
+pstrcpy( x.first_name, "Martha" );
+stack_push( &s, (pbyte*)&x );
+
+/* Fill and insert third element */
+pstrcpy( x.last_name, "Racho" );
+pstrcpy( x.first_name, "Volker" );
+stack_push( &s, (pbyte*)&x );
+
+/* Fill and insert fourth element */
+pstrcpy( x.last_name, "Pete" );
+pstrcpy( x.first_name, "Dieter" );
+stack_push( &s, (pbyte*)&x );
+
+/* Print all elements */
+for( i = 0; ( p = (struct person*)stack_access( &s, i ) ); i++ )
+	printf( "%d: %s, %s\n", i, p->first_name, p->last_name );
+
+/* Pop all elements */
+while( ( p = (struct person*)stack_pop( &s ) ) )
+	printf( "Pop: %s %s\n", p->first_name, p->last_name );
+
+/* Free stack */
+stack_free( &s, STACK_NO_CALLBACK );
+```
+
+- [stack_access() #fn_stack_access] - Access stack element. 
+- [stack_count() #fn_stack_count] - Number of elements on stack.
+- [stack_dump() #fn_stack_dump] - Dump stack to stream (using a callback function)
+- [stack_free() #fn_stack_free] - Free entire stack.
+- [stack_init() #fn_stack_init] - Initialize stack.
+- [stack_pop() #fn_stack_pop] - Pop element from top of the stack.
+- [stack_push() #fn_stack_push] - Push element onto the stack.
+-
+
+A [linked list #linked_list] can also be used like a stack ([list_push() #fn_list_push], [list_pop() #fn_list_pop]), but is less memory-friendly.
+

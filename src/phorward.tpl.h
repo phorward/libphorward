@@ -130,7 +130,7 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #include "regex/pregex.h"
 #include "string/string.h"
 #include "string/utf8.h"
-#include "variant/var.h"
+#include "union/union.h"
 #include "xml/xml.h"
 
 /*

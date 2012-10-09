@@ -157,6 +157,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 TXT2TAGS = @TXT2TAGS@
+UNSIGNED_CHAR = @UNSIGNED_CHAR@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@

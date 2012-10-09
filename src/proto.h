@@ -233,47 +233,47 @@ pboolean pfileexists( uchar* filename );
 int map_file( char** cont, uchar* filename );
 pint pgetopt( uchar* opt, uchar** param, pint* next, pint argc, uchar** argv, uchar* optstr, uchar* loptstr, pint idx );
 
-/* variant/var.c */
-void pvar_init( pvar* var );
-void pvar_reset( pvar* var );
+/* union/union.c */
+void punion_init( punion* var );
+void punion_reset( punion* var );
 
-/* variant/var.conv.c */
-pbyte pvar_to_byte( pvar* var );
-uchar pvar_to_char( pvar* var );
-pint pvar_to_int( pvar* var );
-plong pvar_to_long( pvar* var );
-pulong pvar_to_ulong( pvar* var );
-pfloat pvar_to_float( pvar* var );
-pdouble pvar_to_double( pvar* var );
-uchar* pvar_to_string( pvar* var );
-pchar* pvar_to_wstring( pvar* var );
-pint pvar_convert( pvar* var, pbyte type );
+/* union/union.conv.c */
+pbyte punion_to_byte( punion* var );
+uchar punion_to_char( punion* var );
+pint punion_to_int( punion* var );
+plong punion_to_long( punion* var );
+pulong punion_to_ulong( punion* var );
+pfloat punion_to_float( punion* var );
+pdouble punion_to_double( punion* var );
+uchar* punion_to_string( punion* var );
+pchar* punion_to_wstring( punion* var );
+pint punion_convert( punion* var, pbyte type );
 
-/* variant/var.get.c */
-pbyte pvar_get_byte( pvar* var );
-uchar pvar_get_char( pvar* var );
-pint pvar_get_int( pvar* var );
-plong pvar_get_long( pvar* var );
-pulong pvar_get_ulong( pvar* var );
-pfloat pvar_get_float( pvar* var );
-pdouble pvar_get_double( pvar* var );
-uchar* pvar_get_cstring( pvar* var );
-uchar* pvar_get_string( pvar* var );
-pchar* pvar_get_wcstring( pvar* var );
-pchar* pvar_get_wstring( pvar* var );
+/* union/union.get.c */
+pbyte punion_get_byte( punion* var );
+uchar punion_get_char( punion* var );
+pint punion_get_int( punion* var );
+plong punion_get_long( punion* var );
+pulong punion_get_ulong( punion* var );
+pfloat punion_get_float( punion* var );
+pdouble punion_get_double( punion* var );
+uchar* punion_get_cstring( punion* var );
+uchar* punion_get_string( punion* var );
+pchar* punion_get_wcstring( punion* var );
+pchar* punion_get_wstring( punion* var );
 
-/* variant/var.set.c */
-pbyte pvar_set_byte( pvar* var, pbyte b );
-uchar pvar_set_char( pvar* var, uchar c );
-pint pvar_set_int( pvar* var, pint i );
-plong pvar_set_long( pvar* var, plong l );
-pulong pvar_set_ulong( pvar* var, pulong ul );
-pfloat pvar_set_float( pvar* var, pfloat f );
-pdouble pvar_set_double( pvar* var, pdouble d );
-uchar* pvar_set_cstring( pvar* var, uchar* s );
-uchar* pvar_set_string( pvar* var, uchar* s );
-pchar* pvar_set_wcstring( pvar* var, pchar* ws );
-pchar* pvar_set_wstring( pvar* var, pchar* ws );
+/* union/union.set.c */
+pbyte punion_set_byte( punion* var, pbyte b );
+uchar punion_set_char( punion* var, uchar c );
+pint punion_set_int( punion* var, pint i );
+plong punion_set_long( punion* var, plong l );
+pulong punion_set_ulong( punion* var, pulong ul );
+pfloat punion_set_float( punion* var, pfloat f );
+pdouble punion_set_double( punion* var, pdouble d );
+uchar* punion_set_cstring( punion* var, uchar* s );
+uchar* punion_set_string( punion* var, uchar* s );
+pchar* punion_set_wcstring( punion* var, pchar* ws );
+pchar* punion_set_wstring( punion* var, pchar* ws );
 
 /* xml/xml.c */
 XML_T xml_child( XML_T xml, uchar* name );

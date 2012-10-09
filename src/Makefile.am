@@ -33,10 +33,10 @@ libphorward_la_SOURCES = \
 	string/utf8.c \
 	util/base64.c \
 	util/system.c \
-	variant/var.c \
-	variant/var.conv.c \
-	variant/var.get.c \
-	variant/var.set.c \
+	union/union.c \
+	union/union.conv.c \
+	union/union.get.c \
+	union/union.set.c \
 	xml/xml.c
 
 noinst_HEADERS = \
@@ -50,7 +50,7 @@ noinst_HEADERS = \
 	regex/pregex.h \
 	string/string.h \
 	string/utf8.h \
-	variant/var.h \
+	union/union.h \
 	xml/xml.h \
 	$(PROTOFILE)
 
@@ -83,14 +83,14 @@ $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 
-variant/var.get.c: variant/var.h variant/var.gen.awk
-	$(AWK) -f variant/var.gen.awk -vwith_get=1 variant/var.h >$@
+union/union.get.c: union/union.h union/union.gen.awk
+	$(AWK) -f union/union.gen.awk -vwith_get=1 union/union.h >$@
 
-variant/var.set.c: variant/var.h variant/var.gen.awk
-	$(AWK) -f variant/var.gen.awk -vwith_set=1 variant/var.h >$@
+union/union.set.c: union/union.h union/union.gen.awk
+	$(AWK) -f union/union.gen.awk -vwith_set=1 union/union.h >$@
 
-variant/var.conv.c: variant/var.h variant/var.gen.awk
-	$(AWK) -f variant/var.gen.awk -vwith_conv=1 variant/var.h >$@
+union/union.conv.c: union/union.h union/union.gen.awk
+	$(AWK) -f union/union.gen.awk -vwith_conv=1 union/union.h >$@
 
 # Phorward Foundation Library Documentation
 $(DOCFILE): $(libphorward_la_SOURCES)

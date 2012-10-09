@@ -23,6 +23,11 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
+# Check for unsigned-char force flag
+AC_PROG_CC_CHAR_SUBSCRIPTS([UNSIGNED_CHAR])
+CFLAGS="$CFLAGS $UNSIGNED_CHAR"
+rm -f writetest.c
+
 AM_PROG_AR
 AM_PROG_CC_C_O
 
@@ -47,7 +52,6 @@ AC_CHECK_HEADERS([locale.h wchar.h wctype.h],
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-
 AC_CHECK_FUNCS([memmove])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([strchr])

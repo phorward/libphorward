@@ -348,43 +348,43 @@ void xml_demo( void )
 	xml_free( comp );
 }
 
-void var_demo( void )
+void union_demo( void )
 {
 	/*
-	 * This is a demonstration of the pvar data type, which implements
-	 * a variant type. A variant type is a variable which is capable to
+	 * This is a demonstration of the punion data type, which implements
+	 * a union type. A union type is a variable which is capable to
 	 * store different values, by using a type flag.
 	 *
-	 * The pvar-data type and its support functions of the Phorward
+	 * The punion-data type and its support functions of the Phorward
 	 * Foundation Libraries allows to store byte, char, int, long, unsigned
 	 * long (ulong), float, double, string (char*) and wide-character string
 	 * (wstring) and their conversion among each other.
 	 *
-	 * String memory is always hold with the pvar-object, until the structure
+	 * String memory is always hold with the punion-object, until the structure
 	 * is converted into another type or freed.
 	 *
-	 * It is recommended to clean-up every pvar structure using pvar_reset(),
+	 * It is recommended to clean-up every punion structure using punion_reset(),
 	 * to ensure that all used memory is free again.
 	 */
-	pvar	vtest;
+	punion	vtest;
 
-	pvar_init( &vtest );
-	pvar_set_string_d( &vtest, "123 Hello World" );
+	punion_init( &vtest );
+	punion_set_string_d( &vtest, "123 Hello World" );
 
-	printf( "%d vtest = %s\n", pvar_is_convertible( &vtest ),
-				pvar_get_string( &vtest ) );
-	printf( "%d vtest = %ls\n", pvar_is_convertible( &vtest ),
-				pvar_get_wstring( &vtest ) );
+	printf( "%d vtest = %s\n", punion_is_convertible( &vtest ),
+				punion_get_string( &vtest ) );
+	printf( "%d vtest = %ls\n", punion_is_convertible( &vtest ),
+				punion_get_wstring( &vtest ) );
 
-	pvar_set_convertible( &vtest );
-	printf( "%d vtest = %ls\n", pvar_is_convertible( &vtest ),
-				pvar_get_wstring( &vtest ) );
+	punion_set_convertible( &vtest );
+	printf( "%d vtest = %ls\n", punion_is_convertible( &vtest ),
+				punion_get_wstring( &vtest ) );
 
-	pvar_convert( &vtest, PVAR_INT );
-	printf( "%d vtest = %d\n", pvar_is_convertible( &vtest ),
-				pvar_get_int( &vtest ) );
+	punion_convert( &vtest, PUNION_INT );
+	printf( "%d vtest = %d\n", punion_is_convertible( &vtest ),
+				punion_get_int( &vtest ) );
 
-	pvar_reset( &vtest );
+	punion_reset( &vtest );
 }
 
 int main( int argc, char** argv )
@@ -399,7 +399,7 @@ int main( int argc, char** argv )
 	stack_demo();
 	printf( "faculty of 3 is %d\n", dbg_demo( 3 ) );
 	xml_demo();
-	var_demo();
+	union_demo();
 
 	return EXIT_SUCCESS;
 }
