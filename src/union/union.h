@@ -8,11 +8,11 @@ File:	union.h
 Author:	Jan Max Meyer
 Usage:	Structures and definitions for a variant-style data storage type punion.
 		The only hand-written modules of the punion variant data type exists in
-		var.h and var.c. The files var.get.c, var.set.c and var.conv.c are
-		automatically generated from the definitions below, using var.gen.awk.
-		Due this automatic generation of the get/set/conversion functions, the
-		punion data type can easily be changed and extended to new data types
-		without huger code changes.
+		union.h and union.c. The files union.get.c, union.set.c and union.conv.c
+		are automatically generated from the definitions below, using
+		union.gen.awk. Due this automatic generation of the get/set/conversion
+		functions, the punion data type can easily be changed and extended to
+		new data types without huger code changes.
 ----------------------------------------------------------------------------- */
 
 #ifndef PUNION_H

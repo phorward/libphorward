@@ -27,7 +27,7 @@ pbyte punion_set_byte( punion* var, pbyte b )
 	PARMS( "b", "%d", b );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_BYTE;
 	var->val.b = b;
 
@@ -56,7 +56,7 @@ uchar punion_set_char( punion* var, uchar c )
 	PARMS( "c", "%c", c );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_CHAR;
 	var->val.c = c;
 
@@ -85,7 +85,7 @@ pint punion_set_int( punion* var, pint i )
 	PARMS( "i", "%d", i );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_INT;
 	var->val.i = i;
 
@@ -114,7 +114,7 @@ plong punion_set_long( punion* var, plong l )
 	PARMS( "l", "%ld", l );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_LONG;
 	var->val.l = l;
 
@@ -143,7 +143,7 @@ pulong punion_set_ulong( punion* var, pulong ul )
 	PARMS( "ul", "%ld", ul );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_ULONG;
 	var->val.ul = ul;
 
@@ -172,7 +172,7 @@ pfloat punion_set_float( punion* var, pfloat f )
 	PARMS( "f", "%f", f );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_FLOAT;
 	var->val.f = f;
 
@@ -201,7 +201,7 @@ pdouble punion_set_double( punion* var, pdouble d )
 	PARMS( "d", "%lf", d );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_DOUBLE;
 	var->val.d = d;
 
@@ -230,7 +230,7 @@ uchar* punion_set_cstring( punion* var, uchar* s )
 	PARMS( "s", "%s", s );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_STRING;
 	var->val.s = s;
 	punion_set_constant( var );
@@ -260,7 +260,7 @@ uchar* punion_set_string( punion* var, uchar* s )
 	PARMS( "s", "%s", s );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_STRING;
 	var->val.s = s;
 
@@ -289,7 +289,7 @@ pchar* punion_set_wcstring( punion* var, pchar* ws )
 	PARMS( "ws", "%ls", ws );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_WSTRING;
 	var->val.ws = ws;
 	punion_set_constant( var );
@@ -319,7 +319,7 @@ pchar* punion_set_wstring( punion* var, pchar* ws )
 	PARMS( "ws", "%ls", ws );
 
 	punion_reset( var );
- var->type &= ~0x0F;
+	var->type &= ~0x0F;
 	var->type |= PUNION_WSTRING;
 	var->val.ws = ws;
 

@@ -64,13 +64,13 @@ To import functions from the Phorward Foundation Toolkit, simply
 
 ``` #include <phorward.h>
 
-into your programs. 
+into your programs.
 
 The linker must be told to link //libphorward.a// for the static version, //libphorward.so// for the dynamic version.
 
 A simple example program extracting numbers from a string
 
-``` 
+```
 #include <phorward.h>
 
 int main()
@@ -103,37 +103,47 @@ $ ./hello
 2: 50
 ```
 
-== Phorward Data Types ==[data_types]
+== Primary data types ==[data_types]
 
-The Phorward Foundation Toolkit provides some self-defined data-types. They are used by many of the library functions, but are only pendants to standard C data-types. It is not explicitly required to use these data-types in your projects, but they may be used for a clean code integrity with the Phorward coding convention, if wanted.
+The Phorward Foundation Toolkit provides some self-defined primary data-types. They are used by many of the library functions, but are only pendants to standard C types. It is not explicitly required to use these data-types in your projects, but they may be used for a clean code integrity with the Phorward coding convention, if wanted.
 
 || Type | Alias | C-type | used for |
 | uchar | - | unsigned char | UTF-8-enabled character string, this is **unsigned char**. |
 | pchar | wchar | wchar_t or unsigned int | If unicode-support enabled, pchar is of type **wchar_t**, else of type **unsigned int**. |
-| pboolean | BOOLEAN, boolean | char | A type to store TRUE or FALSE. |
-| pbyte | | unsigned char | Byte and pointer data type, mostly used instead of **void***. |
-| pint | | int | Integer value type. |
-| plong | | long | Long value type. |
-| pfloat | | float | Floating point value type. |
-| pdouble | | double | Double floating point value type. |
-| pulong | | size_t | Unsigned long value type. |
-| psize | | size_t | Unsigned size-type. |
+| pboolean | BOOLEAN, boolean | char | A [boolean type #boolean_type] to store TRUE or FALSE. |
+| pbyte | - | unsigned char | Byte and pointer data type, mostly used instead of **void***. |
+| pint | - | int | Integer value type. |
+| plong | - | long | Long value type. |
+| pfloat | - | float | Floating point value type. |
+| pdouble | - | double | Double floating point value type. |
+| pulong | - | size_t | Unsigned long value type. |
+| psize | - | size_t | Unsigned size-type. |
 
+== Boolean type ==[boolean_type]
 
-The following data-types are Phorward-specific for various library implementations.
+The Phorward Foundation Toolkit defines a type pboolean (alias: BOOLEAN, boolean) that is used to store boolean values.
+
+|| Define | Meaning |
+| BOOLEAN_STR( b ) | Returns "TRUE" if //b// is unequal 0, else "FALSE" |
+| TRUE | Defines the value 1. |
+| FALSE | Defines the value 0. |
+
+== Phorward-specific data-types and structures ==[phorward_types]
+
+The following data-types are Phorward-specific for various library function implementations.
 
 || Type | Description |
 | HASHTAB | [Hash table #hash_table] |
 | HASHELEM | [Hash table entry #hash_table] |
 | LIST | [Linked pointer list #linked_list] |
-| STACK | [Dynamic stack #stack] |
-| pregex | [Regular expression #regular_expression] |
+| pregex | [Regular expression object #regular_expression] |
 | pregex_ptn | [Regular expression pattern #regular_expression] |
 | pregex_range | [Regular expression match range #regular_expression] |
-| punion | [Phorward Universal Datatype #union] |
+| punion | [Phorward Unioned Datatype #union] |
+| STACK | [Dynamic stack #stack] |
+| XML_T | [XML entity #xml] |
 
-
-== Errorcodes ==
+== Error codes ==[error_codes]
 
 May functions of the Phorward Foundation Toolkit return one of the following error codes on failure. They are always negative. A value of 0 or ERR_OK identifies a successfull action, a positive return code identifies another, more specific error, or a kind of successfull function run.
 
@@ -150,13 +160,15 @@ May functions of the Phorward Foundation Toolkit return one of the following err
 * Normally, functions of the Phorward Foundation Toolkit that run into insufficent memory errors immediatelly exit the program with a message to stderr and errorcode 1.
 This behavior can be changed by redefining the OUTOFMEM-macro.
 
-== Macros ==
+== Other defines & macros ==
 
 The following macros can be used.
 
 || Macro | Usage |
 | OUTOFMEM | Immediatelly stops the program with the message "Ran out of memory" to stderr. |
 | WRONGPARAM | Prints a warning message to stderr that a function was called with wrong parameters. |
+| PDIRSEP | Directory separator, under Unix-like systems, this is ':', under Windows ';' |
+| PPATHSEP | Path separator, under Unix-like systems, this is '/', under Windows '\' |
 
 == Dynamic general-purpose data structures ==
 
@@ -344,7 +356,7 @@ while( ( p = (struct person*)stack_pop( &s ) ) )
 stack_free( &s, STACK_NO_CALLBACK );
 ```
 
-- [stack_access() #fn_stack_access] - Access stack element. 
+- [stack_access() #fn_stack_access] - Access stack element.
 - [stack_count() #fn_stack_count] - Number of elements on stack.
 - [stack_dump() #fn_stack_dump] - Dump stack to stream (using a callback function)
 - [stack_free() #fn_stack_free] - Free entire stack.
@@ -355,3 +367,117 @@ stack_free( &s, STACK_NO_CALLBACK );
 
 A [linked list #linked_list] can also be used like a stack ([list_push() #fn_list_push], [list_pop() #fn_list_pop]), but is less memory-friendly.
 
+=== The union data-type ===[union]
+
+The Phorward Foundation Toolkit provides a data-type structure called **punion**. A punion is a structure that can hold different data-types in one place, and performs automatic conversion. The data-structure supports the following values in the default configuration:
+
+|| Define | Data-Type | C-Datatype | Naming |
+| PUNION_NULL | - | - | Unset union object |
+| PUNION_BYTE | pbyte | unsigned char | Byte value |
+| PUNION_CHAR | uchar | char | Char value |
+| PUNION_INT | pint | int | Integer value |
+| PUNION_LONG | plong | long | Long value
+| PUNION_ULONG | pulong | unsigned long | Unsigned long value |
+| PUNION_FLOAT | pfloat | float | Floating point value |
+| PUNION_DOUBLE | pdouble | double | Double floating point value |
+| PUNION_STRING | uchar* | char* | UTF-8 byte character string |
+| PUNION_WSTRING | pchar | wchar_t | Wide-character Unicode string |
+
+
+The punion data-structure can be easily extended to other data-types by changing the definitions in //src/union/punion.h//, because the get-, set- and conversion-functions are generated by an awk-script during libphorwards compile-time.
+
+
+```
+punion	utest;
+
+/* Initialize the union structure */
+punion_init( &utest );
+
+/* Set a string, duplicate its memory (*_d) */
+punion_set_string_d( &utest, "123 Hello World" );
+
+/* Get the string */
+printf( "utest(str) = %s\n", punion_get_string( &utest ) );
+
+/* Get the string as wide-character value */
+printf( "utest(wstr) = %ls\n", punion_get_wstring( &utest ) );
+
+/*
+ * Well, this is not possible, because the punion object is
+ * configured to be not convertible by default. Let's enable this.
+ */
+punion_set_convertible( &utest );
+
+/* Get the string as wide-character value, again. */
+printf( "utest(wstr) = %ls\n", punion_get_wstring( &utest ) );
+
+/* The the string as integer value - only 123 will be returned! */
+printf( "utest(int) = %d\n", punion_get_int( &utest ) );
+
+/* Reset the value by a floating point number */
+punion_set_double( &utest, 123.456 );
+
+printf( "utest(double) = %lf\n", punion_get_double( &utest ) );
+printf( "utest(str) = %s\n", punion_get_string( &utest ) );
+
+/* Free (possibly) used memory */
+punion_reset( &utest );
+```
+
+This program results in the following output:
+
+```
+utest(str) = 123 Hello World
+utest(wstr) = (null)
+utest(wstr) = 123 Hello World
+utest(int) = 123
+utest(double) = 123.456000
+utest(str) = 123.456
+```
+
+The default configuration provides the following function set to read, write and convert values within the punion-object.
+
+- [punion_convert() #fn_punion_convert] - Explicitly convert value into another type.
+- [punion_get_byte() #fn_punion_get_byte] - Return and convert value into byte.
+- [punion_get_char() #fn_punion_get_char] - Return and convert value into char.
+- [punion_get_cstring() #fn_punion_get_cstring] - Return and convert value into string with constant flag.
+- [punion_get_double() #fn_punion_get_double] - Return and convert value into double.
+- [punion_get_float() #fn_punion_get_float] - Return and convert value into float.
+- [punion_get_int() #fn_punion_get_int] - Return and convert value into int.
+- [punion_get_long() #fn_punion_get_long] - Return and convert value into long.
+- [punion_get_string() #fn_punion_get_string] - Return and convert value into string.
+- [punion_get_ulong() #fn_punion_get_ulong] - Return and convert value into unsigned long.
+- [punion_get_wcstring() #fn_punion_get_wcstring] - Return and convert value into wide-character string with constant flag.
+- [punion_get_wstring() #fn_punion_get_wstring] - Return and convert value into wide-character string.
+- [punion_init() #fn_punion_init] - Initialize punion object.
+- [punion_is_constant() #fn_punion_is_constant] - Tell if constant flag is set.
+- [punion_is_convertible() #fn_punion_is_convertible] - Tell if convertible flag is set.
+- [punion_reset() #fn_punion_reset] - Reset punion object, free possibly used memory.
+- [punion_set_byte() #fn_punion_set_byte] - Set byte value.
+- [punion_set_char() #fn_punion_set_char] - Set char value.
+- [punion_set_constant() #fn_punion_set_constant] - Set constant flag.
+- [punion_set_convertible() #fn_punion_set_convertible] - Set convertible flag.
+- [punion_set_cstring() #fn_punion_set_cstring] - Set string value with constant flag.
+- [punion_set_double() #fn_punion_set_double] - Set double value.
+- [punion_set_float() #fn_punion_set_float] - Set float value.
+- [punion_set_int() #fn_punion_set_int] - Set integer value.
+- [punion_set_long() #fn_punion_set_long] - Set long value.
+- [punion_set_string() #fn_punion_set_string] - Set string value.
+- [punion_set_string_d() #fn_punion_set_string_d] - Set string value and duplicate it.
+- [punion_set_ulong() #fn_punion_set_ulong] - Set unsigned long value.
+- [punion_set_wcstring() #fn_punion_set_wcstring] - Set wide-character string value with constant flag.
+- [punion_set_wstring() #fn_punion_set_wstring] - Set wide-character string value.
+- [punion_set_wstring_d() #fn_punion_set_wstring_d] - Set wide-character string value and duplicate it.
+- [punion_to_byte() #fn_punion_to_byte] - Return value as byte.
+- [punion_to_char() #fn_punion_to_char] - Return value as char.
+- [punion_to_double() #fn_punion_to_double] - Return value as double.
+- [punion_to_float() #fn_punion_to_float] - Return value as float.
+- [punion_to_int() #fn_punion_to_int] - Return value as integer.
+- [punion_to_long() #fn_punion_to_long] - Return value as long.
+- [punion_to_string() #fn_punion_to_string] - Return value as string.
+- [punion_to_ulong() #fn_punion_to_ulong] - Return value as unsigned long.
+- [punion_to_wstring() #fn_punion_to_wstring] - Return value as wide-character string.
+- [punion_type() #fn_punion_type] - Tell value type define.
+- [punion_unset_constant() #fn_punion_unset_constant] - Unset constant flag.
+- [punion_unset_convertible() #fn_punion_unset_convertible] - Unset convertible flag.
+-

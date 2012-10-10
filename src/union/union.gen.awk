@@ -168,7 +168,7 @@ function setfunc()
 	print "	PARMS( \"" member "\", \"" var_format "\", " member " );"
 	print ""
 	print "	punion_reset( var );"	
-	print " var->type &= ~0x0F;"
+	print "	var->type &= ~0x0F;"
 	print "	var->type |= " var_define ";"
 	print "	var->val." member " = " member ";"
 	
