@@ -170,11 +170,11 @@ The following macros can be used.
 | PDIRSEP | Directory separator, under Unix-like systems, this is ':', under Windows ';' |
 | PPATHSEP | Path separator, under Unix-like systems, this is '/', under Windows '\' |
 
-== Dynamic general-purpose data structures ==
+== General-purpose dynamic data structures ==
 
 The Phorward Foundation Toolkit provides general-purpose data structures for various situations.
 
-=== Linked lists ===[linked_list]
+=== Simple linked lists ===[linked_list]
 
 The LIST-structure and related functions can be used for dynamic creation and manipulation of single linked-lists.
 Each LIST-element is a simple constructure that provides a pointer to the data-part that is associated with the list, and a pointer to the follower, which is (LIST*)NULL in case of the last element.
@@ -224,6 +224,10 @@ mylist = list_free( mylist );
 - [list_subset() #fn_list_subset] - Check for subset of two lists.
 - [list_union() #fn_list_union] - Union elements of two lists, remove duplicates.
 -
+
+=== Double linked, extended lists ===[extended_linked_list]
+
+TODO plist
 
 === Hash Tables ===[hash_table]
 
@@ -481,3 +485,19 @@ The default configuration provides the following function set to read, write and
 - [punion_unset_constant() #fn_punion_unset_constant] - Unset constant flag.
 - [punion_unset_convertible() #fn_punion_unset_convertible] - Unset convertible flag.
 -
+
+== Extending string functions ==
+
+=== Data types ===
+
+In general, the Phorward Foundation Toolkit provides two data-types for characters and string buffers.
+
+- **uchar** is the data-type used for 1-byte characters. When the Phorward Foundation Toolkit is compiled with the UTF8-flag, multi-byte UTF-8 character-strings are also supporting Unicode. All string functions working with this type begin with the prefix **pstr** (lower-case "p").
+- **pchar** is the data-type used for 4-byte wide-character strings (normally **wchar_t**). This type is only available as wide-character if compiled with UNICODE-flag enabled. All string functions working with this type begin with the prefix **Pstr** (upper-case "P"). 
+
+
+== Regular expressions ==
+
+The Phorward Foundation Toolkit provides a powerful library to work with regular expressions, including their underlying non-deterministic and deterministic finite automatas (NFAs, DFAs) and their transformation. This library enables developers to write C programs with an unlimited bandwith relating to regular expression features. If just a quick matching, splitting or replacement of strings based on a regular expression is required or the implementation of a lexical analyzer for a compiler's lexer shall be the target - with the Phorward regular expression tools on hand, all these requirements can be easily satisfied and implemented.
+
+

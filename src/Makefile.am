@@ -17,6 +17,7 @@ libphorward_la_SOURCES = \
 	base/dbg.c \
 	base/hashtab.c \
 	base/llist.c \
+	base/plist.c \
 	base/memory.c \
 	base/stack.c \
 	ccl/ccl.c \
@@ -44,6 +45,7 @@ noinst_HEADERS = \
 	base/dbg.h \
 	base/hashtab.h \
 	base/llist.h \
+	base/plist.h \
 	base/stack.h \
 	ccl/ccl.h \
 	phorward.tpl.h \

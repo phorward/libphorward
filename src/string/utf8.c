@@ -63,8 +63,8 @@ static const uchar trailingBytesForUTF8[256] = {
 int u8_seqlen(uchar *s)
 {
 #ifdef UTF8
-	if( u8_isutf( *s ) )
-	    return trailingBytesForUTF8[(wchar)s[0]] + 1;
+	if( u8_isutf( (pbyte)*s ) )
+	    return trailingBytesForUTF8[ (pbyte)*s ] + 1;
 #endif
 	return 1;
 }
@@ -89,19 +89,19 @@ wchar u8_char( uchar* str )
 	int 	nb;
 	wchar 	ch = 0;
 
-	switch( ( nb = trailingBytesForUTF8[*str] ) )
+	switch( ( nb = trailingBytesForUTF8[ (pbyte)*str ] ) )
 	{
         case 3:
-			ch += *str++;
+			ch += (pbyte)*str++;
 			ch <<= 6;
         case 2:
-			ch += *str++;
+			ch += (pbyte)*str++;
 			ch <<= 6;
         case 1:
-			ch += *str++;
+			ch += (pbyte)*str++;
 			ch <<= 6;
         case 0:
-			ch += *str++;
+			ch += (pbyte)*str++;
 	}
 	
 	ch -= offsetsFromUTF8[ nb ];
@@ -111,7 +111,7 @@ wchar u8_char( uchar* str )
 #else
 wchar u8_char( uchar* str )
 {
-	return *str;
+	return (wchar)*str;
 }
 #endif
 

@@ -1,9 +1,22 @@
 syntax: glob
 
 *.o
-lib
+*.a
+*.so
 
-tmp
-NEWPROJECT/newproject
+#Autotools
+.deps
+.libs
+*.Plo
+*.la
+*.lo
+Makefile
+config.log
+config.status
+libtool
+
 DEMO/basis
 DEMO/regex
+NEWPROJECT/newproject
+
+tmp

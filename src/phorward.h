@@ -49,7 +49,7 @@ typedef unsigned int			wchar;
 #endif
 
 
-typedef char					pbyte;		
+typedef unsigned char			pbyte;		
 typedef wchar					pchar;		
 typedef char					uchar;		
 typedef	int						pint;		
@@ -59,14 +59,22 @@ typedef long					plong;
 typedef size_t					pulong;		
 typedef size_t					psize;		
 
+
+
 typedef char 					pboolean;	
 #define BOOLEAN					pboolean
 #define boolean 				pboolean
 
-#define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
-
+#ifndef TRUE
 #define TRUE					1
+#endif 
+
+#ifndef FALSE
 #define FALSE					0
+#endif
+
+#define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
+#define TRUEBOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
 
 
 #define ERR_OK					0		
@@ -81,10 +89,21 @@ typedef char 					pboolean;
 #define OUTOFMEM				fprintf( stderr, \
 									"%s, %d: Ran out of memory\n", \
 										__FILE__, __LINE__ ), exit( 1 )
+
 #define WRONGPARAM				fprintf( stderr, \
 									"%s, %d: Function called with wrong or " \
 									"incomplete parameters, fix your call!\n", \
 										__FILE__, __LINE__ )
+
+#define MISSINGCASE				fprintf( stderr, \
+									"%s, %d: Missing case enganged, " \
+									"please check for correctness.", \
+									__FILE__, __LINE__ )
+
+#define TODO					fprintf( stderr, \
+									"%s, %d: TODO alert! The program ran into "\
+									"a module that is not finished yet!\n", \
+											__FILE__, __LINE__ )
 
 
 #ifndef _WIN32
@@ -294,6 +313,69 @@ typedef struct llist
 
 #endif
 
+
+
+
+#ifndef PLIST_H
+#define PLIST_H
+
+
+#define PLIST_MOD_NONE		0
+#define PLIST_MOD_RECYCLE	1
+#define PLIST_MOD_EXTKEYS	2
+#define PLIST_MOD_UNIQUE	4
+#define PLIST_MOD_WCHAR		8
+
+
+typedef struct Pelem		plistelem;
+typedef struct Plist		plist;
+
+typedef	pboolean			(*plistelem_fn)( pbyte* e );
+#define PELEM_FN_NULL		( (plistelem_fn)NULL )
+
+
+struct Pelem
+{
+	uchar*					key;
+
+	plist*					list;
+
+	plistelem*				prev;
+	plistelem*				next;
+
+	plistelem*				hashnext;
+	plistelem*				hashprev;
+};
+
+
+struct Plist
+{
+	int						flags;
+	int						size;
+	int						count;
+	int						hashsize;
+	
+	plistelem_fn			free_fn;
+
+	plistelem*				unused;
+
+	plistelem*				first;
+	plistelem*				last;
+	plistelem**				hash;
+};
+
+
+#define plist_size( l )		( ( l ) ? ( l )->size : (psize)0 )
+#define plist_count( l )	( ( l ) ? ( l )->count : (psize)0 )
+#define plist_first( l )	( ( l ) ? ( l )->first : (plistelem*)NULL )
+#define plist_last( l )		( ( l ) ? ( l )->last : (plistelem*)NULL )
+#define plist_access( e )	( ( e ) ? \
+								(pbyte*)( ( e ) + sizeof( plistelem ) ) \
+								: (pbyte*)NULL )
+#define plist_next( e )		( ( e ) ? ( e )->next : (plistelem*)NULL )
+#define plist_prev( e )		( ( e ) ? ( e )->prev : (plistelem*)NULL )
+
+#endif 
 
 
 
@@ -908,6 +990,13 @@ LIST* list_union( LIST* first, LIST* second );
 int list_count( LIST* list );
 int list_subset( LIST* list, LIST* subset );
 LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
+
+
+pboolean plist_init( plist* list, psize size, pbyte flags );
+plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* data );
+plistelem* plist_remove( plist* list, plistelem* e );
+plistelem* plist_get( plist* list, int idx );
+plistelem* plist_get_by_key( plist* list, uchar* key );
 
 
 void* pmalloc( psize size );

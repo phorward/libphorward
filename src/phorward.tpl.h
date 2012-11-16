@@ -57,7 +57,7 @@ typedef unsigned int			wchar;
 #endif
 
 /* Phorward Software primitive type specifiers */
-typedef char					pbyte;		/* Byte type */
+typedef unsigned char			pbyte;		/* Byte type */
 typedef wchar					pchar;		/* Phorward char type (wide char) */
 typedef char					uchar;		/* Universal char type (one byte) */
 typedef	int						pint;		/* Integer type */
@@ -67,14 +67,24 @@ typedef long					plong;		/* Long-type */
 typedef size_t					pulong;		/* Unsigned long */
 typedef size_t					psize;		/* Size-type */
 
+/*
+ * Boolean
+ */
+
 typedef char 					pboolean;	/* Phorward Boolean */
 #define BOOLEAN					pboolean
 #define boolean 				pboolean
 
-#define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
-
+#ifndef TRUE
 #define TRUE					1
+#endif 
+
+#ifndef FALSE
 #define FALSE					0
+#endif
+
+#define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
+#define TRUEBOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
 
 /*
  * Generic error codes
@@ -88,15 +98,26 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #define ERR_OTHER				-6		/* Any other error */
 
 /*
- * Generic macros
+ * Generic error case macros
  */
 #define OUTOFMEM				fprintf( stderr, \
 									"%s, %d: Ran out of memory\n", \
 										__FILE__, __LINE__ ), exit( 1 )
+
 #define WRONGPARAM				fprintf( stderr, \
 									"%s, %d: Function called with wrong or " \
 									"incomplete parameters, fix your call!\n", \
 										__FILE__, __LINE__ )
+
+#define MISSINGCASE				fprintf( stderr, \
+									"%s, %d: Missing case enganged, " \
+									"please check for correctness.", \
+									__FILE__, __LINE__ )
+
+#define TODO					fprintf( stderr, \
+									"%s, %d: TODO alert! The program ran into "\
+									"a module that is not finished yet!\n", \
+											__FILE__, __LINE__ )
 
 /*
  * Path separator
@@ -124,6 +145,7 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #include "base/bitset.h"
 #include "base/dbg.h"
 #include "base/llist.h"
+#include "base/plist.h"
 #include "base/hashtab.h"
 #include "base/stack.h"
 #include "ccl/ccl.h"
