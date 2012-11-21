@@ -369,9 +369,7 @@ struct Plist
 #define plist_count( l )	( ( l ) ? ( l )->count : (psize)0 )
 #define plist_first( l )	( ( l ) ? ( l )->first : (plistelem*)NULL )
 #define plist_last( l )		( ( l ) ? ( l )->last : (plistelem*)NULL )
-#define plist_access( e )	( ( e ) ? \
-								(pbyte*)( ( e ) + sizeof( plistelem ) ) \
-								: (pbyte*)NULL )
+#define plist_access( e )	( (pbyte*)( ( e ) + 1 ) )
 #define plist_next( e )		( ( e ) ? ( e )->next : (plistelem*)NULL )
 #define plist_prev( e )		( ( e ) ? ( e )->prev : (plistelem*)NULL )
 
@@ -993,7 +991,7 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 
 
 pboolean plist_init( plist* list, psize size, pbyte flags );
-plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* data );
+plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* src );
 plistelem* plist_remove( plist* list, plistelem* e );
 plistelem* plist_get( plist* list, int idx );
 plistelem* plist_get_by_key( plist* list, uchar* key );

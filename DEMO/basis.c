@@ -192,6 +192,46 @@ void list_demo( void )
 	mylist = list_free( mylist );
 }
 
+void plist_demo( void )
+{
+	struct
+	person		p;
+	struct
+	person*		pp;
+	plist		my;
+	plistelem*	e;
+
+	printf( "\n*** plist_demo ***\n\n" );
+
+	plist_init( &my, sizeof( struct person ), PLIST_MOD_NONE );
+
+	strcpy( p.first_name, "Melinda" );
+	strcpy( p.last_name, "Smith" );
+	plist_insert( &my, NULL, "Smith", (pbyte*)&p );
+
+	strcpy( p.first_name, "Brenda" );
+	strcpy( p.last_name, "Brandon" );
+	plist_insert( &my, NULL, "Brandon", (pbyte*)&p );
+
+	strcpy( p.first_name, "Monique" );
+	strcpy( p.last_name, "Joli" );
+	plist_insert( &my, NULL, "Joli", (pbyte*)&p );
+
+	strcpy( p.first_name, "Susan" );
+	strcpy( p.last_name, "Mueller" );
+	plist_insert( &my, NULL, "Mueller", (pbyte*)&p );
+
+	printf( "%d elements\n", plist_count( &my ) );
+
+	for( e = plist_first( &my ); e; e = plist_next( e ) )
+	{
+		pp = (struct person*)plist_access( e );
+		printf( "%s, %s\n", pp->last_name, pp->first_name );
+	}
+
+	pp = (struct person*)plist_access( plist_get_by_key( &my, "Joli" ) );
+	printf( "BY KEY: %s, %s\n", pp->last_name, pp->first_name );
+}
 
 void hashtab_demo( void )
 {
@@ -407,10 +447,12 @@ int main( int argc, char** argv )
 {
 	setlocale( LC_ALL, "" );
 
+
 	string_demo();
 	unicode_demo();
 	utf8_demo();
 	list_demo();
+	plist_demo();
 	hashtab_demo();
 	stack_demo();
 	printf( "faculty of 3 is %d\n", dbg_demo( 3 ) );

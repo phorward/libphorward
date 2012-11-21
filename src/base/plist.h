@@ -61,9 +61,7 @@ struct Plist
 #define plist_count( l )	( ( l ) ? ( l )->count : (psize)0 )
 #define plist_first( l )	( ( l ) ? ( l )->first : (plistelem*)NULL )
 #define plist_last( l )		( ( l ) ? ( l )->last : (plistelem*)NULL )
-#define plist_access( e )	( ( e ) ? \
-								(pbyte*)( ( e ) + sizeof( plistelem ) ) \
-								: (pbyte*)NULL )
+#define plist_access( e )	( (pbyte*)( ( e ) + 1 ) )
 #define plist_next( e )		( ( e ) ? ( e )->next : (plistelem*)NULL )
 #define plist_prev( e )		( ( e ) ? ( e )->prev : (plistelem*)NULL )
 

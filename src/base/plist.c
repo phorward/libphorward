@@ -140,7 +140,7 @@ static pboolean plist_hash_rebuild( plist* list )
 of the linked list and hash table usage. */
 pboolean plist_init( plist* list, psize size, pbyte flags )
 {
-	if( !( list && size <= 0 ) )
+	if( !( list && size >= 0 ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -156,47 +156,80 @@ pboolean plist_init( plist* list, psize size, pbyte flags )
 
 /** Insert //data// as element to the list //list// at positon //pos//.
 
-If //pos// is NULL, the new element will be attached to the end of the list.
-If //key// is not NULL, the element will be additionally engaged into the lists hash table. */
-plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* data )
+If //pos// is NULL, the new element will be attached to the end of the
+list. If //key// is not NULL, the element will be additionally engaged
+into the lists hash table. */
+plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* src )
 {
 	plistelem*	e;
+	int			size;
+	pbyte*		dst;
+
+	PROC( "plist_insert" );
+	PARMS( "list", "%p", list );
+	PARMS( "pos", "%p", pos );
+	PARMS( "key", "%s", key );
+	PARMS( "src", "%p", src );
 
 	if( !( list ) )
 	{
 		WRONGPARAM;
-		return (plistelem*)NULL;
+		RETURN( (plistelem*)NULL );
 	}
 
 	/* Recycle existing elements? */
 	if( list->unused )
 	{
+		MSG( "Recycle list contains element, recycling" );
 		e = list->unused;
 		list->unused = e->next;
 		memset( e, 0, sizeof( plistelem ) + list->size );
 	}
 	else
+	{
+		MSG( "Allocating new element" );
+		VARS( "size", "%d", sizeof( plistelem ) + list->size );
+
 		e = (plistelem*)pmalloc( sizeof( plistelem ) + list->size );
+	}
 
 	e->list = list;
-	memcpy( e + sizeof( plistelem ), data, list->size );
+
+	if( src )
+	{
+		MSG( "data is provided, will copy memory" );
+		VARS( "sizeof( plistelem )", "%d", sizeof( plistelem ) );
+		VARS( "size", "%d", list->size );
+
+		memcpy( e + 1, src, list->size );
+	}
 
 	if( !pos )
+	{
+		MSG( "pos unset, will get last element in list" );
 		pos = plist_last( list );
+	}
 
-	e->prev = pos;
-	e->next = pos->next;
-	pos->next = e;
-	e->next->prev = e;
-	
-	if( list->first == pos )
+	VARS( "pos", "%p", pos );
+
+	if( ( e->prev = pos ) )
+	{
+		if( ( e->next = pos->next ) )
+			e->next->prev = e;
+
+		pos->next = e;
+	}
+	else
 		list->first = e;
 		
-	if( list->last == pos )
+	if( !e->next )
 		list->last = e;
 		
 	if( key )
 	{
+		MSG( "Key provided, will insert into hash table" );
+		VARS( "key", "%s", key );
+
 		if( list->flags & PLIST_MOD_EXTKEYS )
 			e->key = key;
 		else if( list->flags & PLIST_MOD_WCHAR )
@@ -208,10 +241,13 @@ plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* data )
 	}
 
 	list->count++;
-	return e;
+
+	VARS( "list->count", "%d", list->count );
+	RETURN( e );
 }
 
-/** Removes the element //e// from the the //list// and free it or puts it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
+/** Removes the element //e// from the the //list// and free it or puts
+ it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
 plistelem* plist_remove( plist* list, plistelem* e )
 {
 	if( !( list && e && e->list == list ) )
