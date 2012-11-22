@@ -45,10 +45,14 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 
 /* base/plist.c */
 pboolean plist_init( plist* list, psize size, pbyte flags );
+pboolean plist_erase( plist* list );
 plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* src );
 plistelem* plist_remove( plist* list, plistelem* e );
-plistelem* plist_get( plist* list, int idx );
+plistelem* plist_get( plist* list, int n );
 plistelem* plist_get_by_key( plist* list, uchar* key );
+pbyte* plist_access( plistelem* e );
+plistelem* plist_next( plistelem* e );
+plistelem* plist_prev( plistelem* e );
 
 /* base/memory.c */
 void* pmalloc( psize size );

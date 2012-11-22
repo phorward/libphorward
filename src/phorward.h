@@ -355,7 +355,7 @@ struct Plist
 	int						count;
 	int						hashsize;
 	
-	plistelem_fn			free_fn;
+	plistelem_fn			destruct_fn;
 
 	plistelem*				unused;
 
@@ -369,9 +369,6 @@ struct Plist
 #define plist_count( l )	( ( l ) ? ( l )->count : (psize)0 )
 #define plist_first( l )	( ( l ) ? ( l )->first : (plistelem*)NULL )
 #define plist_last( l )		( ( l ) ? ( l )->last : (plistelem*)NULL )
-#define plist_access( e )	( (pbyte*)( ( e ) + 1 ) )
-#define plist_next( e )		( ( e ) ? ( e )->next : (plistelem*)NULL )
-#define plist_prev( e )		( ( e ) ? ( e )->prev : (plistelem*)NULL )
 
 #endif 
 
@@ -991,10 +988,14 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 
 
 pboolean plist_init( plist* list, psize size, pbyte flags );
+pboolean plist_erase( plist* list );
 plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* src );
 plistelem* plist_remove( plist* list, plistelem* e );
-plistelem* plist_get( plist* list, int idx );
+plistelem* plist_get( plist* list, int n );
 plistelem* plist_get_by_key( plist* list, uchar* key );
+pbyte* plist_access( plistelem* e );
+plistelem* plist_next( plistelem* e );
+plistelem* plist_prev( plistelem* e );
 
 
 void* pmalloc( psize size );

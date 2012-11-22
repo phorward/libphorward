@@ -135,6 +135,24 @@ static pboolean plist_hash_rebuild( plist* list )
 	return TRUE;
 }
 
+/* Drop list element */
+static pboolean plistelem_drop( plistelem* e )
+{
+	PROC( "plistelem_drop" );
+	
+	if( !( e ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+	
+	/* TODO: Call element destructor? */
+	if( !( e->list->flags & PLIST_MOD_EXTKEYS ) )
+		e->key = pfree( e->key );
+		
+	
+}
+
 /** Initialize the list //list// with an element allocation size //size//.
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage. */
@@ -147,11 +165,51 @@ pboolean plist_init( plist* list, psize size, pbyte flags )
 	}
 
 	memset( list, 0, sizeof( plist ) );
-	list->flags = PLIST_MOD_NONE;
+	list->flags = flags;
 	list->size = size;
 	list->hashsize = 64;
 
 	return TRUE;
+}
+
+/** Erase all allocated content of the list //list//. */
+pboolean plist_erase( plist* list )
+{
+	plistelem*	e;
+	plistelem*	next;
+
+	PROC( "plist_erase" );
+	
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+	
+	MSG( "Freeing current list contents" );
+	for( e = list->first; e; e = next )
+	{
+		next = e->next;
+
+		plistelem_drop( e );
+		pfree( e );		
+	}
+	
+	MSG( "Freeing list of unused nodes" );
+	for( e = list->unused; e; e = next )
+	{
+		next = e->next;
+		pfree( e );
+	}
+	
+	MSG( "Resetting list-object pointers" );
+	list->first = (plistelem*)NULL;
+	list->last = (plistelem*)NULL;
+	list->hash = (plistelem*)NULL;
+	list->unused = (plistelem*)NULL;
+	list->count = 0;
+	
+	RETURN( TRUE );
 }
 
 /** Insert //data// as element to the list //list// at positon //pos//.
@@ -250,10 +308,12 @@ plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* src )
  it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
 plistelem* plist_remove( plist* list, plistelem* e )
 {
+	PROC( "plist_remove" );
+
 	if( !( list && e && e->list == list ) )
 	{
 		WRONGPARAM;
-		return (plistelem*)NULL;
+		RETURN( (plistelem*)NULL );
 	}
 
 	if( e->prev )
@@ -270,38 +330,57 @@ plistelem* plist_remove( plist* list, plistelem* e )
 		e->hashprev->hashnext = e->hashnext;
 	else
 		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
+		
+	/* Drop element contents */
+	plistelem_drop( e );
 
 	/* Put unused node into unused list or free? */
 	if( list->flags & PLIST_MOD_RECYCLE )
 	{
+		MSG( "Will recycle current element" );
 		memset( e, 0, sizeof( plistelem ) + list->size );
 
 		e->next = list->unused;
 		list->unused = e;
+		
+		MSG( "Element is now discarded, for later usage" );
 	}
 	else
+	{
+		MSG( "Freeing current element" );
 		pfree( e );
+		MSG( "Element has gone" );
+	}
 
 	list->count--;
-	return (plistelem*)NULL;
+	RETURN( (plistelem*)NULL );
 }
 
-plistelem* plist_get( plist* list, int idx )
+/** Retrieve list element by its index from the begin.
+
+The function returns the //n//th element of the list //list//. */
+plistelem* plist_get( plist* list, int n )
 {
 	plistelem*	e;
 
-	if( !( list && idx >= 0 ) )
+	if( !( list && n >= 0 ) )
 	{
 		WRONGPARAM;
 		return (plistelem*)NULL;
 	}
 
-	for( e = plist_first( list ); e && idx > 0; e = plist_next( e ), idx-- )
+	for( e = plist_first( list ); e && n > 0;
+			e = plist_next( e ), n-- )
 		;
 
 	return e;
 }
 
+/** Retrieve list element by hash-table key.
+
+This function tries to fetch a list entry plistelem from list //list//
+with the key //key//.
+*/
 plistelem* plist_get_by_key( plist* list, uchar* key )
 {
 	int			idx;
@@ -322,3 +401,29 @@ plistelem* plist_get_by_key( plist* list, uchar* key )
 	return e;
 }
 
+/** Access data-content of the current element //e//. */
+pbyte* plist_access( plistelem* e )
+{
+	if( !( e ) )
+		return (pbyte*)NULL;
+	
+	return e + 1;
+}
+
+/** Access next element of current element //e//. */
+plistelem* plist_next( plistelem* e )
+{
+	if( !( e ) )
+		return (plistelem*)NULL;
+		
+	return e->next;
+}
+
+/** Access previous element of a current element //e//. */
+plistelem* plist_prev( plistelem* e )
+{
+	if( !( e ) )
+		return (plistelem*)NULL;
+		
+	return e->prev;
+}

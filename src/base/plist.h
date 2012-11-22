@@ -47,7 +47,7 @@ struct Plist
 	int						count;
 	int						hashsize;
 	
-	plistelem_fn			free_fn;
+	plistelem_fn			destruct_fn;
 
 	plistelem*				unused;
 
@@ -56,13 +56,10 @@ struct Plist
 	plistelem**				hash;
 };
 
-/* Macros */
+/* Macros for list member access only */
 #define plist_size( l )		( ( l ) ? ( l )->size : (psize)0 )
 #define plist_count( l )	( ( l ) ? ( l )->count : (psize)0 )
 #define plist_first( l )	( ( l ) ? ( l )->first : (plistelem*)NULL )
 #define plist_last( l )		( ( l ) ? ( l )->last : (plistelem*)NULL )
-#define plist_access( e )	( (pbyte*)( ( e ) + 1 ) )
-#define plist_next( e )		( ( e ) ? ( e )->next : (plistelem*)NULL )
-#define plist_prev( e )		( ( e ) ? ( e )->prev : (plistelem*)NULL )
 
 #endif /* PLIST_H */
