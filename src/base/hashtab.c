@@ -9,34 +9,9 @@ Author:	Jan Max Meyer
 Usage:	Hash Table Library
 ----------------------------------------------------------------------------- */
 
-/* ---------------- */
-/* --- Includes --- */
-/* ---------------- */
 #include <phorward.h>
 
-/* ------------------------ */
-/* --- Global variables --- */
-/* ------------------------ */
-
-/* ---------------------- */
-/* --- Implementation --- */
-/* ---------------------- */
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_bucket_idx()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Hash function to retrieve the bucket index.
-					
-	Parameters:		HASHTAB*	hashtab				Hash table pointer
-					uchar*		key					Key string
-	
-	Returns:		int								Index of the bucket
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/* Hash function to retrieve the bucket index. */
 static int hashtab_bucket_idx( HASHTAB* hashtab, uchar* key )
 {
 	psize hashval	= 0L;
@@ -58,29 +33,15 @@ static int hashtab_bucket_idx( HASHTAB* hashtab, uchar* key )
 	return (int)( hashval % hashtab->size );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_init()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Initializes a new hash table.
-					
-	Parameters:		HASHTAB*	ht					Hash table structure
-													to be initialized.
-					pint		size				Number of buckets
-					pint		flags				Flags to influence/modify
-													hash table behavior. Use
-													HASHTAB_*-flags, and 
-													specify multiple of them
-													with the |-operator.
-	
-	Returns:		pint							Returns ERR_OK on success,
-													else an adequate error
-													code.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Initializes a new hash table.
+
+//ht// is the hash table structure to be initialized. //size// is the number
+of buckets that shall be configured. //flags// are the flags to influence/modify
+the hash table behavior. Use the HASHTAB_*-flags, and specify multiple of them
+with the |-operator.
+
+Returns a **pint** ERR_OK on success, else an adequate error code.
+*/
 pint hashtab_init( HASHTAB* ht, pint size, pint flags )
 {
 	PROC( "hashtab_init" );
@@ -103,22 +64,13 @@ pint hashtab_init( HASHTAB* ht, pint size, pint flags )
 	RETURN( ERR_OK );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_free()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Frees all hash table's elements and buckets.
-					
-	Parameters:		HASHTAB*	hashtab				Hash table to be freed
-					void		(*freefct)(void*)	Optional pointer to data
-													element cleanup function.
-	
-	Returns:		int
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Frees all hash table elements and buckets.
+
+//hashtab// is the hash table structure to be freed.
+//(*freefct)(void*)// is the optional pointer to data element cleanup function.
+
+Always returns ERR_OK.
+*/
 pint hashtab_free( HASHTAB* hashtab, void (*freefct)(void*) )
 {	
 	HASHELEM*	elem,
@@ -169,24 +121,14 @@ pint hashtab_free( HASHTAB* hashtab, void (*freefct)(void*) )
 	RETURN( ERR_OK );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_insert()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Inserts an element into the hash table.
-					
-	Parameters:		HASHTAB*	hashtab				Hash-table to insert
-													element to
-					uchar*		key					Element key
-					void*		data				Optional data node
-	
-	Returns:		HASHELEM*						Inserted hash table element,
-													NULL in error case.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Inserts an element into the hash table.
+
+//hashtab// is the hash-table to insert an element to. //key// is the element
+key valze. //data// is the optional data node.
+
+Returns a **HASHELEM** pointer to the inserted hash table element,
+or NULL in error case.
+*/
 HASHELEM* hashtab_insert( HASHTAB* hashtab, uchar* key, void* data )
 {
 	HASHELEM*	elem		= (HASHELEM*)NULL;
@@ -255,23 +197,13 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, uchar* key, void* data )
 	RETURN( elem );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_get()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Gets an element from the hash table.
-					
-	Parameters:		HASHTAB*	hashtab				Hash-table to get element
-													from
-					uchar*		key					Element key
-	
-	Returns:		HASHELEM*						Desired hash table element,
-													NULL in error case.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Gets an element from the hash table.
+
+//hashtab// is the hash-table to get element from. //key// is the element key.
+
+Returns a **HASHELEM** pointer to the desired hash table element, or
+NULL in case that no element with //key// exists.
+*/
 HASHELEM* hashtab_get( HASHTAB* hashtab, uchar* key )
 {
 	HASHELEM*	elem		= (HASHELEM*)NULL;
@@ -295,24 +227,15 @@ HASHELEM* hashtab_get( HASHTAB* hashtab, uchar* key )
 	return elem;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_update()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Updates an element within the hash table, with new data.
-					
-	Parameters:		HASHTAB*	hashtab				Hash-table to update
-													element at
-					uchar*		key					Element key
-					void*		data				Data node
-	
-	Returns:		HASHELEM*						Updated hash table element,
-													NULL in error case.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Updates an element within a hash table with new data.
+
+//hashtab// is the hash-table to update element in. //key// is the element key
+to be updated. //data// is the data node that should become the new data element
+of the entry //key//.
+
+Returns the **HASHELEM** pointer of the updated hash table element, or
+NULL in case the element can't be found to be updated.
+*/
 HASHELEM* hashtab_update( HASHTAB* hashtab, uchar* key, void* data )
 {
 	HASHELEM*	elem;
@@ -323,29 +246,17 @@ HASHELEM* hashtab_update( HASHTAB* hashtab, uchar* key, void* data )
 	return elem;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_discard()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Discards an element within the hash table.
-					Discarding an element means that the element is hold in
-					memory, to be re-used at a (possibly later) hastab_insert()
-					call.
-					
-	Parameters:		HASHTAB*	hashtab				Hash-table to discard an
-													element from
-					uchar*		key					Element key
-					void		(*freefct)(void*)	Optional pointer to data
-													element cleanup function.
-	
-	Returns:		HASHELEM*						Discarded hash table
-													element, (HASHELEM*)NULL
-													in error case.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Discards an element within the hash table. Discarding an element means that
+the element is hold in memory, to be re-used at a (possibly later)
+hastab_insert() call.
+
+//hashtab// is the hash-table to discard an element from. //key// is the element
+key that should be discarded. //(*freefct)(void*)// is the otional pointer to
+data element cleanup function.
+
+Returns a //HASHELEM// pointer to the discarded hash table element, or
+(HASHELEM*)NULL if the element //key// does not exist in the hash table.
+*/
 HASHELEM* hashtab_discard( HASHTAB* hashtab, uchar* key,
 			void (*freefct)(void*) )
 {
@@ -404,30 +315,17 @@ HASHELEM* hashtab_discard( HASHTAB* hashtab, uchar* key,
 	RETURN( elem );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_delete()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Deletes an element within the hash table.
-					When using this function, the HASHELEM-node is completely
-					freed in memory; This function is not recommended for
-					a frequently use, instead, use hashtab_discard().
-					
-	Parameters:		HASHTAB*	hashtab				Hash-table to delete 
-													element from
-					uchar*		key					Element key
-					void		(*freefct)(void*)	Optional pointer to data
-													element cleanup function.
-	
-	Returns:		pint							Returns ERR_OK on success,
-													else an adequate error
-													define. 1 is returned if
-													the item was not found.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Deletes an element within the hash table. When using this function, the
+HASHELEM-node is completely freed in memory; This function is not recommended
+for a frequently use, instead, use hashtab_discard().
+
+//hashtab// is the hash-table to delete element from. //key// is the element
+key to be deleted. //(*freefct)(void*)// is the optional pointer to data element
+cleanup function.
+
+Returns a **pint** ERR_OK on success, else an adequate error define. 1 is
+returned if the item was not found under //key//.
+*/
 pint hashtab_delete( HASHTAB* hashtab, uchar* key, void (*freefct)(void*) )
 {
 	HASHELEM*	elem		= (HASHELEM*)NULL;
@@ -478,22 +376,11 @@ pint hashtab_delete( HASHTAB* hashtab, uchar* key, void (*freefct)(void*) )
 	RETURN( 1 );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_print()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Prints the hash table, for debug purposes.
-					
-	Parameters:		HASHTAB*	hashtab				Hash table to be printed
-					FILE*		channel				Channel, where to output
-													to. If NULL, stderr is used.
-	
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Prints the hash table, for debug purposes.
+
+//hashtab// is the hash table to be printed
+//channel// is the channel, where to output to. If NULL, stderr is used.
+*/
 void hashtab_print( HASHTAB* hashtab, FILE* channel )
 {	
 	HASHELEM*	elem;
@@ -568,22 +455,12 @@ void hashtab_print( HASHTAB* hashtab, FILE* channel )
 	}
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_count()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Count all items that are currently hold within the table.
-					
-	Parameters:		HASHTAB*	hashtab				Hash table to retrieve
-													element count from.
-	
-	Returns:		pint							Returns the number of
-													items hold.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Count all items that are currently hold within the hash table.
+
+//hashtab// is the hash table to retrieve an element count from.
+
+Returns a **pint** containing the number of items hold.
+*/
 pint hashtab_count( HASHTAB* hashtab )
 {
 	HASHELEM*	elem;
@@ -605,35 +482,18 @@ pint hashtab_count( HASHTAB* hashtab )
 	RETURN( count );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashtab_fetch()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Fetches the successor of one hashtable element. This
-					function is designed to be called from within a for-loop,
-					to loop trough all items of a hash-table.
+/** Fetches the successor of one hashtable element. This function is designed
+to be called from within a for-loop, to loop trough all items of a hash-table.
+The initial call is done with (HASHELEM*)NULL. The function must then be called
+with the HASHELEM returned by each previous call until the function returns
+(HASHELEM*)NULL again.
 
-					Initial call is done with (HASHELEM*)NULL. The function
-					must then be called with the HASHELEM returned by each
-					previous call until the function returns (HASHELEM*)NULL
-					again.
-					
-	Parameters:		HASHTAB*	hashtab				Hash table to fetch next
-													element from.
-					HASHELEM*	current				HASHELEM-Parameter to be
-													passed as described above.
-	
-	Returns:		HASHELEM*						Returns the next element,
-													(HASHELEM*)NULL if no more
-													hash elements can be
-													fetched.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	PROC( "hashtab_fetch" );
-	PARMS( "hashtab", "%p", hashtab );
------------------------------------------------------------------------------ */
+//hashtab// is the hash table to fetch next element from. //current// is the
+current HASHELEM-parameter to be passed as described above.
+
+Returns a **HASHELEM** pointer to the next element, or (HASHELEM*)NULL if no
+more elements in the hash table can be fetched.
+*/
 HASHELEM* hashtab_fetch( HASHTAB* hashtab, HASHELEM* current )
 {
 	pint		i;
@@ -680,23 +540,12 @@ HASHELEM* hashtab_fetch( HASHTAB* hashtab, HASHELEM* current )
 	RETURN( (HASHELEM*)NULL );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashelem_access()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Function to access an hash table element's data part.
-					
-	Parameters:		HASHELEM*	hashelem			Hash table element.
-	
-	Returns:		void*							Returns the hash table
-													element's data part, or
-													(void*)NULL in case of
-													a nullpointer.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Function to access an hash table element's data part.
+
+//hashelem// is the hash table element.
+
+Returns a **void**-pointer to the hash table elements data part.
+*/
 void* hashelem_access( HASHELEM* hashelem )
 {
 	if( !( hashelem ) )
@@ -705,23 +554,12 @@ void* hashelem_access( HASHELEM* hashelem )
 	return hashelem->data;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashelem_key()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Function to access an hash table element's key string.
-					
-	Parameters:		HASHELEM*	hashelem			Hash table element.
-	
-	Returns:		uchar*							Returns the hash table
-													element's key string, or
-													(char*)NULL in case of
-													a nullpointer.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Function to access an hash table element key string.
+
+//hashelem// is the hash table element.
+
+Returns a **uchar** pointer to the hash table element's key string.
+*/
 uchar* hashelem_key( HASHELEM* hashelem )
 {
 	if( !( hashelem ) )
@@ -730,23 +568,12 @@ uchar* hashelem_key( HASHELEM* hashelem )
 	return hashelem->key;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashelem_next()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Function to access an hash table element's follower.
-					
-	Parameters:		HASHELEM*	hashelem			Hash table element.
+/** Access the next hash-table element from a current one.
 
-	Returns:		HASHELEM*						Returns the hash table
-													element's follower, or
-													(HASHELEM*)NULL in case of
-													a nullpointer.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//hashelem// is the hash table element.
+
+Returns a **HASHELEM** pointer to the next hash table element within the bucket.
+*/
 HASHELEM* hashelem_next( HASHELEM* hashelem )
 {
 	if( !( hashelem ) )
@@ -755,23 +582,13 @@ HASHELEM* hashelem_next( HASHELEM* hashelem )
 	return hashelem->next;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		hashelem_prev()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Function to access an hash table element's precessor.
-					
-	Parameters:		HASHELEM*	hashelem			Hash table element.
+/** Access the previous hash-table element from a current one.
 
-	Returns:		HASHELEM*						Returns the hash table
-													element's precessor, or
-													(HASHELEM*)NULL in case of
-													a nullpointer.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//hashelem// is the hash table element.
+
+Returns a **HASHELEM** pointer to the previous hash table element within the
+bucket.
+*/
 HASHELEM* hashelem_prev( HASHELEM* hashelem )
 {
 	if( !( hashelem ) )
@@ -779,4 +596,3 @@ HASHELEM* hashelem_prev( HASHELEM* hashelem )
 
 	return hashelem->prev;
 }
-

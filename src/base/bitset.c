@@ -9,117 +9,82 @@ Author:	Jan Max Meyer
 Usage:	Bitset processing library
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
-/*
- * Global variables
- */
+/** Allocates a new bitset.
 
+//size// is the number of bits to be accessable within the created bitset.
 
-/*
- * Functions
- */
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		bitset_create()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Allocates a new set.
-					
-	Parameters:		int			size			Number of bits to be accessable
-												within the created set.
-	
-	Returns:		bitset						Pointer to the allocated bitset
-												with the given site of bits.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer of type **bitset** which is the allocated bitset with the
+given site of bits.
+*/
 bitset bitset_create( int size )
 {
 	if( size <= 0 )
+	{
+		WRONGPARAM;
 		return (bitset)NULL;
+	}
 
 	return (bitset)calloc( (size>>3) + (size % 8 ? 2 : 1), 1);
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		bitset_set()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Toggles a bit within a set to a desired state
-					(ON or OFF).
-					
-	Parameters:		bitset		set				Pointer to the set containing
-												the bit to be toggled.
-					int			bit				The bit which should be switched.
-					int			state			State - 0 or 1.
-	
-	Returns:		int							0 in case of an error, else 1.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-int bitset_set( bitset set, int bit, int state )
+/** Toggles a bit within a set to a desired state (ON or OFF).
+
+//set// is a pointer to the set containing the bit to be toggled.
+//bit// is a the offset of the bit which shall be switched.
+//state// is the state - FALSE or TRUE.
+*/
+void bitset_set( bitset set, int bit, pboolean state )
 {
 	int idx = ( ( bit>>3 ) );
 
-	if( set == (bitset)NULL || bit < 0 )
-		return 0;
+	if( !( set && bit >= 0 ) )
+	{
+		WRONGPARAM;
+		return;
+	}
 
 	if( state )
 		set[idx] |= ( 1 << ( bit % 8 ) );
 	else
 		set[idx] &= ( 0xFF ^ (1 << ( bit % 8 ) ) );
-
-	return 1;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		bitset_get()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Returns the state of a desired bit in a set.
-					
-	Parameters:		bitset		set			Pointer to the set containing
-												the bit to be gotten.
-					int			bit				The bit which should be checked.
-	
-	Returns:		int							0 = Bit is not set
-												1 = Bit is set
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-int bitset_get( bitset set, int bit )
+/** Returns the state of a desired bit in a set.
+
+//set// is the pointer to the set containing the bit to be gotten.
+//bit// is the offset of the bit which should be checked.
+
+Returns a **pboolean** if the desired bit is set or not.
+*/
+pboolean bitset_get( bitset set, int bit )
 {
-	return (int)( set[(bit>>3)] & ( 1 << ( bit % 8 ) ) );
+	if( !( set && bit >= 0 ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	return (pboolean)( set[(bit>>3)] & ( 1 << ( bit % 8 ) ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		bitset_copy()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Copies a set.
-					
-	Parameters:		int			size			Size of the set
-					bitset		source			Source set
-	
-	Returns:		bitset						Pointer to the copy of the set.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Copies a bitset into a new one.
+
+//size// is the size of the bitset //source//.
+//source// is the source set
+
+Returns a **bitset** to the copy of the set.
+*/
 bitset bitset_copy( int size, bitset source )
 {
 	bitset	dest;
+	
+	if( !( size > 0 && source ) )
+	{
+		WRONGPARAM;
+		return (bitset)NULL;
+	}
 
 	if( !( dest = bitset_create( size ) ) )
 		return (bitset)NULL;

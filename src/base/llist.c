@@ -9,123 +9,81 @@ Author:	Jan Max Meyer
 Usage:	Provides functions for simple, universal linked-list management.
 ----------------------------------------------------------------------------- */
 
-/* ---------------- */
-/* --- Includes --- */
-/* ---------------- */
 #include <phorward.h>
 
-/* ------------------------ */
-/* --- Global variables --- */
-/* ------------------------ */
+/** Pushes a pointer of any type to a linked list of pointers. Therefore, the
+list can act as a stack when using the function list_pop() to pop items off
+this "stack". If not used as a stack, list_push() simply appends a node to a
+linked list of nodes.
 
-/* ---------------------- */
-/* --- Implementation --- */
-/* ---------------------- */
+//list// is the pointer to the element list where the element should be pushed
+on. If this is (LIST*)NULL, the item acts as the first element of the list.
+//ptr// is the pointer to the element to be pushed on the list.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_push()
-
-	Author:			Jan Max Meyer
-						
-	Usage:			Pushes a pointer of any type to a linked list of pointers.
-					Therefore, the list can act as a stack when using the
-					function list_pop() to pop items off this "stack".
-
-					If not used as a stack, list_push() simply appends a node
-					to a linked list of nodes.
-					
-	Parameters:		LIST*		list	Pointer to the element list where the
-										element should be pushed on.
-										If this is (LIST*)NULL, the item
-										acts as the first element of the list.
-					void*		ptr		Pointer to the element to be pushed
-										on the list.
-											
-	Returns:		LIST*				Pointer to the first item of the
-										linked list of elements.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the first item of the linked list of elements.
+*/
 LIST* list_push( LIST* list, void* ptr )
 {
-	LIST*	elem	= (LIST*)NULL;
-	LIST*	item	= (LIST*)NULL;
+	LIST*	elem;
+	LIST*	item;
 
-	elem = (LIST*)pmalloc( sizeof( LIST ) );
-	if( elem )
-	{
-		memset( elem, 0, sizeof( LIST ) );
-	
+	if( ( elem = (LIST*)pmalloc( sizeof( LIST ) ) ) )
+	{	
 		elem->pptr = ptr;
 		elem->next = (LIST*)NULL;
 
-		if( list == (LIST*)NULL )
+		if( !list )
 			list = elem;
 		else
 		{
 			item = list;
-			while( item->next != (LIST*)NULL )
-			{
+			while( item->next )
 				item = item->next;
-			}
 	
 			item->next = elem;
 		}
 	}
 
 	return list;
-} /* list_push() */
+}
 
+/** Pops the last element off a linked-list of pointers.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_pop()
+//list// is the pointer to the element list where the element should be popped
+off. If this is (LIST*)NULL, nothing occurs (then, the stack is empty).
+//ptr// is the pointer to be filled with the pointer that was stored on the
+popped element of the list. If this is (void**)NULL, the element will be removed
+from the list and not operated anymore.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Pops the last element off a linked-list of pointers.
-					
-	Parameters:		LIST*		list	Pointer to the element list where the
-										element should be popped off.
-										If this is (LIST*)NULL, nothing occurs
-										(then, the stack is empty).
-					void**		ptr		Pointer to be filled with the pointer
-										that was stored on the popped element
-										of the list.
-											
-	Returns:		LIST*				Pointer to the first item of the
-										linked list of elements. If the last
-										element is popped, (LIST*)NULL is
-										returned.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the first item of the linked list of elements.
+If the last element is popped, (LIST*)NULL is returned.
+*/
 LIST* list_pop( LIST* list, void** ptr )
 {
-	LIST*	item	= (LIST*)NULL;
-	LIST*	prev	= (LIST*)NULL;
+	LIST*	item;
+	LIST*	prev;
 	
-	if( list == (LIST*)NULL )
+	if( !list )
 	{
-		*ptr = (void*)NULL;
+		if( ptr )
+			*ptr = (void*)NULL;
+
 		return (LIST*)NULL;
 	}
 	else
 	{
 		item = list;
-		while( item->next != (LIST*)NULL )
+		while( item->next )
 		{
 			prev = item;
 			item = item->next;
 		}
 		
-		if( prev != (LIST*)NULL )
-		{
+		if( prev )
 			prev->next = (LIST*)NULL;
-		}
 		
-		*ptr = item->pptr;
+		if( ptr )
+			*ptr = item->pptr;
 
 		if( item == list )
 			list = (LIST*)NULL;
@@ -136,53 +94,35 @@ LIST* list_pop( LIST* list, void** ptr )
 	}
 	
 	return list;
-} /* list_pop() */
+}
 
+/** Removes an item from a linked list. Instead as list_pop(), list_remove() can
+remove an item anywhere in the linked list.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_remove()
+//list// is the pointer to the begin of the element list where the element
+should be popped off. If this is (LIST*)NULL, nothing occurs.
+//ptr// is the pointer to be searched for. The element with this pointer will be
+removed from the list.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Removes an item from a linked list. Instead as list_pop(),
-					list_remove() can remove an item anywhere in the linked
-					list.
-					
-	Parameters:		LIST*		list	Pointer to the element list where the
-										element should be popped off.
-										If this is (LIST*)NULL, nothing occurs
-										(then, the stack is empty).
-					void*		ptr		Pointer to be searched for. The element
-										with this pointer will be removed from
-										the list.
-											
-	Returns:		LIST*				Pointer to the updated list, or
-										(LIST*)NULL if the last item was removed.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the updated begin of the list, or (LIST*)NULL if the last
+item was removed.
+*/
 LIST* list_remove( LIST* list, void* ptr )
 {
-	LIST*	item	= (LIST*)NULL;
+	LIST*	item;
 	LIST*	prev	= (LIST*)NULL;
 	
-	if( ptr == (void*)NULL )
+	if( !ptr )
 		return list;
 	
-	for( item = list; item != (LIST*)NULL; item = item->next )
+	for( item = list; item; item = item->next )
 	{
 		if( item->pptr == ptr )
 		{
-			if( prev == (LIST*)NULL )
-			{
+			if( !prev )
 				list = item->next;
-			}
 			else
-			{
-				/*printf("remove: prev->next->pptr %p (item %p) = item->next %p\n", ((LIST*)prev->next)->pptr, item->pptr, ((LIST*)item->next)->pptr );*/
 				prev->next = item->next;
-			}
 			
 			pfree( item );
 			break;
@@ -192,30 +132,21 @@ LIST* list_remove( LIST* list, void* ptr )
 	}
 	
 	return list;
-} /* list_remove() */
+}
 
+/** Frees a linked list.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_free()
+//list// is the linked list to be freed.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Frees a linked list of pointers.
-					
-	Parameters:		LIST*	list			Linked list to be freed.
-											
-	Returns:		LIST*					Always pointer to (LIST*)NULL.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns always (LIST*)NULL.
+*/
 LIST* list_free( LIST* list )
 {
 	LIST*	next	= (LIST*)NULL;
-	LIST*	item	= (LIST*)NULL;
+	LIST*	item;
 
 	item = list;
-	while( item != (LIST*)NULL )
+	while( item )
 	{			
 		next = item->next;
 		pfree( item );
@@ -224,97 +155,61 @@ LIST* list_free( LIST* list )
 	}
 
 	return (LIST*)NULL;
-} /* list_free() */
+}
 
+/** Prints the items of a linked list of elements for debug purposes.
+This function expects a callback-function which then performs the output of the
+pointer that is associated with the list element.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_print()
-
-	Author:			Jan Max Meyer
-						
-	Usage:			Prints the items of a linked list of elements for debug
-					purposes. This function expects a callback-function which
-					then performs the output of the pointer that is associated
-					with the list element.
-					
-	Parameters:		LIST*	list				Linked list to be printed.
-					void 	(*callback)(void*)	Callback function that is called
-												for each element.
-											
-	Returns:		void
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//list// is the linked list to be printed. //(*callback)(void*)// is the
+callback function that is called for each element.
+*/
 void list_print( LIST* list, void (*callback)( void* ) )
 {
 	LIST*	item	= (LIST*)NULL;
 
 	item = list;
-	while( item != (LIST*)NULL )
+	while( item )
 	{	
 		callback( list->pptr );
 		item = item->next;
 	}
-} /* list_print() */
+}
 
+/** Duplicates a list in a 1:1 copy.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_dup()
+//src// is the linked list to be copied.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Duplicates a list in a 1:1 copy.
-					
-	Parameters:		LIST*	list				Linked list to be copied.
-											
-	Returns:		LIST*						Pointer to the copy if list.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the copy if //src//.
+*/
 LIST* list_dup( LIST* src )
 {
-	LIST*	item	= (LIST*)NULL;
-	LIST*	tar		= (LIST*)NULL;
+	LIST*	item;
+	LIST*	tar;
 	
-	for( item = src; item != (LIST*)NULL; item = item->next )
-	{
+	for( item = src; item; item = item->next )
 		tar = list_push( tar, item->pptr );
-	}
 	
 	return tar;
-} /* list_dup() */
+}
 
+/** Searches for a pointer in a linked list.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_find()
+//list// is the linked list where //ptr// should be searched in.
+//ptr// is the pointer to be searched in the linked list.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Searches a pointer in a linked list of pointers.
-					
-	Parameters:		LIST*	list				Linked list where ptr should be
-												searched in.
-					void*	ptr					Pointer to be searched in the
-												linked list.
-											
-	Returns:		int							-1 if the desired item was not
-												found, else the number of the
-												element from the list's begin.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns -1 if the desired item was not found, else the offset of the element
+from the lists begin, 0 is the first element.
+*/
 int list_find( LIST* list, void* ptr )
 {
-	LIST*	item	= (LIST*)NULL;
+	LIST*	item;
 	int		cnt		= 0;
 	
 	if( ptr == (LIST*)NULL )
 		return -1;
 	
-	for( item = list; item != (LIST*)NULL; item = item->next )
+	for( item = list; item; item = item->next )
 	{
 		if( item->pptr == ptr )
 			return cnt;
@@ -323,38 +218,25 @@ int list_find( LIST* list, void* ptr )
 	}
 	
 	return -1;
-} /* list_find() */
+}
 
+/** Returns the pointer of the desired offset from the linked list.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_getptr()
+//list// is the linked list to get //cnt// from.
+//cnt// is the offset of the item starting from the lists first element that
+should be returned.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Returns the pointer of the desired position from the linked
-					list.
-					
-	Parameters:		LIST*	list				Linked list where ptr should be
-												searched in.
-					int		cnt					Number of the item starting from
-												the list's first element that
-												should be returned.
-											
-	Returns:		void*						Pointer of the desired position,
-												(void*)NULL if the position is
-												not in the list.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer of the desired position, (void*)NULL if the position is
+not in the list (if //cnt// goes over the end of the list).
+*/
 void* list_getptr( LIST* list, int cnt )
 {
-	LIST*	item	= (LIST*)NULL;
+	LIST*	item;
 	
 	if( cnt < 0 )
 		return (void*)NULL;
 	
-	for( item = list; item != (LIST*)NULL; item = item->next )
+	for( item = list; item; item = item->next )
 	{		
 		if( cnt == 0 )
 			return item->pptr;
@@ -363,39 +245,29 @@ void* list_getptr( LIST* list, int cnt )
 	}
 	
 	return (void*)NULL;
-} /* list_getptr() */
+}
 
+/** Compares two lists if they contain the same pointers.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_diff()
+//first// is the first linked list to be compared. //second// is the second
+linked list to be compated with //first//.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Verifies two lists if they contain the same pointers.
-					
-	Parameters:		LIST*	first				First linked list.
-					LIST*	second				Second linked list.
-											
-	Returns:		int							1 if indifferent,
-												0 if different
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns 1 if indifferent, 0 if different
+*/
 int list_diff( LIST* first, LIST* second )
 {
 	int		first_cnt	= 0;
 	int		second_cnt	= 0;
-	LIST*	item		= (LIST*)NULL;
+	LIST*	item;
 	
-	for( item = first; item != (LIST*)NULL; item = item->next )
+	for( item = first; item; item = item->next )
 		first_cnt++;
-	for( item = second; item != (LIST*)NULL; item = item->next )
+	for( item = second; item; item = item->next )
 		second_cnt++;
 	
 	if( first_cnt == second_cnt && first_cnt > 0 )
 	{
-		for( item = first; item != (LIST*)NULL; item = item->next )
+		for( item = first; item; item = item->next )
 		{
 			first_cnt--;
 			if( list_find( second, item->pptr ) >= 0 )
@@ -409,132 +281,82 @@ int list_diff( LIST* first, LIST* second )
 	}
 	
 	return 0;
-} /* list_diff() */
+}
 
+/** Unions two list to a huger new one.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_union()
+//first// is the first linked list. //second// is the second linked list that
+will be unioned into //first//.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Unions two list to a huger new one.
-					
-	Parameters:		LIST*	first				First linked list.
-					LIST*	second				Second linked list.
-											
-	Returns:		LIST*						The union of both.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the extended list //first//, which is the union of //first// and
+//second//. The elements of //second// are copied.
+*/
 LIST* list_union( LIST* first, LIST* second )
 {
-	LIST*	ret		= (LIST*)NULL;
-	LIST*	current	= (LIST*)NULL;
+	LIST*	ret;
+	LIST*	current;
 
 	if( first != (LIST*)NULL )
 	{
 		ret = first;
-		for( current = second; current != (LIST*)NULL; current = current->next )
-		{
+		for( current = second; current; current = current->next )
 			if( list_find( ret, current->pptr ) == -1 )
-			{
 				ret = list_push( ret, current->pptr );
-			}
-		}
 	}
 	else
-	{
 		ret = list_dup( second );
-	}
 	
 	return ret;
-} /* list_union() */
+}
 
+/** Counts the elements in a list.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_count()
+//list// is the list start point which items should be counted.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Counts the elements in a list.
-					
-	Parameters:		LIST*	list				List start point which items
-												should be counted.
-											
-	Returns:		int							Number of items contained by
-												the list!
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the number of items contained by the list.
+*/
 int list_count( LIST* list )
 {
 	int		count		= 0;
 
-	for( ; list != (LIST*)NULL; list = list->next )
+	for( ; list; list = list->next )
 		count++;
 
 	return count;
-} /* list_count() */
+}
 
+/** Checks if a list contains a subset of another list.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_subset()
+//list// is the first linked list. //subset// is the possible subset list.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Checks if a list contains a subset of another list.
-					
-	Parameters:		LIST*	list				First linked list.
-					LIST*	subset				Possible subset list.
-											
-	Returns:		int							0 in case if it is not a subset,
-												!0 if it is a subset.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	04.11.2009	Jan Max Meyer	Fixed this function, it never worked before ;)
------------------------------------------------------------------------------ */
-int list_subset( LIST* list, LIST* subset )
+Returns TRUE if there is a subset, else FALSE.
+*/
+pboolean list_subset( LIST* list, LIST* subset )
 {
 	LIST*	current	= (LIST*)NULL;
 
-	if( list != (LIST*)NULL )
+	if( list )
 	{
-		for( current = subset; current != (LIST*)NULL; current = current->next )
-		{
+		for( current = subset; current; current = current->next )
 			if( list_find( list, current->pptr ) < 0 )
 				break;
-		}
 		
-		if( current == (LIST*)NULL )
-			return 1;
+		if( !current )
+			return TRUE;
 	}
 
-	return 0;
-} /* list_subset() */
+	return FALSE;
+}
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		list_sort()
+/** Sorts a list according to a callback-function using the bubble-sort
+algorithm.
 
-	Author:			Jan Max Meyer
-						
-	Usage:			Sorts a list according to a callback-function using the
-					bubble-sort algorithm.
-					
-	Parameters:		LIST*	list				Linked list to be sorted.
-					int		(*sf)(void*,void*)	Pointer to callback-function
-												to compare items. The functions
-												shall return a value lower than
-												0 if a<b, greater 0 if a>b and
-												0 if a==b.
-											
-	Returns:		LIST*	Returns the pointer to the sorted list.
+//list// is the linked list to be sorted. //int (*sf)(void*,void*)// is a
+pointer to callback-function to compare items. The functions shall return a
+value lower than 0 if a<b, greater 0 if a>b and 0 if a==b.
 
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the new beginning pointer to the sorted list //list//.
+*/
 LIST* list_sort( LIST* list, int (*sf)( void*, void* ) )
 {
 	LIST*		current;
@@ -543,7 +365,10 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) )
 	void*		tmp;
 
 	if( !sf )
+	{
+		WRONGPARAM;
 		return list; /* Can't sort anything */
+	}
 
 	do
 	{
@@ -574,5 +399,4 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) )
 	while( changes );
 
 	return list;
-} /* list_sort() */
-
+}

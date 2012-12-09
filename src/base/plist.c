@@ -2,7 +2,7 @@
 Phorward Foundation Toolkit
 Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-All rights reserved. See \LICENSE for more information.
+All rights reserved. See LICENSE for more information.
 
 File:	plist.c
 Usage:	An improved, double linked, optionally hashed list collection object.
@@ -54,7 +54,7 @@ static int plist_hash_index( plist* list, uchar* key )
 	return (int)( hashval % list->hashsize );
 }
 
-/** Insert a plist entry node into the hash-table via its key. */
+/* Insert a plist entry node into the hash-table via its key. */
 static pboolean plist_hash_insert( plist* list, plistelem* e )
 {
 	int			idx;
@@ -150,7 +150,7 @@ static pboolean plistelem_drop( plistelem* e )
 	if( !( e->list->flags & PLIST_MOD_EXTKEYS ) )
 		e->key = pfree( e->key );
 		
-	
+	RETURN( TRUE );
 }
 
 /** Initialize the list //list// with an element allocation size //size//.
@@ -426,4 +426,40 @@ plistelem* plist_prev( plistelem* e )
 		return (plistelem*)NULL;
 		
 	return e->prev;
+}
+
+/** Return first element of list //l//. */
+plistelem* plist_first( plist* l )
+{
+	if( !( l ) )
+		return (plistelem*)NULL;
+		
+	return l->first;
+}
+
+/** Return last element of list //l//. */
+plistelem* plist_last( plist* l )
+{
+	if( !( l ) )
+		return (plistelem*)NULL;
+		
+	return l->last;
+}
+
+/** Return element size of list //l//. */
+int plist_size( plist* l )
+{
+	if( !( l ) )
+		return 0;
+		
+	return l->size;
+}
+
+/** Return element count of list //l//. */
+int plist_count( plist* l )
+{
+	if( !( l ) )
+		return 0;
+		
+	return l->count;
 }

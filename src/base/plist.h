@@ -2,7 +2,7 @@
 Phorward Foundation Toolkit
 Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-All rights reserved. See \LICENSE for more information.
+All rights reserved. See LICENSE for more information.
 
 File:	plist.h
 Usage:	An improved, double linked, optionally hashed list collection object.
@@ -55,11 +55,5 @@ struct Plist
 	plistelem*				last;
 	plistelem**				hash;
 };
-
-/* Macros for list member access only */
-#define plist_size( l )		( ( l ) ? ( l )->size : (psize)0 )
-#define plist_count( l )	( ( l ) ? ( l )->count : (psize)0 )
-#define plist_first( l )	( ( l ) ? ( l )->first : (plistelem*)NULL )
-#define plist_last( l )		( ( l ) ? ( l )->last : (plistelem*)NULL )
 
 #endif /* PLIST_H */

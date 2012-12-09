@@ -4,8 +4,8 @@
 
 /* base/bitset.c */
 bitset bitset_create( int size );
-int bitset_set( bitset set, int bit, int state );
-int bitset_get( bitset set, int bit );
+void bitset_set( bitset set, int bit, pboolean state );
+pboolean bitset_get( bitset set, int bit );
 bitset bitset_copy( int size, bitset source );
 
 /* base/dbg.c */
@@ -40,7 +40,7 @@ void* list_getptr( LIST* list, int cnt );
 int list_diff( LIST* first, LIST* second );
 LIST* list_union( LIST* first, LIST* second );
 int list_count( LIST* list );
-int list_subset( LIST* list, LIST* subset );
+pboolean list_subset( LIST* list, LIST* subset );
 LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 
 /* base/plist.c */
@@ -53,6 +53,10 @@ plistelem* plist_get_by_key( plist* list, uchar* key );
 pbyte* plist_access( plistelem* e );
 plistelem* plist_next( plistelem* e );
 plistelem* plist_prev( plistelem* e );
+plistelem* plist_first( plist* l );
+plistelem* plist_last( plist* l );
+int plist_size( plist* l );
+int plist_count( plist* l );
 
 /* base/memory.c */
 void* pmalloc( psize size );
