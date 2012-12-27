@@ -9,39 +9,19 @@ Author:	Jan Max Meyer
 Usage:	Memory management functions / malloc replacements
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
-/*
- * Global variables
- */
+/** Dynamically allocate heap memory.
 
-/*
- * Defines
- */
+The function is a wrapper for the system function malloc(), but with memory
+initialization to zero, and immediatelly stops the program if no more memory
+can be allocated.
 
-/*
- * Functions
- */
+//size// is the size of memory to be allocated, in bytes.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pmalloc()
-
-	Author:			Jan Max Meyer
-
-	Usage:			Like malloc(), but with memory initialization to zero.
-
-	Parameters:		psize		size		Size of memory to be allocated,
-											in bytes.
-
-	Returns:		void*					Allocated heap memory pointer on
-											success, (void*)NULL else.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the allocated heap memory pointer. The returned memory
+address should be freed using pfree() after it is not required anymore.
+*/
 void* pmalloc( psize size )
 {
 	void*	ptr;
@@ -56,25 +36,20 @@ void* pmalloc( psize size )
 	return ptr;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		prealloc()
+/** Dynamically (re)allocate memory on the heap.
 
-	Author:			Jan Max Meyer
+The function is a wrapper to the system-function realloc(), but always
+accepts a NULL-pointer and immediatelly stops the program if no more memory
+can be allocated.
 
-	Usage:			Realloc replacement.
+//oldptr// is the pointer to be reallocated. If this is (void*)NULL,
+prealloc() works like a normal call to pmalloc().
 
-	Parameters:		void*		oldptr		Pointer to be reallocated, if this
-											is (void*)NULL, prealloc() will act
-											like pmalloc().
-	 				psize		size		Size of memory to be reallocated,
-											in bytes.
+//size// is the size of memory to be reallocated, in bytes.
 
-	Returns:		void*					Allocated heap memory pointer on
-											success, (void*)NULL else.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the allocated heap memory pointer. The returned memory
+address should be freed using pfree() after it is not required anymore.
+*/
 void* prealloc( void* oldptr, psize size )
 {
 	void*	ptr;
@@ -91,26 +66,19 @@ void* prealloc( void* oldptr, psize size )
 	return ptr;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pfree()
+/** Free allocated memory.
 
-	Author:			Jan Max Meyer
+The function is a wrapper for the system-function free(), but accepts
+NULL-pointers and returns a (void*)NULL pointer for direct pointer memory reset.
 
-	Usage:			An implementation of free(), but accepts NULL-pointers
-					and returns a (void*)NULL pointer for direct pointer memory
-					reset.
+It could be used this way to immedatelly reset a pointer to NULL:
+ 
+``` ptr = pfree( ptr );
 
-					Use it always with
+//ptr// is the pointer to be freed.
 
-					ptr = pfree( ptr );
-
-	Parameters:		void*	ptr				Pointer to be freed.
-
-	Returns:		void*					Returns always (void*)NULL.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns always (void*)NULL.
+*/
 void* pfree( void* ptr )
 {
 	if( ptr )
@@ -119,23 +87,14 @@ void* pfree( void* ptr )
 	return (void*)NULL;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pmemdup()
+/** Duplicates a memory entry onto the heap.
 
-	Author:			Jan Max Meyer
+//ptr// is the pointer to the memory to be duplicated.
+//size// is the size of pointer's data storage.
 
-	Usage:			Duplicates a memory entry onto the heap.
-
-	Parameters:		void*		ptr				Pointer to memory
-					size_t		size			Size of pointer
-
-	Returns:		void*						Pointer to memory copy.
-												Cast this with your type!
-												Returns (void*)NULL on error!
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the new pointer to the memory copy. This should be casted back to the
+type of //ptr// again.
+*/
 void* pmemdup( void* ptr, psize size )
 {
 	void*	ret;

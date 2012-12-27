@@ -9,47 +9,20 @@ Author:	Jan Max Meyer
 Usage:	Universal, dynamic stack management functions
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
-/*
- * Global variables
- */
+/** Performs a stack initialization.
 
-/*
- * Defines
- */
+//stack// is the pointer to stack to be initialized.
 
-/*
- * Functions
- */
+//size// defines the size of one stack element, in bytes. This should be
+evaluated with the sizeof()-macro.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		stack_init()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Performs a stack initialization.
-					
-	Parameters:		STACK*	stack			Pointer to stack to be initialized.
-					psize	size			Size of one stack element, in bytes.
-											This should be evaluated with the
-											sizeof()-macro.
-					psize	step			Step-wide, where a stack-(re)allo-
-											cation will be performed. If, e.g.
-											this is set to 128, then, if the 
-											128th item is pushed onto the
-											stack, a realloction is done.
-											Once allocated memory remains until
-											the stack is free'd again.
-	
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//step// defines the step size, where a stack-(re)allocation will be performed.
+If, e.g. this is set to 128, then, if the 128th item is pushed onto the stack,
+a realloction is done. Once allocated memory remains until the stack is freed
+again.
+*/
 void stack_init( STACK* stack, psize size, psize step )
 {
 	PROC( "stack_init" );
@@ -64,25 +37,13 @@ void stack_init( STACK* stack, psize size, psize step )
 	VOIDRET;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		stack_free()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Frees an entire stack. The stack must not be re-initalized
-					after destruction.
-					
-	Parameters:		STACK*	stack			Stack to be freed.
-					void	(*ff)( pbyte*)	Pointer to callback-function that
-											is used to free one element. The
-											function retrieves the pointer of
-											the element.
-	
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Frees the entire stack.
+The stack must not be reinitalized after destruction.
+
+//stack// is the stack to be freed.
+The function //void (*ff)( pbyte*)// is a pointer to callback-function that is
+used to free one element. The function retrieves the pointer of the element.
+*/
 void stack_free( STACK* stack, void (*ff)( pbyte* ) )
 {	
 	psize	i;
@@ -110,30 +71,20 @@ void stack_free( STACK* stack, void (*ff)( pbyte* ) )
 	VOIDRET;
 }
 
+/** Pushes an element onto the stack.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		stack_push()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Pushes an element onto the stack. The element's memory
-					is copied during the push. The item must be of the same
-					memory size as used at stack initialization.
-					
-	Parameters:		STACK*	stack			Pointer to stack where to push an
-											item on.
-					pbyte*	item			Pointer to the memory of the item,
-											to be pushed onto the stack. Cast
-											your type into pbyte, or wrap
-											the push-operation with a macro.
-	
-	Returns:		pbyte*					Returns the address of the newly
-											pushed item, and (pbyte*)NULL if
-											the item could not be pushed.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The element's memory is copied during the push. The item must be of the same
+memory size as used at stack initialization.
+
+//stack// is the pointer to stack where to push an item on.
+
+//item// is the pointer to the memory of the item that should be pushed onto the
+stack. The caller should cast his type into pbyte, or wrap the push-operation
+with a macro.
+
+The function returns the address of the newly pushed item, and (pbyte*)NULL if
+the item could not be pushed.
+*/
 pbyte* stack_push( STACK* stack, pbyte* item )
 {
 	PROC( "stack_push" );
@@ -175,28 +126,17 @@ pbyte* stack_push( STACK* stack, pbyte* item )
 	return stack->stack + stack->top++ * stack->size;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		stack_pop()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Pops an element off the stack.
-					The function returns a pointer to the popped item. Because
-					dynamic stacks only grow, and no memory is freed, the re-
-					turned data pointer is still valid, and will only be over-
-					written with the next push operation.
-					
-	Parameters:		STACK*	stack			Pointer to stack where to pop an
-											item off.
-	
-	Returns:		pbyte*					Returns the address of the popped
-											item, and (pbyte*)NULL if the item
-											could not be popped (e.g. stack
-											is empty).
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Pops an element off the stack.
+
+The function returns a pointer to the popped item. Because dynamic stacks only
+grows and no memory is freed, the returned data pointer is still valid, and will
+only be overwritten with the next push operation.
+
+//stack// is the pointer to stack where to pop an item off.
+
+The function returns the address of the popped item, and (pbyte*)NULL if the
+item could not be popped (e.g. stack is empty).
+*/
 pbyte* stack_pop( STACK* stack )
 {
 	PROC( "stack_pop" );
@@ -211,26 +151,15 @@ pbyte* stack_pop( STACK* stack )
 	RETURN( stack->stack + --stack->top * stack->size );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		stack_access()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Accesses any element of the stack.
-					
-	Parameters:		STACK*	stack			Pointer to stack where to access
-											the element from.
-					psize	offset			The offset of the element.
-	
-	Returns:		pbyte*					Returns the address of the accessed
-											item, and (pbyte*)NULL if the item
-											could not be accessed (e.g. stack
-											is empty or offset is beyond the
-											top of stack).
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Accesses an element from the stack via its offset position.
+
+//stack// is the pointer to stack where to access the element from.
+//offset// is the offset of the element to be accessed from the stack's
+base address.
+
+Returns the address of the accessed item, and (pbyte*)NULL if the item could not
+be accessed (e.g. if the stack is empty or offset is beyond the top of stack).
+*/
 pbyte* stack_access( STACK* stack, psize offset )
 {
 	PROC( "stack_pop" );
@@ -246,31 +175,21 @@ pbyte* stack_access( STACK* stack, psize offset )
 	RETURN( stack->stack + offset * stack->size );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		stack_dump()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Dumps all stack-items to stderr.
-					
-	Parameters:		uchar*	file			Name of the source file of stack
-											dump occurence. Use __FILE__-macro
-											to obtain source file name.
-					int		line			Line within the source file of stack
-											dump occurence. Use __LINE__-macro
-											to obtain source file name.
-					uchar*	name			Stack's name, in string letters.
-					STACK*	stack			Pointer to stack to be dumped.
-					void	(*pf)( pbyte*)	Pointer to callback-function that
-											is used to print one element. The
-											function retrieves the pointer of
-											the element.
-	
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Dumps all stack-items to stderr.
+
+//file// is the name of the source file of stack dump occurence.
+Use the __FILE__-macro to obtain source file name.
+
+//line// is the line within the source file of stack dump occurence.
+Use __LINE__-macro to obtain source file name.
+
+//name// defines the stack's name, in string letters.
+
+//stack// is the pointer to stack to be dumped.
+
+//void (*pf)( pbyte*)// is a pointer to callback-function that is used to print
+one element. The function retrieves the pointer of the element.
+*/
 void stack_dump( uchar* file, int line, uchar* name,
 		STACK* stack, void (*pf)( pbyte* ) )
 {
@@ -289,4 +208,3 @@ void stack_dump( uchar* file, int line, uchar* name,
 	fprintf( stderr, "%s [%d]: %s %ld active, %ld left empty\n",
 		file, line, name, stack->top, stack->count - stack->top );
 }
-

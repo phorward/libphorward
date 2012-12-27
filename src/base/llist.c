@@ -206,7 +206,7 @@ int list_find( LIST* list, void* ptr )
 	LIST*	item;
 	int		cnt		= 0;
 	
-	if( ptr == (LIST*)NULL )
+	if( !ptr )
 		return -1;
 	
 	for( item = list; item; item = item->next )
