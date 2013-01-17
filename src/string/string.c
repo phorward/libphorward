@@ -244,7 +244,7 @@ uchar* pstrreplace( uchar* str, uchar* find, uchar* replace )
 //str// is the string to be copied in memory. If //str// is provided as NULL,
 the function will also return NULL.
 
-Returns a pchar*-pointer to the newly allocated copy of //str//. This pointer
+Returns a uchar*-pointer to the newly allocated copy of //str//. This pointer
 must be released with pfree() when its existence is no longer required.
 */
 uchar* pstrdup( uchar* str )
@@ -289,7 +289,7 @@ uchar* pstrndup( uchar* str, psize len )
 
 /** Return length of a string.
 
-//str// is the parameter string to be evaluated. If (pchar*)NULL, the function
+//str// is the parameter string to be evaluated. If (uchar*)NULL, the function
 returns 0. pstrlen() is much more saver than strlen() because it returns 0 when
 a NULL-pointer is provided.
 
@@ -968,21 +968,15 @@ int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq )
 
 #ifdef UNICODE
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		Pstrdup()
+/*REMOVE?*/
+/** Duplicate a wide-character string in memory.
 
-	Author:			Jan Max Meyer
+//str// is the string to be copied in memory. If //str// is provided as NULL,
+the function will also return NULL.
 
-	Usage:			Character-set independent strdup replacement.
-
-	Parameters:		pchar*		str					String to be copied in
-														memory.
-
-	Returns:		pchar*							Returns a copy of 'str'.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pchar*-pointer to the newly allocated copy of //str//. This pointer
+must be released with pfree() when its existence is no longer required.
+*/
 pchar* Pstrdup( pchar* str )
 {
 	if( !str )
@@ -991,28 +985,17 @@ pchar* Pstrdup( pchar* str )
 	return (pchar*)pmemdup( str, ( Pstrlen( str ) + 1 ) * sizeof( pchar ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		Psprintf()
+/*REMOVE?*/
+/** Psprintf() is a repleacement for a parameter-compatible sprintf-behavior
+function for wide-character.
+Yes, it's unsafe, but the same behavior as sprintf().
 
-	Author:			Jan Max Meyer
+//res// is the result string
+//fmt// is the format string
+//// is the parameters according to the placeholders set in fmt.
 
-	Usage:			Psprintf() is a repleacement for a parameter-compatible
-					sprintf-behavior function for wide-character.
-
-					Yes, it's unsafe, but the same behavior as sprintf().
-
-	Parameters:		pchar*		res					Result string
-					pchar*		fmt					Format string
-					...								Parameters according to the
-													placeholders set in fmt.
-
-	Returns:		int								Returns the number of
-													characters written, -1
-													in error case.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a int Returns the number of characters written, -1 in error case.
+*/
 int Psprintf( pchar* res, pchar* fmt, ... )
 {
 	int ret;
@@ -1041,26 +1024,15 @@ int Psprintf( pchar* res, pchar* fmt, ... )
 	RETURN( ret );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		Pvasprintf()
+/*REMOVE?*/
+/** Wide-character implementation of pasprintf().
 
-	Author:			Jan Max Meyer
+//str// is the a pointer receiving the resultung, allocated string pointer.
+//fmt// is the the format string.
+//...// is the parameters according to the placeholders set in //fmt//.
 
-	Usage:			Wide-character implementation of pasprintf().
-
-	Parameters:		pchar**		str					A pointer receiving the
-													resultung, allocated string
-													pointer.
-	 				pchar*		fmt					The format string.
-					...								Parameters according to the
-													placeholders set in fmt.
-
-	Returns:		int								Returns the number of
-													characters written.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a int Returns the number of characters written.
+*/
 int Pvasprintf( pchar** str, pchar* fmt, va_list ap )
 {
 	pchar*		istr;
@@ -1108,27 +1080,16 @@ int Pvasprintf( pchar** str, pchar* fmt, va_list ap )
 	RETURN( len );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		Pasprintf()
+/** An implementation of pasprintf() for wide-character pchar. pasprintf() takes
+only the format-string and various arguments. It outputs an allocated string to
+be released with pfree() later on.
 
-	Author:			Jan Max Meyer
+//fmt// is the format string.
+//...// are the parameters according to the placeholders set in //fmt//.
 
-	Usage:			An implementation of pasprintf() for wide-character pchar.
-					pasprintf() takes only the format-string and various
-					arguments. It outputs an allocated string to be freed
-					later on.
-
-	Parameters:		pchar*		fmt					Format string
-					...								Parameters according to the
-													placeholders set in fmt.
-
-	Returns:		pchar*							Returns the allocated string
-													which cointains the format
-													string with inserted values.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pchar* Returns the allocated string which cointains the format string
+with inserted values.
+*/
 pchar* Pasprintf( pchar* fmt, ... )
 {
 	pchar*	str;
@@ -1148,28 +1109,16 @@ pchar* Pasprintf( pchar* fmt, ... )
 	RETURN( str );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		Pstrcatchar()
+/*REMOVE?*/
+/** Appends a character to a dynamic wide-character string.
 
-	Author:			Jan Max Meyer
+//str// is the pointer to a pchar-string to be appended. If this is
+(pchar*)NULL, the string is newly allocated. //chr// is the the character to be
+appended to str.
 
-	Usage:			Appends a character to a dynamic wide-character string.
-
-	Parameters:		pchar*		str				Pointer to a pchar-string to be
-												appended.
-												If this is (pchar*)NULL, the
-												string is newly allocated.
-					wchar		chr				The character to be appended to
-												str.
-
-	Returns:		pchar*						Pointer to (possibly re-)allo-
-												cated and appended string.
-												(pchar*)NULL is returned if no
-												memory could be (re)allocated.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pchar* Pointer to (possibly re-)allo- cated and appended string.
+(pchar*)NULL is returned if no memory could be (re)allocated.
+*/
 pchar* Pstrcatchar( pchar* str, wchar chr )
 {
 	PROC( "Pstrcatchar" );
@@ -1203,31 +1152,19 @@ pchar* Pstrcatchar( pchar* str, wchar chr )
 	RETURN( str );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		Pstrcatstr()
+/*REMOVE*/
+/** Appends a (possibly dynamic) wide-character string to a dynamic
+wide-character string.
 
-	Author:			Jan Max Meyer
+//str// is the pointer to a pchar-string to be appended. If this is
+(pchar*)NULL, the string is newly allocated.
+//append// is the the string to be appended.
+//freesrc// if true, //append// is free'd automatically by this function.
 
-	Usage:			Appends a (possibly dynamic) wide-character string to a
-					dynamic wide-character string.
-
-	Parameters:		pchar*		str				Pointer to a pchar-string to be
-												appended.
-												If this is (pchar*)NULL, the
-												string is newly allocated.
-					pchar*		append			The string to be appended.
-					boolean		release_append	If true, append is free'd
-												automatically by this function.
-
-	Returns:		pchar*						Pointer to (possibly re-)allo-
-												cated and appended string.
-												(pchar*)NULL is returned if no
-												memory could be (re)allocated,
-												or both strings where NULL.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pchar* Pointer to (possibly re-)allo- cated and appended string.
+(pchar*)NULL is returned if no memory could be (re)allocated, or both strings
+where NULL.
+*/
 pchar* Pstrcatstr( pchar* dest, pchar* src, boolean freesrc )
 {
 	PROC( "Pstrcatstr" );
@@ -1262,32 +1199,19 @@ pchar* Pstrcatstr( pchar* dest, pchar* src, boolean freesrc )
 	RETURN( dest );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		Pstrncatstr()
+/*REMOVE?*/
+/** Appends a number of N characters from one wide-character string to a dynamic
+string.
 
-	Author:			Jan Max Meyer
+//str// is the pointer to a pchar-string to be appended. If this is
+(pchar*)NULL, the string is newly allocated.
+//append// is the begin of character sequence to be appended.
+//num// is the number of characters to be appended to str.
 
-	Usage:			Appends a number of N characters from one wide-character
-					string to a dynamic string.
-
-	Parameters:		pchar*		str				Pointer to a pchar-string to be
-												appended.
-												If this is (pchar*)NULL, the
-												string is newly allocated.
-					pchar*		append			Begin of character sequence
-												to be appended.
-					psize		num				Number of characters to be
-												appended to str.
-
-	Returns:		pchar*						Pointer to (possibly re-)allo-
-												cated and appended string.
-												(pchar*)NULL is returned if no
-												memory could be (re)allocated,
-												or both strings where NULL.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pchar* Pointer to (possibly re-)allo- cated and appended string.
+(pchar*)NULL is returned if no memory could be (re)allocated, or both strings
+where NULL.
+*/
 pchar* Pstrncatstr( pchar* str, pchar* append, psize num )
 {
 	psize	len		= 0;
