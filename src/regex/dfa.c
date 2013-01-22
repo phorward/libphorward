@@ -9,19 +9,8 @@ Author:	Jan Max Meyer
 Usage:	DFA creation and transformation functions
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #define PREGEX_LOCAL
 #include <phorward.h>
-
-/*
- * Global variables
- */
-
-/*
- * Functions
- */
 
 /*NO_DOC*/
 
@@ -139,22 +128,13 @@ static int pregex_dfa_same_transitions( pregex_dfa* dfa, LIST* trans )
 	return -1;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_dfa_free()
+/** Frees and resets a DFA state machine.
 
-	Author:			Jan Max Meyer
+//dfa// is the pointer to a DFA-machine to be reset.
 
-	Usage:			Frees and resets a DFA state machine.
-
-	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
-												to be reset.
-
-	Returns:		void
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-void pregex_dfa_free( pregex_dfa* dfa )
+Always returns (pregex_dfa*)NULL.
+*/
+pregex_dfa* pregex_dfa_free( pregex_dfa* dfa )
 {
 	LIST*			l;
 	LIST*			m;
@@ -163,6 +143,9 @@ void pregex_dfa_free( pregex_dfa* dfa )
 
 	PROC( "pregex_dfa_free" );
 	PARMS( "dfa", "%p", dfa );
+	
+	if( !( dfa ) )
+		RETURN( (pregex_dfa*)NULL );
 
 	LISTFOR( dfa->states, l )
 	{
@@ -187,42 +170,18 @@ void pregex_dfa_free( pregex_dfa* dfa )
 
 	memset( dfa, 0, sizeof( pregex_dfa ) );
 
-	VOIDRET;
+	RETURN( (pregex_dfa*)NULL );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_dfa_default_trans()
+/** Performs a check on all DFA state transitions to figure out the default
+transition for every dfa state. The default-transition is only filled, when any
+character of the entire character-range results in a transition, and is set to
+the transition with the most characters in its class.
 
-	Author:			Jan Max Meyer
-
-	Usage:			Performs a check on all DFA state transitions to
-					figure out the default transition for every dfa state.
-					The default-transition is only filled, when any
-					character of the entire character-range results in a
-					transition, and is set to the transition with the most
-					characters in its class.
-
-					For example, the regex "[^\"]*" causes a dfa-state
-					with two transitions: On '"', go to state x, on
-					every character other than '"', go to state y.
-					y will be selected as default state.
-
-	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
-												that will be constructed by
-												this function. The pointer
-												is set to zero before it is
-												used.
-					pregex_nfa*	nfa				Pointer to the NFA-Machine
-												where the DFA-machine should
-												be constructed from.
-
-	Returns:		>= 0						The number of DFA states
-												that where constructed.
-					ERR_...						ERR_*-define on error.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+For example, the regex "[^\"]*" causes a dfa-state with two transitions:
+On '"', go to state x, on every character other than '"', go to state y.
+y will be selected as default state.
+*/
 static void pregex_dfa_default_trans( pregex_dfa* dfa )
 {
 	LIST*			l;
@@ -261,24 +220,13 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 	VOIDRET;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_dfa_collect_ref()
+/** Collects all references by the NFA-states forming a DFA-state, and puts them
+into an dynamically allocated array for later re-use.
 
-	Author:			Jan Max Meyer
+//st// is the DFA-state, for which references shall be collected.
 
-	Usage:			Collects all references by the NFA-states forming a
-					DFA-state, and puts them into an dynamically allocated
-					array for later re-use.
-
-	Parameters:		pregex_dfa_st*	nfa			DFA-state, for which
-												references shall be collected.
-
-	Returns:		ERR_OK						On success.
-					ERR_...						ERR_*-define on error.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns ERR_OK on success, and an ERR_-define on error.
+*/
 static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 {
 	LIST*			l;
@@ -325,36 +273,17 @@ static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 	RETURN( ERR_OK );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_dfa_from_nfa()
+/** Turns a NFA-state machine into a DFA-state machine using the
+subset-construction algorithm.
 
-	Author:			Jan Max Meyer
+//dfa// is the pointer to the DFA-machine that will be constructed by this
+function. The pointer is set to zero before it is used.
+//nfa// is the pointer to the NFA-Machine where the DFA-machine should be
+constructed from.
 
-	Usage:			Turns a NFA-state machine into a DFA-state machine using
-					the subset-construction algorithm.
-
-	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
-												that will be constructed by
-												this function. The pointer
-												is set to zero before it is
-												used.
-					pregex_nfa*	nfa				Pointer to the NFA-Machine
-												where the DFA-machine should
-												be constructed from.
-
-	Returns:		>= 0						The number of DFA states
-												that where constructed.
-					ERR_...						ERR_*-define on error.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	17.01.2011	Jan Max Meyer	Removed bug; The lowest accepting ID takes
-								place over all other accepting states. The
-								bug raise up in UniCC during a special test
-								stage, fine to have this fixed! :)
-	27.08.2011	Jan Max Meyer	Added the greedyness handling.
-	11.11.2011	Jan Max Meyer	Applied new pregex_accept structure handling.
------------------------------------------------------------------------------ */
+Returns the number of DFA states that where constructed. 
+In case of an error, an adequate ERR_-define will be returned.
+*/
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 {
 	LIST*			set;
@@ -595,25 +524,15 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	RETURN( list_count( dfa->states ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_dfa_equal_trans()
+/** Checks for transition equality within two dfa states.
 
-	Author:			Jan Max Meyer
+//dfa// is the pointer to DFA state machine.
+//groups// is the list of DFA groups
+//first// is the first state to check.
+//second// is the Second state to check.
 
-	Usage:			Checks for transition equality within two dfa states.
-
-	Parameters:		pregex_dfa*		dfa			Pointer to DFA machine
-					LIST*			groups		List of DFA groups
-					pregex_dfa_st*	first		First state to check
-					pregex_dfa_st*	second		Second state to check
-
-	Returns:		pboolean					TRUE if both states are
-												totally equal,
-												FALSE else.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns TRUE if both states are totally equal, FALSE else.
+*/
 static pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
 	pregex_dfa_st* first, pregex_dfa_st* second )
 {
@@ -670,28 +589,15 @@ static pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
 	RETURN( TRUE );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_dfa_minimize()
+/** Minimizes a DFA to lesser states by grouping equivalent states to new
+states, and transforming transitions to them.
 
-	Author:			Jan Max Meyer
+//dfa// is the pointer to the DFA-machine that will be minimized. The content of
+//dfa// will be replaced with the reduced machine.
 
-	Usage:			Minimizes a DFA to lesser states by grouping
-					equivalent states to new states, and transforming
-					transitions to them.
-
-	Parameters:		pregex_dfa*	dfa				Pointer to the DFA-machine
-												that will be minimized.
-												The content of dfa will be
-												replaced with the reduced
-												machine.
-
-	Returns:		>= 0						The number of DFA states
-												that where constructed.
-					ERR_...						ERR_*-define on error.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the number of DFA states that where constructed in the minimized version
+of //dfa//. Returns an ERR_-define on error.
+*/
 int pregex_dfa_minimize( pregex_dfa* dfa )
 {
 	pregex_dfa		min_dfa;
@@ -846,26 +752,15 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	RETURN( list_count( dfa->states ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_dfa_match()
+/** Tries to match a pattern using a DFA-machine.
 
-	Author:			Jan Max Meyer
+//dfa// is the DFA state machine to be executed.
+//str// is thetest string where the DFA should work on.
+//len// is the Length of the match, -1 on error or no match.
 
-	Usage:			Tries to match a pattern using a DFA-machine.
-
-	Parameters:		pregex_dfa*	dfa			The DFA machine to be executed.
-					uchar*		str			A test string where the DFA should
-											work on.
-					int*		len			Length of the match, -1 on error or
-											no match.
-
-	Returns:		int						PREGEX_ACCEPT_NONE, if no match was
-											found, else the number of the
-											bestmost (=longes) match.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the
+bestmost (=longes) match.
+*/
 int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 		int* anchors, pregex_range** ref, int* ref_count, int flags )
 {

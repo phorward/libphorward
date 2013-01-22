@@ -1022,9 +1022,7 @@ uchar* ccl_to_str( CCL ccl, pboolean escape );
 CCL ccl_addrange( CCL ccl, pchar begin, pchar end );
 CCL ccl_delrange( CCL ccl, pchar begin, pchar end );
 CCL ccl_add( CCL ccl, pchar ch );
-#if 0
 CCL ccl_del( CCL ccl, pchar ch );
-#endif
 pboolean ccl_test( CCL ccl, pchar ch );
 pboolean ccl_testrange( CCL ccl, pchar begin, pchar end );
 pboolean ccl_instest( CCL ccl, pchar ch );
@@ -1034,7 +1032,7 @@ CCL ccl_diff( CCL first, CCL second );
 
 
 void pregex_dfa_print( FILE* stream, pregex_dfa* dfa );
-void pregex_dfa_free( pregex_dfa* dfa );
+pregex_dfa* pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
 int pregex_dfa_minimize( pregex_dfa* dfa );
 int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len, int* anchors, pregex_range** ref, int* ref_count, int flags );

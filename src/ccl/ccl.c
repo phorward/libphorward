@@ -9,22 +9,7 @@ Author:	Jan Max Meyer
 Usage:	Charclass-Handling
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
-
-/*
- * Global variables
- */
-
-/*
- * Defines
- */
-
-/*
- * Functions
- */
 
 /* Internal */
 pchar ccl_max( void )
@@ -36,26 +21,25 @@ pchar ccl_max( void )
 #endif
 }
 
+/** Returns the number of range pairs within a character class (= its length).
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_size()
+//ccl// is a pointer to the character class to be processed.
 
-	Author:			Jan Max Meyer
+To retrieve the number of characters in a character class, use
+ccl_count() instead.
 
-	Usage:			Return the number of range pairs within a character-class.
-
-	Parameters:		CCL			ccl				Pointer to the character-class
-
-	Returns:		int						Number of pairs the charclass
-												holds.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the number of pairs the charclass holds.
+*/
 int ccl_size( CCL ccl )
 {
 	CCL		i;
 	int		cnt	= 0;
+	
+	if( !ccl )
+	{
+		WRONGPARAM;
+		return 0;
+	}
 
 	for( i = ccl; i && i->begin != CCL_MAX; i++ )
 		cnt++;
@@ -63,25 +47,22 @@ int ccl_size( CCL ccl )
 	return cnt;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_count()
+/** Returns the number of characters within a character class.
 
-	Author:			Jan Max Meyer
+//ccl// is a pointer to the character class to be processed.
 
-	Usage:			Return the number of characters within a character-class.
-
-	Parameters:		CCL			ccl				Pointer to the character-class
-
-	Returns:		int							Number of characters the class
-													holds.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the total number of characters the class is holding.
+*/
 int ccl_count( CCL ccl )
 {
 	CCL		i;
 	int		cnt	= 0;
+	
+	if( !ccl )
+	{
+		WRONGPARAM;
+		return 0;
+	}
 
 	for( i = ccl; i && i->begin != CCL_MAX; i++ )
 		cnt += ( i->end - i->begin ) + 1;
@@ -89,34 +70,28 @@ int ccl_count( CCL ccl )
 	return cnt;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_dup()
+/** Duplicates a character class into a new one.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to the character class to be duplicated.
 
-	Usage:			Duplicates one character class to new memory. Returns
-					(CCL)NULL if no more memory is left.
-
-	Parameters:		CCL			ccl				Pointer to the character-class
-												to be duplicated
-
-	Returns:		CCL							Pointer to the duplicate of ccl,
-												(CCL)NULL in error case.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	02.10.2010	Jan Max Meyer	Invalid reads came up in valgrind, really don't
-								know why, but this fixes it.
------------------------------------------------------------------------------ */
+Returns a pointer to the duplicate of //ccl//, or (CCL)NULL
+in error case.
+*/
 CCL ccl_dup( CCL ccl )
 {
 	CCL dup;
+	
+	if( !ccl )
+	{
+		WRONGPARAM;
+		return 0;
+	}
 
 	/*
 		Don't use memdup() here... there is one CRANGE of junk always behind
-		the terminator, for negating character-classes.
+		the terminator, for negating character classes.
 
-		This way won't come up in valgrind.
+		This way it won't come up in valgrind.
 	*/
 	if( !( dup = (CCL)pmalloc( ( ccl_size( ccl ) + 1 + 1 )
 						* sizeof( CRANGE ) ) ) )
@@ -126,32 +101,6 @@ CCL ccl_dup( CCL ccl )
 
 	return dup;
 }
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_normalize()
-
-	Author:			Jan Max Meyer
-
-	Usage:			Normalizes a pre-parsed or modified character-class.
-					Normalization means, that duplicate elements will be
-					removed, the range pairs will be sorted and intersections
-					will be resolved. The result is a unique, normalized
-					character class to be used for further operations.
-
-	Parameters:		CCL			ccl				The character-class to be
-												normalized.
-					BOOLEAN		mem_opt			Run memory optimization, so
-												that only memory is used
-												that is exactly holds the
-												character class.
-
-
-	Returns:		CCL							Pointer to ccl or to optimized
-												character class memory address.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
 
 /* Sort-function required for quick sort */
 static int ccl_sortfunc( const void* v_r1, const void* v_r2 )
@@ -167,6 +116,18 @@ static int ccl_sortfunc( const void* v_r1, const void* v_r2 )
 	return 1;
 }
 
+/* Normalizes a pre-parsed or modified character class. Normalization means,
+that duplicate elements will be removed, the range pairs will be sorted and
+intersections will be resolved. The result is a unique, normalized character
+class to be used for further operations.
+
+//ccl// is the character class to be normalized.
+//mem_opt// specifies if memory optimization should be performed, so that
+exactly the required size of memory is used that is exactly holds the character
+class.
+
+Returns a pointer to ccl or to optimized character class memory address.
+*/
 static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 {
 	CCL		nccl;
@@ -250,22 +211,12 @@ static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 	RETURN( ccl );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_negate()
+/** Negates all ranges in a character class.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to the character class to be negated.
 
-	Usage:			Negates all ranges in a character class.
-
-	Parameters:		CCL			ccl				Pointer to the character-class
-												to be negated.
-
-	Returns:		CCL							Returns a pointer to the same
-												class.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to //ccl//.
+*/
 CCL ccl_negate( CCL ccl )
 {
 	pchar	size	= 0;
@@ -276,6 +227,12 @@ CCL ccl_negate( CCL ccl )
 
 	PROC( "ccl_negate" );
 	PARMS( "ccl", "%p", ccl );
+	
+	if( !ccl )
+	{
+		WRONGPARAM;
+		RETURN( (CCL)NULL );
+	}
 
 	for( i = j = ccl; i; i++, size++ )
 	{
@@ -302,24 +259,15 @@ CCL ccl_negate( CCL ccl )
 	RETURN( ccl );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_union()
+/** Unions two character classes into a normalized one.
 
-	Author:			Jan Max Meyer
+//first// is the pointer to the first character class
+//second// is the pointer to the second character class to be unioned with
+//first//.
 
-	Usage:			Unions two character classes into one normalized one.
-
-	Parameters:		CCL			first			Pointer to the first
-												character-class
-					CCL			second			Pointer to the second
-												character-class
-
-	Returns:		CCL							Returns a pointer to the
-												unioned character class.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to //first//, after //first// has been exteded to the
+amount of characters from //second//. //second// remains untouched.
+*/
 CCL ccl_union( CCL first, CCL second )
 {
 	int		fsize;
@@ -329,9 +277,16 @@ CCL ccl_union( CCL first, CCL second )
 	PROC( "ccl_union" );
 	PARMS( "first", "%p", first );
 	PARMS( "second", "%p", second );
+	
+	if( !( first && second ) )
+	{
+		WRONGPARAM;
+		RETURN( (CCL)NULL );
+	}
 
 	ret = first;
-	size = ( fsize = ccl_size( first ) ) + ccl_size( second ) + 1;
+	size = ( fsize = ccl_size( first ) ) +
+				ccl_size( second ) + 1;
 
 	if( !( ret = prealloc( (CCL)ret,
 			( size  + 2 ) * sizeof( CRANGE ) ) ) )
@@ -348,24 +303,15 @@ CCL ccl_union( CCL first, CCL second )
 	RETURN( ret );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_create()
+/** Parses a character class definition and returns a normalized character class
+to be used for further operations.
 
-	Author:			Jan Max Meyer
+//ccldef// is the character class definition string, accepting UTF-8 formatted
+input.
 
-	Usage:			Parses a character-class definition and returns a
-					normalized character class to be used for further
-					operations.
-
-	Parameters:		uchar*		ccldef			character class definition
-												string, in UTF-8.
-
-	Returns:		CCL							Returns a pointer to the newly
-												created character class.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the newly created character class. This pointer should be
+released with ccl_free() when its existence is no longer required.
+*/
 CCL ccl_create( uchar* ccldef )
 {
 	uchar*	cclptr;
@@ -382,7 +328,7 @@ CCL ccl_create( uchar* ccldef )
 	*/
 	do
 	{
-		for( cclptr = ccldef; *cclptr; )
+		for( cclptr = pgetstr( ccldef ); *cclptr; )
 		{
 			VARS( "cclptr", "%s", cclptr );
 
@@ -446,27 +392,19 @@ CCL ccl_create( uchar* ccldef )
 	RETURN( ccl );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_print()
+/** Print character class to output stream.
+This function is for debug-purposes only.
 
-	Author:			Jan Max Meyer
+//stream// is the output stream to dump the character class to; This can be
+left (FILE*)NULL, so stderr will be used.
+//ccl// is the pointer to character class
 
-	Usage:			Print character class to output stream
-					For Debug-Purposes only!
-
-	Parameters:		FILE*		stream			Output stream; Can be
-												left (FILE*)NULL, so stderr
-												will be used.
-					CCL			ccl				Pointer to character-class
-					int			break_after		< 0 Print with pointer info
-												0 Print all into one line
-												> 0 Print linewise
-
-	Returns:		void
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//break_after// defines:
+- if < 0 print with pointer info
+- if 0 print all into one line
+- if > 0 print linewise
+-
+*/
 void ccl_print( FILE* stream, CCL ccl, int break_after )
 {
 	CCL		i;
@@ -500,30 +438,18 @@ void ccl_print( FILE* stream, CCL ccl, int break_after )
 		fprintf( stream, "*** end of ccl %p ***\n", ccl );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_to_str()
+/** Converts a character class back to a string representation of the
+character class definition, which in turn can be converted back into a
+character class using ccl_create().
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to character class to be converted. 
+//escape//, if TRUE, escapes "unprintable" characters in their hexadecimal
+representation. If FALSE, it prints all characters, except the zero, which will
+be returned as "\0"
 
-	Usage:			Converts a character-class back to a string again, which
-					in turn can be converted into a character class.
-
-	Parameters:		CCL			ccl				Pointer to character-class
-												to be converted.
-					pboolean	escape			TRUE: Escapes "unprintable"
-												characters in their
-												hexadecimal representation
-												FALSE: Prints all characters,
-												except the zero, which
-												will be returned as "\0"
-
-	Returns:		uchar*						Returns the generated string
-												that represents the charclass.
-												Must be freed with ccl_free().
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the generated string that represents the charclass. The returned pointer
+must be released with pfree() after its existence is no longer required.
+*/
 uchar* ccl_to_str( CCL ccl, pboolean escape )
 {
 	CCL		i;
@@ -534,6 +460,12 @@ uchar* ccl_to_str( CCL ccl, pboolean escape )
 	PROC( "ccl_to_str" );
 	PARMS( "ccl", "%p", ccl );
 	PARMS( "escape", "%d", escape );
+	
+	if( !( ccl ) )
+	{
+		WRONGPARAM;
+		RETURN( (uchar*)NULL );
+	}
 
 	for( i = ccl; i && i->begin != CCL_MAX; i++ )
 	{
@@ -554,12 +486,14 @@ uchar* ccl_to_str( CCL ccl, pboolean escape )
 
 		if( !ret )
 		{
-			ret = (uchar*)pmalloc( ( strlen( from ) + 1 ) * sizeof( uchar ) );
+			ret = (uchar*)pmalloc( ( strlen( from ) + 1 )
+									* sizeof( uchar ) );
 			*ret = '\0';
 		}
 		else
 			ret = (uchar*)prealloc( (uchar*)ret,
-					( strlen( ret ) + strlen( from ) + 1 ) * sizeof( uchar ) );
+					( strlen( ret ) + strlen( from ) + 1 )
+									* sizeof( uchar ) );
 
 		if( !ret )
 		{
@@ -574,27 +508,16 @@ uchar* ccl_to_str( CCL ccl, pboolean escape )
 	RETURN( ret ? ret : (uchar*)strdup( "" ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_addrange()
+/** Integrates a character range into a character class.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to the character class to be affected. If //ccl// is
+provided as (CCL)NULL, it will be created by the function.
+//begin// is the begin of character range to be integrated.
+//end// is the end of character range to be integrated.
 
-	Usage:			Integrates a character range into a character-class.
-
-	Parameters:		CCL			ccl				Pointer to the character-class
-												to be affected.
-					pchar		begin			Begin of character range to be
-												integrated.
-					pchar		end				End of character range to
-												be integrated.
-
-	Returns:		CCL							Pointer to the enhanced and
-												normalized character-class,
-												(CCL)NULL in error case.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the extended version of //ccl// on success, or
+(CCL)NULL on error.
+*/
 CCL ccl_addrange( CCL ccl, pchar begin, pchar end )
 {
 	int		size	= ccl_size( ccl );
@@ -648,32 +571,26 @@ CCL ccl_addrange( CCL ccl, pchar begin, pchar end )
 	RETURN( ccl_normalize( ccl, FALSE ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_delrange()
+/** Removes a character range from a character class.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to the character class to be affected.
+//begin// is the begin of character range to be removed.
+//end// is the end of character range to be removed.
 
-	Usage:			Removes a character range from a character-class.
-
-	Parameters:		CCL			ccl				Pointer to the character-class
-												to be affected.
-					pchar		begin			Begin of character range to be
-												integrated.
-					pchar		end				End of character range to
-												be integrated.
-
-	Returns:		CCL							Pointer to the enhanced and
-												normalized character-class,
-												(CCL)NULL in error case.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the modified version of //ccl// on success, or
+(CCL)NULL on error.
+*/
 CCL ccl_delrange( CCL ccl, pchar begin, pchar end )
 {
 	int		size;
 	pchar	tmp;
 	CCL		i;
+	
+	if( !( ccl ) )
+	{
+		WRONGPARAM;
+		return (CCL)NULL;
+	}
 
 	/* Swap begin and end if required */
 	if( end < begin )
@@ -725,95 +642,44 @@ CCL ccl_delrange( CCL ccl, pchar begin, pchar end )
 	return ccl_normalize( ccl, FALSE );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_add()
+/** Integrates a character into a character class.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to the character class to be affected. If //ccl// is
+provided as (CCL)NULL, it will be created by the function.
+//ch// is the character to be integrated.
 
-	Usage:			Integrates a character into a character-class.
+The function is a shortcut for ccl_addrange().
 
-	Parameters:		CCL			ccl				Pointer to the character-class
-												to be affected.
-					pchar		ch				Character to be integrated.
-
-	Returns:		CCL							Pointer to the enhanced and
-												normalized character-class,
-												(CCL)NULL in error case.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the extended version of //ccl// on success, or
+(CCL)NULL on error.
+*/
 CCL ccl_add( CCL ccl, pchar ch )
 {
 	return ccl_addrange( ccl, ch, ch );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_del()
+/** Removes a character from a character class.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to the character class to be affected.
+//ch// is the character to be removed from //ccl//.
 
-	Usage:			Removes one character from a
+The function is a shortcut for ccl_delrange().
 
-	Parameters:		CCL			ccl				Pointer to the character-class
-												to be affected.
-					pchar		ch				Character to be removed from
-												the character class.
-
-	Returns:		CCL							Pointer to the enhanced and
-												normalized character-class,
-												(CCL)NULL in error case.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-#if 0
+Returns a pointer to the modified version of //ccl// on success, or
+(CCL)NULL on error.
+*/
 CCL ccl_del( CCL ccl, pchar ch )
 {
-	CCL		i;
-	pchar	size	= ccl_size( ccl );
-
-	if( !size || !ccl_test( ccl, ch ) )
-		return ccl;
-
-	for( i = ccl; i && i->begin != CCL_MAX; i++ )
-	{
-		if( i->begin <= ch && i->end >= ch )
-			if( i->begin == i->end )
-				memcpy( &( ccl[ size - 1 ] )
-	}
-
-	if( !( ccl = (CCL)prealloc( ccl,
-			( ccl_size( ccl ) + 1 + 1 )
-				* sizeof( CRANGE ) ) ) )
-		return (CCL)NULL;
-
-	ccl[ size ].begin = begin;
-	ccl[ size ].end = end;
-
-	ccl[ ++size ].begin = CCL_MAX;
-
-	return ccl_normalize( ccl, FALSE );
+	return ccl_delrange( ccl, ch, ch );
 }
-#endif
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_test()
+/** Tests a character class if it cointains a character.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to character class to be tested.
+//ch// is the character to be tested.
 
-	Usage:			Tests for a character to match a character class.
-
-	Parameters:		pchar*		ccl				Pointer to character-class
-												to be tested
-					pchar		ch				Character to be tested
-
-	Returns:		pboolean					TRUE: Character matches class
-												FALSE: the opposite.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns TRUE, if the character matches the class, and FALSE if not.
+*/
 pboolean ccl_test( CCL ccl, pchar ch )
 {
 	CCL		i;
@@ -827,26 +693,14 @@ pboolean ccl_test( CCL ccl, pchar ch )
 	return FALSE;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_testrange()
+/** Tests a character class to match a character range.
 
-	Author:			Jan Max Meyer
+//ccl// is a pointer to the character class to be tested.
+//begin// is the begin of character-range to be tested.
+//end// is the end of character-range to be tested.
 
-	Usage:			Tests a character class to match a character range.
-
-	Parameters:		pchar*		ccl				Pointer to character-class
-												to be tested
-					pchar		begin			Begin of character-range to
-												be tested
-					pchar		end				End of character-range to be
-												tested
-
-	Returns:		pboolean					TRUE: Character matches class
-												FALSE: the opposite.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns TRUE if the entire character range matches the class, and FALSE if not.
+*/
 pboolean ccl_testrange( CCL ccl, pchar begin, pchar end )
 {
 	CCL		i;
@@ -860,24 +714,13 @@ pboolean ccl_testrange( CCL ccl, pchar begin, pchar end )
 	return FALSE;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_instest()
+/** Tests for a case-insensitive character to match a character class.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to character class to be tested,
+//ch// is the character to be tested,
 
-	Usage:			Tests for a case-insensitive character to match a
-					character class.
-
-	Parameters:		pchar*		ccl				Pointer to character-class
-												to be tested
-					pchar		ch				Character to be tested
-
-	Returns:		pboolean					TRUE: Character matches class
-												FALSE: the opposite.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns TRUE if the character matches the character class and FALSE if not.
+*/
 pboolean ccl_instest( CCL ccl, pchar ch )
 {
 	if( ccl_test( ccl, ch ) )
@@ -891,25 +734,14 @@ pboolean ccl_instest( CCL ccl, pchar ch )
 	return ccl_test( ccl, ch );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_compare()
+/** Checks for differences in two character classes.
 
-	Author:			Jan Max Meyer
+//first// is the pointer to the first character class.
+//second// is the pointer to the second character class.
 
-	Usage:			Checks for differences in two character classes.
-
-	Parameters:		CCL			first			Pointer to the first
-												character-class
-					CCL			second			Pointer to the second
-												character-class
-
-	Returns:		int							<0 if first is < second
-												0 if first == second
-												>0 if first > second
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a value < 0 if //first// is lower than //second//, 0 if //first// is
+equal to //second// or a value > 0 if //first// is greater than //second//.
+*/
 int ccl_compare( CCL first, CCL second )
 {
 	CCL		i;
@@ -920,7 +752,8 @@ int ccl_compare( CCL first, CCL second )
 	PARMS( "first", "%p", first );
 	PARMS( "second", "%p", second );
 
-	if( ( ret = (int)ccl_size( first ) - (int)ccl_size( second ) != 0 ) )
+	if( ( ret = (int)ccl_size( first ) -
+					(int)ccl_size( second ) ) != 0 )
 		RETURN( ret );
 
 	for( i = first, j = second;
@@ -932,26 +765,15 @@ int ccl_compare( CCL first, CCL second )
 	RETURN( ret );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_intersect()
+/** Returns a new character class with all characters that exist in both
+provided character classes.
 
-	Author:			Jan Max Meyer
+//first// is the pointer to the first character class.
+//second// is the pointer to the second character class.
 
-	Usage:			Returns a new character class with all characters that exist
-					in both provided character classes.
-
-	Parameters:		CCL			first			Pointer to the first
-												character-class
-					CCL			second			Pointer to the second
-												character-class
-
-	Returns:		CCL			insersections	Returns a new character-class
-												that contains all intersecting
-												characters.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a new character class containing the insersections from //first//
+and //second//.
+*/
 CCL ccl_intersect( CCL first, CCL second )
 {
 	psize	cnt				= 0;
@@ -965,7 +787,9 @@ CCL ccl_intersect( CCL first, CCL second )
 	PARMS( "second", "%p", second );
 
 	for( i = first; i && i->begin != CCL_MAX; i++ )
+	{
 		for( j = second; j && j->begin != CCL_MAX; j++ )
+		{
 			if( j->begin <= i->end && j->end >= i->begin )
 			{
 				inter.begin = ( i->begin > j->begin ) ? i->begin : j->begin;
@@ -973,14 +797,20 @@ CCL ccl_intersect( CCL first, CCL second )
 
 				VARS( "intersections", "%p", intersections );
 				VARS( "size", "%d", ccl_size( intersections ) + 1 + 1 );
-				if( !( intersections = (CCL)prealloc( (CCL)intersections,
-						( ccl_size( intersections ) + 1 + 1 )
-							* sizeof( CRANGE ) ) ) )
+
+				if( !( intersections = (CCL)prealloc(
+						(CCL)intersections,
+							( ccl_size( intersections ) + 1 + 1 )
+								* sizeof( CRANGE ) ) ) )
+				{
 					RETURN( (CCL)NULL );
+				}
 
 				memcpy( &( intersections[cnt++] ), &inter, sizeof( CRANGE ) );
 				intersections[cnt].begin = CCL_MAX;
 			}
+		}
+	}
 
 	if( intersections )
 		intersections = ccl_normalize( intersections, TRUE );
@@ -988,29 +818,16 @@ CCL ccl_intersect( CCL first, CCL second )
 	RETURN( intersections );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		ccl_diff()
+/** Returns the difference quantity of two character classes. All elements from
+//second// will be removed from //first//.
 
-	Author:			Jan Max Meyer
+//first// is the pointer to the first character class.
+//second// is the pointer to the second character class.
 
-	Usage:			Returns the difference quantity of two character classes.
-					All elements from second will be removed from first.
-
-	Parameters:		CCL			first			Pointer to the first
-												character-class
-					CCL			second			Pointer to the second
-												character-class
-
-	Returns:		CCL			difference		Returns a pointer to a new
-												charset, which is a copy
-												of first without the ranges
-												contained in second.
-												(CCL)NULL in case of memory
-												allocation error.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a new pointer to a copy of //first//, without the ranges contained in
+//second//. Returns (CCL)NULL in case of memory allocation or parameter
+error.
+*/
 CCL ccl_diff( CCL first, CCL second )
 {
 	CCL		i;

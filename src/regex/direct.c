@@ -10,47 +10,22 @@ Usage:	Direct regular expression access functions running an internal pregex
 		object.
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
-/*
- * Global variables
- */
+/** Performs a regular expression match on a string, and returns an array of
+matches via a pregex_range-structure, which holds pointers to the begin- and
+end-addresses of all matches.
 
-/*
- * Functions
- */
+//regex// is the regular expression pattern to be processed.
+//str// is the string on which the pattern will be executed on.
+//flags// are the flags for regular expression mode switching.
+//results// is the array of results to the matched substrings within //str//.
+//results// must be released using pfree() after its usage.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_qmatch()
-
-	Author:			Jan Max Meyer
-
-	Usage:			Performs a regular expression search on a string, and
-					returns an array of matches via a pregex_range-structure,
-					which holds pointers to the begin- and end-addresses
-					of the matches.
-
-	Parameters:		uchar*			regex		The regular expression
-												pattern
-					uchar*			str			Searchstring the pattern
-												will be ran on.
-					int				flags		Flags for regular
-												expression mode switching
-					pregex_range**	results		Array of results to the
-												matched substrings within
-												str. results must be freed
-												after usage.
-
-	Returns:		int							Returns the amount of matches.
-												If the value is negative,
-												it is an error define.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the number of matches, which is the amount of result entries in the
+returned array //results//. If the value is negative, an error occured, and
+an ERR_-define can be used to find out the reason.
+*/
 int pregex_qmatch( uchar* regex, uchar* str,
 					int flags, pregex_range** results )
 {
@@ -87,39 +62,19 @@ int pregex_qmatch( uchar* regex, uchar* str,
 	RETURN( matches );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_qsplit()
+/** Performs a regular expression search on a string and uses the expression as
+separator; All strings that where split are returned as //results//-array.
 
-	Author:			Jan Max Meyer
+//regex// is the regular expression pattern to be processed.
+//str// is the string on which the pattern will be executed on.
+//flags// are the flags for regular expression mode switching.
+//results// is the array of results to the matched substrings within //str//.
+//results// must be released using pfree() after its usage.
 
-	Usage:			Performs a regular expression search on a string and uses
-					the expression as separator; All strings that where split
-					are returned as results-array.
-
-
-	Parameters:		uchar*			regex		The regular expression
-												pattern
-					uchar*			str			Searchstring the pattern
-												will be ran on.
-					int				flags		Flags for regular
-												expression mode switching
-					pregex_range**	results		Array of results to the
-												split substrings. Each element
-												of this array contains begin-
-												and end-pointer to the
-												related strings within the
-												input-string str.
-
-	Returns:		int							Returns the amount of matches,
-												which is the amount of items
-												within the returned
-												results-array. If the
-												value is negative,
-												it is an error define.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the number of split substrings, which is the amount of result entries in
+the returned array //results//. If the value is negative, an error occured, and
+an ERR_-define can be used to find out the reason.
+*/
 int pregex_qsplit( uchar* regex, uchar* str,
 					int flags, pregex_range** results )
 {
@@ -154,36 +109,20 @@ int pregex_qsplit( uchar* regex, uchar* str,
 	RETURN( matches );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_qreplace()
+/** Replaces all matches of a regular expression pattern within a string with
+the replacement. Backreferences can be used with $x for each opening bracket
+within the regular expression.
 
-	Author:			Jan Max Meyer
+//regex// is the regular expression pattern to be processed.
+//str// is the string on which the pattern will be executed on.
+//replace// is the string that will be inserted as replacement for each pattern
+match. $x backreferences can be used.
+//flags// are the flags for regular expression mode switching.
 
-	Usage:			Replaces all matches of a regular expression pattern within
-					a string with the replacement. Backreferences can be used
-					with $x for each opening bracket within the regular
-					expression.
-
-	Parameters:		uchar*			regex		The regular expression
-												pattern
-					uchar*			str			String the pattern
-												will be ran on.
-					uchar*			replace		String that will be inserted
-												as replacement for each pattern
-												match. $x backreferences
-												can be used
-					int				flags		Flags for regular
-												expression mode switching
-
-	Returns:		uchar*						Returns the string with the
-												replacements. This string must
-												be freed manually by the caller.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	22.04.2012	Jan Max Meyer	Changed entire function calling style to new
-								regular expression object handling.
------------------------------------------------------------------------------ */
+Returns an allocated pointer to the generated string with the replacements.
+This string must be released after its existence is no longer required by the
+caller using pfree().
+*/
 uchar* pregex_qreplace( uchar* regex, uchar* str, uchar* replace, int flags )
 {
 	uchar*			ret;
