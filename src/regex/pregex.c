@@ -9,37 +9,19 @@ Author:	Jan Max Meyer
 Usage:	The pregex object functions.
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
 #define IS_EXECUTABLE( stat )	( (stat) == PREGEX_STAT_NFA || \
 									(stat) == PREGEX_STAT_DFA )
-/*
- * Functions
- */
+									
+/** Constructor function to create a new pregex object.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_create()
+Returns an initialized instance of a new pregex-object.
+This object can be used and modified with subsequent pregex functions.
 
-	Author:			Jan Max Meyer
-
-	Usage:			Constructor function to create a new pregex object.
-
-	Parameters:		void
-
-	Returns:		pregex*						Returns an initialized instance
-												of pregex. This can be used and
-												modified with subsequent pregex
-												functions.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	09.04.2012	Jan Max Meyer	Removed the function pregex_init() and replaced
-								it with pregex_create(). pregex will now be
-								turned into an object oriented way.
------------------------------------------------------------------------------ */
+The object needs to be released using pregex_free() after its existence is not
+longer required.
+*/
 pregex* pregex_create( void )
 {
 	pregex*		regex;
@@ -52,21 +34,12 @@ pregex* pregex_create( void )
 	RETURN( regex );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_free()
+/** Destructor function for a pregex-object.
 
-	Author:			Jan Max Meyer
+//regex// is the pointer to a pregex-structure that will be released.
 
-	Usage:			Destructor function for a pregex-object.
-
-	Parameters:		pregex*			regex		Pointer to a pregex-structure,
-												that will be reset.
-
-	Returns:		pregex*						Always (pregex*)NULL.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns always (pregex*)NULL.
+*/
 pregex* pregex_free( pregex* regex )
 {
 	LIST*			l;
@@ -118,26 +91,13 @@ pregex* pregex_free( pregex* regex )
 	RETURN( (pregex*)NULL );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_reset()
+/** Resets all runtime and ephemerial elements of a pregex-object, so it can be
+used for another regular expression match task.
 
-	Author:			Jan Max Meyer
+//regex// is the pregex-object to be reset.
 
-	Usage:			Resets all runtime and ephemerial elements of a
-					pregex-object, so it can be used for another regular
-					expression match task.
-
-	Parameters:		pregex*		regex			The pregex-object to be
-												resetted.
-
-	Returns:		pregex*						Returns a pointer to regex.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	09.04.2012	Jan Max Meyer	Removed the function pregex_init() and replaced
-								it with pregex_create(). pregex will now be
-								turned into an object oriented way.
------------------------------------------------------------------------------ */
+The function returns //regex//.
+*/
 pregex* pregex_reset( pregex* regex )
 {
 	PROC( "pregex_reset" );
@@ -162,32 +122,18 @@ pregex* pregex_reset( pregex* regex )
 	RETURN( regex );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_compile()
+/** Compiles a regular expression into a pattern and nondeterministic finite
+automata (NFA) within a regex object.
 
-	Author:			Jan Max Meyer
+//regex// is the pregex-object that will receive the new pattern.
+//pattern// is the pattern to be compiled (UTF-8 string).
+//accept// is the accepting ID to identify the pattern when it is matched.
+//accept// must be >= 0.
 
-	Usage:			Compiles a regular expression into an pattern and
-					NFA within a regex object.
-
-	Parameters:		pregex*			regex		Pointer to a pregex-structure,
-												that will hold the compiled
-												pattern.
-					uchar*			pattern		The pattern to be compiled.
-					int				accept		Accepting ID if the pattern
-												is correctly matched.
-
-	Returns:		int				ERR_OK		on success
-									ERR_FAILURE	if the regex is not
-												initialized or already turned
-												into a different state.
-									ERR...		error define else
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	16.11.2011	Jan Max Meyer	Switched this function to new regular expression
-								pattern definition structures.
------------------------------------------------------------------------------ */
+Returns a ERR_OK on success, ERR_FAILURE if the regex is not initialized or
+already turned into a different state. Another adequate ERR-define will be
+returned for other errors.
+*/
 int pregex_compile( pregex* regex, uchar* pattern, int accept )
 {
 	int				ret;
@@ -264,27 +210,14 @@ int pregex_compile( pregex* regex, uchar* pattern, int accept )
 	RETURN( ret );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_finalize()
+/** Finalizes a pregex-object into a minimized deterministic finite automata
+(DFA). After finalization, new patterns can't be added anymore to the object.
 
-	Author:			Jan Max Meyer
+//regex// is the pregex-object to be finalized.
 
-	Usage:			Finalizes a pregex-compiled regex to a minimized DFA.
-					After finalization, new expressions can't be added anymore
-					to the object.
-
-	Parameters:		pregex*			regex		Pointer to a pregex-structure,
-												that will be finalized.
-
-	Returns:		int				ERR_OK		on success
-									ERR_FAILURE	if the regex is not in
-												compiled-state
-									ERR...		error define else
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	17.02.2011	Jan Max Meyer	Finalize NFA to DFA now activated.
------------------------------------------------------------------------------ */
+Returns a ERR_OK on success, ERR_FAILURE if the regex is not in compiled-state,
+and any other ERR-define else.
+*/
 int pregex_finalize( pregex* regex )
 {
 	pregex_dfa	dfa;
@@ -342,43 +275,25 @@ int pregex_finalize( pregex* regex )
 	RETURN( ERR_OK );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_match_next()
+/** The function pregex_match_next() is used to run a regular expression object
+on a string, to match patterns. The function is called as long as no more
+matches are found.
 
-	Author:			Jan Max Meyer
+The function is used in a similar way as strtok(). The first call requires a
+pointer to the string where the regular expression will be run against. Any
+subsequent calls to pregex_match_next() must provide a (uchar*)NULL pointer as
+//str//, so that pattern matching continues behind the previous matching
+position. The function is thread-safe, because the previous matching position is
+hold within the provided pregex-object.
 
-	Usage:			The function pregex_match_next() is used to run a regular
-					expression object on a string, to match patterns. The
-					function is called as long as no more matches are be
-					found.
+//regex// is the pre-compiled or finalized pregex-object.
+//str// is the pointer to input string where the pattern will be run against.
+This shall be provided at the first call of pregex_match() and later on as
+(uchar*)NULL.
 
-					The function is used similar to strtok(). The first call
-					requires a pointer to the string where the regular
-					expression will tested against. Any subsequent calls to
-					pregex_match_next() must provide a (uchar*)NULL pointer as
-					string, so that the previous string position will be
-					re-used.
-
-	Parameters:		pregex*			regex		Pointer to a pre-compiled
-												regex state regex.
-					uchar*			str			Pointer to input string where
-												the pattern will be run against.
-												This shall be set at the first
-												call of pregex_match() and later
-												on as (uchar*)NULL.
-
-	Returns:		pregex_range*				Returns a pointer to a pregex-
-												structure describing the matched
-												area in case of a successful
-												match, else a pointer to
-												(pregex_range*)NULL.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
-	15.04.2012	Jan Max Meyer	Changed the entire function to the new concept
-								using a pregex-object.
------------------------------------------------------------------------------ */
+Returns a pointer to a valid pregex_range structure describing the matched area
+in case of a successful match, else a pointer to (pregex_range*)NULL.
+*/
 pregex_range* pregex_match_next( pregex* regex, uchar* str )
 {
 	int				match	= PREGEX_ACCEPT_NONE;
@@ -554,41 +469,21 @@ pregex_range* pregex_match_next( pregex* regex, uchar* str )
 	RETURN( (pregex_range*)NULL  );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_match()
+/** Runs a regular expression match on a string as long as matches are found.
+All matches will be collected into the return array //results//, if a pointer is
+provided.
 
-	Author:			Jan Max Meyer
+//regex// is the pregex-object to be used for matching.
+//str// is the string on which the pattern will be executed.
+//results// is the return pointer to an array of ranges to the matches within
+//str//. The pointer ranges must be released after usage using pfree().
+//results// can be left (pregex_range**) NULL, so only the number of matches
+will be returned by the function.
 
-	Usage:			Runs a regular expression match on a string as long as
-					matches are found. All matches will be collected into
-					return array results, if a pointer is provided.
-
-	Parameters:		pregex*			regex		The regular expression
-												object pointer.
-					uchar*			str			Searchstring the pattern
-												will be ran on.
-					pregex_range**	results		Return pointer for an array of
-												ranges to the matched substrings
-												within str.
-												The pointer ranges must be freed
-												after usage. The parameter
-												can be left (pregex_range**)
-												NULL, so only the number of
-												matches will be returned by the
-												function.
-
-	Returns:		int							Returns the total number of
-												matches. If the value is
-												negative, it is an error
-												code. The returned number
-												is the number of elements in
-												the results-array.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	25.04.2012	Jan Max Meyer	Changed the function to work with the new
-								pregex-object structures.
------------------------------------------------------------------------------ */
+The function returns the total number of matches, which is the number of entries
+in the returned array //results//. If the value is negative, it is an error
+code.
+*/
 int pregex_match( pregex* regex, uchar* str, pregex_range** results )
 {
 	pregex_range*	range;
@@ -643,45 +538,29 @@ int pregex_match( pregex* regex, uchar* str, pregex_range** results )
 	RETURN( matches );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_split_next()
+/** The function pregex_split_next() is used to run a regular expression object
+on a string, and split this string when a pattern is matched. The function is
+called as long as no more matches are be found.
 
-	Author:			Jan Max Meyer
+The function is used as the opposite of pregex_match_next(), it matches not the
+patterns but the substrings between the patterns.
 
-	Usage:			The function pregex_split_next() is used to run a regular
-					expression object on a string, and split this string
-					when a pattern is matched. The function is called as long
-					as no more matches are be found.
+The function is used in a similar way as strtok(). The first call requires a
+pointer to the string where the regular expression will be run against. Any
+subsequent calls to pregex_match_next() must provide a (uchar*)NULL pointer as
+//str//, so that pattern matching continues behind the previous matching
+position. The function is thread-safe, because the previous matching position is
+hold within the provided pregex-object.
 
-					The function is used similar to strtok(). The first call
-					requires a pointer to the string where the regular
-					expression will tested against. Any subsequent calls to
-					pregex_split_next() must provide a (uchar*)NULL pointer as
-					string, so that the previous string position will be
-					re-used.
+//regex// is the pre-compiled or finalized pregex-object.
+//str// is the pointer to input string where the pattern will be run against.
+This shall be provided at the first call of pregex_match() and later on as
+(uchar*)NULL.
 
-	Parameters:		pregex*			regex		Pointer to a pre-compiled
-												regex state regex.
-					uchar*			str			Pointer to input string where
-												the pattern will be run against.
-												This shall be set at the first
-												call of pregex_match() and later
-												on as (uchar*)NULL.
-
-	Returns:		pregex_range*				Returns a pointer to a pregex-
-												structure describing the
-												splitted area in case of a
-												successful match, else a pointer
-												to (pregex_range*)NULL if no
-												more splits are found or an
-												error occured.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
-	15.04.2012	Jan Max Meyer	Changed the entire function to the new concept
-								using a pregex-object.
------------------------------------------------------------------------------ */
+Returns a pointer to a valid pregex_range structure describing the area in front
+of or (in case of the last substring) behind the matched pattern, in case of a
+successful match. Else a pointer to (pregex_range*)NULL is returned.
+*/
 pregex_range* pregex_split_next( pregex* regex, uchar* str )
 {
 	uchar*			last;
@@ -821,42 +700,21 @@ pregex_range* pregex_split_next( pregex* regex, uchar* str )
 	RETURN( (pregex_range*)NULL );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_split()
+/** Runs a regular expression split on a string as long as matches are found.
+All split matches will be collected into the return array //results//, if a
+pointer is provided.
 
-	Author:			Jan Max Meyer
+//regex// is the pregex-object to be used for matching.
+//str// is the string on which the pattern will be executed.
+//results// is the return pointer to an array of ranges to the matches within
+//str//. The pointer ranges must be released after usage using pfree().
+//results// can be left (pregex_range**) NULL, so only the number of matches
+will be returned by the function.
 
-	Usage:			Runs a regular expression split on a string as long as
-					the string can be splitted at the given compiled pattern.
-					All matches will be collected into return array results,
-					if a pointer is provided.
-
-	Parameters:		pregex*			regex		The regular expression
-												object pointer.
-					uchar*			str			Searchstring the pattern
-												will be ran on.
-					pregex_range**	results		Return pointer for an array of
-												ranges to the split substrings
-												within str.
-												The pointer ranges must be freed
-												after usage. The parameter
-												can be left (pregex_range**)
-												NULL, so only the number of
-												splits will be returned by the
-												function.
-
-	Returns:		int							Returns the total number of
-												splits. If the value is
-												negative, it is an error
-												code. The returned number
-												is the number of elements in
-												the results-array.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	25.04.2012	Jan Max Meyer	Changed the function to work with the new
-								pregex-object structures.
------------------------------------------------------------------------------ */
+The function returns the total number of matches, which is the number of entries
+in the returned array //results//. If the value is negative, it is an error
+code.
+*/
 int pregex_split( pregex* regex, uchar* str, pregex_range** results )
 {
 	int				matches	= 0;
@@ -912,34 +770,20 @@ int pregex_split( pregex* regex, uchar* str, pregex_range** results )
 	RETURN( matches );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_replace()
+/** Replaces all matches of a regular expression object within a string //str//
+with //replacement//. Backreferences in //replacement// can be used with //$x//
+for each opening bracket within the regular expression.
 
-	Author:			Jan Max Meyer
+//regex// is the pregex-object used for pattern matching.
+//str// is the string on which //regex// will be executed.
+//replacement// is the string that will be inserted as the replacement for each
+match of a pattern described in //regex//. The notation //$x// can be used for
+backreferences, where x is the offset of opening brackets in the pattern,
+beginning at 1.
 
-	Usage:			Replaces all matches of a regular expression pattern within
-					a string with the replacement. Backreferences can be used
-					with $x for each opening bracket within the regular
-					expression.
-
-	Parameters:		pregex*			regex		The regular expression
-												pattern
-					uchar*			str			String the pattern
-												will be ran on.
-					uchar*			replacement	String that will be inserted
-												as replacement for each pattern
-												match. $x backreferences
-												can be used.
-	Returns:		int							Returns the amount of matches.
-												If the value is negative,
-												it is an error define.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	17.02.2011	Jan Max Meyer	Allowed to run both NFA and DFA machines
-	25.04.2012	Jan Max Meyer	Changed the function to work with the new
-								pregex-object usability and behaviors.
------------------------------------------------------------------------------ */
+Returns the number of matches (= replacements). If the value is negative, it is
+an error define.
+*/
 uchar* pregex_replace( pregex* regex, uchar* str, uchar* replacement )
 {
 	pregex_range*	match;
