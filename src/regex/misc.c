@@ -25,23 +25,14 @@ Usage:	Utility and miscelleanous functions for additional usage that
 
 /*NO_DOC*/
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_accept_init()
+/** Initializes a structure of the type pregex_accept.
+The member accept will be set to PREGEX_ACCEPT_NONE, which is -1, and
+greedyness defaults to TRUE.
 
-	Author:			Jan Max Meyer
+//accept// is the accepting information pointer to be initialized.
 
-	Usage:			Initializes a structure of the type pregex_accept.
-					The member accept will be set to PREGEX_ACCEPT_NONE, which
-					is -1, and greedyness defaults to TRUE.
-
-	Parameters:		pregex_accept*	accept		Accepting information pointer
-												to be initializes.
-
-	Returns:		pregex_accept*				Returns the input-pointer.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns //accept//.
+*/
 pregex_accept* pregex_accept_init( pregex_accept* accept )
 {
 	if( !accept )
@@ -59,36 +50,20 @@ pregex_accept* pregex_accept_init( pregex_accept* accept )
 	return accept;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_check_anchors()
+/** Performs an anchor checking within a string. It is used by the internal
+matching functions for NFA and DFA state machines.
 
-	Author:			Jan Max Meyer
+//all// is the entire string. This can be equal to //str//, but is required to
+perform valid line-begin anchor checking. If //all// is (uchar*)NULL, //str//
+is assumed to be //all//.
+//str// is the position pointer of the current match within //all//.
+//len// is the length of the matched string, in characters.
+//anchors// is the anchor configuration to be checked for the string.
+//flags// is the flags configuration, e. g. for wide-character enabled anchor
+checking.
 
-	Usage:			Performs an anchor checking within a string. It is used
-					by the matching functions for NFA and DFA state machines.
-
-	Parameters:		uchar*			all			The entire string. This can
-												be equal to str, but is
-												required to perform valid
-												line-begin anchor checking.
-												If 'all' is (uchar*)NULL,
-												'str' is assumed as 'all'.
-					uchar*			str			Pointer of the current match
-												within entire.
-					psize			len			Length of the matched string,
-												in characters.
-					int				anchors		Anchor configuration to be
-												checked for the string.
-					int				flags		Flags configuration, e. g.
-												for wide-character enabled
-												anchor checking.
-
-	Returns:		pboolean					TRUE, if all anchors match,
-												FALSE else.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns TRUE, if all anchors flagged as //anchors// match, else FALSE.
+*/
 pboolean pregex_check_anchors( uchar* all, uchar* str, psize len,
 										int anchors, int flags )
 {

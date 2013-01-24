@@ -9,32 +9,22 @@ Author:	Jan Max Meyer
 Usage:	Regular expression pattern construction and conversion functions
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
-/*
- * Global variables
- */
 #define INC( i )			(i)++
 #define VALID_CHAR( ch )	( !pstrchr( "|()[]*+?", (ch) ) )
 
-/*
- * Local prototypes
- */
-static int parse_char( pregex_ptn** ptn, uchar** pstr, pregex_accept* accept, int flags );
-static int parse_factor( pregex_ptn** ptn, uchar** pstr, pregex_accept* accept, int flags );
-static int parse_sequence( pregex_ptn** ptn, uchar** pstr, pregex_accept* accept, int flags );
-static int parse_alter( pregex_ptn** ptn, uchar** pstr, pregex_accept* accept, int flags );
+/* Local prototypes */
+static int parse_char( pregex_ptn** ptn, uchar** pstr,
+							pregex_accept* accept, int flags );
+static int parse_factor( pregex_ptn** ptn, uchar** pstr,
+							pregex_accept* accept, int flags );
+static int parse_sequence( pregex_ptn** ptn, uchar** pstr,
+							pregex_accept* accept, int flags );
+static int parse_alter( pregex_ptn** ptn, uchar** pstr,
+							pregex_accept* accept, int flags );
 
-/*
- * Functions
- */
-
-/*
- * General pattern constructor
- */
+/* Create a pattern object of type //type//; Internal constructor! */
 static pregex_ptn* pregex_ptn_create( pregex_ptntype type )
 {
 	pregex_ptn*		pattern;
@@ -45,25 +35,14 @@ static pregex_ptn* pregex_ptn_create( pregex_ptntype type )
 	return pattern;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_create_char()
+/** Constructs a character-class pattern.
 
-	Author:			Jan Max Meyer
+//ccl// is the pointer to a character class. This pointer is not duplicated,
+and will be directly assigned to the object.
 
-	Usage:			Constructs a character-class pattern.
-
-	Parameters:		CCL			ccl				A pointer to a character class.
-												This pointer is not duplicated,
-												and directly assigned.
-
-	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
-												can be child of another
-												pattern construct or part of
-												a sequence.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+*/
 pregex_ptn* pregex_ptn_create_char( CCL ccl )
 {
 	pregex_ptn*		pattern;
@@ -80,25 +59,14 @@ pregex_ptn* pregex_ptn_create_char( CCL ccl )
 	return pattern;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_create_string()
+/** Constructs a pattern for a static string.
 
-	Author:			Jan Max Meyer
+//str// is the input string to be converted.
+//flags// are optional flags for wide-character support.
 
-	Usage:			Constructs a pattern for a static string.
-
-	Parameters:		uchar*			str			Input string to be converted.
-					int				flags		Optional flags for
-												wide-character support.
-
-	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
-												can be child of another
-												pattern construct or part of
-												a sequence.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+*/
 pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
 {
 	uchar*		ptr;
@@ -176,24 +144,13 @@ pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
 	RETURN( seq );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_create_sub()
+/** Constructs a sub-pattern (like with parantheses).
 
-	Author:			Jan Max Meyer
+//ptn// is the pattern that becomes the sub-ordered pattern.
 
-	Usage:			Constructs a sub-pattern (like with parantheses).
-
-	Parameters:		pregex_ptn*		pnt			Pattern that becomes the
-												sub-ordered pattern.
-
-	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
-												can be child of another
-												pattern construct or part of
-												a sequence.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pregex_ptn-node which can be child of another pattern construct
+or part of a sequence.
+*/
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
 {
 	pregex_ptn*		pattern;
@@ -210,32 +167,16 @@ pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
 	return pattern;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_create_alt()
+/** Constructs alternations of multiple patterns.
 
-	Author:			Jan Max Meyer
+//left// is the first pattern of the alternation.
+//...// are multiple pregex_ptn-pointers follow which become part of the
+alternation. The last node must be specified as (pregex_ptn*)NULL.
 
-	Usage:			Constructs alternations of multiple patterns.
-
-	Parameters:		pregex_ptn*		left		First pattern of the
-												alternation.
-					...							Multiple pregex_ptn-pointers
-												follow which become part of
-												the alternation. The last
-												node must be specified as
-												(pregex_ptn*)NULL.
-
-	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
-												can be child of another
-												pattern construct or part of
-												a sequence. If there is only
-												left assigned without other
-												alternation patterns, left
-												will be returned back.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence. If there is only //left// assigned without other alternation
+patterns, //left// will be returned back.
+*/
 pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ...  )
 {
 	pregex_ptn*		pattern;
@@ -264,25 +205,14 @@ pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ...  )
 	return left;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_create_kle()
+/** Constructs a kleene-closure repetition, allowing for multiple or none
+repetitions of the specified pattern.
 
-	Author:			Jan Max Meyer
+//ptn// is the pattern that will be configured for kleene-closure.
 
-	Usage:			Constructs a kleene-closure repetition, allowing for
-					multiple or none repetitions of the specified pattern.
-
-	Parameters:		pregex_ptn*		pnt			Pattern that will be allowed
-												for repetition.
-
-	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
-												can be child of another
-												pattern construct or part of
-												a sequence.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+*/
 pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
 {
 	pregex_ptn*		pattern;
@@ -299,25 +229,14 @@ pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
 	return pattern;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_create_pos()
+/** Constructs an positive-closure, allowing for one or multiple specified
+pattern.
 
-	Author:			Jan Max Meyer
+//ptn// is the pattern to be configured for positive closure.
 
-	Usage:			Constructs a positive-closure repetition, allowing for
-					one or multiple repetitions of the specified pattern.
-
-	Parameters:		pregex_ptn*		pnt			Pattern that will be allowed
-												for repetition.
-
-	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
-												can be child of another
-												pattern construct or part of
-												a sequence.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+*/
 pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
 {
 	pregex_ptn*		pattern;
@@ -334,25 +253,13 @@ pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
 	return pattern;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_create_pos()
+/** Constructs an optional-closure, allowing for one or none specified pattern.
 
-	Author:			Jan Max Meyer
+//ptn// is the pattern to be configured for optional closure.
 
-	Usage:			Constructs an optional-closure, allowing for
-					one or none of the specified pattern.
-
-	Parameters:		pregex_ptn*		pnt			Pattern that will be allowed
-												optionally.
-
-	Returns:		pregex_ptn*					Returns a pregex_ptn-node which
-												can be child of another
-												pattern construct or part of
-												a sequence.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+*/
 pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
 {
 	pregex_ptn*		pattern;
@@ -369,26 +276,15 @@ pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
 	return pattern;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_create_seq()
+/** Constructs a sequence of multiple patterns.
 
-	Author:			Jan Max Meyer
+//first// is the beginning pattern of the sequence.
+//...// follows as parameter list of multiple patterns that become part of the
+sequence. The last pointer must be specified as (pregex_ptn*)NULL to mark the
+end of the list.
 
-	Usage:			Constructs a sequence of multiple patterns.
-
-	Parameters:		pregex_ptn*		first		Begin pattern
-					...							Multiple patterns that become
-												part of the sequence, the last
-												pointer must be specified as
-												(pregex_ptn*)NULL to mark the
-												end.
-
-	Returns:		pregex_ptn*					Always returns the pointer to
-												first.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Always returns the pointer to //first//.
+*/
 pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
 {
 	pregex_ptn*		prev	= first;
@@ -421,22 +317,13 @@ pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
 	return first;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_free()
+/** Releases memory of a pattern including all its subsequent and following
+patterns.
 
-	Author:			Jan Max Meyer
+//ptn// is the pattern object to be released.
 
-	Usage:			Frees a pattern including all its subsequent als following
-					links.
-
-	Parameters:		pregex_ptn*		ptn			Pattern object to be freed.
-
-	Returns:		pregex_ptn*					Always returns
-												(pregex_ptn*)NULL.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Always returns (pregex_ptn*)NULL.
+*/
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 {
 	pregex_ptn*		next;
@@ -466,23 +353,11 @@ pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 	return (pregex_ptn*)NULL;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_print()
+/** A debug function to print a pattern's hierarchical structure to stderr.
 
-	Author:			Jan Max Meyer
-
-	Usage:			A debug function to print a pattern's hierarchical
-					structure to stderr.
-
-	Parameters:		pregex_ptn*		ptn			Pattern object to be printed.
-					int				rec			Recursion depth, set this to
-												0 at initial call.
-
-	Returns:		void
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//ptn// is the pattern object to be printed.
+//rec// is the recursion depth, set this to 0 at initial call.
+*/
 void pregex_ptn_print( pregex_ptn* ptn, int rec )
 {
 	int			i;
@@ -529,28 +404,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 	while( ptn );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_to_regex()
-
-	Author:			Jan Max Meyer
-
-	Usage:			Turns a regular expression pattern back into a regular
-					expression.
-
-	Parameters:		uchar**			regex		Return pointer for the regular
-												expression string. This must
-												be freed by the caller, if the
-												function returns ERR_OK.
-					pregex_ptn*		ptn			Pattern object to be turned
-												into a regex.
-
-	Returns:		int							Returns a standard error
-												define on failure, and ERR_OK
-												on success.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/* Internal function for pregex_ptn_to_regex() */
 static void pregex_char_to_REGEX( uchar* str, int size,
 				pchar ch, pboolean escape, pboolean in_range )
 {
@@ -563,6 +417,7 @@ static void pregex_char_to_REGEX( uchar* str, int size,
 		u8_toutf8( str, size, &ch, 1 );
 }
 
+/* Internal function for pregex_ptn_to_regex() */
 static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl )
 {
 	pregex_ccl		neg		= (pregex_ccl)NULL;
@@ -630,6 +485,7 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl )
 	ccl_free( ccl );
 }
 
+/* Internal function for pregex_ptn_to_regex() */
 static int pregex_ptn_to_REGEX( uchar** regex, pregex_ptn* ptn )
 {
 	int		ret;
@@ -711,7 +567,14 @@ static int pregex_ptn_to_REGEX( uchar** regex, pregex_ptn* ptn )
 	return ERR_OK;
 }
 
+/** Turns a regular expression pattern back into a regular expression string.
 
+//regex// is the return pointer for the regular expression string. This must be
+released by the caller with pfree(), if the function returns ERR_OK.
+//ptn// is the pattern object to be converted into a regex.
+
+Returns a int Returns a standard error define on failure, and ERR_OK on success.
+*/
 int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
 {
 	if( !( regex && ptn ) )
@@ -725,32 +588,6 @@ int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
 	return pregex_ptn_to_REGEX( regex, ptn );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_to_nfa()
-
-	Author:			Jan Max Meyer
-
-	Usage:			Converts a pattern-structure into a NFA state machine.
-
-	Parameters:		pregex_nfa*		nfa			NFA state machine structure
-												that receives the compiled
-												result of the pattern.
-					pregex_ptn*		pattern		A pattern structure that will
-												be converted and extended into
-												the NFA state machine.
-					pregex_accept*	accept		Accept structure that will be
-												assigned to the last NFA
-												node. This structure is
-												optional, and can be left-out
-												as (pregex_accept*)NULL.
-
-	Returns:		int							Returns a standard error
-												define on failure, and ERR_OK
-												on success.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
 /* Internal function for pregex_ptn_to_nfa() */
 static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 	pregex_nfa_st** start, pregex_nfa_st** end )
@@ -906,6 +743,18 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 	return ERR_OK;
 }
 
+/** Converts a pattern-structure into a NFA state machine.
+
+//nfa// is the NFA state machine structure that receives the compiled result of
+the pattern. This machine will be extended to the pattern if it already contains
+states.
+//pattern// is the pattern structure that will be converted and extended into
+the NFA state machine.
+//accept// is the accept structure that will be assigned to the last NFA node.
+This structure is optional, and can be left-out as (pregex_accept*)NULL.
+
+Returns a standard error define on failure, and ERR_OK on success.
+*/
 int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 							pregex_accept* accept )
 {
@@ -960,40 +809,22 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 	RETURN( ERR_OK );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ptn_parse()
+/** Parse a regular expression pattern string into a pregex_ptn structure.
 
-	Author:			Jan Max Meyer
+//ptn// is the return pointer receiving the root node of the generated pattern.
 
-	Usage:			Parse a regular expression pattern string into a pregex_ptn
-					structure.
+//accept// is the pointer to a pregex_accept structure that receives the members
+//greedy// and //anchors//. The //accept// member must be changed by the caller.
+This parameter is optional, and can be left-out as (pregex_accept*)NULL.
 
-	Parameters:		pregex_ptn**	ptn			Return pointer receiving the
-												root node of the generated
-												pattern.
-					pregex_accept*	accept		Pointer to a pregex_accept
-												structure that receives the
-												members greedy and anchors.
-												The accept member must be
-												changed by the caller. This
-												parameter is optional, and
-												can be left-out as
-												(pregex_accept*)NULL.
-					uchar*			str			Pointer to the string that
-												defines the pattern. If
-												PREGEX_MOD_WCHAR is assigned as
-												flags, this pointer must be
-												set to a pchar-array holding
-												wide-character strings.
-					int				flags		Compile-time flags to be used.
+//str// is the pointer to the string which contains the pattern to be parsed. If
+PREGEX_MOD_WCHAR is assigned in //flags//, this pointer must be set to a
+pchar-array holding wide-character strings.
 
-	Returns:		int							Returns a standard error
-												define on failure, and ERR_OK
-												on success.
+//flags// provides compile-time flags.
 
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a standard error define on failure, and ERR_OK on success.
+*/
 int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 						uchar* str, int flags )
 {

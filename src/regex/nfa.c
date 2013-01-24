@@ -10,49 +10,21 @@ Usage:	NFA creation and executable functions
 		and simple, independent parser for regular expressions
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
-/*
- * Global variables
- */
-#define INC( i )			(i)++
-#define VALID_CHAR( ch )	!pstrchr( "|()[]*+?", (ch) )
-
-/*
- * Local prototypes
- */
-
-/*
- * Functions
- */
-
 /*NO_DOC*/
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_nfa_create_state()
+/** Creates a new NFA-state within an NFA state machine. The function first
+checks if there are recyclable states in //nfa//. If so, the state is re-used
+and re-configured, else a new state is allocated in memory.
 
-	Author:			Jan Max Meyer
+//nfa// is the structure pointer to the NFA to process.
+//chardef// is an optional charset definition for the new state. If this is
+(uchar*)NULL, then a new epsilon state is created.
+//flags// defines the modifier flags that belong to the chardef-parameter.
 
-	Usage:			Creates a new NFA-state within an NFA state machine.
-					The function first checks if there are recyclable states.
-					If so, the state is re-used and re-configured, else a new
-					state is allocated in memory.
-
-	Parameters:		pregex_nfa*		nfa			NFA to output.
-					uchar*			chardef		An optional charset definition
-												for the new state. If this is
-												(uchar*)NULL, then a new epsi-
-												lon state is created.
-					int				flags		Modifier flags that belongs to
-												the chardef-parameter.
-
-	Returns:		pregex_nfa_st*				Pointer to the created state.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to pregex_nfa_st, defining the newly created state. The
+function returns (pregex_nfa_st*)NULL on error case.
+*/
 pregex_nfa_st* pregex_nfa_create_state(
 	pregex_nfa* nfa, uchar* chardef, int flags )
 {
@@ -144,22 +116,11 @@ pregex_nfa_st* pregex_nfa_create_state(
 	RETURN( ptr );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_nfa_print()
+/** Prints an NFA for debug purposes on a output stream.
 
-	Author:			Jan Max Meyer
-
-	Usage:			Prints an NFA for debug purposes on an output stream.
-
-	Parameters:		FILE*		stream		The output stream where to print
-											the NFA to.
-					pregex_nfa*	nfa			Pointer to the NFA to be output.
-
-	Returns:		void
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//stream// is the output stream where to print the NFA to.
+//nfa// is the NFA state machine structure to be printed.
+*/
 void pregex_nfa_print( pregex_nfa* nfa )
 {
 	LIST*			l;
@@ -186,21 +147,11 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	fprintf( stderr, "-----------------------------------\n" );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_nfa_free()
+/** Resets a NFA-state machine structure.
 
-	Author:			Jan Max Meyer
-
-	Usage:			Frees and resets a NFA-state machine.
-
-	Parameters:		pregex_nfa*	nfa			A pointer to the NFA-machine to be
-											freed and reset.
-
-	Returns:		void
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//nfa// is the pointer to the NFA state machine structure. All allocated 
+elements of this structure will be released, and the structure is reset.
+*/
 void pregex_nfa_free( pregex_nfa* nfa )
 {
 	LIST*			l;
@@ -236,34 +187,17 @@ void pregex_nfa_free( pregex_nfa* nfa )
 	VOIDRET;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_nfa_move()
+/** Performs a move operation on a given input character from a set of NFA
+states.
 
-	Author:			Jan Max Meyer
+//input// is the list of input states (pregex_nfa_st*).
+//from// is the character-range begin from which the move-operation should be
+processed on.
+//to// is the character-range end until the move-operation should be processed.
 
-	Usage:			Performs a move operation on a given input character from a
-					set of NFA states.
-
-	Parameters:		LIST*		input			List of input NFA states.
-					pchar		from			Character-range begin from which
-												the move-operation should be
-												processed on.
-					pchar		to				Character-range end until
-												the move-operation should be
-												processed.
-
-	Returns:		LIST*		Pointer to the result of the move operation.
-								If this is (LIST*)NULL, there is no possible
-								transition on the given input character.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
-	30.05.2010	Jan Max Meyer	Switched function to test for a range of
-								characters instead of only one. This has been
-								done due performance increason of DFA table
-								construction.
------------------------------------------------------------------------------ */
+Returns a linked-list (LIST*) to the result of the move operation. If this is
+(LIST*)NULL, there is no possible transition on the given input character.
+*/
 LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 {
 	LIST*			hits	= (LIST*)NULL;
@@ -300,34 +234,17 @@ LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
 	RETURN( hits );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_nfa_epsilon_closure()
+/** Performs an epsilon closure from a set of NFA states.
 
-	Author:			Jan Max Meyer
+//nfa// is the NFA state machine
+//input// is the list of input NFA states
+//accept// is the match information structure, which recieves possible
+information about a pattern match. This parameter is optional, and can be
+left empty by providing (pregex_accept*)NULL.
 
-	Usage:			Performs an epsilon closure from a set of NFA states.
-
-	Parameters:		pregex_nfa*		nfa			NFA state machine
-					LIST*			input		List of input NFA states
-					pregex_accept*	accept		Match information structure,
-												which can be left empty
-												(pregex_accept*)NULL.
-
-	Returns:		LIST*		Pointer to the result of the epsilon closure
-								(a new set of NFA states)
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	15.07.2008	Jan Max Meyer	Copied from old RE-Lib to new Regex-Lib
-	18.11.2010	Jan Max Meyer	Program halt if character-node with two
-								outgoing transitions recognized (this may
-								happen if the NFA machine was constructed
-								manually and incorrectly).
-	27.08.2011	Jan Max Meyer	Added greedyness parameter.
-	11.11.2011	Jan Max Meyer	Merged accept, anchor and greedyness flags
-								into a new struct pregex_accept, and using it
-								here now.
------------------------------------------------------------------------------ */
+Returns a linked list (LIST*) to the result of the epsilon closure, which
+defines a new set of NFA states.
+*/
 LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 			pregex_accept* accept )
 {
@@ -396,52 +313,31 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 	RETURN( input );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_nfa_match()
+/** Tries to match a pattern using a NFA state machine.
 
-	Author:			Jan Max Meyer
+//nfa// is the NFA state machine to be executed.
+//str// is a test string where the NFA should work on.
+//len// receives the length of the match, -1 on error or no match.
 
-	Usage:			Tries to match a pattern using an NFA-machine.
+//anchors// receives the anchor configuration of the matching state, if it
+provides anchors. If this is (int*)NULL, anchors will be ignored.
 
-	Parameters:		pregex_nfa*		nfa		The NFA machine to be executed.
-					uchar*			str		A test string where the NFA should
-											work on.
-					psize*			len		Length of the match, -1 on error or
-											no match.
-					int*			anchors	Returns the anchor configuration
-											of the matching state, if it
-											provides anchors. If this is
-											(int*)NULL, anchors will be
-											ignored.
-					pregex_range**	ref		Return array of references; If this
-											pointer is not NULL, the function
-											will allocate memory for a refer-
-											ence array. This array is only
-											allocated if the following dependen
-											cies are met:
+//ref// receives a return array of references; If this pointer is not NULL, the
+function will allocate memory for a reference array. This array is only
+allocated if the following dependencies are met:
+# The NFA has references
+# //ref_count// is zero
+# //ref// points to a pregex_range*
 
-											1. The NFA has references
-											2. ref_count is zero
-											3. ref points to a pregex_range*
+//ref_count// receives the number of references. This value MUST be zero, if the
+function should allocate refs. A positive value indicates the number of elements
+in //ref//, so the array can be re-used in multiple calls.
 
-					int*			ref_count Retrieves the number of
-											references.
-											This value MUST be zero, if the
-											function should allocate refs.
-											A positive value indicates the
-											number of elements in ref, so the
-											array can be re-used in multiple
-											calls.
-					int				flags	Flags to modify regular expression
-											behavior.
+//flags// are the flags to modify the NFA state machine matching behavior.
 
-	Returns:		int						PREGEX_ACCEPT_NONE, if no match was
-											found, else the number of the
-											bestmost (=longes) match.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the match
+that was found relating to a pattern in //nfa//.
+*/
 int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 		pregex_range** ref, int* ref_count, int flags )
 {
@@ -590,29 +486,16 @@ int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
 	RETURN( last_accept );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_nfa_from_string()
+/** Builds or extends a NFA state machine from a string. The string is simply
+converted into a state machine that exactly matches the desired string.
 
-	Author:			Jan Max Meyer
+//nfa// is the pointer to the NFA state machine to be extended.
+//str// is the sequence of characters to be converted one-to-one into //nfa//.
+//flags// are flags for regular expresson processing.
+//acc// is the acceping identifier that is returned on pattern match.
 
-	Usage:			Builds or extends an NFA from a string. The string is
-					simply converted into a state machine that exactly matches
-					the desired string.
-
-	Parameters:		pregex_nfa*		nfa			Pointer to the NFA state machine
-												to be extended.
-					uchar*			str			The sequence of chatacters to
-												be converted one-to-one into an
-												NFA.
-					int				flags		Flags
-					int				acc			Acceping identifier
-
-	Returns:		int							ERR_OK on success,
-												ERR... error code else
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns ERR_OK on success, ERR... error code else
+*/
 int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 {
 	pregex_nfa_st*	nfa_st;
@@ -713,3 +596,5 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 
 	RETURN( ERR_OK );
 }
+
+/*COD_ON*/
