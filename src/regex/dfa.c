@@ -614,7 +614,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	LIST*			next;
 	LIST*			next_next;
 	int				i;
-	BOOLEAN			changes		= TRUE;
+	pboolean		changes		= TRUE;
 
 	PROC( "pregex_dfa_minimize" );
 	PARMS( "min_dfa", "%p", min_dfa );

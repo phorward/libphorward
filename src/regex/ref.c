@@ -10,18 +10,7 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
 		machines
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
-
-/*
- * Global variables
- */
-
-/*
- * Functions
- */
 
 /*
 	The functions in here are internally handled,
@@ -31,45 +20,30 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
 
 /*NO_DOC*/
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ref_init()
+/** Initializes a reference pointer array, according to the maximum count of
+reference pointers and flags.
 
-	Author:			Jan Max Meyer
+//ref// is the return array of references; If this pointer is not NULL, the
+function will allocate memory for a reference array. This array is only
+allocated if the following dependencies are met:
 
-	Usage:			Initializes a reference pointer array, according to the
-					maximum count of reference pointers and flags.
+# //ref_all// is not zero 
+# //ref_count// is zero
+# //ref// points to a pregex_range*-pointer receiving the address
+#
 
-	Parameters:		pregex_range**	ref		Return array of references; If this
-											pointer is not NULL, the function
-											will allocate memory for a reference
-											array. This array is only
-											allocated if the following dependen
-											cies are met:
+//ref_count// is retrieves the number of references. This value MUST be zero,
+if the function should allocate refs. A positive value indicates the number of
+elements in ref, so the array can be re-used in multiple calls.
 
-											1. ref_all is not zero
-											2. ref_count is zero
-											3. ref points to a pregex_range*
+//ref_all// is the specifies the number of references the entire machine will
+contain (dfa->ref_count or nfa->ref_count).
 
-					int*			ref_count Retrieves the number of
-											references.
-											This value MUST be zero, if the
-											function should allocate refs.
-											A positive value indicates the
-											number of elements in ref, so the
-											array can be re-used in multiple
-											calls.
-					int				ref_all Specifies the number of
-											references the entire machine
-											will contain (dfa->ref_count or
-											nfa->ref_count).
-					int				flags	Flags
+//flags// are flags for reference-related options (currently only the flag
+PREGEX_MOD_NO_REF is tested).
 
-	Returns:		int						ERR_OK on success,
-											ERR... error code else
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns ERR_OK on success, or a standard error define else.
+*/
 int pregex_ref_init( pregex_range** ref, int* ref_count,
 						int ref_all, int flags )
 {
@@ -104,26 +78,14 @@ int pregex_ref_init( pregex_range** ref, int* ref_count,
 	RETURN( ERR_OK );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pregex_ref_update()
+/** Updates a reference according to provided string pointer and offset
+information.
 
-	Author:			Jan Max Meyer
-
-	Usage:			Updates a reference according to provided string pointer
-					and offset information.
-
-	Parameters:		pregex_range*	ref		Pointer to reference (from the
-											array created with above function)
-					uchar*			strp	Current string pointer within the
-											currently parsed string.
-					psize			off		Current offset within the parsed
-											string.
-
-	Returns:		void
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//ref// is the pointer to reference (from the array created with the function
+pregex_ref_init()).
+//strp// is the current string pointer within the currently parsed string.
+//off// is the current offset within the parsed string.
+*/
 void pregex_ref_update( pregex_range* ref, uchar* strp, psize off )
 {
 	PROC( "pregex_ref_update" );

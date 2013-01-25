@@ -1120,6 +1120,12 @@ uchar* pregex_replace( pregex* regex, uchar* str, uchar* replacement )
  */
 
 /* GET ONLY! */
+/** Returns the last pattern match range of the object //regex//.
+
+It contains the range of the substring of the last pattern match.
+
+The range is only filled with a call to pregex_match_next(). If no matching
+has been previously done, the function returns (pregex_range*)NULL. */
 pregex_range* pregex_get_range( pregex* regex )
 {
 	if( !( regex ) )
@@ -1136,6 +1142,14 @@ pregex_range* pregex_get_range( pregex* regex )
 }
 
 /* GET ONLY! */
+/** Returns the last pattern split range of the object //regex//.
+
+It contains the range between the previous and the last pattern match, or the
+range from the begin of the string before the first match or the position from
+the last match to the end of the string, if no more matches where found.
+
+The range is only filled with a call to pregex_match_next(). If no matching
+has been previously done, the function returns (pregex_range*)NULL. */
 pregex_range* pregex_get_split( pregex* regex )
 {
 	if( !( regex ) )
@@ -1152,6 +1166,27 @@ pregex_range* pregex_get_split( pregex* regex )
 }
 
 /* GET ONLY! */
+/** Returns a reference from a match. References are available if the regular
+expression object is configured without PREGEX_MOD_NO_REF. A reference (or
+backreference) is substring from the matched pattern which is created for each
+opening bracket.
+
+//regex// is the pregex-object from which to obtain the match reference.
+//offset// is the offset of the desired reference. If the offset is higher
+than the number of available references, the function returns
+(pregex_range*)NULL.
+
+As an example, a regular expression to find C function names is constructed
+as ``[a-zA-Z_][a-zA-Z0-9_]\(\)``, its single name can be matched as a reference
+by describing the pattern as ``([a-zA-Z_][a-zA-Z0-9_])\(\)``. Each opening
+bracket defines a new reference level. If this pattern is now executed on a 
+string and finds a match, e.g. //atoi()//, the whole string can be obtain by
+the pregex_range-structure returned by pregex_get_range() (which is the string
+"atoi()"), but the function name can be directly accessed by obtaining the first
+reference (//offset// == 0) which contains a range describing only "atoi".
+
+The reference ranges are only available with a preceeding and successfull call
+to pregex_match_next(). */
 pregex_range* pregex_get_ref( pregex* regex, int offset )
 {
 	if( !( regex && offset >= 0 ) )
@@ -1174,6 +1209,7 @@ pregex_range* pregex_get_ref( pregex* regex, int offset )
 }
 
 /* GET ONLY! */
+/** Returns the number of matches found by //regex// so far. */
 int pregex_get_match_count( pregex* regex )
 {
 	if( !( regex ) )
@@ -1185,6 +1221,7 @@ int pregex_get_match_count( pregex* regex )
 	return regex->match_count;
 }
 
+/** Returns the flags configuration of the object //regex//. */
 int pregex_get_flags( pregex* regex )
 {
 	if( !( regex ) )
@@ -1196,7 +1233,36 @@ int pregex_get_flags( pregex* regex )
 	return regex->flags;
 }
 
-BOOLEAN pregex_set_flags( pregex* regex, int flags )
+/** Sets a flag configuration for the object //regex// to //flags//.
+
+Possible flags are:
+
+|| Flag | Meaning |
+| PREGEX_MOD_NONE | No modification (for the sake of completeness) |
+| PREGEX_MOD_WCHAR | Regular expression and/or search string for direct pattern
+executions are handled (=casted) as type pchar (wide character, if UNICODE is
+flagged!) |
+| PREGEX_MOD_INSENSITIVE | Regular expression is parsed case insensitive |
+| PREGEX_MOD_GLOBAL	| The regular expression execution is run globally, not only
+for the first match |
+| PREGEX_MOD_STATIC | The regular expression passed for to the compiler should
+be converted 1:1 as it where a string-constant. Any regex-specific symbol will
+be ignored. |
+| PREGEX_MOD_NO_REF	| Don't create references |
+| PREGEX_MOD_NO_ERRORS | Don't report errors, and try to compile as much as
+possible |
+| PREGEX_MOD_NO_ANCHORS	| Ignore anchor tokens, handle them as normal
+characters |
+| PREGEX_MOD_GREEDY	| Run regular expression in greedy-mode |
+| PREGEX_MOD_NONGREEDY | Run regular expression in nongreedy-mode |
+| PREGEX_MOD_DEBUG	| Debug mode; output some debug to stderr |
+
+All //flags// can be combined with logical or.
+
+If //flags// are fundamentally changed between the compilation and execution
+process of the //pregex// object, it may run into unwanted behaviors, so their
+modification should be handled with care! */
+pboolean pregex_set_flags( pregex* regex, int flags )
 {
 	if( !( regex && flags >= 0 ) )
 	{
@@ -1211,6 +1277,7 @@ BOOLEAN pregex_set_flags( pregex* regex, int flags )
 	return TRUE;
 }
 
+/** Returns a match function that is set for object //regex//. */
 pregex_fn pregex_get_match_fn( pregex* regex )
 {
 	if( !( regex ) )
@@ -1222,7 +1289,12 @@ pregex_fn pregex_get_match_fn( pregex* regex )
 	return regex->match_fn;
 }
 
-BOOLEAN pregex_set_match_fn( pregex* regex, pregex_fn match_fn )
+/** Sets a match function for object //regex//.
+
+A match function is a callback-function that is called for every match. The
+match function can be used to filter-out special match constructors or, in case
+of pregex_replace(), generate a context-dependent replacement string. */
+pboolean pregex_set_match_fn( pregex* regex, pregex_fn match_fn )
 {
 	if( !( regex ) )
 	{

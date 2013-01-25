@@ -149,9 +149,9 @@ pregex_range* pregex_get_split( pregex* regex );
 pregex_range* pregex_get_ref( pregex* regex, int offset );
 int pregex_get_match_count( pregex* regex );
 int pregex_get_flags( pregex* regex );
-BOOLEAN pregex_set_flags( pregex* regex, int flags );
+pboolean pregex_set_flags( pregex* regex, int flags );
 pregex_fn pregex_get_match_fn( pregex* regex );
-BOOLEAN pregex_set_match_fn( pregex* regex, pregex_fn match_fn );
+pboolean pregex_set_match_fn( pregex* regex, pregex_fn match_fn );
 
 /* regex/range.c */
 uchar* pregex_range_to_string( pregex_range* range );

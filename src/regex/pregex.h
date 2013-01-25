@@ -42,12 +42,10 @@ Usage:	Header for the pregex object and functions
 											compile as much as possible */
 #define PREGEX_MOD_NO_ANCHORS	64		/* 	Ignore anchor tokens, handle them
 											as normal characters */
-#define PREGEX_MOD_GREEDY		128		/*	Parse or run regular expression
-											greedy */
-#define PREGEX_MOD_NONGREEDY	256		/*	Parse or run regular expression
-											nongreedy */
-
-#define PREGEX_MOD_DEBUG		1024 	/*	Output some debug to stderr */
+#define PREGEX_MOD_GREEDY		128		/*	Run regular expression greedy */
+#define PREGEX_MOD_NONGREEDY	256		/*	Run regular expression nongreedy */
+#define PREGEX_MOD_DEBUG		1024 	/*	Debug mode; output some debug to
+											stderr */
 
 /* Regular Expression anchors */
 #define PREGEX_ANCHOR_NONE		0	/* No anchor defined */
@@ -82,7 +80,7 @@ typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 struct _regex_accept
 {
 	int				accept;		/* Accepting state ID */
-	BOOLEAN			greedy;		/* Greedyness */
+	pboolean		greedy;		/* Greedyness */
 	int				anchors;	/* State anchors */
 };
 
@@ -130,7 +128,7 @@ struct _regex_dfa_st
 
 	pregex_accept	accept;		/* Match parameters */
 
-	BOOLEAN			done;		/* Done-Flag */
+	pboolean		done;		/* Done-Flag */
 	LIST*			nfa_set;	/* List of closed sets of NFA-states */
 };
 

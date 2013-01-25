@@ -10,18 +10,7 @@ Usage:	Utility and miscelleanous functions for additional usage that
 		belong to the regex library.
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
-
-/*
- * Global variables
- */
-
-/*
- * Functions
- */
 
 /*NO_DOC*/
 
