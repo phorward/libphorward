@@ -485,7 +485,6 @@ struct _crange
 #define PREGEX_MOD_NO_ANCHORS	64		
 #define PREGEX_MOD_GREEDY		128		
 #define PREGEX_MOD_NONGREEDY	256		
-
 #define PREGEX_MOD_DEBUG		1024 	
 
 
@@ -1120,9 +1119,6 @@ int pvasprintf( uchar** str, uchar* fmt, va_list ap );
 uchar* pasprintf( uchar* fmt, ... );
 uchar* psetstr( uchar** str, uchar* val );
 uchar* pgetstr( uchar* str );
-long patol( uchar* str );
-double patof( uchar* str );
-int patoi( uchar* str );
 uchar* pstrrender( uchar* tpl, ... );
 uchar* pstrltrim( uchar* s );
 uchar* pstrrtrim( uchar* s );

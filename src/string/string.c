@@ -472,54 +472,6 @@ uchar* pgetstr( uchar* str )
 	return str;
 }
 
-/*REMOVE!*/
-/** Convert string to long.
-
-The function is a saver replacement for atol() 
-
-//str// is the parameter string to be converted to long.
-
-Returns a long Same as atol, 0L in case of (uchar*)NULL.
-*/
-long patol( uchar* str )
-{
-	if( !str )
-		return 0L;
-
-	return atol( str );
-}
-
-/*REMOVE!*/
-/** Convert string to double.
-
-//str// is the parameter string to be converted to double.
-
-Returns a double same as atol, 0.0 in case of (uchar*)NULL.
-*/
-
-double patof( uchar* str )
-{
-	if( !str )
-		return (double)0.0;
-
-	return atof( str );
-}
-
-/*REMOVE!*/
-/** Convert string to integer.
-
-//str// is the parameter string to be converted to int.
-
-Returns a integer same as atoi, 0 in case of (uchar*)NULL.
-*/
-int patoi( uchar* str )
-{
-	if( !str )
-		return 0;
-
-	return atoi( str );
-}
-
 /** String rendering function.
 
 Inserts multiple values dynamically into the according wildcards positions of

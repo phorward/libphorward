@@ -212,7 +212,7 @@ void _dbg_trace( FILE* f, int indent, char* file, int line, char* proc,
 		&& !pstrstr( modules, basename ) )
 		return;
 
-	if( ( maxdepth = patoi( getenv( "TRACEDEPTH" ) ) ) > 0
+	if( ( maxdepth = atoi( pgetstr( getenv( "TRACEDEPTH" ) ) ) ) > 0
 			&& indent > maxdepth )
 		return;
 	
