@@ -61,7 +61,7 @@ If the last element is popped, (LIST*)NULL is returned.
 LIST* list_pop( LIST* list, void** ptr )
 {
 	LIST*	item;
-	LIST*	prev;
+	LIST*	prev	= (LIST*)NULL;
 	
 	if( !list )
 	{
@@ -166,9 +166,8 @@ callback function that is called for each element.
 */
 void list_print( LIST* list, void (*callback)( void* ) )
 {
-	LIST*	item	= (LIST*)NULL;
+	LIST*	item	= list;
 
-	item = list;
 	while( item )
 	{	
 		callback( list->pptr );
@@ -185,7 +184,7 @@ Returns a pointer to the copy if //src//.
 LIST* list_dup( LIST* src )
 {
 	LIST*	item;
-	LIST*	tar;
+	LIST*	tar		= (LIST*)NULL;
 	
 	for( item = src; item; item = item->next )
 		tar = list_push( tar, item->pptr );
