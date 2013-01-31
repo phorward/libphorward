@@ -35,12 +35,6 @@ int ccl_size( CCL ccl )
 	CCL		i;
 	int		cnt	= 0;
 	
-	if( !ccl )
-	{
-		WRONGPARAM;
-		return 0;
-	}
-
 	for( i = ccl; i && i->begin != CCL_MAX; i++ )
 		cnt++;
 
@@ -58,12 +52,6 @@ int ccl_count( CCL ccl )
 	CCL		i;
 	int		cnt	= 0;
 	
-	if( !ccl )
-	{
-		WRONGPARAM;
-		return 0;
-	}
-
 	for( i = ccl; i && i->begin != CCL_MAX; i++ )
 		cnt += ( i->end - i->begin ) + 1;
 
