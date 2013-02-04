@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "phorward", "src\libphorward.vcproj", "{095FE1D9-AB4E-40FB-BA9D-90D0F9E7216B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "min_lalr1", "min_lalr1\min_lalr1.vcproj", "{B8605A07-5753-4906-816E-9BB39E25B663}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basis_demo", "DEMO\basis_demo.vcproj", "{11915F84-EAC3-4A12-BC7C-10331C74B825}"
 	ProjectSection(ProjectDependencies) = postProject
 		{095FE1D9-AB4E-40FB-BA9D-90D0F9E7216B} = {095FE1D9-AB4E-40FB-BA9D-90D0F9E7216B}
@@ -25,10 +23,6 @@ Global
 		{095FE1D9-AB4E-40FB-BA9D-90D0F9E7216B}.Debug|Win32.Build.0 = Debug|Win32
 		{095FE1D9-AB4E-40FB-BA9D-90D0F9E7216B}.Release|Win32.ActiveCfg = Release|Win32
 		{095FE1D9-AB4E-40FB-BA9D-90D0F9E7216B}.Release|Win32.Build.0 = Release|Win32
-		{B8605A07-5753-4906-816E-9BB39E25B663}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B8605A07-5753-4906-816E-9BB39E25B663}.Debug|Win32.Build.0 = Debug|Win32
-		{B8605A07-5753-4906-816E-9BB39E25B663}.Release|Win32.ActiveCfg = Release|Win32
-		{B8605A07-5753-4906-816E-9BB39E25B663}.Release|Win32.Build.0 = Release|Win32
 		{11915F84-EAC3-4A12-BC7C-10331C74B825}.Debug|Win32.ActiveCfg = Debug|Win32
 		{11915F84-EAC3-4A12-BC7C-10331C74B825}.Debug|Win32.Build.0 = Debug|Win32
 		{11915F84-EAC3-4A12-BC7C-10331C74B825}.Release|Win32.ActiveCfg = Release|Win32

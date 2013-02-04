@@ -202,6 +202,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\base\plist.c"
+				>
+			</File>
+			<File
 				RelativePath="regex\pregex.c"
 				>
 			</File>
@@ -226,10 +230,6 @@
 				>
 			</File>
 			<File
-				RelativePath="string\utf8.c"
-				>
-			</File>
-			<File
 				RelativePath="union\union.c"
 				>
 			</File>
@@ -243,6 +243,10 @@
 			</File>
 			<File
 				RelativePath="union\union.set.c"
+				>
+			</File>
+			<File
+				RelativePath="string\utf8.c"
 				>
 			</File>
 			<File
