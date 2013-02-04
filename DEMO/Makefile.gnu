@@ -1,4 +1,4 @@
-CFLAGS=-DUNICODE -DUTF8
+CFLAGS=-DUNICODE -DUTF8 -I../src
 
 all: basis regex
 
