@@ -9,8 +9,8 @@ pboolean bitset_get( bitset set, int bit );
 bitset bitset_copy( int size, bitset source );
 
 /* base/dbg.c */
-void _dbg_trace( FILE* f, int indent, char* file, int line, char* proc, char* type, char* format, ... );
-void _dbg_time( FILE* f, int indent, char* file, int line, char* proc );
+void _dbg_trace( char* file, int line, char* type, char* format, ... );
+void _dbg_time( char* file, int line );
 
 /* base/hashtab.c */
 pint hashtab_init( HASHTAB* ht, pint size, pint flags );

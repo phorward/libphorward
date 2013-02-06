@@ -1,4 +1,5 @@
-CFLAGS=-DUNICODE -DUTF8 -I../src
+CFLAGS += -DUNICODE -DUTF8 -I../src
+LIBPHORWARD = ../src/libphorward.a
 
 all: basis regex
 
@@ -8,8 +9,8 @@ clean:
 	-rm -f regex
 	-rm -f basis
 
-basis: basis.o
-	$(CC) -o $@ $? ../src/libphorward.a
+basis: basis.o $(LIBPHORWARD)
+	$(CC) -o $@ basis.o $(LIBPHORWARD)
 
 regex: regex.o
-	$(CC) -o $@ $? ../src/libphorward.a
+	$(CC) -o $@ regex.o $(LIBPHORWARD)

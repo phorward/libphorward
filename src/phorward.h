@@ -143,126 +143,63 @@ typedef byte* bitset;
 #define _DBG_H
 
 
-
-
-#ifndef __DBG_LOCAL_COMPILE
-	#ifdef DEBUG
-		extern int _dbg_indent;
-		extern FILE* _dbg_tracefile;
-	#endif
-#endif
-
-
-
-
-
-
-#ifdef DEBUG
-	#define MAIN( tracefile ) \
-		char*	_dbg_proc_name	= "main"; \
-		do { \
-		_dbg_tracefile = fopen( tracefile, "at" ); \
-		_dbg_indent++; \
-		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name, "ENTRY ", "" ); \
-		} \
-		while( 0 )
-#else
-	#define MAIN( tracefile )
-#endif
-
-
-
-
 #ifdef DEBUG
 	#define PROC( name ) \
-		char*	_dbg_proc_name	= name; \
-		do { \
-		_dbg_indent++; \
-		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name, "ENTRY ", "" ); \
-		} \
-		while( 0 )
+		static char*	_dbg_proc_name	= name; \
+		_dbg_trace( __FILE__, __LINE__, "ENTRY", "%s", _dbg_proc_name )
 #else
 	#define PROC( name )
 #endif
 
 
-
 #ifdef DEBUG
 	#define RETURN( val ) \
 		do \
-		{ _dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name, "RETURN", "", val );\
-		_dbg_indent--; \
-		return val; \
+		{ \
+			_dbg_trace( __FILE__, __LINE__, \
+				"RETURN", "%s", _dbg_proc_name ); \
+			return val; \
 		} \
 		while( 0 )
 #else
-	#define RETURN( val ) \
-		return val
+	#define RETURN( val ) return val
 #endif
-
 
 
 #ifdef DEBUG
 	#define VOIDRET \
 		do \
 		{ \
-		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name, "RETURN", "(void)" ); \
-		_dbg_indent--; \
-		return; \
+			_dbg_trace( __FILE__, __LINE__, \
+				"RETURN", "%s", _dbg_proc_name ); \
+			return; \
 		} \
 		while( 0 )
 #else
-	#define VOIDRET \
-		return
+	#define VOIDRET return
 #endif
-
-
-#ifdef DEBUG
-	#define MAINRET( val ) \
-		do \
-		{ \
-		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name, "RETURN", ">%d<", val ); \
-		_dbg_indent--; \
-		fclose( _dbg_tracefile ); \
-		return val; \
-		} \
-		while( 0 )
-#else
-	#define MAINRET( val )\
-		return val
-#endif
-
 
 
 #ifdef DEBUG
 	#define MSG( text ) \
-		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name, "MSG   ", "%s", text )
+		_dbg_trace( __FILE__, __LINE__, "MSG", "%s", text )
 #else
 	#define MSG( text )
 #endif
 
 
-
 #ifdef DEBUG
 	#define VARS( name, format, val ) \
-		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name, "VARS  ", "%s = >" format "<", name, val )
+		_dbg_trace( __FILE__, __LINE__, "VARS", "%s = >" format "<", name, val )
 #else
 	#define VARS( name, format, val )
 #endif
 
 
-
 #ifdef DEBUG
 	#define PARMS( name, format, val ) \
-		_dbg_trace( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name, "PARMS ", "%s = >" format "<", name, val )
+		_dbg_trace( __FILE__, __LINE__, "PARMS", \
+			"%s = >" format "<", name, val )
 #else
 	#define PARMS( name, format, val )
 #endif
@@ -270,8 +207,7 @@ typedef byte* bitset;
 
 #ifdef DEBUG
 	#define TIMEDUMP \
-		_dbg_time( _dbg_tracefile, _dbg_indent, __FILE__, __LINE__, \
-			_dbg_proc_name )
+		_dbg_time( __FILE__, __LINE__ )
 #else
 	#define TIMEDUMP
 #endif
@@ -945,8 +881,8 @@ pboolean bitset_get( bitset set, int bit );
 bitset bitset_copy( int size, bitset source );
 
 
-void _dbg_trace( FILE* f, int indent, char* file, int line, char* proc, char* type, char* format, ... );
-void _dbg_time( FILE* f, int indent, char* file, int line, char* proc );
+void _dbg_trace( char* file, int line, char* type, char* format, ... );
+void _dbg_time( char* file, int line );
 
 
 pint hashtab_init( HASHTAB* ht, pint size, pint flags );

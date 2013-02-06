@@ -9,6 +9,8 @@ Author:	Jan Max Meyer
 Usage:	Macros and functions for trace output.
 ----------------------------------------------------------------------------- */
 
+#include <phorward.h>
+
 /*
 	Trace is activated in any program if the DEBUG-macro is defined.
 	A function which uses trace looks like the following:
@@ -16,183 +18,108 @@ Usage:	Macros and functions for trace output.
 	int func( int a, uchar* b )
 	{
 		int i;
-		
+
 		PROC( "func" );
 		PARMS( "a", "%d", a );
 		PARMS( "b", "%s", b );
-		
+
 		MSG( "Performing loop..." );
 		for( i = 0; i < a; i++ )
 		{
 			VARS( "i", "%d", i );
 			( do an "i" thing ;)
 		}
-		
+
 		MSG( "Ok, everything is fine! :)" );
 		RETURN( i );
 	}
 */
 
-/* ---------------- */
-/* --- Includes --- */
-/* ---------------- */
-#include <phorward.h>
+/** Write function entry to trace.
 
-/* ------------------------ */
-/* --- Global variables --- */
-/* ------------------------ */
+The PROC-macro introduces a new function level, if compiled with trace.
+The PROC-macro must be put behind the last local variable declaration and the
+first code line, else it won't compile. A PROC-macro must exists within a
+function to allow for other trace-macro usages. If PROC() is used within a
+function, the macros RETURN() or VOIDRET, according to the function return
+value, must be used. If PROC is used without RETURN, the trace output will
+output a wrong call level depth.
 
-int 		_dbg_indent;
-FILE* 		_dbg_tracefile;
+The parameter //func_name// is a static string for the function name.
+*/
+/*MACRO:PROC( char* func_name )*/
 
-/* ---------------------- */
-/* --- Implementation --- */
-/* ---------------------- */
+/** Write function return to trace.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		PROC()
+RETURN() can only be used if PROC() is used at the beginning of the function.
+For void-functions, use the macro VOIDRET.
 
-	Author:			Jan Max Meyer
-	
-	Usage:			Trace macro for function level indication.
-					The PROC-macro introduces a new function level, if compiled
-					with trace. The PROC-macro must be put behind the last local
-					variable declaration and the first code line, else it won't
-					compile.
-					A PROC-macro must exists within a function to allow for
-					other trace-macro usages.
-					If PROC() is used within a function, the macros RETURN() 
-					or VOIDRET, according to the function return value, must
-					be used. If PROC is used without RETURN, the trace output
-					will output a wrong call level depth.
+//return_value// is return-value of the function.
+*/
+/*MACRO:RETURN( function_type return_value )*/
 
-	Parameters:		uchar*	func_name		Name of the function 
+/** Write void function return to trace.
 
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+VOIDRET can only be used if PROC() is used at the beginning of the function.
+For typed functions, use the macro RETURN().
+*/
+/*MACRO:VOIDRET*/
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		RETURN()
+/** Write parameter content to trace.
 
-	Author:			Jan Max Meyer
-	
-	Usage:			Trace macro to replace a return-statement.
-					RETURN() can only be used if PROC() is used at the beginning
-					of the function. For void-functions, use VOIDRET.
+The PARMS-macro is used to write parameter names and values to the program
+trace. PARMS() should - by definition - only be used right behind PROC().
+If the logging of variable values is wanted during a function exection to
+trace, the VARS()-macro shall be used.
 
-	Parameters:		any		return_value	The return-value of the function.
+//param_name// is the name of the parameter
+//format// is a printf-styled format placeholder.
+//parameter// is the parameter itself.
+*/
+/*MACRO:PARMS( char* param_name, char* format, param_type parameter )*/
 
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Write variable content to trace.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		VOIDRET
+The VARS-macro is used to write variable names and values to the program trace.
+For parameters taken to functions, the PARMS()-macro shall be used.
 
-	Author:			Jan Max Meyer
-	
-	Usage:			Trace macro to replace a return-statement for
-					void-functions.
-					VOIDRET() can only be used if PROC() is used at the
-					beginning of the function. For typed functions,
-					use RETURN().
+//var_name// is the name of the variable
+//format// is a printf-styled format placeholder.
+//variable// is the the parameter itself.
+*/
+/*MACRO:VARS( char* var_name, char* format, var_type variable )*/
 
-	Parameters:		
+/** Write a message to trace.
 
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//param_name// is the Name of the parameter
+//format// is the A printf-styled format string.
+//parameter// is the The parameter itself.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		PARMS()
-
-	Author:			Jan Max Meyer
-	
-	Usage:			Trace macro to output function parameter values.
-					The PARMS-macro is used to write parameter names and values
-					to the program trace. PARMS() should only be used right
-					behind PROC().
-
-	Parameters:		uchar*	param_name		Name of the parameter
-					uchar*	format			A printf-styled format string.
-					any		parameter		The parameter itself.
-
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		VARS()
-
-	Author:			Jan Max Meyer
-	
-	Usage:			Trace macro to output variables.
-					The VARS-macro is used to write variable names and values
-					to the program trace.
-
-	Parameters:		uchar*	param_name		Name of the parameter
-					uchar*	format			A printf-styled format string.
-					any		parameter		The parameter itself.
-
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		MSG()
-
-	Author:			Jan Max Meyer
-	
-	Usage:			Write program messages to trace.
-
-	Parameters:		uchar*	param_name		Name of the parameter
-					uchar*	format			A printf-styled format string.
-					any		parameter		The parameter itself.
-
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a void Nothing
+*/
 
 /*NO_DOC*/
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		_dbg_trace()
 
-	Author:			Jan Max Meyer
-	
-	Usage:			Output debug information to a stream.
+static int _dbg_level;
 
-	Parameters:		FILE*	f				File handle where the debug
-											should be written to. If
-											(FILE*)NULL, debug is written to
-											stderr.
-					int		indent			Number of indents to be printed.
-					char*	file			Filename (__FILE__)
-					int		line			Line number in file (__LINE__)
-					char*	proc			Procedure name
-					char*	type			Type of trace
-					char*	format			printf()-like format string
-					...						Format values
+/** Print //indent// levels to //f//. */
+static void _dbg_indent( void )
+{
+	int		i;
 
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-void _dbg_trace( FILE* f, int indent, char* file, int line, char* proc, 
-			char* type, char* format, ... )
+	for( i = 0; i < _dbg_level; i++ )
+		fprintf( stderr, "." );
+}
+
+/** Output trace message to the error log.
+
+//file// is the filename (__FILE__).
+//line// is the line number in file (__LINE__).
+//type// is the type of the trace message ("PROC", "RETURN", "VARS" ...).
+//format// is a printf()-like format string.
+//...// values according to the format string follow.
+*/
+void _dbg_trace( char* file, int line, char* type, char* format, ... )
 {
 	char*		modules;
 	char*		basename;
@@ -208,64 +135,55 @@ void _dbg_trace( FILE* f, int indent, char* file, int line, char* proc,
 	else
 		basename++;
 
-	if( pstrcmp( modules, "*" ) != 0 
+	if( pstrcmp( modules, "*" ) != 0
 		&& !pstrstr( modules, basename ) )
 		return;
 
 	if( ( maxdepth = atoi( pgetstr( getenv( "TRACEDEPTH" ) ) ) ) > 0
-			&& indent > maxdepth )
+			&& _dbg_level > maxdepth )
 		return;
-	
-	va_start( arg, format );
-	
-	if( f == (FILE*)NULL )
-		f = stderr;
 
-	fprintf( f, "%d (%s[% 4d]) ", getpid(), file, line );
-
-	while( indent > 0 )
+	if( strcmp( type, "ENTRY" ) == 0 )
 	{
-		fprintf( f, "." );
-		indent--;
+		fprintf( stderr, "%d (%s[% 4d]) ", getpid(), file, line );
+		_dbg_indent();
+		fprintf( stderr, "{\n" );
+
+		_dbg_level++;
 	}
 
-	fprintf( f, "%s() %s", proc, type );
-	
-	if( *format != '\0' )
+	fprintf( stderr, "%d (%s[% 4d]) ", getpid(), file, line );
+	_dbg_indent();
+	fprintf( stderr, "%-6s", type );
+
+	if( format && *format )
 	{
-		fprintf( f, ": " );
-		vfprintf( f, format, arg );
+		va_start( arg, format );
+		fprintf( stderr, ": " );
+		vfprintf( stderr, format, arg );
+		va_end( arg );
 	}
-	
-	fprintf( f, "\n" );
 
-	fflush( f );
-	
-	va_end( arg );
-} /* _dbg_trace() */
+	fprintf( stderr, "\n" );
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		_dbg_time()
+	if( strcmp( type, "RETURN" ) == 0 )
+	{
+		_dbg_level--;
 
-	Author:			Jan Max Meyer
-	
-	Usage:			Output debug information to a stream.
+		fprintf( stderr, "%d (%s[% 4d]) ", getpid(), file, line );
+		_dbg_indent();
+		fprintf( stderr, "}\n" );
+	}
 
-	Parameters:		FILE*	f				File handle where the debug
-											should be written to. If
-											(FILE*)NULL, debug is written to
-											stderr.
-					int		indent			Number of indents to be printed.
-					char*	file			Filename (__FILE__)
-					int		line			Line number in file (__LINE__)
-					char*	proc			Procedure name
+	fflush( stderr );
+}
 
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-void _dbg_time( FILE* f, int indent, char* file, int line, char* proc )
+/** Output current time to trace output.
+
+//file// is the filename (__FILE__).
+//line// is the line number in file (__LINE__).
+*/
+void _dbg_time( char* file, int line )
 {
 #ifdef _WIN32
 	__time64_t		now;
@@ -273,18 +191,10 @@ void _dbg_time( FILE* f, int indent, char* file, int line, char* proc )
 #else
 	struct timespec	now;
 #endif
-	
-	if( f == (FILE*)NULL )
-		f = stderr;
 
-	fprintf( f, "%d (%s[% 4d]) ", getpid(), file, line );
+	fprintf( stderr, "%d (%s[% 4d]) ", getpid(), file, line );
 
-	while( indent > 0 )
-	{
-		fprintf( f, "." );
-		indent--;
-	}
-
+	_dbg_indent();
 
 #ifdef _WIN32
 	if( !tz_isset )
@@ -295,18 +205,15 @@ void _dbg_time( FILE* f, int indent, char* file, int line, char* proc )
 
 	_time64( &now );
 
-	fprintf( f, "%s() TIMEDUMP %s\n", proc, _ctime64( &now ) );
+	fprintf( stderr, "TIMEDUMP %s\n", _ctime64( &now ) );
 #else
 	clock_gettime( CLOCK_REALTIME, &now );
 
-	fprintf( f, "%s() TIMEDUMP %ld s %ld ns\n", proc, 
-				now.tv_sec, now.tv_nsec );
+	fprintf( stderr, "TIMEDUMP %ld s %ld ns\n", now.tv_sec, now.tv_nsec );
 #endif
 
-	
-	fflush( f );
-	
-} /* _dbg_time() */
+	fflush( stderr );
+}
 
 /*COD_ON*/
 
