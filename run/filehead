@@ -1,6 +1,7 @@
 #!/bin/sh
 
 file="$1"
+desc="$2"
 
 if [ -z "$file" ]
 then
@@ -38,7 +39,7 @@ case "$ext" in
 			what="MAKEFILE"
 			source="sh"
 		else
-			what="FILE---"
+			what="FILE----"
 		fi
 		break
 		;;
@@ -53,7 +54,7 @@ then
 	echo "All rights reserved. See \LICENSE for more information."
 	echo ""
 	echo "File:	$file"
-	echo "Usage:	"
+	echo "Usage:	$desc"
 	echo "----------------------------------------------------------------------------- */"
 	echo ""
 elif [ "$source" = "sh" ]
@@ -70,7 +71,7 @@ then
 	echo "# All rights reserved. See \LICENSE for more information."
 	echo "#"
 	echo "# File:	$file"
-	echo "# Usage:	"
+	echo "# Usage:	$desc"
 	echo "# ------------------------------------------------------------------------------"
 	echo ""
 fi

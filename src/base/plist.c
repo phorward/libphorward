@@ -205,7 +205,7 @@ pboolean plist_erase( plist* list )
 	MSG( "Resetting list-object pointers" );
 	list->first = (plistelem*)NULL;
 	list->last = (plistelem*)NULL;
-	list->hash = (plistelem*)NULL;
+	list->hash = (plistelem**)NULL;
 	list->unused = (plistelem*)NULL;
 	list->count = 0;
 	
@@ -407,7 +407,7 @@ pbyte* plist_access( plistelem* e )
 	if( !( e ) )
 		return (pbyte*)NULL;
 	
-	return e + 1;
+	return (pbyte*)( e + 1 );
 }
 
 /** Access next element of current element //e//. */
