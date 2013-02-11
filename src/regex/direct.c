@@ -31,7 +31,6 @@ int pregex_qmatch( uchar* regex, uchar* str,
 {
 	int				matches		= 0;
 	pregex*			re;
-	pregex_range*	range;
 
 	PROC( "pregex_qmatch" );
 	PARMS( "regex", "%s", pgetstr( regex ) );
@@ -80,7 +79,6 @@ int pregex_qsplit( uchar* regex, uchar* str,
 {
 	int				matches	= 0;
 	pregex*			re;
-	pregex_range*	range;
 
 	PROC( "pregex_qsplit" );
 	PARMS( "regex", "%s", pgetstr( regex ) );
@@ -126,7 +124,6 @@ caller using pfree().
 uchar* pregex_qreplace( uchar* regex, uchar* str, uchar* replace, int flags )
 {
 	uchar*			ret;
-	int				matches		= 0;
 	pregex*			re;
 
 	PROC( "pregex_qreplace" );

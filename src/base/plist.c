@@ -392,11 +392,16 @@ plistelem* plist_get_by_key( plist* list, uchar* key )
 		return (plistelem*)NULL;
 	}
 
+	if( !list->hash )
+		return (plistelem*)NULL;
+
 	idx = plist_hash_index( list, key );
 
 	for( e = list->hash[ idx ]; e; e = e->hashnext )
+	{
 		if( plist_hash_compare( list, e->key, key ) == 0 )
 			return e;
+	}
 
 	return e;
 }

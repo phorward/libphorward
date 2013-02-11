@@ -1,4 +1,4 @@
-CFLAGS += -DDEBUG -DUNICODE -DUTF8 -I../src
+CFLAGS += -g -DDEBUG -DUNICODE -DUTF8 -I../src
 LIBPHORWARD = ../src/libphorward.a
 
 all: basis regex

@@ -712,6 +712,9 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 						*/
 						n_start->next2 = n_end;
 						break;
+
+					default:
+						break;
 				}
 				break;
 			}
