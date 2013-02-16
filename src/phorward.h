@@ -917,7 +917,9 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 
 
 pboolean plist_init( plist* list, psize size, pbyte flags );
+plist* plist_create( psize size, pbyte flags );
 pboolean plist_erase( plist* list );
+plist* plist_free( plist* list );
 plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* src );
 plistelem* plist_remove( plist* list, plistelem* e );
 plistelem* plist_get( plist* list, int n );

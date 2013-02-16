@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -143,7 +143,7 @@ pregex_dfa* pregex_dfa_free( pregex_dfa* dfa )
 
 	PROC( "pregex_dfa_free" );
 	PARMS( "dfa", "%p", dfa );
-	
+
 	if( !( dfa ) )
 		RETURN( (pregex_dfa*)NULL );
 
@@ -281,7 +281,7 @@ function. The pointer is set to zero before it is used.
 //nfa// is the pointer to the NFA-Machine where the DFA-machine should be
 constructed from.
 
-Returns the number of DFA states that where constructed. 
+Returns the number of DFA states that where constructed.
 In case of an error, an adequate ERR_-define will be returned.
 */
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )

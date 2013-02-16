@@ -72,7 +72,7 @@ static pboolean plist_hash_insert( plist* list, plistelem* e )
 
 	if( !list->hash && !plist_hash_rebuild( list ) )
 		return FALSE;
-	
+
 	e->hashnext = (plistelem*)NULL;
 	e->hashprev = (plistelem*)NULL;
 
@@ -120,7 +120,7 @@ static pboolean plist_hash_rebuild( plist* list )
 		WRONGPARAM;
 		return FALSE;
 	}
-	
+
 	if( list->hash )
 		list->hash = pfree( list->hash );
 
@@ -139,17 +139,17 @@ static pboolean plist_hash_rebuild( plist* list )
 static pboolean plistelem_drop( plistelem* e )
 {
 	PROC( "plistelem_drop" );
-	
+
 	if( !( e ) )
 	{
 		WRONGPARAM;
 		RETURN( FALSE );
 	}
-	
+
 	/* TODO: Call element destructor? */
 	if( !( e->list->flags & PLIST_MOD_EXTKEYS ) )
 		e->key = pfree( e->key );
-		
+
 	RETURN( TRUE );
 }
 
@@ -172,6 +172,27 @@ pboolean plist_init( plist* list, psize size, pbyte flags )
 	return TRUE;
 }
 
+/** Create a new plist as an object with an element allocation size //size//.
+//flags// defines an optional flag configuration that modifies the behavior
+of the linked list and hash table usage.
+
+Use plist_free() to erase and release the returned list object. */
+plist* plist_create( psize size, pbyte flags )
+{
+	plist*	list;
+
+	if( !( size >= 0 ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	list = (plist*)pmalloc( sizeof( plist ) );
+	plist_init( list, size, flags );
+
+	return list;
+}
+
 /** Erase all allocated content of the list //list//. */
 pboolean plist_erase( plist* list )
 {
@@ -179,37 +200,51 @@ pboolean plist_erase( plist* list )
 	plistelem*	next;
 
 	PROC( "plist_erase" );
-	
+
 	if( !( list ) )
 	{
 		WRONGPARAM;
 		RETURN( FALSE );
 	}
-	
+
 	MSG( "Freeing current list contents" );
 	for( e = list->first; e; e = next )
 	{
 		next = e->next;
 
 		plistelem_drop( e );
-		pfree( e );		
+		pfree( e );
 	}
-	
+
 	MSG( "Freeing list of unused nodes" );
 	for( e = list->unused; e; e = next )
 	{
 		next = e->next;
 		pfree( e );
 	}
-	
+
 	MSG( "Resetting list-object pointers" );
 	list->first = (plistelem*)NULL;
 	list->last = (plistelem*)NULL;
 	list->hash = (plistelem**)NULL;
 	list->unused = (plistelem*)NULL;
 	list->count = 0;
-	
+
 	RETURN( TRUE );
+}
+
+/** Releases all the memory //list// uses and destroys the list object.
+
+The function always returns (plist*)NULL. */
+plist* plist_free( plist* list )
+{
+	if( !( list ) )
+		return (plist*)NULL;
+
+	plist_erase( list );
+	pfree( list );
+
+	return (plist*)NULL;
 }
 
 /** Insert //data// as element to the list //list// at positon //pos//.
@@ -279,10 +314,10 @@ plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* src )
 	}
 	else
 		list->first = e;
-		
+
 	if( !e->next )
 		list->last = e;
-		
+
 	if( key )
 	{
 		MSG( "Key provided, will insert into hash table" );
@@ -330,7 +365,7 @@ plistelem* plist_remove( plist* list, plistelem* e )
 		e->hashprev->hashnext = e->hashnext;
 	else
 		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
-		
+
 	/* Drop element contents */
 	plistelem_drop( e );
 
@@ -342,7 +377,7 @@ plistelem* plist_remove( plist* list, plistelem* e )
 
 		e->next = list->unused;
 		list->unused = e;
-		
+
 		MSG( "Element is now discarded, for later usage" );
 	}
 	else
@@ -411,7 +446,7 @@ pbyte* plist_access( plistelem* e )
 {
 	if( !( e ) )
 		return (pbyte*)NULL;
-	
+
 	return (pbyte*)( e + 1 );
 }
 
@@ -420,7 +455,7 @@ plistelem* plist_next( plistelem* e )
 {
 	if( !( e ) )
 		return (plistelem*)NULL;
-		
+
 	return e->next;
 }
 
@@ -429,7 +464,7 @@ plistelem* plist_prev( plistelem* e )
 {
 	if( !( e ) )
 		return (plistelem*)NULL;
-		
+
 	return e->prev;
 }
 
@@ -438,7 +473,7 @@ plistelem* plist_first( plist* l )
 {
 	if( !( l ) )
 		return (plistelem*)NULL;
-		
+
 	return l->first;
 }
 
@@ -447,7 +482,7 @@ plistelem* plist_last( plist* l )
 {
 	if( !( l ) )
 		return (plistelem*)NULL;
-		
+
 	return l->last;
 }
 
@@ -456,7 +491,7 @@ int plist_size( plist* l )
 {
 	if( !( l ) )
 		return 0;
-		
+
 	return l->size;
 }
 
@@ -465,6 +500,6 @@ int plist_count( plist* l )
 {
 	if( !( l ) )
 		return 0;
-		
+
 	return l->count;
 }

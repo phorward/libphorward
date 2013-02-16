@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -27,7 +27,7 @@ reference pointers and flags.
 function will allocate memory for a reference array. This array is only
 allocated if the following dependencies are met:
 
-# //ref_all// is not zero 
+# //ref_all// is not zero
 # //ref_count// is zero
 # //ref// points to a pregex_range*-pointer receiving the address
 #

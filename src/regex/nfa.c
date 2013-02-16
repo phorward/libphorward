@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -149,7 +149,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 
 /** Resets a NFA-state machine structure.
 
-//nfa// is the pointer to the NFA state machine structure. All allocated 
+//nfa// is the pointer to the NFA state machine structure. All allocated
 elements of this structure will be released, and the structure is reset.
 */
 void pregex_nfa_free( pregex_nfa* nfa )

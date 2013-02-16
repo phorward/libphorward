@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -13,7 +13,7 @@ Usage:	The pregex object functions.
 
 #define IS_EXECUTABLE( stat )	( (stat) == PREGEX_STAT_NFA || \
 									(stat) == PREGEX_STAT_DFA )
-									
+
 /** Constructor function to create a new pregex object.
 
 Returns an initialized instance of a new pregex-object.
@@ -1179,7 +1179,7 @@ than the number of available references, the function returns
 As an example, a regular expression to find C function names is constructed
 as ``[a-zA-Z_][a-zA-Z0-9_]\(\)``, its single name can be matched as a reference
 by describing the pattern as ``([a-zA-Z_][a-zA-Z0-9_])\(\)``. Each opening
-bracket defines a new reference level. If this pattern is now executed on a 
+bracket defines a new reference level. If this pattern is now executed on a
 string and finds a match, e.g. //atoi()//, the whole string can be obtain by
 the pregex_range-structure returned by pregex_get_range() (which is the string
 "atoi()"), but the function name can be directly accessed by obtaining the first

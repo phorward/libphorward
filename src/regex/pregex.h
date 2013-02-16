@@ -1,10 +1,10 @@
 /* -HEADER----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2009-2012 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2009-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	regex.h
+File:	pregex.h
 Author:	Jan Max Meyer
 Usage:	Header for the pregex object and functions
 ----------------------------------------------------------------------------- */
