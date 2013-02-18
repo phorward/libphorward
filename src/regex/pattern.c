@@ -11,9 +11,6 @@ Usage:	Regular expression pattern construction and conversion functions
 
 #include <phorward.h>
 
-#define INC( i )			(i)++
-#define VALID_CHAR( ch )	( !pstrchr( "|()[]*+?", (ch) ) )
-
 /* Local prototypes */
 static int parse_char( pregex_ptn** ptn, uchar** pstr,
 							pregex_accept* accept, int flags );
@@ -408,7 +405,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 static void pregex_char_to_REGEX( uchar* str, int size,
 				pchar ch, pboolean escape, pboolean in_range )
 {
-	if( ( !in_range && ( !VALID_CHAR( ch ) || ch == '.' ) ) ||
+	if( ( !in_range && ( pstrchr( "|()[]*+?", ch ) || ch == '.' ) ) ||
 			( in_range && ch == ']' ) )
 		psprintf( str, "\\%c", (uchar)ch );
 	else if( escape )
@@ -939,7 +936,7 @@ static int parse_char( pregex_ptn** ptn, uchar** pstr,
 	switch( **pstr )
 	{
 		case '(':
-			INC( *pstr );
+			(*pstr)++;
 
 			if( ( ret = parse_alter( &alter, pstr, accept, flags ) )
 					!= ERR_OK )
@@ -951,7 +948,7 @@ static int parse_char( pregex_ptn** ptn, uchar** pstr,
 			if( **pstr != ')' && !( flags & PREGEX_MOD_NO_ERRORS ) )
 				return 1;
 
-			INC( *pstr );
+			(*pstr)++;
 			break;
 
 		case '.':
@@ -968,7 +965,7 @@ static int parse_char( pregex_ptn** ptn, uchar** pstr,
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 				return ERR_MEM;
 
-			INC( *pstr );
+			(*pstr)++;
 			break;
 
 		case '[':
@@ -1046,7 +1043,7 @@ static int parse_factor( pregex_ptn** ptn, uchar** pstr,
 			if( ! *ptn )
 				return ERR_MEM;
 
-			INC( *pstr );
+			(*pstr)++;
 			break;
 
 		default:
@@ -1093,7 +1090,7 @@ static int parse_alter( pregex_ptn** ptn, uchar** pstr,
 
 	while( **pstr == '|' )
 	{
-		INC( *pstr );
+		(*pstr)++;
 
 		if( ( ret = parse_sequence( &seq, pstr, accept, flags ) ) != ERR_OK )
 			return ret;

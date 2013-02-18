@@ -263,11 +263,11 @@ typedef struct llist
 #define PLIST_MOD_WCHAR		8
 
 
-typedef struct Pelem		plistelem;
+typedef struct Pelem		punit;
 typedef struct Plist		plist;
 
-typedef	pboolean			(*plistelem_fn)( pbyte* e );
-#define PELEM_FN_NULL		( (plistelem_fn)NULL )
+typedef	pboolean			(*punit_fn)( pbyte* e );
+#define PELEM_FN_NULL		( (punit_fn)NULL )
 
 
 struct Pelem
@@ -276,11 +276,11 @@ struct Pelem
 
 	plist*					list;
 
-	plistelem*				prev;
-	plistelem*				next;
+	punit*					prev;
+	punit*					next;
 
-	plistelem*				hashnext;
-	plistelem*				hashprev;
+	punit*					hashnext;
+	punit*					hashprev;
 };
 
 
@@ -290,14 +290,14 @@ struct Plist
 	int						size;
 	int						count;
 	int						hashsize;
-	
-	plistelem_fn			destruct_fn;
 
-	plistelem*				unused;
+	punit_fn				destruct_fn;
 
-	plistelem*				first;
-	plistelem*				last;
-	plistelem**				hash;
+	punit*					unused;
+
+	punit*					first;
+	punit*					last;
+	punit**					hash;
 };
 
 #endif 
@@ -920,15 +920,15 @@ pboolean plist_init( plist* list, psize size, pbyte flags );
 plist* plist_create( psize size, pbyte flags );
 pboolean plist_erase( plist* list );
 plist* plist_free( plist* list );
-plistelem* plist_insert( plist* list, plistelem* pos, uchar* key, pbyte* src );
-plistelem* plist_remove( plist* list, plistelem* e );
-plistelem* plist_get( plist* list, int n );
-plistelem* plist_get_by_key( plist* list, uchar* key );
-pbyte* plist_access( plistelem* e );
-plistelem* plist_next( plistelem* e );
-plistelem* plist_prev( plistelem* e );
-plistelem* plist_first( plist* l );
-plistelem* plist_last( plist* l );
+punit* plist_insert( plist* list, punit* pos, uchar* key, pbyte* src );
+punit* plist_remove( plist* list, punit* e );
+punit* plist_get( plist* list, int n );
+punit* plist_get_by_key( plist* list, uchar* key );
+pbyte* plist_access( punit* e );
+punit* plist_next( punit* e );
+punit* plist_prev( punit* e );
+punit* plist_first( plist* l );
+punit* plist_last( plist* l );
 int plist_size( plist* l );
 int plist_count( plist* l );
 

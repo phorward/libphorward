@@ -19,11 +19,11 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 #define PLIST_MOD_WCHAR		8
 
 /* Typedefs */
-typedef struct Pelem		plistelem;
+typedef struct Pelem		punit;
 typedef struct Plist		plist;
 
-typedef	pboolean			(*plistelem_fn)( pbyte* e );
-#define PELEM_FN_NULL		( (plistelem_fn)NULL )
+typedef	pboolean			(*punit_fn)( pbyte* e );
+#define PELEM_FN_NULL		( (punit_fn)NULL )
 
 /* Element */
 struct Pelem
@@ -32,11 +32,11 @@ struct Pelem
 
 	plist*					list;
 
-	plistelem*				prev;
-	plistelem*				next;
+	punit*					prev;
+	punit*					next;
 
-	plistelem*				hashnext;
-	plistelem*				hashprev;
+	punit*					hashnext;
+	punit*					hashprev;
 };
 
 /* Container */
@@ -46,14 +46,14 @@ struct Plist
 	int						size;
 	int						count;
 	int						hashsize;
-	
-	plistelem_fn			destruct_fn;
 
-	plistelem*				unused;
+	punit_fn				destruct_fn;
 
-	plistelem*				first;
-	plistelem*				last;
-	plistelem**				hash;
+	punit*					unused;
+
+	punit*					first;
+	punit*					last;
+	punit**					hash;
 };
 
 #endif /* PLIST_H */

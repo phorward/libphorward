@@ -196,7 +196,7 @@ static void plist_demo_print( plist* list )
 {
 	struct
 	person*		pp;
-	plistelem*	e;
+	punit*	e;
 	
 	printf( "\n" );
 	for( e = plist_first( list ); e; e = plist_next( e ) )
@@ -211,7 +211,7 @@ static void plist_demo_print_by_key( plist* list, uchar* key )
 {
 	struct
 	person*		pp;
-	plistelem*	e;
+	punit*	e;
 
 	if( !( e = plist_get_by_key( list, key ) ) )
 	{
@@ -226,9 +226,9 @@ static void plist_demo_print_by_key( plist* list, uchar* key )
 void plist_demo( void )
 {
 	struct
-	person		p;
-	plist		my;
-	plistelem*	e;
+	person	p;
+	plist	my;
+	punit*	e;
 
 	printf( "\n*** plist_demo ***\n" );
 
