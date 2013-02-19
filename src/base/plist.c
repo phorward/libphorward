@@ -247,7 +247,7 @@ plist* plist_free( plist* list )
 	return (plist*)NULL;
 }
 
-/** Insert //data// as element to the list //list// at positon //pos//.
+/** Insert //src// as element to the list //list// at positon //pos//.
 
 If //pos// is NULL, the new element will be attached to the end of the
 list. If //key// is not NULL, the element will be additionally engaged
@@ -339,8 +339,26 @@ punit* plist_insert( plist* list, punit* pos, uchar* key, void* src )
 	RETURN( e );
 }
 
+/** Push //src// to //list//.
+
+Like //list// would be a stack, //src// is pushed at the end of the list.
+This function can only be used for simple linked lists without the hash-table
+feature in use. */
+punit* plist_push( plist* list, void* src )
+{
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		return (punit*)NULL;
+	}
+
+	return plist_insert( list, (punit*)NULL, (uchar*)NULL, src );
+}
+
 /** Removes the element //e// from the the //list// and free it or puts
- it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
+ it into the unused element chain if PLIST_MOD_RECYCLE is flagged.
+
+Will always return (punit*)NULL. */
 punit* plist_remove( plist* list, punit* e )
 {
 	PROC( "plist_remove" );
@@ -384,11 +402,33 @@ punit* plist_remove( plist* list, punit* e )
 	{
 		MSG( "Freeing current element" );
 		pfree( e );
-		MSG( "Element has gone" );
+		MSG( "Element gone" );
 	}
 
 	list->count--;
 	RETURN( (punit*)NULL );
+}
+
+/** Pop last element to //dest// off the list //list//.
+
+Like //list// would be a stack, the last element of the list is poppend and
+its content is written to //dest//, if provided at the end of the list. */
+pboolean plist_pop( plist* list, void* dest )
+{
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !list->last )
+		return FALSE;
+
+	if( dest )
+		memcpy( dest, plist_access( list->last ), list->size );
+
+	plist_remove( list, list->last );
+	return TRUE;
 }
 
 /** Retrieve list element by its index from the begin.
@@ -450,7 +490,7 @@ punit* plist_get_by_ptr( plist* list, void* ptr )
 {
 	punit*	e;
 
-	if( !( list && n >= 0 ) )
+	if( !( list && ptr ) )
 	{
 		WRONGPARAM;
 		return (punit*)NULL;
@@ -459,7 +499,7 @@ punit* plist_get_by_ptr( plist* list, void* ptr )
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		if( plist_access( e ) == ptr )
 			return e;
-			
+
 	return (punit*)NULL;
 }
 
