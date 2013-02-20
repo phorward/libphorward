@@ -56,8 +56,9 @@ punit* plist_get( plist* list, int n );
 punit* plist_get_by_key( plist* list, uchar* key );
 punit* plist_get_by_ptr( plist* list, void* ptr );
 void* plist_access( punit* e );
-punit* plist_next( punit* e );
-punit* plist_prev( punit* e );
+punit* plist_next( punit* u );
+punit* plist_prev( punit* u );
+int plist_offset( punit* u );
 punit* plist_first( plist* l );
 punit* plist_last( plist* l );
 int plist_size( plist* l );
@@ -320,4 +321,41 @@ XML_T xml_set_flag( XML_T xml, short flag );
 int xml_count( XML_T xml );
 int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
+
+/* parser/error.c */
+
+/* parser/grammar.c */
+pggrammar* pg_grammar_create( void );
+pggrammar* pg_grammar_free( pggrammar* g );
+void pg_grammar_print( pggrammar* g );
+
+/* parser/nonterm.c */
+pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name );
+pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal );
+
+/* parser/production.c */
+pgproduction* pg_production_create( pgnonterminal* lhs, ... );
+pgproduction* pg_production_drop( pgproduction* p );
+uchar* pg_production_to_string( pgproduction* p );
+pboolean pg_production_append( pgproduction* p, pgsymbol* sym );
+pgproduction* pg_production_get( pggrammar* grammar, int i );
+pgproduction* pg_production_get_by_lhs( pgnonterminal* lhs, int i );
+int pg_production_get_id( pgproduction* p );
+pggrammar* pg_production_get_grammar( pgproduction* p );
+pgnonterminal* pg_production_get_lhs( pgproduction* p );
+
+/* parser/symbol.c */
+pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, uchar* name );
+pgsymbol* pg_symbol_free( pgsymbol* symbol );
+BOOLEAN pg_symbol_is_terminal( pgsymbol* symbol );
+BOOLEAN pg_symbol_is_nonterminal( pgsymbol* symbol );
+pgsymtype pg_symbol_get_type( pgsymbol* symbol );
+pggrammar* pg_symbol_get_grammar( pgsymbol* symbol );
+
+/* parser/terminal.c */
+pgterminal* pg_terminal_create( pggrammar* grammar, char* name, char* pattern );
+pgterminal* pg_terminal_drop( pgterminal* terminal );
+BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, uchar* pattern );
+BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
+pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
