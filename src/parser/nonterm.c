@@ -25,6 +25,9 @@ pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name )
 	if( !( sym = pg_symbol_create( grammar, PGSYMTYPE_NONTERMINAL, name ) ) )
 		return (pgterminal*)NULL;
 
+	if( !( grammar->goal ) )
+		grammar->goal = sym;
+
 	return sym;
 }
 
@@ -46,4 +49,31 @@ pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal )
 								nonterminal->productions ) );
 
 	return pg_symbol_free( nonterminal );
+}
+
+/* Retrieval */
+
+pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset )
+{
+	int			i;
+	pgsymbol*	s;
+
+	if( !( g && offset >= 0 ) )
+	{
+		WRONGPARAM;
+		return (pgnonterminal*)NULL;
+	}
+
+	for( i = 0; s = pg_symbol_get( g, i ); i++ )
+	{
+		if( pg_symbol_get_type( s ) == PGSYMTYPE_NONTERMINAL )
+		{
+			if( !offset )
+				return (pgnonterminal*)s;
+
+			offset--;
+		}
+	}
+
+	return (pgnonterminal*)NULL;
 }

@@ -11,6 +11,7 @@ Usage:	Definitions for the grammar parsing module
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
+typedef struct _pgparser			pgparser;
 
 typedef enum
 {
@@ -27,6 +28,18 @@ typedef enum
 	PGASSOC_NOASSOC					/* Not associative */
 } pgassoc;
 
+typedef enum
+{
+	PGPARADIGM_UNDEFINED,			/* Undefined */
+	/* ~~~ */
+	PGPARADIGM_LR0,					/* LR(0) */
+	PGPARADIGM_LR1,					/* LR(1) */
+	PGPARADIGM_LALR1,				/* LALR(1) */
+	PGPARADIGM_LL1,					/* LL(1) */
+	/* ~~~ */
+	PGPARADIGM_EOP					/* End Of Paradigms */
+} pgparadigm;
+
 /* Symbol (Terminal, Nonterminal) */
 struct _pgsymbol
 {
@@ -36,7 +49,9 @@ struct _pgsymbol
 	pgsymtype		type;			/* Symbol type */
 	uchar*			name;			/* Symbol name */
 
-	LIST*			first;			/* FIRST sets */
+	pboolean		nullable;		/* Nullable-flag (FIRST-set computation) */
+
+	LIST*			first;			/* FIRST set */
 
 	/* Terminal-specific */
 	pregex_ptn*		ptn;			/* Regular expression pattern */
@@ -76,7 +91,14 @@ struct _pggrammar
 	pregex			lexer;			/* Lexical analyzer */
 
 	pgnonterminal*	goal;			/* Goal non-terminal symbol */
-	pgterminal*		end_of_input;	/* End of input terminal symbol */
+	pgterminal*		eoi;			/* End of input terminal symbol */
 	pgterminal*		error;			/* Error token terminal symbol */
 };
 
+/* Parser */
+struct _pgparser
+{
+	pgparadigm		paradigm;		/* Parsing paradigm */
+	pggrammar*		grammar;		/* The grammar of the parser */
+	LIST*			states;			/* The parse states */
+};

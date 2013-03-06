@@ -40,6 +40,8 @@ int main()
 	pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
 
 	pg_grammar_print( g );
+	pg_grammar_compute_first( g, PGPARADIGM_LALR1 );
+	pg_grammar_print( g );
 
 	return 0;
 }

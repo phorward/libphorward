@@ -48,6 +48,33 @@ pgterminal* pg_terminal_drop( pgterminal* terminal )
 	return pg_symbol_free( terminal );
 }
 
+/* Retrieval */
+
+pgterminal* pg_terminal_get( pggrammar* g, int offset )
+{
+	int			i;
+	pgsymbol*	s;
+
+	if( !( g && offset >= 0 ) )
+	{
+		WRONGPARAM;
+		return (pgterminal*)NULL;
+	}
+
+	for( i = 0; s = pg_symbol_get( g, i ); i++ )
+	{
+		if( pg_symbol_get_type( s ) == PGSYMTYPE_TERMINAL )
+		{
+			if( !offset )
+				return (pgterminal*)s;
+
+			offset--;
+		}
+	}
+
+	return (pgterminal*)NULL;
+}
+
 /* Attribute: pattern */
 
 BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, uchar* pattern )

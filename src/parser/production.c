@@ -135,6 +135,19 @@ pgproduction* pg_production_get_by_lhs( pgnonterminal* lhs, int i )
 	return (pgproduction*)list_getptr( lhs->productions, i );
 }
 
+/* Retrieve: Right-hand side */
+
+pgsymbol* pg_production_get_rhs( pgproduction* p, int i )
+{
+	if( !( p && i >= 0 ) )
+	{
+		WRONGPARAM;
+		return (pgsymbol*)NULL;
+	}
+
+	return list_getptr( p->rhs, i );
+}
+
 /* Attribute: id */
 
 /* GET ONLY! */
