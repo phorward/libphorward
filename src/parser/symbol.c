@@ -97,6 +97,7 @@ BOOLEAN pg_symbol_reset( pgsymbol* s )
 	}
 
 	s->first = list_free( s->first );
+	s->follow = list_free( s->follow );
 
 	return TRUE;
 }

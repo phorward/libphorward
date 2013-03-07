@@ -859,6 +859,8 @@ struct xml
 
 
 
+#define PGERR( txt )				fprintf( stderr, "%s\n", txt )
+
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
@@ -903,6 +905,7 @@ struct _pgsymbol
 	pboolean		nullable;		
 
 	LIST*			first;			
+	LIST*			follow;			
 
 	
 	pregex_ptn*		ptn;			
@@ -1283,7 +1286,8 @@ XML_T xml_cut( XML_T xml );
 pggrammar* pg_grammar_create( void );
 pggrammar* pg_grammar_free( pggrammar* g );
 void pg_grammar_print( pggrammar* g );
-pboolean pg_grammar_compute_first( pggrammar* g, pgparadigm para );
+BOOLEAN pg_grammar_compute_first( pggrammar* g, pgparadigm para );
+BOOLEAN pg_grammar_compute_follow( pggrammar* g, pgparadigm para );
 pgterminal* pg_grammar_get_goal( pggrammar* g );
 BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterminal* goal );
 pgterminal* pg_grammar_get_eoi( pggrammar* g );

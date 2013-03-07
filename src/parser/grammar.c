@@ -55,12 +55,18 @@ void pg_grammar_print( pggrammar* g )
 
 	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
 	{
-		printf( "% 2d %s FIRST => ", pg_symbol_get_id( s ),
-										pg_symbol_get_name( s ) );
+		printf( "% 2d %s\n", pg_symbol_get_id( s ), pg_symbol_get_name( s ) );
+
+		printf( "    FIRST  => " );
+
 		LISTFOR( s->first, l )
-		{
 			printf( "%s ", pg_symbol_get_name( (pgsymbol*)list_access( l ) ) );
-		}
+
+		printf( "\n" );
+
+		printf( "    FOLLOW => " );
+		LISTFOR( s->follow, l )
+			printf( "%s ", pg_symbol_get_name( (pgsymbol*)list_access( l ) ) );
 
 		printf( "\n" );
 	}
@@ -68,7 +74,7 @@ void pg_grammar_print( pggrammar* g )
 
 /* FIRST set computation */
 
-pboolean pg_grammar_compute_first( pggrammar* g, pgparadigm para )
+BOOLEAN pg_grammar_compute_first( pggrammar* g, pgparadigm para )
 {
 	int				i;
 	int				j;
@@ -89,15 +95,26 @@ pboolean pg_grammar_compute_first( pggrammar* g, pgparadigm para )
 
 	/* Required dependencies */
 	if( !( pg_grammar_get_goal( g ) && pg_grammar_get_eoi( g ) ) )
+	{
+		PGERR( "Grammar must provide a goal symbol and end-of-file." );
 		return FALSE;
+	}
 
 	/* Reset all symbols */
 	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
 	{
-		pg_symbol_reset( s );
-
 		if( pg_symbol_is_terminal( s ) )
-			s->first = list_push( s->first, s );
+		{
+			/* Terminal symbols are their own FIRST set - this must be set only
+				once in the entire symbol's lifetime. */
+			if( !s->first )
+				s->first = list_push( s->first, s );
+		}
+		else
+			/* Nonterminal symbols must be reset */
+			s->first = list_free( s->first );
+
+		s->nullable = FALSE;
 	}
 
 	/* Loop until no more changes appear */
@@ -106,13 +123,9 @@ pboolean pg_grammar_compute_first( pggrammar* g, pgparadigm para )
 		pf = f;
 		f = 0;
 
-		/* Loop trough symbol database */
-		for( i = 0; cs = pg_symbol_get( g, i ); i++ )
+		/* Loop trough nonterminal symbols */
+		for( i = 0; cs = pg_nonterminal_get( g, i ); i++ )
 		{
-			/* Terminal symbols define theirself als FIRST */
-			if( pg_symbol_is_terminal( cs ) )
-				continue;
-
 			/* Loop trough all nonterminal productions */
 			for( j = 0; p = pg_production_get_by_lhs( cs, j ); j++ )
 			{
@@ -149,6 +162,84 @@ pboolean pg_grammar_compute_first( pggrammar* g, pgparadigm para )
 
 /* FOLLOW set computation */
 
+BOOLEAN pg_grammar_compute_follow( pggrammar* g, pgparadigm para )
+{
+	int				i;
+	int				j;
+	int				k;
+	int				l;
+	pgsymbol*		ns;						/* Nonterminal symbol */
+	pgproduction*	p;						/* Production */
+	pgsymbol*		s;						/* RHS symbol */
+	pgsymbol*		fs;						/* Following symbol */
+	pboolean		nullable;				/* Nullable flag */
+	int				f			= 0;		/* Current FIRST count */
+	int				pf;						/* Previous FIRST count */
+
+	/* Check parameter validity and bounding */
+	if( !( g && para == PGPARADIGM_LL1 ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	/* Required dependencies */
+	if( !( ( fs = pg_grammar_get_goal( g ) ) && pg_grammar_get_eoi( g ) ) )
+	{
+		PGERR( "Grammar must provide a goal symbol and end-of-file." );
+		return FALSE;
+	}
+
+	/* Reset all symbols */
+	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
+	{
+		/* First set computation must be done first */
+		if( !( s->first ) )
+		{
+			PGERR( "FIRST-set must be computed first" );
+			return FALSE;
+		}
+
+		s->follow = list_free( s->follow );
+	}
+
+	/* Goal symbol has end-of-input in its follow set */
+	fs->follow = list_push( fs->follow, pg_grammar_get_eoi( g ) );
+
+	/* Loop until no more changes appear */
+	do
+	{
+		pf = f;
+		f = 0;
+
+		/* Loop trough all nonterminal symbols */
+		for( i = 0; ns = pg_nonterminal_get( g, i ); i++ )
+		{
+			/* Loop trough all productions */
+			for( j = 0; p = pg_production_get_by_lhs( ns, j ); j++ )
+			{
+				/* Loop trough right-hand side */
+				for( k = 0; s = pg_production_get_rhs( p, k ); k++ )
+				{
+					for( l = k + 1; fs = pg_production_get_rhs( p, l ); l++ )
+					{
+						s->follow = list_union( s->follow, fs->first );
+
+						if( !fs->nullable )
+							break;
+					}
+
+					if( !fs )
+						s->follow = list_union( s->follow, ns->follow );
+
+					f += list_count( s->follow );
+				}
+			}
+		}
+	}
+	while( pf != f );
+
+}
 
 /* Attribute: goal */
 

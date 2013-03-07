@@ -8,6 +8,8 @@ File:	grammar.h
 Usage:	Definitions for the grammar parsing module
 ----------------------------------------------------------------------------- */
 
+#define PGERR( txt )				fprintf( stderr, "%s\n", txt )
+
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
@@ -51,7 +53,8 @@ struct _pgsymbol
 
 	pboolean		nullable;		/* Nullable-flag (FIRST-set computation) */
 
-	LIST*			first;			/* FIRST set */
+	LIST*			first;			/* FIRST-set */
+	LIST*			follow;			/* FOLLOW-set */
 
 	/* Terminal-specific */
 	pregex_ptn*		ptn;			/* Regular expression pattern */
