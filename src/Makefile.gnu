@@ -63,12 +63,18 @@ HSRC = \
 
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
+all: $(LIBPHORWARD) ptest
+
+ptest: ptest.o $(LIBPHORWARD)
+	$(CC) -o $@ ptest.o $(LIBPHORWARD)
+
 $(LIBPHORWARD): $(LIBHEADER) $(OBJ)
 	ar rv $@ $(OBJ)
 
 clean:
 	-rm -f $(OBJ)
 	-rm -f $(LIBPHORWARD)
+	-rm -f ptest ptest.o
 
 # Prototypes Files
 $(PROTOFILE): $(SRC)
