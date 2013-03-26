@@ -34,7 +34,16 @@ SRC = \
 	union/union.conv.c \
 	union/union.get.c \
 	union/union.set.c \
-	xml/xml.c
+	xml/xml.c \
+	\
+	parser/error.c \
+	parser/grammar.c \
+	parser/nonterm.c \
+	parser/lr.c \
+	parser/parser.c \
+	parser/production.c \
+	parser/symbol.c \
+	parser/terminal.c
 
 HSRC = \
 	base/bitset.h \
