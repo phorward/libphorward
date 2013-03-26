@@ -2,7 +2,7 @@
 Phorward Foundation Toolkit
 Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-All rights reserved. See \LICENSE for more information.
+All rights reserved. See LICENSE for more information.
 
 File:	production.c
 Usage:
@@ -54,6 +54,7 @@ pgproduction* pg_production_drop( pgproduction* p )
 
 	pfree( p->strval );
 
+	p->select = list_free( p->select );
 
 	return (pgproduction*)NULL;
 }
@@ -90,6 +91,34 @@ uchar* pg_production_to_string( pgproduction* p )
 	}
 
 	return p->strval;
+}
+
+void pg_production_print( pgproduction* p, FILE* f )
+{
+	int			i;
+	pgsymbol*	sym;
+
+	if( ( !p ) )
+	{
+		WRONGPARAM;
+		return;
+	}
+
+	if( !f )
+		f = stderr;
+
+	pg_symbol_print( p->lhs, f );
+	fprintf( f, " : " );
+
+	for( i = 0; ( sym = pg_production_get_rhs( p, i ) ); i++ )
+	{
+		if( i > 0 )
+			fprintf( f, " " );
+
+		pg_symbol_print( sym, f );
+	}
+
+	fprintf( f, "\n" );
 }
 
 /* Append right-hand side */
@@ -188,4 +217,18 @@ pgnonterminal* pg_production_get_lhs( pgproduction* p )
 	}
 
 	return p->lhs;
+}
+
+/* Attribute: rhs_length */
+
+/* GET ONLY! */
+int pg_production_get_rhs_length( pgproduction* p )
+{
+	if( !( p ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	return list_count( p->rhs );
 }

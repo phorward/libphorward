@@ -102,6 +102,23 @@ BOOLEAN pg_symbol_reset( pgsymbol* s )
 	return TRUE;
 }
 
+/* Debug */
+
+void pg_symbol_print( pgsymbol* symbol, FILE* f )
+{
+	if( !( symbol ) )
+	{
+		WRONGPARAM;
+		return;
+	}
+
+	if( !f )
+		f = stderr;
+
+	fprintf( f, "%s%s", pg_symbol_is_terminal( symbol ) ? "@" : "",
+							pg_symbol_get_name( symbol ) );
+}
+
 /* Check */
 
 /** Check if //symbol// is of type **PGSYMTYPE_TERMINAL**. */

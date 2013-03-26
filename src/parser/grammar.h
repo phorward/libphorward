@@ -35,6 +35,7 @@ typedef enum
 	PGPARADIGM_UNDEFINED,			/* Undefined */
 	/* ~~~ */
 	PGPARADIGM_LR0,					/* LR(0) */
+	PGPARADIGM_SLR1,				/* SLR(1) */
 	PGPARADIGM_LR1,					/* LR(1) */
 	PGPARADIGM_LALR1,				/* LALR(1) */
 	PGPARADIGM_LL1,					/* LL(1) */
@@ -82,6 +83,8 @@ struct _pgproduction
 	int				prec;			/* Precedence level */
 	pgassoc			assoc;			/* Associativity */
 
+	LIST*			select;			/* SELECT-set */
+
 	uchar*			strval;			/* String representation */
 };
 
@@ -101,7 +104,8 @@ struct _pggrammar
 /* Parser */
 struct _pgparser
 {
-	pgparadigm		paradigm;		/* Parsing paradigm */
 	pggrammar*		grammar;		/* The grammar of the parser */
-	LIST*			states;			/* The parse states */
+	pgparadigm		paradigm;		/* Parsing paradigm */
+
+	LIST*			states;			/* The parser states */
 };

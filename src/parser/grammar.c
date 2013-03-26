@@ -2,13 +2,15 @@
 Phorward Foundation Toolkit
 Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-All rights reserved. See \LICENSE for more information.
+All rights reserved. See LICENSE for more information.
 
 File:	grammar.c
 Usage:
 ----------------------------------------------------------------------------- */
 
 #include "local.h"
+
+/* Constructor */
 
 pggrammar* pg_grammar_create( void )
 {
@@ -24,6 +26,8 @@ pggrammar* pg_grammar_create( void )
 
 	return g;
 }
+
+/* Destructor */
 
 pggrammar* pg_grammar_free( pggrammar* g )
 {
@@ -42,39 +46,61 @@ pggrammar* pg_grammar_free( pggrammar* g )
 void pg_grammar_print( pggrammar* g )
 {
 	LIST*			l;
+	LIST*			m;
 	pgproduction*	p;
 	pgsymbol*		s;
 	int				i;
 
+	printf( "--- Productions ---\n" );
 	LISTFOR( g->productions, l )
 	{
 		p = (pgproduction*)list_access( l );
 		printf( "% 2d %s\n", pg_production_get_id( p ),
 								pg_production_to_string( p ) );
+
+		if( p->select )
+		{
+			printf( "    SELECT => " );
+
+			LISTFOR( p->select, m )
+				printf( "%s ", pg_symbol_get_name(
+									(pgsymbol*)list_access( m ) ) );
+
+			printf( "\n" );
+		}
 	}
 
+	printf( "--- Symbols ---\n" );
 	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
 	{
 		printf( "% 2d %s\n", pg_symbol_get_id( s ), pg_symbol_get_name( s ) );
 
-		printf( "    FIRST  => " );
+		if( s->first )
+		{
+			printf( "    FIRST  => " );
 
-		LISTFOR( s->first, l )
-			printf( "%s ", pg_symbol_get_name( (pgsymbol*)list_access( l ) ) );
+			LISTFOR( s->first, l )
+				printf( "%s ", pg_symbol_get_name(
+									(pgsymbol*)list_access( l ) ) );
 
-		printf( "\n" );
+			printf( "\n" );
+		}
 
-		printf( "    FOLLOW => " );
-		LISTFOR( s->follow, l )
-			printf( "%s ", pg_symbol_get_name( (pgsymbol*)list_access( l ) ) );
+		if( s->follow )
+		{
+			printf( "    FOLLOW => " );
+			LISTFOR( s->follow, l )
+				printf( "%s ", pg_symbol_get_name(
+								(pgsymbol*)list_access( l ) ) );
 
-		printf( "\n" );
+			printf( "\n" );
+		}
 	}
 }
 
 /* FIRST set computation */
 
-BOOLEAN pg_grammar_compute_first( pggrammar* g, pgparadigm para )
+BOOLEAN pg_grammar_compute_first( pggrammar* g )
 {
 	int				i;
 	int				j;
@@ -86,8 +112,7 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g, pgparadigm para )
 	int				f			= 0;		/* Current FIRST count */
 	int				pf;						/* Previous FIRST count */
 
-	/* Check parameter validity and bounding */
-	if( !( g && ( para > PGPARADIGM_UNDEFINED && para < PGPARADIGM_EOP ) ) )
+	if( !( g ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -162,7 +187,7 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g, pgparadigm para )
 
 /* FOLLOW set computation */
 
-BOOLEAN pg_grammar_compute_follow( pggrammar* g, pgparadigm para )
+BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 {
 	int				i;
 	int				j;
@@ -177,7 +202,7 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g, pgparadigm para )
 	int				pf;						/* Previous FIRST count */
 
 	/* Check parameter validity and bounding */
-	if( !( g && para == PGPARADIGM_LL1 ) )
+	if( !( g ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -239,6 +264,54 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g, pgparadigm para )
 	}
 	while( pf != f );
 
+	return TRUE;
+}
+
+/* Finding SELECT sets */
+
+BOOLEAN pg_grammar_compute_select( pggrammar* g )
+{
+	int				i;
+	int				j;
+	pgproduction*	p;
+	pgsymbol*		s;
+	BOOLEAN			nullable;
+
+	/* Check parameter validity and bounding */
+	if( !( g ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !pg_production_get( g, 0 ) )
+	{
+		PGERR( "Grammar must contain at least one production" );
+		return FALSE;
+	}
+
+	for( i = 0; ( p = pg_production_get( g, i ) ); i++ )
+	{
+		p->select = list_free( p->select );
+
+		nullable = TRUE;
+		for( j = 0; ( s = pg_production_get_rhs( p, j ) ); j++ )
+		{
+			p->select = list_union( p->select, s->first );
+
+			if( !( nullable |= s->nullable ) )
+				break;
+		}
+
+		if( nullable )
+		{
+			/* TODO: Multiple lhs */
+			s = pg_production_get_lhs( p );
+			p->select = list_union( p->select, s->first );
+		}
+	}
+
+	return TRUE;
 }
 
 /* Attribute: goal */

@@ -3,6 +3,7 @@
 int main()
 {
 	pggrammar*		g;
+	pgparser*		p;
 
 	pgterminal*		i;
 	pgterminal*		op_a;
@@ -12,6 +13,7 @@ int main()
 	pgterminal*		br_op;
 	pgterminal*		br_cl;
 
+	pgnonterminal*	start;
 	pgnonterminal*	expr;
 	pgnonterminal*	term;
 	pgnonterminal*	factor;
@@ -26,23 +28,34 @@ int main()
 	br_op = pg_terminal_create( g, "(", "\\(" );
 	br_cl = pg_terminal_create( g, ")", "\\)" );
 
+	start = pg_nonterminal_create( g, "start" );
 	expr = pg_nonterminal_create( g, "expr" );
 	term = pg_nonterminal_create( g, "term" );
 	factor = pg_nonterminal_create( g, "factor" );
 
-	pg_production_create( expr, term, op_a, term, (pgsymbol*)NULL );
-	pg_production_create( expr, term, op_s, term, (pgsymbol*)NULL );
+	pg_production_create( start, expr, (pgsymbol*)NULL );
 
-	pg_production_create( term, factor, op_d, factor, (pgsymbol*)NULL );
-	pg_production_create( term, factor, op_m, factor, (pgsymbol*)NULL );
+	pg_production_create( expr, expr, op_a, term, (pgsymbol*)NULL );
+	pg_production_create( expr, term, (pgsymbol*)NULL );
+	/* pg_production_create( expr, term, op_s, term, (pgsymbol*)NULL ); */
 
-	pg_production_create( factor, i, (pgsymbol*)NULL );
+	pg_production_create( term, term, op_m, factor, (pgsymbol*)NULL );
+	pg_production_create( term, factor, (pgsymbol*)NULL );
+	/* pg_production_create( term, factor, op_d, factor, (pgsymbol*)NULL ); */
+
 	pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
+	pg_production_create( factor, i, (pgsymbol*)NULL );
 
 	pg_grammar_print( g );
-	pg_grammar_compute_first( g, PGPARADIGM_LL1 );
+
+	/*
+	pg_grammar_compute_first( g, PGPARADIGM_LR1 );
 	pg_grammar_compute_follow( g, PGPARADIGM_LL1 );
+	pg_grammar_compute_select( g, PGPARADIGM_LL1 );
 	pg_grammar_print( g );
+	*/
+	p = pg_parser_create( g, PGPARADIGM_LR0 );
+	pg_parser_lr_closure( p );
 
 	return 0;
 }
