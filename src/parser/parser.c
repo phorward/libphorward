@@ -42,4 +42,16 @@ pgparser* pg_parser_free( pgparser* parser )
 	return (pgparser*)NULL;
 }
 
+/* Attribute: Grammar */
 
+/* GET ONLY! */
+pggrammar* pg_parser_get_grammar( pgparser* p )
+{
+	if( !( p ) )
+	{
+		WRONGPARAM;
+		return (pggrammar*)NULL;
+	}
+
+	return p->grammar;
+}

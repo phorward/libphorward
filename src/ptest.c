@@ -3,7 +3,9 @@
 int main()
 {
 	pggrammar*		g;
-	pgparser*		p;
+	pgparser*		p_lr0;
+	pgparser*		p_lr1;
+	pgparser*		p_lalr1;
 
 	pgterminal*		i;
 	pgterminal*		op_a;
@@ -54,8 +56,19 @@ int main()
 	pg_grammar_compute_select( g, PGPARADIGM_LL1 );
 	pg_grammar_print( g );
 	*/
-	p = pg_parser_create( g, PGPARADIGM_LR0 );
-	pg_parser_lr_closure( p );
+
+	p_lr0 = pg_parser_create( g, PGPARADIGM_LR0 );
+	pg_parser_lr_closure( p_lr0 );
+
+	getchar();
+
+	p_lr1 = pg_parser_create( g, PGPARADIGM_LR1 );
+	pg_parser_lr_closure( p_lr1 );
+
+	getchar();
+
+	p_lalr1 = pg_parser_create( g, PGPARADIGM_LALR1 );
+	pg_parser_lr_closure( p_lalr1 );
 
 	return 0;
 }

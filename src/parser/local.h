@@ -13,8 +13,9 @@ Usage:	Local definitions
 /* Closure item */
 typedef struct
 {
-	pgproduction*	prod;
-	int				dot;
+	pgproduction*	prod;			/* Production */
+	int				dot;			/* Dot offset */
+	LIST*			lookahead;		/* Lookahead symbols */
 } pglritem;
 
 /* LALR(1) State */

@@ -26,7 +26,8 @@ static pglrstate* pg_lrstate_create( pgparser* parser )
 	return state;
 }
 
-static BOOLEAN pg_parser_lr_same_kernel( LIST* kernel1, LIST* kernel2 )
+static BOOLEAN pg_parser_lr_compare(
+		LIST* kernel1, LIST* kernel2, pgparadigm para )
 {
 	LIST*		l;
 	LIST*		m;
@@ -45,7 +46,10 @@ static BOOLEAN pg_parser_lr_same_kernel( LIST* kernel1, LIST* kernel2 )
 				it2 = (pglritem*)list_access( m );
 
 				if( it1->prod == it2->prod
-					&& it1->dot == it2->dot )
+					&& it1->dot == it2->dot
+					&& ( para != PGPARADIGM_LR1
+							|| list_diff( it1->lookahead, it2->lookahead ) )
+					)
 				{
 					same++;
 				}
@@ -63,6 +67,7 @@ static void pg_lritem_print( pglritem* it, FILE* f )
 {
 	int			i;
 	pgsymbol*	sym;
+	LIST*		l;
 
 	if( ( !it ) )
 	{
@@ -88,7 +93,23 @@ static void pg_lritem_print( pglritem* it, FILE* f )
 	}
 
 	if( i == it->dot )
+	{
 		fprintf( f, " ." );
+
+		if( it->lookahead )
+		{
+			fprintf( f, "   [ " );
+			LISTFOR( it->lookahead, l )
+			{
+				if( l != it->lookahead )
+					fprintf( f, " " );
+
+				pg_symbol_print( (pgsymbol*)list_access( l ), stderr );
+			}
+
+			fprintf( f, " ]" );
+		}
+	}
 
 	fprintf( f, "\n" );
 }
@@ -145,6 +166,7 @@ static pglritem* pg_lritem_free( pglritem* it )
 	if( !( it ) )
 		return (pglritem*)NULL;
 
+	list_free( it->lookahead );
 	pfree( it );
 
 	return (pglritem*)NULL;
@@ -170,7 +192,9 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	pglrstate*		st;
 	pglritem*		it;
 	pglritem*		kit;
+	pglritem*		cit;
 	pgsymbol*		sym;
+	pgsymbol*		lhs;
 	pgproduction*	prod;
 	LIST*			closure;
 	LIST*			start;
@@ -196,10 +220,18 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		return FALSE;
 	}
 
+	/* Perform FIRST closure */
+	pg_grammar_compute_first( pg_parser_get_grammar( parser ) );
+	pg_grammar_print( pg_parser_get_grammar( parser ) );
+
+	/* Starting seed */
 	st = pg_lrstate_create( parser );
 	it = pg_lritem_create( &st->kernel,
 				pg_production_get_by_lhs(
 					pg_grammar_get_goal( parser->grammar ), 0 ), 0 );
+
+	it->lookahead = list_push( it->lookahead,
+						pg_grammar_get_eoi( parser->grammar ) );
 
 	while( ( st = pg_parser_lr_get_undone( parser ) ) )
 	{
@@ -217,6 +249,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		{
 			kit = (pglritem*)list_access( l );
 			it = pg_lritem_create( &closure, kit->prod, kit->dot );
+			it->lookahead = list_dup( kit->lookahead );
 		}
 
 		do
@@ -230,29 +263,56 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				it = (pglritem*)list_access( l );
 
 				/* Check if symbol right to the dot is a nonterminal */
-				if( !( sym = pg_production_get_rhs( it->prod, it->dot ) )
-						|| !pg_symbol_is_nonterminal( sym ) )
+				if( !( lhs = pg_production_get_rhs( it->prod, it->dot ) )
+						|| !pg_symbol_is_nonterminal( lhs ) )
 					continue;
 
 				/* Add all productions of the nonterminal to the closure,
 					if not already in */
-				for( i = 0; ( prod = pg_production_get_by_lhs( sym, i ) ); i++ )
+				for( i = 0; ( prod = pg_production_get_by_lhs( lhs, i ) ); i++ )
 				{
 					LISTFOR( closure, m )
 					{
-						it = (pglritem*)list_access( m );
-						if( it->prod == prod )
+						cit = (pglritem*)list_access( m );
+						if( cit->prod == prod )
 							break;
 					}
 
 					if( !m )
-					{
-						it = pg_lritem_create( &closure, prod, 0 );
-					}
+						cit = pg_lritem_create( &closure, prod, 0 );
 
-					/* TODO: LALR lookahead */
+					/* Merge lookahead */
+					if( parser->paradigm != PGPARADIGM_LR0 )
+					{
+						/*
+							Find out all lookahead symbols by merging the
+							FIRST-sets of all nullable and the first
+							non-nullable items on the productions right-hand
+							side.
+						*/
+						for( j = it->dot + 1;
+								( sym = pg_production_get_rhs( it->prod, j ) );
+									j++ )
+						{
+							cit->lookahead = list_union( cit->lookahead,
+															sym->first );
+
+							if( !sym->nullable )
+								break;
+						}
+
+						/*
+							If all symbols right to the dot are nullable
+							(or there are simply none), then add the current
+							items lookahead to the closed items lookahead.
+						*/
+						if( !sym )
+							cit->lookahead = list_union( cit->lookahead,
+															it->lookahead );
+					}
 				}
 			}
+
 			cnt = list_count( closure );
 		}
 		while( prev_cnt != cnt );
@@ -296,10 +356,13 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				{
 					st = (pglrstate*)list_access( l );
 
-					if( pg_parser_lr_same_kernel( st->kernel, start ) )
+					if( pg_parser_lr_compare(
+							st->kernel, start, parser->paradigm ) )
 						break;
 				}
 
+				/* State does not already exists?
+					Create it as new! */
 				if( !l )
 				{
 					fprintf( stderr, "Creating new state %d\n",
@@ -310,10 +373,34 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 					st->kernel = start;
 				}
 				else
+				/* Sate already exists?
+					Merge lookaheads (if needed). */
 				{
 					fprintf( stderr, "Using existing state %d\n",
 								list_find( parser->states, st ) );
-					pg_lritems_print( start, stderr, "Kernel" );
+
+					if( parser->paradigm != PGPARADIGM_LR0 )
+					{
+						cnt = 0;
+						prev_cnt = 0;
+
+						for( l = st->kernel, m = start; l;
+								l = list_next( l ), m = list_next( m ) )
+						{
+							it = (pglritem*)list_access( l );
+							cit = (pglritem*)list_access( l );
+
+							prev_cnt += list_count( it->lookahead );
+							it->lookahead = list_union( it->lookahead,
+															cit->lookahead );
+							cnt += list_count( it->lookahead );
+						}
+
+						if( cnt != prev_cnt )
+							st->done = FALSE;
+					}
+
+					pg_lritems_print( st->kernel, stderr, "Kernel" );
 
 					LISTFOR( start, l )
 						pg_lritem_free( (pglritem*)list_access( l ) );

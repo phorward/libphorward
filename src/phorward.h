@@ -1309,6 +1309,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser );
 
 pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
 pgparser* pg_parser_free( pgparser* parser );
+pggrammar* pg_parser_get_grammar( pgparser* p );
 
 
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );
