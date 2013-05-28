@@ -36,37 +36,24 @@ int main()
 	factor = pg_nonterminal_create( g, "factor" );
 
 	pg_production_create( start, expr, (pgsymbol*)NULL );
-
 	pg_production_create( expr, expr, op_a, term, (pgsymbol*)NULL );
 	pg_production_create( expr, term, (pgsymbol*)NULL );
-	/* pg_production_create( expr, term, op_s, term, (pgsymbol*)NULL ); */
-
 	pg_production_create( term, term, op_m, factor, (pgsymbol*)NULL );
 	pg_production_create( term, factor, (pgsymbol*)NULL );
-	/* pg_production_create( term, factor, op_d, factor, (pgsymbol*)NULL ); */
-
 	pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
 	pg_production_create( factor, i, (pgsymbol*)NULL );
 
 	pg_grammar_print( g );
 
-	/*
-	pg_grammar_compute_first( g, PGPARADIGM_LR1 );
-	pg_grammar_compute_follow( g, PGPARADIGM_LL1 );
-	pg_grammar_compute_select( g, PGPARADIGM_LL1 );
-	pg_grammar_print( g );
-	*/
-
+	/* LR(0) */
 	p_lr0 = pg_parser_create( g, PGPARADIGM_LR0 );
 	pg_parser_lr_closure( p_lr0 );
 
-	getchar();
-
+	/* LR(1) */
 	p_lr1 = pg_parser_create( g, PGPARADIGM_LR1 );
 	pg_parser_lr_closure( p_lr1 );
 
-	getchar();
-
+	/* LALR(1) */
 	p_lalr1 = pg_parser_create( g, PGPARADIGM_LALR1 );
 	pg_parser_lr_closure( p_lalr1 );
 
