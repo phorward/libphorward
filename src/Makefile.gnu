@@ -3,6 +3,7 @@
 
 CFLAGS += -g -DDEBUG -DUNICODE -DUTF8 -I.
 
+AWK=awk
 LIBPHORWARD = libphorward.a
 PROTOFILE =	proto.h
 LIBHEADER = phorward.h
