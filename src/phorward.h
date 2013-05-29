@@ -67,7 +67,7 @@ typedef char 					pboolean;
 
 #ifndef TRUE
 #define TRUE					1
-#endif 
+#endif
 
 #ifndef FALSE
 #define FALSE					0
@@ -225,20 +225,6 @@ typedef struct llist
 	void*			pptr;
 	struct llist*	next;
 } LIST;
-
-
-#define listPush				list_push
-#define listPop					list_pop
-#define listRemove				list_remove
-#define listFree				list_free
-#define listPrint				list_print
-#define listDup					list_dup
-#define listFind				list_find
-#define listGetPtrByPosition	list_getptr
-#define listDiff				list_diff
-#define listUnion				list_union
-#define listCount				list_count
-#define listSubset				list_subset
 
 
 #define list_access( ll )		( (ll) ? (ll)->pptr : (void*)NULL )
@@ -873,6 +859,110 @@ struct xml
 
 
 
+#define PGERR( txt )				fprintf( stderr, "%s\n", txt )
+
+typedef struct _pggrammar			pggrammar;
+typedef struct _pgproduction		pgproduction;
+typedef struct _pgsymbol			pgsymbol;
+typedef struct _pgparser			pgparser;
+
+typedef enum
+{
+	PGSYMTYPE_UNDEFINED,			
+	PGSYMTYPE_TERMINAL,				
+	PGSYMTYPE_NONTERMINAL			
+} pgsymtype;
+
+typedef enum
+{
+	PGASSOC_NONE,					
+	PGASSOC_LEFT,					
+	PGASSOC_RIGHT,					
+	PGASSOC_NOASSOC					
+} pgassoc;
+
+typedef enum
+{
+	PGPARADIGM_UNDEFINED,			
+	
+	PGPARADIGM_LR0,					
+	PGPARADIGM_SLR1,				
+	PGPARADIGM_LR1,					
+	PGPARADIGM_LALR1,				
+	PGPARADIGM_LL1,					
+	
+	PGPARADIGM_EOP					
+} pgparadigm;
+
+
+struct _pgsymbol
+{
+	pggrammar*		grammar;		
+
+	int				id;				
+	pgsymtype		type;			
+	uchar*			name;			
+
+	pboolean		nullable;		
+
+	LIST*			first;			
+	LIST*			follow;			
+
+	
+	pregex_ptn*		ptn;			
+	int				prec;			
+	pgassoc			assoc;			
+
+	
+	LIST*			productions;	
+};
+
+typedef pgsymbol	pgterminal;		
+typedef pgsymbol	pgnonterminal;	
+
+
+struct _pgproduction
+{
+	pggrammar*		grammar;		
+
+	int				id;				
+
+	pgsymbol*		lhs;			
+	LIST*			rhs;			
+
+	int				prec;			
+	pgassoc			assoc;			
+
+	LIST*			select;			
+
+	uchar*			strval;			
+};
+
+
+struct _pggrammar
+{
+	plist*			symbols;		
+	LIST*			productions;	
+
+	pregex			lexer;			
+
+	pgnonterminal*	goal;			
+	pgterminal*		eoi;			
+	pgterminal*		error;			
+};
+
+
+struct _pgparser
+{
+	pggrammar*		grammar;		
+	pgparadigm		paradigm;		
+
+	LIST*			states;			
+};
+
+
+
+
 
 
 bitset bitset_create( int size );
@@ -928,8 +1018,9 @@ punit* plist_get( plist* list, int n );
 punit* plist_get_by_key( plist* list, uchar* key );
 punit* plist_get_by_ptr( plist* list, void* ptr );
 void* plist_access( punit* e );
-punit* plist_next( punit* e );
-punit* plist_prev( punit* e );
+punit* plist_next( punit* u );
+punit* plist_prev( punit* u );
+int plist_offset( punit* u );
 punit* plist_first( plist* l );
 punit* plist_last( plist* l );
 int plist_size( plist* l );
@@ -1192,6 +1283,68 @@ XML_T xml_set_flag( XML_T xml, short flag );
 int xml_count( XML_T xml );
 int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
+
+
+
+
+pggrammar* pg_grammar_create( void );
+pggrammar* pg_grammar_free( pggrammar* g );
+void pg_grammar_print( pggrammar* g );
+BOOLEAN pg_grammar_compute_first( pggrammar* g );
+BOOLEAN pg_grammar_compute_follow( pggrammar* g );
+BOOLEAN pg_grammar_compute_select( pggrammar* g );
+pgterminal* pg_grammar_get_goal( pggrammar* g );
+BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterminal* goal );
+pgterminal* pg_grammar_get_eoi( pggrammar* g );
+BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterminal* eoi );
+
+
+pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name );
+pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal );
+pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
+
+
+BOOLEAN pg_parser_lr_closure( pgparser* parser );
+
+
+pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
+pgparser* pg_parser_free( pgparser* parser );
+pggrammar* pg_parser_get_grammar( pgparser* p );
+
+
+pgproduction* pg_production_create( pgnonterminal* lhs, ... );
+pgproduction* pg_production_drop( pgproduction* p );
+uchar* pg_production_to_string( pgproduction* p );
+void pg_production_print( pgproduction* p, FILE* f );
+pboolean pg_production_append( pgproduction* p, pgsymbol* sym );
+pgproduction* pg_production_get( pggrammar* grammar, int i );
+pgproduction* pg_production_get_by_lhs( pgnonterminal* lhs, int i );
+pgsymbol* pg_production_get_rhs( pgproduction* p, int i );
+int pg_production_get_id( pgproduction* p );
+pggrammar* pg_production_get_grammar( pgproduction* p );
+pgnonterminal* pg_production_get_lhs( pgproduction* p );
+int pg_production_get_rhs_length( pgproduction* p );
+
+
+pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, uchar* name );
+pgsymbol* pg_symbol_free( pgsymbol* symbol );
+BOOLEAN pg_symbol_reset( pgsymbol* s );
+void pg_symbol_print( pgsymbol* symbol, FILE* f );
+BOOLEAN pg_symbol_is_terminal( pgsymbol* symbol );
+BOOLEAN pg_symbol_is_nonterminal( pgsymbol* symbol );
+pgsymbol* pg_symbol_get( pggrammar* g, int i );
+int pg_symbol_get_id( pgsymbol* s );
+pgsymtype pg_symbol_get_type( pgsymbol* s );
+pggrammar* pg_symbol_get_grammar( pgsymbol* s );
+uchar* pg_symbol_get_name( pgsymbol* s );
+
+
+pgterminal* pg_terminal_create( pggrammar* grammar, char* name, char* pattern );
+pgterminal* pg_terminal_drop( pgterminal* terminal );
+pgterminal* pg_terminal_get( pggrammar* g, int offset );
+BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, uchar* pattern );
+BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
+pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
 
 #endif 

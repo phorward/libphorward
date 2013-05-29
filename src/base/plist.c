@@ -512,22 +512,36 @@ void* plist_access( punit* e )
 	return (void*)( e + 1 );
 }
 
-/** Access next element of current element //e//. */
-punit* plist_next( punit* e )
+/** Access next element of current unit //u//. */
+punit* plist_next( punit* u )
 {
-	if( !( e ) )
+	if( !( u ) )
 		return (punit*)NULL;
 
-	return e->next;
+	return u->next;
 }
 
-/** Access previous element of a current element //e//. */
-punit* plist_prev( punit* e )
+/** Access previous element of a current unit //u//. */
+punit* plist_prev( punit* u )
 {
-	if( !( e ) )
+	if( !( u ) )
 		return (punit*)NULL;
 
-	return e->prev;
+	return u->prev;
+}
+
+/** Return the offset of the unit //u// within the list it belongs to. */
+int plist_offset( punit* u )
+{
+	int		off		= 0;
+
+	if( !( u && u->list ) )
+		return -1;
+
+	while( ( u = plist_prev( u ) ) )
+		off++;
+
+	return off;
 }
 
 /** Return first element of list //l//. */

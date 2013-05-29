@@ -1,6 +1,6 @@
 /* -HEADER----------------------------------------------------------------------
 Phorward Foundation Toolkit :: General Header
-Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -77,7 +77,7 @@ typedef char 					pboolean;	/* Phorward Boolean */
 
 #ifndef TRUE
 #define TRUE					1
-#endif 
+#endif
 
 #ifndef FALSE
 #define FALSE					0
@@ -154,6 +154,8 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #include "string/utf8.h"
 #include "union/union.h"
 #include "xml/xml.h"
+
+#include "parser/grammar.h"
 
 /*
  * Function Prototypes
