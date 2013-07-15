@@ -172,6 +172,29 @@ static pglritem* pg_lritem_free( pglritem* it )
 	return (pglritem*)NULL;
 }
 
+static pglrcolumn* pg_lrcolumn_create( pglrstate* st, short action,
+										pgsymbol* sym, void* ptr )
+{
+	pglrcolumn*		col;
+
+	col = (pglrcolumn*)pmalloc( sizeof( pglrcolumn ) );
+
+	col->action = action;
+	col->symbol = sym;
+
+	if( action & REDUCE )
+		col->target.production = (pgproduction*)ptr;
+	else
+		col->target.state = (pglrstate*)ptr;
+
+	if( pg_symbol_is_terminal( sym ) )
+		st->actions = list_push( st->actions, col );
+	else
+		st->gotos = list_push( st->gotos, col );
+
+	return col;
+}
+
 static pglrstate* pg_parser_lr_get_undone( pgparser* parser )
 {
 	pglrstate*	st;
@@ -190,20 +213,25 @@ static pglrstate* pg_parser_lr_get_undone( pgparser* parser )
 BOOLEAN pg_parser_lr_closure( pgparser* parser )
 {
 	pglrstate*		st;
+	pglrstate*		nst;
 	pglritem*		it;
 	pglritem*		kit;
 	pglritem*		cit;
 	pgsymbol*		sym;
 	pgsymbol*		lhs;
 	pgproduction*	prod;
+	pglrcolumn*		col;
 	LIST*			closure;
 	LIST*			start;
 	LIST*			l;
 	LIST*			m;
+	LIST*			n;
+	LIST*			o;
 	int				i;
 	int				j;
 	int				cnt;
 	int				prev_cnt;
+	pboolean		optimize	= TRUE;
 
 	if( !( parser ) )
 	{
@@ -225,8 +253,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	pg_grammar_print( pg_parser_get_grammar( parser ) );
 
 	/* Starting seed */
-	st = pg_lrstate_create( parser );
-	it = pg_lritem_create( &st->kernel,
+	nst = pg_lrstate_create( parser );
+	it = pg_lritem_create( &nst->kernel,
 				pg_production_get_by_lhs(
 					pg_grammar_get_goal( parser->grammar ), 0 ), 0 );
 
@@ -245,6 +273,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 
 		pg_lritems_print( st->kernel, stderr, "Kernel" );
 
+		/* Duplicate state kernel to closure */
 		LISTFOR( st->kernel, l )
 		{
 			kit = (pglritem*)list_access( l );
@@ -252,6 +281,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			it->lookahead = list_dup( kit->lookahead );
 		}
 
+		/* Close the closure! */
 		do
 		{
 			prev_cnt = cnt;
@@ -320,7 +350,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		/* Add current kernel to closure */
 		pg_lritems_print( closure, stderr, "Closure" );
 
-		/* Create new states from the items in the closure having a nonterminal
+		/* Create new states from the items in the closure having a symbol
 			right to their dot */
 		do
 		{
@@ -344,76 +374,139 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				}
 			}
 
-			/* Check for existing state */
-			if( start )
+			/* Stop if no more partitions found! */
+			if( !start )
+				break;
+
+			/* Remove new kernel from closure */
+			LISTFOR( start, l )
+				closure = list_remove( closure, list_access( l ) );
+
+			/*
+				Can we do a shift and reduce in one transition?
+
+				Watch for partitions that are
+
+					x -> y .z
+
+				where x is nonterminal, y is a possible sequence of
+				terminals and/or nonterminals or even epsilon, and z is a
+				terminal or nonterminal.
+			*/
+			if( optimize &&
+					list_count( start ) == 1 &&
+						!pg_production_get_rhs( it->prod, it->dot ) )
 			{
-				/* Remove new kernel from closure */
+				if( !st->closed )
+					pg_lrcolumn_create( st, SHIFT_REDUCE, sym, it->prod );
+
 				LISTFOR( start, l )
-					closure = list_remove( closure, list_access( l ) );
+					pg_lritem_free( (pglritem*)list_access( l ) );
 
-				/* Check if state already exists */
-				LISTFOR( parser->states, l )
+				list_free( start );
+				continue;
+			}
+
+			/* Check if state already exists */
+			LISTFOR( parser->states, l )
+			{
+				nst = (pglrstate*)list_access( l );
+
+				if( pg_parser_lr_compare(
+						nst->kernel, start, parser->paradigm ) )
+					break;
+			}
+
+			/* State does not already exists?
+				Create it as new! */
+			if( !l )
+			{
+				fprintf( stderr, "Creating new state %d\n",
+									list_count( parser->states ) );
+				pg_lritems_print( start, stderr, "Kernel" );
+
+				nst = pg_lrstate_create( parser );
+				nst->kernel = start;
+			}
+			else
+			/* State already exists?
+				Merge lookaheads (if needed). */
+			{
+				fprintf( stderr, "Using existing state %d\n",
+							list_find( parser->states, nst ) );
+
+				if( parser->paradigm != PGPARADIGM_LR0 )
 				{
-					st = (pglrstate*)list_access( l );
+					cnt = 0;
+					prev_cnt = 0;
 
-					if( pg_parser_lr_compare(
-							st->kernel, start, parser->paradigm ) )
-						break;
-				}
-
-				/* State does not already exists?
-					Create it as new! */
-				if( !l )
-				{
-					fprintf( stderr, "Creating new state %d\n",
-										list_count( parser->states ) );
-					pg_lritems_print( start, stderr, "Kernel" );
-
-					st = pg_lrstate_create( parser );
-					st->kernel = start;
-				}
-				else
-				/* Sate already exists?
-					Merge lookaheads (if needed). */
-				{
-					fprintf( stderr, "Using existing state %d\n",
-								list_find( parser->states, st ) );
-
-					if( parser->paradigm != PGPARADIGM_LR0 )
+					for( l = nst->kernel, m = start; l;
+							l = list_next( l ), m = list_next( m ) )
 					{
-						cnt = 0;
-						prev_cnt = 0;
+						it = (pglritem*)list_access( l );
+						cit = (pglritem*)list_access( l );
 
-						for( l = st->kernel, m = start; l;
-								l = list_next( l ), m = list_next( m ) )
-						{
-							it = (pglritem*)list_access( l );
-							cit = (pglritem*)list_access( l );
-
-							prev_cnt += list_count( it->lookahead );
-							it->lookahead = list_union( it->lookahead,
-															cit->lookahead );
-							cnt += list_count( it->lookahead );
-						}
-
-						if( cnt != prev_cnt )
-							st->done = FALSE;
+						prev_cnt += list_count( it->lookahead );
+						it->lookahead = list_union( it->lookahead,
+														cit->lookahead );
+						cnt += list_count( it->lookahead );
 					}
 
-					pg_lritems_print( st->kernel, stderr, "Kernel" );
-
-					LISTFOR( start, l )
-						pg_lritem_free( (pglritem*)list_access( l ) );
-
-					list_free( start );
+					if( cnt != prev_cnt )
+						nst->done = FALSE;
 				}
+
+				pg_lritems_print( st->kernel, stderr, "Kernel" );
+
+				LISTFOR( start, l )
+					pg_lritem_free( (pglritem*)list_access( l ) );
+
+				list_free( start );
 			}
+
+			if( sym && !st->closed )
+				pg_lrcolumn_create( st, SHIFT, sym, nst );
 		}
-		while( sym );
+		while( TRUE );
 
 		/*
 		getchar();
 		*/
+		st->closed = TRUE;
+	}
+
+	/* Perform reductions */
+	LISTFOR( parser->states, l )
+	{
+		st = (pglrstate*)list_access( l );
+
+		LISTFOR( st->kernel, m )
+		{
+			it = (pglritem*)list_access( m );
+
+			if( pg_production_get_rhs( it->prod, it->dot ) )
+				continue;
+
+			LISTFOR( it->lookahead, n )
+			{
+				sym = (pgsymbol*)list_access( n );
+
+				LISTFOR( st->actions, o )
+				{
+					col = (pglrcolumn*)list_access( o );
+					if( col->symbol == sym )
+						break;
+				}
+
+				if( !o )
+					pg_lrcolumn_create( st, REDUCE, sym, it->prod );
+				else
+					fprintf( stderr,
+						"Conflict %d on %s, now %s\n",
+							col->action, pg_symbol_get_name( col->symbol ),
+								pg_symbol_get_name( sym ) );
+			}
+		}
 	}
 
 	fprintf( stderr, "\n*** FINAL STATES***\n\n" );
@@ -425,6 +518,38 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			list_find( parser->states, st ) );
 
 		pg_lritems_print( st->kernel, stderr, "Kernel" );
+
+		LISTFOR( st->actions, m )
+		{
+			col = (pglrcolumn*)list_access( m );
+
+			if( col->action == SHIFT_REDUCE )
+				fprintf( stderr, "\t<- Shift/Reduce on '%s' by "
+									"production '%s'\n",
+							pg_symbol_get_name( col->symbol ),
+								pg_production_to_string(
+									col->target.production ) );
+			else if( col->action == SHIFT )
+				fprintf( stderr, "\t-> Shift on '%s' to state %d\n",
+							pg_symbol_get_name( col->symbol ),
+								list_find( parser->states,
+									col->target.state ) );
+			else
+				fprintf( stderr, "\t<- Reduce on '%s' by production '%s'\n",
+							pg_symbol_get_name( col->symbol ),
+								pg_production_to_string(
+									col->target.production ) );
+		}
+
+		LISTFOR( st->gotos, m )
+		{
+			col = (pglrcolumn*)list_access( m );
+
+			fprintf( stderr, "\t-> Goto state state %d on symbol '%s'\n",
+							list_find( parser->states,
+								col->target.state ),
+									pg_symbol_get_name( col->symbol ) );
+		}
 	}
 
 	return TRUE;

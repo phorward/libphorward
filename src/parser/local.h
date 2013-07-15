@@ -18,14 +18,13 @@ typedef struct
 	LIST*			lookahead;		/* Lookahead symbols */
 } pglritem;
 
-/* LALR(1) State */
+/* LR-State */
 typedef struct
 {
 	LIST*			kernel;			/* Kernel items */
-	LIST*			epsilon;		/* Epsilon items */
 
-	LIST*			actions;		/* Action table entries */
-	LIST*			gotos;			/* Goto table entries */
+	LIST*			actions;		/* Action row entries */
+	LIST*			gotos;			/* Goto row entries */
 
 	pgproduction*	def_prod;		/* Default production */
 
@@ -33,8 +32,21 @@ typedef struct
 	pboolean		closed;			/* Closed flag */
 } pglrstate;
 
+/* LR-Transition */
+typedef struct
+{
+	short			action;			/* Action (Shift, Reduce...) */
 /* Parser actions */
 #define ERROR					0	/* Force parse error */
-#define REDUCE					1 	/* Reduce 			0 1 */
-#define SHIFT					2 	/* Shift 			1 0 */
-#define SHIFT_REDUCE			3 	/* Shift & Reduce 	1 1 */
+#define REDUCE					1 	/* Reduce by Production				0 1 */
+#define SHIFT					2 	/* Shift to State					1 0 */
+#define SHIFT_REDUCE			3 	/* Shift & Reduce by Production		1 1 */
+
+	pgsymbol*		symbol;			/* Symbol */
+
+	union
+	{
+		pglrstate*		state;			/* Shift to state */
+		pgproduction*	production;		/* Reduce by production */
+	} target;
+} pglrcolumn;

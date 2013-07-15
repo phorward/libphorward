@@ -47,11 +47,11 @@ int main()
 
 	/* LR(0) */
 	p_lr0 = pg_parser_create( g, PGPARADIGM_LR0 );
-	pg_parser_lr_closure( p_lr0 );
+	/* pg_parser_lr_closure( p_lr0 ); */
 
 	/* LR(1) */
 	p_lr1 = pg_parser_create( g, PGPARADIGM_LR1 );
-	pg_parser_lr_closure( p_lr1 );
+	/* pg_parser_lr_closure( p_lr1 ); */
 
 	/* LALR(1) */
 	p_lalr1 = pg_parser_create( g, PGPARADIGM_LALR1 );
