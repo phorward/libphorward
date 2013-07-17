@@ -27,6 +27,10 @@ pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm )
 	parser->grammar = grammar;
 	parser->paradigm = paradigm;
 
+	parser->optimize = TRUE;
+
+	pg_parser_generate( parser );
+
 	return parser;
 }
 
@@ -42,6 +46,50 @@ pgparser* pg_parser_free( pgparser* parser )
 	return (pgparser*)NULL;
 }
 
+/* Generate */
+
+BOOLEAN pg_parser_generate( pgparser* p )
+{
+	if( !( p ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( pg_parser_is_lr( p ) )
+		return pg_parser_lr_closure( p );
+	else if( pg_parser_is_ll( p ) )
+	{
+		TODO;
+		return FALSE;
+	}
+
+	return FALSE;
+}
+
+/* Check */
+
+/** Check if parser is bottom-up? */
+BOOLEAN pg_parser_is_lr( pgparser* p )
+{
+	if( p && ( p->paradigm == PGPARADIGM_LR0
+				|| p->paradigm == PGPARADIGM_SLR1
+					|| p->paradigm == PGPARADIGM_LR1
+						|| p->paradigm == PGPARADIGM_LALR1 ) )
+		return TRUE;
+
+	return FALSE;
+}
+
+/** Check if parser is top-dpwn? */
+BOOLEAN pg_parser_is_ll( pgparser* p )
+{
+	if( p && ( p->paradigm == PGPARADIGM_LL1 ) )
+		return TRUE;
+
+	return FALSE;
+}
+
 /* Attribute: Grammar */
 
 /* GET ONLY! */
@@ -54,4 +102,32 @@ pggrammar* pg_parser_get_grammar( pgparser* p )
 	}
 
 	return p->grammar;
+}
+
+/* Attribute: optimize */
+
+pboolean pg_parser_get_optimize( pgparser* p )
+{
+	if( !( p ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	return p->optimize;
+}
+
+pboolean pg_parser_set_optimize( pgparser* p, pboolean optimize )
+{
+	if( !( p ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( p->optimize == optimize )
+		return FALSE;
+
+	p->optimize = optimize;
+	return TRUE;
 }

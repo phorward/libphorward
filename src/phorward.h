@@ -889,6 +889,7 @@ typedef enum
 	PGPARADIGM_SLR1,				
 	PGPARADIGM_LR1,					
 	PGPARADIGM_LALR1,				
+
 	PGPARADIGM_LL1,					
 	
 	PGPARADIGM_EOP					
@@ -958,6 +959,8 @@ struct _pgparser
 	pgparadigm		paradigm;		
 
 	LIST*			states;			
+
+	pboolean		optimize;		
 };
 
 
@@ -1305,11 +1308,17 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
 
 
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
+BOOLEAN pg_parser_lr_reset( pgparser* parser );
 
 
 pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
 pgparser* pg_parser_free( pgparser* parser );
+BOOLEAN pg_parser_generate( pgparser* p );
+BOOLEAN pg_parser_is_lr( pgparser* p );
+BOOLEAN pg_parser_is_ll( pgparser* p );
 pggrammar* pg_parser_get_grammar( pgparser* p );
+pboolean pg_parser_get_optimize( pgparser* p );
+pboolean pg_parser_set_optimize( pgparser* p, pboolean optimize );
 
 
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );

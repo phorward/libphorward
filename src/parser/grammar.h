@@ -38,6 +38,7 @@ typedef enum
 	PGPARADIGM_SLR1,				/* SLR(1) */
 	PGPARADIGM_LR1,					/* LR(1) */
 	PGPARADIGM_LALR1,				/* LALR(1) */
+
 	PGPARADIGM_LL1,					/* LL(1) */
 	/* ~~~ */
 	PGPARADIGM_EOP					/* End Of Paradigms */
@@ -108,4 +109,6 @@ struct _pgparser
 	pgparadigm		paradigm;		/* Parsing paradigm */
 
 	LIST*			states;			/* The parser states */
+
+	pboolean		optimize;		/* Enable state optimizeion */
 };

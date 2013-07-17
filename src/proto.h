@@ -343,11 +343,17 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
 
 /* parser/lr.c */
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
+BOOLEAN pg_parser_lr_reset( pgparser* parser );
 
 /* parser/parser.c */
 pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
 pgparser* pg_parser_free( pgparser* parser );
+BOOLEAN pg_parser_generate( pgparser* p );
+BOOLEAN pg_parser_is_lr( pgparser* p );
+BOOLEAN pg_parser_is_ll( pgparser* p );
 pggrammar* pg_parser_get_grammar( pgparser* p );
+pboolean pg_parser_get_optimize( pgparser* p );
+pboolean pg_parser_set_optimize( pgparser* p, pboolean optimize );
 
 /* parser/production.c */
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );

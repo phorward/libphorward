@@ -55,7 +55,7 @@ void pg_grammar_print( pggrammar* g )
 	LISTFOR( g->productions, l )
 	{
 		p = (pgproduction*)list_access( l );
-		printf( "% 2d %s\n", pg_production_get_id( p ),
+		printf( "%02d %s\n", pg_production_get_id( p ),
 								pg_production_to_string( p ) );
 
 		if( p->select )
@@ -73,7 +73,7 @@ void pg_grammar_print( pggrammar* g )
 	printf( "--- Symbols ---\n" );
 	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
 	{
-		printf( "% 2d %s\n", pg_symbol_get_id( s ), pg_symbol_get_name( s ) );
+		printf( "%02d %s\n", pg_symbol_get_id( s ), pg_symbol_get_name( s ) );
 
 		if( s->first )
 		{

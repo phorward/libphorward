@@ -10,59 +10,6 @@ Usage:	LR/LALR/SLR parse table computation
 
 #include "local.h"
 
-static pglrstate* pg_lrstate_create( pgparser* parser )
-{
-	pglrstate*	state;
-
-	if( !( parser ) )
-	{
-		WRONGPARAM;
-		return (pglrstate*)NULL;
-	}
-
-	state = pmalloc( sizeof( pglrstate ) );
-	parser->states = list_push( parser->states, state );
-
-	return state;
-}
-
-static BOOLEAN pg_parser_lr_compare(
-		LIST* kernel1, LIST* kernel2, pgparadigm para )
-{
-	LIST*		l;
-	LIST*		m;
-	pglritem*	it1;
-	pglritem*	it2;
-	int			same	= 0;
-
-	if( list_count( kernel1 ) == list_count( kernel2 ) )
-	{
-		LISTFOR( kernel1, l )
-		{
-			it1 = (pglritem*)list_access( l );
-
-			LISTFOR( kernel2, m )
-			{
-				it2 = (pglritem*)list_access( m );
-
-				if( it1->prod == it2->prod
-					&& it1->dot == it2->dot
-					&& ( para != PGPARADIGM_LR1
-							|| list_diff( it1->lookahead, it2->lookahead ) )
-					)
-				{
-					same++;
-				}
-			}
-		}
-
-		if( list_count( kernel1 ) == same )
-			return TRUE;
-	}
-
-	return FALSE;
-}
-
 static void pg_lritem_print( pglritem* it, FILE* f )
 {
 	int			i;
@@ -195,6 +142,96 @@ static pglrcolumn* pg_lrcolumn_create( pglrstate* st, short action,
 	return col;
 }
 
+
+static pglrstate* pg_lrstate_create( pgparser* parser )
+{
+	pglrstate*	state;
+
+	if( !( parser ) )
+	{
+		WRONGPARAM;
+		return (pglrstate*)NULL;
+	}
+
+	state = pmalloc( sizeof( pglrstate ) );
+	parser->states = list_push( parser->states, state );
+
+	return state;
+}
+
+static pglrstate* pg_lrstate_free( pglrstate* state )
+{
+	LIST*		l;
+	pglrcolumn*	col;
+	pglritem*	it;
+
+	if( !state )
+		return (pglrstate*)NULL;
+
+	LISTFOR( state->actions, l )
+	{
+		col = (pglrcolumn*)list_access( l );
+		pfree( col );
+	}
+
+	LISTFOR( state->gotos, l )
+	{
+		col = (pglrcolumn*)list_access( l );
+		pfree( col );
+	}
+
+	LISTFOR( state->kernel, l )
+	{
+		it = (pglritem*)list_access( l );
+		pfree( col );
+	}
+
+	state->actions = list_free( state->actions );
+	state->gotos = list_free( state->gotos );
+	state->kernel = list_free( state->kernel );
+
+	pfree( state );
+
+	return (pglrstate*)NULL;
+}
+
+static BOOLEAN pg_parser_lr_compare(
+		LIST* kernel1, LIST* kernel2, pgparadigm para )
+{
+	LIST*		l;
+	LIST*		m;
+	pglritem*	it1;
+	pglritem*	it2;
+	int			same	= 0;
+
+	if( list_count( kernel1 ) == list_count( kernel2 ) )
+	{
+		LISTFOR( kernel1, l )
+		{
+			it1 = (pglritem*)list_access( l );
+
+			LISTFOR( kernel2, m )
+			{
+				it2 = (pglritem*)list_access( m );
+
+				if( it1->prod == it2->prod
+					&& it1->dot == it2->dot
+					&& ( para != PGPARADIGM_LR1
+							|| list_diff( it1->lookahead, it2->lookahead ) )
+					)
+				{
+					same++;
+				}
+			}
+		}
+
+		if( list_count( kernel1 ) == same )
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
 static pglrstate* pg_parser_lr_get_undone( pgparser* parser )
 {
 	pglrstate*	st;
@@ -231,7 +268,6 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	int				j;
 	int				cnt;
 	int				prev_cnt;
-	pboolean		optimize	= TRUE;
 
 	if( !( parser ) )
 	{
@@ -239,20 +275,19 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		return FALSE;
 	}
 
-	if( !( parser->paradigm == PGPARADIGM_LALR1
-			|| parser->paradigm == PGPARADIGM_LR0
-				|| parser->paradigm == PGPARADIGM_LR1
-					|| parser->paradigm == PGPARADIGM_SLR1 ) )
+	if( !pg_parser_is_lr( parser ) )
 	{
 		PGERR( "Wrong paradigm to function" );
 		return FALSE;
 	}
 
-	/* Perform FIRST closure */
-	pg_grammar_compute_first( pg_parser_get_grammar( parser ) );
-	pg_grammar_print( pg_parser_get_grammar( parser ) );
+	/* Reset LR parse tables */
+	pg_parser_lr_reset( parser );
 
-	/* Starting seed */
+	/* Perform FIRST set computation */
+	pg_grammar_compute_first( pg_parser_get_grammar( parser ) );
+
+	/* Create a starting seed */
 	nst = pg_lrstate_create( parser );
 	it = pg_lritem_create( &nst->kernel,
 				pg_production_get_by_lhs(
@@ -378,7 +413,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			if( !start )
 				break;
 
-			/* Remove new kernel from closure */
+			/* Remove this partition from closure */
 			LISTFOR( start, l )
 				closure = list_remove( closure, list_access( l ) );
 
@@ -393,13 +428,15 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				terminals and/or nonterminals or even epsilon, and z is a
 				terminal or nonterminal.
 			*/
-			if( optimize &&
+			if( pg_parser_get_optimize( parser ) &&
 					list_count( start ) == 1 &&
 						!pg_production_get_rhs( it->prod, it->dot ) )
 			{
 				if( !st->closed )
 					pg_lrcolumn_create( st, SHIFT_REDUCE, sym, it->prod );
 
+				/* Forget current partition
+					- its not needed anymore... */
 				LISTFOR( start, l )
 					pg_lritem_free( (pglritem*)list_access( l ) );
 
@@ -550,6 +587,32 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 								col->target.state ),
 									pg_symbol_get_name( col->symbol ) );
 		}
+	}
+
+	return TRUE;
+}
+
+BOOLEAN pg_parser_lr_reset( pgparser* parser )
+{
+	LIST*		l;
+	pglrstate*	st;
+
+	if( !( parser ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !pg_parser_is_lr( parser ) )
+	{
+		PGERR( "Wrong paradigm to function" );
+		return FALSE;
+	}
+
+	LISTFOR( parser->states, l )
+	{
+		st = (pglrstate*)list_access( l );
+		pg_lrstate_free( st );
 	}
 
 	return TRUE;
