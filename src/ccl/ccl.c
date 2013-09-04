@@ -300,9 +300,9 @@ input.
 Returns a pointer to the newly created character class. This pointer should be
 released with ccl_free() when its existence is no longer required.
 */
-CCL ccl_create( uchar* ccldef )
+CCL ccl_create( char* ccldef )
 {
-	uchar*	cclptr;
+	char*	cclptr;
 	CCL		ccl		= (CCL)NULL;
 	pchar	begin, end, swap;
 	pchar	size	= 0;
@@ -397,7 +397,7 @@ void ccl_print( FILE* stream, CCL ccl, int break_after )
 {
 	CCL		i;
 	int		cnt;
-	uchar	outstr[ 2 ] [ 10 + 1 ];
+	char	outstr[ 2 ] [ 10 + 1 ];
 
 	if( !stream )
 		stream = stderr;
@@ -438,12 +438,12 @@ be returned as "\0"
 Returns the generated string that represents the charclass. The returned pointer
 must be released with pfree() after its existence is no longer required.
 */
-uchar* ccl_to_str( CCL ccl, pboolean escape )
+char* ccl_to_str( CCL ccl, pboolean escape )
 {
 	CCL		i;
-	uchar	from	[ 40 + 1 ];
-	uchar	to		[ 20 + 1 ];
-	uchar*	ret		= (uchar*)NULL;
+	char	from	[ 40 + 1 ];
+	char	to		[ 20 + 1 ];
+	char*	ret		= (char*)NULL;
 
 	PROC( "ccl_to_str" );
 	PARMS( "ccl", "%p", ccl );
@@ -452,7 +452,7 @@ uchar* ccl_to_str( CCL ccl, pboolean escape )
 	if( !( ccl ) )
 	{
 		WRONGPARAM;
-		RETURN( (uchar*)NULL );
+		RETURN( (char*)NULL );
 	}
 
 	for( i = ccl; i && i->begin != CCL_MAX; i++ )
@@ -474,26 +474,26 @@ uchar* ccl_to_str( CCL ccl, pboolean escape )
 
 		if( !ret )
 		{
-			ret = (uchar*)pmalloc( ( strlen( from ) + 1 )
-									* sizeof( uchar ) );
+			ret = (char*)pmalloc( ( strlen( from ) + 1 )
+									* sizeof( char ) );
 			*ret = '\0';
 		}
 		else
-			ret = (uchar*)prealloc( (uchar*)ret,
+			ret = (char*)prealloc( (char*)ret,
 					( strlen( ret ) + strlen( from ) + 1 )
-									* sizeof( uchar ) );
+									* sizeof( char ) );
 
 		if( !ret )
 		{
 			MSG( "Out of memory?" );
-			RETURN( (uchar*)NULL );
+			RETURN( (char*)NULL );
 		}
 
 		strcat( ret, from );
 	}
 
 	VARS( "ret", "%s", ret );
-	RETURN( ret ? ret : (uchar*)strdup( "" ) );
+	RETURN( ret ? ret : (char*)strdup( "" ) );
 }
 
 /** Integrates a character range into a character class.

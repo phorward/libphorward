@@ -86,7 +86,7 @@ pregex_ref_init()).
 //strp// is the current string pointer within the currently parsed string.
 //off// is the current offset within the parsed string.
 */
-void pregex_ref_update( pregex_range* ref, uchar* strp, psize off )
+void pregex_ref_update( pregex_range* ref, char* strp, psize off )
 {
 	PROC( "pregex_ref_update" );
 	PARMS( "ref", "%p", ref );

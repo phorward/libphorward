@@ -12,7 +12,7 @@ Usage:	Hash Table Library
 #include <phorward.h>
 
 /* Hash function to retrieve the bucket index. */
-static int hashtab_bucket_idx( HASHTAB* hashtab, uchar* key )
+static int hashtab_bucket_idx( HASHTAB* hashtab, char* key )
 {
 	psize hashval	= 0L;
 	psize len;
@@ -129,7 +129,7 @@ key valze. //data// is the optional data node.
 Returns a **HASHELEM** pointer to the inserted hash table element,
 or NULL in error case.
 */
-HASHELEM* hashtab_insert( HASHTAB* hashtab, uchar* key, void* data )
+HASHELEM* hashtab_insert( HASHTAB* hashtab, char* key, void* data )
 {
 	HASHELEM*	elem		= (HASHELEM*)NULL;
 	pint		bucket;
@@ -168,7 +168,7 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, uchar* key, void* data )
 			if( !( hashtab->flags & HASHTAB_MOD_EXTKEYS ) )
 			{
 				if( hashtab->flags & HASHTAB_MOD_WCHAR )
-					elem->key = (uchar*)Pstrdup( (pchar*)key );
+					elem->key = (char*)Pstrdup( (pchar*)key );
 				else
 					elem->key = strdup( key );
 			}
@@ -204,7 +204,7 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, uchar* key, void* data )
 Returns a **HASHELEM** pointer to the desired hash table element, or
 NULL in case that no element with //key// exists.
 */
-HASHELEM* hashtab_get( HASHTAB* hashtab, uchar* key )
+HASHELEM* hashtab_get( HASHTAB* hashtab, char* key )
 {
 	HASHELEM*	elem		= (HASHELEM*)NULL;
 	int			bucket;
@@ -236,7 +236,7 @@ of the entry //key//.
 Returns the **HASHELEM** pointer of the updated hash table element, or
 NULL in case the element can't be found to be updated.
 */
-HASHELEM* hashtab_update( HASHTAB* hashtab, uchar* key, void* data )
+HASHELEM* hashtab_update( HASHTAB* hashtab, char* key, void* data )
 {
 	HASHELEM*	elem;
 	
@@ -257,7 +257,7 @@ data element cleanup function.
 Returns a //HASHELEM// pointer to the discarded hash table element, or
 (HASHELEM*)NULL if the element //key// does not exist in the hash table.
 */
-HASHELEM* hashtab_discard( HASHTAB* hashtab, uchar* key,
+HASHELEM* hashtab_discard( HASHTAB* hashtab, char* key,
 			void (*freefct)(void*) )
 {
 	HASHELEM*	elem		= (HASHELEM*)NULL;
@@ -326,7 +326,7 @@ cleanup function.
 Returns a **pint** ERR_OK on success, else an adequate error define. 1 is
 returned if the item was not found under //key//.
 */
-pint hashtab_delete( HASHTAB* hashtab, uchar* key, void (*freefct)(void*) )
+pint hashtab_delete( HASHTAB* hashtab, char* key, void (*freefct)(void*) )
 {
 	HASHELEM*	elem		= (HASHELEM*)NULL;
 	pint		bucket;
@@ -558,12 +558,12 @@ void* hashelem_access( HASHELEM* hashelem )
 
 //hashelem// is the hash table element.
 
-Returns a **uchar** pointer to the hash table element's key string.
+Returns a **char** pointer to the hash table element's key string.
 */
-uchar* hashelem_key( HASHELEM* hashelem )
+char* hashelem_key( HASHELEM* hashelem )
 {
 	if( !( hashelem ) )
-		return (uchar*)NULL;
+		return (char*)NULL;
 
 	return hashelem->key;
 }

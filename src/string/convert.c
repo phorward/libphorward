@@ -10,7 +10,7 @@ Usage:	Conversion functions for data type and storage type conversion.
 		All functions within this module reserve memory for their returned
 		data, so there is not always a pendant-function right in here for
 		every conversion function. For example, plong_to_uchar() converts a
-		long-value into an allocated uchar-string, but the C standard library
+		long-value into an allocated char-string, but the C standard library
 		wrapper pstrtol() is the pendant to convert a string into a long value.
 ----------------------------------------------------------------------------- */
 
@@ -49,30 +49,30 @@ Usage:	Conversion functions for data type and storage type conversion.
 					pboolean	freestr			Frees input-string after
 												conversion, if TRUE.
 	
-	Returns:		uchar*						Returns the UTF-8 pendant of
+	Returns:		char*						Returns the UTF-8 pendant of
 												str as dynamically allocated
 												memory area.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pchar_to_uchar( pchar* str, pboolean freestr )
+char* pchar_to_uchar( pchar* str, pboolean freestr )
 {
 	psize	size;
-	uchar*	retstr;
+	char*	retstr;
 
 	PROC( "pchar_to_uchar" );
 	PARMS( "str", "%ls", str );
 	PARMS( "freestr", "%s", BOOLEAN_STR( freestr ) );
 
 #ifdef UNICODE
-	size = wcstombs( (uchar*)NULL, str, 0 );
+	size = wcstombs( (char*)NULL, str, 0 );
 	VARS( "size", "%ld", size );
 
-	if( !( retstr = (uchar*)pmalloc( ( size + 1 ) * sizeof( uchar ) ) ) )
+	if( !( retstr = (char*)pmalloc( ( size + 1 ) * sizeof( char ) ) ) )
 	{
 		MSG( "Out of memory?" );
-		RETURN( (uchar*)NULL );
+		RETURN( (char*)NULL );
 	}
 
 	wcstombs( retstr, str, size + 1 );
@@ -105,7 +105,7 @@ uchar* pchar_to_uchar( pchar* str, pboolean freestr )
 					set_locale() must be done before this function works
 					properly.
 					
-	Parameters:		uchar*		str				Zero-terminated UTF-8 string to
+	Parameters:		char*		str				Zero-terminated UTF-8 string to
 												be converted into a wide
 												character string.
 					pboolean	freestr			Frees input-string after
@@ -121,7 +121,7 @@ uchar* pchar_to_uchar( pchar* str, pboolean freestr )
 								circumstances, adding +1 to the final conversion
 								call resolved this problem.
 ----------------------------------------------------------------------------- */
-pchar* uchar_to_pchar( uchar* str, pboolean freestr )
+pchar* uchar_to_pchar( char* str, pboolean freestr )
 {
 	psize	size;
 	pchar*	retstr;
@@ -162,18 +162,18 @@ pchar* uchar_to_pchar( uchar* str, pboolean freestr )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Converts long-value into an allocated uchar string buffer.
+	Usage:			Converts long-value into an allocated char string buffer.
 
 	Parameters:		plong		l			Long value to become converted.
 					
-	Returns:		uchar*					Pointer to the newly allocated
+	Returns:		char*					Pointer to the newly allocated
 											string, which contains the string-
 											representation of the long value.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* plong_to_uchar( plong l )
+char* plong_to_uchar( plong l )
 {
 	PROC( "plong_to_uchar" );
 	PARMS( "l", "%ld", l );
@@ -213,19 +213,19 @@ pchar* plong_to_pchar( plong l )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Converts unsigned long-value into an allocated uchar
+	Usage:			Converts unsigned long-value into an allocated char
 					string buffer.
 
 	Parameters:		plong		l			Long value to become converted.
 					
-	Returns:		uchar*					Pointer to the newly allocated
+	Returns:		char*					Pointer to the newly allocated
 											string, which contains the string-
 											representation of the long value.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pulong_to_uchar( pulong ul )
+char* pulong_to_uchar( pulong ul )
 {
 	PROC( "pulong_to_uchar" );
 	PARMS( "l", "%ld", ul );
@@ -265,29 +265,29 @@ pchar* pulong_to_pchar( pulong ul )
 	
 	Author:			Jan Max Meyer
 	
-	Usage:			Converts double-value into an allocated uchar string buffer.
+	Usage:			Converts double-value into an allocated char string buffer.
 					Zero-digits behind the decimal will be removed, so "1.65000"
 					will become to "1.65" in its string representation.
 
 	Parameters:		pdouble		d			Double value to become converted.
 					
-	Returns:		uchar*					Pointer to the newly allocated
+	Returns:		char*					Pointer to the newly allocated
 											string, which contains the string-
 											representation of the double value.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pdouble_to_uchar( pdouble d )
+char* pdouble_to_uchar( pdouble d )
 {
-	uchar*		ret;
-	uchar*		trail;
+	char*		ret;
+	char*		trail;
 
 	PROC( "pdouble_to_uchar" );
 	PARMS( "d", "%lf", d );
 
 	if( !( ret = pasprintf( "%lf", d ) ) )
-		RETURN( (uchar*)NULL );
+		RETURN( (char*)NULL );
 	VARS( "ret", "%s", ret );
 	
 	for( trail = ret + pstrlen( ret ) - 1;
@@ -311,7 +311,7 @@ uchar* pdouble_to_uchar( pdouble d )
 
 	Parameters:		pdouble		d			Double value to become converted.
 					
-	Returns:		uchar*					Pointer to the newly allocated
+	Returns:		char*					Pointer to the newly allocated
 											wide-string, which contains the 
 											wide string-representation of the
 											double value, if compiled with

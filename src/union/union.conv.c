@@ -41,7 +41,7 @@ pbyte punion_to_byte( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pbyte)var->val.d );
 		case PUNION_STRING:
-			RETURN( (pbyte)pstrtol( var->val.s, (uchar**)NULL, 0 ) );
+			RETURN( (pbyte)pstrtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (pbyte)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -55,16 +55,16 @@ pbyte punion_to_byte( punion* var )
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Converts a variant's current value into a uchar variable.
+	Usage:			Converts a variant's current value into a char variable.
 
 	Parameters:		punion*	var	Pointer to punion structure.
 
-	Returns:		uchar		The uchar-value of the variant.
+	Returns:		char		The char-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar punion_to_char( punion* var )
+char punion_to_char( punion* var )
 {
 	PROC( "punion_to_char" );
 	PARMS( "var", "%p", var );
@@ -72,27 +72,27 @@ uchar punion_to_char( punion* var )
 	switch( punion_type( var ) )
 	{
 		case PUNION_BYTE:
-			RETURN( (uchar)var->val.b );
+			RETURN( (char)var->val.b );
 		case PUNION_CHAR:
 			RETURN( var->val.c );
 		case PUNION_INT:
-			RETURN( (uchar)var->val.i );
+			RETURN( (char)var->val.i );
 		case PUNION_LONG:
-			RETURN( (uchar)var->val.l );
+			RETURN( (char)var->val.l );
 		case PUNION_ULONG:
-			RETURN( (uchar)var->val.ul );
+			RETURN( (char)var->val.ul );
 		case PUNION_FLOAT:
-			RETURN( (uchar)var->val.f );
+			RETURN( (char)var->val.f );
 		case PUNION_DOUBLE:
-			RETURN( (uchar)var->val.d );
+			RETURN( (char)var->val.d );
 		case PUNION_STRING:
-			RETURN( (uchar)pstrtol( var->val.s, (uchar**)NULL, 0 ) );
+			RETURN( (char)pstrtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
-			RETURN( (uchar)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (char)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
 
 	MSG( "Can't convert this type!" );
-	RETURN( (uchar)0 );
+	RETURN( (char)0 );
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -131,7 +131,7 @@ pint punion_to_int( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pint)var->val.d );
 		case PUNION_STRING:
-			RETURN( (pint)pstrtol( var->val.s, (uchar**)NULL, 0 ) );
+			RETURN( (pint)pstrtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (pint)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -176,7 +176,7 @@ plong punion_to_long( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (plong)var->val.d );
 		case PUNION_STRING:
-			RETURN( (plong)pstrtol( var->val.s, (uchar**)NULL, 0 ) );
+			RETURN( (plong)pstrtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (plong)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -221,7 +221,7 @@ pulong punion_to_ulong( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pulong)var->val.d );
 		case PUNION_STRING:
-			RETURN( (pulong)pstrtol( var->val.s, (uchar**)NULL, 0 ) );
+			RETURN( (pulong)pstrtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (pulong)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -266,7 +266,7 @@ pfloat punion_to_float( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pfloat)var->val.d );
 		case PUNION_STRING:
-			RETURN( (pfloat)pstrtod( var->val.s, (uchar**)NULL ) );
+			RETURN( (pfloat)pstrtod( var->val.s, (char**)NULL ) );
 		case PUNION_WSTRING:
 			RETURN( (pfloat)Pstrtod( var->val.ws, (pchar**)NULL ) );
 	}
@@ -311,7 +311,7 @@ pdouble punion_to_double( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( var->val.d );
 		case PUNION_STRING:
-			RETURN( (pdouble)pstrtod( var->val.s, (uchar**)NULL ) );
+			RETURN( (pdouble)pstrtod( var->val.s, (char**)NULL ) );
 		case PUNION_WSTRING:
 			RETURN( (pdouble)Pstrtod( var->val.ws, (pchar**)NULL ) );
 	}
@@ -325,18 +325,18 @@ pdouble punion_to_double( punion* var )
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Converts a variant's current value into a uchar* variable.
+	Usage:			Converts a variant's current value into a char* variable.
 					The returned memory is allocated, and must be freed by the caller.
 
 	Parameters:		punion*	var	Pointer to punion structure.
 
-	Returns:		uchar*		The uchar*-value of the variant.
+	Returns:		char*		The char*-value of the variant.
 					Memory must be freed by caller!
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* punion_to_string( punion* var )
+char* punion_to_string( punion* var )
 {
 	PROC( "punion_to_string" );
 	PARMS( "var", "%p", var );
@@ -344,27 +344,27 @@ uchar* punion_to_string( punion* var )
 	switch( punion_type( var ) )
 	{
 		case PUNION_BYTE:
-			RETURN( (uchar*)plong_to_uchar( (plong)var->val.b ) );
+			RETURN( (char*)plong_to_uchar( (plong)var->val.b ) );
 		case PUNION_CHAR:
-			RETURN( (uchar*)plong_to_uchar( (plong)var->val.c ) );
+			RETURN( (char*)plong_to_uchar( (plong)var->val.c ) );
 		case PUNION_INT:
-			RETURN( (uchar*)plong_to_uchar( (plong)var->val.i ) );
+			RETURN( (char*)plong_to_uchar( (plong)var->val.i ) );
 		case PUNION_LONG:
-			RETURN( (uchar*)plong_to_uchar( var->val.l ) );
+			RETURN( (char*)plong_to_uchar( var->val.l ) );
 		case PUNION_ULONG:
-			RETURN( (uchar*)pulong_to_uchar( var->val.ul ) );
+			RETURN( (char*)pulong_to_uchar( var->val.ul ) );
 		case PUNION_FLOAT:
-			RETURN( (uchar*)pdouble_to_uchar( (double)var->val.f ) );
+			RETURN( (char*)pdouble_to_uchar( (double)var->val.f ) );
 		case PUNION_DOUBLE:
-			RETURN( (uchar*)pdouble_to_uchar( var->val.d ) );
+			RETURN( (char*)pdouble_to_uchar( var->val.d ) );
 		case PUNION_STRING:
 			RETURN( var->val.s );
 		case PUNION_WSTRING:
-			RETURN( (uchar*)pchar_to_uchar( var->val.ws, FALSE ) );
+			RETURN( (char*)pchar_to_uchar( var->val.ws, FALSE ) );
 	}
 
 	MSG( "Can't convert this type!" );
-	RETURN( (uchar*)NULL );
+	RETURN( (char*)NULL );
 }
 
 /* -FUNCTION--------------------------------------------------------------------

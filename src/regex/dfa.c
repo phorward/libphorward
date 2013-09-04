@@ -761,7 +761,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the
 bestmost (=longes) match.
 */
-int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
+int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		int* anchors, pregex_range** ref, int* ref_count, int flags )
 {
 	pregex_dfa_st*	dfa_st;
@@ -769,7 +769,7 @@ int pregex_dfa_match( pregex_dfa* dfa, uchar* str, size_t* len,
 	pregex_dfa_st*	last_accept = (pregex_dfa_st*)NULL;
 	pregex_dfa_tr*	ent;
 	LIST*			l;
-	uchar*			pstr		= str;
+	char*			pstr		= str;
 	size_t			plen		= 0;
 	pchar			ch;
 	int				i;

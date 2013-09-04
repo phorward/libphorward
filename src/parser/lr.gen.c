@@ -4,7 +4,7 @@ Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	lr.c
+File:	lr.gen.c
 Usage:	LR/LALR/SLR parse table computation
 ----------------------------------------------------------------------------- */
 
@@ -61,7 +61,7 @@ static void pg_lritem_print( pglritem* it, FILE* f )
 	fprintf( f, "\n" );
 }
 
-static void pg_lritems_print( LIST* items, FILE* f, uchar* what )
+static void pg_lritems_print( LIST* items, FILE* f, char* what )
 {
 	LIST*	l;
 
@@ -429,8 +429,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				terminal or nonterminal.
 			*/
 			if( pg_parser_get_optimize( parser ) &&
-					list_count( start ) == 1 &&
-						!pg_production_get_rhs( it->prod, it->dot ) )
+					( list_count( start ) == 1 &&
+						!pg_production_get_rhs( it->prod, it->dot ) ) )
 			{
 				if( !st->closed )
 					pg_lrcolumn_create( st, SHIFT_REDUCE, sym, it->prod );
@@ -583,8 +583,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			col = (pglrcolumn*)list_access( m );
 
 			fprintf( stderr, "\t-> Goto state state %d on symbol '%s'\n",
-							list_find( parser->states,
-								col->target.state ),
+							list_find( parser->states, col->target.state ),
 									pg_symbol_get_name( col->symbol ) );
 		}
 	}

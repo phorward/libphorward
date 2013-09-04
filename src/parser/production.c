@@ -61,7 +61,7 @@ pgproduction* pg_production_drop( pgproduction* p )
 
 /* Debug */
 
-uchar* pg_production_to_string( pgproduction* p )
+char* pg_production_to_string( pgproduction* p )
 {
 	LIST*		l;
 	pgsymbol*	sym;
@@ -72,7 +72,7 @@ uchar* pg_production_to_string( pgproduction* p )
 		return "";
 	}
 
-	p->strval = (uchar*)pfree( p->strval );
+	p->strval = (char*)pfree( p->strval );
 
 	p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
 	p->strval = pstrcatstr( p->strval, " : ", FALSE );

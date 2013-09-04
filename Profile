@@ -1,0 +1,7 @@
+#!/bin/sh
+
+./AllSystemsGo
+
+PATH="`pwd`/run:$PATH"
+export PATH
+

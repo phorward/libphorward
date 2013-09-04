@@ -15,6 +15,9 @@ typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgparser			pgparser;
 
+typedef struct _pgtoken				pgtoken;
+typedef struct _pgastnode			pgastnode;
+
 typedef enum
 {
 	PGSYMTYPE_UNDEFINED,			/* Undefined symbol */
@@ -51,7 +54,7 @@ struct _pgsymbol
 
 	int				id;				/* Symbol ID */
 	pgsymtype		type;			/* Symbol type */
-	uchar*			name;			/* Symbol name */
+	char*			name;			/* Symbol name */
 
 	pboolean		nullable;		/* Nullable-flag (FIRST-set computation) */
 
@@ -86,7 +89,7 @@ struct _pgproduction
 
 	LIST*			select;			/* SELECT-set */
 
-	uchar*			strval;			/* String representation */
+	char*			strval;			/* String representation */
 };
 
 /* Grammar */
@@ -111,4 +114,23 @@ struct _pgparser
 	LIST*			states;			/* The parser states */
 
 	pboolean		optimize;		/* Enable state optimizeion */
+	char*			source;			/* Source */
+};
+
+/* Token */
+struct _pgtoken
+{
+	pgsymbol*		symbol;			/* Symbol of token */
+	char*			token;			/* Token text */
+};
+
+/* AST */
+struct _pgastnode
+{
+	pgtoken*		token;			/* Token of node */
+
+	pgastnode*		parent;			/* Parent node */
+	pgastnode*		child;			/* First child node */
+	pgastnode*		prev;			/* Previous node in current level */
+	pgastnode*		next;			/* Next node in current level */
 };

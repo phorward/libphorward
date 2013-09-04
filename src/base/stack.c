@@ -15,8 +15,8 @@ Usage:	Universal, dynamic stack management functions
 
 //stack// is the pointer to stack to be initialized.
 
-//size// defines the size of one stack element, in bytes. This should be
-evaluated with the sizeof()-macro.
+//size// defines the size of one stack element, in bytes.
+This should be evaluated using the sizeof()-macro.
 
 //step// defines the step size, where a stack-(re)allocation will be performed.
 If, e.g. this is set to 128, then, if the 128th item is pushed onto the stack,
@@ -29,11 +29,11 @@ void stack_init( STACK* stack, psize size, psize step )
 	PARMS( "stack", "%p", stack );
 	PARMS( "size", "%d", size );
 	PARMS( "step", "%d", step );
-	
+
 	memset( stack, 0, sizeof( STACK ) );
 	stack->size = size;
 	stack->step = step;
-	
+
 	VOIDRET;
 }
 
@@ -45,13 +45,13 @@ The function //void (*ff)( pbyte*)// is a pointer to callback-function that is
 used to free one element. The function retrieves the pointer of the element.
 */
 void stack_free( STACK* stack, void (*ff)( pbyte* ) )
-{	
+{
 	psize	i;
-	
+
 	PROC( "stack_free" );
 	PARMS( "stack", "%p", stack );
 	PARMS( "ff", "%p", ff );
-	
+
 	if( ff )
 	{
 		MSG( "Freeing each element" );
@@ -61,13 +61,13 @@ void stack_free( STACK* stack, void (*ff)( pbyte* ) )
 			(*ff)( stack_access( stack, i ) );
 		}
 	}
-	
+
 	pfree( stack->stack );
 
 	stack->stack = (pbyte*)NULL;
 	stack->top = 0;
 	stack->count = 0;
-	
+
 	VOIDRET;
 }
 
@@ -109,9 +109,9 @@ pbyte* stack_push( STACK* stack, pbyte* item )
 	else if( stack->top + 1 == stack->count )
 	{
 		MSG( "A stack expansion is required" );
-		
+
 		stack->count += stack->step;
-				
+
 		VARS( "Re-allocating bytes", "%d", stack->step * stack->size );
 		if( !( stack->stack = (pbyte*)prealloc( (void*)stack->stack,
 					stack->count * stack->size ) ) )
@@ -120,7 +120,7 @@ pbyte* stack_push( STACK* stack, pbyte* item )
 			return (pbyte*)NULL;
 		}
 	}
-	
+
 	/* Copy item into top of stack */
 	memcpy( stack->stack + stack->top * stack->size, item, stack->size );
 	return stack->stack + stack->top++ * stack->size;
@@ -147,7 +147,7 @@ pbyte* stack_pop( STACK* stack )
 		MSG( "top is zero, no items on the stack." );
 		RETURN( (pbyte*)NULL );
 	}
-	
+
 	RETURN( stack->stack + --stack->top * stack->size );
 }
 
@@ -171,17 +171,17 @@ pbyte* stack_access( STACK* stack, psize offset )
 		MSG( "offset defines an item that is out of bounds within stack" );
 		RETURN( (pbyte*)NULL );
 	}
-	
+
 	RETURN( stack->stack + offset * stack->size );
 }
 
 /** Dumps all stack-items to stderr.
 
 //file// is the name of the source file of stack dump occurence.
-Use the __FILE__-macro to obtain source file name.
+Use the ``__FILE__``-macro to obtain source file name.
 
 //line// is the line within the source file of stack dump occurence.
-Use __LINE__-macro to obtain source file name.
+Use ``__LINE__``-macro to obtain source file name.
 
 //name// defines the stack's name, in string letters.
 
@@ -190,11 +190,11 @@ Use __LINE__-macro to obtain source file name.
 //void (*pf)( pbyte*)// is a pointer to callback-function that is used to print
 one element. The function retrieves the pointer of the element.
 */
-void stack_dump( uchar* file, int line, uchar* name,
+void stack_dump( char* file, int line, char* name,
 		STACK* stack, void (*pf)( pbyte* ) )
 {
 	psize	i;
-	
+
  	fprintf( stderr, "%s [%d]: %s %p\n", file, line, name, stack );
 
 	for( i = 0; i < stack->top; i++ )
@@ -207,4 +207,13 @@ void stack_dump( uchar* file, int line, uchar* name,
 
 	fprintf( stderr, "%s [%d]: %s %ld active, %ld left empty\n",
 		file, line, name, stack->top, stack->count - stack->top );
+}
+
+/** Returns the number of elements in a stack. */
+int stack_count( STACK* stack )
+{
+	if( !stack )
+		return 0;
+
+	return stack->top;
 }

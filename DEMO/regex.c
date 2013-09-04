@@ -102,7 +102,7 @@
 ============================================================================= */
 void direct_regex_demo( void )
 {
-	uchar*			str		=	"Gliding is a recreational activity and "
+	char*			str		=	"Gliding is a recreational activity and "
 								"competitive air sport in which pilots fly "
 								"unpowered aircraft known as gliders or "
 								"sailplanes using naturally occurring currents "
@@ -144,7 +144,7 @@ void direct_regex_demo( void )
 	pregex_range*	res;
 	int				matches;
 	int				i;
-	uchar*			result;
+	char*			result;
 	pchar*			lresult;
 
 	printf( "\n*** direct_regex_demo ***\n\n" );
@@ -168,12 +168,12 @@ void direct_regex_demo( void )
 							identifying numbers into one state machine. Which
 							regular expression matches will be written to this
 							member variable.
-		uchar* begin		uchar*-Pointer (byte-Pointer) to the begin of the
+		char* begin		char*-Pointer (byte-Pointer) to the begin of the
 							match.
 		pchar* pbegin		If compiled with UNICODE-flag and the function
 							was called with PREGEX_MOD_WCHAR, this contains the
 							wide-character begin pointer of the match.
-		uchar* end			uchar*-Pointer (byte-Pointer) to the end of the
+		char* end			char*-Pointer (byte-Pointer) to the end of the
 							match.
 		pchar* pend			If compiled with UNICODE-flag and the function
 							was called with PREGEX_MOD_WCHAR, this contains the
@@ -214,16 +214,16 @@ void direct_regex_demo( void )
 	/* Matching with wide-character strings and regular expressions... */
 	/* First, a simple match. We want to match all words that consist of one
 		or two characters! */
-	lresult = (pchar*)pregex_qreplace( (uchar*)L"(wide-character)",
-						(uchar*)lstr, (uchar*)L"$1 (also known as 'pchar')",
+	lresult = (pchar*)pregex_qreplace( (char*)L"(wide-character)",
+						(char*)lstr, (char*)L"$1 (also known as 'pchar')",
 								PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR );
 
 	printf( "2) This is the modified wide-character string:"
 					"\n%ls\n\n", lresult );
 	pfree( lresult );
 
-	lresult = (pchar*)pregex_qreplace( (uchar*)L"€+", (uchar*)lstr,
-						(uchar*)L"EUR", PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR );
+	lresult = (pchar*)pregex_qreplace( (char*)L"€+", (char*)lstr,
+						(char*)L"EUR", PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR );
 
 	printf( "3) This is the modified wide-character string:"
 					"\n%ls\n\n", lresult );
@@ -284,8 +284,8 @@ static int regex_callback2( pregex* regex, pregex_range* res )
 void compiled_regex_demo( void )
 {
 	pregex*			rx;
-	uchar*			simple = "Hello WORLD this is 876 a funny 123.3 test .4 :)";
-	uchar*			newstr;
+	char*			simple = "Hello WORLD this is 876 a funny 123.3 test .4 :)";
+	char*			newstr;
 	pregex_range*	res;
 	int				matches;
 	int				i;
@@ -300,7 +300,7 @@ void compiled_regex_demo( void )
 
 	/* First, we're extracting tokens from a string */
 	for( res = pregex_match_next( rx, simple ), i = 0; res;
-			res = pregex_match_next( rx, (uchar*)NULL ), i++ )
+			res = pregex_match_next( rx, (char*)NULL ), i++ )
 	{
 		printf( "%d: id %d >%.*s<\n", i, res->accept,
 			(int)res->len, res->begin );
@@ -328,7 +328,7 @@ void compiled_regex_demo( void )
 	pregex_set_match_fn( rx, regex_callback2 );
 
 	for( res = pregex_match_next( rx, simple ), i = 0; res;
-			res = pregex_match_next( rx, (uchar*)NULL ), i++ )
+			res = pregex_match_next( rx, (char*)NULL ), i++ )
 	{
 		printf( "%d: id %d >%.*s<\n", i, res->accept,
 			(int)res->len, res->begin );
@@ -357,7 +357,7 @@ int main( int argc, char** argv )
 
 	for( mr = pregex_match_next( rx,
 			"hallo\n@leute das\nist ein @test mit" );
-			mr; mr = pregex_match_next( rx, (uchar*)NULL ) )
+			mr; mr = pregex_match_next( rx, (char*)NULL ) )
 	{
 		printf( ">%.*s<\n", mr->len, mr->begin );
 	}

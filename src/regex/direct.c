@@ -26,7 +26,7 @@ Returns the number of matches, which is the amount of result entries in the
 returned array //results//. If the value is negative, an error occured, and
 an ERR_-define can be used to find out the reason.
 */
-int pregex_qmatch( uchar* regex, uchar* str,
+int pregex_qmatch( char* regex, char* str,
 					int flags, pregex_range** results )
 {
 	int				matches		= 0;
@@ -74,7 +74,7 @@ Returns the number of split substrings, which is the amount of result entries in
 the returned array //results//. If the value is negative, an error occured, and
 an ERR_-define can be used to find out the reason.
 */
-int pregex_qsplit( uchar* regex, uchar* str,
+int pregex_qsplit( char* regex, char* str,
 					int flags, pregex_range** results )
 {
 	int				matches	= 0;
@@ -121,9 +121,9 @@ Returns an allocated pointer to the generated string with the replacements.
 This string must be released after its existence is no longer required by the
 caller using pfree().
 */
-uchar* pregex_qreplace( uchar* regex, uchar* str, uchar* replace, int flags )
+char* pregex_qreplace( char* regex, char* str, char* replace, int flags )
 {
-	uchar*			ret;
+	char*			ret;
 	pregex*			re;
 
 	PROC( "pregex_qreplace" );
@@ -135,7 +135,7 @@ uchar* pregex_qreplace( uchar* regex, uchar* str, uchar* replace, int flags )
 	if( !( regex && str ) )
 	{
 		WRONGPARAM;
-		RETURN( (uchar*)NULL );
+		RETURN( (char*)NULL );
 	}
 
 	re = pregex_create();
@@ -144,16 +144,16 @@ uchar* pregex_qreplace( uchar* regex, uchar* str, uchar* replace, int flags )
 	if( pregex_compile( re, regex, 0 ) < 0 )
 	{
 		pregex_free( re );
-		RETURN( (uchar*)NULL );
+		RETURN( (char*)NULL );
 	}
 
 	if( !( ret = pregex_replace( re, str, replace ) ) )
 	{
 		pregex_free( re );
-		RETURN( (uchar*)NULL );
+		RETURN( (char*)NULL );
 	}
 
-	re->tmp_str = (uchar*)NULL;
+	re->tmp_str = (char*)NULL;
 	pregex_free( re );
 
 	VARS( "ret", "%s", ret );

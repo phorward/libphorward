@@ -40,7 +40,7 @@ SRC = \
 	parser/error.c \
 	parser/grammar.c \
 	parser/nonterm.c \
-	parser/lr.c \
+	parser/lr.gen.c \
 	parser/parser.c \
 	parser/production.c \
 	parser/symbol.c \

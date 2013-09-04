@@ -19,15 +19,15 @@ Usage:	Some extended functions for zero-terminated byte- and wide-character
 
 /** Dynamically appends a character to a string.
 
-//str// is the pointer to a string to be appended. If this is (uchar*)NULL,
+//str// is the pointer to a string to be appended. If this is (char*)NULL,
 the string will be newly allocated. //chr// is the the character to be appended
 to str.
 
-Returns a uchar*-pointer to the (possibly re-)allocated and appended string.
-(uchar*)NULL is returned if no memory could be (re)allocated. This pointer must
+Returns a char*-pointer to the (possibly re-)allocated and appended string.
+(char*)NULL is returned if no memory could be (re)allocated. This pointer must
 be released with pfree() when its existence is no longer required.
 */
-uchar* pstrcatchar( uchar* str, wchar chr )
+char* pstrcatchar( char* str, wchar chr )
 {
 	PROC( "pstrcatchar" );
 	PARMS( "str", "%p", str );
@@ -39,7 +39,7 @@ uchar* pstrcatchar( uchar* str, wchar chr )
 	if( !str )
 	{
 		MSG( "Allocating new string" );
-		str = (uchar*)pmalloc( ( 1 + 1 ) * sizeof( uchar ) );
+		str = (char*)pmalloc( ( 1 + 1 ) * sizeof( char ) );
 
 		if( str )
 			*str = '\0';
@@ -47,8 +47,8 @@ uchar* pstrcatchar( uchar* str, wchar chr )
 	else
 	{
 		MSG( "Reallocating existing string" );
-		str = (uchar*)prealloc( (uchar*)str,
-				( pstrlen( str ) + 1 + 1) * sizeof( uchar ) );
+		str = (char*)prealloc( (char*)str,
+				( pstrlen( str ) + 1 + 1) * sizeof( char ) );
 	}
 
 	VARS( "str", "%p", str );
@@ -66,20 +66,20 @@ uchar* pstrcatchar( uchar* str, wchar chr )
 /** Dynamically appends a zero-terminated string to a dynamic string.
 
 //str// is the pointer to a zero-terminated string to be appended.
-If this is (uchar*)NULL, the string is newly allocated.
+If this is (char*)NULL, the string is newly allocated.
 
 //append// is the string to be appended at the end of //str//.
 
 //release_append// frees the pointer provided as //append// automatically by
 this function, if set to TRUE. This parameter has only a comfort-function.
 
-Returns a uchar*-pointer to (possibly re-)allocated and appended string.
-(uchar*)NULL is returned if no memory could be (re)allocated, or both strings
+Returns a char*-pointer to (possibly re-)allocated and appended string.
+(char*)NULL is returned if no memory could be (re)allocated, or both strings
 where NULL. If //dest// is NULL and //freesrc// is FALSE, the function
 automatically returns the pointer //src//. This pointer must be released with
 pfree() when its existence is no longer required.
 */
-uchar* pstrcatstr( uchar* dest, uchar* src, boolean freesrc )
+char* pstrcatstr( char* dest, char* src, boolean freesrc )
 {
 	PROC( "pstrcatstr" );
 	PARMS( "dest", "%p", dest );
@@ -100,9 +100,9 @@ uchar* pstrcatstr( uchar* dest, uchar* src, boolean freesrc )
 		}
 		else
 		{
-			dest = (uchar*)prealloc( (uchar*)dest,
+			dest = (char*)prealloc( (char*)dest,
 					( pstrlen( dest ) + pstrlen( src ) + 1 )
-						* sizeof( uchar ) );
+						* sizeof( char ) );
 			strcat( dest, src );
 		}
 
@@ -119,16 +119,16 @@ string.
 The function works similar to pstrcatstr(), but allows to copy only a maximum
 of //n// characters from //append//.
 
-//str// is the pointer to a string to be appended. If this is (uchar*)NULL,
+//str// is the pointer to a string to be appended. If this is (char*)NULL,
 the string is newly allocated. //append// is the begin of character sequence to
 be appended. //n// is the number of characters to be appended to //str//.
 
-Returns a uchar*-pointer to (possibly re-)allocated and appended string.
-(uchar*)NULL is returned if no memory could be (re)allocated, or both strings
+Returns a char*-pointer to (possibly re-)allocated and appended string.
+(char*)NULL is returned if no memory could be (re)allocated, or both strings
 where NULL. This pointer must be released with pfree() when its existence
 is no longer required.
 */
-uchar* pstrncatstr( uchar* str, uchar* append, psize n )
+char* pstrncatstr( char* str, char* append, psize n )
 {
 	psize	len		= 0;
 
@@ -141,16 +141,16 @@ uchar* pstrncatstr( uchar* str, uchar* append, psize n )
 	{
 		if( !str )
 		{
-			if( !( str = (uchar*)pmalloc( ( n + 1 ) * sizeof( uchar ) ) ) )
-				RETURN( (uchar*)NULL );
+			if( !( str = (char*)pmalloc( ( n + 1 ) * sizeof( char ) ) ) )
+				RETURN( (char*)NULL );
 		}
 		else
 		{
 			len = pstrlen( str );
 
-			if( !( str = (uchar*)prealloc( (uchar*)str,
-					( len + n + 1 ) * sizeof( uchar ) ) ) )
-				RETURN( (uchar*)NULL );
+			if( !( str = (char*)prealloc( (char*)str,
+					( len + n + 1 ) * sizeof( char ) ) ) )
+				RETURN( (char*)NULL );
 		}
 
 		strncpy( str + len, append, n );
@@ -166,16 +166,16 @@ uchar* pstrncatstr( uchar* str, uchar* append, psize n )
 matched. //replace// is the the string to be inserted for each match of the
 substring //find//.
 
-Returns a pointer to uchar* containing the allocated string which is the
+Returns a pointer to char* containing the allocated string which is the
 resulting source. This pointer must be released with pfree() when its existence
 is no longer required.
 */
-uchar* pstrreplace( uchar* str, uchar* find, uchar* replace )
+char* pstrreplace( char* str, char* find, char* replace )
 {
-	uchar*			match;
-	uchar*			str_ptr			= str;
-	uchar*			result			= (uchar*)NULL;
-	uchar*			result_end		= (uchar*)NULL;
+	char*			match;
+	char*			str_ptr			= str;
+	char*			result			= (char*)NULL;
+	char*			result_end		= (char*)NULL;
 	unsigned long	len;
 	unsigned long	rlen;
 	unsigned long	size			= 0L;
@@ -205,12 +205,12 @@ uchar* pstrreplace( uchar* str, uchar* find, uchar* replace )
 		VARS( "match", "%s", match );
 
 		if( !result )
-			result = result_end = (uchar*)pmalloc(
-				( size + 1 ) * sizeof( uchar ) );
+			result = result_end = (char*)pmalloc(
+				( size + 1 ) * sizeof( char ) );
 		else
 		{
-			result = (uchar*)prealloc( (uchar*)result,
-				( result_end - result + size + 1 ) * sizeof( uchar ) );
+			result = (char*)prealloc( (char*)result,
+				( result_end - result + size + 1 ) * sizeof( char ) );
 			result_end = result + pstrlen( result );
 		}
 
@@ -244,15 +244,15 @@ uchar* pstrreplace( uchar* str, uchar* find, uchar* replace )
 //str// is the string to be copied in memory. If //str// is provided as NULL,
 the function will also return NULL.
 
-Returns a uchar*-pointer to the newly allocated copy of //str//. This pointer
+Returns a char*-pointer to the newly allocated copy of //str//. This pointer
 must be released with pfree() when its existence is no longer required.
 */
-uchar* pstrdup( uchar* str )
+char* pstrdup( char* str )
 {
 	if( !str )
-		return (uchar*)NULL;
+		return (char*)NULL;
 
-	return (uchar*)pmemdup( str, ( pstrlen( str ) + 1 ) * sizeof( uchar ) );
+	return (char*)pmemdup( str, ( pstrlen( str ) + 1 ) * sizeof( char ) );
 }
 
 /** Duplicate //n// characters from a string in memory.
@@ -261,26 +261,26 @@ The function mixes the functionalities of strdup() and strncpy().
 The resulting string will be zero-terminated.
 
 //str// is the parameter string to be duplicated. If this is provided as
-(uchar*)NULL, the function will also return (uchar*)NULL.
+(char*)NULL, the function will also return (char*)NULL.
 //n// is the the number of characters to be copied and duplicated from //str//.
 If //n// is greater than the length of //str//, copying will stop at the zero
 terminator.
 
-Returns a uchar*-pointer to the allocated memory holding the zero-terminated
+Returns a char*-pointer to the allocated memory holding the zero-terminated
 string duplicate. This pointer must be released with pfree() when its existence
 is no longer required.
 */
-uchar* pstrndup( uchar* str, psize len )
+char* pstrndup( char* str, psize len )
 {
-	uchar*	ret;
+	char*	ret;
 
 	if( !str )
-		return (uchar*)NULL;
+		return (char*)NULL;
 
 	if( pstrlen( str ) < len )
 		len = pstrlen( str );
 
-	ret = (uchar*)pmalloc( ( len + 1 ) * sizeof( uchar ) );
+	ret = (char*)pmalloc( ( len + 1 ) * sizeof( char ) );
 	pstrncpy( ret, str, len );
 	ret[ len ] = '\0';
 
@@ -289,13 +289,13 @@ uchar* pstrndup( uchar* str, psize len )
 
 /** Return length of a string.
 
-//str// is the parameter string to be evaluated. If (uchar*)NULL, the function
+//str// is the parameter string to be evaluated. If (char*)NULL, the function
 returns 0. pstrlen() is much more saver than strlen() because it returns 0 when
 a NULL-pointer is provided.
 
 Returns the length of the string //str//.
 */
-psize pstrlen( uchar* str )
+psize pstrlen( char* str )
 {
 	if( !str )
 		return 0;
@@ -312,7 +312,7 @@ psize pstrlen( uchar* str )
 
 Returns a the number of characters written, -1 in error case.
 */
-int psprintf( uchar* res, uchar* fmt, ... )
+int psprintf( char* res, char* fmt, ... )
 {
 	int ret;
 	va_list	args;
@@ -343,9 +343,9 @@ int psprintf( uchar* res, uchar* fmt, ... )
 
 Returns the number of characters written.
 */
-int pvasprintf( uchar** str, uchar* fmt, va_list ap )
+int pvasprintf( char** str, char* fmt, va_list ap )
 {
-	uchar*		istr;
+	char*		istr;
 	int			ilen;
 	int			len;
 	va_list		w_ap;
@@ -355,7 +355,7 @@ int pvasprintf( uchar** str, uchar* fmt, va_list ap )
 	PARMS( "fmt", "%s", fmt );
 	PARMS( "ap", "%p", ap );
 
-	if( !( istr = (uchar*)pmalloc( MALLOC_STEP * sizeof( uchar ) ) ) )
+	if( !( istr = (char*)pmalloc( MALLOC_STEP * sizeof( char ) ) ) )
 		RETURN( ERR_MEM );
 
 	va_copy( w_ap, ap );
@@ -374,7 +374,7 @@ int pvasprintf( uchar** str, uchar* fmt, va_list ap )
 	}
 	else
 	{
-		if( !( istr = prealloc( istr, ( ilen = len + 1 ) * sizeof( uchar ) ) ) )
+		if( !( istr = prealloc( istr, ( ilen = len + 1 ) * sizeof( char ) ) ) )
 		{
 			va_end( w_ap );
 			RETURN( ERR_MEM );
@@ -408,18 +408,18 @@ later on.
 //fmt// is the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
-Returns a uchar* Returns the allocated string which cointains the format string with inserted values.
+Returns a char* Returns the allocated string which cointains the format string with inserted values.
 */
-uchar* pasprintf( uchar* fmt, ... )
+char* pasprintf( char* fmt, ... )
 {
-	uchar*	str;
+	char*	str;
 	va_list	args;
 
 	PROC( "pasprintf" );
 	PARMS( "fmt", "%s", fmt );
 
 	if( !( fmt ) )
-		RETURN( (uchar*)NULL );
+		RETURN( (char*)NULL );
 
 	va_start( args, fmt );
 	pvasprintf( &str, fmt, args );
@@ -440,12 +440,12 @@ to a copy of //val//.
 
 //val// is the the string to be assigned to //str// (as a independent copy).
 
-Returns a pointer to the allocated heap memory on success, (uchar*)NULL else.
+Returns a pointer to the allocated heap memory on success, (char*)NULL else.
 This is the same pointer as returned like calling ``*str``. The returned pointer
 must be released with pfree() or another call of psetstr(). Calling psetstr()
-as ``psetstr( &p, (uchar*)NULL );`` is equivalent to ``p = pfree( &p )``.
+as ``psetstr( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
 */
-uchar* psetstr( uchar** str, uchar* val )
+char* psetstr( char** str, char* val )
 {
 	if( *str )
 	{
@@ -464,7 +464,7 @@ uchar* psetstr( uchar** str, uchar* val )
 //str// is the string pointer to be savely read. If //str// is NULL, the
 function returns a pointer to a static address holding an empty string.
 */
-uchar* pgetstr( uchar* str )
+char* pgetstr( char* str )
 {
 	if( !str )
 		return "";
@@ -484,8 +484,8 @@ strings.
 
 These must be always consist of three values each:
 
-- //uchar* name// as a wildcard-name
-- //uchar* value// as the replacement value for the wildcard
+- //char* name// as a wildcard-name
+- //char* value// as the replacement value for the wildcard
 - //pboolean freeflag// defines if //value// shall be freed after processing
 -
 
@@ -493,37 +493,37 @@ Returns an allocated string which is the resulting source. This string must be
 release by pfree() or another function releasing heap memory when its existence
 is no longer required.
 */
-uchar* pstrrender( uchar* tpl, ... )
+char* pstrrender( char* tpl, ... )
 {
 	struct
 	{
-		uchar*	wildcard;
-		uchar*	value;
+		char*	wildcard;
+		char*	value;
 		BOOLEAN	clear;
-		uchar*	_match;
+		char*	_match;
 	} values[MAX_SIZE];
 
 	va_list	args;
 	int		i;
 	int		vcount;
 	int		match;
-	uchar*	tpl_ptr			= tpl;
-	uchar*	result			= (uchar*)NULL;
+	char*	tpl_ptr			= tpl;
+	char*	result			= (char*)NULL;
 	long	copy_size;
 	long	prev_size;
 	long	size			= 0L;
 
 	if( !tpl )
-		return (uchar*)NULL;
+		return (char*)NULL;
 
 	va_start( args, tpl );
 
 	for( vcount = 0; vcount < MAX_SIZE; vcount++ )
 	{
-		if( !( values[vcount].wildcard = va_arg( args, uchar* ) ) )
+		if( !( values[vcount].wildcard = va_arg( args, char* ) ) )
 			break;
 
-		values[vcount].value = va_arg( args, uchar* );
+		values[vcount].value = va_arg( args, char* );
 		values[vcount].clear = (pboolean)va_arg( args, int );
 
 		if( !values[vcount].value )
@@ -541,7 +541,7 @@ uchar* pstrrender( uchar* tpl, ... )
 		match = vcount;
 		for( i = 0; i < vcount; i++ )
 		{
-			if( values[i]._match != (uchar*)NULL )
+			if( values[i]._match != (char*)NULL )
 			{
 				if( match == vcount || values[match]._match > values[i]._match )
 					match = i;
@@ -560,16 +560,16 @@ uchar* pstrrender( uchar* tpl, ... )
 		size += copy_size;
 
 		if( result )
-			result = (uchar*)prealloc( (uchar*)result,
-				( size + 1 ) * sizeof( uchar ) );
+			result = (char*)prealloc( (char*)result,
+				( size + 1 ) * sizeof( char ) );
 		else
-			result = (uchar*)pmalloc( ( size + 1 ) * sizeof( uchar ) );
+			result = (char*)pmalloc( ( size + 1 ) * sizeof( char ) );
 
-		memcpy( result + prev_size, tpl_ptr, copy_size * sizeof( uchar ) );
+		memcpy( result + prev_size, tpl_ptr, copy_size * sizeof( char ) );
 
 		if( match < vcount )
 			memcpy( result + prev_size + copy_size, values[match].value,
-				strlen( values[match].value ) * sizeof( uchar ) );
+				strlen( values[match].value ) * sizeof( char ) );
 
 		result[size] = '\0';
 
@@ -594,9 +594,9 @@ uchar* pstrrender( uchar* tpl, ... )
 
 Returns //s//.
 */
-uchar* pstrltrim( uchar* s )
+char* pstrltrim( char* s )
 {
-	uchar*	c;
+	char*	c;
 
 	if( !( s && *s ) )
 		return pgetstr( s );
@@ -605,7 +605,7 @@ uchar* pstrltrim( uchar* s )
 		if( !( *c == ' ' || *c == '\t' || *c == '\r' || *c == '\n' ) )
 			break;
 
-	memmove( s, c, ( pstrlen( c ) + 1 ) * sizeof( uchar ) );
+	memmove( s, c, ( pstrlen( c ) + 1 ) * sizeof( char ) );
 
 	return s;
 }
@@ -616,9 +616,9 @@ uchar* pstrltrim( uchar* s )
 
 Returns //s//.
 */
-uchar* pstrrtrim( uchar* s )
+char* pstrrtrim( char* s )
 {
-	uchar*	c;
+	char*	c;
 
 	if( !( s && *s ) )
 		return pgetstr( s );
@@ -638,7 +638,7 @@ uchar* pstrrtrim( uchar* s )
 
 Returns //s//. 
 */
-uchar* pstrtrim( uchar* s )
+char* pstrtrim( char* s )
 {
 	if( !( s && *s ) )
 		return s;
@@ -650,7 +650,7 @@ uchar* pstrtrim( uchar* s )
 token reference pointers.
 
 //tokens// is the an allocated array of tokenized array values.
-Requires a pointer to uchar**.
+Requires a pointer to char**.
 //str// is the input string to be tokenized.
 //sep// is the token separation substring.
 //limit// is the token limit; If set to 0, there is no token limit available, so
@@ -659,10 +659,10 @@ that as much as possible tokens are read.
 Returns the number of separated tokens, or negative values with errorcode
 in error case.
 */
-int pstrsplit( uchar*** tokens, uchar* str, uchar* sep, int limit )
+int pstrsplit( char*** tokens, char* str, char* sep, int limit )
 {
-	uchar*	next;
-	uchar*	tok		= str;
+	char*	next;
+	char*	tok		= str;
 	int		cnt		= 0;
 
 	PROC( "pstrsplit" );
@@ -674,7 +674,7 @@ int pstrsplit( uchar*** tokens, uchar* str, uchar* sep, int limit )
 	if( !( tokens && str && sep && *sep ) )
 		RETURN( ERR_PARMS );
 
-	if( !( *tokens = (uchar**)pmalloc( MALLOC_STEP * sizeof( uchar* ) ) ) )
+	if( !( *tokens = (char**)pmalloc( MALLOC_STEP * sizeof( char* ) ) ) )
 		RETURN( ERR_MEM );
 
 	VARS( "cnt", "%d", cnt );
@@ -691,8 +691,8 @@ int pstrsplit( uchar*** tokens, uchar* str, uchar* sep, int limit )
 		if( ( cnt % MAX_SIZE ) == 0 )
 		{
 			MSG( "realloc required!" );
-			if( !( *tokens = (uchar**)prealloc( (uchar**)*tokens,
-					( cnt + MALLOC_STEP ) * sizeof( uchar* ) ) ) )
+			if( !( *tokens = (char**)prealloc( (char**)*tokens,
+					( cnt + MALLOC_STEP ) * sizeof( char* ) ) ) )
 				RETURN( ERR_MEM );
 		}
 
@@ -713,12 +713,12 @@ int pstrsplit( uchar*** tokens, uchar* str, uchar* sep, int limit )
 
 Returns //s//.
 */
-uchar* pstrupr( uchar* s )
+char* pstrupr( char* s )
 {
-	uchar*	ptr;
+	char*	ptr;
 
 	if( !s )
-		return (uchar*)NULL;
+		return (char*)NULL;
 
 	for( ptr = s; *ptr; ptr++ )
 		if( pislower( *ptr ) )
@@ -733,12 +733,12 @@ uchar* pstrupr( uchar* s )
 
 Returns //s//.
 */
-uchar* pstrlwr( uchar* s )
+char* pstrlwr( char* s )
 {
-	uchar*	ptr;
+	char*	ptr;
 
 	if( !s )
-		return (uchar*)NULL;
+		return (char*)NULL;
 
 	for( ptr = s; *ptr; ptr++ )
 		if( pisupper( *ptr ) )
@@ -755,7 +755,7 @@ uchar* pstrlwr( uchar* s )
 Returns 0 if both strings are equal. Returns a value <0 if //s1// is lower than
 //s2// or a value >0 if //s1// is greater than //s2//.
 */
-int	pstrcasecmp( uchar* s1, uchar* s2 )
+int	pstrcasecmp( char* s1, char* s2 )
 {
 	if( !( s1 && s2 ) )
 		return -1;
@@ -775,7 +775,7 @@ int	pstrcasecmp( uchar* s1, uchar* s2 )
 Returns 0 if both strings are equal. Returns a value <0 if //s1// is lower than
 //s2// or a value >0 if //s1// is greater than //s2//.
 */
-int	pstrncasecmp( uchar* s1, uchar* s2, pint n )
+int	pstrncasecmp( char* s1, char* s2, pint n )
 {
 	if( !( s1 && s2 && n < 1 ) )
 	{
@@ -801,12 +801,12 @@ them.
 
 Returns the number of bytes that had been read for the character.
 */
-int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq )
+int pstrparsechar( wchar* retc, char *str, pboolean escapeseq )
 {
 	wchar	ch;
-    uchar 	digs[9]		=	"\0\0\0\0\0\0\0\0";
+    char 	digs[9]		=	"\0\0\0\0\0\0\0\0";
     int		dno 		= 0;
-	uchar*	p			= str;
+	char*	p			= str;
 
 	PROC( "pstrparsechar" );
 	PARMS( "retc", "%p", retc );
@@ -854,7 +854,7 @@ int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq )
 					do
 						digs[dno++] = *( p++ );
 					while( octal_digit( *p ) && dno < 3 );
-					ch = strtol( digs, (uchar**)NULL, 8 );
+					ch = strtol( digs, (char**)NULL, 8 );
 				}
 				else if( *p == 'x' )
 				{
@@ -863,7 +863,7 @@ int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq )
 						digs[ dno++ ] = *( p++ );
 
 					if (dno > 0)
-						ch = strtol( digs, (uchar**)NULL, 16 );
+						ch = strtol( digs, (char**)NULL, 16 );
 				}
 #ifdef UTF8
 				else if( *p == 'u' )
@@ -873,7 +873,7 @@ int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq )
 						digs[dno++] = *( p++ );
 
 					if( dno > 0 )
-						ch = strtol( digs, (uchar**)NULL, 16 );
+						ch = strtol( digs, (char**)NULL, 16 );
 				}
 				else if( *p == 'U' )
 				{
@@ -882,7 +882,7 @@ int pstrparsechar( wchar* retc, uchar *str, pboolean escapeseq )
 						digs[dno++] = *( p++ );
 
 					if( dno > 0 )
-						ch = strtol( digs, (uchar**)NULL, 16 );
+						ch = strtol( digs, (char**)NULL, 16 );
 				}
 #endif
 				else

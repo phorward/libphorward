@@ -9,18 +9,18 @@
 /* Required for stack functions */
 struct person
 {
-	uchar	first_name	[ 30 + 1 ];
-	uchar	last_name	[ 30 + 1 ];
+	char	first_name	[ 30 + 1 ];
+	char	last_name	[ 30 + 1 ];
 };
 
 /* Extended String Functions */
 void string_demo( void )
 {
-	uchar	str[ 1024 ];
+	char	str[ 1024 ];
 	int	all, i;
-	uchar**	tokens;
-	uchar*	str1;
-	uchar*	str2;
+	char**	tokens;
+	char*	str1;
+	char*	str2;
 
 	printf( "\n*** string_demo ***\n\n" );
 
@@ -39,7 +39,7 @@ void string_demo( void )
 	str1 = pstrrender( "<a href=\"$link\" alt=\"$title\">$title</a>",
 			"$link", "http://www.phorward-software.com", FALSE,
 			"$title", str2, TRUE,
-			(uchar*)NULL );
+			(char*)NULL );
 
 	printf( "str1 = >%s<\n", str1 );
 	pfree( str1 );
@@ -64,8 +64,8 @@ void string_demo( void )
 /* UTF-8 Functions */
 void utf8_demo( void )
 {
-	uchar	str		[ 1024 ];
-	uchar*	ptr;
+	char	str		[ 1024 ];
+	char*	ptr;
 
 	printf( "\n*** utf8_demo ***\n\n" );
 
@@ -105,7 +105,7 @@ void unicode_demo( void )
 	mydynamicstr = Pstrcatstr( mydynamicstr,
 			L" You can see: The functions are"
 			L" used the same way as the standard"
-			L" uchar-functions!", FALSE );
+			L" char-functions!", FALSE );
 
 	printf( "mydynamicstr = >%ls<\n", mydynamicstr );
 	pfree( mydynamicstr );
@@ -120,7 +120,7 @@ void ccl_demo( void )
 {
 	CCL c;
 	CCL d;
-	uchar* x;
+	char* x;
 
 	printf( "\n*** ccl_demo ***\n\n" );
 
@@ -156,8 +156,8 @@ void list_demo( void )
 {
 	LIST*	mylist = (LIST*)NULL; /* This is our main list */
 	LIST*	l; /* l, for list iteration */
-	uchar*	values[] = { "Hello", "World", "out there!" };
-	uchar*	tmp;
+	char*	values[] = { "Hello", "World", "out there!" };
+	char*	tmp;
 
 	printf( "\n*** list_demo ***\n\n" );
 
@@ -170,7 +170,7 @@ void list_demo( void )
 	printf( "mylist contains %d items\n", list_count( mylist ) );
 	for( l = mylist; l; l = list_next( l ) )
 	{
-		tmp = (uchar*)list_access( l );
+		tmp = (char*)list_access( l );
 		printf( "%s ", tmp );
 	}
 
@@ -182,7 +182,7 @@ void list_demo( void )
 	/* LISTFOR expands in a for-loop as above, but is shorter! ;) */
 	LISTFOR( mylist, l )
 	{
-		tmp = (uchar*)list_access( l );
+		tmp = (char*)list_access( l );
 		printf( "%s ", tmp );
 	}
 
@@ -207,7 +207,7 @@ static void plist_demo_print( plist* list )
 	printf( "~~~\n%d elements\n\n", plist_count( list ) );
 }
 
-static void plist_demo_print_by_key( plist* list, uchar* key )
+static void plist_demo_print_by_key( plist* list, char* key )
 {
 	struct
 	person*		pp;
@@ -295,13 +295,13 @@ void hashtab_demo( void )
 	hashtab_init( &ht, 6, HASHTAB_MOD_WCHAR | HASHTAB_MOD_LIST );
 
 	/* Let's insert some data */
-	hashtab_insert( &ht, (uchar*)L"Hello", "This is my first string" );
-	hashtab_insert( &ht, (uchar*)L"World", "And this is my second one" );
-	hashtab_insert( &ht, (uchar*)L"Test", "Last but no least, the third :)" );
+	hashtab_insert( &ht, (char*)L"Hello", "This is my first string" );
+	hashtab_insert( &ht, (char*)L"World", "And this is my second one" );
+	hashtab_insert( &ht, (char*)L"Test", "Last but no least, the third :)" );
 
 	/* Get one entry */
-	e = hashtab_get( &ht, (uchar*)L"World" );
-	printf( ">%s<\n", (uchar*)hashelem_access( e ) );
+	e = hashtab_get( &ht, (char*)L"World" );
+	printf( ">%s<\n", (char*)hashelem_access( e ) );
 	printf( "%d items in table\n", hashtab_count( &ht ) );
 
 	/* Loop trough the entries, without any order */
@@ -309,7 +309,7 @@ void hashtab_demo( void )
 			e; e = hashtab_fetch( &ht, e ) )
 		printf( ">%ls<: >%s<\n",
 			(pchar*)hashelem_key( e ),
-				(uchar*)hashelem_access( e ) );
+				(char*)hashelem_access( e ) );
 
 	/* Loop trough the entries using the list */
 	LISTFOR( hashtab_list( &ht ), l )
@@ -317,14 +317,14 @@ void hashtab_demo( void )
 		e = (HASHELEM*)list_access( l );
 		printf( ">%ls<: >%s<\n",
 			(pchar*)hashelem_key( e ),
-				(uchar*)hashelem_access( e ) );
+				(char*)hashelem_access( e ) );
 	}
 
 	/* Dump the table to stderr */
 	hashtab_print( &ht, stderr );
 
 	/* Discard the element with the key "World" */
-	hashtab_discard( &ht, (uchar*)L"World", HASHTAB_NO_CALLBACK );
+	hashtab_discard( &ht, (char*)L"World", HASHTAB_NO_CALLBACK );
 
 	/* Print again! */
 	hashtab_print( &ht, stderr );
@@ -407,7 +407,7 @@ void xml_demo( void )
 	XML_T	comp;
 	XML_T	div;
 	XML_T	emp;
-	uchar*	s;
+	char*	s;
 
 	comp = xml_new( "company" );
 

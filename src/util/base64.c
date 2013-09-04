@@ -18,11 +18,11 @@ Usage:	Functions for base64-string encoding and decoding
 /*
  * Global variables
  */
-static uchar* cb64	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+static char* cb64	= "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 					  "abcdefghijklmnopqrstuvwxyz"
 					  "0123456789+/";
 
-static uchar* cd64	= "|$$$}rstuvwxyz{$$$$$$$>?@"
+static char* cd64	= "|$$$}rstuvwxyz{$$$$$$$>?@"
 					  "ABCDEFGHIJKLMNOPQRSTUVW$$$$$$XYZ"
 					  "[\\]^_`abcdefghijklmnopq";
 
@@ -37,20 +37,20 @@ static uchar* cd64	= "|$$$}rstuvwxyz{$$$$$$$>?@"
  * Functions
  */
 
-static void encodeblock( uchar in[3], uchar out[4], int len )
+static void encodeblock( char in[3], char out[4], int len )
 {
     out[0] = cb64[ in[0] >> 2 ];
     out[1] = cb64[ ((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4) ];
-    out[2] = (uchar) (len > 1 ? cb64[ ((in[1] & 0x0f) << 2) |
+    out[2] = (char) (len > 1 ? cb64[ ((in[1] & 0x0f) << 2) |
 								((in[2] & 0xc0) >> 6) ] : '=');
-    out[3] = (uchar) (len > 2 ? cb64[ in[2] & 0x3f ] : '=');
+    out[3] = (char) (len > 2 ? cb64[ in[2] & 0x3f ] : '=');
 }
 
-static void decodeblock( uchar in[4], uchar out[3] )
+static void decodeblock( char in[4], char out[3] )
 {
-    out[ 0 ] = (uchar) (in[0] << 2 | in[1] >> 4);
-    out[ 1 ] = (uchar) (in[1] << 4 | in[2] >> 2);
-    out[ 2 ] = (uchar) (((in[2] << 6) & 0xc0) | in[3]);
+    out[ 0 ] = (char) (in[0] << 2 | in[1] >> 4);
+    out[ 1 ] = (char) (in[1] << 4 | in[2] >> 2);
+    out[ 2 ] = (char) (((in[2] << 6) & 0xc0) | in[3]);
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -60,11 +60,11 @@ static void decodeblock( uchar in[4], uchar out[3] )
 	
 	Usage:			Encodes a data stream into a base64-encoded string.
 					
-	Parameters:		uchar**		outstream		Pointer to return the allocated
+	Parameters:		char**		outstream		Pointer to return the allocated
 												pointer to the Base64-string,
 												which is the result of the
 												function.
-					uchar*		instream		Pointer to the data stream to
+					char*		instream		Pointer to the data stream to
 												be encoded to Base64.
 					psize		size			The size of the buffer instream.
 	
@@ -74,14 +74,14 @@ static void decodeblock( uchar in[4], uchar out[3] )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint to_base64( uchar** outstream, uchar* instream, psize size )
+pint to_base64( char** outstream, char* instream, psize size )
 {
-    uchar 	in		[3];
-	uchar	out		[4];
-	uchar*	ptr;
-	uchar*	output;
-	uchar*	inptr	= instream;
-	uchar*	max		= instream + size;
+    char 	in		[3];
+	char	out		[4];
+	char*	ptr;
+	char*	output;
+	char*	inptr	= instream;
+	char*	max		= instream + size;
 	pint	i;
 	pint	j;
 
@@ -93,8 +93,8 @@ pint to_base64( uchar** outstream, uchar* instream, psize size )
 	if( !instream )
 		RETURN( ERR_PARMS );
 
-	if( !( ptr = output = (uchar*)pmalloc( size_4byte( size )
-								* sizeof( uchar ) ) ) )
+	if( !( ptr = output = (char*)pmalloc( size_4byte( size )
+								* sizeof( char ) ) ) )
 	{
 		RETURN( ERR_MEM );
 	}
@@ -103,7 +103,7 @@ pint to_base64( uchar** outstream, uchar* instream, psize size )
 	{
 		for( i = 0, j = 0; i < 3; i++ )
 		{
-			in[i] = (uchar)*( inptr++ );
+			in[i] = (char)*( inptr++ );
 			if( inptr <= max )
 				j++;
 			else
@@ -135,14 +135,14 @@ pint to_base64( uchar** outstream, uchar* instream, psize size )
 	Usage:			Decodes a base64-encoded stream and returns the binary
 					data and its size.
 					
-	Parameters:		uchar**		outstream		Returns the pointer of the
+	Parameters:		char**		outstream		Returns the pointer of the
 												decoded data; This pointer is
 												allocated and must be freed
 												by the caller.
 					psize*		outsize			A pointer to psize which
 												receives the buffer size of
 												outstream.
-					uchar*		instream		The base64-encoded String to
+					char*		instream		The base64-encoded String to
 												be decoded.
 	
 	Returns:		pint						Returns ERR_OK on success,
@@ -151,15 +151,15 @@ pint to_base64( uchar** outstream, uchar* instream, psize size )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint from_base64( uchar** outstream, psize* outsize, uchar* instream )
+pint from_base64( char** outstream, psize* outsize, char* instream )
 {
-    uchar	in		[4];
-	uchar 	out		[3];
-	uchar	v;
+    char	in		[4];
+	char 	out		[3];
+	char	v;
 
-	uchar*	output;
-	uchar*	ptr;
-	uchar*	inptr	= instream;
+	char*	output;
+	char*	ptr;
+	char*	inptr	= instream;
 	psize	size;
 	psize	i;
 	pint	j;
@@ -173,8 +173,8 @@ pint from_base64( uchar** outstream, psize* outsize, uchar* instream )
 		RETURN( ERR_PARMS );
 
 	size = pstrlen( instream );
-	if( !( ptr = output = (uchar*)pmalloc( size_3byte( size )
-									* sizeof( uchar ) ) ) )
+	if( !( ptr = output = (char*)pmalloc( size_3byte( size )
+									* sizeof( char ) ) ) )
 	{
 		RETURN( ERR_MEM );
 	}
@@ -186,17 +186,17 @@ pint from_base64( uchar** outstream, psize* outsize, uchar* instream )
 			v = 0;
 			while( *inptr && !v )
 			{
-				v = (uchar)( *(inptr++) );
-				v = (uchar)( ( v < 43 || v > 122 ) ? 0 : cd64[ v - 43 ] );
+				v = (char)( *(inptr++) );
+				v = (char)( ( v < 43 || v > 122 ) ? 0 : cd64[ v - 43 ] );
 
 				if( v )
-					v = (uchar)( ( v == '$' ) ? 0 : v - 61 );
+					v = (char)( ( v == '$' ) ? 0 : v - 61 );
 			}
 
 			if( *inptr )
 			{
 				if( v )
-					in[ i ] = (uchar)( v - 1 );
+					in[ i ] = (char)( v - 1 );
 
 				j++;
 			}

@@ -33,8 +33,8 @@ Usage:	System functions for various usages.
 	
 	Usage:			Figures out a filepath by searching in a PATH definition.
 					
-	Parameters:		uchar*		filename		The filename to be searched for.
-					uchar*		directories		A string specifying the
+	Parameters:		char*		filename		The filename to be searched for.
+					char*		directories		A string specifying the
 												directories to search in.
 												If this is (char*)NULL, the
 												environment variable PATH will
@@ -43,7 +43,7 @@ Usage:	System functions for various usages.
 												platform.
 
 
-	Returns:		uchar*						Static pointer to the absolute
+	Returns:		char*						Static pointer to the absolute
 												path that contains the file
 												specifed as filename, else
 												it will return (char*)NULL.
@@ -51,11 +51,11 @@ Usage:	System functions for various usages.
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pwhich( uchar* filename, uchar* directories )
+char* pwhich( char* filename, char* directories )
 {
-	static uchar	path	[ BUFSIZ + 1 ];
-	uchar*			start;
-	uchar*			end;
+	static char	path	[ BUFSIZ + 1 ];
+	char*			start;
+	char*			end;
 
 	if( !( filename && *filename ) )
 	{
@@ -88,7 +88,7 @@ uchar* pwhich( uchar* filename, uchar* directories )
 		start = end + 1;
 	}
 
-	return (uchar*)NULL;
+	return (char*)NULL;
 }
 
 /* -FUNCTION--------------------------------------------------------------------
@@ -98,16 +98,16 @@ uchar* pwhich( uchar* filename, uchar* directories )
 	
 	Usage:			Returns the Basename of a file.
 					
-	Parameters:		uchar*		path			File path pointer
+	Parameters:		char*		path			File path pointer
 	
-	Returns:		uchar*						Static pointer to the basename.
+	Returns:		char*						Static pointer to the basename.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* pbasename( uchar* path )
+char* pbasename( char* path )
 {
-	uchar*		basename;
+	char*		basename;
 	
 	PROC( "pbasename" );
 	PARMS( "path", "%s", path );
@@ -124,14 +124,14 @@ uchar* pbasename( uchar* path )
 	
 	Usage:			Checks for file existence.
 					
-	Parameters:		uchar*		filename		Path to a file.
+	Parameters:		char*		filename		Path to a file.
 	
 	Returns:		pboolean					TRUE on success, FALSE if not.
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pboolean pfileexists( uchar* filename )
+pboolean pfileexists( char* filename )
 {
 	PROC( "pfileexists" );
 	PARMS( "filename", "%s", filename );
@@ -159,9 +159,9 @@ pboolean pfileexists( uchar* filename )
 	
 	Usage:			Maps the content of a file into memory.
 					
-	Parameters:		uchar**		cont			The file content, return
+	Parameters:		char**		cont			The file content, return
 												pointer.
-					uchar*		filename		Path to file to be mapped
+					char*		filename		Path to file to be mapped
 	
 	Returns:		int			ERR_OK			On success
 								1				If the file could not be found
@@ -171,10 +171,10 @@ pboolean pfileexists( uchar* filename )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-int map_file( char** cont, uchar* filename )
+int map_file( char** cont, char* filename )
 {
 	FILE*	f;
-	uchar*	c;
+	char*	c;
 
 	PROC( "map_file" );
 	PARMS( "cont", "%p", cont );
@@ -196,8 +196,8 @@ int map_file( char** cont, uchar* filename )
 	
 	/* Allocate memory for file */
 	fseek( f, 0L, SEEK_END );
-	if( !( c = *cont = (uchar*)pmalloc( ( ftell( f ) + 1 )
-			* sizeof( uchar ) ) ) )
+	if( !( c = *cont = (char*)pmalloc( ( ftell( f ) + 1 )
+			* sizeof( char ) ) ) )
 	{
 		MSG( "Unable to allocate required memory" );
 		
@@ -242,14 +242,14 @@ int map_file( char** cont, uchar* filename )
 					as compatible or feature-proven, and does not follow a
 					clear concept right now.
 					
-	Parameters:		uchar*		opt				Requires a pointer to a buffer
+	Parameters:		char*		opt				Requires a pointer to a buffer
 												with enough space to store the
 												requested parameter to. For
 												short parameters, this is only
 												one char, for long-parameters
 												the full name. The string will
 												be zero-terminated.
-					uchar**		param			A pointer to uchar* to store
+					char**		param			A pointer to char* to store
 												a possible parameter value to,
 												if the detected option allows
 												for parameters.
@@ -263,9 +263,9 @@ int map_file( char** cont, uchar* filename )
 												to valid data.
 					pint		argc			Argument count as taken from
 												the main() function.
-					uchar**		argv			Argument values as taken from
+					char**		argv			Argument values as taken from
 												the main() function.
-					uchar*		optstr			The possible short-options.
+					char*		optstr			The possible short-options.
 												This is a string where each
 												character defines an option.
 												If an option takes a parameter,
@@ -273,9 +273,9 @@ int map_file( char** cont, uchar* filename )
 												"abc:def:g". The Options "-c"
 												and "-f" will take a parameter
 												that is returned to param.
-												This parameter can be (uchar*)
+												This parameter can be (char*)
 												NULL.
-					uchar*		loptstr			The possible long-options.
+					char*		loptstr			The possible long-options.
 												This is a string containing all
 												long option names, each
 												separated by a blank. Long
@@ -285,7 +285,7 @@ int map_file( char** cont, uchar* filename )
 												three long options, where option
 												'world' takes one parameter that
 												is returned to param. This
-												parameter can be (uchar*)NULL.
+												parameter can be (char*)NULL.
 					pint		idx				The index of the requested
 												option, 0 for the first
 												option behind argv[0].
@@ -309,17 +309,17 @@ int map_file( char** cont, uchar* filename )
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-pint pgetopt( uchar* opt, uchar** param, pint* next,
-				pint argc, uchar** argv, uchar* optstr,
-					uchar* loptstr, pint idx )
+pint pgetopt( char* opt, char** param, pint* next,
+				pint argc, char** argv, char* optstr,
+					char* loptstr, pint idx )
 {
 	BOOLEAN		has_parm;
 	BOOLEAN		found;
 	BOOLEAN		lopt;
 	int			i;
-	uchar*		str;
-	uchar*		pos;
-	uchar*		del;
+	char*		str;
+	char*		pos;
+	char*		del;
 	int			cnt		= 0;
 	static char	optinfo	[ 2+1 ];
 
@@ -338,7 +338,7 @@ pint pgetopt( uchar* opt, uchar** param, pint* next,
 		RETURN( ERR_PARMS );
 	}
 
-	*param = (uchar*)NULL;
+	*param = (char*)NULL;
 	if( next )
 		*next = 1;
 

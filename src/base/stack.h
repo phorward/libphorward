@@ -24,6 +24,4 @@ typedef struct
 #define STACK_CALLBACK		void(*) ( pbyte* )
 #define STACK_NO_CALLBACK	( (STACK_CALLBACK)NULL )
 
-#define stack_count( s )	( s )->top
-
 #endif

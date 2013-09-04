@@ -12,11 +12,11 @@ Usage:
 
 /* Constructor */
 
-pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, uchar* name )
+pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name )
 {
 	pgsymbol	sym;
 	punit*	e;
-	uchar*		symname;
+	char*		symname;
 
 	PROC( "pg_symbol_create" );
 	PARMS( "type", "%d", type );
@@ -198,7 +198,7 @@ pggrammar* pg_symbol_get_grammar( pgsymbol* s )
 /* Attribute: name */
 
 /* GET ONLY! */
-uchar* pg_symbol_get_name( pgsymbol* s )
+char* pg_symbol_get_name( pgsymbol* s )
 {
 	if( !( s ) )
 	{

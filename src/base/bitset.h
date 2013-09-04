@@ -13,7 +13,7 @@ Usage:	Bitset library header
 #define BITSET_H
 
 /* Typedefs */
-typedef uchar byte;
+typedef char byte;
 typedef byte* bitset;
 
 /* Macros */

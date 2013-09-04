@@ -59,7 +59,6 @@ typedef unsigned int			wchar;
 /* Phorward Software primitive type specifiers */
 typedef unsigned char			pbyte;		/* Byte type */
 typedef wchar					pchar;		/* Phorward char type (wide char) */
-typedef char					uchar;		/* Universal char type (one byte) */
 typedef	int						pint;		/* Integer type */
 typedef	float					pfloat;		/* Floating point */
 typedef double					pdouble;	/* Double type */

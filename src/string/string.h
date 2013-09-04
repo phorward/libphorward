@@ -39,7 +39,7 @@ Usage:	Header for string functions and standard library replacements
 
 #else
 
-/* If no unicode is flagged, pchar is threated as uchar. */
+/* If no unicode is flagged, pchar is threated as char. */
 #define Pstrlen						pstrlen
 #define Pstrcpy						pstrcpy
 #define Pstrcat						pstrcat
@@ -62,7 +62,7 @@ Usage:	Header for string functions and standard library replacements
 #define Pisalnum					pisalnum
 #define Pisalpha					pisalpha
 
-/* UNICODE-only helper functions are replaced by uchar-pendants */
+/* UNICODE-only helper functions are replaced by char-pendants */
 #define Pstrlen						pstrlen
 #define Psprintf					psprintf
 #define Pstrdup						pstrdup

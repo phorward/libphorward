@@ -43,7 +43,7 @@ pregex_accept* pregex_accept_init( pregex_accept* accept )
 matching functions for NFA and DFA state machines.
 
 //all// is the entire string. This can be equal to //str//, but is required to
-perform valid line-begin anchor checking. If //all// is (uchar*)NULL, //str//
+perform valid line-begin anchor checking. If //all// is (char*)NULL, //str//
 is assumed to be //all//.
 //str// is the position pointer of the current match within //all//.
 //len// is the length of the matched string, in characters.
@@ -53,11 +53,11 @@ checking.
 
 Returns TRUE, if all anchors flagged as //anchors// match, else FALSE.
 */
-pboolean pregex_check_anchors( uchar* all, uchar* str, psize len,
+pboolean pregex_check_anchors( char* all, char* str, psize len,
 										int anchors, int flags )
 {
 	pchar	ch;
-	int		charsize = sizeof( uchar );
+	int		charsize = sizeof( char );
 
 	PROC( "pregex_check_anchors" );
 	if( flags & PREGEX_MOD_WCHAR )

@@ -28,7 +28,7 @@ typedef	pboolean			(*punit_fn)( pbyte* e );
 /* Element */
 struct Pelem
 {
-	uchar*					key;
+	char*					key;
 
 	plist*					list;
 

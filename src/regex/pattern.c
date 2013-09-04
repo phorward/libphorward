@@ -12,13 +12,13 @@ Usage:	Regular expression pattern construction and conversion functions
 #include <phorward.h>
 
 /* Local prototypes */
-static int parse_char( pregex_ptn** ptn, uchar** pstr,
+static int parse_char( pregex_ptn** ptn, char** pstr,
 							pregex_accept* accept, int flags );
-static int parse_factor( pregex_ptn** ptn, uchar** pstr,
+static int parse_factor( pregex_ptn** ptn, char** pstr,
 							pregex_accept* accept, int flags );
-static int parse_sequence( pregex_ptn** ptn, uchar** pstr,
+static int parse_sequence( pregex_ptn** ptn, char** pstr,
 							pregex_accept* accept, int flags );
-static int parse_alter( pregex_ptn** ptn, uchar** pstr,
+static int parse_alter( pregex_ptn** ptn, char** pstr,
 							pregex_accept* accept, int flags );
 
 /* Create a pattern object of type //type//; Internal constructor! */
@@ -64,9 +64,9 @@ pregex_ptn* pregex_ptn_create_char( CCL ccl )
 Returns a pregex_ptn-node which can be child of another pattern construct or
 part of a sequence.
 */
-pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
+pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 {
-	uchar*		ptr;
+	char*		ptr;
 	wchar		ch;
 	pregex_ptn*	chr;
 	pregex_ptn*	seq		= (pregex_ptn*)NULL;
@@ -113,9 +113,9 @@ pregex_ptn* pregex_ptn_create_string( uchar* str, int flags )
 #else
 			MSG( "non UTF-8 mode, trying to convert" );
 			if( isupper( ch ) )
-				ch = (uchar)tolower( (int)ch );
+				ch = (char)tolower( (int)ch );
 			else
-				ch = (uchar)toupper( (int)ch );
+				ch = (char)toupper( (int)ch );
 #endif
 
 			MSG( "Case-insensity set, new character evaluated is:" );
@@ -402,12 +402,12 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 }
 
 /* Internal function for pregex_ptn_to_regex() */
-static void pregex_char_to_REGEX( uchar* str, int size,
+static void pregex_char_to_REGEX( char* str, int size,
 				pchar ch, pboolean escape, pboolean in_range )
 {
 	if( ( !in_range && ( pstrchr( "|()[]*+?", ch ) || ch == '.' ) ) ||
 			( in_range && ch == ']' ) )
-		psprintf( str, "\\%c", (uchar)ch );
+		psprintf( str, "\\%c", (char)ch );
 	else if( escape )
 		u8_escape_wchar( str, size, ch );
 	else
@@ -415,12 +415,12 @@ static void pregex_char_to_REGEX( uchar* str, int size,
 }
 
 /* Internal function for pregex_ptn_to_regex() */
-static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl )
+static void pregex_ccl_to_REGEX( char** str, pregex_ccl ccl )
 {
 	pregex_ccl		neg		= (pregex_ccl)NULL;
 	pregex_ccl		i;
-	uchar			from	[ 40 + 1 ];
-	uchar			to		[ 20 + 1 ];
+	char			from	[ 40 + 1 ];
+	char			to		[ 20 + 1 ];
 	pboolean		range	= FALSE;
 
 	/*
@@ -483,7 +483,7 @@ static void pregex_ccl_to_REGEX( uchar** str, pregex_ccl ccl )
 }
 
 /* Internal function for pregex_ptn_to_regex() */
-static int pregex_ptn_to_REGEX( uchar** regex, pregex_ptn* ptn )
+static int pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 {
 	int		ret;
 
@@ -572,7 +572,7 @@ released by the caller with pfree(), if the function returns ERR_OK.
 
 Returns a int Returns a standard error define on failure, and ERR_OK on success.
 */
-int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
+int pregex_ptn_to_regex( char** regex, pregex_ptn* ptn )
 {
 	if( !( regex && ptn ) )
 	{
@@ -580,7 +580,7 @@ int pregex_ptn_to_regex( uchar** regex, pregex_ptn* ptn )
 		return ERR_PARMS;
 	}
 
-	*regex = (uchar*)NULL;
+	*regex = (char*)NULL;
 
 	return pregex_ptn_to_REGEX( regex, ptn );
 }
@@ -612,7 +612,7 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_start = pregex_nfa_create_state( nfa,
 							(char*)NULL, PREGEX_MOD_NONE );
 				n_end = pregex_nfa_create_state( nfa,
-							(uchar*)NULL, PREGEX_MOD_NONE );
+							(char*)NULL, PREGEX_MOD_NONE );
 
 				n_start->ccl = ccl_dup( pattern->ccl );
 				n_start->next = n_end;
@@ -638,7 +638,7 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_start = pregex_nfa_create_state( nfa,
 							(char*)NULL, PREGEX_MOD_NONE );
 				n_end = pregex_nfa_create_state( nfa,
-							(uchar*)NULL, PREGEX_MOD_NONE );
+							(char*)NULL, PREGEX_MOD_NONE );
 
 				if( ( ret = pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
 						&a_start, &a_end ) ) != ERR_OK )
@@ -666,7 +666,7 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_start = pregex_nfa_create_state( nfa,
 							(char*)NULL, PREGEX_MOD_NONE );
 				n_end = pregex_nfa_create_state( nfa,
-							(uchar*)NULL, PREGEX_MOD_NONE );
+							(char*)NULL, PREGEX_MOD_NONE );
 
 				if( ( ret = pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
 								&m_start, &m_end ) ) != ERR_OK )
@@ -788,7 +788,7 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 
 	/* Create first epsilon node */
 	if( !( first = pregex_nfa_create_state( nfa,
-			(uchar*)NULL, PREGEX_MOD_NONE ) ) )
+			(char*)NULL, PREGEX_MOD_NONE ) ) )
 		RETURN( ERR_MEM );
 
 	/* Turn pattern into NFA */
@@ -826,10 +826,10 @@ pchar-array holding wide-character strings.
 Returns a standard error define on failure, and ERR_OK on success.
 */
 int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
-						uchar* str, int flags )
+						char* str, int flags )
 {
 	int			ret;
-	uchar*		ptr;
+	char*		ptr;
 
 	PROC( "pregex_ptn_parse" );
 	PARMS( "ptn", "%p", ptn );
@@ -922,15 +922,15 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
  *      RECURSIVE DESCENT PARSER FOR REGULAR EXPRESSIONS FOLLOWS HERE...      *
  ******************************************************************************/
 
-static int parse_char( pregex_ptn** ptn, uchar** pstr,
+static int parse_char( pregex_ptn** ptn, char** pstr,
 		pregex_accept* accept, int flags )
 {
 	CCL			ccl;
 	int			ret;
 	pregex_ptn*	alter;
 	wchar		single;
-	uchar		restore;
-	uchar*		zero;
+	char		restore;
+	char*		zero;
 	pboolean	neg		= FALSE;
 
 	switch( **pstr )
@@ -1010,7 +1010,7 @@ static int parse_char( pregex_ptn** ptn, uchar** pstr,
 	return ERR_OK;
 }
 
-static int parse_factor( pregex_ptn** ptn, uchar** pstr,
+static int parse_factor( pregex_ptn** ptn, char** pstr,
 		pregex_accept* accept, int flags )
 {
 	int				ret;
@@ -1053,7 +1053,7 @@ static int parse_factor( pregex_ptn** ptn, uchar** pstr,
 	return ERR_OK;
 }
 
-static int parse_sequence( pregex_ptn** ptn, uchar** pstr,
+static int parse_sequence( pregex_ptn** ptn, char** pstr,
 		pregex_accept* accept, int flags )
 {
 	int			ret;
@@ -1079,7 +1079,7 @@ static int parse_sequence( pregex_ptn** ptn, uchar** pstr,
 	return ERR_OK;
 }
 
-static int parse_alter( pregex_ptn** ptn, uchar** pstr,
+static int parse_alter( pregex_ptn** ptn, char** pstr,
 		pregex_accept* accept, int flags )
 {
 	int			ret;

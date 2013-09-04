@@ -59,27 +59,27 @@ struct xml_root
 	struct xml	xml;			/* is a super-struct built on 
 										top of xml struct */
 	XML_T		cur;			/* current xml tree insertion point */
-	uchar*		m;				/* original xml string */
+	char*		m;				/* original xml string */
 	size_t		len;			/* length of allocated memory for mmap, -1 for
 								 * pmalloc */
 	int			lines;			/* All lines of the root file */
-	uchar*		u;				/* UTF-8 conversion of string if original was
+	char*		u;				/* UTF-8 conversion of string if original was
 								 * UTF-16 */
-	uchar*		s;				/* start of work area */
-	uchar*		e;				/* end of work area */
-	uchar**  ent;			/* general entities (ampersand sequences) */
-	uchar***  attr;			/* default attributes */
-	uchar***  pi;			/* processing instructions */
+	char*		s;				/* start of work area */
+	char*		e;				/* end of work area */
+	char**  ent;			/* general entities (ampersand sequences) */
+	char***  attr;			/* default attributes */
+	char***  pi;			/* processing instructions */
 	short		standalone;		/* non-zero if <?xml standalone="yes"?> */
-	uchar		err[XML_ERRL];	/* error string */
+	char		err[XML_ERRL];	/* error string */
 };
 
-uchar*	XML_NIL[] = { NULL };	/* empty, null terminated array of strings */
+char*	XML_NIL[] = { NULL };	/* empty, null terminated array of strings */
 
 /* =============================================================================
     returns the first child tag with the given name or NULL if not found
  ============================================================================ */
-XML_T xml_child( XML_T xml, uchar* name )
+XML_T xml_child( XML_T xml, char* name )
 {
 	xml = ( xml ) ? xml->child : NULL;
 
@@ -104,14 +104,14 @@ XML_T xml_idx( XML_T xml, int idx )
 /* =============================================================================
     returns the value of the requested tag attribute or NULL if not found
  ============================================================================ */
-uchar* xml_attr( XML_T xml, uchar* attr )
+char* xml_attr( XML_T xml, char* attr )
 {
 	int			i = 0, j = 1;
 	xml_root_t	root = (xml_root_t)xml;
 	
 
 	if( !xml || !xml->attr )
-		return (uchar*)NULL;
+		return (char*)NULL;
 
 	while( xml->attr[i] && strcmp( attr, xml->attr[i] ) )
 		i += 2;
@@ -126,39 +126,39 @@ uchar* xml_attr( XML_T xml, uchar* attr )
 		;
 	
 	if( !root->attr[i] )
-		return (uchar*)NULL;	/* no matching default attributes */
+		return (char*)NULL;	/* no matching default attributes */
 
 	while( root->attr[i][j] && strcmp( attr, root->attr[i][j] ) )
 		j += 3;
 		
 	/* found default */
-	return ( root->attr[i][j] ) ? root->attr[i][j + 1] : (uchar*)NULL;
+	return ( root->attr[i][j] ) ? root->attr[i][j + 1] : (char*)NULL;
 }
 
 /* =============================================================================
     returns the integer value of the requested tag attribute or 0 if not found.
  ============================================================================ */
-plong xml_int_attr( XML_T xml, uchar* attr )
+plong xml_int_attr( XML_T xml, char* attr )
 {
-	uchar*		v;
+	char*		v;
 	
 	if( !( v = xml_attr( xml, attr ) ) )
 		return 0;
 		
-	return pstrtol( v, (uchar**)NULL, 0 );
+	return pstrtol( v, (char**)NULL, 0 );
 }
 
 /* =============================================================================
     returns the float value of the requested tag attribute or 0.0 if not found.
  ============================================================================ */
-pdouble xml_float_attr( XML_T xml, uchar* attr )
+pdouble xml_float_attr( XML_T xml, char* attr )
 {
-	uchar*		v;
+	char*		v;
 	
 	if( !( v = xml_attr( xml, attr ) ) )
 		return (pdouble)0.0;
 
-	return (pdouble)pstrtod( v, (uchar**)NULL );
+	return (pdouble)pstrtod( v, (char**)NULL );
 }
 
 /* =============================================================================
@@ -166,7 +166,7 @@ pdouble xml_float_attr( XML_T xml, uchar* attr )
  ============================================================================ */
 XML_T xml_vget( XML_T xml, va_list ap )
 {
-	uchar*	name = va_arg( ap, uchar * );
+	char*	name = va_arg( ap, char * );
 	int		idx = -1;
 
 	if( name && *name )
@@ -204,7 +204,7 @@ XML_T xml_get( XML_T xml, ... )
     returns a null terminated array of processing instructions for the given ;
     target
  ============================================================================ */
-uchar ** xml_pi( XML_T xml, uchar* target )
+char ** xml_pi( XML_T xml, char* target )
 {
 	
 	xml_root_t	root = (xml_root_t)xml;
@@ -212,7 +212,7 @@ uchar ** xml_pi( XML_T xml, uchar* target )
 	
 
 	if( !root )
-		return (uchar**)XML_NIL;
+		return (char**)XML_NIL;
 
 	while( root->xml.parent ) root = ( xml_root_t )
 		root->xml.parent;
@@ -220,17 +220,17 @@ uchar ** xml_pi( XML_T xml, uchar* target )
 	while( root->pi[i] && strcmp( target, root->pi[i][0] ) )
 		i++;
 
-	return( uchar ** ) ( ( root->pi[i] ) ? root->pi[i] + 1 : XML_NIL );
+	return( char ** ) ( ( root->pi[i] ) ? root->pi[i] + 1 : XML_NIL );
 }
 
 /* =============================================================================
     set an error string and return root
  ============================================================================ */
-static XML_T xml_err( xml_root_t root, uchar* s, uchar* err, ... )
+static XML_T xml_err( xml_root_t root, char* s, char* err, ... )
 {
 	va_list ap;
 	int		line = 1;
-	uchar	fmt[XML_ERRL];
+	char	fmt[XML_ERRL];
 
 #ifdef _WIN32
 	_snprintf
@@ -261,10 +261,10 @@ static XML_T xml_err( xml_root_t root, uchar* s, uchar* err, ... )
     ;
     s, returns a pmalloced string that must be pfreed.
  ============================================================================ */
-uchar* xml_decode( uchar* s, uchar ** ent, uchar t )
+char* xml_decode( char* s, char ** ent, char t )
 {
 	
-	uchar*	e, *r = s, *m = s;
+	char*	e, *r = s, *m = s;
 	long	b, c, d, l;
 	
 
@@ -296,15 +296,15 @@ uchar* xml_decode( uchar* s, uchar ** ent, uchar t )
 			}	/* not a character ref */
 
 			if( c < 0x80 )
-				*( s++ ) = (uchar)c;	/* US-ASCII subset */
+				*( s++ ) = (char)c;	/* US-ASCII subset */
 			else
 			{	/* multi-byte UTF-8 sequence */
 				for( b = 0, d = c; d; d /= 2 ) b++; /* number of bits in c */
 				b = ( b - 2 ) / 5;	/* number of bytes in payload */
-				*( s++ ) = (uchar)( ( 0xFF << (7 - b) ) | ( c >> (6 * b) ) );
+				*( s++ ) = (char)( ( 0xFF << (7 - b) ) | ( c >> (6 * b) ) );
 
 				while( b )
-					*( s++ ) = (uchar)( 0x80 | ( (c >> (6 * --b)) & 0x3F ) );
+					*( s++ ) = (char)( 0x80 | ( (c >> (6 * --b)) & 0x3F ) );
 			}
 
 			memmove( s, strchr( s, ';' ) + 1, strlen( strchr(s, ';') ) );
@@ -362,7 +362,7 @@ uchar* xml_decode( uchar* s, uchar ** ent, uchar t )
 /* =============================================================================
     called when parser finds start of new tag
  ============================================================================ */
-static void xml_open_tag( xml_root_t root, uchar* name, uchar ** attr )
+static void xml_open_tag( xml_root_t root, char* name, char ** attr )
 {
 	
 	XML_T	xml = root->cur;
@@ -382,11 +382,11 @@ static void xml_open_tag( xml_root_t root, uchar* name, uchar ** attr )
 /* =============================================================================
     called when parser finds character content between open and closing tag
  ============================================================================ */
-static void xml_uchar_content( xml_root_t root, uchar* s, size_t len, uchar t )
+static void xml_uchar_content( xml_root_t root, char* s, size_t len, char t )
 {
 	
 	XML_T	xml = root->cur;
-	uchar*	m = s;
+	char*	m = s;
 	size_t	l;
 	
 
@@ -406,7 +406,7 @@ static void xml_uchar_content( xml_root_t root, uchar* s, size_t len, uchar t )
 				pmalloc( (l = strlen(xml->txt)) + len ), 
 				xml->txt
 			);
-		strcpy( xml->txt + l, s );	/* add new uchar content */
+		strcpy( xml->txt + l, s );	/* add new char content */
 		if( s != m )
 			pfree( s );	/* free s if it was pmalloced by xml_decode() */
 	}
@@ -418,7 +418,7 @@ static void xml_uchar_content( xml_root_t root, uchar* s, size_t len, uchar t )
 /* =============================================================================
     called when parser finds closing tag
  ============================================================================ */
-static XML_T xml_close_tag( xml_root_t root, uchar* name, uchar* s )
+static XML_T xml_close_tag( xml_root_t root, char* name, char* s )
 {
 	if( !root->cur || !root->cur->name || strcmp( name, root->cur->name ) )
 		return xml_err( root, s, "unexpected closing tag </%s>", name );
@@ -431,7 +431,7 @@ static XML_T xml_close_tag( xml_root_t root, uchar* name, uchar* s )
     checks for circular entity references, returns non-zero if no circular ;
     references are found, zero otherwise
  ============================================================================ */
-static int xml_ent_ok( uchar* name, uchar* s, uchar ** ent )
+static int xml_ent_ok( char* name, char* s, char ** ent )
 {
 	
 	int i;
@@ -460,11 +460,11 @@ static int xml_ent_ok( uchar* name, uchar* s, uchar ** ent )
 /* =============================================================================
     called when the parser finds a processing instruction
  ============================================================================ */
-static void xml_proc_inst( xml_root_t root, uchar* s, size_t len )
+static void xml_proc_inst( xml_root_t root, char* s, size_t len )
 {
 	
 	int		i = 0, j = 1;
-	uchar*	target = s;
+	char*	target = s;
 	
 
 	s[len] = '\0';	/* null terminate instruction */
@@ -485,23 +485,23 @@ static void xml_proc_inst( xml_root_t root, uchar* s, size_t len )
 	}
 
 	if( !root->pi[0] )
-		*( root->pi = pmalloc( sizeof(uchar **) ) ) = NULL;
+		*( root->pi = pmalloc( sizeof(char **) ) ) = NULL;
 
 	while( root->pi[i] && strcmp( target, root->pi[i][0] ) )
 		i++;
 
 	if( !root->pi[i] )
 	{	/* new target */
-		root->pi = prealloc( root->pi, sizeof( uchar ** ) * ( i + 2 ) );
-		root->pi[i] = pmalloc( sizeof( uchar * ) * 3 );
+		root->pi = prealloc( root->pi, sizeof( char ** ) * ( i + 2 ) );
+		root->pi[i] = pmalloc( sizeof( char * ) * 3 );
 		root->pi[i][0] = target;
-		root->pi[i][1] = ( uchar * ) ( root->pi[i + 1] = NULL );
+		root->pi[i][1] = ( char * ) ( root->pi[i + 1] = NULL );
 		root->pi[i][2] = strdup( "" );	/* empty document position list */
 	}
 
 	while( root->pi[i][j] ) j++;		/* find end of instruction list for
 										 * this target */
-	root->pi[i] = prealloc( root->pi[i], sizeof( uchar * ) * ( j + 3 ) );
+	root->pi[i] = prealloc( root->pi[i], sizeof( char * ) * ( j + 3 ) );
 	root->pi[i][j + 2] = prealloc( root->pi[i][j + 1], j + 1 );
 
 	strcpy( root->pi[i][j + 2] + j - 1, ( root->xml.name ) ? ">" : "<" );
@@ -514,10 +514,10 @@ static void xml_proc_inst( xml_root_t root, uchar* s, size_t len )
 /* =============================================================================
     called when the parser finds an internal doctype subset
  ============================================================================ */
-static short xml_internal_dtd( xml_root_t root, uchar* s, size_t len )
+static short xml_internal_dtd( xml_root_t root, char* s, size_t len )
 {
 	
-	uchar	q, *c, *t, *n = NULL, *v, **ent, **pe;
+	char	q, *c, *t, *n = NULL, *v, **ent, **pe;
 	int		i, j;
 	
 
@@ -547,7 +547,7 @@ static short xml_internal_dtd( xml_root_t root, uchar* s, size_t len )
 
 			for( i = 0, ent = ( *c == '%' ) ? pe : root->ent; ent[i]; i++ )
 				;
-			ent = prealloc( ent, ( i + 3 ) * sizeof( uchar * ) );	/* space
+			ent = prealloc( ent, ( i + 3 ) * sizeof( char * ) );	/* space
 																	 * for next
 																	 * ent */
 			if( *c == '%' )
@@ -628,12 +628,12 @@ static short xml_internal_dtd( xml_root_t root, uchar* s, size_t len )
 
 				if( !root->attr[i] )
 				{	/* new tag name */
-					root->attr = ( !i ) ? pmalloc( 2 * sizeof( uchar ** ) )
+					root->attr = ( !i ) ? pmalloc( 2 * sizeof( char ** ) )
 									: prealloc( root->attr,
-										( i + 2 ) * sizeof( uchar ** ) );
-					root->attr[i] = pmalloc( 2 * sizeof( uchar * ) );
+										( i + 2 ) * sizeof( char ** ) );
+					root->attr[i] = pmalloc( 2 * sizeof( char * ) );
 					root->attr[i][0] = t;		/* set tag name */
-					root->attr[i][1] = ( uchar * ) ( root->attr[i + 1] = NULL );
+					root->attr[i][1] = ( char * ) ( root->attr[i + 1] = NULL );
 				}
 
 				for( j = 1; root->attr[i][j]; j += 3 )
@@ -641,7 +641,7 @@ static short xml_internal_dtd( xml_root_t root, uchar* s, size_t len )
 
 				/* find end of list */
 				root->attr[i] = prealloc( root->attr[i], 
-									( j + 4 ) * sizeof( uchar * ) );
+									( j + 4 ) * sizeof( char * ) );
 
 				root->attr[i][j + 3] = NULL;	/* null terminate list */
 				root->attr[i][j + 2] = c;		/* is it cdata? */
@@ -673,10 +673,10 @@ static short xml_internal_dtd( xml_root_t root, uchar* s, size_t len )
     ;
     or NULL if no conversion was needed.
  ============================================================================ */
-uchar* xml_str2utf8( uchar ** s, size_t* len )
+char* xml_str2utf8( char ** s, size_t* len )
 {
 	
-	uchar*	u;
+	char*	u;
 	size_t	l = 0, sl, max = *len;
 	long	c, d;
 	int		b, be = ( **s == '\xFE' ) ? 1 : ( **s == '\xFF' ) ? 0 : -1;
@@ -698,14 +698,14 @@ uchar* xml_str2utf8( uchar ** s, size_t* len )
 		}
 
 		while( l + 6 > max ) u = prealloc( u, max += XML_BUFSIZE );
-		if( c < 0x80 ) u[l++] = (uchar)c;	/* US-ASCII subset */
+		if( c < 0x80 ) u[l++] = (char)c;	/* US-ASCII subset */
 		else
 		{	/* multi-byte UTF-8 sequence */
 			for( b = 0, d = c; d; d /= 2 ) b++; /* bits in c */
 			b = ( b - 2 ) / 5;	/* bytes in payload */
-			u[l++] = (uchar)( ( 0xFF << (7 - b) ) | ( c >> (6 * b) ) );
+			u[l++] = (char)( ( 0xFF << (7 - b) ) | ( c >> (6 * b) ) );
 			while( b )
-				u[l++] = (uchar)( 0x80 | ( (c >> (6 * --b)) & 0x3F ) );
+				u[l++] = (char)( 0x80 | ( (c >> (6 * --b)) & 0x3F ) );
 		}
 	}
 
@@ -715,11 +715,11 @@ uchar* xml_str2utf8( uchar ** s, size_t* len )
 /* =============================================================================
     pfrees a tag attribute list
  ============================================================================ */
-void xml_free_attr( uchar ** attr )
+void xml_free_attr( char ** attr )
 {
 	
 	int		i = 0;
-	uchar*	m;
+	char*	m;
 	
 
 	if( !attr || attr == XML_NIL )
@@ -745,11 +745,11 @@ void xml_free_attr( uchar ** attr )
 /* =============================================================================
     parse the given xml string and return an xml structure
  ============================================================================ */
-XML_T xml_parse_str( uchar* s, size_t len )
+XML_T xml_parse_str( char* s, size_t len )
 {
 	
 	xml_root_t	root = (xml_root_t)xml_new( NULL );
-	uchar		q, e, *d, **attr, **a = NULL;	/* initialize a to avoid
+	char		q, e, *d, **attr, **a = NULL;	/* initialize a to avoid
 												 * compile warning */
 	int			l, i, j;
 	char* 		z;
@@ -763,9 +763,9 @@ XML_T xml_parse_str( uchar* s, size_t len )
 												 * area */
 	root->lines = 1;
 
-	e = s[len - 1]; /* save end uchar* s[len - 1]
+	e = s[len - 1]; /* save end char* s[len - 1]
 					 * '\0';
-					 * turn end uchar into null terminator */
+					 * turn end char into null terminator */
 
 	while( *s && *s != '<' )
 		s++;	/* find first tag */
@@ -777,7 +777,7 @@ XML_T xml_parse_str( uchar* s, size_t len )
 		/*
 		fprintf( stderr, "loop = >%s<\n", s );
 		*/
-		attr = (uchar**)XML_NIL;
+		attr = (char**)XML_NIL;
 		d = ++s;
 
 		if( isalpha( *s ) || *s == '_' || *s == ':' || *s < '\0' )
@@ -798,8 +798,8 @@ XML_T xml_parse_str( uchar* s, size_t len )
 				attr = ( l ) ? prealloc
 					(
 						attr, 
-						( l + 4 ) * sizeof( uchar * )
-					) : pmalloc( 4 * sizeof( uchar * ) );	/* allocate space */
+						( l + 4 ) * sizeof( char * )
+					) : pmalloc( 4 * sizeof( char * ) );	/* allocate space */
 				attr[l + 3] = ( l ) ? prealloc
 					(
 						attr[l + 1], 
@@ -973,7 +973,7 @@ XML_T xml_parse_fp( FILE* fp )
 {
 	xml_root_t	root;
 	size_t		l, len = 0;
-	uchar*		s;
+	char*		s;
 	
 
 	if( !( s = pmalloc(XML_BUFSIZE) ) )
@@ -998,10 +998,10 @@ XML_T xml_parse_fp( FILE* fp )
 /* =============================================================================
     a wrapper for xml_parse_fd that accepts a file name
  ============================================================================ */
-XML_T xml_parse_file( uchar* file )
+XML_T xml_parse_file( char* file )
 {
 	xml_root_t	root;
-	uchar*		s;
+	char*		s;
 	
 	if( map_file( &s, file ) != ERR_OK )
 		return (XML_T)NULL;
@@ -1017,11 +1017,11 @@ XML_T xml_parse_file( uchar* file )
     *dst ;
     if length excedes max. a is non-zero for attribute encoding. Returns *dst
  ============================================================================ */
-uchar* xml_ampencode( uchar*  s, size_t len, uchar **  dst, size_t*	 dlen, 
+char* xml_ampencode( char*  s, size_t len, char **  dst, size_t*	 dlen, 
 					  size_t*  max, short a )
 {
 	
-	uchar*	e;
+	char*	e;
 	
 
 	for( e = s + len; s != e; s++ )
@@ -1076,12 +1076,12 @@ uchar* xml_ampencode( uchar*  s, size_t len, uchar **  dst, size_t*	 dlen,
     its length excedes max. start is the location of the previous tag in the ;
     parent tag's character content. Returns *s.
  ============================================================================ */
-static uchar* xml_toxml_r( XML_T xml, uchar** s, size_t*	len, size_t*  max, 
-						   size_t start, uchar*** attr, int tabs )
+static char* xml_toxml_r( XML_T xml, char** s, size_t*	len, size_t*  max, 
+						   size_t start, char*** attr, int tabs )
 {
 	
 	int		i, j;
-	uchar*	txt = ( xml->parent ) ? xml->parent->txt : "";
+	char*	txt = ( xml->parent ) ? xml->parent->txt : "";
 	size_t	off = 0;
 	
 
@@ -1174,14 +1174,14 @@ static uchar* xml_toxml_r( XML_T xml, uchar** s, size_t*	len, size_t*  max,
     Converts an xml structure back to xml. Returns a string of xml data that ;
     must be pfreed.
  ============================================================================ */
-uchar* xml_toxml( XML_T xml )
+char* xml_toxml( XML_T xml )
 {
 	
 	XML_T		p = ( xml ) ? xml->parent : NULL, o =
 		( xml ) ? xml->ordered : NULL;
 	xml_root_t	root = (xml_root_t)xml;
 	size_t		len = 0, max = XML_BUFSIZE;
-	uchar*		s = strcpy( pmalloc( max ), "" ), *t, *n;
+	char*		s = strcpy( pmalloc( max ), "" ), *t, *n;
 	int			i, j, k;
 	
 
@@ -1242,7 +1242,7 @@ void xml_free( XML_T xml )
 	
 	xml_root_t	root = (xml_root_t)xml;
 	int			i, j;
-	uchar** 	a, *s;
+	char** 	a, *s;
 	
 
 	if( !xml ) return;
@@ -1299,7 +1299,7 @@ void xml_free( XML_T xml )
 /* =============================================================================
     return parser error message or empty string if none
  ============================================================================ */
-uchar* xml_error( XML_T xml )
+char* xml_error( XML_T xml )
 {
 	while( xml && xml->parent ) xml = xml->parent;	/* find root tag */
 	return( xml ) ? ( (xml_root_t)xml )->err : "";
@@ -1308,9 +1308,9 @@ uchar* xml_error( XML_T xml )
 /* =============================================================================
     returns a new empty xml structure with the given root tag name
  ============================================================================ */
-XML_T xml_new( uchar* name )
+XML_T xml_new( char* name )
 {
-	static uchar*	ent[] =
+	static char*	ent[] =
 	{
 		"lt;", 
 		"&#60;", 
@@ -1329,13 +1329,13 @@ XML_T xml_new( uchar* name )
 							pmalloc( sizeof(struct xml_root) ), '\0',
 								sizeof( struct xml_root ) );
 
-	root->xml.name = (uchar*)name;
+	root->xml.name = (char*)name;
 	root->cur = &root->xml;
 
 	strcpy( root->err, root->xml.txt = "" );
 
 	root->ent = memcpy( pmalloc( sizeof(ent) ), ent, sizeof( ent ) );
-	root->attr = root->pi = (uchar***)( root->xml.attr = XML_NIL );
+	root->attr = root->pi = (char***)( root->xml.attr = XML_NIL );
 
 	return &root->xml;
 }
@@ -1409,14 +1409,14 @@ XML_T xml_insert( XML_T xml, XML_T dest, size_t off )
     Adds a child tag. off is the offset of the child tag relative to the start ;
     of the parent tag's character content. Returns the child tag.
  ============================================================================ */
-XML_T xml_add_child( XML_T xml, uchar* name, size_t off )
+XML_T xml_add_child( XML_T xml, char* name, size_t off )
 {
 	XML_T	child;
 
 	if( !xml ) return NULL;
 	child = (XML_T)memset( pmalloc( sizeof(struct xml) ),
 						'\0',  sizeof( struct xml ) );
-	child->name = (uchar*)name;
+	child->name = (char*)name;
 	child->attr = XML_NIL;
 	child->txt = "";
 
@@ -1426,7 +1426,7 @@ XML_T xml_add_child( XML_T xml, uchar* name, size_t off )
 /* =============================================================================
     sets the character content for the given tag and returns the tag
  ============================================================================ */
-XML_T xml_set_txt( XML_T xml, uchar* txt )
+XML_T xml_set_txt( XML_T xml, char* txt )
 {
 	if( !xml )
 		return NULL;
@@ -1435,7 +1435,7 @@ XML_T xml_set_txt( XML_T xml, uchar* txt )
 		pfree( xml->txt );	/* existing txt was malloced */
 
 	xml->flags &= ~XML_TXTM;
-	xml->txt = (uchar*)txt;
+	xml->txt = (char*)txt;
 	return xml;
 }
 
@@ -1443,7 +1443,7 @@ XML_T xml_set_txt( XML_T xml, uchar* txt )
     Sets the given tag attribute or adds a new attribute if not found. A value ;
     of NULL will remove the specified attribute. Returns the tag given.
  ============================================================================ */
-XML_T xml_set_attr( XML_T xml, uchar* name, uchar* value )
+XML_T xml_set_attr( XML_T xml, char* name, char* value )
 {
 	int l = 0, c;
 
@@ -1461,13 +1461,13 @@ XML_T xml_set_attr( XML_T xml, uchar* name, uchar* value )
 
 		if( xml->attr == XML_NIL )
 		{	/* first attribute */
-			xml->attr = pmalloc( 4 * sizeof( uchar * ) );
+			xml->attr = pmalloc( 4 * sizeof( char * ) );
 			xml->attr[1] = strdup( "" );	/* empty list of malloced vals */
 		} 
 		else
-			xml->attr = prealloc( xml->attr, ( l + 4 ) * sizeof( uchar * ) );
+			xml->attr = prealloc( xml->attr, ( l + 4 ) * sizeof( char * ) );
 
-		xml->attr[l] = (uchar*)name;		/* set attribute name */
+		xml->attr[l] = (char*)name;		/* set attribute name */
 		xml->attr[l + 2] = NULL;			/* null terminate attribute list */
 		xml->attr[l + 3] = prealloc( xml->attr[l + 1], 
 							( c = strlen(xml->attr[l + 1]) ) + 2 );
@@ -1492,16 +1492,16 @@ XML_T xml_set_attr( XML_T xml, uchar* name, uchar* value )
 		xml->attr[c + 1][l / 2] &= ~XML_TXTM;
 
 	if( value )
-		xml->attr[l + 1] = (uchar*)value;	/* set attribute value */
+		xml->attr[l + 1] = (char*)value;	/* set attribute value */
 	else
 	{		/* remove attribute */
 		if( xml->attr[c + 1][l / 2] & XML_NAMEM )
 			pfree( xml->attr[l] );
 			
 		memmove( xml->attr + l, xml->attr + l + 2, 
-					( c - l + 2 ) * sizeof( uchar * ) );
+					( c - l + 2 ) * sizeof( char * ) );
 
-		xml->attr = prealloc( xml->attr, ( c + 2 ) * sizeof( uchar * ) );
+		xml->attr = prealloc( xml->attr, ( c + 2 ) * sizeof( char * ) );
 		
 		/* fix list of which name/vals are malloced */
 		memmove( xml->attr[c + 1] + ( l / 2 ), 
@@ -1516,9 +1516,9 @@ XML_T xml_set_attr( XML_T xml, uchar* name, uchar* value )
 /* =============================================================================
     Set integer value into attribute.
  ============================================================================ */
-XML_T xml_set_int_attr( XML_T xml, uchar* name, plong value )
+XML_T xml_set_int_attr( XML_T xml, char* name, plong value )
 {
-	uchar*		v;
+	char*		v;
 	
 	if( !( v = plong_to_uchar( value ) ) )
 		return (XML_T)NULL;
@@ -1529,9 +1529,9 @@ XML_T xml_set_int_attr( XML_T xml, uchar* name, plong value )
 /* =============================================================================
     Set float value into attribute.
  ============================================================================ */
-XML_T xml_set_float_attr( XML_T xml, uchar* name, pdouble value )
+XML_T xml_set_float_attr( XML_T xml, char* name, pdouble value )
 {
-	uchar*		v;
+	char*		v;
 	
 	if( !( v = pdouble_to_uchar( value ) ) )
 		return (XML_T)NULL;

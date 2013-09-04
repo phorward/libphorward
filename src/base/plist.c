@@ -14,7 +14,7 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 static pboolean plist_hash_rebuild( plist* list );
 
 /* Compare hash-table elements */
-static int plist_hash_compare( plist* list, uchar* l, uchar* r )
+static int plist_hash_compare( plist* list, char* l, char* r )
 {
 	int		res;
 
@@ -33,7 +33,7 @@ static int plist_hash_compare( plist* list, uchar* l, uchar* r )
 }
 
 /* Get hash table index */
-static int plist_hash_index( plist* list, uchar* key )
+static int plist_hash_index( plist* list, char* key )
 {
 	psize hashval	= 0L;
 	psize len;
@@ -252,7 +252,7 @@ plist* plist_free( plist* list )
 If //pos// is NULL, the new element will be attached to the end of the
 list. If //key// is not NULL, the element will be additionally engaged
 into the lists hash table. */
-punit* plist_insert( plist* list, punit* pos, uchar* key, void* src )
+punit* plist_insert( plist* list, punit* pos, char* key, void* src )
 {
 	punit*	e;
 	int		size;
@@ -326,7 +326,7 @@ punit* plist_insert( plist* list, punit* pos, uchar* key, void* src )
 		if( list->flags & PLIST_MOD_EXTKEYS )
 			e->key = key;
 		else if( list->flags & PLIST_MOD_WCHAR )
-			e->key = (uchar*)Pstrdup( (pchar*)key );
+			e->key = (char*)Pstrdup( (pchar*)key );
 		else
 			e->key = pstrdup( key );
 
@@ -352,7 +352,7 @@ punit* plist_push( plist* list, void* src )
 		return (punit*)NULL;
 	}
 
-	return plist_insert( list, (punit*)NULL, (uchar*)NULL, src );
+	return plist_insert( list, (punit*)NULL, (char*)NULL, src );
 }
 
 /** Removes the element //e// from the the //list// and free it or puts
@@ -456,7 +456,7 @@ punit* plist_get( plist* list, int n )
 This function tries to fetch a list entry punit from list //list//
 with the key //key//.
 */
-punit* plist_get_by_key( plist* list, uchar* key )
+punit* plist_get_by_key( plist* list, char* key )
 {
 	int		idx;
 	punit*	e;

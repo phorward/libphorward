@@ -131,3 +131,28 @@ pboolean pg_parser_set_optimize( pgparser* p, pboolean optimize )
 	p->optimize = optimize;
 	return TRUE;
 }
+
+/* Attribute: source */
+
+char* pg_parser_get_source( pgparser* p )
+{
+	if( !( p ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	return p->source;
+}
+
+pboolean pg_parser_set_source( pgparser* p, char* source )
+{
+	if( !( p ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	psetstr( &( p->source ), source );
+	return TRUE;
+}

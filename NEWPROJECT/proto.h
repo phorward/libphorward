@@ -4,6 +4,6 @@
 
 /* main.c */
 void copyright( void );
-void usage( uchar* progname );
+void usage( char* progname );
 BOOLEAN get_command_line( int argc, char** argv );
 

@@ -39,17 +39,17 @@ pbyte punion_set_byte( punion* var, pbyte b )
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Sets a variant's uchar data value and type.
+	Usage:			Sets a variant's char data value and type.
 
 	Parameters:		punion*	var	Pointer to punion structure.
-					uchar	c	Value to be assigned.
+					char	c	Value to be assigned.
 
-	Returns:		uchar		The value of c.
+	Returns:		char		The value of c.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar punion_set_char( punion* var, uchar c )
+char punion_set_char( punion* var, char c )
 {
 	PROC( "punion_set_char" );
 	PARMS( "var", "%p", var );
@@ -213,17 +213,17 @@ pdouble punion_set_double( punion* var, pdouble d )
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Sets a variant's uchar* data value and type.
+	Usage:			Sets a variant's char* data value and type.
 
 	Parameters:		punion*	var	Pointer to punion structure.
-					uchar*	s	Value to be assigned.
+					char*	s	Value to be assigned.
 
-	Returns:		uchar*		The value of s.
+	Returns:		char*		The value of s.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* punion_set_cstring( punion* var, uchar* s )
+char* punion_set_cstring( punion* var, char* s )
 {
 	PROC( "punion_set_cstring" );
 	PARMS( "var", "%p", var );
@@ -243,17 +243,17 @@ uchar* punion_set_cstring( punion* var, uchar* s )
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Sets a variant's uchar* data value and type.
+	Usage:			Sets a variant's char* data value and type.
 
 	Parameters:		punion*	var	Pointer to punion structure.
-					uchar*	s	Value to be assigned.
+					char*	s	Value to be assigned.
 
-	Returns:		uchar*		The value of s.
+	Returns:		char*		The value of s.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* punion_set_string( punion* var, uchar* s )
+char* punion_set_string( punion* var, char* s )
 {
 	PROC( "punion_set_string" );
 	PARMS( "var", "%p", var );

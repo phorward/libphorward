@@ -19,14 +19,14 @@ and re-configured, else a new state is allocated in memory.
 
 //nfa// is the structure pointer to the NFA to process.
 //chardef// is an optional charset definition for the new state. If this is
-(uchar*)NULL, then a new epsilon state is created.
+(char*)NULL, then a new epsilon state is created.
 //flags// defines the modifier flags that belong to the chardef-parameter.
 
 Returns a pointer to pregex_nfa_st, defining the newly created state. The
 function returns (pregex_nfa_st*)NULL on error case.
 */
 pregex_nfa_st* pregex_nfa_create_state(
-	pregex_nfa* nfa, uchar* chardef, int flags )
+	pregex_nfa* nfa, char* chardef, int flags )
 {
 	pregex_nfa_st* 	ptr;
 
@@ -338,13 +338,13 @@ in //ref//, so the array can be re-used in multiple calls.
 Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the match
 that was found relating to a pattern in //nfa//.
 */
-int pregex_nfa_match( pregex_nfa* nfa, uchar* str, psize* len, int* anchors,
+int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 		pregex_range** ref, int* ref_count, int flags )
 {
 	LIST*			res			= (LIST*)NULL;
 	LIST*			l;
 	pregex_nfa_st*	st;
-	uchar*			pstr		= str;
+	char*			pstr		= str;
 	psize			plen		= 0;
 	int				last_accept = PREGEX_ACCEPT_NONE;
 	int				rc;
@@ -496,13 +496,13 @@ converted into a state machine that exactly matches the desired string.
 
 Returns ERR_OK on success, ERR... error code else
 */
-int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
+int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 {
 	pregex_nfa_st*	nfa_st;
 	pregex_nfa_st*	append_to;
 	pregex_nfa_st*	first_nfa_st;
 	pregex_nfa_st*	prev_nfa_st;
-	uchar*			pstr;
+	char*			pstr;
 	wchar			ch;
 
 	PROC( "pregex_nfa_from_string" );
@@ -531,7 +531,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 
 	/* Create first state - this is an epsilon node */
 	if( !( first_nfa_st = prev_nfa_st =
-			pregex_nfa_create_state( nfa, (uchar*)NULL, flags ) ) )
+			pregex_nfa_create_state( nfa, (char*)NULL, flags ) ) )
 		RETURN( ERR_MEM );
 
 	for( pstr = str; *pstr; )
@@ -540,7 +540,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 		MSG( "Adding new state" );
 		VARS( "pstr", "%s", pstr );
 		if( !( nfa_st = pregex_nfa_create_state(
-				nfa, (uchar*)NULL, flags ) ) )
+				nfa, (char*)NULL, flags ) ) )
 			RETURN( ERR_MEM );
 
 		ch = u8_parse_char( &pstr );
@@ -561,9 +561,9 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 #else
 			MSG( "non UTF-8 mode, trying to convert" );
 			if( isupper( ch ) )
-				ch = (uchar)tolower( (int)ch );
+				ch = (char)tolower( (int)ch );
 			else
-				ch = (uchar)toupper( (int)ch );
+				ch = (char)toupper( (int)ch );
 #endif
 
 			MSG( "Case-insensity set, new character evaluated is:" );
@@ -579,7 +579,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, uchar* str, int flags, int acc )
 	/* Add accepting node */
 	VARS( "acc", "%d", acc );
 	if( !( nfa_st = pregex_nfa_create_state( nfa,
-			(uchar*)NULL, flags ) ) )
+			(char*)NULL, flags ) ) )
 		RETURN( ERR_MEM );
 
 	nfa_st->accept.accept = acc;

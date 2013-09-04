@@ -61,7 +61,7 @@ struct _bucket
 
 struct _hashelem
 {
-	uchar*		key;					/* Identifying key of the entry */
+	char*		key;					/* Identifying key of the entry */
 	void*		data;					/* Pointer to additional data/object */
 	HASHELEM*	prev;					/* Pointer to previous item in
 										   	the bucket */

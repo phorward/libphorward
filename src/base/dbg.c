@@ -15,7 +15,7 @@ Usage:	Macros and functions for trace output.
 	Trace is activated in any program if the DEBUG-macro is defined.
 	A function which uses trace looks like the following:
 
-	int func( int a, uchar* b )
+	int func( int a, char* b )
 	{
 		int i;
 

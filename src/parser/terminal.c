@@ -77,7 +77,7 @@ pgterminal* pg_terminal_get( pggrammar* g, int offset )
 
 /* Attribute: pattern */
 
-BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, uchar* pattern )
+BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern )
 {
 	pregex_ptn*		ptn		= (pregex_ptn*)NULL;
 

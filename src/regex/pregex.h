@@ -171,9 +171,9 @@ struct _regex_ptndef
 
 struct _pregex_range
 {
-	uchar*			begin;		/* Begin pointer */
+	char*			begin;		/* Begin pointer */
 	pchar*			pbegin;		/* Wide-character begin pointer */
-	uchar*			end;		/* End pointer */
+	char*			end;		/* End pointer */
 	pchar*			pend;		/* Wide-character end pointer */
 	psize			pos;		/* Position from string begin in bytes */
 	psize			len;		/* Length of result in bytes */
@@ -219,9 +219,9 @@ struct _regex
 	int				last_age;	/* Age of the pregex object at the last
 									match function restart */
 
-	uchar*			last_str;	/* Begin pointer of last string that was
+	char*			last_str;	/* Begin pointer of last string that was
 									analyzed */
-	uchar*			last_pos;	/* Holds last string position within
+	char*			last_pos;	/* Holds last string position within
 									multiple matches */
 
 	pregex_range	range;		/* Holds the last pattern match range */
@@ -234,6 +234,6 @@ struct _regex
 									constant, unless other expressions are
 									added to the pregex-object */
 
-	uchar*			tmp_str;	/* Temporary string pointer that is bound
+	char*			tmp_str;	/* Temporary string pointer that is bound
 									to the object */
 };

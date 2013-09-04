@@ -44,10 +44,10 @@ Usage:	XML processing functions (based on ezXML)
 typedef struct xml*		XML_T;
 struct xml
 {
-	uchar*		name;		/* tag name */
-	uchar **	 attr;		/* tag attributes { name, value, name, value, ...
+	char*		name;		/* tag name */
+	char **	 attr;		/* tag attributes { name, value, name, value, ...
 							 * NULL } */
-	uchar*		txt;		/* tag character content, empty string if none */
+	char*		txt;		/* tag character content, empty string if none */
 	size_t		off;		/* tag offset from start of parent tag character
 							 * content */
 	int			line;		/* Line where the node is declared */

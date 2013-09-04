@@ -23,29 +23,29 @@ The returned pointer is an allocated memory address where the zero-terminated
 copy of the extracted string remains, and has to be released with pfree() when
 its existence is not longer required.
 */
-uchar* pregex_range_to_string( pregex_range* range )
+char* pregex_range_to_string( pregex_range* range )
 {
-	uchar*	str;
+	char*	str;
 
 	PROC( "pregex_range_to_string" );
 
 	if( !range )
 	{
 		WRONGPARAM;
-		RETURN( (uchar*)NULL );
+		RETURN( (char*)NULL );
 	}
 
 	if( !range->pbegin )
 	{
 		MSG( "In utf-8/ascii character mode" );
-		str = (uchar*)pmalloc( ( range->len + 1 ) * sizeof( uchar ) );
+		str = (char*)pmalloc( ( range->len + 1 ) * sizeof( char ) );
 		psprintf( str, "%.*s", range->len, range->begin );
 		VARS( "str", "%s", str );
 	}
 	else
 	{
 		MSG( "In wide-character mode" );
-		str = (uchar*)pmalloc( ( range->len + 1 ) * sizeof( pchar ) );
+		str = (char*)pmalloc( ( range->len + 1 ) * sizeof( pchar ) );
 		Psprintf( (pchar*)str, L"%.*s", range->len, range->pbegin );
 		VARS( "str", "%ls", (pchar*)str );
 	}

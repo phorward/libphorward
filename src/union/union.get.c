@@ -46,18 +46,18 @@ pbyte punion_get_byte( punion* var )
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a punion's uchar data value and type.
+	Usage:			Returns a punion's char data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
 	Parameters:		punion*	var	Pointer to punion structure.
 
-	Returns:		uchar		The uchar-value of the variant.
+	Returns:		char		The char-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar punion_get_char( punion* var )
+char punion_get_char( punion* var )
 {
 	PROC( "punion_get_char" );
 	PARMS( "var", "%p", var );
@@ -68,10 +68,10 @@ uchar punion_get_char( punion* var )
 		{
 			MSG( "Conversion allowed and required" );
 			if( punion_convert( var, PUNION_CHAR ) != ERR_OK )
-				RETURN( (uchar)0 );
+				RETURN( (char)0 );
 		}
 		else
-			RETURN( (uchar)0 );
+			RETURN( (char)0 );
 	}
 
 	RETURN( var->val.c );
@@ -262,18 +262,18 @@ pdouble punion_get_double( punion* var )
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a punion's uchar* data value and type.
+	Usage:			Returns a punion's char* data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
 	Parameters:		punion*	var	Pointer to punion structure.
 
-	Returns:		uchar*		The uchar*-value of the variant.
+	Returns:		char*		The char*-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* punion_get_cstring( punion* var )
+char* punion_get_cstring( punion* var )
 {
 	PROC( "punion_get_cstring" );
 	PARMS( "var", "%p", var );
@@ -284,10 +284,10 @@ uchar* punion_get_cstring( punion* var )
 		{
 			MSG( "Conversion allowed and required" );
 			if( punion_convert( var, PUNION_STRING ) != ERR_OK )
-				RETURN( (uchar*)NULL );
+				RETURN( (char*)NULL );
 		}
 		else
-			RETURN( (uchar*)NULL );
+			RETURN( (char*)NULL );
 	}
 
 	RETURN( var->val.s );
@@ -298,18 +298,18 @@ uchar* punion_get_cstring( punion* var )
 
 	Author:			Jan Max Meyer (generated with var.gen.awk)
 
-	Usage:			Returns a punion's uchar* data value and type.
+	Usage:			Returns a punion's char* data value and type.
 					If the variant exists in another data type, it will be
 					converted, so use it carefully if data loss is not desired!
 
 	Parameters:		punion*	var	Pointer to punion structure.
 
-	Returns:		uchar*		The uchar*-value of the variant.
+	Returns:		char*		The char*-value of the variant.
 
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-uchar* punion_get_string( punion* var )
+char* punion_get_string( punion* var )
 {
 	PROC( "punion_get_string" );
 	PARMS( "var", "%p", var );
@@ -320,10 +320,10 @@ uchar* punion_get_string( punion* var )
 		{
 			MSG( "Conversion allowed and required" );
 			if( punion_convert( var, PUNION_STRING ) != ERR_OK )
-				RETURN( (uchar*)NULL );
+				RETURN( (char*)NULL );
 		}
 		else
-			RETURN( (uchar*)NULL );
+			RETURN( (char*)NULL );
 	}
 
 	RETURN( var->val.s );

@@ -61,14 +61,14 @@ void copyright( void )
 	
 	Usage:			Prints the program usage message.
 					
-	Parameters:		uchar*		progname			Name of the executable.
+	Parameters:		char*		progname			Name of the executable.
 	
 	Returns:		void
   
 	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Date:		Author:			Note:
 ----------------------------------------------------------------------------- */
-void usage( uchar* progname )
+void usage( char* progname )
 {
 	fprintf( stderr, "Usage: %s OPTIONS...\n\n"
 		"\t-h   --help            Print this help\n"
@@ -85,7 +85,7 @@ void usage( uchar* progname )
 	Usage:			Analyzes the command line parameters passed to this program.
 					
 	Parameters:		int			argc		Argument count from main()
-					uchar**		argv		Argument values from main()
+					char**		argv		Argument values from main()
 	
 	Returns:		BOOLEAN					TRUE, if command-line parameters
 											are correct, FALSE else.
@@ -98,8 +98,8 @@ BOOLEAN get_command_line( int argc, char** argv )
 	int		rc;
 	int		next;
 	int		i;
-	uchar	opt[ 20 + 1 ];
-	uchar*	param;
+	char	opt[ 20 + 1 ];
+	char*	param;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
 						"Vh", "version help", i ) ) == ERR_OK; i++ )
