@@ -45,21 +45,12 @@ static const char trailingBytesForUTF8[256] = {
     2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
 };
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		u8_seqlen()
+/** Returns length of next UTF-8 sequence in a multi-byte character string.
 
-	Author:			Jeff Bezanson
+//s// is the pointer to begin of UTF-8 sequence.
 
-	Usage:			returns length of next utf-8 sequence
-
-	Parameters:		char*		s					Pointer to begin of
-													UTF-8 sequence.
-
-	Returns:		int								Unicode character code
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns the number of bytes used for the next character.
+*/
 int u8_seqlen(char *s)
 {
 #ifdef UTF8
@@ -69,23 +60,15 @@ int u8_seqlen(char *s)
 	return 1;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		u8_char()
+/** Return single character (as wide-character value) from UTF-8 multi-byte
+character string.
 
-	Author:			Jan Max Meyer
-
-	Usage:			Return single character.
-
-	Parameters:		char*		str					Pointer to character begin
-
-	Returns:		wchar							Returns the converted
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-#ifdef UTF8
+//str// is the pointer to character sequence begin. */
 wchar u8_char( char* str )
 {
+#ifndef UTF8
+	return (wchar)*str;
+#else
 	int 	nb;
 	wchar 	ch = 0;
 
@@ -107,32 +90,18 @@ wchar u8_char( char* str )
 	ch -= offsetsFromUTF8[ nb ];
 
 	return ch;
-}
-#else
-wchar u8_char( char* str )
-{
-	return (wchar)*str;
-}
 #endif
+}
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		u8_move()
+/** Moves //count// characters ahead in an UTF-8 multi-byte character sequence.
 
-	Author:			Jan Max Meyer
+//str// is the pointer to UTF-8 string to begin moving.
+//count// is the number of characters to move left.
 
-	Usage:			Moves x characters ahead.
-
-	Parameters:		char*		str					Pointer to UTF-8 string
-					int			count				Number of characters to
-													move left.
-					
-
-	Returns:		char*							Address of new string
-													begin
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the address of the next UTF-8 character sequence after
+//count// characters. If the string's end is reached, it will return a 
+pointer to the zero-terminator.
+*/
 char* u8_move( char* str, int count )
 {
 	for( ; count > 0; count-- )
@@ -141,23 +110,14 @@ char* u8_move( char* str, int count )
 	return str;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		u8_parse_char()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Read one character from an UTF-8 input stream.
-					This character can be escaped, a UTF-8 character or an
-					ordinary ASCII-char.
-					
-	Parameters:		char**		chr				Input-/Output-Pointer
-	
-	Returns:		wchar						Returns the character code
-												of the parsed character.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Read one character from an UTF-8 input sequence.
+This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
+
+//chr// is the input- and output-pointer (the pointer is replaced by the pointer
+to the next character or escape-sequence within the string.
+
+The function teturns the character code of the parsed character.
+*/
 wchar u8_parse_char( char** ch )
 {
 	wchar	ret;

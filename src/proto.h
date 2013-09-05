@@ -168,8 +168,8 @@ int pregex_ref_init( pregex_range** ref, int* ref_count, int ref_all, int flags 
 void pregex_ref_update( pregex_range* ref, char* strp, psize off );
 
 /* string/convert.c */
-char* pchar_to_uchar( pchar* str, pboolean freestr );
-pchar* uchar_to_pchar( char* str, pboolean freestr );
+char* wchar_to_u8( pchar* str, pboolean freestr );
+pchar* u8_to_wchar( char* str, pboolean freestr );
 char* plong_to_uchar( plong l );
 pchar* plong_to_pchar( plong l );
 char* pulong_to_uchar( pulong ul );
@@ -213,11 +213,7 @@ psize Pstrlen( pchar* str );
 
 /* string/utf8.c */
 int u8_seqlen(char *s);
-#ifdef UTF8
 wchar u8_char( char* str );
-#else
-wchar u8_char( char* str );
-#endif
 char* u8_move( char* str, int count );
 wchar u8_parse_char( char** ch );
 int u8_toucs(wchar *dest, int sz, char *src, int srcsz);
@@ -238,10 +234,6 @@ int u8_escape(char *buf, int sz, char *src, int escape_quotes);
 char *u8_strchr(char *s, wchar ch, int *charn);
 char *u8_memchr(char *s, wchar ch, size_t sz, int *charn);
 int u8_is_locale_utf8(char *locale);
-
-/* util/base64.c */
-pint to_base64( char** outstream, char* instream, psize size );
-pint from_base64( char** outstream, psize* outsize, char* instream );
 
 /* util/system.c */
 char* pwhich( char* filename, char* directories );

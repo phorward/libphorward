@@ -96,7 +96,7 @@ typedef struct
 			to pulong: (same)
 			to pfloat: pstrtod( var->val.s, (char**)NULL )
 			to pdouble: (same)
-			to pchar*: uchar_to_pchar( var->val.s, FALSE )
+			to pchar*: u8_to_wchar( var->val.s, FALSE )
 		*/
 
 		pchar*	ws;
@@ -111,7 +111,7 @@ typedef struct
 			to pulong: (same)
 			to pfloat: Pstrtod( var->val.ws, (pchar**)NULL )
 			to pdouble: (same)
-			to char*: pchar_to_uchar( var->val.ws, FALSE )
+			to char*: wchar_to_u8( var->val.ws, FALSE )
 		*/
 	} val;
 } punion;

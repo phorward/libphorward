@@ -32,7 +32,6 @@ libphorward_la_SOURCES = \
 	string/convert.c \
 	string/string.c \
 	string/utf8.c \
-	util/base64.c \
 	util/system.c \
 	union/union.c \
 	union/union.conv.c \

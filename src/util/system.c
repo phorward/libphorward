@@ -9,48 +9,20 @@ Author:	Jan Max Meyer
 Usage:	System functions for various usages.
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
-/*
- * Global variables
- */
+/** Figures out a filepath by searching in a PATH definition.
 
-/*
- * Defines
- */
+//filename// is the filename to be searched for.
 
-/*
- * Functions
- */
+//directories// is a string specifying the directories to search in.
+If this is (char*)NULL, the environment variable PATH will be used and
+evaluated by using getenv(). The path can be split with multuple pathes
+by a character that depends on the current platform (Unix: ":", Windows: ";").
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pwhich()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Figures out a filepath by searching in a PATH definition.
-					
-	Parameters:		char*		filename		The filename to be searched for.
-					char*		directories		A string specifying the
-												directories to search in.
-												If this is (char*)NULL, the
-												environment variable PATH will
-												be used and evaluated,
-												depending on the current
-												platform.
-
-
-	Returns:		char*						Static pointer to the absolute
-												path that contains the file
-												specifed as filename, else
-												it will return (char*)NULL.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a static pointer to the absolute path that contains the file specifed
+as filename, else it will return (char*)NULL.
+*/
 char* pwhich( char* filename, char* directories )
 {
 	static char	path	[ BUFSIZ + 1 ];
@@ -91,20 +63,11 @@ char* pwhich( char* filename, char* directories )
 	return (char*)NULL;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pbasename()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Returns the Basename of a file.
-					
-	Parameters:		char*		path			File path pointer
-	
-	Returns:		char*						Static pointer to the basename.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Returns the basename of a file.
+
+//path// is the file path pointer.
+
+Returns a pointer to the basename, which is a part of //path//. */
 char* pbasename( char* path )
 {
 	char*		basename;
@@ -117,20 +80,11 @@ char* pbasename( char* path )
 	RETURN( ( basename ) ? ++basename : path );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pfileexists()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Checks for file existence.
-					
-	Parameters:		char*		filename		Path to a file.
-	
-	Returns:		pboolean					TRUE on success, FALSE if not.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Checks for file existence.
+
+//filename// is the path to a file that will be checked.
+
+Returns TRUE on success, FALSE if not. */
 pboolean pfileexists( char* filename )
 {
 	PROC( "pfileexists" );
@@ -152,25 +106,13 @@ pboolean pfileexists( char* filename )
 	RETURN( FALSE );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		map_file()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Maps the content of a file into memory.
-					
-	Parameters:		char**		cont			The file content, return
-												pointer.
-					char*		filename		Path to file to be mapped
-	
-	Returns:		int			ERR_OK			On success
-								1				If the file could not be found
-								ERR...			ERR-define according to its
-												meaning
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Maps the content of an entire file into memory.
+
+//cont// is the file content return pointer.
+//filename// is the path to file to be mapped
+
+The function returns ERR_OK on success, a value >0 if the file could not be
+found, or an ERR-define according to its meaning. */
 int map_file( char** cont, char* filename )
 {
 	FILE*	f;
@@ -225,90 +167,53 @@ int map_file( char** cont, char* filename )
 	RETURN( ERR_OK );
 }
 
+/** Implementation of a command-line option interpreter.
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pgetopt()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Implementation of a command-line option interpreter.
-					This function works similar to the getopt() functions
-					of the GNU Standard Library, but uses a different style
-					of parameter submit. It supports both short- and long-
-					option-style parameters.
+This function works similar to the getopt() functions of the GNU Standard
+Library, but uses a different style of parameter submit.
 
-					This function is currently under recent development
-					relating to the issues it is used for. It can't be seen
-					as compatible or feature-proven, and does not follow a
-					clear concept right now.
-					
-	Parameters:		char*		opt				Requires a pointer to a buffer
-												with enough space to store the
-												requested parameter to. For
-												short parameters, this is only
-												one char, for long-parameters
-												the full name. The string will
-												be zero-terminated.
-					char**		param			A pointer to char* to store
-												a possible parameter value to,
-												if the detected option allows
-												for parameters.
-					pint*		next			Receives the index in argv
-												of the next evaluated option.
-												It can be left (pint*)NULL.
-												It points to the next valid
-												index in argv[] after all
-												parameters have been evaluated.
-												Check it for <argc, to point
-												to valid data.
-					pint		argc			Argument count as taken from
-												the main() function.
-					char**		argv			Argument values as taken from
-												the main() function.
-					char*		optstr			The possible short-options.
-												This is a string where each
-												character defines an option.
-												If an option takes a parameter,
-												a colon is submitted. E.g.
-												"abc:def:g". The Options "-c"
-												and "-f" will take a parameter
-												that is returned to param.
-												This parameter can be (char*)
-												NULL.
-					char*		loptstr			The possible long-options.
-												This is a string containing all
-												long option names, each
-												separated by a blank. Long
-												options taking parameters have
-												an attached colon to the name.
-												E.g. "hello world: next" defines
-												three long options, where option
-												'world' takes one parameter that
-												is returned to param. This
-												parameter can be (char*)NULL.
-					pint		idx				The index of the requested
-												option, 0 for the first
-												option behind argv[0].
-	
-	Returns:		pint						Returns ERR_OK, if the
-												parameter with the given index
-												was successfully evaluated. 
-												It returns 1, if there are
-												sill command-line parameters,
-												but not as part of options.
-												The parameter param will 
-												receive the given pointer.
-												It returns ERR_FAILURE if no
-												more options could be read,
-												or if an option could not be
-												evaluated (unknown option).
-												In such case, param will hold
-												a string to the option that
-												is now known.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+It supports both short- and long- option-style parameters.
+This function is currently under recent development relating to the issues it
+is used for. It can't be seen as compatible or feature-proven, and does not
+follow a clear concept right now.
+
+//opt// is a pointer to a buffer with enough space to store the requested
+parameter to. For short parameters, this is only one char, for long-parameters
+the full name. The string will be zero-terminated.
+
+//param// is a pointer to store a possible parameter value to, if the detected
+option allows for parameters.
+
+//next// receives the index in argv of the next evaluated option. It can be
+left (pint*)NULL. It points to the next valid index in argv[] after all
+parameters have been evaluated. Check it for < argc, to point to valid data.
+
+//argc// is the argument count as taken from the main() function.
+
+//argv// are the argument values as taken from the main() function.
+
+//optstr// contains the possible short-options. This is a string where each
+character defines an option. If an option takes a parameter, a colon (:) is
+submitted.
+E.g. "abc:def:g". The Options "-c" and "-f" will take a parameter that is
+returned to param. This parameter can be (char*)NULL.
+
+//loptstr// contains the possible long-options. This is a string containing all
+long option names, each separated by a blank. Long options taking parameters
+have an attached colon (:) to the name.
+E.g. "hello world: next" defines three long options, where option 'world' takes
+one parameter that is returned to param. This parameter can be (char*)NULL.
+
+//idx// is the index of the requested option, 0 for the first option behind
+argv[0].
+
+The function returns ERR_OK, if the parameter with the given index was
+successfully evaluated. It returns 1, if there are sill command-line parameters,
+but not as part of options. The parameter param will receive the given pointer.
+It returns ERR_FAILURE if no more options could be read, or if an option could
+not be evaluated (unknown option). In such case, param will hold a string to the
+option that is now known.
+*/
 pint pgetopt( char* opt, char** param, pint* next,
 				pint argc, char** argv, char* optstr,
 					char* loptstr, pint idx )

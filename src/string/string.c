@@ -1202,22 +1202,11 @@ pchar* Pstrncatstr( pchar* str, pchar* append, psize num )
 	RETURN( str );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		Pstrlen()
+/*REMOVE?*/
+/** Saver strlen replacement for wide-character.
 
-	Author:			Jan Max Meyer
-
-	Usage:			Saver strlen replacement for wide-character.
-
-	Parameters:		pchar*		str					Parameter string to be
-													evaluated. If (pchar*)NULL,
-													the function returns 0.
-
-	Returns:		psize							Same as strlen, 0 in case
-													of (pchar*)NULL.
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//str// is the parameter string to be evaluated. If (pchar*)NULL,
+the function returns 0. */
 psize Pstrlen( pchar* str )
 {
 	if( !str )

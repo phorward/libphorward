@@ -31,32 +31,20 @@ Usage:	Conversion functions for data type and storage type conversion.
  * Functions
  */
  
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pchar_to_uchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			If compiled with the -DUNICODE-flag, this functions
-					converts a pchar-wide-character string into an UTF-8
-					string.
-					The string conversion is performed into dynamically
-					allocated strings. The function wraps wcstombs(), so
-					set_locale() must be done before this function works
-					properly.
-					
-	Parameters:		pchar*		str				Zero-terminated string to
-												be converted to UTF-8.
-					pboolean	freestr			Frees input-string after
-												conversion, if TRUE.
-	
-	Returns:		char*						Returns the UTF-8 pendant of
-												str as dynamically allocated
-												memory area.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
-char* pchar_to_uchar( pchar* str, pboolean freestr )
+/** This functions converts a wide-character string into an UTF-8 string. 
+ 
+The string conversion is performed into dynamically allocated memory.
+The function wraps the system function wcstombs(), so set_locale() must be
+called before this function works properly.
+
+//str// is the zero-terminated string to be converted to UTF-8.
+//freestr// defines if the input-string shall be freed after successfull
+conversion, if set to TRUE.
+
+Returns the UTF-8 character pendant of //str// as pointer to dynamically
+allocated memory.
+*/
+char* wchar_to_u8( pchar* str, pboolean freestr )
 {
 	psize	size;
 	char*	retstr;
@@ -92,36 +80,22 @@ char* pchar_to_uchar( pchar* str, pboolean freestr )
 	RETURN( retstr );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		uchar_to_pchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			If compiled with the -DUNICODE-flag, this functions
-					converts a UTF-8-multi-byte string into an Unicode
-					pchar-wide-character string.
-					The string conversion is performed into dynamically
-					allocated strings. The function wraps mbstowcs(), so
-					set_locale() must be done before this function works
-					properly.
-					
-	Parameters:		char*		str				Zero-terminated UTF-8 string to
-												be converted into a wide
-												character string.
-					pboolean	freestr			Frees input-string after
-												conversion, if TRUE.
-	
-	Returns:		pchar*						Returns the wide character
-												pendant of str as dynamically
-												allocated memory area.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
-	23.09.2010	Jan Max Meyer	Conversions avoided terminating null under some
-								circumstances, adding +1 to the final conversion
-								call resolved this problem.
------------------------------------------------------------------------------ */
-pchar* uchar_to_pchar( char* str, pboolean freestr )
+/** This functions converts a UTF-8-multi-byte string into an Unicode
+wide-character string.
+
+The string conversion is performed into dynamically allocated memory.
+The function wraps mbstowcs(), so set_locale() must be done before this
+function works properly.
+
+//str// is the zero-terminated multi-byte-character string to be converted
+into a wide-character string.
+//freestr// defines if the input-string shall be freed after successfull
+conversion, if set to TRUE.
+
+Returns the wide-character pendant of //str// as pointer to dynamically
+allocated memory.
+*/
+pchar* u8_to_wchar( char* str, pboolean freestr )
 {
 	psize	size;
 	pchar*	retstr;
@@ -157,22 +131,14 @@ pchar* uchar_to_pchar( char* str, pboolean freestr )
 	RETURN( retstr );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		plong_to_uchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Converts long-value into an allocated char string buffer.
+/*REMOVE?*/
+/** Converts a long-value into an allocated string buffer.
 
-	Parameters:		plong		l			Long value to become converted.
-					
-	Returns:		char*					Pointer to the newly allocated
-											string, which contains the string-
-											representation of the long value.
+//l// is the long value to be converted.
 
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the newly allocated string, which contains the
+string-representation of the long value.
+*/
 char* plong_to_uchar( plong l )
 {
 	PROC( "plong_to_uchar" );
@@ -181,25 +147,15 @@ char* plong_to_uchar( plong l )
 	RETURN( pasprintf( "%ld", l ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		plong_to_pchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Converts long-value into an allocated pchar
-					wide string buffer.
+/*REMOVE?*/
+/** Converts long-value into an allocated wide-character string buffer.
 
-	Parameters:		plong		l			Long value to become converted.
-					
-	Returns:		pchar*					Pointer to the newly allocated
-											wide-character string (if compiled
-											with the UNICODE flag!), which 
-											contains the wide-string-represen-
-											tation of the long value.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//l// is the long value to become converted.
+
+Returns a pointer to the newly allocated wide-character string
+(if compiled with the UNICODE flag!), which contains the wide-character
+representation of the long value.
+*/
 pchar* plong_to_pchar( plong l )
 {
 	PROC( "plong_to_pchar" );
@@ -208,23 +164,14 @@ pchar* plong_to_pchar( plong l )
 	RETURN( Pasprintf( L"%ld", l ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pulong_to_uchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Converts unsigned long-value into an allocated char
-					string buffer.
+/*REMOVE?*/
+/** Converts unsigned long-value into an allocated string buffer.
 
-	Parameters:		plong		l			Long value to become converted.
-					
-	Returns:		char*					Pointer to the newly allocated
-											string, which contains the string-
-											representation of the long value.
+//l// is the long value to become converted.
 
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the newly allocated string, which contains the
+string-representation of the long value.
+*/
 char* pulong_to_uchar( pulong ul )
 {
 	PROC( "pulong_to_uchar" );
@@ -233,25 +180,15 @@ char* pulong_to_uchar( pulong ul )
 	RETURN( pasprintf( "%ld", ul ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pulong_to_pchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Converts unsigned long-value into an allocated pchar
-					wide string buffer.
+/*REMOVE?*/
+/** Converts unsigned long-value into an allocated char wide-character buffer.
 
-	Parameters:		pulong		l			Long value to become converted.
-					
-	Returns:		pchar*					Pointer to the newly allocated
-											wide-character string (if compiled
-											with the UNICODE flag!), which 
-											contains the wide-string-represen-
-											tation of the long value.
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//l// is the long value to become converted.
+
+Returns a pointer to the newly allocated wide-character string (if compiled
+with the UNICODE flag!), which contains the wide-string-representation of the
+long value.
+*/
 pchar* pulong_to_pchar( pulong ul )
 {
 	PROC( "pulong_to_pchar" );
@@ -260,24 +197,16 @@ pchar* pulong_to_pchar( pulong ul )
 	RETURN( Pasprintf( L"%ld", ul ) );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pdouble_to_uchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Converts double-value into an allocated char string buffer.
-					Zero-digits behind the decimal will be removed, so "1.65000"
-					will become to "1.65" in its string representation.
+/*REMOVE?*/
+/** Converts a double-value into an allocated string buffer.
 
-	Parameters:		pdouble		d			Double value to become converted.
-					
-	Returns:		char*					Pointer to the newly allocated
-											string, which contains the string-
-											representation of the double value.
+//d// is the double value to become converted. Zero-digits behind the decimal
+dot will be removed after conversion, so "1.65000" will become to "1.65" in its
+string representation. 
 
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the newly allocated string, which contains the
+string-representation of the double value.
+*/
 char* pdouble_to_uchar( pdouble d )
 {
 	char*		ret;
@@ -300,26 +229,16 @@ char* pdouble_to_uchar( pdouble d )
 	RETURN( ret );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		pdouble_to_pchar()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Converts double-value into an allocated pchar string buffer.
-					Zero-digits behind the decimal will be removed, so "1.65000"
-					will become to "1.65" in its wide string representation.
+/*REMOVE?*/
+/** Converts a double-value into an allocated wide-character string buffer.
 
-	Parameters:		pdouble		d			Double value to become converted.
-					
-	Returns:		char*					Pointer to the newly allocated
-											wide-string, which contains the 
-											wide string-representation of the
-											double value, if compiled with
-											the UNICODE-flag.
+//d// is the double value to become converted. Zero-digits behind the decimal
+dot will be removed after conversion, so "1.65000" will become to "1.65" in its
+string representation. 
 
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+Returns a pointer to the newly allocated wide-character string, which contains
+the string-representation of the double value.
+*/
 pchar* pdouble_to_pchar( pdouble d )
 {
 	pchar*		ret;

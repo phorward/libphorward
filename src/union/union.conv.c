@@ -360,7 +360,7 @@ char* punion_to_string( punion* var )
 		case PUNION_STRING:
 			RETURN( var->val.s );
 		case PUNION_WSTRING:
-			RETURN( (char*)pchar_to_uchar( var->val.ws, FALSE ) );
+			RETURN( (char*)wchar_to_u8( var->val.ws, FALSE ) );
 	}
 
 	MSG( "Can't convert this type!" );
@@ -405,7 +405,7 @@ pchar* punion_to_wstring( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pchar*)pdouble_to_pchar( var->val.d ) );
 		case PUNION_STRING:
-			RETURN( (pchar*)uchar_to_pchar( var->val.s, FALSE ) );
+			RETURN( (pchar*)u8_to_wchar( var->val.s, FALSE ) );
 		case PUNION_WSTRING:
 			RETURN( var->val.ws );
 	}

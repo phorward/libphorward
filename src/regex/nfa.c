@@ -517,7 +517,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	/* For wide-character execution, copy string content */
 	if( flags & PREGEX_MOD_WCHAR )
 	{
-		if( !( str = pchar_to_uchar( (pchar*)str, FALSE ) ) )
+		if( !( str = wchar_to_u8( (pchar*)str, FALSE ) ) )
 			return ERR_MEM;
 	}
 
