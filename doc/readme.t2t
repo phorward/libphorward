@@ -10,7 +10,7 @@ With the use of the Phorward Foundation Toolkit, programmers are enabled to enha
 
 The main intention behind the Phorward Foundation Toolkit is the development of software products that are having their origin at Phorward Software Technologies. Phorward Software Technologies is a software company from Dortmund, Germany, that focuses strongly on the development of high-performance software solutions around the area of compilers, compiler-construction tools, scripting languages and general software development tools. Because almost all of Phorward Softwares newer solutions are open-source-based products, the Phorward Foundation Toolkit forms the general base of all C-based projects.
 
-== FEATURES ==
+= FEATURES =
 
 The Phorward Foundation Toolkit provides
 
@@ -55,6 +55,22 @@ To compile into 64-Bit Windows executables, configure with
 
 ``` ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 
+= LOCAL DEVELOPMENT BUILD-SYSTEM =
+
+Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
+
+Once, type
+
+``` make -f Makefile.gnu make
+
+then, a simple run of
+
+``` make
+
+can be used to simply build the entire library or parts of it.
+
+Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.  
+
 = AUTHOR =
 
 The Phorward Foundation Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
@@ -63,7 +79,7 @@ Help of any kind to extend and improve this product is always appreciated.
 
 = COPYRIGHT =
 
-Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer.
+Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer.
 
 You may use, modify and distribute this software under the terms and conditions of the 3-clause BSD license. The full license terms can be obtained from the file LICENSE.
 
