@@ -146,7 +146,7 @@ pboolean pregex_check_anchors( char* all, char* str, psize len,
 			}
 
 			VARS( "ch", "%lc", ch );
-			if( Pisalnum( ch ) || ch == '_' )
+			if( iswalnum( ch ) || ch == '_' )
 				RETURN( FALSE );
 		}
 	}
@@ -158,7 +158,7 @@ pboolean pregex_check_anchors( char* all, char* str, psize len,
 		if( ( ch = *( str + ( len * charsize ) ) ) )
 		{
 			VARS( "ch", "%lc", ch );
-			if( Pisalnum( ch ) || ch == '_' )
+			if( iswalnum( ch ) || ch == '_' )
 				RETURN( FALSE );
 		}
 	}

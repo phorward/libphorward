@@ -89,10 +89,10 @@ pregex_nfa_st* pregex_nfa_create_state(
 			{
 				for( ch = c->begin; ch <= c->end; ch++ )
 				{
-					if( Pisupper( ch ) )
-						cch = Ptolower( ch );
+					if( iswupper( ch ) )
+						cch = towlower( ch );
 					else
-						cch = Ptoupper( ch );
+						cch = towupper( ch );
 
 					VARS( "cch", "%d", cch );
 

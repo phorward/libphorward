@@ -45,6 +45,15 @@ static const char trailingBytesForUTF8[256] = {
     2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
 };
 
+/** Check for UTF-8 character sequence signature.
+
+The function returns TRUE, if the character //c// is the beginning of a UTF-8
+character signature, else FALSE. */
+pboolean u8_isutf( pbyte c )
+{
+	return TRUEBOOLEAN( ( c & 0xC0 ) != 0x80 );
+}
+
 /** Returns length of next UTF-8 sequence in a multi-byte character string.
 
 //s// is the pointer to begin of UTF-8 sequence.
@@ -86,7 +95,7 @@ wchar u8_char( char* str )
         case 0:
 			ch += (pbyte)*str++;
 	}
-	
+
 	ch -= offsetsFromUTF8[ nb ];
 
 	return ch;
@@ -99,7 +108,7 @@ wchar u8_char( char* str )
 //count// is the number of characters to move left.
 
 The function returns the address of the next UTF-8 character sequence after
-//count// characters. If the string's end is reached, it will return a 
+//count// characters. If the string's end is reached, it will return a
 pointer to the zero-terminator.
 */
 char* u8_move( char* str, int count )

@@ -149,8 +149,6 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #include "base/stack.h"
 #include "ccl/ccl.h"
 #include "regex/pregex.h"
-#include "string/string.h"
-#include "string/utf8.h"
 #include "union/union.h"
 #include "xml/xml.h"
 

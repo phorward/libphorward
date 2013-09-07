@@ -928,9 +928,9 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 
 						MSG( "Switching to wide-character mode" );
 
-						if( Pisdigit( *( ++_rpstr ) ) )
+						if( iswdigit( *( ++_rpstr ) ) )
 						{
-							ref = Pstrtol( _rpstr, &end, 0 );
+							ref = wcstol( _rpstr, &end, 0 );
 
 							VARS( "ref", "%d", ref );
 							VARS( "end", "%ls", end );

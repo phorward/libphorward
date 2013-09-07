@@ -35,7 +35,7 @@ pbyte punion_to_byte( punion* var )
 		case PUNION_STRING:
 			RETURN( (pbyte)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
-			RETURN( (pbyte)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (pbyte)wcstol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
 
 	MSG( "Can't convert this type!" );
@@ -72,7 +72,7 @@ char punion_to_char( punion* var )
 		case PUNION_STRING:
 			RETURN( (char)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
-			RETURN( (char)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (char)wcstol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
 
 	MSG( "Can't convert this type!" );
@@ -109,7 +109,7 @@ pint punion_to_int( punion* var )
 		case PUNION_STRING:
 			RETURN( (pint)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
-			RETURN( (pint)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (pint)wcstol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
 
 	MSG( "Can't convert this type!" );
@@ -146,7 +146,7 @@ plong punion_to_long( punion* var )
 		case PUNION_STRING:
 			RETURN( (plong)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
-			RETURN( (plong)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (plong)wcstol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
 
 	MSG( "Can't convert this type!" );
@@ -183,7 +183,7 @@ pulong punion_to_ulong( punion* var )
 		case PUNION_STRING:
 			RETURN( (pulong)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
-			RETURN( (pulong)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (pulong)wcstol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
 
 	MSG( "Can't convert this type!" );
@@ -220,7 +220,7 @@ pfloat punion_to_float( punion* var )
 		case PUNION_STRING:
 			RETURN( (pfloat)strtod( var->val.s, (char**)NULL ) );
 		case PUNION_WSTRING:
-			RETURN( (pfloat)Pstrtod( var->val.ws, (pchar**)NULL ) );
+			RETURN( (pfloat)wcstod( var->val.ws, (pchar**)NULL ) );
 	}
 
 	MSG( "Can't convert this type!" );
@@ -257,7 +257,7 @@ pdouble punion_to_double( punion* var )
 		case PUNION_STRING:
 			RETURN( (pdouble)strtod( var->val.s, (char**)NULL ) );
 		case PUNION_WSTRING:
-			RETURN( (pdouble)Pstrtod( var->val.ws, (pchar**)NULL ) );
+			RETURN( (pdouble)wcstod( var->val.ws, (pchar**)NULL ) );
 	}
 
 	MSG( "Can't convert this type!" );

@@ -714,10 +714,10 @@ pboolean ccl_instest( CCL ccl, pchar ch )
 	if( ccl_test( ccl, ch ) )
 		return TRUE;
 
-	if( Pisupper( ch ) )
-		ch = Ptolower( ch );
+	if( iswupper( ch ) )
+		ch = towlower( ch );
 	else
-		ch = Ptoupper( ch );
+		ch = towupper( ch );
 
 	return ccl_test( ccl, ch );
 }

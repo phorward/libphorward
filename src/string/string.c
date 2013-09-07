@@ -1141,7 +1141,7 @@ pchar* Pstrcatstr( pchar* dest, pchar* src, boolean freesrc )
 			dest = (pchar*)prealloc( (pchar*)dest,
 					( Pstrlen( dest ) + Pstrlen( src ) + 1 )
 						* sizeof( pchar ) );
-			Pstrcat( dest, src );
+			wcscat( dest, src );
 		}
 
 		if( freesrc )
@@ -1195,7 +1195,7 @@ pchar* Pstrncatstr( pchar* str, pchar* append, psize num )
 				RETURN( (pchar*)NULL );
 		}
 
-		Pstrncpy( str + len, append, num );
+		wcsncpy( str + len, append, num );
 		str[ len + num ] = 0;
 	}
 

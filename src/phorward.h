@@ -574,84 +574,6 @@ struct _regex
 
 
 
-#ifndef PHORWARD_STRING_H
-#define PHORWARD_STRING_H
-
-
-#ifdef UNICODE
-
-#define Pstrcpy						wcscpy
-#define Pstrcat						wcscat
-#define Pstrncpy					wcsncpy
-#define Pstrcmp						wcscmp
-#define Pstrncmp					wcsncmp
-#define Pstrtol						wcstol
-#define Pstrtoul					wcstoul
-#define Pstrtod						wcstod
-#define Pstrstr						wcsstr
-#define Pstrchr						wcschr
-#define Pstrrchr					wcsrchr
-
-#define Pisupper					iswupper
-#define Pislower					iswlower
-#define Ptoupper					towupper
-#define Ptolower					towlower
-#define Pisdigit					iswdigit
-#define Pisblank					iswblank
-#define Pisalnum					iswalnum
-#define Pisalpha					iswalpha
-
-#else
-
-
-#define Pstrlen						pstrlen
-#define Pstrcpy						strcpy
-#define Pstrcat						strcat
-#define Pstrncpy					strncpy
-#define Pstrcmp						strcmp
-#define Pstrncmp					strncmp
-#define Pstrtol						strtol
-#define Pstrtoul					strtoul
-#define Pstrtod						pstrtoud
-#define Pstrchr						strchr
-#define Pstrrchr					strrchr
-#define Pstrstr						strstr
-
-#define Pisupper					isupper
-#define Pislower					islower
-#define Ptoupper					toupper
-#define Ptolower					tolower
-#define Pisdigit					isdigit
-#define Pisblank					isblank
-#define Pisalnum					isalnum
-#define Pisalpha					isalpha
-
-
-#define Pstrlen						pstrlen
-#define Psprintf					psprintf
-#define Pstrdup						pstrdup
-#define Pstrcatstr					pstrcatstr
-#define Pstrcatchar 				pstrcatchar
-#define Pstrncatstr 				pstrncatchar
-#define Pvasprintf					pvasprintf
-#define Pasprintf					pasprintf
-
-#endif
-
-#endif
-
-
-
-#ifndef UTF8_H
-#define UTF8_H
-
-
-#define u8_isutf(c) (((c)&0xC0)!=0x80)
-
-#endif
-
-
-
 #ifndef PUNION_H
 #define PUNION_H
 
@@ -1174,6 +1096,7 @@ psize Pstrlen( pchar* str );
 #endif
 
 
+pboolean u8_isutf( pbyte c );
 int u8_seqlen(char *s);
 wchar u8_char( char* str );
 char* u8_move( char* str, int count );

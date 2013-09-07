@@ -92,7 +92,7 @@ void unicode_demo( void )
 
 	printf( "\n*** unicode_demo ***\n\n" );
 
-	Pstrcpy( mystr, L"Yes, w€ cän üse standard C function "
+	wcscpy( mystr, L"Yes, w€ cän üse standard C function "
 			L"names for Unicode-strings!" );
 
 

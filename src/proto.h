@@ -212,6 +212,7 @@ psize Pstrlen( pchar* str );
 #endif
 
 /* string/utf8.c */
+pboolean u8_isutf( pbyte c );
 int u8_seqlen(char *s);
 wchar u8_char( char* str );
 char* u8_move( char* str, int count );

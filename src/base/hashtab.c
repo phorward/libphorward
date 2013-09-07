@@ -216,7 +216,7 @@ HASHELEM* hashtab_get( HASHTAB* hashtab, char* key )
 		for( elem = hashtab->buckets[ bucket ].start; elem; elem = elem->next )
 		{
 			if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
-					!Pstrcmp( (pchar*)( elem->key ), (pchar*)key ) )
+					!wcscmp( (pchar*)( elem->key ), (pchar*)key ) )
 				|| !strcmp( elem->key, key ) )
 			{
 				break;
@@ -276,7 +276,7 @@ HASHELEM* hashtab_discard( HASHTAB* hashtab, char* key,
 		for( elem = hashtab->buckets[ bucket ].start; elem; elem = elem->next )
 		{
 			if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
-					!Pstrcmp( (pchar*)( elem->key ), (pchar*)key ) )
+					!wcscmp( (pchar*)( elem->key ), (pchar*)key ) )
 				|| !strcmp( elem->key, key ) )
 			{			
 				if( !( hashtab->flags & HASHTAB_MOD_EXTKEYS ) )
@@ -343,7 +343,7 @@ pint hashtab_delete( HASHTAB* hashtab, char* key, void (*freefct)(void*) )
 	for( elem = hashtab->buckets[ bucket ].start; elem; elem = elem->next )
 	{
 		if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
-				!Pstrcmp( (pchar*)( elem->key ), (pchar*)key ) )
+				!wcscmp( (pchar*)( elem->key ), (pchar*)key ) )
 			|| !strcmp( elem->key, key ) )
 		{
 			MSG( "Element found, will free this one!" );
