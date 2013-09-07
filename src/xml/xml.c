@@ -145,7 +145,7 @@ plong xml_int_attr( XML_T xml, char* attr )
 	if( !( v = xml_attr( xml, attr ) ) )
 		return 0;
 		
-	return pstrtol( v, (char**)NULL, 0 );
+	return strtol( v, (char**)NULL, 0 );
 }
 
 /* =============================================================================
@@ -158,7 +158,7 @@ pdouble xml_float_attr( XML_T xml, char* attr )
 	if( !( v = xml_attr( xml, attr ) ) )
 		return (pdouble)0.0;
 
-	return (pdouble)pstrtod( v, (char**)NULL );
+	return (pdouble)strtod( v, (char**)NULL );
 }
 
 /* =============================================================================

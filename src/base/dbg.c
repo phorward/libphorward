@@ -136,8 +136,8 @@ void _dbg_trace( char* file, int line, char* type, char* format, ... )
 	else
 		basename++;
 
-	if( pstrcmp( modules, "*" ) != 0
-		&& !pstrstr( modules, basename ) )
+	if( strcmp( modules, "*" ) != 0
+		&& !strstr( modules, basename ) )
 		return;
 
 	if( ( maxdepth = atoi( pgetstr( getenv( "TRACEDEPTH" ) ) ) ) > 0

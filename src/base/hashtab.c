@@ -217,7 +217,7 @@ HASHELEM* hashtab_get( HASHTAB* hashtab, char* key )
 		{
 			if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
 					!Pstrcmp( (pchar*)( elem->key ), (pchar*)key ) )
-				|| !pstrcmp( elem->key, key ) )
+				|| !strcmp( elem->key, key ) )
 			{
 				break;
 			}
@@ -277,7 +277,7 @@ HASHELEM* hashtab_discard( HASHTAB* hashtab, char* key,
 		{
 			if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
 					!Pstrcmp( (pchar*)( elem->key ), (pchar*)key ) )
-				|| !pstrcmp( elem->key, key ) )
+				|| !strcmp( elem->key, key ) )
 			{			
 				if( !( hashtab->flags & HASHTAB_MOD_EXTKEYS ) )
 					free( elem->key );
@@ -344,7 +344,7 @@ pint hashtab_delete( HASHTAB* hashtab, char* key, void (*freefct)(void*) )
 	{
 		if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
 				!Pstrcmp( (pchar*)( elem->key ), (pchar*)key ) )
-			|| !pstrcmp( elem->key, key ) )
+			|| !strcmp( elem->key, key ) )
 		{
 			MSG( "Element found, will free this one!" );
 

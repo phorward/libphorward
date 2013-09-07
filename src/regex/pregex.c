@@ -980,9 +980,9 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 
 						MSG( "Byte-character mode (Standard)" );
 
-						if( pisdigit( *( ++rpstr ) ) )
+						if( isdigit( *( ++rpstr ) ) )
 						{
-							ref = pstrtol( rpstr, &end, 0 );
+							ref = strtol( rpstr, &end, 0 );
 
 							VARS( "ref", "%d", ref );
 							VARS( "end", "%s", end );

@@ -89,12 +89,12 @@ typedef struct
 			set: punion_set_constant( var );
 		*/
 		/*vargen:string:%s::NULL
-			to pbyte: pstrtol( var->val.s, (char**)NULL, 0 )
+			to pbyte: strtol( var->val.s, (char**)NULL, 0 )
 			to char: (same)
 			to pint: (same)
 			to plong: (same)
 			to pulong: (same)
-			to pfloat: pstrtod( var->val.s, (char**)NULL )
+			to pfloat: strtod( var->val.s, (char**)NULL )
 			to pdouble: (same)
 			to pchar*: u8_to_wchar( var->val.s, FALSE )
 		*/

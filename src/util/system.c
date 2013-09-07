@@ -327,7 +327,7 @@ pint pgetopt( char* opt, char** param, pint* next,
 		{
 			for( pos = loptstr; *pos; pos = ( *del ? del + 1 : del ) )
 			{
-				if( !( del = pstrstr( pos, " " ) ) )
+				if( !( del = strstr( pos, " " ) ) )
 					del = pos + pstrlen( pos );
 
 				if( del == pos )
@@ -341,7 +341,7 @@ pint pgetopt( char* opt, char** param, pint* next,
 				else
 					has_parm = FALSE;
 
-				if( pstrncmp( pos, str, del - pos ) == 0 )
+				if( strncmp( pos, str, del - pos ) == 0 )
 				{
 					if( has_parm && argc > ++i )
 					{

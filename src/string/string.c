@@ -191,7 +191,7 @@ char* pstrreplace( char* str, char* find, char* replace )
 	while( 1 )
 	{
 		VARS( "str_ptr", "%s", str_ptr );
-		if( !( match = pstrstr( str_ptr, find ) ) )
+		if( !( match = strstr( str_ptr, find ) ) )
 		{
 			size = 0;
 			match = str_ptr + pstrlen( str_ptr );
@@ -220,7 +220,7 @@ char* pstrreplace( char* str, char* find, char* replace )
 			exit( 1 );
 		}
 
-		pstrncpy( result_end, str_ptr, match - str_ptr );
+		strncpy( result_end, str_ptr, match - str_ptr );
 		result_end += match - str_ptr;
 		*result_end = '\0';
 
@@ -281,7 +281,7 @@ char* pstrndup( char* str, psize len )
 		len = pstrlen( str );
 
 	ret = (char*)pmalloc( ( len + 1 ) * sizeof( char ) );
-	pstrncpy( ret, str, len );
+	strncpy( ret, str, len );
 	ret[ len ] = '\0';
 
 	return ret;
@@ -449,7 +449,7 @@ char* psetstr( char** str, char* val )
 {
 	if( *str )
 	{
-		if( pstrcmp( *str, val ) == 0 )
+		if( strcmp( *str, val ) == 0 )
 			return *str;
 
 		pfree( *str );
@@ -536,7 +536,7 @@ char* pstrrender( char* tpl, ... )
 	do
 	{
 		for( i = 0; i < vcount; i++ )
-			values[i]._match = pstrstr( tpl_ptr, values[i].wildcard );
+			values[i]._match = strstr( tpl_ptr, values[i].wildcard );
 
 		match = vcount;
 		for( i = 0; i < vcount; i++ )
@@ -681,7 +681,7 @@ int pstrsplit( char*** tokens, char* str, char* sep, int limit )
 	VARS( "tok", "%s", tok );
 	(*tokens)[ cnt++ ] = tok;
 
-	while( ( next = pstrstr( tok, sep ) )
+	while( ( next = strstr( tok, sep ) )
 			&& ( ( limit > 0 ) ? cnt < limit : 1 ) )
 	{
 		tok = next + pstrlen( sep );
@@ -721,8 +721,8 @@ char* pstrupr( char* s )
 		return (char*)NULL;
 
 	for( ptr = s; *ptr; ptr++ )
-		if( pislower( *ptr ) )
-			*ptr = ptoupper( *ptr );
+		if( islower( *ptr ) )
+			*ptr = toupper( *ptr );
 
 	return s;
 }
@@ -741,8 +741,8 @@ char* pstrlwr( char* s )
 		return (char*)NULL;
 
 	for( ptr = s; *ptr; ptr++ )
-		if( pisupper( *ptr ) )
-			*ptr = ptolower( *ptr );
+		if( isupper( *ptr ) )
+			*ptr = tolower( *ptr );
 
 	return s;
 }
@@ -760,10 +760,10 @@ int	pstrcasecmp( char* s1, char* s2 )
 	if( !( s1 && s2 ) )
 		return -1;
 
-	for( ; *s1 && *s2 && ptoupper( *s1 ) == ptoupper( *s2 ); s1++, s2++ )
+	for( ; *s1 && *s2 && toupper( *s1 ) == toupper( *s2 ); s1++, s2++ )
 		;
 
-	return (int)( ptoupper( *s1 ) - ptoupper( *s2 ) );
+	return (int)( toupper( *s1 ) - toupper( *s2 ) );
 }
 
 /** Compare a string by ignoring case-order about a maximum of //n// bytes.
@@ -783,11 +783,11 @@ int	pstrncasecmp( char* s1, char* s2, pint n )
 		return -1;
 	}
 
-	for( ; n > 0 && *s1 && *s2 && ptoupper( *s1 ) == ptoupper( *s2 );
+	for( ; n > 0 && *s1 && *s2 && toupper( *s1 ) == toupper( *s2 );
 			s1++, s2++, n-- )
 		;
 
-	return (int)( ( !n ) ? 0 : ( ptoupper( *s1 ) - ptoupper( *s2 ) ) );
+	return (int)( ( !n ) ? 0 : ( toupper( *s1 ) - toupper( *s2 ) ) );
 }
 
 /** Reads a character from a string. The character may exist of one single

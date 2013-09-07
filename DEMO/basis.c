@@ -45,7 +45,7 @@ void string_demo( void )
 	pfree( str1 );
 
 	/* String Tokenizer */
-	pstrcpy( str, "Hello World, this is a simple test" );
+	strcpy( str, "Hello World, this is a simple test" );
 	all = pstrsplit( &tokens, str, " ", 3 );
 	printf( "%d\n", all );
 
@@ -69,7 +69,7 @@ void utf8_demo( void )
 
 	printf( "\n*** utf8_demo ***\n\n" );
 
-	pstrcpy( str, "Hällö ich bün ein StrÜng€!" );
+	strcpy( str, "Hällö ich bün ein StrÜng€!" );
 	/*             123456789012345678901234567890
 	               0        1         2         3
 	*/
@@ -349,20 +349,20 @@ void stack_demo( void )
 
 	stack_init( &s, sizeof( struct person ), 3 );
 
-	pstrcpy( x.last_name, "Zufall" );
-	pstrcpy( x.first_name, "Reiner" );
+	strcpy( x.last_name, "Zufall" );
+	strcpy( x.first_name, "Reiner" );
 	stack_push( &s, (pbyte*)&x );
 
-	pstrcpy( x.last_name, "Pfahl" );
-	pstrcpy( x.first_name, "Martha" );
+	strcpy( x.last_name, "Pfahl" );
+	strcpy( x.first_name, "Martha" );
 	stack_push( &s, (pbyte*)&x );
 
-	pstrcpy( x.last_name, "Racho" );
-	pstrcpy( x.first_name, "Volker" );
+	strcpy( x.last_name, "Racho" );
+	strcpy( x.first_name, "Volker" );
 	stack_push( &s, (pbyte*)&x );
 
-	pstrcpy( x.last_name, "Pete" );
-	pstrcpy( x.first_name, "Dieter" );
+	strcpy( x.last_name, "Pete" );
+	strcpy( x.first_name, "Dieter" );
 	stack_push( &s, (pbyte*)&x );
 
 	stack_dump( __FILE__, __LINE__, "s", &s,

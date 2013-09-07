@@ -11,7 +11,7 @@ Usage:	Conversion functions for data type and storage type conversion.
 		data, so there is not always a pendant-function right in here for
 		every conversion function. For example, plong_to_uchar() converts a
 		long-value into an allocated char-string, but the C standard library
-		wrapper pstrtol() is the pendant to convert a string into a long value.
+		wrapper strtol() is the pendant to convert a string into a long value.
 ----------------------------------------------------------------------------- */
 
 /*

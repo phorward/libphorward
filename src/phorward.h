@@ -605,26 +605,26 @@ struct _regex
 
 
 #define Pstrlen						pstrlen
-#define Pstrcpy						pstrcpy
-#define Pstrcat						pstrcat
-#define Pstrncpy					pstrncpy
-#define Pstrcmp						pstrcmp
-#define Pstrncmp					pstrncmp
-#define Pstrtol						pstrtol
-#define Pstrtoul					pstrtoul
+#define Pstrcpy						strcpy
+#define Pstrcat						strcat
+#define Pstrncpy					strncpy
+#define Pstrcmp						strcmp
+#define Pstrncmp					strncmp
+#define Pstrtol						strtol
+#define Pstrtoul					strtoul
 #define Pstrtod						pstrtoud
-#define Pstrchr						pstrchr
-#define Pstrrchr					pstrrchr
-#define Pstrstr						pstrstr
+#define Pstrchr						strchr
+#define Pstrrchr					strrchr
+#define Pstrstr						strstr
 
-#define Pisupper					pisupper
-#define Pislower					pislower
-#define Ptoupper					ptoupper
-#define Ptolower					ptolower
-#define Pisdigit					pisdigit
-#define Pisblank					pisblank
-#define Pisalnum					pisalnum
-#define Pisalpha					pisalpha
+#define Pisupper					isupper
+#define Pislower					islower
+#define Ptoupper					toupper
+#define Ptolower					tolower
+#define Pisdigit					isdigit
+#define Pisblank					isblank
+#define Pisalnum					isalnum
+#define Pisalpha					isalpha
 
 
 #define Pstrlen						pstrlen
@@ -637,28 +637,6 @@ struct _regex
 #define Pasprintf					pasprintf
 
 #endif
-
-
-#define pstrcmp( s1, s2 )			strcmp( pgetstr( s1 ), pgetstr( s2 ) )
-#define pstrncmp( s1, s2, n )		strncmp( pgetstr( s1 ), pgetstr( s2 ), n )
-#define pstrcpy( s1, s2 )			strcpy( s1, pgetstr( s2 ) )
-#define pstrncpy( s1, s2, n )		strncpy( s1, pgetstr( s2 ), n )
-#define pstrstr( s1, s2 )			strstr( pgetstr( s1 ), pgetstr( s2 ) )
-#define pstrchr( s1, ch )			strchr( pgetstr( s1 ), ch )
-#define pstrrchr( s1, ch )			strrchr( pgetstr( s1 ), ch )
-#define pstrcat( s1, s2 )			strcat( s1, pgetstr( s2 ) )
-#define pstrtol( s, p, b )			strtol( pgetstr( s ), p, b )
-#define pstrtoul( s, p, b )			strtoul( pgetstr( s ), p, b )
-#define pstrtod( s, p )				strtod( pgetstr( s ), p )
-
-#define pisupper( c )				isupper( c )
-#define pislower( c )				islower( c )
-#define ptoupper( c )				toupper( c )
-#define ptolower( c )				tolower( c )
-#define pisdigit( c )				isdigit( c )
-#define pisblank( c )				isblank( c )
-#define pisalnum( c )				isalnum( c )
-#define pisalpha( c )				isalpha( c )
 
 #endif
 

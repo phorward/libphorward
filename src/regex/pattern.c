@@ -405,7 +405,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 static void pregex_char_to_REGEX( char* str, int size,
 				pchar ch, pboolean escape, pboolean in_range )
 {
-	if( ( !in_range && ( pstrchr( "|()[]*+?", ch ) || ch == '.' ) ) ||
+	if( ( !in_range && ( strchr( "|()[]*+?", ch ) || ch == '.' ) ) ||
 			( in_range && ch == ']' ) )
 		psprintf( str, "\\%c", (char)ch );
 	else if( escape )
@@ -884,7 +884,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 			accept->anchors |= PREGEX_ANCHOR_BOL;
 			ptr++;
 		}
-		else if( !pstrncmp( ptr, "\\<", 2 ) )
+		else if( !strncmp( ptr, "\\<", 2 ) )
 			/* This is a GNU-like extension */
 		{
 			accept->anchors |= PREGEX_ANCHOR_BOW;
@@ -905,9 +905,9 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 	if( accept && !( flags & PREGEX_MOD_NO_ANCHORS ) )
 	{
 		MSG( "Anchors at end" );
-		if( !pstrcmp( ptr, "$" ) )
+		if( !strcmp( ptr, "$" ) )
 			accept->anchors |= PREGEX_ANCHOR_EOL;
-		else if( !pstrcmp( ptr, "\\>" ) )
+		else if( !strcmp( ptr, "\\>" ) )
 			/* This is a GNU-style extension */
 			accept->anchors |= PREGEX_ANCHOR_EOW;
 	}
@@ -969,7 +969,7 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 			break;
 
 		case '[':
-			if( ( zero = pstrchr( (*pstr)+1, ']' ) ) )
+			if( ( zero = strchr( (*pstr)+1, ']' ) ) )
 			{
 				restore = *zero;
 				*zero = '\0';
@@ -1066,7 +1066,7 @@ static int parse_sequence( pregex_ptn** ptn, char** pstr,
 	{
 		if( !( flags & PREGEX_MOD_NO_ANCHORS ) )
 		{
-			if( !pstrcmp( *pstr, "$" ) || !pstrcmp( *pstr, "\\>" ) )
+			if( !strcmp( *pstr, "$" ) || !strcmp( *pstr, "\\>" ) )
 				break;
 		}
 

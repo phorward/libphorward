@@ -27,7 +27,7 @@ static int plist_hash_compare( plist* list, char* l, char* r )
 	if( list->flags & PLIST_MOD_WCHAR )
 		res = Pstrcmp( (pchar*)l, (pchar*)r );
 	else
-		res = pstrcmp( l, r );
+		res = strcmp( l, r );
 
 	return res;
 }

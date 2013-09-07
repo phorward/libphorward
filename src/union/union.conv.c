@@ -33,7 +33,7 @@ pbyte punion_to_byte( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pbyte)var->val.d );
 		case PUNION_STRING:
-			RETURN( (pbyte)pstrtol( var->val.s, (char**)NULL, 0 ) );
+			RETURN( (pbyte)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (pbyte)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -70,7 +70,7 @@ char punion_to_char( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (char)var->val.d );
 		case PUNION_STRING:
-			RETURN( (char)pstrtol( var->val.s, (char**)NULL, 0 ) );
+			RETURN( (char)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (char)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -107,7 +107,7 @@ pint punion_to_int( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pint)var->val.d );
 		case PUNION_STRING:
-			RETURN( (pint)pstrtol( var->val.s, (char**)NULL, 0 ) );
+			RETURN( (pint)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (pint)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -144,7 +144,7 @@ plong punion_to_long( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (plong)var->val.d );
 		case PUNION_STRING:
-			RETURN( (plong)pstrtol( var->val.s, (char**)NULL, 0 ) );
+			RETURN( (plong)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (plong)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -181,7 +181,7 @@ pulong punion_to_ulong( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pulong)var->val.d );
 		case PUNION_STRING:
-			RETURN( (pulong)pstrtol( var->val.s, (char**)NULL, 0 ) );
+			RETURN( (pulong)strtol( var->val.s, (char**)NULL, 0 ) );
 		case PUNION_WSTRING:
 			RETURN( (pulong)Pstrtol( var->val.ws, (pchar**)NULL, 0 ) );
 	}
@@ -218,7 +218,7 @@ pfloat punion_to_float( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( (pfloat)var->val.d );
 		case PUNION_STRING:
-			RETURN( (pfloat)pstrtod( var->val.s, (char**)NULL ) );
+			RETURN( (pfloat)strtod( var->val.s, (char**)NULL ) );
 		case PUNION_WSTRING:
 			RETURN( (pfloat)Pstrtod( var->val.ws, (pchar**)NULL ) );
 	}
@@ -255,7 +255,7 @@ pdouble punion_to_double( punion* var )
 		case PUNION_DOUBLE:
 			RETURN( var->val.d );
 		case PUNION_STRING:
-			RETURN( (pdouble)pstrtod( var->val.s, (char**)NULL ) );
+			RETURN( (pdouble)strtod( var->val.s, (char**)NULL ) );
 		case PUNION_WSTRING:
 			RETURN( (pdouble)Pstrtod( var->val.ws, (pchar**)NULL ) );
 	}
