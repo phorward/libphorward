@@ -1180,10 +1180,11 @@ As an example, a regular expression to find C function names is constructed
 as ``[a-zA-Z_][a-zA-Z0-9_]\(\)``, its single name can be matched as a reference
 by describing the pattern as ``([a-zA-Z_][a-zA-Z0-9_])\(\)``. Each opening
 bracket defines a new reference level. If this pattern is now executed on a
-string and finds a match, e.g. //atoi()//, the whole string can be obtain by
+string and finds a match, e.g. //&atoi()//, the whole string can be obtain by
 the pregex_range-structure returned by pregex_get_range() (which is the string
-"atoi()"), but the function name can be directly accessed by obtaining the first
-reference (//offset// == 0) which contains a range describing only "atoi".
+"&atoi()"), but the function name can be directly accessed by obtaining the
+first reference (//offset// == 0) which contains a range describing only
+"atoi".
 
 The reference ranges are only available with a preceeding and successfull call
 to pregex_match_next(). */
@@ -1239,23 +1240,24 @@ Possible flags are:
 
 || Flag | Meaning |
 | PREGEX_MOD_NONE | No modification (for the sake of completeness) |
-| PREGEX_MOD_WCHAR | Regular expression and/or search string for direct pattern
-executions are handled (=casted) as type pchar (wide character, if UNICODE is
-flagged!) |
+| PREGEX_MOD_WCHAR | Regular expression and/or search string for direct \
+pattern executions are handled (=casted) as type pchar (wide character, \
+if UNICODE is flagged!) |
 | PREGEX_MOD_INSENSITIVE | Regular expression is parsed case insensitive |
-| PREGEX_MOD_GLOBAL	| The regular expression execution is run globally, not only
-for the first match |
-| PREGEX_MOD_STATIC | The regular expression passed for to the compiler should
-be converted 1:1 as it where a string-constant. Any regex-specific symbol will
-be ignored. |
-| PREGEX_MOD_NO_REF	| Don't create references |
-| PREGEX_MOD_NO_ERRORS | Don't report errors, and try to compile as much as
+| PREGEX_MOD_GLOBAL | The regular expression execution is run globally, not \
+only for the first match |
+| PREGEX_MOD_STATIC | The regular expression passed for to the compiler \
+should be converted 1:1 as it where a string-constant. Any regex-specific \
+symbol will be ignored. |
+| PREGEX_MOD_NO_REF | Don't create references |
+| PREGEX_MOD_NO_ERRORS | Don't report errors, and try to compile as much as \
 possible |
-| PREGEX_MOD_NO_ANCHORS	| Ignore anchor tokens, handle them as normal
+| PREGEX_MOD_NO_ANCHORS | Ignore anchor tokens, handle them as normal \
 characters |
-| PREGEX_MOD_GREEDY	| Run regular expression in greedy-mode |
+| PREGEX_MOD_GREEDY | Run regular expression in greedy-mode |
 | PREGEX_MOD_NONGREEDY | Run regular expression in nongreedy-mode |
-| PREGEX_MOD_DEBUG	| Debug mode; output some debug to stderr |
+| PREGEX_MOD_DEBUG | Debug mode; output some debug to stderr |
+
 
 All //flags// can be combined with logical or.
 

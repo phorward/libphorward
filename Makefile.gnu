@@ -6,12 +6,17 @@ clean:
 	cd src; make -f Makefile.gnu clean
 	cd DEMO; make -f Makefile.gnu clean
 
-make:
+make_install:
 	cp Makefile.gnu Makefile
 	cp src/Makefile.gnu src/Makefile
 	cp DEMO/Makefile.gnu DEMO/Makefile
+
+make_update:
+	cp Makefile Makefile.gnu
+	cp src/Makefile src/Makefile.gnu
+	cp DEMO/Makefile DEMO/Makefile.gnu
 	
-unmake:
+make_uninsall:
 	-rm Makefile
 	-rm src/Makefile
 	-rm DEMO/Makefile

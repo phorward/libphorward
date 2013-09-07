@@ -38,6 +38,7 @@ Usage:	Macros and functions for trace output.
 /** Write function entry to trace.
 
 The PROC-macro introduces a new function level, if compiled with trace.
+
 The PROC-macro must be put behind the last local variable declaration and the
 first code line, else it won't compile. A PROC-macro must exists within a
 function to allow for other trace-macro usages. If PROC() is used within a

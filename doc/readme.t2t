@@ -61,7 +61,7 @@ Alternatively to the autotools build system used for installation, there is also
 
 Once, type
 
-``` make -f Makefile.gnu make
+``` make -f Makefile.gnu make_install
 
 then, a simple run of
 

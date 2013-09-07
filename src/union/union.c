@@ -10,37 +10,12 @@ Usage:	punion implements a variant data type, which can hold any of
 		Phorward Foundation Toolkit' generic types as declared in pbasis.h.
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include <phorward.h>
 
-/*
- * Global variables
- */
+/** Initializes a punion-element.
 
-/*
- * Defines
- */
-
-/*
- * Functions
- */
-
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_init()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Initializes a punion-element.
-					
-	Parameters:		punion*		var			Pointer to punion structure.
-	
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+//var// is the pointer to the punion-structure to be initialized.
+*/
 void punion_init( punion* var )
 {
 	PROC( "punion_init" );
@@ -52,22 +27,12 @@ void punion_init( punion* var )
 	VOIDRET;
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_reset()
-	
-	Author:			Jan Max Meyer
-	
-	Usage:			Frees all memory used by a punion-element.
-					All memory used by the element is freed, and the variant
-					structure is reset to be of type PUNION_NULL.
-					
-	Parameters:		punion*		var			Pointer to punion structure.
-	
-	Returns:		void
-  
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+/** Frees all memory used by a punion-element.
+
+All memory used by the element is freed, and the union's structure is reset
+to be of type PUNION_NULL.
+
+//var// is the Pointer to punion structure. */
 void punion_reset( punion* var )
 {
 	PROC( "punion_free" );

@@ -5,21 +5,14 @@
 
 #include <phorward.h>
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_byte()
+/** Sets a variants pbyte data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's pbyte data value and type.
+//b// is the pbyte value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					pbyte	b	Value to be assigned.
-
-	Returns:		pbyte		The value of b.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //b//.
+*/
 pbyte punion_set_byte( punion* var, pbyte b )
 {
 	PROC( "punion_set_byte" );
@@ -34,21 +27,14 @@ pbyte punion_set_byte( punion* var, pbyte b )
 	RETURN( var->val.b );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_char()
+/** Sets a variants char data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's char data value and type.
+//c// is the char value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					char	c	Value to be assigned.
-
-	Returns:		char		The value of c.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //c//.
+*/
 char punion_set_char( punion* var, char c )
 {
 	PROC( "punion_set_char" );
@@ -63,21 +49,14 @@ char punion_set_char( punion* var, char c )
 	RETURN( var->val.c );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_int()
+/** Sets a variants pint data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's pint data value and type.
+//i// is the pint value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					pint	i	Value to be assigned.
-
-	Returns:		pint		The value of i.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //i//.
+*/
 pint punion_set_int( punion* var, pint i )
 {
 	PROC( "punion_set_int" );
@@ -92,21 +71,14 @@ pint punion_set_int( punion* var, pint i )
 	RETURN( var->val.i );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_long()
+/** Sets a variants plong data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's plong data value and type.
+//l// is the plong value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					plong	l	Value to be assigned.
-
-	Returns:		plong		The value of l.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //l//.
+*/
 plong punion_set_long( punion* var, plong l )
 {
 	PROC( "punion_set_long" );
@@ -121,21 +93,14 @@ plong punion_set_long( punion* var, plong l )
 	RETURN( var->val.l );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_ulong()
+/** Sets a variants pulong data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's pulong data value and type.
+//ul// is the pulong value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					pulong	ul	Value to be assigned.
-
-	Returns:		pulong		The value of ul.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //ul//.
+*/
 pulong punion_set_ulong( punion* var, pulong ul )
 {
 	PROC( "punion_set_ulong" );
@@ -150,21 +115,14 @@ pulong punion_set_ulong( punion* var, pulong ul )
 	RETURN( var->val.ul );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_float()
+/** Sets a variants pfloat data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's pfloat data value and type.
+//f// is the pfloat value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					pfloat	f	Value to be assigned.
-
-	Returns:		pfloat		The value of f.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //f//.
+*/
 pfloat punion_set_float( punion* var, pfloat f )
 {
 	PROC( "punion_set_float" );
@@ -179,21 +137,14 @@ pfloat punion_set_float( punion* var, pfloat f )
 	RETURN( var->val.f );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_double()
+/** Sets a variants pdouble data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's pdouble data value and type.
+//d// is the pdouble value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					pdouble	d	Value to be assigned.
-
-	Returns:		pdouble		The value of d.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //d//.
+*/
 pdouble punion_set_double( punion* var, pdouble d )
 {
 	PROC( "punion_set_double" );
@@ -208,21 +159,14 @@ pdouble punion_set_double( punion* var, pdouble d )
 	RETURN( var->val.d );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_cstring()
+/** Sets a variants char* data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's char* data value and type.
+//s// is the char* value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					char*	s	Value to be assigned.
-
-	Returns:		char*		The value of s.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //s//.
+*/
 char* punion_set_cstring( punion* var, char* s )
 {
 	PROC( "punion_set_cstring" );
@@ -238,21 +182,14 @@ char* punion_set_cstring( punion* var, char* s )
 	RETURN( var->val.s );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_string()
+/** Sets a variants char* data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's char* data value and type.
+//s// is the char* value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					char*	s	Value to be assigned.
-
-	Returns:		char*		The value of s.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //s//.
+*/
 char* punion_set_string( punion* var, char* s )
 {
 	PROC( "punion_set_string" );
@@ -267,21 +204,14 @@ char* punion_set_string( punion* var, char* s )
 	RETURN( var->val.s );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_wcstring()
+/** Sets a variants pchar* data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's pchar* data value and type.
+//ws// is the pchar* value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					pchar*	ws	Value to be assigned.
-
-	Returns:		pchar*		The value of ws.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //ws//.
+*/
 pchar* punion_set_wcstring( punion* var, pchar* ws )
 {
 	PROC( "punion_set_wcstring" );
@@ -297,21 +227,14 @@ pchar* punion_set_wcstring( punion* var, pchar* ws )
 	RETURN( var->val.ws );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_set_wstring()
+/** Sets a variants pchar* data value and type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to the punion structure.
 
-	Usage:			Sets a variant's pchar* data value and type.
+//ws// is the pchar* value to be assigned to //var//.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-					pchar*	ws	Value to be assigned.
-
-	Returns:		pchar*		The value of ws.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function always returns the value //ws//.
+*/
 pchar* punion_set_wstring( punion* var, pchar* ws )
 {
 	PROC( "punion_set_wstring" );

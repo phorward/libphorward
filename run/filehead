@@ -29,7 +29,7 @@ case "$ext" in
 	"y"|"par")
 		what="PARSER--"
 		;;
-	"sh")
+	"sh"|"awk")
 		what="SCRIPT--"
 		source="sh"
 		;;

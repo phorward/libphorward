@@ -5,22 +5,16 @@
 
 #include <phorward.h>
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_byte()
+/** Returns a punions pbyte data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's pbyte data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pbyte		The pbyte-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as pbyte.
+This value could be converted from the punions original value.
+*/
 pbyte punion_get_byte( punion* var )
 {
 	PROC( "punion_get_byte" );
@@ -41,22 +35,16 @@ pbyte punion_get_byte( punion* var )
 	RETURN( var->val.b );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_char()
+/** Returns a punions char data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's char data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		char		The char-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as char.
+This value could be converted from the punions original value.
+*/
 char punion_get_char( punion* var )
 {
 	PROC( "punion_get_char" );
@@ -77,22 +65,16 @@ char punion_get_char( punion* var )
 	RETURN( var->val.c );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_int()
+/** Returns a punions pint data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's pint data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pint		The pint-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as pint.
+This value could be converted from the punions original value.
+*/
 pint punion_get_int( punion* var )
 {
 	PROC( "punion_get_int" );
@@ -113,22 +95,16 @@ pint punion_get_int( punion* var )
 	RETURN( var->val.i );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_long()
+/** Returns a punions plong data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's plong data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		plong		The plong-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as plong.
+This value could be converted from the punions original value.
+*/
 plong punion_get_long( punion* var )
 {
 	PROC( "punion_get_long" );
@@ -149,22 +125,16 @@ plong punion_get_long( punion* var )
 	RETURN( var->val.l );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_ulong()
+/** Returns a punions pulong data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's pulong data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pulong		The pulong-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as pulong.
+This value could be converted from the punions original value.
+*/
 pulong punion_get_ulong( punion* var )
 {
 	PROC( "punion_get_ulong" );
@@ -185,22 +155,16 @@ pulong punion_get_ulong( punion* var )
 	RETURN( var->val.ul );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_float()
+/** Returns a punions pfloat data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's pfloat data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pfloat		The pfloat-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as pfloat.
+This value could be converted from the punions original value.
+*/
 pfloat punion_get_float( punion* var )
 {
 	PROC( "punion_get_float" );
@@ -221,22 +185,16 @@ pfloat punion_get_float( punion* var )
 	RETURN( var->val.f );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_double()
+/** Returns a punions pdouble data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's pdouble data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pdouble		The pdouble-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as pdouble.
+This value could be converted from the punions original value.
+*/
 pdouble punion_get_double( punion* var )
 {
 	PROC( "punion_get_double" );
@@ -257,22 +215,16 @@ pdouble punion_get_double( punion* var )
 	RETURN( var->val.d );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_cstring()
+/** Returns a punions char* data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's char* data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		char*		The char*-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as char*.
+This value could be converted from the punions original value.
+*/
 char* punion_get_cstring( punion* var )
 {
 	PROC( "punion_get_cstring" );
@@ -293,22 +245,16 @@ char* punion_get_cstring( punion* var )
 	RETURN( var->val.s );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_string()
+/** Returns a punions char* data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's char* data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		char*		The char*-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as char*.
+This value could be converted from the punions original value.
+*/
 char* punion_get_string( punion* var )
 {
 	PROC( "punion_get_string" );
@@ -329,22 +275,16 @@ char* punion_get_string( punion* var )
 	RETURN( var->val.s );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_wcstring()
+/** Returns a punions pchar* data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's pchar* data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pchar*		The pchar*-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as pchar*.
+This value could be converted from the punions original value.
+*/
 pchar* punion_get_wcstring( punion* var )
 {
 	PROC( "punion_get_wcstring" );
@@ -365,22 +305,16 @@ pchar* punion_get_wcstring( punion* var )
 	RETURN( var->val.ws );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_get_wstring()
+/** Returns a punions pchar* data value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+If the variant exists in another data type, it will be converted,
+so use it carefully if data loss is not desired.
 
-	Usage:			Returns a punion's pchar* data value and type.
-					If the variant exists in another data type, it will be
-					converted, so use it carefully if data loss is not desired!
+//var// is the pointer to the punion structure.
 
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pchar*		The pchar*-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the value assigned to //var// as pchar*.
+This value could be converted from the punions original value.
+*/
 pchar* punion_get_wstring( punion* var )
 {
 	PROC( "punion_get_wstring" );

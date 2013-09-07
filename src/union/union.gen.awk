@@ -144,22 +144,17 @@ END									{
 
 function setfunc()
 {
-	print "/* -FUNCTION--------------------------------------------------------------------"
-	print "	Function:		punion_set_" var_type "()"
-	print ""	
-	print "	Author:			Jan Max Meyer (generated with var.gen.awk)"
-	print ""	
-	print "	Usage:			Sets a variant's " datatype " data value and type."
-	print ""					
-	print "	Parameters:		punion*	var	Pointer to punion structure."
-	print "					" datatype "	" member "	Value to be assigned."
+	# Comment
+	print "/** Sets a variants " datatype " data value and type."
 	print ""
-	print "	Returns:		" datatype "		The value of " member "."
-	print ""  
-	print "	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	print "	Date:		Author:			Note:"
-	print "----------------------------------------------------------------------------- */"
+	print "//var// is the pointer to the punion structure."
+	print ""
+	print "//" member "// is the " datatype " value to be assigned to //var//."
+	print ""
+	print "The function always returns the value //" member "//."
+	print "*/"
 
+	# Code
 	print datatype " punion_set_" var_type "( punion* var, " \
 				datatype " " member " )"
 	print "{"
@@ -182,23 +177,19 @@ function setfunc()
 
 function getfunc()
 {
-	print "/* -FUNCTION--------------------------------------------------------------------"
-	print "	Function:		punion_get_" var_type "()"
-	print ""	
-	print "	Author:			Jan Max Meyer (generated with var.gen.awk)"
-	print ""	
-	print "	Usage:			Returns a punion's " datatype " data value and type."
-	print "					If the variant exists in another data type, it will be"
-	print "					converted, so use it carefully if data loss is not desired!"
+	# Comment
+	print "/** Returns a punions " datatype " data value."
 	print ""
-	print "	Parameters:		punion*	var	Pointer to punion structure."
+	print "If the variant exists in another data type, it will be converted,"
+	print "so use it carefully if data loss is not desired."
 	print ""
-	print "	Returns:		" datatype "		The " datatype "-value of the variant."
-	print ""  
-	print "	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	print "	Date:		Author:			Note:"
-	print "----------------------------------------------------------------------------- */"
+	print "//var// is the pointer to the punion structure."
+	print ""
+	print "The function returns the value assigned to //var// as " datatype "."
+	print "This value could be converted from the punions original value."
+	print "*/"
 
+	# Code
 	print datatype " punion_get_" var_type "( punion* var )"
 	print "{"
 	print "	PROC( \"punion_get_" var_type "\" );"
@@ -231,29 +222,21 @@ function convfunc( type )
 	var_define = members[ type SUBSEP "var_define" ]
 	var_emptyval = members[ type SUBSEP "var_emptyval" ]
 
-	print "/* -FUNCTION--------------------------------------------------------------------"
-	print "	Function:		punion_to_" var_type "()"
-	print ""	
-	print "	Author:			Jan Max Meyer (generated with var.gen.awk)"
-	print ""	
-	print "	Usage:			Converts a variant's current value into a " type " variable."
+	print "/** Converts a variant's current value into a " type " value."
 	
 	if( var_type ~ /string/ )
-		print "					The returned memory is allocated, and must be freed by the caller."
+		print "The returned memory is allocated, and must be freed by the caller."
 
 	print ""
-	print "	Parameters:		punion*	var	Pointer to punion structure."
+	print "//var// is a pointer to the punion structure to convert from."
 	print ""
-	print "	Returns:		" type "		The " type "-value of the variant."
+	print "The function returns the " type "-value of the variant."
 
 	if( var_type ~ /string/ )
-		print "					Memory must be freed by caller!"
+		print "This pointer must be manually freed by the caller."
+	print "*/"
 
-	print ""  
-	print "	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	print "	Date:		Author:			Note:"
-	print "----------------------------------------------------------------------------- */"
-
+	# Code
 	print type " punion_to_" var_type "( punion* var )"
 	print "{"
 	print "	PROC( \"punion_to_" var_type "\" );"
@@ -294,22 +277,17 @@ function allconv_func()
 	for( ok in okdone )
 		okdone[ ok ] = 0
 
-	print "/* -FUNCTION--------------------------------------------------------------------"
-	print "	Function:		punion_convert()"
-	print ""	
-	print "	Author:			Jan Max Meyer (generated with var.gen.awk)"
-	print ""	
-	print "	Usage:			Converts a punion-structure to any supported type."
+	# Comment
+	print "/** Converts a punion-structure to any supported type."
 	print ""
-	print "	Parameters:		punion*	var		Pointer to punion structure."
-	print "					pbyte	type	Type to which var should be converted to."	
+	print "//var// is the pointer to punion structure to be converted."
 	print ""
-	print "	Returns:		pint	ERR_OK	on success, else an ERR_-define."
-	print ""  
-	print "	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	print "	Date:		Author:			Note:"
-	print "----------------------------------------------------------------------------- */"
+	print "//type// is the type define to which //var// should be converted to."	
+	print ""
+	print "The function returns ERR_OK on success, else an ERR_-define."
+	print "*/"
 
+	#Code
 	print "pint punion_convert( punion* var, pbyte type )"
 	print "{"
 	print "	PROC( \"punion_convert\" );"

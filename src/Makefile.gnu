@@ -1,5 +1,5 @@
 # This is a plain Makefile for general Phorward Foundation Toolkit development. 
-# It should compile libphorward.a quickly and out of the box without autotools.
+# It compiles libphorward.a quickly and out of the box without autotools.
 
 CFLAGS += -g -DDEBUG -DUNICODE -DUTF8 -I.
 
@@ -75,6 +75,11 @@ clean:
 	-rm -f $(OBJ)
 	-rm -f $(LIBPHORWARD)
 	-rm -f ptest ptest.o
+
+clean_all: clean
+	-rm union/union.get.c
+	-rm union/union.set.c
+	-rm union/union.conv.c
 
 # Prototypes Files
 $(PROTOFILE): $(SRC)

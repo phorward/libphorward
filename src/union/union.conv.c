@@ -5,20 +5,12 @@
 
 #include <phorward.h>
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_byte()
+/** Converts a variant's current value into a pbyte value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a pbyte variable.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pbyte		The pbyte-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the pbyte-value of the variant.
+*/
 pbyte punion_to_byte( punion* var )
 {
 	PROC( "punion_to_byte" );
@@ -50,20 +42,12 @@ pbyte punion_to_byte( punion* var )
 	RETURN( (pbyte)0 );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_char()
+/** Converts a variant's current value into a char value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a char variable.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		char		The char-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the char-value of the variant.
+*/
 char punion_to_char( punion* var )
 {
 	PROC( "punion_to_char" );
@@ -95,20 +79,12 @@ char punion_to_char( punion* var )
 	RETURN( (char)0 );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_int()
+/** Converts a variant's current value into a pint value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a pint variable.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pint		The pint-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the pint-value of the variant.
+*/
 pint punion_to_int( punion* var )
 {
 	PROC( "punion_to_int" );
@@ -140,20 +116,12 @@ pint punion_to_int( punion* var )
 	RETURN( (pint)0 );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_long()
+/** Converts a variant's current value into a plong value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a plong variable.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		plong		The plong-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the plong-value of the variant.
+*/
 plong punion_to_long( punion* var )
 {
 	PROC( "punion_to_long" );
@@ -185,20 +153,12 @@ plong punion_to_long( punion* var )
 	RETURN( (plong)0 );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_ulong()
+/** Converts a variant's current value into a pulong value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a pulong variable.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pulong		The pulong-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the pulong-value of the variant.
+*/
 pulong punion_to_ulong( punion* var )
 {
 	PROC( "punion_to_ulong" );
@@ -230,20 +190,12 @@ pulong punion_to_ulong( punion* var )
 	RETURN( (pulong)0 );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_float()
+/** Converts a variant's current value into a pfloat value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a pfloat variable.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pfloat		The pfloat-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the pfloat-value of the variant.
+*/
 pfloat punion_to_float( punion* var )
 {
 	PROC( "punion_to_float" );
@@ -275,20 +227,12 @@ pfloat punion_to_float( punion* var )
 	RETURN( (pfloat)0.0 );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_double()
+/** Converts a variant's current value into a pdouble value.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a pdouble variable.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pdouble		The pdouble-value of the variant.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the pdouble-value of the variant.
+*/
 pdouble punion_to_double( punion* var )
 {
 	PROC( "punion_to_double" );
@@ -320,22 +264,14 @@ pdouble punion_to_double( punion* var )
 	RETURN( (pdouble)0.0 );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_string()
+/** Converts a variant's current value into a char* value.
+The returned memory is allocated, and must be freed by the caller.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a char* variable.
-					The returned memory is allocated, and must be freed by the caller.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		char*		The char*-value of the variant.
-					Memory must be freed by caller!
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the char*-value of the variant.
+This pointer must be manually freed by the caller.
+*/
 char* punion_to_string( punion* var )
 {
 	PROC( "punion_to_string" );
@@ -367,22 +303,14 @@ char* punion_to_string( punion* var )
 	RETURN( (char*)NULL );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_to_wstring()
+/** Converts a variant's current value into a pchar* value.
+The returned memory is allocated, and must be freed by the caller.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is a pointer to the punion structure to convert from.
 
-	Usage:			Converts a variant's current value into a pchar* variable.
-					The returned memory is allocated, and must be freed by the caller.
-
-	Parameters:		punion*	var	Pointer to punion structure.
-
-	Returns:		pchar*		The pchar*-value of the variant.
-					Memory must be freed by caller!
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns the pchar*-value of the variant.
+This pointer must be manually freed by the caller.
+*/
 pchar* punion_to_wstring( punion* var )
 {
 	PROC( "punion_to_wstring" );
@@ -414,21 +342,14 @@ pchar* punion_to_wstring( punion* var )
 	RETURN( (pchar*)NULL );
 }
 
-/* -FUNCTION--------------------------------------------------------------------
-	Function:		punion_convert()
+/** Converts a punion-structure to any supported type.
 
-	Author:			Jan Max Meyer (generated with var.gen.awk)
+//var// is the pointer to punion structure to be converted.
 
-	Usage:			Converts a punion-structure to any supported type.
+//type// is the type define to which //var// should be converted to.
 
-	Parameters:		punion*	var		Pointer to punion structure.
-					pbyte	type	Type to which var should be converted to.
-
-	Returns:		pint	ERR_OK	on success, else an ERR_-define.
-
-	~~~ CHANGES & NOTES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Date:		Author:			Note:
------------------------------------------------------------------------------ */
+The function returns ERR_OK on success, else an ERR_-define.
+*/
 pint punion_convert( punion* var, pbyte type )
 {
 	PROC( "punion_convert" );
