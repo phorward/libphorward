@@ -46,7 +46,7 @@ char* pregex_range_to_string( pregex_range* range )
 	{
 		MSG( "In wide-character mode" );
 		str = (char*)pmalloc( ( range->len + 1 ) * sizeof( pchar ) );
-		Psprintf( (pchar*)str, L"%.*s", range->len, range->pbegin );
+		pwcsprintf( (pchar*)str, L"%.*s", range->len, range->pbegin );
 		VARS( "str", "%ls", (pchar*)str );
 	}
 

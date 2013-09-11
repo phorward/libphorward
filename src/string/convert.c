@@ -161,7 +161,7 @@ pchar* plong_to_pchar( plong l )
 	PROC( "plong_to_pchar" );
 	PARMS( "l", "%ld", l );
 
-	RETURN( Pasprintf( L"%ld", l ) );
+	RETURN( pawcsprintf( L"%ld", l ) );
 }
 
 /*REMOVE?*/
@@ -194,7 +194,7 @@ pchar* pulong_to_pchar( pulong ul )
 	PROC( "pulong_to_pchar" );
 	PARMS( "ul", "%ld", ul );
 	
-	RETURN( Pasprintf( L"%ld", ul ) );
+	RETURN( pawcsprintf( L"%ld", ul ) );
 }
 
 /*REMOVE?*/
@@ -247,12 +247,12 @@ pchar* pdouble_to_pchar( pdouble d )
 	PROC( "pdouble_to_pchar" );
 	PARMS( "d", "%lf", d );
 	
-	if( !( ret = Pasprintf( L"%lf", d ) ) )
+	if( !( ret = pawcsprintf( L"%lf", d ) ) )
 		RETURN( (pchar*)NULL );
 
 	VARS( "ret", "%ls", ret );
 	
-	for( trail = ret + Pstrlen( ret ) - 1;
+	for( trail = ret + pwcslen( ret ) - 1;
 			*trail == '0'; trail-- )
 		;
 

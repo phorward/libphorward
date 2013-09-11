@@ -45,7 +45,7 @@ static int plist_hash_index( plist* list, char* key )
 	}
 
 	if( list->flags & PLIST_MOD_WCHAR )
-		for( len = (pchar)Pstrlen( (pchar*)key ); len > 0; len-- )
+		for( len = (pchar)pwcslen( (pchar*)key ); len > 0; len-- )
 			hashval += (int)( (pchar*)key )[ len - 1 ];
 	else
 		for( len = (pchar)pstrlen( key ); len > 0; len-- )
@@ -326,7 +326,7 @@ punit* plist_insert( plist* list, punit* pos, char* key, void* src )
 		if( list->flags & PLIST_MOD_EXTKEYS )
 			e->key = key;
 		else if( list->flags & PLIST_MOD_WCHAR )
-			e->key = (char*)Pstrdup( (pchar*)key );
+			e->key = (char*)pwcsdup( (pchar*)key );
 		else
 			e->key = pstrdup( key );
 

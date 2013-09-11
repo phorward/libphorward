@@ -19,7 +19,7 @@ static int hashtab_bucket_idx( HASHTAB* hashtab, char* key )
 	
 	if( hashtab->flags & HASHTAB_MOD_WCHAR )
 	{
-		len = (pchar)Pstrlen( (pchar*)key );
+		len = (pchar)pwcslen( (pchar*)key );
 		for( ; len > 0; len-- )
 			hashval += (int)( (pchar*)key )[len - 1];
 	}
@@ -168,9 +168,9 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, char* key, void* data )
 			if( !( hashtab->flags & HASHTAB_MOD_EXTKEYS ) )
 			{
 				if( hashtab->flags & HASHTAB_MOD_WCHAR )
-					elem->key = (char*)Pstrdup( (pchar*)key );
+					elem->key = (char*)pwcsdup( (pchar*)key );
 				else
-					elem->key = strdup( key );
+					elem->key = pstrdup( key );
 			}
 			else
 				elem->key = key;

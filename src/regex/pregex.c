@@ -849,7 +849,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 		else
 		{
 			if( regex->flags & PREGEX_MOD_WCHAR )
-				end = (char*)( (pchar*)start + Pstrlen( (pchar*)start ) );
+				end = (char*)( (pchar*)start + pwcslen( (pchar*)start ) );
 			else
 				end = start + pstrlen( start );
 		}
@@ -875,7 +875,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 			MSG( "Extending string" );
 			if( regex->flags & PREGEX_MOD_WCHAR )
 			{
-				if( !( regex->tmp_str = (char*)Pstrncatstr(
+				if( !( regex->tmp_str = (char*)pwcsncatstr(
 						(pchar*)regex->tmp_str, (pchar*)start,
 							( (pchar*)end - (pchar*)start ) ) ) )
 				{
@@ -939,7 +939,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 							_rpstr = end;
 
 							/* Extend first from prev of replacement */
-							if( !( replace = (char*)Pstrncatstr(
+							if( !( replace = (char*)pwcsncatstr(
 									(pchar*)replace, (pchar*)rprev,
 										(pchar*)rbegin - (pchar*)rprev ) ) )
 							{
@@ -958,7 +958,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 										reference->pbegin );
 								VARS( "len", "%d", reference->len );
 
-								if( !( replace = (char*)Pstrncatstr(
+								if( !( replace = (char*)pwcsncatstr(
 										(pchar*)replace, reference->pbegin,
 											reference->len ) ) )
 								{
@@ -1048,7 +1048,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 			if( regex->flags & PREGEX_MOD_WCHAR )
 			{
 				if( rpstr != rprev &&
-						!( replace = (char*)Pstrcatstr(
+						!( replace = (char*)pwcscatstr(
 								(pchar*)replace, (pchar*)rprev, FALSE ) ) )
 				{
 					regex->last_err = ERR_MEM;
@@ -1078,9 +1078,9 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 #endif
 			if( regex->flags & PREGEX_MOD_WCHAR )
 			{
-				if( !( regex->tmp_str = (char*)Pstrncatstr(
+				if( !( regex->tmp_str = (char*)pwcsncatstr(
 						(pchar*)regex->tmp_str, (pchar*)replace,
-							Pstrlen( (pchar*)replace ) ) ) )
+							pwcslen( (pchar*)replace ) ) ) )
 				{
 					regex->last_err = ERR_MEM;
 					OUTOFMEM;

@@ -201,14 +201,14 @@ int pstrcasecmp( char* s1, char* s2 );
 int pstrncasecmp( char* s1, char* s2, pint n );
 int pstrparsechar( wchar* retc, char *str, pboolean escapeseq );
 #ifdef UNICODE
-pchar* Pstrdup( pchar* str );
-int Psprintf( pchar* res, pchar* fmt, ... );
-int Pvasprintf( pchar** str, pchar* fmt, va_list ap );
-pchar* Pasprintf( pchar* fmt, ... );
-pchar* Pstrcatchar( pchar* str, wchar chr );
-pchar* Pstrcatstr( pchar* dest, pchar* src, boolean freesrc );
-pchar* Pstrncatstr( pchar* str, pchar* append, psize num );
-psize Pstrlen( pchar* str );
+pchar* pwcsdup( pchar* str );
+int pwcsprintf( pchar* res, pchar* fmt, ... );
+int pvawcsprintf( pchar** str, pchar* fmt, va_list ap );
+pchar* pawcsprintf( pchar* fmt, ... );
+pchar* pwcscatchar( pchar* str, wchar chr );
+pchar* pwcscatstr( pchar* dest, pchar* src, boolean freesrc );
+pchar* pwcsncatstr( pchar* str, pchar* append, psize num );
+psize pwcslen( pchar* str );
 #endif
 
 /* string/utf8.c */

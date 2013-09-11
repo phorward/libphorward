@@ -97,12 +97,13 @@ void unicode_demo( void )
 
 
 	printf( "mystr = >%ls<\n", mystr );
-	Psprintf( mystr, L"This string was %d characters long!",
-			Pstrlen( mystr ) );
+	swprintf( mystr, sizeof( mystr ),
+			L"This string was %d characters long!",
+			pwcslen( mystr ) );
 	printf( "mystr = >%ls<\n", mystr );
 
-	mydynamicstr = Pstrdup( mystr );
-	mydynamicstr = Pstrcatstr( mydynamicstr,
+	mydynamicstr = pwcsdup( mystr );
+	mydynamicstr = pwcscatstr( mydynamicstr,
 			L" You can see: The functions are"
 			L" used the same way as the standard"
 			L" char-functions!", FALSE );
@@ -110,7 +111,7 @@ void unicode_demo( void )
 	printf( "mydynamicstr = >%ls<\n", mydynamicstr );
 	pfree( mydynamicstr );
 
-	mydynamicstr = Pasprintf( L"This is €uro symbol %ls of %d",
+	mydynamicstr = pawcsprintf( L"This is €uro symbol %ls of %d",
 						mystr, sizeof( mystr ) );
 	printf( "mydynamicstr = >%ls<\n", mydynamicstr );
 	pfree( mydynamicstr );

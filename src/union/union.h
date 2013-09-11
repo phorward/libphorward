@@ -120,7 +120,7 @@ typedef struct
 #define punion_set_string_d( var, val ) \
 			punion_set_string( var, pstrdup( val ) )
 #define punion_set_wstring_d( var, val ) \
-			punion_set_wstring( var, Pstrdup( val ) )
+			punion_set_wstring( var, pwcsdup( val ) )
 
 #define punion_set_constant( var ) \
 			bit_set( (var)->type, PUNION_IS_CONSTANT )
