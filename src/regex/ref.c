@@ -36,7 +36,7 @@ allocated if the following dependencies are met:
 if the function should allocate refs. A positive value indicates the number of
 elements in ref, so the array can be re-used in multiple calls.
 
-//ref_all// is the specifies the number of references the entire machine will
+//ref_all// specifies the number of references the entire machine will
 contain (dfa->ref_count or nfa->ref_count).
 
 //flags// are flags for reference-related options (currently only the flag

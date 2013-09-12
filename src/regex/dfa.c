@@ -755,8 +755,8 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 /** Tries to match a pattern using a DFA-machine.
 
 //dfa// is the DFA state machine to be executed.
-//str// is thetest string where the DFA should work on.
-//len// is the Length of the match, -1 on error or no match.
+//str// is the test string where the DFA should work on.
+//len// is the length of the match, -1 on error or no match.
 
 Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the
 bestmost (=longes) match.
@@ -812,7 +812,8 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 			{
 				VARS( "last_accept->accept.greedy", "%s",
 					BOOLEAN_STR( last_accept->accept.greedy ) );
-				if(	!last_accept->accept.greedy || ( flags & PREGEX_MOD_NONGREEDY ) )
+				if(	!last_accept->accept.greedy || 
+						( flags & PREGEX_MOD_NONGREEDY ) )
 				{
 					MSG( "This match is not greedy, "
 							"so matching will stop now" );

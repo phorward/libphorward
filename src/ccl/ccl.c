@@ -14,7 +14,7 @@ Usage:	Charclass-Handling
 /* Internal */
 pchar ccl_max( void )
 {
-#ifdef UTF8
+#ifdef UNICODE
 	return (pchar)0xffff;
 #else
 	return (pchar)0xff;
@@ -72,7 +72,7 @@ CCL ccl_dup( CCL ccl )
 	if( !ccl )
 	{
 		WRONGPARAM;
-		return 0;
+		return NULL;
 	}
 
 	/*

@@ -1168,8 +1168,8 @@ pregex_range* pregex_get_split( pregex* regex )
 /* GET ONLY! */
 /** Returns a reference from a match. References are available if the regular
 expression object is configured without PREGEX_MOD_NO_REF. A reference (or
-backreference) is substring from the matched pattern which is created for each
-opening bracket.
+backreference) is a substring from the matched pattern which is created for
+each opening bracket.
 
 //regex// is the pregex-object from which to obtain the match reference.
 //offset// is the offset of the desired reference. If the offset is higher
@@ -1180,7 +1180,7 @@ As an example, a regular expression to find C function names is constructed
 as ``[a-zA-Z_][a-zA-Z0-9_]\(\)``, its single name can be matched as a reference
 by describing the pattern as ``([a-zA-Z_][a-zA-Z0-9_])\(\)``. Each opening
 bracket defines a new reference level. If this pattern is now executed on a
-string and finds a match, e.g. //&atoi()//, the whole string can be obtain by
+string and finds a match, e.g. //&atoi()//, the whole string can be obtained by
 the pregex_range-structure returned by pregex_get_range() (which is the string
 "&atoi()"), but the function name can be directly accessed by obtaining the
 first reference (//offset// == 0) which contains a range describing only
@@ -1307,3 +1307,4 @@ pboolean pregex_set_match_fn( pregex* regex, pregex_fn match_fn )
 	regex->match_fn = match_fn;
 	return TRUE;
 }
+
