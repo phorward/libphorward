@@ -215,7 +215,7 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 
 //regex// is the pregex-object to be finalized.
 
-Returns a ERR_OK on success, ERR_FAILURE if the regex is not in compiled-state,
+Returns ERR_OK on success, ERR_FAILURE if the regex is not in compiled-state,
 and any other ERR-define else.
 */
 int pregex_finalize( pregex* regex )
