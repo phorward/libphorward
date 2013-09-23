@@ -146,14 +146,14 @@ void _dbg_trace( char* file, int line, char* type, char* format, ... )
 
 	if( strcmp( type, "ENTRY" ) == 0 )
 	{
-		fprintf( stderr, "%d (%s[% 4d]) ", getpid(), file, line );
+		fprintf( stderr, "%d (%s:%5d) ", getpid(), file, line );
 		_dbg_indent();
 		fprintf( stderr, "{\n" );
 
 		_dbg_level++;
 	}
 
-	fprintf( stderr, "%d (%s[% 4d]) ", getpid(), file, line );
+	fprintf( stderr, "%d (%s:%5d) ", getpid(), file, line );
 	_dbg_indent();
 	fprintf( stderr, "%-6s", type );
 
@@ -171,7 +171,7 @@ void _dbg_trace( char* file, int line, char* type, char* format, ... )
 	{
 		_dbg_level--;
 
-		fprintf( stderr, "%d (%s[% 4d]) ", getpid(), file, line );
+		fprintf( stderr, "%d (%s:%5d) ", getpid(), file, line );
 		_dbg_indent();
 		fprintf( stderr, "}\n" );
 	}

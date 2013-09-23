@@ -55,6 +55,7 @@ HSRC = \
 	ccl/ccl.h \
 	phorward.tpl.h \
 	regex/pregex.h \
+	parser/grammar.h \
 	union/union.h \
 	xml/xml.h \
 	$(PROTOFILE)
