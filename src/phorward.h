@@ -61,8 +61,13 @@ typedef size_t					psize;
 
 
 typedef char 					pboolean;	
+#ifndef BOOLEAN
 #define BOOLEAN					pboolean
+#endif
+
+#ifndef boolean
 #define boolean 				pboolean
+#endif
 
 #ifndef TRUE
 #define TRUE					1
@@ -114,27 +119,7 @@ typedef char 					pboolean;
 #endif
 
 
-#define bit_set( val, bit )			( (val) |= (bit) )
-#define bit_unset( val, bit )		( (val) &= ~(bit) )
-#define bit_is_set( val, bit )		( ( (val) & (bit) ) == (bit) )
-#define bit_is_unset( val, bit )	( ( (val) & (bit) ) == 0 )
 
-
-
-
-
-
-#ifndef BITSET_H
-#define BITSET_H
-
-
-typedef char byte;
-typedef byte* bitset;
-
-
-#define bitset_free( set ) 		free( set )
-
-#endif
 
 
 
@@ -637,13 +622,13 @@ typedef struct
 			punion_set_wstring( var, pwcsdup( val ) )
 
 #define punion_set_constant( var ) \
-			bit_set( (var)->type, PUNION_IS_CONSTANT )
+			(var)->type |= PUNION_IS_CONSTANT
 #define punion_unset_constant( var ) \
-			bit_unset( (var)->type, PUNION_IS_CONSTANT )
+			(var)->type &= ~PUNION_IS_CONSTANT
 #define punion_set_convertible( var ) \
-			bit_set( (var)->type, PUNION_IS_CONVERT )
+			(var)->type |= PUNION_IS_CONVERT
 #define punion_unset_convertible( var ) \
-			bit_unset( (var)->type, PUNION_IS_CONVERT )
+			(var)->type &= ~PUNION_IS_CONVERT
 
 #define punion_type( var ) \
 			( ( var )->type & 0x0F )
@@ -885,12 +870,6 @@ struct _pgastnode
 
 
 
-
-
-bitset bitset_create( int size );
-void bitset_set( bitset set, int bit, pboolean state );
-pboolean bitset_get( bitset set, int bit );
-bitset bitset_copy( int size, bitset source );
 
 
 void _dbg_trace( char* file, int line, char* type, char* format, ... );

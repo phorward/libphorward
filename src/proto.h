@@ -2,12 +2,6 @@
  * This is a generated file - manual editing is not recommended!
  */
 
-/* base/bitset.c */
-bitset bitset_create( int size );
-void bitset_set( bitset set, int bit, pboolean state );
-pboolean bitset_get( bitset set, int bit );
-bitset bitset_copy( int size, bitset source );
-
 /* base/dbg.c */
 void _dbg_trace( char* file, int line, char* type, char* format, ... );
 void _dbg_time( char* file, int line );

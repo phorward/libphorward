@@ -1,4 +1,3 @@
-
 SUBDIRS = src run DEMO
 
 man1_MANS = phorward.man

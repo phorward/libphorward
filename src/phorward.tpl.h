@@ -71,8 +71,13 @@ typedef size_t					psize;		/* Size-type */
  */
 
 typedef char 					pboolean;	/* Phorward Boolean */
+#ifndef BOOLEAN
 #define BOOLEAN					pboolean
+#endif
+
+#ifndef boolean
 #define boolean 				pboolean
+#endif
 
 #ifndef TRUE
 #define TRUE					1
@@ -130,18 +135,9 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #endif
 
 /*
- * Bitwise value modifiers
- */
-#define bit_set( val, bit )			( (val) |= (bit) )
-#define bit_unset( val, bit )		( (val) &= ~(bit) )
-#define bit_is_set( val, bit )		( ( (val) & (bit) ) == (bit) )
-#define bit_is_unset( val, bit )	( ( (val) & (bit) ) == 0 )
-
-/*
- * Library modules
+ * Including the different library modules
  */
 
-#include "base/bitset.h"
 #include "base/dbg.h"
 #include "base/llist.h"
 #include "base/plist.h"

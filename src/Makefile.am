@@ -5,6 +5,8 @@
 # All rights reserved. See $PHOME/LICENSE for more information.
 # ------------------------------------------------------------------------------
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 PROTOFILE =	proto.h
 LIBHEADER = phorward.h
 DOCFILE = ../doc/phorward.html
@@ -13,7 +15,6 @@ PATHEXT = PATH="../run:$(PATH)"
 lib_LTLIBRARIES = libphorward.la
 
 libphorward_la_SOURCES = \
-	base/bitset.c \
 	base/dbg.c \
 	base/hashtab.c \
 	base/llist.c \
@@ -40,7 +41,6 @@ libphorward_la_SOURCES = \
 	xml/xml.c
 
 noinst_HEADERS = \
-	base/bitset.h \
 	base/dbg.h \
 	base/hashtab.h \
 	base/llist.h \
@@ -49,8 +49,6 @@ noinst_HEADERS = \
 	ccl/ccl.h \
 	phorward.tpl.h \
 	regex/pregex.h \
-	string/string.h \
-	string/utf8.h \
 	union/union.h \
 	xml/xml.h \
 	$(PROTOFILE)

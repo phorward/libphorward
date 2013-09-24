@@ -10,7 +10,6 @@ LIBHEADER = phorward.h
 PATHEXT = PATH="../run:$(PATH)"
 
 SRC = \
-	base/bitset.c \
 	base/dbg.c \
 	base/hashtab.c \
 	base/llist.c \
@@ -46,7 +45,6 @@ SRC = \
 	parser/terminal.c
 
 HSRC = \
-	base/bitset.h \
 	base/dbg.h \
 	base/hashtab.h \
 	base/llist.h \

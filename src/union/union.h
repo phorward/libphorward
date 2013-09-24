@@ -123,13 +123,13 @@ typedef struct
 			punion_set_wstring( var, pwcsdup( val ) )
 
 #define punion_set_constant( var ) \
-			bit_set( (var)->type, PUNION_IS_CONSTANT )
+			(var)->type |= PUNION_IS_CONSTANT
 #define punion_unset_constant( var ) \
-			bit_unset( (var)->type, PUNION_IS_CONSTANT )
+			(var)->type &= ~PUNION_IS_CONSTANT
 #define punion_set_convertible( var ) \
-			bit_set( (var)->type, PUNION_IS_CONVERT )
+			(var)->type |= PUNION_IS_CONVERT
 #define punion_unset_convertible( var ) \
-			bit_unset( (var)->type, PUNION_IS_CONVERT )
+			(var)->type &= ~PUNION_IS_CONVERT
 
 #define punion_type( var ) \
 			( ( var )->type & 0x0F )
