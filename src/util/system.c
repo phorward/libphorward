@@ -9,7 +9,7 @@ Author:	Jan Max Meyer
 Usage:	System functions for various usages.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /** Figures out a filepath by searching in a PATH definition.
 
@@ -37,7 +37,7 @@ char* pwhich( char* filename, char* directories )
 
 	if( !directories )
 		directories = getenv( "PATH" );
-	
+
 	start = directories;
 	while( start && *start )
 	{
@@ -71,10 +71,10 @@ Returns a pointer to the basename, which is a part of //path//. */
 char* pbasename( char* path )
 {
 	char*		basename;
-	
+
 	PROC( "pbasename" );
 	PARMS( "path", "%s", path );
-	
+
 	basename = strrchr( path, PPATHSEP );
 	VARS( "basename", "%s", basename ? basename+1 : path );
 	RETURN( ( basename ) ? ++basename : path );
@@ -89,7 +89,7 @@ pboolean pfileexists( char* filename )
 {
 	PROC( "pfileexists" );
 	PARMS( "filename", "%s", filename );
-	
+
 	if( !
 	#ifndef _WIN32
 		access( filename, F_OK )
@@ -101,7 +101,7 @@ pboolean pfileexists( char* filename )
 		MSG( "File exists!" );
 		RETURN( TRUE );
 	}
-		
+
 	MSG( "File does not exist!" );
 	RETURN( FALSE );
 }
@@ -121,32 +121,32 @@ int map_file( char** cont, char* filename )
 	PROC( "map_file" );
 	PARMS( "cont", "%p", cont );
 	PARMS( "filename", "%s", filename );
-	
+
 	/* Check parameters */
 	if( !( cont && filename && *filename ) )
 	{
 		MSG( "Incomplete parameters!" );
 		RETURN( ERR_PARMS );
 	}
-	
+
 	/* Open file */
 	if( !( f = fopen( filename, "rb" ) ) )
 	{
 		MSG( "File could not be opened - wrong path?" );
 		RETURN( 1 );
 	}
-	
+
 	/* Allocate memory for file */
 	fseek( f, 0L, SEEK_END );
 	if( !( c = *cont = (char*)pmalloc( ( ftell( f ) + 1 )
 			* sizeof( char ) ) ) )
 	{
 		MSG( "Unable to allocate required memory" );
-		
+
 		fclose( f );
 		RETURN( ERR_MEM );
 	}
-	
+
 	/* Read entire file into buffer */
 	fseek( f, 0L, SEEK_SET );
 
@@ -156,14 +156,14 @@ int map_file( char** cont, char* filename )
 	/* Case: File is empty */
 	if( c == *cont )
 		c++;
-		
+
 	*( c - 1 ) = '\0';
-	
+
 	fclose( f );
-	
+
 	VARS( "Entire file", "%s", *cont );
 	MSG( "All right!" );
-	
+
 	RETURN( ERR_OK );
 }
 

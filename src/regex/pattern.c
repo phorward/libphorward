@@ -9,7 +9,7 @@ Author:	Jan Max Meyer
 Usage:	Regular expression pattern construction and conversion functions
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /* Local prototypes */
 static int parse_char( pregex_ptn** ptn, char** pstr,

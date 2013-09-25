@@ -9,7 +9,7 @@ Author:	Jan Max Meyer
 Usage:	Macros and functions for trace output.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /*
 	Trace is activated in any program if the DEBUG-macro is defined.

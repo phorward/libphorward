@@ -13,18 +13,18 @@ BEGIN								{
 										first = 0
 										variants_cnt = 0
 										on_vargen = 0
-										
+
 										SUBSEP = "#"
-										
+
 										print "/*"
 										print " * WARNING:"
 										print " * THIS FILE IS GENERATED - DO NOT EDIT MANUALLY - IT WILL GO AWAY!"
 										print " */"
 										print ""
-										print "#include <phorward.h>"
+										print "#include \"phorward.h\""
 										print ""
 									}
-									
+
 END									{
 										prev = ""
 										for( i = 1; i <= variants_cnt; i++ )
@@ -32,14 +32,14 @@ END									{
 											if( prev == members[ variants[ i ] \
 													SUBSEP "member" ] )
 												continue
-												
+
 											if( with_conv )
 												convfunc( variants[ i ] );
 
 											prev = members[ variants[ i ] \
 													SUBSEP "member" ]
 										}
-										
+
 										if( with_conv )
 											allconv_func()
 									}
@@ -59,16 +59,16 @@ END									{
 										gsub( "/\\*", "", line )
 										gsub( "\\*/", "", line )
 										split( line, types, ":" )
-										
+
 										var_type = types[2]
 										var_format = types[3]
 										var_define = types[4]
 										var_emptyval = types[5]
-										
+
 										if( var_define == "" )
 											var_define = "PUNION_" \
 												toupper( var_type )
-										
+
 										variants[ ++variants_cnt ] = datatype
 										members[ datatype SUBSEP \
 													"member" ] = member
@@ -80,22 +80,22 @@ END									{
 													"var_define" ] = var_define
 										members[ datatype SUBSEP \
 													"var_emptyval" ] = var_emptyval
-										
+
 										setcode = ""
 										first = 1
 										lastconvcode = ""
 									}
-									
+
 /to [a-zA-Z_]+\*?:/					{
 										if( !within_vargen )
 											next
-											
+
 										convcode = trim( substr( $0, \
 														index( $0, ":" ) + 1) )
-														
+
 										if( convcode == "(same)" )
 											convcode = lastconvcode
-										
+
 										#print $3 SUBSEP datatype
 										convert[ $3 SUBSEP datatype ] = convcode
 
@@ -105,9 +105,9 @@ END									{
 /set:/								{
 										if( !within_vargen )
 											next
-											
+
 										gsub( "set:", "", $0 )
-											
+
 										if( !first )
 										{
 											if( setcode != "" )
@@ -115,7 +115,7 @@ END									{
 
 											setcode = setcode "\t" trim( $0 )
 										}
-										
+
 										first = 0
 										next
 									}
@@ -123,23 +123,23 @@ END									{
 									{
 										if( !within_vargen )
 											next
-											
+
 										line = trim( $0 )
 										if( substr( line, length( line ) \
 												 - 1, 2 ) == "*/" )
 										{
 											within_vargen = 0
-											
+
 											if( with_set )
 												setfunc()
-												
+
 											if( with_get )
 												getfunc()
 										}
-										
+
 										first = 0
 									}
-									
+
 #--- Utility functions go here ---
 
 function setfunc()
@@ -162,11 +162,11 @@ function setfunc()
 	print "	PARMS( \"var\", \"%p\", var );"
 	print "	PARMS( \"" member "\", \"" var_format "\", " member " );"
 	print ""
-	print "	punion_reset( var );"	
+	print "	punion_reset( var );"
 	print "	var->type &= ~0x0F;"
 	print "	var->type |= " var_define ";"
 	print "	var->val." member " = " member ";"
-	
+
 	if( setcode != "" )
 		print setcode
 
@@ -215,7 +215,7 @@ function convfunc( type )
 {
 	for( ok in okdone )
 		okdone[ ok ] = 0
-	
+
 	member = members[ type SUBSEP "member" ]
 	var_type = members[ type SUBSEP "var_type" ]
 	var_format = members[ type SUBSEP "var_format" ]
@@ -223,7 +223,7 @@ function convfunc( type )
 	var_emptyval = members[ type SUBSEP "var_emptyval" ]
 
 	print "/** Converts a variant's current value into a " type " value."
-	
+
 	if( var_type ~ /string/ )
 		print "The returned memory is allocated, and must be freed by the caller."
 
@@ -242,30 +242,30 @@ function convfunc( type )
 	print "	PROC( \"punion_to_" var_type "\" );"
 	print "	PARMS( \"var\", \"%p\", var );"
 	print ""
-	
+
 	print "	switch( punion_type( var ) )"
 	print "	{"
-	
+
 	for( j = 1; j <= variants_cnt; j++ )
 	{
 		if( okdone[ variants[j] ] )
 			continue
-	
+
 		okdone[ variants[j] ] = 1
 		print "		case " members[ variants[j] SUBSEP "var_define" ] ":"
-		
+
 		if( variants[j] == type )
 		{
 			print "			RETURN( var->val." member " );"
 			continue
 		}
-		
+
 		if( ( conv = convert[ type SUBSEP variants[j] ] ) == "" )
 			conv = "var->val." members[ variants[j] SUBSEP "member" ]
 
 		print "			RETURN( (" type ")" conv " );"
 	}
-	
+
 	print "	}\n"
 	print "	MSG( \"Can't convert this type!\" );"
 	print "	RETURN( (" type ")" var_emptyval " );"
@@ -282,7 +282,7 @@ function allconv_func()
 	print ""
 	print "//var// is the pointer to punion structure to be converted."
 	print ""
-	print "//type// is the type define to which //var// should be converted to."	
+	print "//type// is the type define to which //var// should be converted to."
 	print ""
 	print "The function returns ERR_OK on success, else an ERR_-define."
 	print "*/"
@@ -299,14 +299,14 @@ function allconv_func()
 	print ""
 	print "	switch( type )"
 	print "	{"
-	
+
 	for( i = 1; i <= variants_cnt; i++ )
 	{
 		if( okdone[ variants[i] ] )
 			continue
-	
-		okdone[ variants[i] ] = 1	
-	
+
+		okdone[ variants[i] ] = 1
+
 		print "		case " members[ variants[i] SUBSEP "var_define" ] ":"
 		print "			punion_set_" members[ variants[i] SUBSEP "var_type" ] \
 			  "( var, punion_to_" members[ variants[i] SUBSEP "var_type" ] \

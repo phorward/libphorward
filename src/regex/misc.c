@@ -10,7 +10,7 @@ Usage:	Utility and miscelleanous functions for additional usage that
 		belong to the regex library.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /*NO_DOC*/
 

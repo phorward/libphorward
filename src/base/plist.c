@@ -8,7 +8,7 @@ File:	plist.c
 Usage:	An improved, double linked, optionally hashed list collection object.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /* Local prototypes */
 static pboolean plist_hash_rebuild( plist* list );

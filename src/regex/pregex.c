@@ -9,7 +9,7 @@ Author:	Jan Max Meyer
 Usage:	The pregex object functions.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 #define IS_EXECUTABLE( stat )	( (stat) == PREGEX_STAT_NFA || \
 									(stat) == PREGEX_STAT_DFA )

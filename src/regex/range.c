@@ -9,7 +9,7 @@ Author:	Jan Max Meyer
 Usage:	Functions for handling pregex_range-structures.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /** Extracts a string match described by a pregex_range-structure.
 

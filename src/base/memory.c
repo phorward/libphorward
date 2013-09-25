@@ -9,7 +9,7 @@ Author:	Jan Max Meyer
 Usage:	Memory management functions / malloc replacements
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /** Dynamically allocate heap memory.
 
@@ -72,7 +72,7 @@ The function is a wrapper for the system-function free(), but accepts
 NULL-pointers and returns a (void*)NULL pointer for direct pointer memory reset.
 
 It could be used this way to immedatelly reset a pointer to NULL:
- 
+
 ``` ptr = pfree( ptr );
 
 //ptr// is the pointer to be freed.

@@ -9,7 +9,7 @@ Author:	Jan Max Meyer
 Usage:	Universal, dynamic stack management functions
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /** Performs a stack initialization.
 

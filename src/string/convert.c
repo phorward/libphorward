@@ -17,7 +17,7 @@ Usage:	Conversion functions for data type and storage type conversion.
 /*
  * Includes
  */
-#include <phorward.h>
+#include "phorward.h"
 
 /*
  * Global variables
@@ -30,9 +30,9 @@ Usage:	Conversion functions for data type and storage type conversion.
 /*
  * Functions
  */
- 
-/** This functions converts a wide-character string into an UTF-8 string. 
- 
+
+/** This functions converts a wide-character string into an UTF-8 string.
+
 The string conversion is performed into dynamically allocated memory.
 The function wraps the system function wcstombs(), so set_locale() must be
 called before this function works properly.
@@ -143,7 +143,7 @@ char* plong_to_uchar( plong l )
 {
 	PROC( "plong_to_uchar" );
 	PARMS( "l", "%ld", l );
-	
+
 	RETURN( pasprintf( "%ld", l ) );
 }
 
@@ -193,7 +193,7 @@ pchar* pulong_to_pchar( pulong ul )
 {
 	PROC( "pulong_to_pchar" );
 	PARMS( "ul", "%ld", ul );
-	
+
 	RETURN( pawcsprintf( L"%ld", ul ) );
 }
 
@@ -202,7 +202,7 @@ pchar* pulong_to_pchar( pulong ul )
 
 //d// is the double value to become converted. Zero-digits behind the decimal
 dot will be removed after conversion, so "1.65000" will become to "1.65" in its
-string representation. 
+string representation.
 
 Returns a pointer to the newly allocated string, which contains the
 string-representation of the double value.
@@ -218,14 +218,14 @@ char* pdouble_to_uchar( pdouble d )
 	if( !( ret = pasprintf( "%lf", d ) ) )
 		RETURN( (char*)NULL );
 	VARS( "ret", "%s", ret );
-	
+
 	for( trail = ret + pstrlen( ret ) - 1;
 			*trail == '0'; trail-- )
 		;
 
 	*( trail + 1 ) = '\0';
 
-	VARS( "ret", "%s", ret );	
+	VARS( "ret", "%s", ret );
 	RETURN( ret );
 }
 
@@ -234,7 +234,7 @@ char* pdouble_to_uchar( pdouble d )
 
 //d// is the double value to become converted. Zero-digits behind the decimal
 dot will be removed after conversion, so "1.65000" will become to "1.65" in its
-string representation. 
+string representation.
 
 Returns a pointer to the newly allocated wide-character string, which contains
 the string-representation of the double value.
@@ -246,19 +246,19 @@ pchar* pdouble_to_pchar( pdouble d )
 
 	PROC( "pdouble_to_pchar" );
 	PARMS( "d", "%lf", d );
-	
+
 	if( !( ret = pawcsprintf( L"%lf", d ) ) )
 		RETURN( (pchar*)NULL );
 
 	VARS( "ret", "%ls", ret );
-	
+
 	for( trail = ret + pwcslen( ret ) - 1;
 			*trail == '0'; trail-- )
 		;
 
 	*( trail + 1 ) = '\0';
 
-	VARS( "ret", "%ls", ret );	
+	VARS( "ret", "%ls", ret );
 	RETURN( ret );
 }
 

@@ -12,7 +12,7 @@ Usage:	Some extended functions for zero-terminated byte- and wide-character
 		the pbasis-library now.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 #define MAX_SIZE		64
 #define MALLOC_STEP		32
@@ -637,7 +637,7 @@ char* pstrrtrim( char* s )
 
 //s// is the string to be trimmed.
 
-Returns //s//. 
+Returns //s//.
 */
 char* pstrtrim( char* s )
 {
@@ -961,7 +961,7 @@ int pwcsprintf( pchar* res, pchar* fmt, ... )
 
 	va_start( args, fmt );
 
-	ret = 
+	ret =
 #ifdef __MINGW32__
 	_vsnwprintf
 #else
@@ -1003,7 +1003,7 @@ int pvawcsprintf( pchar** str, pchar* fmt, va_list ap )
 	{
 		va_copy( w_ap, ap );
 
-		len = 
+		len =
 #ifdef __MINGW32__
 		_vsnwprintf
 #else

@@ -9,14 +9,14 @@ Author:	Jan Max Meyer
 Usage:	Hash Table Library
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /* Hash function to retrieve the bucket index. */
 static int hashtab_bucket_idx( HASHTAB* hashtab, char* key )
 {
 	psize hashval	= 0L;
 	psize len;
-	
+
 	if( hashtab->flags & HASHTAB_MOD_WCHAR )
 	{
 		len = (pchar)pwcslen( (pchar*)key );
@@ -72,15 +72,15 @@ pint hashtab_init( HASHTAB* ht, pint size, pint flags )
 Always returns ERR_OK.
 */
 pint hashtab_free( HASHTAB* hashtab, void (*freefct)(void*) )
-{	
+{
 	HASHELEM*	elem,
 			*	next;
 	int 		i;
-	
+
 	PROC( "hashtab_free" );
 	PARMS( "hashtab", "%p", hashtab );
 	PARMS( "freefct", "%p", freefct );
-	
+
 	if( hashtab )
 	{
 		VARS( "hashtab->size", "%d", hashtab->size );
@@ -105,13 +105,13 @@ pint hashtab_free( HASHTAB* hashtab, void (*freefct)(void*) )
 				pfree( elem );
 			}
 		}
-		
+
 		for( elem = hashtab->discarded; elem; elem = next )
 		{
 			next = elem->next;
 			pfree( elem );
 		}
-		
+
 		pfree( hashtab->buckets );
 
 		if( hashtab->flags & HASHTAB_MOD_LIST )
@@ -138,7 +138,7 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, char* key, void* data )
 	PARMS( "hashtab", "%p", hashtab );
 	PARMS( "key", "%s", key );
 	PARMS( "data", "%p", data );
-	
+
 	if( hashtab && key )
 	{
 		if( hashtab->flags & HASHTAB_MOD_NO_COLL )
@@ -152,7 +152,7 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, char* key, void* data )
 				RETURN( (HASHELEM*)NULL );
 			}
 		}
-		
+
 		if( hashtab->discarded )
 		{
 			elem = hashtab->discarded;
@@ -160,11 +160,11 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, char* key, void* data )
 		}
 		else
 			elem = (HASHELEM*)pmalloc( sizeof( HASHELEM ) );
-		
+
 		if( elem )
 		{
 			memset( elem, 0, sizeof( HASHELEM ) );
-			
+
 			if( !( hashtab->flags & HASHTAB_MOD_EXTKEYS ) )
 			{
 				if( hashtab->flags & HASHTAB_MOD_WCHAR )
@@ -176,7 +176,7 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, char* key, void* data )
 				elem->key = key;
 
 			elem->data = data;
-			
+
 			bucket = hashtab_bucket_idx( hashtab, key );
 			VARS( "bucket", "%d", bucket );
 
@@ -192,7 +192,7 @@ HASHELEM* hashtab_insert( HASHTAB* hashtab, char* key, void* data )
 				hashtab->list = list_push( hashtab->list, elem );
 		}
 	}
-	
+
 	VARS( "elem", "%p", elem );
 	RETURN( elem );
 }
@@ -208,14 +208,14 @@ HASHELEM* hashtab_get( HASHTAB* hashtab, char* key )
 {
 	HASHELEM*	elem		= (HASHELEM*)NULL;
 	int			bucket;
-	
+
 	if( hashtab && key )
 	{
 		bucket = hashtab_bucket_idx( hashtab, key );
 
 		for( elem = hashtab->buckets[ bucket ].start; elem; elem = elem->next )
 		{
-			if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
+			if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) &&
 					!wcscmp( (pchar*)( elem->key ), (pchar*)key ) )
 				|| !strcmp( elem->key, key ) )
 			{
@@ -223,7 +223,7 @@ HASHELEM* hashtab_get( HASHTAB* hashtab, char* key )
 			}
 		}
 	}
-	
+
 	return elem;
 }
 
@@ -239,10 +239,10 @@ NULL in case the element can't be found to be updated.
 HASHELEM* hashtab_update( HASHTAB* hashtab, char* key, void* data )
 {
 	HASHELEM*	elem;
-	
+
 	if( ( elem = hashtab_get( hashtab, key ) ) )
 		elem->data = data;
-	
+
 	return elem;
 }
 
@@ -268,36 +268,36 @@ HASHELEM* hashtab_discard( HASHTAB* hashtab, char* key,
 	PARMS( "hashtab", "%p", hashtab );
 	PARMS( "key", "%s", key );
 	PARMS( "freefct", "%p", freefct );
-	
+
 	if( hashtab && key )
 	{
 		bucket = hashtab_bucket_idx( hashtab, key );
-		
+
 		for( elem = hashtab->buckets[ bucket ].start; elem; elem = elem->next )
 		{
-			if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
+			if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) &&
 					!wcscmp( (pchar*)( elem->key ), (pchar*)key ) )
 				|| !strcmp( elem->key, key ) )
-			{			
+			{
 				if( !( hashtab->flags & HASHTAB_MOD_EXTKEYS ) )
 					free( elem->key );
-				
+
 				if( freefct && elem->data )
 					(*freefct)( elem->data );
-					
+
 				if( elem == hashtab->buckets[ bucket ].start )
 					hashtab->buckets[ bucket ].start = elem->next;
 				else
 					 elem->prev = elem->next;
-					 
+
 				memset( elem, 0, sizeof( HASHELEM ) );
-				
+
 				if( hashtab->discarded )
 				{
 					for( delem = hashtab->discarded; delem->next;
 							delem = delem->next )
 						;
-					
+
 					delem->next = elem;
 				}
 				else
@@ -311,7 +311,7 @@ HASHELEM* hashtab_discard( HASHTAB* hashtab, char* key,
 			}
 		}
 	}
-	
+
 	RETURN( elem );
 }
 
@@ -334,15 +334,15 @@ pint hashtab_delete( HASHTAB* hashtab, char* key, void (*freefct)(void*) )
 	PROC( "hashtab_delete" );
 	PARMS( "hashtab", "%p", hashtab );
 	PARMS( "key", "%s", key );
-	
+
 	if( !( hashtab && key ) )
 		RETURN( ERR_PARMS );
 
 	bucket = hashtab_bucket_idx( hashtab, key );
-	
+
 	for( elem = hashtab->buckets[ bucket ].start; elem; elem = elem->next )
 	{
-		if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) && 
+		if( ( ( hashtab->flags & HASHTAB_MOD_WCHAR ) &&
 				!wcscmp( (pchar*)( elem->key ), (pchar*)key ) )
 			|| !strcmp( elem->key, key ) )
 		{
@@ -350,15 +350,15 @@ pint hashtab_delete( HASHTAB* hashtab, char* key, void (*freefct)(void*) )
 
 			if( !( hashtab->flags & HASHTAB_MOD_EXTKEYS ) )
 				pfree( elem->key );
-			
+
 			if( freefct && elem->data )
 				(*freefct)( elem->data );
-				
+
 			if( elem == hashtab->buckets[ bucket ].start )
 				hashtab->buckets[ bucket ].start = elem->next;
 			else
 				 elem->prev = elem->next;
-				 
+
 			memset( elem, 0, sizeof( HASHELEM ) );
 
 			/* Remove from array, if configured so */
@@ -382,14 +382,14 @@ pint hashtab_delete( HASHTAB* hashtab, char* key, void (*freefct)(void*) )
 //channel// is the channel, where to output to. If NULL, stderr is used.
 */
 void hashtab_print( HASHTAB* hashtab, FILE* channel )
-{	
+{
 	HASHELEM*	elem;
 	int 		i;
 	LIST*		l;
-	
+
 	if( !channel )
 		channel = stderr;
-	
+
 	if( hashtab )
 	{
 		fprintf( channel, "Hash table %p, size %d buckets, %d active entries\n",
@@ -428,7 +428,7 @@ void hashtab_print( HASHTAB* hashtab, FILE* channel )
 		for( i = 0; i < hashtab->size; i++ )
 		{
 			fprintf( channel, " Bucket %d\n", i );
-			
+
 			if( hashtab->buckets[i].start )
 			{
 				for( elem = hashtab->buckets[i].start; elem; elem = elem->next )
@@ -446,11 +446,11 @@ void hashtab_print( HASHTAB* hashtab, FILE* channel )
 			else
 				fprintf( channel, " --- EMPTY ---\n" );
 		}
-		
+
 		fprintf( channel, "\n" );
 		for( i = 0, elem = hashtab->discarded; elem; elem = elem->next, i++ )
 			;
-		
+
 		fprintf( channel, "%d discarded elements\n\n", i );
 	}
 }
@@ -469,7 +469,7 @@ pint hashtab_count( HASHTAB* hashtab )
 
 	PROC( "hashtab_count" );
 	PARMS( "hashtab", "%p", hashtab );
-	
+
 	if( hashtab )
 	{
 		for( i = 0; i < hashtab->size; i++ )

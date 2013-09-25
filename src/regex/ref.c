@@ -10,7 +10,7 @@ Usage:	Utility functions for reference handling in both NFA and DFA state
 		machines
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /*
 	The functions in here are internally handled,

@@ -10,7 +10,7 @@ Usage:	NFA creation and executable functions
 		and simple, independent parser for regular expressions
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /*NO_DOC*/
 /** Creates a new NFA-state within an NFA state machine. The function first

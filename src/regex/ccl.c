@@ -10,7 +10,7 @@ Usage:	Charclass-Handling
 ----------------------------------------------------------------------------- */
 
 #define PREGEX_LOCAL
-#include <phorward.h>
+#include "phorward.h"
 
 /* Internal */
 pchar pregex_ccl_max( void )

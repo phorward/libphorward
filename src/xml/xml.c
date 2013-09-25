@@ -16,7 +16,7 @@ Usage:	XML processing functions (based on ezXML)
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish, 
+ * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
@@ -24,11 +24,11 @@ Usage:	XML processing functions (based on ezXML)
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
  * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
@@ -36,7 +36,7 @@ Usage:	XML processing functions (based on ezXML)
 /*
  * Includes
  */
-#include <phorward.h>
+#include "phorward.h"
 
 /*
  * Global variables
@@ -56,7 +56,7 @@ Usage:	XML processing functions (based on ezXML)
 typedef struct xml_root*	xml_root_t;
 struct xml_root
 {	/* additional data for the root tag */
-	struct xml	xml;			/* is a super-struct built on 
+	struct xml	xml;			/* is a super-struct built on
 										top of xml struct */
 	XML_T		cur;			/* current xml tree insertion point */
 	char*		m;				/* original xml string */
@@ -108,7 +108,7 @@ char* xml_attr( XML_T xml, char* attr )
 {
 	int			i = 0, j = 1;
 	xml_root_t	root = (xml_root_t)xml;
-	
+
 
 	if( !xml || !xml->attr )
 		return (char*)NULL;
@@ -124,13 +124,13 @@ char* xml_attr( XML_T xml, char* attr )
 
 	for( i = 0; root->attr[i] && strcmp( xml->name, root->attr[i][0] ); i++ )
 		;
-	
+
 	if( !root->attr[i] )
 		return (char*)NULL;	/* no matching default attributes */
 
 	while( root->attr[i][j] && strcmp( attr, root->attr[i][j] ) )
 		j += 3;
-		
+
 	/* found default */
 	return ( root->attr[i][j] ) ? root->attr[i][j + 1] : (char*)NULL;
 }
@@ -141,10 +141,10 @@ char* xml_attr( XML_T xml, char* attr )
 plong xml_int_attr( XML_T xml, char* attr )
 {
 	char*		v;
-	
+
 	if( !( v = xml_attr( xml, attr ) ) )
 		return 0;
-		
+
 	return strtol( v, (char**)NULL, 0 );
 }
 
@@ -154,7 +154,7 @@ plong xml_int_attr( XML_T xml, char* attr )
 pdouble xml_float_attr( XML_T xml, char* attr )
 {
 	char*		v;
-	
+
 	if( !( v = xml_attr( xml, attr ) ) )
 		return (pdouble)0.0;
 
@@ -189,10 +189,10 @@ XML_T xml_vget( XML_T xml, va_list ap )
  ============================================================================ */
 XML_T xml_get( XML_T xml, ... )
 {
-	
+
 	va_list ap;
 	XML_T	r;
-	
+
 
 	va_start( ap, xml );
 	r = xml_vget( xml, ap );
@@ -206,10 +206,10 @@ XML_T xml_get( XML_T xml, ... )
  ============================================================================ */
 char ** xml_pi( XML_T xml, char* target )
 {
-	
+
 	xml_root_t	root = (xml_root_t)xml;
 	int			i = 0;
-	
+
 
 	if( !root )
 		return (char**)XML_NIL;
@@ -263,13 +263,13 @@ static XML_T xml_err( xml_root_t root, char* s, char* err, ... )
  ============================================================================ */
 char* xml_decode( char* s, char ** ent, char t )
 {
-	
+
 	char*	e, *r = s, *m = s;
 	long	b, c, d, l;
-	
+
 
 	for( ; *s; s++ )
-	{		/* normalize line endings */		
+	{		/* normalize line endings */
 		while( *s == '\r' )
 		{
 			*( s++ ) = '\n';
@@ -308,7 +308,7 @@ char* xml_decode( char* s, char ** ent, char t )
 			}
 
 			memmove( s, strchr( s, ';' ) + 1, strlen( strchr(s, ';') ) );
-		} 
+		}
 		else if
 			(
 				( *s == '&' && (t == '&' || t == ' ' || t == '*') )
@@ -337,7 +337,7 @@ char* xml_decode( char* s, char ** ent, char t )
 			}
 			else
 				s++;	/* not a known entity */
-		} 
+		}
 		else if( ( t == ' ' || t == '*' ) && isspace( *s ) )
 			*( s++ ) = ' ';
 		else
@@ -364,9 +364,9 @@ char* xml_decode( char* s, char ** ent, char t )
  ============================================================================ */
 static void xml_open_tag( xml_root_t root, char* name, char ** attr )
 {
-	
+
 	XML_T	xml = root->cur;
-	
+
 
 	if( xml->name )
 		xml = xml_add_child( xml, name, strlen( xml->txt ) );
@@ -384,11 +384,11 @@ static void xml_open_tag( xml_root_t root, char* name, char ** attr )
  ============================================================================ */
 static void xml_uchar_content( xml_root_t root, char* s, size_t len, char t )
 {
-	
+
 	XML_T	xml = root->cur;
 	char*	m = s;
 	size_t	l;
-	
+
 
 	if( !xml || !xml->name || !len ) return;	/* sanity check */
 
@@ -403,7 +403,7 @@ static void xml_uchar_content( xml_root_t root, char* s, size_t len, char t )
 		xml->txt = ( xml->flags & XML_TXTM )	/* allocate some space */
 		? prealloc( xml->txt, ( l = strlen(xml->txt) ) + len ) : strcpy
 			(
-				pmalloc( (l = strlen(xml->txt)) + len ), 
+				pmalloc( (l = strlen(xml->txt)) + len ),
 				xml->txt
 			);
 		strcpy( xml->txt + l, s );	/* add new char content */
@@ -433,9 +433,9 @@ static XML_T xml_close_tag( xml_root_t root, char* name, char* s )
  ============================================================================ */
 static int xml_ent_ok( char* name, char* s, char ** ent )
 {
-	
+
 	int i;
-	
+
 
 	for( ;; s++ )
 	{
@@ -462,10 +462,10 @@ static int xml_ent_ok( char* name, char* s, char ** ent )
  ============================================================================ */
 static void xml_proc_inst( xml_root_t root, char* s, size_t len )
 {
-	
+
 	int		i = 0, j = 1;
 	char*	target = s;
-	
+
 
 	s[len] = '\0';	/* null terminate instruction */
 	if( *( s += strcspn(s, XML_WS) ) )
@@ -516,10 +516,10 @@ static void xml_proc_inst( xml_root_t root, char* s, size_t len )
  ============================================================================ */
 static short xml_internal_dtd( xml_root_t root, char* s, size_t len )
 {
-	
+
 	char	q, *c, *t, *n = NULL, *v, **ent, **pe;
 	int		i, j;
-	
+
 
 	pe = memcpy( pmalloc( sizeof(XML_NIL) ), XML_NIL, sizeof( XML_NIL ) );
 
@@ -566,16 +566,16 @@ static short xml_internal_dtd( xml_root_t root, char* s, size_t len )
 				break;
 			} else
 			ent[i] = n; /* set entity name */
-		} 
+		}
 		else if( !strncmp( s, "<!ATTLIST", 9 ) )
 		{	/* parse default attributes */
 			t = s + strspn( s + 9, XML_WS ) + 9; /* skip whitespace separator */
 			if( !*t )
 			{
-				
-				
-				
-				
+
+
+
+
 				xml_err( root, t, "unclosed <!ATTLIST" );
 				break;
 			}
@@ -613,10 +613,10 @@ static short xml_internal_dtd( xml_root_t root, char* s, size_t len )
 				if( *s == '#' )
 				{	/* no default value */
 					s += strcspn( s, XML_WS ">" ) - 1;
-					if( *c == ' ' ) continue;		/* cdata is default, 
+					if( *c == ' ' ) continue;		/* cdata is default,
 													 * nothing to do */
 					v = NULL;
-				} 
+				}
 				else if( ( *s == '"' || *s == '\'' ) /* default value */
 							&&	( s = strchr(v = s + 1, *s) ) )
 					*s = '\0';
@@ -640,7 +640,7 @@ static short xml_internal_dtd( xml_root_t root, char* s, size_t len )
 					;
 
 				/* find end of list */
-				root->attr[i] = prealloc( root->attr[i], 
+				root->attr[i] = prealloc( root->attr[i],
 									( j + 4 ) * sizeof( char * ) );
 
 				root->attr[i][j + 3] = NULL;	/* null terminate list */
@@ -650,9 +650,9 @@ static short xml_internal_dtd( xml_root_t root, char* s, size_t len )
 
 				root->attr[i][j] = n;			/* attribute name */
 			}
-		} 
+		}
 		else if( !strncmp( s, "<!--", 4 ) )
-			s = strstr( s + 4, "-->" );	
+			s = strstr( s + 4, "-->" );
 		else if( !strncmp( s, "<?", 2 ) )
 		{	/* processing instructions */
 			if( ( s = strstr(c = s + 2, "?>") ) )
@@ -675,12 +675,12 @@ static short xml_internal_dtd( xml_root_t root, char* s, size_t len )
  ============================================================================ */
 char* xml_str2utf8( char ** s, size_t* len )
 {
-	
+
 	char*	u;
 	size_t	l = 0, sl, max = *len;
 	long	c, d;
 	int		b, be = ( **s == '\xFE' ) ? 1 : ( **s == '\xFF' ) ? 0 : -1;
-	
+
 
 	if( be == -1 ) return NULL; /* not UTF-16 */
 
@@ -717,10 +717,10 @@ char* xml_str2utf8( char ** s, size_t* len )
  ============================================================================ */
 void xml_free_attr( char ** attr )
 {
-	
+
 	int		i = 0;
 	char*	m;
-	
+
 
 	if( !attr || attr == XML_NIL )
 		return;	/* nothing to pfree */
@@ -747,14 +747,14 @@ void xml_free_attr( char ** attr )
  ============================================================================ */
 XML_T xml_parse_str( char* s, size_t len )
 {
-	
+
 	xml_root_t	root = (xml_root_t)xml_new( NULL );
 	char		q, e, *d, **attr, **a = NULL;	/* initialize a to avoid
 												 * compile warning */
 	int			l, i, j;
 	char* 		z;
 	char* 		last = s;
-	
+
 
 	root->m = s;
 	if( !len ) return xml_err( root, NULL, "root tag missing" );
@@ -797,12 +797,12 @@ XML_T xml_parse_str( char* s, size_t len )
 			{	/* new attrib */
 				attr = ( l ) ? prealloc
 					(
-						attr, 
+						attr,
 						( l + 4 ) * sizeof( char * )
 					) : pmalloc( 4 * sizeof( char * ) );	/* allocate space */
 				attr[l + 3] = ( l ) ? prealloc
 					(
-						attr[l + 1], 
+						attr[l + 1],
 						( l / 2 ) + 2
 					) : pmalloc( 2 );	/* mem for list of maloced vals */
 				strcpy( attr[l + 3] + ( l / 2 ), " " );	/* value is not
@@ -837,8 +837,8 @@ XML_T xml_parse_str( char* s, size_t len )
 							;
 						attr[l + 1] = xml_decode
 							(
-								attr[l + 1], 
-								root->ent, 
+								attr[l + 1],
+								root->ent,
 								( a && a[j] ) ? *a[j + 2] : ' '
 							);
 						if( attr[l + 1] < d || attr[l + 1] > s )
@@ -848,7 +848,7 @@ XML_T xml_parse_str( char* s, size_t len )
 
 				while( isspace( *s ) ) s++;
 			}
-			
+
 			for( z = s - 1; z >= last; z-- )
 				if( *z == '\n' )
 					root->lines++;
@@ -865,7 +865,7 @@ XML_T xml_parse_str( char* s, size_t len )
 
 				xml_open_tag( root, d, attr );
 				xml_close_tag( root, d, s );
-			} 
+			}
 			else if( ( q = *s ) == '>' || ( !*s && e == '>' ) )
 			{	/* open tag */
 				*s = '\0';	/* temporarily null terminate tag name */
@@ -876,7 +876,7 @@ XML_T xml_parse_str( char* s, size_t len )
 				if( l ) xml_free_attr( attr );
 				return xml_err( root, d, "missing >" );
 			}
-		} 
+		}
 		else if( *s == '/' )
 		{	/* close tag */
 			s += strcspn( d = s + 1, XML_WS ">" ) + 1;
@@ -892,14 +892,14 @@ XML_T xml_parse_str( char* s, size_t len )
 				||	( *(s += 2) != '>' && *s )
 				||	( !*s && e != '>' ) )
 				return xml_err( root, d, "unclosed <!--" );
-		} 
+		}
 		else if( !strncmp( s, "![CDATA[", 8 ) )
 		{	/* cdata */
 			if( ( s = strstr(s, "]]>") ) )
 				xml_uchar_content( root, d + 8, ( s += 2 ) - d - 10, 'c' );
 			else
 				return xml_err( root, d, "unclosed <![CDATA[" );
-		} 
+		}
 		else if( !strncmp( s, "!DOCTYPE", 8 ) )
 		{	/* dtd */
 			for
@@ -920,7 +920,7 @@ XML_T xml_parse_str( char* s, size_t len )
 				return xml_err( root, d, "unclosed <!DOCTYPE" );
 			d = ( l ) ? strchr( d, '[' ) + 1 : d;
 			if( l && !xml_internal_dtd( root, d, s++ -d ) ) return &root->xml;
-		} 
+		}
 		else if( *s == '?' )
 		{	/* <?...?> processing instructions */
 			do
@@ -942,7 +942,7 @@ XML_T xml_parse_str( char* s, size_t len )
 		*s = '\0';
 		d = ++s;
 		if( *s && *s != '<' )
-		{	
+		{
 			/* tag character content */
 			while( *s && *s != '<' )
 				s++;
@@ -951,7 +951,7 @@ XML_T xml_parse_str( char* s, size_t len )
 				xml_uchar_content( root, d, s - d, '&' );
 			else
 				break;
-		} 
+		}
 		else if( !*s )
 			break;
 	}
@@ -974,7 +974,7 @@ XML_T xml_parse_fp( FILE* fp )
 	xml_root_t	root;
 	size_t		l, len = 0;
 	char*		s;
-	
+
 
 	if( !( s = pmalloc(XML_BUFSIZE) ) )
 		return (XML_T)NULL;
@@ -1002,10 +1002,10 @@ XML_T xml_parse_file( char* file )
 {
 	xml_root_t	root;
 	char*		s;
-	
+
 	if( map_file( &s, file ) != ERR_OK )
 		return (XML_T)NULL;
-	
+
 	root = (xml_root_t)xml_parse_str( s, pstrlen( s ) );
 	root->len = -1; /* so we know to free s in xml_free() */
 
@@ -1017,12 +1017,12 @@ XML_T xml_parse_file( char* file )
     *dst ;
     if length excedes max. a is non-zero for attribute encoding. Returns *dst
  ============================================================================ */
-char* xml_ampencode( char*  s, size_t len, char **  dst, size_t*	 dlen, 
+char* xml_ampencode( char*  s, size_t len, char **  dst, size_t*	 dlen,
 					  size_t*  max, short a )
 {
-	
+
 	char*	e;
-	
+
 
 	for( e = s + len; s != e; s++ )
 	{
@@ -1076,14 +1076,14 @@ char* xml_ampencode( char*  s, size_t len, char **  dst, size_t*	 dlen,
     its length excedes max. start is the location of the previous tag in the ;
     parent tag's character content. Returns *s.
  ============================================================================ */
-static char* xml_toxml_r( XML_T xml, char** s, size_t*	len, size_t*  max, 
+static char* xml_toxml_r( XML_T xml, char** s, size_t*	len, size_t*  max,
 						   size_t start, char*** attr, int tabs )
 {
-	
+
 	int		i, j;
 	char*	txt = ( xml->parent ) ? xml->parent->txt : "";
 	size_t	off = 0;
-	
+
 
 	/* parent character content up to this tag */
 	*s = xml_ampencode( txt + start, xml->off - start, s, len, max, 0 );
@@ -1140,20 +1140,20 @@ static char* xml_toxml_r( XML_T xml, char** s, size_t*	len, size_t*  max,
 
 			/* child */
 			*s = xml_toxml_r( xml->child, s, len, max, 0, attr, tabs + 1 );
-			
+
 			while( *len + tabs > *max )/* preallocate s */
 				*s = prealloc( *s, *max += XML_BUFSIZE );
-			
+
 			for( i = 0; i < tabs; i++ )
 				*len += sprintf( *s +*len, "\t" );
 		}
 		else
 			/* data */
 			*s = xml_ampencode( xml->txt, -1, s, len, max, 0 );
-	
+
 		while( *len + strlen( xml->name ) + 4 + 1 > *max )/* preallocate s */
 			*s = prealloc( *s, *max += XML_BUFSIZE );
-			
+
 		*len += sprintf( *s + *len, "</%s>\n", xml->name );		/* close tag */
 	}
 	else
@@ -1176,14 +1176,14 @@ static char* xml_toxml_r( XML_T xml, char** s, size_t*	len, size_t*  max,
  ============================================================================ */
 char* xml_toxml( XML_T xml )
 {
-	
+
 	XML_T		p = ( xml ) ? xml->parent : NULL, o =
 		( xml ) ? xml->ordered : NULL;
 	xml_root_t	root = (xml_root_t)xml;
 	size_t		len = 0, max = XML_BUFSIZE;
 	char*		s = strcpy( pmalloc( max ), "" ), *t, *n;
 	int			i, j, k;
-	
+
 
 	if( !xml || !xml->name )
 		return prealloc( s, len + 1 );
@@ -1239,11 +1239,11 @@ char* xml_toxml( XML_T xml )
  ============================================================================ */
 void xml_free( XML_T xml )
 {
-	
+
 	xml_root_t	root = (xml_root_t)xml;
 	int			i, j;
 	char** 	a, *s;
-	
+
 
 	if( !xml ) return;
 	xml_free( xml->child );
@@ -1312,16 +1312,16 @@ XML_T xml_new( char* name )
 {
 	static char*	ent[] =
 	{
-		"lt;", 
-		"&#60;", 
-		"gt;", 
-		"&#62;", 
-		"quot;", 
-		"&#34;", 
-		"apos;", 
-		"&#39;", 
-		"amp;", 
-		"&#38;", 
+		"lt;",
+		"&#60;",
+		"gt;",
+		"&#62;",
+		"quot;",
+		"&#34;",
+		"apos;",
+		"&#39;",
+		"amp;",
+		"&#38;",
 		NULL
 	};
 
@@ -1463,19 +1463,19 @@ XML_T xml_set_attr( XML_T xml, char* name, char* value )
 		{	/* first attribute */
 			xml->attr = pmalloc( 4 * sizeof( char * ) );
 			xml->attr[1] = strdup( "" );	/* empty list of malloced vals */
-		} 
+		}
 		else
 			xml->attr = prealloc( xml->attr, ( l + 4 ) * sizeof( char * ) );
 
 		xml->attr[l] = (char*)name;		/* set attribute name */
 		xml->attr[l + 2] = NULL;			/* null terminate attribute list */
-		xml->attr[l + 3] = prealloc( xml->attr[l + 1], 
+		xml->attr[l + 3] = prealloc( xml->attr[l + 1],
 							( c = strlen(xml->attr[l + 1]) ) + 2 );
 		strcpy( xml->attr[l + 3] + c, " " ); /* set name/value
 													as not malloced */
 		if( xml->flags & XML_DUP )
 			xml->attr[l + 3][c] = XML_NAMEM;
-	} 
+	}
 	else if( xml->flags & XML_DUP )
 		pfree( name );	/* name was strduped */
 
@@ -1497,15 +1497,15 @@ XML_T xml_set_attr( XML_T xml, char* name, char* value )
 	{		/* remove attribute */
 		if( xml->attr[c + 1][l / 2] & XML_NAMEM )
 			pfree( xml->attr[l] );
-			
-		memmove( xml->attr + l, xml->attr + l + 2, 
+
+		memmove( xml->attr + l, xml->attr + l + 2,
 					( c - l + 2 ) * sizeof( char * ) );
 
 		xml->attr = prealloc( xml->attr, ( c + 2 ) * sizeof( char * ) );
-		
+
 		/* fix list of which name/vals are malloced */
-		memmove( xml->attr[c + 1] + ( l / 2 ), 
-					xml->attr[c + 1] + ( l / 2 ) + 1, 
+		memmove( xml->attr[c + 1] + ( l / 2 ),
+					xml->attr[c + 1] + ( l / 2 ) + 1,
 						( c / 2 ) - ( l / 2 ) );
 	}
 
@@ -1519,10 +1519,10 @@ XML_T xml_set_attr( XML_T xml, char* name, char* value )
 XML_T xml_set_int_attr( XML_T xml, char* name, plong value )
 {
 	char*		v;
-	
+
 	if( !( v = plong_to_uchar( value ) ) )
 		return (XML_T)NULL;
-	
+
 	return xml_set_attr_f( xml, name, v );
 }
 
@@ -1532,10 +1532,10 @@ XML_T xml_set_int_attr( XML_T xml, char* name, plong value )
 XML_T xml_set_float_attr( XML_T xml, char* name, pdouble value )
 {
 	char*		v;
-	
+
 	if( !( v = pdouble_to_uchar( value ) ) )
 		return (XML_T)NULL;
-	
+
 	return xml_set_attr_f( xml, name, v );
 }
 

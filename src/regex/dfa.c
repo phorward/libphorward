@@ -10,7 +10,7 @@ Usage:	DFA creation and transformation functions
 ----------------------------------------------------------------------------- */
 
 #define PREGEX_LOCAL
-#include <phorward.h>
+#include "phorward.h"
 
 /*NO_DOC*/
 
@@ -812,7 +812,7 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 			{
 				VARS( "last_accept->accept.greedy", "%s",
 					BOOLEAN_STR( last_accept->accept.greedy ) );
-				if(	!last_accept->accept.greedy || 
+				if(	!last_accept->accept.greedy ||
 						( flags & PREGEX_MOD_NONGREEDY ) )
 				{
 					MSG( "This match is not greedy, "

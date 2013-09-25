@@ -10,7 +10,7 @@ Usage:	punion implements a variant data type, which can hold any of
 		Phorward Foundation Toolkit' generic types as declared in pbasis.h.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /** Initializes a punion-element.
 

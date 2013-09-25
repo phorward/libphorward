@@ -10,7 +10,7 @@ Usage:	Direct regular expression access functions running an internal pregex
 		object.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /** Performs a regular expression match on a string, and returns an array of
 matches via a pregex_range-structure, which holds pointers to the begin- and

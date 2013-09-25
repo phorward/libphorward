@@ -9,7 +9,7 @@ Author:	Jan Max Meyer
 Usage:	Provides functions for simple, universal linked-list management.
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /** Pushes a pointer of any type to a linked list of pointers. Therefore, the
 list can act as a stack when using the function list_pop() to pop items off
@@ -28,7 +28,7 @@ LIST* list_push( LIST* list, void* ptr )
 	LIST*	item;
 
 	if( ( elem = (LIST*)pmalloc( sizeof( LIST ) ) ) )
-	{	
+	{
 		elem->pptr = ptr;
 		elem->next = (LIST*)NULL;
 
@@ -39,7 +39,7 @@ LIST* list_push( LIST* list, void* ptr )
 			item = list;
 			while( item->next )
 				item = item->next;
-	
+
 			item->next = elem;
 		}
 	}
@@ -62,7 +62,7 @@ LIST* list_pop( LIST* list, void** ptr )
 {
 	LIST*	item;
 	LIST*	prev	= (LIST*)NULL;
-	
+
 	if( !list )
 	{
 		if( ptr )
@@ -78,21 +78,21 @@ LIST* list_pop( LIST* list, void** ptr )
 			prev = item;
 			item = item->next;
 		}
-		
+
 		if( prev )
 			prev->next = (LIST*)NULL;
-		
+
 		if( ptr )
 			*ptr = item->pptr;
 
 		if( item == list )
 			list = (LIST*)NULL;
-			
+
 		pfree( item );
 
-		item = (LIST*)NULL;		
+		item = (LIST*)NULL;
 	}
-	
+
 	return list;
 }
 
@@ -111,10 +111,10 @@ LIST* list_remove( LIST* list, void* ptr )
 {
 	LIST*	item;
 	LIST*	prev	= (LIST*)NULL;
-	
+
 	if( !ptr )
 		return list;
-	
+
 	for( item = list; item; item = item->next )
 	{
 		if( item->pptr == ptr )
@@ -123,14 +123,14 @@ LIST* list_remove( LIST* list, void* ptr )
 				list = item->next;
 			else
 				prev->next = item->next;
-			
+
 			pfree( item );
 			break;
 		}
-			
+
 		prev = item;
 	}
-	
+
 	return list;
 }
 
@@ -147,7 +147,7 @@ LIST* list_free( LIST* list )
 
 	item = list;
 	while( item )
-	{			
+	{
 		next = item->next;
 		pfree( item );
 
@@ -169,7 +169,7 @@ void list_print( LIST* list, void (*callback)( void* ) )
 	LIST*	item	= list;
 
 	while( item )
-	{	
+	{
 		callback( list->pptr );
 		item = item->next;
 	}
@@ -185,10 +185,10 @@ LIST* list_dup( LIST* src )
 {
 	LIST*	item;
 	LIST*	tar		= (LIST*)NULL;
-	
+
 	for( item = src; item; item = item->next )
 		tar = list_push( tar, item->pptr );
-	
+
 	return tar;
 }
 
@@ -204,18 +204,18 @@ int list_find( LIST* list, void* ptr )
 {
 	LIST*	item;
 	int		cnt		= 0;
-	
+
 	if( !ptr )
 		return -1;
-	
+
 	for( item = list; item; item = item->next )
 	{
 		if( item->pptr == ptr )
 			return cnt;
-			
+
 		cnt++;
 	}
-	
+
 	return -1;
 }
 
@@ -231,18 +231,18 @@ not in the list (if //cnt// goes over the end of the list).
 void* list_getptr( LIST* list, int cnt )
 {
 	LIST*	item;
-	
+
 	if( cnt < 0 )
 		return (void*)NULL;
-	
+
 	for( item = list; item; item = item->next )
-	{		
+	{
 		if( cnt == 0 )
 			return item->pptr;
-		
+
 		cnt--;
 	}
-	
+
 	return (void*)NULL;
 }
 
@@ -258,12 +258,12 @@ int list_diff( LIST* first, LIST* second )
 	int		first_cnt	= 0;
 	int		second_cnt	= 0;
 	LIST*	item;
-	
+
 	for( item = first; item; item = item->next )
 		first_cnt++;
 	for( item = second; item; item = item->next )
 		second_cnt++;
-	
+
 	if( first_cnt == second_cnt && first_cnt > 0 )
 	{
 		for( item = first; item; item = item->next )
@@ -272,13 +272,13 @@ int list_diff( LIST* first, LIST* second )
 			if( list_find( second, item->pptr ) >= 0 )
 				second_cnt--;
 		}
-			
+
 		if( first_cnt != second_cnt  )
 			return 0;
 
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -304,7 +304,7 @@ LIST* list_union( LIST* first, LIST* second )
 	}
 	else
 		ret = list_dup( second );
-	
+
 	return ret;
 }
 
@@ -339,7 +339,7 @@ pboolean list_subset( LIST* list, LIST* subset )
 		for( current = subset; current; current = current->next )
 			if( list_find( list, current->pptr ) < 0 )
 				break;
-		
+
 		if( !current )
 			return TRUE;
 	}
@@ -382,7 +382,7 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) )
 				tmp = list_access( list_next( current ) );
 				current->next->pptr = list_access( current );
 				current->pptr = tmp;
-				
+
 				changes = TRUE;
 			}
 			else if( ret > 0 )
