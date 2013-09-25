@@ -749,6 +749,8 @@ typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgparser			pgparser;
 
 typedef struct _pgtoken				pgtoken;
+typedef struct _pglexer				pglexer;
+
 typedef struct _pgastnode			pgastnode;
 
 typedef enum
@@ -830,8 +832,6 @@ struct _pggrammar
 	plist*			symbols;		
 	LIST*			productions;	
 
-	pregex			lexer;			
-
 	pgnonterminal*	goal;			
 	pgterminal*		eoi;			
 	pgterminal*		error;			
@@ -841,6 +841,7 @@ struct _pggrammar
 struct _pgparser
 {
 	pggrammar*		grammar;		
+	pglexer*		lexer;			
 	pgparadigm		paradigm;		
 
 	LIST*			states;			
@@ -854,6 +855,13 @@ struct _pgtoken
 {
 	pgsymbol*		symbol;			
 	char*			token;			
+};
+
+
+struct _pglexer
+{
+	pregex			lexer;			
+	plist			tokens;			
 };
 
 
@@ -1201,6 +1209,9 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
 
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
 BOOLEAN pg_parser_lr_reset( pgparser* parser );
+
+
+pboolean pg_parser_lr_eval( pgparser* parser, char* input );
 
 
 pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );

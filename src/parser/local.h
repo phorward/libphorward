@@ -35,18 +35,8 @@ typedef struct
 /* LR-Transition */
 typedef struct
 {
-	short			action;			/* Action (Shift, Reduce...) */
-/* Parser actions */
-#define ERROR					0	/* Force parse error */
-#define REDUCE					1 	/* Reduce by Production				0 1 */
-#define SHIFT					2 	/* Shift to State					1 0 */
-#define SHIFT_REDUCE			3 	/* Shift & Reduce by Production		1 1 */
-
 	pgsymbol*		symbol;			/* Symbol */
 
-	union
-	{
-		pglrstate*		state;			/* Shift to state */
-		pgproduction*	production;		/* Reduce by production */
-	} target;
+	pglrstate*		shift;			/* Shift to state */
+	pgproduction*	reduce;			/* Reduce by production */
 } pglrcolumn;

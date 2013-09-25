@@ -77,20 +77,16 @@ static pboolean get_action( pglrpcb* pcb, pgsymbol* sym )
 
 		if( col->symbol == sym )
 		{
-			if( col->action == ERROR )
-				return FALSE; /* Force parse error! */
-
-			if( col->action & REDUCE )
-				pcb->reduce = col->target.production;
-			else if( col->action & SHIFT )
-				pcb->shift = col->target.state;
+			if( !( pcb->shift = col->shift ) &&
+					!( pcb->reduce = col->reduce ) )
+				return FALSE; /* Forced parse error! */
 
 			return TRUE;
 		}
 	}
 
 	/* If no entry was found, reduce by default production */
-	if( ( pcb->reduce = st->def_prod ) )
+	if( ( pcb->reduce = pcb->tos->state->def_prod ) )
 		return TRUE;
 
 	return FALSE;
@@ -111,10 +107,8 @@ static pboolean get_goto( pglrpcb* pcb )
 
 		if( col->symbol == pcb->lhs )
 		{
-			if( col->action & REDUCE )
-				pcb->reduce = col->target.production;
-			else if( col->action & SHIFT )
-				pcb->shift = col->target.state;
+			pcb->shift = col->shift;
+			pcb->reduce = col->reduce;
 
 			return TRUE;
 		}
@@ -153,7 +147,7 @@ pboolean pg_parser_lr_eval( pgparser* parser, char* input )
 	{
 		/* TODO: Read lookahead */
 
-		if( !get_action( pcb, pcb->la->symbol ) )
+		if( !get_action( pcb, pcb->la.symbol ) )
 		{
 			/* TODO: Error recovery */
 		}
@@ -161,18 +155,18 @@ pboolean pg_parser_lr_eval( pgparser* parser, char* input )
 		if( pcb->shift )
 		{
 			push( pcb, pcb->reduce ? (pglrstate*)NULL : pcb->shift, &pcb->la );
-			/* TODO */
+			/* TODO: Get next token */
 		}
 
 		while( pcb->reduce )
 		{
 			pcb->lhs = pg_production_get_lhs( pcb->reduce );
 
-			pop( pcb, pg_production_get_rhs_length( pcb->reduce );
+			pop( pcb, pg_production_get_rhs_length( pcb->reduce ) );
 
 			/* Goal symbol reduced? */
 			if( pcb->lhs == pg_grammar_get_goal( pcb->g )
-					&& plist_count( pcb->st ) == 1 )
+					&& plist_count( &pcb->st ) == 1 )
 				break;
 
 			get_goto( pcb );

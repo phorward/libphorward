@@ -333,6 +333,9 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
 BOOLEAN pg_parser_lr_reset( pgparser* parser );
 
+/* parser/lr.parse.c */
+pboolean pg_parser_lr_eval( pgparser* parser, char* input );
+
 /* parser/parser.c */
 pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
 pgparser* pg_parser_free( pgparser* parser );

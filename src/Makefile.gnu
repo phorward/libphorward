@@ -1,4 +1,4 @@
-# This is a plain Makefile for general Phorward Foundation Toolkit development. 
+# This is a plain Makefile for general Phorward Foundation Toolkit development.
 # It compiles libphorward.a quickly and out of the box without autotools.
 
 CFLAGS += -g -DDEBUG -DUNICODE -DUTF8 -I.
@@ -39,6 +39,7 @@ SRC = \
 	parser/grammar.c \
 	parser/nonterm.c \
 	parser/lr.gen.c \
+	parser/lr.parse.c \
 	parser/parser.c \
 	parser/production.c \
 	parser/symbol.c \

@@ -119,20 +119,16 @@ static pglritem* pg_lritem_free( pglritem* it )
 	return (pglritem*)NULL;
 }
 
-static pglrcolumn* pg_lrcolumn_create( pglrstate* st, short action,
-										pgsymbol* sym, void* ptr )
+static pglrcolumn* pg_lrcolumn_create(
+	pglrstate* st, pgsymbol* sym, pglrstate* shift, pgproduction* reduce )
 {
 	pglrcolumn*		col;
 
 	col = (pglrcolumn*)pmalloc( sizeof( pglrcolumn ) );
 
-	col->action = action;
 	col->symbol = sym;
-
-	if( action & REDUCE )
-		col->target.production = (pgproduction*)ptr;
-	else
-		col->target.state = (pglrstate*)ptr;
+	col->shift = shift;
+	col->reduce = reduce;
 
 	if( pg_symbol_is_terminal( sym ) )
 		st->actions = list_push( st->actions, col );
@@ -433,7 +429,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 						!pg_production_get_rhs( it->prod, it->dot ) ) )
 			{
 				if( !st->closed )
-					pg_lrcolumn_create( st, SHIFT_REDUCE, sym, it->prod );
+					pg_lrcolumn_create( st, sym,
+							(pglrstate*)it->prod, it->prod );
 
 				/* Forget current partition
 					- its not needed anymore... */
@@ -502,7 +499,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			}
 
 			if( sym && !st->closed )
-				pg_lrcolumn_create( st, SHIFT, sym, nst );
+				pg_lrcolumn_create( st, sym, nst, (pgproduction*)NULL );
 		}
 		while( TRUE );
 
@@ -535,13 +532,17 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 						break;
 				}
 
-				if( !o )
-					pg_lrcolumn_create( st, REDUCE, sym, it->prod );
-				else
+				if( o )
+				{
+					/* TODO Conflict resolution */
 					fprintf( stderr,
-						"Conflict %d on %s, now %s\n",
-							col->action, pg_symbol_get_name( col->symbol ),
-								pg_symbol_get_name( sym ) );
+						"Conflict %p/%p on %s, now %s\n",
+							col->shift, col->reduce,
+								pg_symbol_get_name( col->symbol ),
+									pg_symbol_get_name( sym ) );
+				}
+
+				pg_lrcolumn_create( st, sym, (pglrstate*)NULL, it->prod );
 			}
 		}
 	}
@@ -560,31 +561,38 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		{
 			col = (pglrcolumn*)list_access( m );
 
-			if( col->action == SHIFT_REDUCE )
+			if( col->shift && col->reduce )
 				fprintf( stderr, "\t<- Shift/Reduce on '%s' by "
 									"production '%s'\n",
 							pg_symbol_get_name( col->symbol ),
-								pg_production_to_string(
-									col->target.production ) );
-			else if( col->action == SHIFT )
+								pg_production_to_string( col->reduce ) );
+			else if( col->shift )
 				fprintf( stderr, "\t-> Shift on '%s' to state %d\n",
 							pg_symbol_get_name( col->symbol ),
-								list_find( parser->states,
-									col->target.state ) );
-			else
+								list_find( parser->states, col->shift ) );
+			else if( col->reduce )
 				fprintf( stderr, "\t<- Reduce on '%s' by production '%s'\n",
 							pg_symbol_get_name( col->symbol ),
-								pg_production_to_string(
-									col->target.production ) );
+								pg_production_to_string( col->reduce ) );
+			else
+				fprintf( stderr, "\tXX Error on '%s'\n",
+					pg_symbol_get_name( col->symbol ) );
 		}
 
 		LISTFOR( st->gotos, m )
 		{
 			col = (pglrcolumn*)list_access( m );
 
-			fprintf( stderr, "\t-> Goto state state %d on symbol '%s'\n",
-							list_find( parser->states, col->target.state ),
-									pg_symbol_get_name( col->symbol ) );
+			if( col->shift && col->reduce )
+				fprintf( stderr, "\t<- Goto/Reduce by production '%s' in '%s'\n",
+							pg_production_to_string( col->reduce ),
+								pg_symbol_get_name( col->symbol ) );
+			else if( col->shift )
+				fprintf( stderr, "\t-> Goto state %d on '%s'\n",
+							list_find( parser->states, col->shift ),
+								pg_symbol_get_name( col->symbol ) );
+			else
+				MISSINGCASE;
 		}
 	}
 
