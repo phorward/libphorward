@@ -9,10 +9,11 @@ Author:	Jan Max Meyer
 Usage:	Charclass-Handling
 ----------------------------------------------------------------------------- */
 
+#define PREGEX_LOCAL
 #include <phorward.h>
 
 /* Internal */
-pchar ccl_max( void )
+pchar pregex_ccl_max( void )
 {
 #ifdef UNICODE
 	return (pchar)0xffff;
@@ -21,21 +22,35 @@ pchar ccl_max( void )
 #endif
 }
 
+pboolean pregex_ccl_end( pregex_ccl ccl )
+{
+	if( ccl && ( (ccl)->begin == PREGEX_CCL_MAX ) )
+		return TRUE;
+
+	return FALSE;
+}
+
+pregex_ccl pregex_ccl_free( pregex_ccl ccl )
+{
+	return (pregex_ccl)pfree( ccl );
+}
+
+
 /** Returns the number of range pairs within a character class (= its length).
 
 //ccl// is a pointer to the character class to be processed.
 
 To retrieve the number of characters in a character class, use
-ccl_count() instead.
+pregex_ccl_count() instead.
 
 Returns the number of pairs the charclass holds.
 */
-int ccl_size( CCL ccl )
+int pregex_ccl_size( pregex_ccl ccl )
 {
-	CCL		i;
-	int		cnt	= 0;
-	
-	for( i = ccl; i && i->begin != CCL_MAX; i++ )
+	pregex_ccl	i;
+	int			cnt	= 0;
+
+	for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
 		cnt++;
 
 	return cnt;
@@ -47,12 +62,12 @@ int ccl_size( CCL ccl )
 
 Returns the total number of characters the class is holding.
 */
-int ccl_count( CCL ccl )
+int pregex_ccl_count( pregex_ccl ccl )
 {
-	CCL		i;
-	int		cnt	= 0;
-	
-	for( i = ccl; i && i->begin != CCL_MAX; i++ )
+	pregex_ccl	i;
+	int			cnt	= 0;
+
+	for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
 		cnt += ( i->end - i->begin ) + 1;
 
 	return cnt;
@@ -62,13 +77,13 @@ int ccl_count( CCL ccl )
 
 //ccl// is the pointer to the character class to be duplicated.
 
-Returns a pointer to the duplicate of //ccl//, or (CCL)NULL
+Returns a pointer to the duplicate of //ccl//, or (pregex_ccl)NULL
 in error case.
 */
-CCL ccl_dup( CCL ccl )
+pregex_ccl pregex_ccl_dup( pregex_ccl ccl )
 {
-	CCL dup;
-	
+	pregex_ccl dup;
+
 	if( !ccl )
 	{
 		WRONGPARAM;
@@ -76,25 +91,25 @@ CCL ccl_dup( CCL ccl )
 	}
 
 	/*
-		Don't use memdup() here... there is one CRANGE of junk always behind
+		Don't use memdup() here... there is one pregex_cr of junk always behind
 		the terminator, for negating character classes.
 
 		This way it won't come up in valgrind.
 	*/
-	if( !( dup = (CCL)pmalloc( ( ccl_size( ccl ) + 1 + 1 )
-						* sizeof( CRANGE ) ) ) )
-		return (CCL)NULL;
+	if( !( dup = (pregex_ccl)pmalloc( ( pregex_ccl_size( ccl ) + 1 + 1 )
+						* sizeof( pregex_cr ) ) ) )
+		return (pregex_ccl)NULL;
 
-	memcpy( dup, ccl, ( ccl_size( ccl ) + 1 ) * sizeof( CRANGE ) );
+	memcpy( dup, ccl, ( pregex_ccl_size( ccl ) + 1 ) * sizeof( pregex_cr ) );
 
 	return dup;
 }
 
 /* Sort-function required for quick sort */
-static int ccl_sortfunc( const void* v_r1, const void* v_r2 )
+static int pregex_ccl_sortfunc( const void* v_r1, const void* v_r2 )
 {
-	CCL		r1	= (CCL)v_r1;
-	CCL		r2	= (CCL)v_r2;
+	pregex_ccl	r1	= (pregex_ccl)v_r1;
+	pregex_ccl	r2	= (pregex_ccl)v_r2;
 
 	if( r1->begin == r2->begin )
 		return 0;
@@ -116,15 +131,15 @@ class.
 
 Returns a pointer to ccl or to optimized character class memory address.
 */
-static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
+static pregex_ccl pregex_ccl_normalize( pregex_ccl ccl, BOOLEAN mem_opt )
 {
-	CCL		nccl;
-	CCL		i;
-	CCL		j;
-	int		count		= 0;
-	int		oldcount	= 0;
+	pregex_ccl	nccl;
+	pregex_ccl	i;
+	pregex_ccl	j;
+	int			count		= 0;
+	int			oldcount	= 0;
 
-	PROC( "ccl_normalize" );
+	PROC( "pregex_ccl_normalize" );
 	PARMS( "ccl", "%p", ccl );
 
 	do
@@ -132,14 +147,16 @@ static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 		oldcount = count;
 
 		/* First sort the ccl! */
-		qsort( ccl, ccl_size( ccl ), sizeof( CRANGE ), ccl_sortfunc );
+		qsort( ccl, pregex_ccl_size( ccl ),
+				sizeof( pregex_cr ),
+					pregex_ccl_sortfunc );
 
 		/* Then, find intersections and... */
-		for( i = ccl; i->begin != CCL_MAX; i++ )
+		for( i = ccl; i->begin != PREGEX_CCL_MAX; i++ )
 		{
 			j = i + 1;
 
-			if( j->begin != CCL_MAX )
+			if( j->begin != PREGEX_CCL_MAX )
 			{
 				if( j->begin <= i->end && j->end >= i->begin )
 				{
@@ -167,18 +184,18 @@ static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 		}
 
 		/* ...remove them! */
-		for( i = ccl; i && i->begin != CCL_MAX; i++ )
+		for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
 		{
 			for( j = i + 1; ; j++ )
 			{
 				if( j == i + 1 )
 				{
-					if( j->begin == CCL_MAX || i->begin != j->begin )
+					if( j->begin == PREGEX_CCL_MAX || i->begin != j->begin )
 						break;
 				}
 				else
 				{
-					if( ( ( j - 1 )->begin = j->begin ) != CCL_MAX )
+					if( ( ( j - 1 )->begin = j->begin ) != PREGEX_CCL_MAX )
 						( j - 1 )->end = j->end;
 					else
 						break;
@@ -186,13 +203,13 @@ static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 			}
 		}
 	}
-	while( ( count = ccl_size( ccl ) ) != oldcount );
+	while( ( count = pregex_ccl_size( ccl ) ) != oldcount );
 
 	/* Memory optimization */
 	if( mem_opt )
 	{
-		nccl = ccl_dup( ccl );
-		ccl = ccl_free( ccl );
+		nccl = pregex_ccl_dup( ccl );
+		ccl = pregex_ccl_free( ccl );
 		ccl = nccl;
 	}
 
@@ -205,21 +222,21 @@ static CCL ccl_normalize( CCL ccl, BOOLEAN mem_opt )
 
 Returns a pointer to //ccl//.
 */
-CCL ccl_negate( CCL ccl )
+pregex_ccl pregex_ccl_negate( pregex_ccl ccl )
 {
-	pchar	size	= 0;
-	pchar	start;
-	pchar	end		= CCL_MIN;
-	CCL		i;
-	CCL		j;
+	pchar		size	= 0;
+	pchar		start;
+	pchar		end		= PREGEX_CCL_MIN;
+	pregex_ccl	i;
+	pregex_ccl	j;
 
-	PROC( "ccl_negate" );
+	PROC( "pregex_ccl_negate" );
 	PARMS( "ccl", "%p", ccl );
-	
+
 	if( !ccl )
 	{
 		WRONGPARAM;
-		RETURN( (CCL)NULL );
+		RETURN( (pregex_ccl)NULL );
 	}
 
 	for( i = j = ccl; i; i++, size++ )
@@ -233,10 +250,10 @@ CCL ccl_negate( CCL ccl )
 
 			j++;
 
-			if( start == CCL_MAX
-				|| end == CCL_MAX )
+			if( start == PREGEX_CCL_MAX
+				|| end == PREGEX_CCL_MAX )
 			{
-				j->begin = CCL_MAX;
+				j->begin = PREGEX_CCL_MAX;
 				break;
 			}
 		}
@@ -256,37 +273,37 @@ CCL ccl_negate( CCL ccl )
 Returns a pointer to //first//, after //first// has been exteded to the
 amount of characters from //second//. //second// remains untouched.
 */
-CCL ccl_union( CCL first, CCL second )
+pregex_ccl pregex_ccl_union( pregex_ccl first, pregex_ccl second )
 {
-	int		fsize;
-	int		size;
-	CCL		ret;
+	int			fsize;
+	int			size;
+	pregex_ccl	ret;
 
-	PROC( "ccl_union" );
+	PROC( "pregex_ccl_union" );
 	PARMS( "first", "%p", first );
 	PARMS( "second", "%p", second );
-	
+
 	if( !( first && second ) )
 	{
 		WRONGPARAM;
-		RETURN( (CCL)NULL );
+		RETURN( (pregex_ccl)NULL );
 	}
 
 	ret = first;
-	size = ( fsize = ccl_size( first ) ) +
-				ccl_size( second ) + 1;
+	size = ( fsize = pregex_ccl_size( first ) ) +
+				pregex_ccl_size( second ) + 1;
 
-	if( !( ret = prealloc( (CCL)ret,
-			( size  + 2 ) * sizeof( CRANGE ) ) ) )
+	if( !( ret = prealloc( (pregex_ccl)ret,
+			( size  + 2 ) * sizeof( pregex_cr ) ) ) )
 	{
 		MSG( "Ran out of memory" );
-		RETURN( (CCL)NULL );
+		RETURN( (pregex_ccl)NULL );
 	}
 
 	memcpy( ret + fsize, second,
-		( ( ccl_size( second ) ) + 1 ) * sizeof( CRANGE ) );
+		( ( pregex_ccl_size( second ) ) + 1 ) * sizeof( pregex_cr ) );
 
-	ccl_normalize( ret, FALSE );
+	pregex_ccl_normalize( ret, FALSE );
 
 	RETURN( ret );
 }
@@ -298,16 +315,16 @@ to be used for further operations.
 input.
 
 Returns a pointer to the newly created character class. This pointer should be
-released with ccl_free() when its existence is no longer required.
+released with pregex_ccl_free() when its existence is no longer required.
 */
-CCL ccl_create( char* ccldef )
+pregex_ccl pregex_ccl_create( char* ccldef )
 {
-	char*	cclptr;
-	CCL		ccl		= (CCL)NULL;
-	pchar	begin, end, swap;
-	pchar	size	= 0;
+	char*		cclptr;
+	pregex_ccl	ccl		= (pregex_ccl)NULL;
+	pchar		begin, end, swap;
+	pchar		size	= 0;
 
-	PROC( "ccl_create" );
+	PROC( "pregex_ccl_create" );
 	PARMS( "ccldef", "%s", ccldef );
 
 	/*
@@ -361,8 +378,8 @@ CCL ccl_create( char* ccldef )
 				We allocate one extra-pair to avoid reallocation
 				at charclass negation
 			*/
-			if( !( ccl = (CCL)pmalloc( ( size + 2 )
-											* sizeof( CRANGE ) ) ) )
+			if( !( ccl = (pregex_ccl)pmalloc( ( size + 2 )
+											* sizeof( pregex_cr ) ) ) )
 			{
 				MSG( "I think we have a memory problem..." );
 				RETURN( ccl );
@@ -371,11 +388,11 @@ CCL ccl_create( char* ccldef )
 			size = 0;
 		}
 		else
-			ccl[ size++ ].begin = CCL_MAX;
+			ccl[ size++ ].begin = PREGEX_CCL_MAX;
 	}
 	while( !size );
 
-	ccl = ccl_normalize( ccl, TRUE );
+	ccl = pregex_ccl_normalize( ccl, TRUE );
 
 	RETURN( ccl );
 }
@@ -393,11 +410,11 @@ left (FILE*)NULL, so stderr will be used.
 - if > 0 print linewise
 -
 */
-void ccl_print( FILE* stream, CCL ccl, int break_after )
+void pregex_ccl_print( FILE* stream, pregex_ccl ccl, int break_after )
 {
-	CCL		i;
-	int		cnt;
-	char	outstr[ 2 ] [ 10 + 1 ];
+	pregex_ccl	i;
+	int			cnt;
+	char		outstr[ 2 ] [ 10 + 1 ];
 
 	if( !stream )
 		stream = stderr;
@@ -405,7 +422,7 @@ void ccl_print( FILE* stream, CCL ccl, int break_after )
 	if( break_after < 0 )
 		fprintf( stream, "*** begin of ccl %p ***\n", ccl );
 
-	for( i = ccl, cnt = 0; i && i->begin != CCL_MAX; i++, cnt++ )
+	for( i = ccl, cnt = 0; i && i->begin != PREGEX_CCL_MAX; i++, cnt++ )
 	{
 		u8_toutf8( outstr[0], sizeof( outstr[0] ), &( i->begin ), 1 );
 
@@ -428,9 +445,9 @@ void ccl_print( FILE* stream, CCL ccl, int break_after )
 
 /** Converts a character class back to a string representation of the
 character class definition, which in turn can be converted back into a
-character class using ccl_create().
+character class using pregex_ccl_create().
 
-//ccl// is the pointer to character class to be converted. 
+//ccl// is the pointer to character class to be converted.
 //escape//, if TRUE, escapes "unprintable" characters in their hexadecimal
 representation. If FALSE, it prints all characters, except the zero, which will
 be returned as "\0"
@@ -438,24 +455,24 @@ be returned as "\0"
 Returns the generated string that represents the charclass. The returned pointer
 must be released with pfree() after its existence is no longer required.
 */
-char* ccl_to_str( CCL ccl, pboolean escape )
+char* pregex_ccl_to_str( pregex_ccl ccl, pboolean escape )
 {
-	CCL		i;
-	char	from	[ 40 + 1 ];
-	char	to		[ 20 + 1 ];
-	char*	ret		= (char*)NULL;
+	pregex_ccl	i;
+	char		from	[ 40 + 1 ];
+	char		to		[ 20 + 1 ];
+	char*		ret		= (char*)NULL;
 
-	PROC( "ccl_to_str" );
+	PROC( "pregex_ccl_to_str" );
 	PARMS( "ccl", "%p", ccl );
 	PARMS( "escape", "%d", escape );
-	
+
 	if( !( ccl ) )
 	{
 		WRONGPARAM;
 		RETURN( (char*)NULL );
 	}
 
-	for( i = ccl; i && i->begin != CCL_MAX; i++ )
+	for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
 	{
 		if( escape )
 			u8_escape_wchar( from, sizeof( from ), i->begin );
@@ -499,19 +516,19 @@ char* ccl_to_str( CCL ccl, pboolean escape )
 /** Integrates a character range into a character class.
 
 //ccl// is the pointer to the character class to be affected. If //ccl// is
-provided as (CCL)NULL, it will be created by the function.
+provided as (pregex_ccl)NULL, it will be created by the function.
 //begin// is the begin of character range to be integrated.
 //end// is the end of character range to be integrated.
 
 Returns a pointer to the extended version of //ccl// on success, or
-(CCL)NULL on error.
+(pregex_ccl)NULL on error.
 */
-CCL ccl_addrange( CCL ccl, pchar begin, pchar end )
+pregex_ccl pregex_ccl_addrange( pregex_ccl ccl, pchar begin, pchar end )
 {
-	int		size	= ccl_size( ccl );
+	int		size	= pregex_ccl_size( ccl );
 	pchar	tmp;
 
-	PROC( "ccl_addrange" );
+	PROC( "pregex_ccl_addrange" );
 	PARMS( "ccl", "%p", ccl );
 	PARMS( "begin", "%d", begin );
 	PARMS( "end", "%d", end );
@@ -526,12 +543,12 @@ CCL ccl_addrange( CCL ccl, pchar begin, pchar end )
 	}
 
 	/* Better check this... */
-	if( end >= CCL_MAX )
-		end = CCL_MAX - 1;
+	if( end >= PREGEX_CCL_MAX )
+		end = PREGEX_CCL_MAX - 1;
 
 	/* Is something really to do? */
 	for( tmp = begin; tmp <= end; tmp++ )
-		if( !ccl_test( ccl, tmp ) )
+		if( !pregex_ccl_test( ccl, tmp ) )
 			break;
 
 	if( ccl && tmp > end )
@@ -541,22 +558,22 @@ CCL ccl_addrange( CCL ccl, pchar begin, pchar end )
 	}
 
 	/* Re-allocate */
-	if( !( ccl = (CCL)prealloc( ccl,
-			( ccl_size( ccl ) + 1 + 2 )
-				* sizeof( CRANGE ) ) ) )
+	if( !( ccl = (pregex_ccl)prealloc( ccl,
+			( pregex_ccl_size( ccl ) + 1 + 2 )
+				* sizeof( pregex_cr ) ) ) )
 	{
 		MSG( "Can't (re)allocate memory" );
-		RETURN( (CCL)NULL );
+		RETURN( (pregex_ccl)NULL );
 	}
 
 	VARS( "size", "%d", size );
 	ccl[ size ].begin = begin;
 	ccl[ size ].end = end;
 
-	ccl[ ++size ].begin = CCL_MAX;
+	ccl[ ++size ].begin = PREGEX_CCL_MAX;
 
 	MSG( "Normalizing" );
-	RETURN( ccl_normalize( ccl, FALSE ) );
+	RETURN( pregex_ccl_normalize( ccl, FALSE ) );
 }
 
 /** Removes a character range from a character class.
@@ -566,18 +583,18 @@ CCL ccl_addrange( CCL ccl, pchar begin, pchar end )
 //end// is the end of character range to be removed.
 
 Returns a pointer to the modified version of //ccl// on success, or
-(CCL)NULL on error.
+(pregex_ccl)NULL on error.
 */
-CCL ccl_delrange( CCL ccl, pchar begin, pchar end )
+pregex_ccl pregex_ccl_delrange( pregex_ccl ccl, pchar begin, pchar end )
 {
-	int		size;
-	pchar	tmp;
-	CCL		i;
-	
+	int			size;
+	pchar		tmp;
+	pregex_ccl	i;
+
 	if( !( ccl ) )
 	{
 		WRONGPARAM;
-		return (CCL)NULL;
+		return (pregex_ccl)NULL;
 	}
 
 	/* Swap begin and end if required */
@@ -591,9 +608,9 @@ CCL ccl_delrange( CCL ccl, pchar begin, pchar end )
 	/* Which elements do match? */
 	do
 	{
-		size = ccl_size( ccl );
+		size = pregex_ccl_size( ccl );
 
-		for( i = ccl; i && i->begin != CCL_MAX; i++ )
+		for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
 		{
 			if( begin <= i->end && end >= i->begin )
 			{
@@ -602,8 +619,8 @@ CCL ccl_delrange( CCL ccl, pchar begin, pchar end )
 					/* Splitting required! */
 					tmp = i->end;
 					i->end = begin - 1;
-					if( !( ccl = ccl_addrange( ccl, end + 1, tmp ) ) )
-						return (CCL)NULL;
+					if( !( ccl = pregex_ccl_addrange( ccl, end + 1, tmp ) ) )
+						return (pregex_ccl)NULL;
 
 					break;
 				}
@@ -617,33 +634,33 @@ CCL ccl_delrange( CCL ccl, pchar begin, pchar end )
 				{
 					/* Removing whole element required */
 					if( i != &( ccl[ size - 1 ] ) )
-						memcpy( i, &( ccl[ size - 1 ] ), sizeof( CRANGE ) );
+						memcpy( i, &( ccl[ size - 1 ] ), sizeof( pregex_cr ) );
 
-					ccl[ size - 1 ].begin = CCL_MAX;
-					ccl_normalize( ccl, FALSE );
+					ccl[ size - 1 ].begin = PREGEX_CCL_MAX;
+					pregex_ccl_normalize( ccl, FALSE );
 				}
 			}
 		}
 	}
-	while( size != ccl_size( ccl ) );
+	while( size != pregex_ccl_size( ccl ) );
 
-	return ccl_normalize( ccl, FALSE );
+	return pregex_ccl_normalize( ccl, FALSE );
 }
 
 /** Integrates a character into a character class.
 
 //ccl// is the pointer to the character class to be affected. If //ccl// is
-provided as (CCL)NULL, it will be created by the function.
+provided as (pregex_ccl)NULL, it will be created by the function.
 //ch// is the character to be integrated.
 
-The function is a shortcut for ccl_addrange().
+The function is a shortcut for pregex_ccl_addrange().
 
 Returns a pointer to the extended version of //ccl// on success, or
-(CCL)NULL on error.
+(pregex_ccl)NULL on error.
 */
-CCL ccl_add( CCL ccl, pchar ch )
+pregex_ccl pregex_ccl_add( pregex_ccl ccl, pchar ch )
 {
-	return ccl_addrange( ccl, ch, ch );
+	return pregex_ccl_addrange( ccl, ch, ch );
 }
 
 /** Removes a character from a character class.
@@ -651,14 +668,14 @@ CCL ccl_add( CCL ccl, pchar ch )
 //ccl// is the pointer to the character class to be affected.
 //ch// is the character to be removed from //ccl//.
 
-The function is a shortcut for ccl_delrange().
+The function is a shortcut for pregex_ccl_delrange().
 
 Returns a pointer to the modified version of //ccl// on success, or
-(CCL)NULL on error.
+(pregex_ccl)NULL on error.
 */
-CCL ccl_del( CCL ccl, pchar ch )
+pregex_ccl pregex_ccl_del( pregex_ccl ccl, pchar ch )
 {
-	return ccl_delrange( ccl, ch, ch );
+	return pregex_ccl_delrange( ccl, ch, ch );
 }
 
 /** Tests a character class if it cointains a character.
@@ -668,11 +685,11 @@ CCL ccl_del( CCL ccl, pchar ch )
 
 Returns TRUE, if the character matches the class, and FALSE if not.
 */
-pboolean ccl_test( CCL ccl, pchar ch )
+pboolean pregex_ccl_test( pregex_ccl ccl, pchar ch )
 {
-	CCL		i;
+	pregex_ccl	i;
 
-	for( i = ccl; i && i->begin != CCL_MAX; i++ )
+	for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
 	{
 		if( i->begin <= ch && i->end >= ch )
 			return TRUE;
@@ -689,11 +706,11 @@ pboolean ccl_test( CCL ccl, pchar ch )
 
 Returns TRUE if the entire character range matches the class, and FALSE if not.
 */
-pboolean ccl_testrange( CCL ccl, pchar begin, pchar end )
+pboolean pregex_ccl_testrange( pregex_ccl ccl, pchar begin, pchar end )
 {
-	CCL		i;
+	pregex_ccl	i;
 
-	for( i = ccl; i && i->begin != CCL_MAX; i++ )
+	for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
 	{
 		if( begin >= i->begin && end <= i->end )
 			return TRUE;
@@ -709,9 +726,9 @@ pboolean ccl_testrange( CCL ccl, pchar begin, pchar end )
 
 Returns TRUE if the character matches the character class and FALSE if not.
 */
-pboolean ccl_instest( CCL ccl, pchar ch )
+pboolean pregex_ccl_instest( pregex_ccl ccl, pchar ch )
 {
-	if( ccl_test( ccl, ch ) )
+	if( pregex_ccl_test( ccl, ch ) )
 		return TRUE;
 
 	if( iswupper( ch ) )
@@ -719,7 +736,7 @@ pboolean ccl_instest( CCL ccl, pchar ch )
 	else
 		ch = towupper( ch );
 
-	return ccl_test( ccl, ch );
+	return pregex_ccl_test( ccl, ch );
 }
 
 /** Checks for differences in two character classes.
@@ -730,22 +747,22 @@ pboolean ccl_instest( CCL ccl, pchar ch )
 Returns a value < 0 if //first// is lower than //second//, 0 if //first// is
 equal to //second// or a value > 0 if //first// is greater than //second//.
 */
-int ccl_compare( CCL first, CCL second )
+int pregex_ccl_compare( pregex_ccl first, pregex_ccl second )
 {
-	CCL		i;
-	CCL		j;
-	int		ret		= 0;
+	pregex_ccl	i;
+	pregex_ccl	j;
+	int			ret		= 0;
 
-	PROC( "ccl_compare" );
+	PROC( "pregex_ccl_compare" );
 	PARMS( "first", "%p", first );
 	PARMS( "second", "%p", second );
 
-	if( ( ret = (int)ccl_size( first ) -
-					(int)ccl_size( second ) ) != 0 )
+	if( ( ret = (int)pregex_ccl_size( first ) -
+					(int)pregex_ccl_size( second ) ) != 0 )
 		RETURN( ret );
 
 	for( i = first, j = second;
-			i && i->begin != CCL_MAX && j && j->begin != CCL_MAX;
+			i && i->begin != PREGEX_CCL_MAX && j && j->begin != PREGEX_CCL_MAX;
 				i++, j++ )
 		if( !( i->begin == j->begin && i->end == j->end ) )
 			RETURN( ( ( i->begin > j->begin ) ? 1 : -1 ) );
@@ -762,21 +779,21 @@ provided character classes.
 Returns a new character class containing the insersections from //first//
 and //second//.
 */
-CCL ccl_intersect( CCL first, CCL second )
+pregex_ccl pregex_ccl_intersect( pregex_ccl first, pregex_ccl second )
 {
-	psize	cnt				= 0;
-	CCL		i;
-	CCL		j;
-	CCL		intersections	= (CCL)NULL;
-	CRANGE	inter;
+	psize		cnt				= 0;
+	pregex_ccl	i;
+	pregex_ccl	j;
+	pregex_ccl	intersections	= (pregex_ccl)NULL;
+	pregex_cr	inter;
 
-	PROC( "ccl_intersect" );
+	PROC( "pregex_ccl_intersect" );
 	PARMS( "first", "%p", first );
 	PARMS( "second", "%p", second );
 
-	for( i = first; i && i->begin != CCL_MAX; i++ )
+	for( i = first; i && i->begin != PREGEX_CCL_MAX; i++ )
 	{
-		for( j = second; j && j->begin != CCL_MAX; j++ )
+		for( j = second; j && j->begin != PREGEX_CCL_MAX; j++ )
 		{
 			if( j->begin <= i->end && j->end >= i->begin )
 			{
@@ -784,24 +801,25 @@ CCL ccl_intersect( CCL first, CCL second )
 				inter.end = ( i->end > j->end ) ? j->end : i->end;
 
 				VARS( "intersections", "%p", intersections );
-				VARS( "size", "%d", ccl_size( intersections ) + 1 + 1 );
+				VARS( "size", "%d", pregex_ccl_size( intersections ) + 1 + 1 );
 
-				if( !( intersections = (CCL)prealloc(
-						(CCL)intersections,
-							( ccl_size( intersections ) + 1 + 1 )
-								* sizeof( CRANGE ) ) ) )
+				if( !( intersections = (pregex_ccl)prealloc(
+						(pregex_ccl)intersections,
+							( pregex_ccl_size( intersections ) + 1 + 1 )
+								* sizeof( pregex_cr ) ) ) )
 				{
-					RETURN( (CCL)NULL );
+					RETURN( (pregex_ccl)NULL );
 				}
 
-				memcpy( &( intersections[cnt++] ), &inter, sizeof( CRANGE ) );
-				intersections[cnt].begin = CCL_MAX;
+				memcpy( &( intersections[cnt++] ),
+							&inter, sizeof( pregex_cr ) );
+				intersections[cnt].begin = PREGEX_CCL_MAX;
 			}
 		}
 	}
 
 	if( intersections )
-		intersections = ccl_normalize( intersections, TRUE );
+		intersections = pregex_ccl_normalize( intersections, TRUE );
 
 	RETURN( intersections );
 }
@@ -813,25 +831,26 @@ CCL ccl_intersect( CCL first, CCL second )
 //second// is the pointer to the second character class.
 
 Returns a new pointer to a copy of //first//, without the ranges contained in
-//second//. Returns (CCL)NULL in case of memory allocation or parameter
+//second//. Returns (pregex_ccl)NULL in case of memory allocation or parameter
 error.
 */
-CCL ccl_diff( CCL first, CCL second )
+pregex_ccl pregex_ccl_diff( pregex_ccl first, pregex_ccl second )
 {
-	CCL		i;
-	CCL		difference;
+	pregex_ccl		i;
+	pregex_ccl		difference;
 
-	PROC( "ccl_diff" );
+	PROC( "pregex_ccl_diff" );
 	PARMS( "first", "%p", first );
 	PARMS( "second", "%p", second );
 
-	if( !( difference = ccl_dup( first ) ) )
-		return (CCL)NULL;
+	if( !( difference = pregex_ccl_dup( first ) ) )
+		return (pregex_ccl)NULL;
 
-	for( i = second; i && i->begin != CCL_MAX; i++ )
+	for( i = second; i && i->begin != PREGEX_CCL_MAX; i++ )
 	{
-		if( !( difference = ccl_delrange( difference, i->begin, i->end ) ) )
-			return (CCL)NULL;
+		if( !( difference = pregex_ccl_delrange(
+								difference, i->begin, i->end ) ) )
+			return (pregex_ccl)NULL;
 	}
 
 	return difference;

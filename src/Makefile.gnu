@@ -16,7 +16,7 @@ SRC = \
 	base/plist.c \
 	base/memory.c \
 	base/stack.c \
-	ccl/ccl.c \
+	regex/ccl.c \
 	regex/dfa.c \
 	regex/direct.c \
 	regex/misc.c \
@@ -51,7 +51,6 @@ HSRC = \
 	base/llist.h \
 	base/plist.h \
 	base/stack.h \
-	ccl/ccl.h \
 	phorward.tpl.h \
 	regex/pregex.h \
 	parser/grammar.h \

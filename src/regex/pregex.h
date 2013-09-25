@@ -55,7 +55,8 @@ Usage:	Header for the pregex object and functions
 #define PREGEX_ANCHOR_EOW		8	/* End of word */
 
 /* Typedefs */
-typedef CCL						pregex_ccl;
+typedef struct	_pregex_cr		pregex_cr;
+typedef struct	_pregex_cr*		pregex_ccl;
 
 typedef struct	_regex_accept	pregex_accept;
 
@@ -75,6 +76,17 @@ typedef	struct	_pregex_range	pregex_range;
 /* Callback function */
 typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
+
+/* Character class */
+#define PREGEX_CCL_MIN			0x0
+#define PREGEX_CCL_MAX			pregex_ccl_max()
+
+struct _pregex_cr
+{
+	pchar	begin;
+	pchar	end;
+};
+
 
 /* Accepting state definition */
 struct _regex_accept
@@ -157,7 +169,7 @@ enum _regex_ptntype
 struct _regex_ptn
 {
 	pregex_ptntype	type;		/* Pattern state element type */
-	CCL				ccl;		/* Character-class for PREGEX_PTN_CHAR */
+	pregex_ccl		ccl;		/* Character-class for PREGEX_PTN_CHAR */
 
 	pregex_ptn*		child[ 2 ];	/* Links to child */
 	pregex_ptn*		next;		/* Next sequence element */

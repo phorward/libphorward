@@ -408,7 +408,8 @@ later on.
 //fmt// is the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
-Returns a char* Returns the allocated string which cointains the format string with inserted values.
+Returns a char* Returns the allocated string which cointains the format string
+with inserted values.
 */
 char* pasprintf( char* fmt, ... )
 {
