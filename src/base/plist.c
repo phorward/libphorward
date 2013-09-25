@@ -412,7 +412,10 @@ punit* plist_remove( plist* list, punit* e )
 /** Pop last element to //dest// off the list //list//.
 
 Like //list// would be a stack, the last element of the list is poppend and
-its content is written to //dest//, if provided at the end of the list. */
+its content is written to //dest//, if provided at the end of the list.
+
+//dest// can be omitted and given as (void*)NULL, so the last element will
+be popped off the list and discards. */
 pboolean plist_pop( plist* list, void* dest )
 {
 	if( !( list ) )
