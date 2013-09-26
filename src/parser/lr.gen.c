@@ -138,7 +138,6 @@ static pglrcolumn* pg_lrcolumn_create(
 	return col;
 }
 
-
 static pglrstate* pg_lrstate_create( pgparser* parser )
 {
 	pglrstate*	state;

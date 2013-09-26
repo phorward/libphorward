@@ -32,10 +32,10 @@ Usage:	Header for the pregex object and functions
 #define PREGEX_MOD_GLOBAL		4		/* 	Regular expression is run
 											globally, not only for the first
 											match */
-#define PREGEX_MOD_STATIC		8		/*	The regular expression passed for
+#define PREGEX_MOD_STATIC		8		/*	The regular expression passed
 											to the compiler should be converted
 											1:1 as it where a string-constant.
-											Any regex-specific symbol will
+											Any regex-specific symbols will
 											be ignored. */
 #define PREGEX_MOD_NO_REF		16		/*	Don't create references */
 #define PREGEX_MOD_NO_ERRORS	32		/*	Don't report errors, and try to
@@ -71,11 +71,16 @@ typedef struct	_regex_ptn		pregex_ptn;
 typedef struct	_regex_ptndef	pregex_ptndef;
 
 typedef struct	_regex			pregex;
-typedef	struct	_pregex_range	pregex_range;
+typedef	struct	_regex_range	pregex_range;
+
+typedef struct 	_regex_in		pregex_in;
 
 /* Callback function */
 typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
+
+typedef	int 					(*pregex_in_fn)( pregex_in* );
+#define PREGEX_IN_FN_NULL		( (pregex_in_fn)NULL )
 
 /* Character class */
 #define PREGEX_CCL_MIN			0x0
@@ -86,7 +91,6 @@ struct _pregex_cr
 	pchar	begin;
 	pchar	end;
 };
-
 
 /* Accepting state definition */
 struct _regex_accept
@@ -181,7 +185,7 @@ struct _regex_ptndef
 	pregex_accept	accept;		/* Match parameters */
 };
 
-struct _pregex_range
+struct _regex_range
 {
 	char*			begin;		/* Begin pointer */
 	pchar*			pbegin;		/* Wide-character begin pointer */
@@ -203,7 +207,7 @@ struct _regex
 {
 	/* Definition elements */
 
-	pbyte			stat;		/* Current regex status */
+	short			stat;		/* Current regex status */
 	int				flags;		/* Compile- and runtime flags */
 
 	LIST*			defs;		/* List of pattern definitions
@@ -248,4 +252,17 @@ struct _regex
 
 	char*			tmp_str;	/* Temporary string pointer that is bound
 									to the object */
+};
+
+/* Encapsulating input stream (in preparation) */
+struct _regex_in
+{
+	pregex*			regex;		/* Points to associated pregex object */
+
+	pregex_in_fn	get_char;	/* Get character from input stream */
+	pregex_in_fn	unget_char;	/* Unget character from input stream */
+
+	pregex_in_fn	begin;		/* Begin recording */
+	pregex_in_fn	end;		/* End recording */
+	pregex_in_fn	take;		/* Take recorded range */
 };

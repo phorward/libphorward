@@ -395,6 +395,9 @@ typedef	struct	_pregex_range	pregex_range;
 typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
+typedef	int 					(*pregex_in_fn)( pregex*, pregex_in* );
+#define PREGEX_IN_FN_NULL		( (pregex_in_fn)NULL )
+
 
 #define PREGEX_CCL_MIN			0x0
 #define PREGEX_CCL_MAX			pregex_ccl_max()
@@ -404,7 +407,6 @@ struct _pregex_cr
 	pchar	begin;
 	pchar	end;
 };
-
 
 
 struct _regex_accept
@@ -506,11 +508,22 @@ struct _pregex_range
 };
 
 
+struct _regex_in
+{
+	pregex_in_fn	get_char;	
+	pregex_in_fn	unget_char;	
+
+	pregex_in_fn	begin;		
+	pregex_in_fn	end;		
+	pregex_in_fn	take;		
+};
+
+
 struct _regex
 {
 	
 
-	pbyte			stat;		
+	short			stat;		
 	int				flags;		
 
 	LIST*			defs;		
