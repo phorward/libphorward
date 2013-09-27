@@ -389,13 +389,15 @@ typedef struct	_regex_ptn		pregex_ptn;
 typedef struct	_regex_ptndef	pregex_ptndef;
 
 typedef struct	_regex			pregex;
-typedef	struct	_pregex_range	pregex_range;
+typedef	struct	_regex_range	pregex_range;
+
+typedef struct 	_regex_in		pregex_in;
 
 
 typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
-typedef	int 					(*pregex_in_fn)( pregex*, pregex_in* );
+typedef	int 					(*pregex_in_fn)( pregex_in* );
 #define PREGEX_IN_FN_NULL		( (pregex_in_fn)NULL )
 
 
@@ -495,7 +497,7 @@ struct _regex_ptndef
 	pregex_accept	accept;		
 };
 
-struct _pregex_range
+struct _regex_range
 {
 	char*			begin;		
 	pchar*			pbegin;		
@@ -505,17 +507,6 @@ struct _pregex_range
 	psize			len;		
 	int				accept;		
 	pbyte*			user;		
-};
-
-
-struct _regex_in
-{
-	pregex_in_fn	get_char;	
-	pregex_in_fn	unget_char;	
-
-	pregex_in_fn	begin;		
-	pregex_in_fn	end;		
-	pregex_in_fn	take;		
 };
 
 
@@ -554,6 +545,19 @@ struct _regex
 	int				refs_cnt;	
 
 	char*			tmp_str;	
+};
+
+
+struct _regex_in
+{
+	pregex*			regex;		
+
+	pregex_in_fn	get_char;	
+	pregex_in_fn	unget_char;	
+
+	pregex_in_fn	begin;		
+	pregex_in_fn	end;		
+	pregex_in_fn	take;		
 };
 
 
@@ -745,12 +749,7 @@ struct xml
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
-typedef struct _pgparser			pgparser;
 
-typedef struct _pgtoken				pgtoken;
-typedef struct _pglexer				pglexer;
-
-typedef struct _pgastnode			pgastnode;
 
 typedef enum
 {
@@ -837,6 +836,32 @@ struct _pggrammar
 };
 
 
+
+
+typedef struct _pglexer				pglexer;
+
+
+struct _pglexer
+{
+	pregex			lexer;			
+	plist			tokens;			
+};
+
+
+
+
+typedef struct _pgparser			pgparser;
+typedef struct _pgtoken				pgtoken;
+typedef struct _pgastnode			pgastnode;
+
+
+struct _pgtoken
+{
+	pgsymbol*		symbol;			
+	char*			token;			
+};
+
+
 struct _pgparser
 {
 	pggrammar*		grammar;		
@@ -850,20 +875,6 @@ struct _pgparser
 };
 
 
-struct _pgtoken
-{
-	pgsymbol*		symbol;			
-	char*			token;			
-};
-
-
-struct _pglexer
-{
-	pregex			lexer;			
-	plist			tokens;			
-};
-
-
 struct _pgastnode
 {
 	pgtoken*		token;			
@@ -873,6 +884,7 @@ struct _pgastnode
 	pgastnode*		prev;			
 	pgastnode*		next;			
 };
+
 
 
 
@@ -1189,8 +1201,6 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
-
-
 pggrammar* pg_grammar_create( void );
 pggrammar* pg_grammar_free( pggrammar* g );
 void pg_grammar_print( pggrammar* g );
@@ -1206,25 +1216,6 @@ BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterminal* eoi );
 pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name );
 pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal );
 pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
-
-
-BOOLEAN pg_parser_lr_closure( pgparser* parser );
-BOOLEAN pg_parser_lr_reset( pgparser* parser );
-
-
-pboolean pg_parser_lr_eval( pgparser* parser, char* input );
-
-
-pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
-pgparser* pg_parser_free( pgparser* parser );
-BOOLEAN pg_parser_generate( pgparser* p );
-BOOLEAN pg_parser_is_lr( pgparser* p );
-BOOLEAN pg_parser_is_ll( pgparser* p );
-pggrammar* pg_parser_get_grammar( pgparser* p );
-pboolean pg_parser_get_optimize( pgparser* p );
-pboolean pg_parser_set_optimize( pgparser* p, pboolean optimize );
-char* pg_parser_get_source( pgparser* p );
-pboolean pg_parser_set_source( pgparser* p, char* source );
 
 
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );
@@ -1260,6 +1251,25 @@ pgterminal* pg_terminal_get( pggrammar* g, int offset );
 BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern );
 BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
+
+
+BOOLEAN pg_parser_lr_closure( pgparser* parser );
+BOOLEAN pg_parser_lr_reset( pgparser* parser );
+
+
+pboolean pg_parser_lr_eval( pgparser* parser, char* input );
+
+
+pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
+pgparser* pg_parser_free( pgparser* parser );
+BOOLEAN pg_parser_generate( pgparser* p );
+BOOLEAN pg_parser_is_lr( pgparser* p );
+BOOLEAN pg_parser_is_ll( pgparser* p );
+pggrammar* pg_parser_get_grammar( pgparser* p );
+pboolean pg_parser_get_optimize( pgparser* p );
+pboolean pg_parser_set_optimize( pgparser* p, pboolean optimize );
+char* pg_parser_get_source( pgparser* p );
+pboolean pg_parser_set_source( pgparser* p, char* source );
 
 
 #endif 

@@ -13,12 +13,7 @@ Usage:	Definitions for the grammar parsing module
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
-typedef struct _pgparser			pgparser;
 
-typedef struct _pgtoken				pgtoken;
-typedef struct _pglexer				pglexer;
-
-typedef struct _pgastnode			pgastnode;
 
 typedef enum
 {
@@ -105,40 +100,3 @@ struct _pggrammar
 	pgterminal*		error;			/* Error token terminal symbol */
 };
 
-/* Parser */
-struct _pgparser
-{
-	pggrammar*		grammar;		/* The grammar of the parser */
-	pglexer*		lexer;			/* The lexer */
-	pgparadigm		paradigm;		/* Parsing paradigm */
-
-	LIST*			states;			/* The parser states */
-
-	pboolean		optimize;		/* Enable state optimizeion */
-	char*			source;			/* Source */
-};
-
-/* Token */
-struct _pgtoken
-{
-	pgsymbol*		symbol;			/* Symbol of token */
-	char*			token;			/* Token text */
-};
-
-/* Lexer */
-struct _pglexer
-{
-	pregex			lexer;			/* The lexical analyzer as pregex object */
-	plist			tokens;			/* Tokens array */
-};
-
-/* AST */
-struct _pgastnode
-{
-	pgtoken*		token;			/* Token of node */
-
-	pgastnode*		parent;			/* Parent node */
-	pgastnode*		child;			/* First child node */
-	pgastnode*		prev;			/* Previous node in current level */
-	pgastnode*		next;			/* Next node in current level */
-};

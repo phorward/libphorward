@@ -35,15 +35,15 @@ SRC = \
 	union/union.set.c \
 	xml/xml.c \
 	\
-	parser/error.c \
-	parser/grammar.c \
-	parser/nonterm.c \
+	grammar/grammar.c \
+	grammar/nonterm.c \
+	grammar/production.c \
+	grammar/symbol.c \
+	grammar/terminal.c \
+	\
 	parser/lr.gen.c \
 	parser/lr.parse.c \
-	parser/parser.c \
-	parser/production.c \
-	parser/symbol.c \
-	parser/terminal.c
+	parser/parser.c
 
 HSRC = \
 	base/dbg.h \
@@ -51,9 +51,11 @@ HSRC = \
 	base/llist.h \
 	base/plist.h \
 	base/stack.h \
+	grammar/grammar.h \
+	lexer/lexer.h \
+	parser/parser.h \
 	phorward.tpl.h \
 	regex/pregex.h \
-	parser/grammar.h \
 	union/union.h \
 	xml/xml.h \
 	$(PROTOFILE)

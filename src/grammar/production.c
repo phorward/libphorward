@@ -8,7 +8,7 @@ File:	production.c
 Usage:
 ----------------------------------------------------------------------------- */
 
-#include "local.h"
+#include "phorward.h"
 
 /* Constructor */
 

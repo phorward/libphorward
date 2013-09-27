@@ -8,7 +8,7 @@ File:	local.h
 Usage:	Local definitions
 ----------------------------------------------------------------------------- */
 
-#include <phorward.h>
+#include "phorward.h"
 
 /* Closure item */
 typedef struct
