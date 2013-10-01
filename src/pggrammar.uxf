@@ -4,8 +4,8 @@
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>1225</x>
-      <y>231</y>
+      <x>1148</x>
+      <y>112</y>
       <w>118</w>
       <h>342</h>
     </coordinates>
@@ -15,8 +15,8 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>812</x>
-      <y>196</y>
+      <x>735</x>
+      <y>77</y>
       <w>168</w>
       <h>175</h>
     </coordinates>
@@ -37,8 +37,8 @@
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>413</x>
-      <y>483</y>
+      <x>336</x>
+      <y>364</y>
       <w>293</w>
       <h>49</h>
     </coordinates>
@@ -50,8 +50,8 @@ production</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>413</x>
-      <y>294</y>
+      <x>336</x>
+      <y>175</y>
       <w>88</w>
       <h>133</h>
     </coordinates>
@@ -63,8 +63,8 @@ shift</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>1078</x>
-      <y>448</y>
+      <x>1001</x>
+      <y>329</y>
       <w>168</w>
       <h>56</h>
     </coordinates>
@@ -79,8 +79,8 @@ shift</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>959</x>
-      <y>280</y>
+      <x>882</x>
+      <y>161</y>
       <w>132</w>
       <h>49</h>
     </coordinates>
@@ -92,8 +92,8 @@ error</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>623</x>
-      <y>700</y>
+      <x>546</x>
+      <y>581</y>
       <w>105</w>
       <h>21</h>
     </coordinates>
@@ -106,8 +106,8 @@ LR-Parser
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>679</x>
-      <y>623</y>
+      <x>602</x>
+      <y>504</y>
       <w>105</w>
       <h>21</h>
     </coordinates>
@@ -119,8 +119,8 @@ Grammar
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>679</x>
-      <y>658</y>
+      <x>602</x>
+      <y>539</y>
       <w>34</w>
       <h>55</h>
     </coordinates>
@@ -130,8 +130,8 @@ Grammar
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>707</x>
-      <y>623</y>
+      <x>630</x>
+      <y>504</y>
       <w>34</w>
       <h>48</h>
     </coordinates>
@@ -141,8 +141,8 @@ Grammar
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>840</x>
-      <y>322</y>
+      <x>763</x>
+      <y>203</y>
       <w>348</w>
       <h>119</h>
     </coordinates>
@@ -155,8 +155,8 @@ m2=*..1</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>1225</x>
-      <y>301</y>
+      <x>1148</x>
+      <y>182</y>
       <w>76</w>
       <h>195</h>
     </coordinates>
@@ -166,8 +166,8 @@ m2=*..1</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>959</x>
-      <y>259</y>
+      <x>882</x>
+      <y>140</y>
       <w>132</w>
       <h>49</h>
     </coordinates>
@@ -179,8 +179,8 @@ eoi</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>413</x>
-      <y>420</y>
+      <x>336</x>
+      <y>301</y>
       <w>293</w>
       <h>49</h>
     </coordinates>
@@ -192,8 +192,8 @@ reduce</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>567</x>
-      <y>196</y>
+      <x>490</x>
+      <y>77</y>
       <w>168</w>
       <h>119</h>
     </coordinates>
@@ -212,8 +212,8 @@ reduce</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>203</x>
-      <y>217</y>
+      <x>126</x>
+      <y>98</y>
       <w>139</w>
       <h>188</h>
     </coordinates>
@@ -225,8 +225,8 @@ actions</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>959</x>
-      <y>238</y>
+      <x>882</x>
+      <y>119</y>
       <w>132</w>
       <h>49</h>
     </coordinates>
@@ -238,8 +238,8 @@ goal</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>693</x>
-      <y>406</y>
+      <x>616</x>
+      <y>287</y>
       <w>168</w>
       <h>119</h>
     </coordinates>
@@ -256,8 +256,8 @@ goal</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>231</x>
-      <y>238</y>
+      <x>154</x>
+      <y>119</y>
       <w>111</w>
       <h>167</h>
     </coordinates>
@@ -269,8 +269,8 @@ gotos</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>329</x>
-      <y>196</y>
+      <x>252</x>
+      <y>77</y>
       <w>168</w>
       <h>119</h>
     </coordinates>
@@ -289,8 +289,8 @@ gotos</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>749</x>
-      <y>658</y>
+      <x>672</x>
+      <y>539</y>
       <w>34</w>
       <h>55</h>
     </coordinates>
@@ -300,8 +300,8 @@ gotos</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>1078</x>
-      <y>525</y>
+      <x>1001</x>
+      <y>406</y>
       <w>175</w>
       <h>84</h>
     </coordinates>
@@ -320,8 +320,8 @@ gotos</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>476</x>
-      <y>189</y>
+      <x>399</x>
+      <y>70</y>
       <w>104</w>
       <h>49</h>
     </coordinates>
@@ -333,8 +333,8 @@ states</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>749</x>
-      <y>700</y>
+      <x>672</x>
+      <y>581</y>
       <w>105</w>
       <h>21</h>
     </coordinates>
@@ -347,8 +347,8 @@ LL-Parser
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>959</x>
-      <y>224</y>
+      <x>882</x>
+      <y>105</y>
       <w>132</w>
       <h>34</h>
     </coordinates>
@@ -360,8 +360,8 @@ m2=1..1</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>1078</x>
-      <y>196</y>
+      <x>1001</x>
+      <y>77</y>
       <w>168</w>
       <h>147</h>
     </coordinates>
@@ -389,8 +389,8 @@ m2=1..1</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>203</x>
-      <y>392</y>
+      <x>126</x>
+      <y>273</y>
       <w>231</w>
       <h>70</h>
     </coordinates>
@@ -406,8 +406,8 @@ m2=1..1</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>679</x>
-      <y>658</y>
+      <x>602</x>
+      <y>539</y>
       <w>105</w>
       <h>21</h>
     </coordinates>
@@ -420,8 +420,8 @@ Parser
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>714</x>
-      <y>217</y>
+      <x>637</x>
+      <y>98</y>
       <w>111</w>
       <h>49</h>
     </coordinates>
@@ -433,8 +433,8 @@ grammar</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>203</x>
-      <y>497</y>
+      <x>126</x>
+      <y>378</y>
       <w>231</w>
       <h>77</h>
     </coordinates>
@@ -450,8 +450,8 @@ grammar</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>840</x>
-      <y>448</y>
+      <x>763</x>
+      <y>329</y>
       <w>251</w>
       <h>49</h>
     </coordinates>
@@ -464,8 +464,8 @@ m2=*..1</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>413</x>
-      <y>518</y>
+      <x>336</x>
+      <y>399</y>
       <w>678</w>
       <h>49</h>
     </coordinates>
@@ -478,8 +478,8 @@ m1=1..*
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>756</x>
-      <y>329</y>
+      <x>679</x>
+      <y>210</y>
       <w>69</w>
       <h>90</h>
     </coordinates>
@@ -491,8 +491,8 @@ m2=1..1</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>126</x>
-      <y>196</y>
+      <x>49</x>
+      <y>77</y>
       <w>216</w>
       <h>363</h>
     </coordinates>

@@ -88,8 +88,8 @@ typedef	int 					(*pregex_in_fn)( pregex_in* );
 
 struct _pregex_cr
 {
-	pchar	begin;
-	pchar	end;
+	pchar			begin;
+	pchar			end;
 };
 
 /* Accepting state definition */

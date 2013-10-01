@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="12.1">
+  <zoom_level>5</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>980</x>
+      <y>240</y>
+      <w>165</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_ccl&gt;&gt;
+Character Class
+--
+- min: int
+- max: int
+- ranges: llist*
+--
++ add( from: int, to: int )
++ cmp( with: pregex_ccl* ): int
++ count(): int
++ diff( with: pregex_ccl* ): bool
++ dup(): pregex_ccl*
++ instest( from: int, to: int ): bool 
++ intersect( with: pregex_ccl* ): bool
++ negate(): bool
++ parse( str: char* ): bool
++ print( stream: FILE*, mode: short): void
++ size(): int
++ sub( from: int, to: int )
++ test( from: int, to: int ): bool
++ to_string(): char*
++ union( with: pregex_ccl ): bool
+- normalize(): bool</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>1180</x>
+      <y>240</y>
+      <w>70</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_cr&gt;&gt;
+Character Range
+--
+- from: int
+- to: int
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1130</x>
+      <y>240</y>
+      <w>59</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..*
+</panel_attributes>
+    <additional_attributes>15;15;50;15</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>885</x>
+      <y>475</y>
+      <w>165</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_nfa_st&gt;&gt;
+NFA State
+--
+- ccl: pregex_ccl*
+- next: pregex_nfa_st*
+- next2: pregex_nfa_st*
+- level: int
+- accept: pregex_accept
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>790</x>
+      <y>310</y>
+      <w>110</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_accept&gt;&gt;
+Accept state information
+--
+- accept: int
+- greedy: bool
+- anchors: short
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>885</x>
+      <y>310</y>
+      <w>77</w>
+      <h>174</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+accept</panel_attributes>
+    <additional_attributes>55;165;55;25;15;25</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1035</x>
+      <y>475</y>
+      <w>74</w>
+      <h>39</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+next</panel_attributes>
+    <additional_attributes>15;30;55;30;55;15;15;15</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1035</x>
+      <y>465</y>
+      <w>103</w>
+      <h>59</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+next2</panel_attributes>
+    <additional_attributes>15;50;80;50;80;15;15;15</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>940</x>
+      <y>360</y>
+      <w>49</w>
+      <h>124</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+ccl
+</panel_attributes>
+    <additional_attributes>20;115;20;25;40;25</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>660</x>
+      <y>475</y>
+      <w>180</w>
+      <h>145</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_nfa&gt;&gt;
+Nondeterministic Finite Automata
+--
+- states: llist*
+- empty: llist*
+- modifiers: int
+- ref_count: int
+- ref_cur: int
+--
++ from_pattern( ptn: pregex_ptn* ): bool
++ from_string( str: char* ): bool
++ match( str: char*, len: size_t, anchors: int*, 
+         ref: pregex_range**, ref_count: int*,
+         flags: int )
++ print(): void
+- closure( input: llist*, 
+           accept: pregex_accept* ): llist*
+- move( input: llist*, from: int, to: int ): llist*
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>825</x>
+      <y>470</y>
+      <w>69</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..*
+states
+</panel_attributes>
+    <additional_attributes>15;25;60;25</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>585</x>
+      <y>225</y>
+      <w>170</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_ptn&gt;&gt;
+Pattern Definition
+--
+- pattern: pregex_ptnnode
+- accept: pregex_accept
+--
++ to_nfa(): pregex_nfa*
++ to_regex(): char*
++ from_regex( regex: char*, int flags ): bool
++ from_string( str: char* ): bool</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>740</x>
+      <y>235</y>
+      <w>82</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+accept</panel_attributes>
+    <additional_attributes>15;25;60;25;60;75</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>820</x>
+      <y>195</y>
+      <w>110</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_ptnnode&gt;
+Pattern Node
+/(recursive structure)/
+--
+- type: pregex_ptntype
+- ccl: pregex_ccl*
+- child[2]: pregex_ptnnode*
+- next: pregex_ptnnode*
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>740</x>
+      <y>215</y>
+      <w>89</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1..1
+pattern</panel_attributes>
+    <additional_attributes>15;25;80;25</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>870</x>
+      <y>160</y>
+      <w>109</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..2
+child</panel_attributes>
+    <additional_attributes>60;60;90;60;90;25;15;25;15;35</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>860</x>
+      <y>140</y>
+      <w>129</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+next</panel_attributes>
+    <additional_attributes>70;90;110;90;110;25;15;25;15;55</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>855</x>
+      <y>250</y>
+      <w>134</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+ccl
+</panel_attributes>
+    <additional_attributes>20;15;20;45;125;45</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>355</x>
+      <y>120</y>
+      <w>180</w>
+      <h>95</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_dfa_st&gt;&gt;
+DFA State
+--
+- trans: llist*
+- def_trans: pregex_dfa_tr*
+- ref: int*
+- ref_cnt: int
+- accept: pregex_accept
+- done: bool
+- nfa_set: llist*
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>230</x>
+      <y>135</y>
+      <w>134</w>
+      <h>189</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..*
+states
+</panel_attributes>
+    <additional_attributes>25;180;25;25;125;25</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>165</x>
+      <y>315</y>
+      <w>180</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_dfa&gt;&gt;
+Deterministic Finite Automata
+--
+- states: llist*
+- ref_count: int
+--
++ from_nfa( nfa: pregex_nfa* ): bool
++ match( str: char*, len: size_t, anchors: int*, 
+         ref: pregex_range**, ref_count: int*,
+         flags: int )
++ print(): void
+- collect_ref(): bool
+- default_trans(): bool
+- equal_states(...): bool;
+- get_undone_state(): pregex_dfa_st*
+- minimize(): bool
+- same_transitions( trans: list* ): pregex_dfa_st*</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>585</x>
+      <y>120</y>
+      <w>170</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;pregex_dfa_tr&gt;&gt;
+DFA Transition
+--
+- ccl: pregex_ccl*
+- go_to: pregex_dfa_st*
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>740</x>
+      <y>105</y>
+      <w>338</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1..1
+ccl
+</panel_attributes>
+    <additional_attributes>15;25;320;25;320;135</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>480</x>
+      <y>200</y>
+      <w>319</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+accept</panel_attributes>
+    <additional_attributes>30;15;30;120;310;120</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>520</x>
+      <y>140</y>
+      <w>74</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m2=1..1
+go_to</panel_attributes>
+    <additional_attributes>15;25;65;25</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>520</x>
+      <y>105</y>
+      <w>74</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1..*
+trans</panel_attributes>
+    <additional_attributes>15;25;65;25</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>520</x>
+      <y>125</y>
+      <w>74</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1..1
+def_trans</panel_attributes>
+    <additional_attributes>15;25;65;25</additional_attributes>
+  </element>
+</diagram>
