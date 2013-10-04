@@ -55,11 +55,11 @@ static int plist_hash_index( plist* list, char* key )
 }
 
 /* Insert a plist entry node into the hash-table via its key. */
-static pboolean plist_hash_insert( plist* list, punit* e )
+static pboolean plist_hash_insert( plist* list, plistel* e )
 {
-	int		idx;
-	punit*	he;
-	punit** bucket;
+	int			idx;
+	plistel*	he;
+	plistel**	bucket;
 
 	if( !( list && e ) )
 	{
@@ -73,8 +73,8 @@ static pboolean plist_hash_insert( plist* list, punit* e )
 	if( !list->hash && !plist_hash_rebuild( list ) )
 		return FALSE;
 
-	e->hashnext = (punit*)NULL;
-	e->hashprev = (punit*)NULL;
+	e->hashnext = (plistel*)NULL;
+	e->hashprev = (plistel*)NULL;
 
 	bucket = &( list->hash[ plist_hash_index( list, e->key ) ] );
 
@@ -113,7 +113,7 @@ static pboolean plist_hash_insert( plist* list, punit* e )
 /* Rebuild hash-table */
 static pboolean plist_hash_rebuild( plist* list )
 {
-	punit*	e;
+	plistel*	e;
 
 	if( !list )
 	{
@@ -125,9 +125,9 @@ static pboolean plist_hash_rebuild( plist* list )
 		list->hash = pfree( list->hash );
 
 	for( e = plist_first( list ); e; e = plist_next( e ) )
-		e->hashnext = (punit*)NULL;
+		e->hashnext = (plistel*)NULL;
 
-	list->hash = (punit**)pmalloc( list->hashsize * sizeof( punit* ) );
+	list->hash = (plistel**)pmalloc( list->hashsize * sizeof( plistel* ) );
 
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		plist_hash_insert( list, e );
@@ -136,9 +136,9 @@ static pboolean plist_hash_rebuild( plist* list )
 }
 
 /* Drop list element */
-static pboolean punit_drop( punit* e )
+static pboolean plistel_drop( plistel* e )
 {
-	PROC( "punit_drop" );
+	PROC( "plistel_drop" );
 
 	if( !( e ) )
 	{
@@ -193,11 +193,31 @@ plist* plist_create( psize size, pbyte flags )
 	return list;
 }
 
+/** Create a duplicate of //list// and returns it. */
+plist* plist_dup( plist* list )
+{
+	plist*		dup;
+	plistel*	e;
+
+	if( !list )
+	{
+		WRONGPARAM;
+		return (plist*)NULL;
+	}
+
+	dup = plist_create( list->size, list->flags );
+
+	for( e = plist_first( list ); e; e = plist_next( e ) )
+		plist_insert( dup, (plistel*)NULL, e->key, plist_access( e ) );
+
+	return dup;
+}
+
 /** Erase all allocated content of the list //list//. */
 pboolean plist_erase( plist* list )
 {
-	punit*	e;
-	punit*	next;
+	plistel*	e;
+	plistel*	next;
 
 	PROC( "plist_erase" );
 
@@ -212,7 +232,7 @@ pboolean plist_erase( plist* list )
 	{
 		next = e->next;
 
-		punit_drop( e );
+		plistel_drop( e );
 		pfree( e );
 	}
 
@@ -224,10 +244,10 @@ pboolean plist_erase( plist* list )
 	}
 
 	MSG( "Resetting list-object pointers" );
-	list->first = (punit*)NULL;
-	list->last = (punit*)NULL;
-	list->hash = (punit**)NULL;
-	list->unused = (punit*)NULL;
+	list->first = (plistel*)NULL;
+	list->last = (plistel*)NULL;
+	list->hash = (plistel**)NULL;
+	list->unused = (plistel*)NULL;
 	list->count = 0;
 
 	RETURN( TRUE );
@@ -252,11 +272,11 @@ plist* plist_free( plist* list )
 If //pos// is NULL, the new element will be attached to the end of the
 list. If //key// is not NULL, the element will be additionally engaged
 into the lists hash table. */
-punit* plist_insert( plist* list, punit* pos, char* key, void* src )
+plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 {
-	punit*	e;
-	int		size;
-	pbyte*	dst;
+	plistel*	e;
+	int			size;
+	pbyte*		dst;
 
 	PROC( "plist_insert" );
 	PARMS( "list", "%p", list );
@@ -267,7 +287,7 @@ punit* plist_insert( plist* list, punit* pos, char* key, void* src )
 	if( !( list ) )
 	{
 		WRONGPARAM;
-		RETURN( (punit*)NULL );
+		RETURN( (plistel*)NULL );
 	}
 
 	/* Recycle existing elements? */
@@ -276,14 +296,14 @@ punit* plist_insert( plist* list, punit* pos, char* key, void* src )
 		MSG( "Recycle list contains element, recycling" );
 		e = list->unused;
 		list->unused = e->next;
-		memset( e, 0, sizeof( punit ) + list->size );
+		memset( e, 0, sizeof( plistel ) + list->size );
 	}
 	else
 	{
 		MSG( "Allocating new element" );
-		VARS( "size", "%d", sizeof( punit ) + list->size );
+		VARS( "size", "%d", sizeof( plistel ) + list->size );
 
-		e = (punit*)pmalloc( sizeof( punit ) + list->size );
+		e = (plistel*)pmalloc( sizeof( plistel ) + list->size );
 	}
 
 	e->list = list;
@@ -291,7 +311,7 @@ punit* plist_insert( plist* list, punit* pos, char* key, void* src )
 	if( src )
 	{
 		MSG( "data is provided, will copy memory" );
-		VARS( "sizeof( punit )", "%d", sizeof( punit ) );
+		VARS( "sizeof( plistel )", "%d", sizeof( plistel ) );
 		VARS( "size", "%d", list->size );
 
 		memcpy( e + 1, src, list->size );
@@ -344,29 +364,29 @@ punit* plist_insert( plist* list, punit* pos, char* key, void* src )
 Like //list// would be a stack, //src// is pushed at the end of the list.
 This function can only be used for simple linked lists without the hash-table
 feature in use. */
-punit* plist_push( plist* list, void* src )
+plistel* plist_push( plist* list, void* src )
 {
 	if( !( list ) )
 	{
 		WRONGPARAM;
-		return (punit*)NULL;
+		return (plistel*)NULL;
 	}
 
-	return plist_insert( list, (punit*)NULL, (char*)NULL, src );
+	return plist_insert( list, (plistel*)NULL, (char*)NULL, src );
 }
 
 /** Removes the element //e// from the the //list// and free it or puts
  it into the unused element chain if PLIST_MOD_RECYCLE is flagged.
 
-Will always return (punit*)NULL. */
-punit* plist_remove( plist* list, punit* e )
+Will always return (plistel*)NULL. */
+plistel* plist_remove( plist* list, plistel* e )
 {
 	PROC( "plist_remove" );
 
 	if( !( list && e && e->list == list ) )
 	{
 		WRONGPARAM;
-		RETURN( (punit*)NULL );
+		RETURN( (plistel*)NULL );
 	}
 
 	if( e->prev )
@@ -385,13 +405,13 @@ punit* plist_remove( plist* list, punit* e )
 		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
 
 	/* Drop element contents */
-	punit_drop( e );
+	plistel_drop( e );
 
 	/* Put unused node into unused list or free? */
 	if( list->flags & PLIST_MOD_RECYCLE )
 	{
 		MSG( "Will recycle current element" );
-		memset( e, 0, sizeof( punit ) + list->size );
+		memset( e, 0, sizeof( plistel ) + list->size );
 
 		e->next = list->unused;
 		list->unused = e;
@@ -406,7 +426,7 @@ punit* plist_remove( plist* list, punit* e )
 	}
 
 	list->count--;
-	RETURN( (punit*)NULL );
+	RETURN( (plistel*)NULL );
 }
 
 /** Pop last element to //dest// off the list //list//.
@@ -437,14 +457,14 @@ pboolean plist_pop( plist* list, void* dest )
 /** Retrieve list element by its index from the begin.
 
 The function returns the //n//th element of the list //list//. */
-punit* plist_get( plist* list, int n )
+plistel* plist_get( plist* list, int n )
 {
-	punit*	e;
+	plistel*	e;
 
 	if( !( list && n >= 0 ) )
 	{
 		WRONGPARAM;
-		return (punit*)NULL;
+		return (plistel*)NULL;
 	}
 
 	for( e = plist_first( list ); e && n > 0;
@@ -456,22 +476,22 @@ punit* plist_get( plist* list, int n )
 
 /** Retrieve list element by hash-table key.
 
-This function tries to fetch a list entry punit from list //list//
+This function tries to fetch a list entry plistel from list //list//
 with the key //key//.
 */
-punit* plist_get_by_key( plist* list, char* key )
+plistel* plist_get_by_key( plist* list, char* key )
 {
-	int		idx;
-	punit*	e;
+	int			idx;
+	plistel*	e;
 
 	if( !( list && key ) )
 	{
 		WRONGPARAM;
-		return (punit*)NULL;
+		return (plistel*)NULL;
 	}
 
 	if( !list->hash )
-		return (punit*)NULL;
+		return (plistel*)NULL;
 
 	idx = plist_hash_index( list, key );
 
@@ -489,25 +509,25 @@ punit* plist_get_by_key( plist* list, char* key )
 This function returns the list element of the unit within the list //list/
 that is the pointer //ptr//.
 */
-punit* plist_get_by_ptr( plist* list, void* ptr )
+plistel* plist_get_by_ptr( plist* list, void* ptr )
 {
-	punit*	e;
+	plistel*	e;
 
 	if( !( list && ptr ) )
 	{
 		WRONGPARAM;
-		return (punit*)NULL;
+		return (plistel*)NULL;
 	}
 
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		if( plist_access( e ) == ptr )
 			return e;
 
-	return (punit*)NULL;
+	return (plistel*)NULL;
 }
 
 /** Access data-content of the current element //e//. */
-void* plist_access( punit* e )
+void* plist_access( plistel* e )
 {
 	if( !( e ) )
 		return (void*)NULL;
@@ -516,25 +536,25 @@ void* plist_access( punit* e )
 }
 
 /** Access next element of current unit //u//. */
-punit* plist_next( punit* u )
+plistel* plist_next( plistel* u )
 {
 	if( !( u ) )
-		return (punit*)NULL;
+		return (plistel*)NULL;
 
 	return u->next;
 }
 
 /** Access previous element of a current unit //u//. */
-punit* plist_prev( punit* u )
+plistel* plist_prev( plistel* u )
 {
 	if( !( u ) )
-		return (punit*)NULL;
+		return (plistel*)NULL;
 
 	return u->prev;
 }
 
 /** Return the offset of the unit //u// within the list it belongs to. */
-int plist_offset( punit* u )
+int plist_offset( plistel* u )
 {
 	int		off		= 0;
 
@@ -548,19 +568,19 @@ int plist_offset( punit* u )
 }
 
 /** Return first element of list //l//. */
-punit* plist_first( plist* l )
+plistel* plist_first( plist* l )
 {
 	if( !( l ) )
-		return (punit*)NULL;
+		return (plistel*)NULL;
 
 	return l->first;
 }
 
 /** Return last element of list //l//. */
-punit* plist_last( plist* l )
+plistel* plist_last( plist* l )
 {
 	if( !( l ) )
-		return (punit*)NULL;
+		return (plistel*)NULL;
 
 	return l->last;
 }

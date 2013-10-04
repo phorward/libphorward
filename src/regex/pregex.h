@@ -73,9 +73,10 @@ typedef struct	_pregex_cr*		pregex_ccl;
 typedef struct	_regex_accept	pregex_accept;
 
 typedef struct	_regex_nfa_st	pregex_nfa_st;
+typedef struct	_regex_nfa		pregex_nfa;
+
 typedef struct	_regex_dfa_tr	pregex_dfa_tr;
 typedef struct	_regex_dfa_st	pregex_dfa_st;
-typedef struct	_regex_nfa		pregex_nfa;
 typedef struct	_regex_dfa		pregex_dfa;
 
 typedef enum 	_regex_ptntype	pregex_ptntype;

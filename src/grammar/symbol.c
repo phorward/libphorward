@@ -15,7 +15,7 @@ Usage:
 pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name )
 {
 	pgsymbol	sym;
-	punit*	e;
+	plistel*	e;
 	char*		symname;
 
 	PROC( "pg_symbol_create" );
@@ -41,7 +41,7 @@ pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name )
 	sym.id = plist_count( grammar->symbols );
 	sym.name = pstrdup( name );
 
-	e = plist_insert( grammar->symbols, (punit*)NULL, sym.name, (pbyte*)&sym );
+	e = plist_insert( grammar->symbols, (plistel*)NULL, sym.name, (pbyte*)&sym );
 
 	return (pgsymbol*)plist_access( e );
 }
@@ -50,8 +50,8 @@ pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name )
 
 pgsymbol* pg_symbol_free( pgsymbol* symbol )
 {
-	punit*		se;
-	punit*		nse;
+	plistel*		se;
+	plistel*		nse;
 	pgsymbol*	move;
 
 	if( !( symbol ) )

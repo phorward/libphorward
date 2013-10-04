@@ -14,22 +14,7 @@ Usage:	Conversion functions for data type and storage type conversion.
 		wrapper strtol() is the pendant to convert a string into a long value.
 ----------------------------------------------------------------------------- */
 
-/*
- * Includes
- */
 #include "phorward.h"
-
-/*
- * Global variables
- */
-
-/*
- * Defines
- */
-
-/*
- * Functions
- */
 
 /** This functions converts a wide-character string into an UTF-8 string.
 

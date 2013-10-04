@@ -233,24 +233,23 @@ typedef struct llist
 #define PLIST_MOD_WCHAR		8
 
 
-typedef struct Pelem		punit;
+typedef struct Plistel		plistel;
 typedef struct Plist		plist;
 
-typedef	pboolean			(*punit_fn)( pbyte* e );
-#define PELEM_FN_NULL		( (punit_fn)NULL )
+typedef	pboolean			(*plistel_fn)( pbyte* e );
+#define PELEM_FN_NULL		( (plistel_fn)NULL )
 
 
-struct Pelem
+struct Plistel
 {
 	char*					key;
-
 	plist*					list;
 
-	punit*					prev;
-	punit*					next;
+	plistel*				prev;
+	plistel*				next;
 
-	punit*					hashnext;
-	punit*					hashprev;
+	plistel*				hashnext;
+	plistel*				hashprev;
 };
 
 
@@ -261,13 +260,13 @@ struct Plist
 	int						count;
 	int						hashsize;
 
-	punit_fn				destruct_fn;
+	plistel_fn				destruct_fn;
 
-	punit*					unused;
+	plistel*				unused;
 
-	punit*					first;
-	punit*					last;
-	punit**					hash;
+	plistel*				first;
+	plistel*				last;
+	plistel**				hash;
 };
 
 #endif 
@@ -391,9 +390,10 @@ typedef struct	_pregex_cr*		pregex_ccl;
 typedef struct	_regex_accept	pregex_accept;
 
 typedef struct	_regex_nfa_st	pregex_nfa_st;
+typedef struct	_regex_nfa		pregex_nfa;
+
 typedef struct	_regex_dfa_tr	pregex_dfa_tr;
 typedef struct	_regex_dfa_st	pregex_dfa_st;
-typedef struct	_regex_nfa		pregex_nfa;
 typedef struct	_regex_dfa		pregex_dfa;
 
 typedef enum 	_regex_ptntype	pregex_ptntype;
@@ -845,8 +845,10 @@ typedef struct _pglexer				pglexer;
 
 struct _pglexer
 {
-	pregex			lexer;			
-	plist			tokens;			
+	plist		symbols;		
+	pregex_dfa	dfa;			
+
+	plist		tokens;			
 };
 
 
@@ -936,21 +938,22 @@ LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 
 pboolean plist_init( plist* list, psize size, pbyte flags );
 plist* plist_create( psize size, pbyte flags );
+plist* plist_dup( plist* list );
 pboolean plist_erase( plist* list );
 plist* plist_free( plist* list );
-punit* plist_insert( plist* list, punit* pos, char* key, void* src );
-punit* plist_push( plist* list, void* src );
-punit* plist_remove( plist* list, punit* e );
+plistel* plist_insert( plist* list, plistel* pos, char* key, void* src );
+plistel* plist_push( plist* list, void* src );
+plistel* plist_remove( plist* list, plistel* e );
 pboolean plist_pop( plist* list, void* dest );
-punit* plist_get( plist* list, int n );
-punit* plist_get_by_key( plist* list, char* key );
-punit* plist_get_by_ptr( plist* list, void* ptr );
-void* plist_access( punit* e );
-punit* plist_next( punit* u );
-punit* plist_prev( punit* u );
-int plist_offset( punit* u );
-punit* plist_first( plist* l );
-punit* plist_last( plist* l );
+plistel* plist_get( plist* list, int n );
+plistel* plist_get_by_key( plist* list, char* key );
+plistel* plist_get_by_ptr( plist* list, void* ptr );
+void* plist_access( plistel* e );
+plistel* plist_next( plistel* u );
+plistel* plist_prev( plistel* u );
+int plist_offset( plistel* u );
+plistel* plist_first( plist* l );
+plistel* plist_last( plist* l );
 int plist_size( plist* l );
 int plist_count( plist* l );
 
