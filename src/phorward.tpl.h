@@ -154,7 +154,17 @@ typedef char 					pboolean;	/* Phorward Boolean */
 /*
  * Function Prototypes
  */
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "proto.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PHORWARD_H */
 

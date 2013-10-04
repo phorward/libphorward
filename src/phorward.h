@@ -373,6 +373,18 @@ typedef struct
 #define PREGEX_ANCHOR_EOW		8	
 
 
+enum _regex_ptntype
+{
+	PREGEX_PTN_NULL,
+	PREGEX_PTN_CHAR,
+	PREGEX_PTN_SUB,
+	PREGEX_PTN_ALT,
+	PREGEX_PTN_KLE,
+	PREGEX_PTN_POS,
+	PREGEX_PTN_OPT
+};
+
+
 typedef struct	_pregex_cr		pregex_cr;
 typedef struct	_pregex_cr*		pregex_ccl;
 
@@ -406,8 +418,8 @@ typedef	int 					(*pregex_in_fn)( pregex_in* );
 
 struct _pregex_cr
 {
-	pchar	begin;
-	pchar	end;
+	pchar			begin;
+	pchar			end;
 };
 
 
@@ -471,17 +483,6 @@ struct _regex_dfa
 
 
 
-enum _regex_ptntype
-{
-	PREGEX_PTN_NULL,
-	PREGEX_PTN_CHAR,
-	PREGEX_PTN_SUB,
-	PREGEX_PTN_ALT,
-	PREGEX_PTN_KLE,
-	PREGEX_PTN_POS,
-	PREGEX_PTN_OPT
-};
-
 struct _regex_ptn
 {
 	pregex_ptntype	type;		
@@ -518,6 +519,7 @@ struct _regex
 	int				flags;		
 
 	LIST*			defs;		
+
 	union
 	{
 		pregex_nfa	nfa;		
@@ -886,6 +888,12 @@ struct _pgastnode
 };
 
 
+
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 
@@ -1271,6 +1279,10 @@ pboolean pg_parser_set_optimize( pgparser* p, pboolean optimize );
 char* pg_parser_get_source( pgparser* p );
 pboolean pg_parser_set_source( pgparser* p, char* source );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif 
 

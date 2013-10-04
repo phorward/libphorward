@@ -54,6 +54,18 @@ Usage:	Header for the pregex object and functions
 #define PREGEX_ANCHOR_BOW		4	/* Begin of word */
 #define PREGEX_ANCHOR_EOW		8	/* End of word */
 
+/* Regular Expression pattern types */
+enum _regex_ptntype
+{
+	PREGEX_PTN_NULL,
+	PREGEX_PTN_CHAR,
+	PREGEX_PTN_SUB,
+	PREGEX_PTN_ALT,
+	PREGEX_PTN_KLE,
+	PREGEX_PTN_POS,
+	PREGEX_PTN_OPT
+};
+
 /* Typedefs */
 typedef struct	_pregex_cr		pregex_cr;
 typedef struct	_pregex_cr*		pregex_ccl;
@@ -159,17 +171,6 @@ struct _regex_dfa
  * Patterns
  */
 
-enum _regex_ptntype
-{
-	PREGEX_PTN_NULL,
-	PREGEX_PTN_CHAR,
-	PREGEX_PTN_SUB,
-	PREGEX_PTN_ALT,
-	PREGEX_PTN_KLE,
-	PREGEX_PTN_POS,
-	PREGEX_PTN_OPT
-};
-
 struct _regex_ptn
 {
 	pregex_ptntype	type;		/* Pattern state element type */
@@ -212,6 +213,7 @@ struct _regex
 
 	LIST*			defs;		/* List of pattern definitions
 									holding the patterns */
+
 	union
 	{
 		pregex_nfa	nfa;		/* NFA state machine */
