@@ -197,8 +197,8 @@ static void plist_demo_print( plist* list )
 {
 	struct
 	person*		pp;
-	punit*	e;
-	
+	plistel*	e;
+
 	printf( "\n" );
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 	{
@@ -212,75 +212,97 @@ static void plist_demo_print_by_key( plist* list, char* key )
 {
 	struct
 	person*		pp;
-	punit*	e;
+	plistel*	e;
 
 	if( !( e = plist_get_by_key( list, key ) ) )
 	{
 		printf( "<No record found matching '%s'>\n", key );
 		return;
 	}
-	
+
 	pp = (struct person*)plist_access( e );
 	printf( "%s => %s, %s\n", key, pp->last_name, pp->first_name );
+}
+
+static pboolean by_name( void* a, void* b )
+{
+	struct person*	ap = a;
+	struct person*	bp = b;
+
+	if( strcmp( ap->last_name, bp->last_name ) < 0 )
+		return TRUE;
+
+	return FALSE;
 }
 
 void plist_demo( void )
 {
 	struct
-	person	p;
-	plist	my;
-	punit*	e;
+	person		p;
+	plist*		my;
+	plistel*	e;
 
 	printf( "\n*** plist_demo ***\n" );
 
-	plist_init( &my, sizeof( struct person ), PLIST_MOD_RECYCLE );
-	
+	my = plist_create( sizeof( struct person ), PLIST_MOD_RECYCLE );
+
 	/* Add some data */
 	strcpy( p.first_name, "Melinda" );
 	strcpy( p.last_name, "Smith" );
-	plist_insert( &my, NULL, "Smith", (pbyte*)&p );
+	plist_insert( my, NULL, "Smith", (pbyte*)&p );
 
 	strcpy( p.first_name, "Brenda" );
 	strcpy( p.last_name, "Brandon" );
-	plist_insert( &my, NULL, "Brandon", (pbyte*)&p );
+	plist_insert( my, NULL, "Brandon", (pbyte*)&p );
 
 	strcpy( p.first_name, "Monique" );
 	strcpy( p.last_name, "Joli" );
-	e = plist_insert( &my, NULL, "Joli", (pbyte*)&p );
+	e = plist_insert( my, NULL, "Joli", (pbyte*)&p );
 
 	strcpy( p.first_name, "Susan" );
 	strcpy( p.last_name, "Mueller" );
-	plist_insert( &my, NULL, "Mueller", (pbyte*)&p );
-	
+	plist_insert( my, NULL, "Mueller", (pbyte*)&p );
+
 	/* Print content */
-	plist_demo_print( &my );
-	
+	plist_demo_print( my );
+
+	/* Sort list by name */
+	plist_sort( my, by_name );
+
+	/* Print content */
+	plist_demo_print( my );
+
 	/* Find by key */
-	plist_demo_print_by_key( &my, "Joli" );
-	
+	plist_demo_print_by_key( my, "Joli" );
+
 	/* Remove entry */
-	plist_remove( &my, e );
-	
+	plist_remove( my, e );
+
 	/* Find again by key */
-	plist_demo_print_by_key( &my, "Joli" );
-	
+	plist_demo_print_by_key( my, "Joli" );
+
 	/* Add more data - first element will be recycled. */
 	strcpy( p.first_name, "Rei" );
 	strcpy( p.last_name, "Ayanami" );
-	plist_insert( &my, NULL, "Ayanami", (pbyte*)&p );
-	plist_demo_print_by_key( &my, "Ayanami" );
-	
+	plist_insert( my, NULL, "Ayanami", (pbyte*)&p );
+	plist_demo_print_by_key( my, "Ayanami" );
+
 	/* Add data with same key, test collision */
 	strcpy( p.first_name, "Throttle" );
 	strcpy( p.last_name, "Full" );
-	plist_insert( &my, NULL, "Ayanami", (pbyte*)&p );
-	
+	plist_insert( my, NULL, "Ayanami", (pbyte*)&p );
+
+	/* Sort list by name again */
+	plist_sort( my, by_name );
+
 	/* Now print and get by key */
-	plist_demo_print( &my );
-	plist_demo_print_by_key( &my, "Ayanami" );
-	
-	plist_erase( &my );
-	plist_demo_print( &my );
+	plist_demo_print( my );
+	plist_demo_print_by_key( my, "Ayanami" );
+
+	plist_erase( my );
+	plist_demo_print( my );
+
+	my = plist_free( my );
 }
 
 void hashtab_demo( void )
@@ -467,11 +489,11 @@ void union_demo( void )
 
 	/* Get the string */
 	printf( "utest(str) = %s\n", punion_get_string( &utest ) );
-	
+
 	/* Get the string as wide-character value */
 	printf( "utest(wstr) = %ls\n", punion_get_wstring( &utest ) );
-	
-	/* 
+
+	/*
 	 * Well, this is not possible, because the punion object is
 	 * configured to be not convertible by default. Let's enable this.
 	 */

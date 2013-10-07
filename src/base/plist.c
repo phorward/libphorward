@@ -10,6 +10,16 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 
 #include "phorward.h"
 
+/*
+The plist-object implements
+
+- a double linked-list
+- hash-table
+- dynamic stack functionalities
+
+into one tool. It is the replacement for LIST, HASHTAB and STACK.
+*/
+
 /* Local prototypes */
 static pboolean plist_hash_rebuild( plist* list );
 
@@ -193,7 +203,8 @@ plist* plist_create( psize size, pbyte flags )
 	return list;
 }
 
-/** Create a duplicate of //list// and returns it. */
+/** Creates an independent copy of //list// and returns it.
+All elements of //list// are duplicated and stand-alone. */
 plist* plist_dup( plist* list )
 {
 	plist*		dup;
@@ -504,6 +515,102 @@ plistel* plist_get_by_key( plist* list, char* key )
 	return e;
 }
 
+/** Sort a list. */
+pboolean plist_subsort( plistel* from, plistel* to,
+							pboolean (*less)( void*, void * ) )
+{
+	plistel*	a	= from;
+	plistel*	b	= to;
+	plistel*	e;
+	void*		ref;
+
+	int			i	= 0;
+	int			j	= 0;
+
+	if( !( from && to && less ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( from == to )
+		return TRUE;
+
+	while( a != b )
+	{
+		j++;
+
+		if( !( a = a->next ) )
+		{
+			WRONGPARAM;
+			return FALSE;
+		}
+	}
+
+	a = from;
+	ref = plist_access( from );
+
+	do
+	{
+		while( (*less)( plist_access( a ), ref ) )
+		{
+			i++;
+			a = a->next;
+		}
+
+		while( (*less)( ref, plist_access( b ) ) )
+		{
+			j--;
+			b = b->prev;
+		}
+
+		if( i <= j )
+		{
+			if( from == a )
+				from = b;
+			else if( from == b )
+				from = a;
+
+			if( to == a )
+				to = b;
+			else if( to == b )
+				to = a;
+
+			plist_swap( a, b );
+
+			e = a;
+			a = b->next;
+			b = e->prev;
+
+			i++;
+			j--;
+		}
+	}
+	while( i <= j );
+
+	if( ( b != from ) && ( b != from->prev ) )
+		plist_subsort( from, b, less );
+
+	if( ( a != to ) && ( a != to->next ) )
+		plist_subsort( a, to, less );
+
+	return TRUE;
+}
+
+pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) )
+{
+	if( !( list && less ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !plist_first( list ) )
+		return TRUE;
+
+	return plist_subsort( plist_first( list ), plist_last( list ), less );
+}
+
 /** Retrieve list element by pointer.
 
 This function returns the list element of the unit within the list //list/
@@ -565,6 +672,84 @@ int plist_offset( plistel* u )
 		off++;
 
 	return off;
+}
+
+/** Swaps the positions of the list elemements //a// and //b// with each
+other. The elements must be in the same plist object, else the function
+returns with FALSE. */
+pboolean plist_swap( plistel* a, plistel* b )
+{
+	plist*		l;
+	plistel*	aprev;
+	plistel*	anext;
+	plistel*	bprev;
+	plistel*	bnext;
+
+	if( !( a && b ) || b->list != a->list )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( a == b )
+		return TRUE;
+
+	/* Retrieve pointers */
+	l = a->list;
+	aprev = a->prev;
+	anext = a->next;
+	bprev = b->prev;
+	bnext = b->next;
+
+	/* a next */
+	if( anext == b )
+	{
+		a->prev = b;
+		b->next = a;
+	}
+	else if( ( b->next = anext ) )
+		anext->prev = b;
+
+	/* a prev */
+	if( aprev == b )
+	{
+		a->next = b;
+		b->prev = a;
+	}
+	else if( ( b->prev = aprev ) )
+		aprev->next = b;
+
+	/* b next */
+	if( bnext == a )
+	{
+		b->prev = a;
+		a->next = b;
+	}
+	else if( ( a->next = bnext ) )
+		bnext->prev = a;
+
+	/* b prev */
+	if( bprev == a )
+	{
+		b->next = a;
+		a->prev = b;
+	}
+	else if( ( a->prev = bprev ) )
+		bprev->next = a;
+
+	/* first */
+	if( a == l->first )
+		l->first = b;
+	else if( b == l->first )
+		l->first = a;
+
+	/* last */
+	if( a == l->last )
+		l->last = b;
+	else if( b == l->last )
+		l->last = a;
+
+	return TRUE;
 }
 
 /** Return first element of list //l//. */
