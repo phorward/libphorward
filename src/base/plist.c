@@ -412,7 +412,7 @@ plistel* plist_remove( plist* list, plistel* e )
 
 	if( e->hashprev )
 		e->hashprev->hashnext = e->hashnext;
-	else
+	else if( list->hash )
 		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
 
 	/* Drop element contents */
