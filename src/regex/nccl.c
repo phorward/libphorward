@@ -25,6 +25,8 @@ typedef struct
 	int				max;
 
 	plist*			ranges;
+	
+	char*			str;
 } Npregex_ccl;
 
 #undef PREGEX_CCL_MAX
@@ -53,7 +55,9 @@ typedef struct
 #define pregex_ccl_testrange Npregex_ccl_testrange
 #define pregex_ccl_diff Npregex_ccl_diff
 #define pregex_ccl_compare Npregex_ccl_compare
-
+#define pregex_ccl_intersect Npregex_ccl_intersect
+#define pregex_ccl_print Npregex_ccl_print
+#define pregex_ccl_to_str Npregex_ccl_to_str
 
 /* PROTO */
 pregex_ccl* pregex_ccl_create(  int min, int max, char* ccldef );
@@ -551,16 +555,16 @@ pboolean pregex_ccl_negate( pregex_ccl* ccl )
 
 /** Unions two character-classes into a new, normalized one.
 
-//left// is the pointer to the character-class that will be extended to all
-ranges contained in //second//.
-//second// is character-class that will be unioned with //ccl//.
+//ccl// is the pointer to the character-class that will be extended to all
+ranges contained in //add//.
+//add// is character-class that will be unioned with //ccl//.
 
-Returns a pointer to //ccl//, after //ccl// has been exteded to the
-amount of characters from //add//. The character-class //add//
-remains untouched after the operation.
+The function creates and returns a new character-class that is the union
+if //ccl// and //add//.
 */
-pboolean pregex_ccl_union( pregex_ccl* ccl, pregex_ccl* add )
+pregex_ccl* pregex_ccl_union( pregex_ccl* ccl, pregex_ccl* add )
 {
+	pregex_ccl*	un;
 	plistel*	e;
 	pregex_cr*	r;
 
@@ -571,26 +575,28 @@ pboolean pregex_ccl_union( pregex_ccl* ccl, pregex_ccl* add )
 	if( !( ccl && add ) )
 	{
 		WRONGPARAM;
-		RETURN( FALSE );
+		RETURN( (pregex_ccl*)NULL );
 	}
 
 	if( !pregex_ccl_compat( ccl, add ) )
 	{
 		MSG( "Incompatible character-classes" );
-		RETURN( FALSE );
+		RETURN( (pregex_ccl*)NULL );
 	}
+	
+	un = pregex_ccl_dup( ccl );
 
 	for( e = plist_first( add->ranges ); e; e = plist_next( e ) )
 	{
 		r = (pregex_cr*)plist_access( e );
 
-		if( !pregex_ccl_ADDRANGE( ccl, r->begin, r->end ) )
+		if( !pregex_ccl_ADDRANGE( un, r->begin, r->end ) )
 			RETURN( FALSE );
 	}
 
-	pregex_ccl_normalize( ccl );
+	pregex_ccl_normalize( un );
 
-	RETURN( TRUE );
+	RETURN( un );
 }
 
 
@@ -695,6 +701,69 @@ int pregex_ccl_compare( pregex_ccl* left, pregex_ccl* right )
 	RETURN( ret );
 }
 
+/** Returns a new character-class with all characters that exist in both
+provided character-classes.
+
+//ccl// is the pointer to the first character-class.
+//within// is the pointer to the second character-class.
+
+Returns a new character-class containing the insersections from //ccl//
+and //within//. If there is no intersection between both character-classes,
+the function returns (pregex_ccl*)NULL.
+*/
+pregex_ccl* pregex_ccl_intersect( pregex_ccl* ccl, pregex_ccl* within )
+{
+	plistel*	e;
+	plistel*	f;
+	pregex_cr*	r;
+	pregex_cr*	s;
+	pregex_ccl*	in	= (pregex_ccl*)NULL;
+
+	PROC( "pregex_ccl_intersect" );
+	PARMS( "ccl", "%p", ccl );
+	PARMS( "within", "%p", within );
+	
+	if( !( ccl && within ) )
+	{
+		WRONGPARAM;
+		RETURN( (pregex_ccl*)NULL );
+	}
+	
+	if( !pregex_ccl_compat( ccl, within ) )
+	{
+		MSG( "Character-classes are not compatible" );
+		RETURN( (pregex_ccl*)NULL ); 
+	}
+	
+	for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
+	{
+		r = (pregex_cr*)plist_access( e );
+		
+		for( f = plist_first( within->ranges ); f; f = plist_next( f ) )
+		{
+			s = (pregex_cr*)plist_access( f );
+			
+			if( s->begin <= r->end && s->end >= r->begin )
+			{				
+				if( !in )
+					in = pregex_ccl_create( ccl->min, ccl->max, (char*)NULL );
+					
+				pregex_ccl_addrange( in,
+					( r->begin > s->begin ) ? r->begin : s->begin,
+					( r->end > s->end ) ? s->end : r->end );
+			}
+		}
+	}
+
+	if( in )
+	{
+		MSG( "Normalizing" );
+		pregex_ccl_normalize( in );
+	}
+
+	RETURN( in );
+}
+
 /** Parses a character-class definition and returns a normalized character-class
 to be used for further operations.
 
@@ -771,115 +840,11 @@ pregex_ccl* pregex_ccl_free( pregex_ccl* ccl )
 		return (pregex_ccl*)NULL;
 
 	plist_free( ccl->ranges );
+	pfree( ccl->str );
+	
 	pfree( ccl );
 
 	return (pregex_ccl*)NULL;
-}
-
-
-void pregex_ccl_print( pregex_ccl* ccl )
-{
-	plistel*	e;
-	pregex_cr*	cr;
-
-	if( !plist_count( ccl->ranges ) )
-		fprintf( stderr, "No ranges\n" );
-
-	for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
-	{
-		cr = (pregex_cr*)plist_access( e );
-		fprintf( stderr, "%d '%c' - %d '%c'\n",
-			cr->begin, (char)cr->begin,
-				cr->end, (char)cr->end );
-	}
-}
-
-
-int main( int argc, char** argv )
-{
-	pregex_ccl*	c;
-
-	c = pregex_ccl_create( 0, 32768, "A-Za-z0-9" );
-	/*pregex_ccl_addrange( c, 0, 10 );*/
-	pregex_ccl_print( c );
-
-	pregex_ccl_negate( c );
-
-	/* pregex_ccl_delrange( c, 0, 255 ); */
-	pregex_ccl_print( c );
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-
-
-
-/** Print character-class to output stream.
-This function is for debug-purposes only.
-
-//stream// is the output stream to dump the character-class to; This can be
-left (FILE*)NULL, so stderr will be used.
-//ccl// is the pointer to character-class
-
-//break_after// defines:
-- if < 0 print with pointer info
-- if 0 print all into one line
-- if > 0 print linewise
--
-*/
-void pregex_ccl_print( FILE* stream, pregex_cr ccl, int break_after )
-{
-	pregex_cr	i;
-	int			cnt;
-	char		outstr[ 2 ] [ 10 + 1 ];
-
-	if( !stream )
-		stream = stderr;
-
-	if( break_after < 0 )
-		fprintf( stream, "*** begin of ccl %p ***\n", ccl );
-
-	for( i = ccl, cnt = 0; i && i->begin != PREGEX_CCL_MAX; i++, cnt++ )
-	{
-		u8_toutf8( outstr[0], sizeof( outstr[0] ), &( i->begin ), 1 );
-
-		if( i->begin != i->end )
-		{
-			u8_toutf8( outstr[1], sizeof( outstr[1] ), &( i->end ), 1 );
-			fprintf( stream, "'%s' [%d] to '%s' [%d] ",
-				outstr[0], (int)i->begin, outstr[1], (int)i->end );
-		}
-		else
-			fprintf( stream, "'%s' [%d] ", outstr[0], (int)i->begin );
-
-		if( break_after > 0 && cnt % break_after == 0 )
-			fprintf( stream, "\n" );
-	}
-
-	if( break_after < 0 )
-		fprintf( stream, "*** end of ccl %p ***\n", ccl );
 }
 
 /** Converts a character-class back to a string representation of the
@@ -891,127 +856,131 @@ character-class using pregex_ccl_create().
 representation. If FALSE, it prints all characters, except the zero, which will
 be returned as "\0"
 
-Returns the generated string that represents the charclass. The returned pointer
-must be released with pfree() after its existence is no longer required.
+Returns a pointer to the generated string that represents the charclass.
+The returned pointer belongs to the //ccl// and is managed by the
+character-class handling functions, so it should not be freed manually.
 */
-char* pregex_ccl_to_str( pregex_cr ccl, pboolean escape )
+char* pregex_ccl_to_str( pregex_ccl* ccl, pboolean escape )
 {
-	pregex_cr	i;
+	plistel*	e;
+	pregex_cr*	r;
 	char		from	[ 40 + 1 ];
 	char		to		[ 20 + 1 ];
-	char*		ret		= (char*)NULL;
 
 	PROC( "pregex_ccl_to_str" );
 	PARMS( "ccl", "%p", ccl );
-	PARMS( "escape", "%d", escape );
+	PARMS( "escape", "%s", BOOLEAN_STR( escape ) );
 
 	if( !( ccl ) )
 	{
 		WRONGPARAM;
 		RETURN( (char*)NULL );
 	}
-
-	for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
+	
+	ccl->str = pfree( ccl->str );
+	
+	for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
 	{
+		r = (pregex_cr*)plist_access( e );
+		
 		if( escape )
-			u8_escape_wchar( from, sizeof( from ), i->begin );
+			u8_escape_wchar( from, sizeof( from ), r->begin );
 		else
-			u8_toutf8( from, sizeof( from ), &( i->begin ), 1 );
+			u8_toutf8( from, sizeof( from ), &( r->begin ), 1 );
 
-		if( i->begin != i->end )
+		if( r->begin != r->end )
 		{
 			if( escape )
-				u8_escape_wchar( to, sizeof( to ), i->end );
+				u8_escape_wchar( to, sizeof( to ), r->end );
 			else
-				u8_toutf8( to, sizeof( to ), &( i->end ), 1 );
+				u8_toutf8( to, sizeof( to ), &( r->end ), 1 );
 
 			sprintf( from + strlen( from ), "-%s", to );
 		}
 
-		if( !ret )
+		ccl->str = pstrcatstr( ccl->str, from, FALSE );
+	}
+
+	VARS( "ret", "%s", ccl->str );
+	RETURN( ccl->str ? ccl->str : "" );
+}
+
+/** Print character-class to output stream.
+This function is provided for debug-purposes only.
+
+//stream// is the output stream to dump the character-class to; This can be
+left (FILE*)NULL, so //stderr// will be used.
+//ccl// is the pointer to character-class
+
+//break_after// defines:
+- if < 0 print with pointer info
+- if 0 print all into one line
+- if > 0 print linewise
+-
+*/
+void pregex_ccl_print( FILE* stream, pregex_ccl* ccl, int break_after )
+{
+	plistel*	e;
+	pregex_cr*	r;
+	int			cnt;
+	char		outstr[ 2 ] [ 10 + 1 ];
+	
+	if( !( ccl ) )
+		return;
+
+	if( !stream )
+		stream = stderr;
+
+	if( break_after < 0 )
+		fprintf( stream, "*** begin of ccl %p ***\n", ccl );
+
+	for( e = plist_first( ccl->ranges ), cnt = 0;
+			e; e = plist_next( e ), cnt++ )
+	{
+		r = (pregex_cr*)plist_access( e );
+		
+		u8_toutf8( outstr[0], sizeof( outstr[0] ), &( r->begin ), 1 );
+
+		if( r->begin != r->end )
 		{
-			ret = (char*)pmalloc( ( strlen( from ) + 1 )
-									* sizeof( char ) );
-			*ret = '\0';
+			u8_toutf8( outstr[1], sizeof( outstr[1] ), &( r->end ), 1 );
+			fprintf( stream, "'%s' [%d] to '%s' [%d] ",
+				outstr[0], (int)r->begin, outstr[1], (int)r->end );
 		}
 		else
-			ret = (char*)prealloc( (char*)ret,
-					( strlen( ret ) + strlen( from ) + 1 )
-									* sizeof( char ) );
+			fprintf( stream, "'%s' [%d] ", outstr[0], (int)r->begin );
 
-		if( !ret )
-		{
-			MSG( "Out of memory?" );
-			RETURN( (char*)NULL );
-		}
-
-		strcat( ret, from );
+		if( break_after > 0 && cnt % break_after == 0 )
+			fprintf( stream, "\n" );
 	}
 
-	VARS( "ret", "%s", ret );
-	RETURN( ret ? ret : (char*)strdup( "" ) );
+	if( break_after < 0 )
+		fprintf( stream, "*** end of ccl %p ***\n", ccl );
 }
 
-
-
-
-
-
-
-
-/** Returns a new character-class with all characters that exist in both
-provided character-classes.
-
-//first// is the pointer to the first character-class.
-//second// is the pointer to the second character-class.
-
-Returns a new character-class containing the insersections from //first//
-and //second//.
-*/
-pregex_cr pregex_ccl_intersect( pregex_cr first, pregex_cr second )
+int main( int argc, char** argv )
 {
-	psize		cnt				= 0;
-	pregex_cr	i;
-	pregex_cr	j;
-	pregex_cr	intersections	= (pregex_cr)NULL;
-	pregex_cr	inter;
+	pregex_ccl*	c;
+	pregex_ccl*	d;
+	pregex_ccl* e;
 
-	PROC( "pregex_ccl_intersect" );
-	PARMS( "first", "%p", first );
-	PARMS( "second", "%p", second );
+	c = pregex_ccl_create( 0, 255, "A-Za-z0-9" );
+	d = pregex_ccl_create( 0, 255, "A-@." );
 
-	for( i = first; i && i->begin != PREGEX_CCL_MAX; i++ )
-	{
-		for( j = second; j && j->begin != PREGEX_CCL_MAX; j++ )
-		{
-			if( j->begin <= i->end && j->end >= i->begin )
-			{
-				inter.begin = ( i->begin > j->begin ) ? i->begin : j->begin;
-				inter.end = ( i->end > j->end ) ? j->end : i->end;
+	/*pregex_ccl_addrange( c, 0, 10 );*/
+	pregex_ccl_print( NULL, c, 1 );
+	pregex_ccl_print( NULL, d, 1 );
+	
+	e = pregex_ccl_union( c, d );
+	pregex_ccl_print( NULL, e, 1 );
+	
+	printf( "%s\n", pregex_ccl_to_str( e, TRUE ) );
 
-				VARS( "intersections", "%p", intersections );
-				VARS( "size", "%d", pregex_ccl_size( intersections ) + 1 + 1 );
-
-				if( !( intersections = (pregex_cr)prealloc(
-						(pregex_cr)intersections,
-							( pregex_ccl_size( intersections ) + 1 + 1 )
-								* sizeof( pregex_cr ) ) ) )
-				{
-					RETURN( (pregex_cr)NULL );
-				}
-
-				memcpy( &( intersections[cnt++] ),
-							&inter, sizeof( pregex_cr ) );
-				intersections[cnt].begin = PREGEX_CCL_MAX;
-			}
-		}
-	}
-
-	if( intersections )
-		intersections = pregex_ccl_normalize( intersections, TRUE );
-
-	RETURN( intersections );
+	/*
+	pregex_ccl_negate( c );
+	pregex_ccl_delrange( c, 0, 255 );
+	pregex_ccl_print( c );
+	*/
+	
+	return 0;
 }
-
-
-#endif
