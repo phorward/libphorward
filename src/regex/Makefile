@@ -4,4 +4,4 @@
 LIB=../libphorward.a
 
 nccl: nccl.c $(LIB)
-	cc -g -o $@ -I .. nccl.c $(LIB)
+	cc -DDEBUG -g -o $@ -I .. nccl.c $(LIB)
