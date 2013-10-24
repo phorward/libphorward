@@ -119,38 +119,38 @@ void unicode_demo( void )
 
 void pregex_ccl_demo( void )
 {
-	pregex_ccl c;
-	pregex_ccl d;
-	char* x;
+	pregex_ccl* c;
+	pregex_ccl* d;
+	pregex_ccl*	e;
+	char* 		x;
 
 	printf( "\n*** pregex_ccl_demo ***\n\n" );
 
 	/* c = pregex_ccl_create( "\\1-\\n€A-ZX-dÄÜÖ" ); */
-	c = pregex_ccl_create( "^ €A-Z\n" );
-	d = pregex_ccl_create( "A-NXYZ\n" );
+	c = pregex_ccl_create( PREGEX_CCL_MIN, PREGEX_CCL_MAX, "^ €A-Z\n" );
+	d = pregex_ccl_create( PREGEX_CCL_MIN, PREGEX_CCL_MAX, "A-NXYZ\n" );
 
-	d = pregex_ccl_create( "^alles richtig! :)" );
+	d = pregex_ccl_create( PREGEX_CCL_MIN, PREGEX_CCL_MAX,
+							"^alles richtig! :)" );
 	pregex_ccl_print( stderr, c, -1 );
 	pregex_ccl_print( stderr, d, -1 );
 
-	c = pregex_ccl_union( c, d );
-	pregex_ccl_print( stderr, c, -1 );
+	e = pregex_ccl_union( c, d );
+	pregex_ccl_print( stderr, e, -1 );
 
-	pregex_ccl_negate( c );
-	pregex_ccl_print( stderr, c, -1 );
+	pregex_ccl_negate( e );
+	pregex_ccl_print( stderr, e, -1 );
 
-	pregex_ccl_negate( c );
-	pregex_ccl_print( stderr, c, -1 );
+	pregex_ccl_negate( e );
+	pregex_ccl_print( stderr, e, -1 );
 
 	/* e = pregex_ccl_intersect( c, d ); */
-	d = pregex_ccl_delrange( d, '\0', PREGEX_CCL_MAX );
+	pregex_ccl_delrange( d, '\0', PREGEX_CCL_MAX );
+	printf( "e = >%s<\n", pregex_ccl_to_str( d, TRUE ) );
 
-	x = pregex_ccl_to_str( d, TRUE );
-	printf( "e = >%s<\n", x );
-
-	pfree( x );
 	pregex_ccl_free( c );
 	pregex_ccl_free( d );
+	pregex_ccl_free( e );
 }
 
 void list_demo( void )

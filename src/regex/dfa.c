@@ -81,7 +81,7 @@ static void pregex_dfa_delete_state( pregex_dfa_st* st )
 	for( l = st->trans; l; l = list_next( l ) )
 	{
 		tr = (pregex_dfa_tr*)list_access( l );
-		pfree( tr->ccl );
+		pregex_ccl_free( tr->ccl );
 		pfree( tr );
 	}
 
@@ -299,11 +299,12 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	pregex_nfa_st*	nfa_st;
 	int				state_next	= 0;
 	pboolean		changed;
-	pregex_ccl				i;
-	pregex_ccl				ccl;
-	pregex_ccl				test;
-	pregex_ccl				del;
-	pregex_ccl				subset;
+	plistel*		e;
+	pregex_cr*		cr;
+	pregex_ccl*		ccl;
+	pregex_ccl*		test;
+	pregex_ccl*		del;
+	pregex_ccl*		subset;
 
 	PROC( "pregex_dfa_from_nfa" );
 	PARMS( "dfa", "%p", dfa );
@@ -374,31 +375,30 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 			LISTFOR( classes, l )
 			{
-				ccl = (pregex_ccl)list_access( l );
+				ccl = (pregex_ccl*)list_access( l );
 
 				LISTFOR( classes, m )
 				{
 					if( l == m )
 						continue;
 
-					test = (pregex_ccl)list_access( m );
+					test = (pregex_ccl*)list_access( m );
 
 					if( pregex_ccl_count( ccl ) > pregex_ccl_count( test ) )
 						continue;
 
-					if( pregex_ccl_size( ( subset = pregex_ccl_intersect( ccl, test ) ) ) )
+					if( ( subset = pregex_ccl_intersect( ccl, test ) ) )
 					{
 						test = pregex_ccl_diff( test, subset );
+						pregex_ccl_free( subset );
 
-						del = (pregex_ccl)list_access( m );
+						del = (pregex_ccl*)list_access( m );
 						pregex_ccl_free( del );
 
 						list_replace( m, test );
 
 						changed = TRUE;
 					}
-
-					pregex_ccl_free( subset );
 				}
 			}
 
@@ -410,19 +410,20 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		/* Make transitions on constructed alphabet */
 		LISTFOR( classes, l )
 		{
-			ccl = (pregex_ccl)list_access( l );
+			ccl = (pregex_ccl*)list_access( l );
 
 			MSG( "Check char class" );
-			for( i = ccl; i && i->begin != PREGEX_CCL_MAX; i++ )
+			for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
 			{
-				VARS( "i->begin", "%d", i->begin );
-				VARS( "i->end", "%d", i->end );
+				cr = (pregex_cr*)plist_access( e );
+				VARS( "cr->begin", "%d", cr->begin );
+				VARS( "cr->end", "%d", cr->end );
 
 				if( !( transitions = list_dup( current->nfa_set ) ) )
 					RETURN( ERR_MEM );
 
 				if( ( transitions = pregex_nfa_move(
-						nfa, transitions, i->begin, i->end ) ) )
+						nfa, transitions, cr->begin, cr->end ) ) )
 				{
 					transitions = pregex_nfa_epsilon_closure(
 						nfa, transitions, (pregex_accept*)NULL );
@@ -437,7 +438,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					continue;
 				}
 				else if( ( state_next = pregex_dfa_same_transitions(
-					dfa, transitions ) ) >= 0 )
+													dfa, transitions ) ) >= 0 )
 				{
 					/* This transition is already existing in the DFA
 						- discard the transition table! */
@@ -480,26 +481,20 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 								sizeof( pregex_dfa_tr ) ) ) )
 						RETURN( ERR_MEM );
 
-					memset( trans, 0, sizeof( pregex_dfa_tr ) );
-
-					if( !( trans->ccl = pregex_ccl_addrange(
-							trans->ccl, i->begin, i->end ) ) )
-						RETURN( ERR_MEM );
-
+					trans->ccl = pregex_ccl_create(
+									PREGEX_CCL_MIN, PREGEX_CCL_MAX,
+										(char*)NULL );
 					trans->go_to = state_next;
 
 					if( !( current->trans = list_push( current->trans,
 												(void*)trans ) ) )
 						RETURN( ERR_MEM );
 				}
-				else
-				{
-					MSG( "Will extend existing transition entry" );
 
-					if( !( trans->ccl = pregex_ccl_addrange(
-							trans->ccl, i->begin, i->end ) ) )
-						RETURN( ERR_MEM );
-				}
+				/* Append current range */
+				if( !pregex_ccl_addrange( trans->ccl, cr->begin, cr->end ) )
+					RETURN( ERR_MEM );
+
 			}
 
 			pregex_ccl_free( ccl );

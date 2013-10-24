@@ -70,7 +70,8 @@ pregex_nfa_st* pregex_nfa_create_state(
 		MSG( "Required to parse chardef" );
 		VARS( "chardef", "%s", chardef );
 
-		if( !( ptr->ccl = pregex_ccl_create( chardef ) ) )
+		if( !( ptr->ccl = pregex_ccl_create(
+							PREGEX_CCL_MIN, PREGEX_CCL_MAX, chardef ) ) )
 		{
 			MSG( "Out of memory error" );
 			RETURN( (pregex_nfa_st*)NULL );
@@ -79,35 +80,38 @@ pregex_nfa_st* pregex_nfa_create_state(
 		/* Is case-insensitive flag set? */
 		if( flags & PREGEX_MOD_INSENSITIVE )
 		{
-			pregex_ccl		iccl	= (pregex_ccl)NULL;
-			pregex_ccl		c;
-			wchar	ch;
-			wchar	cch;
+			pregex_ccl*	iccl;
+			int			i;
+			wchar		ch;
+			wchar		cch;
+
+			iccl = pregex_ccl_dup( ptr->ccl );
 
 			MSG( "PREGEX_MOD_INSENSITIVE set" );
-			for( c = ptr->ccl; c && c->begin != PREGEX_CCL_MAX; c++ )
+			for( i = 0; ( ch = pregex_ccl_get( ptr->ccl, i ) ) >= 0; i++ )
 			{
-				for( ch = c->begin; ch <= c->end; ch++ )
-				{
-					if( iswupper( ch ) )
-						cch = towlower( ch );
-					else
-						cch = towupper( ch );
+				VARS( "ch", "%d", ch );
+#ifdef UNICODE
+				if( iswupper( ch ) )
+					cch = towlower( ch );
+				else
+					cch = towupper( ch );
+#else
+				if( isupper( ch ) )
+					cch = tolower( ch );
+				else
+					cch = toupper( ch );
+#endif
+				VARS( "cch", "%d", cch );
+				if( ch == cch )
+					continue;
 
-					VARS( "cch", "%d", cch );
-
-					if( !( iccl = pregex_ccl_addrange( iccl, cch, cch ) ) )
-						RETURN( (pregex_nfa_st*)NULL );
-				}
+				if( !pregex_ccl_add( iccl, cch ) )
+					RETURN( (pregex_nfa_st*)NULL );
 			}
 
-			if( !( ptr->ccl = pregex_ccl_union( ptr->ccl, iccl ) ) )
-			{
-				pregex_ccl_free( iccl );
-				RETURN( (pregex_nfa_st*)NULL );
-			}
-
-			pregex_ccl_free( iccl );
+			pregex_ccl_free( ptr->ccl );
+			ptr->ccl = iccl;
 		}
 
 		VARS( "ptr->ccl", "%p", ptr->ccl );
@@ -141,6 +145,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 
 		if( s->ccl )
 			pregex_ccl_print( stderr, s->ccl, 0 );
+
 		fprintf( stderr, "\n\n" );
 	}
 
@@ -544,9 +549,12 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 			RETURN( ERR_MEM );
 
 		ch = u8_parse_char( &pstr );
-
 		VARS( "ch", "%d", ch );
-		if( !( nfa_st->ccl = pregex_ccl_addrange( (pregex_ccl)NULL, ch, ch ) ) )
+
+		nfa_st->ccl = pregex_ccl_create(
+						PREGEX_CCL_MIN, PREGEX_CCL_MAX, (char*)NULL );
+
+		if( !( nfa_st->ccl && pregex_ccl_add( nfa_st->ccl, ch ) ) )
 			RETURN( ERR_MEM );
 
 		/* Is case-insensitive flag set? */
@@ -568,7 +576,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 
 			MSG( "Case-insensity set, new character evaluated is:" );
 			VARS( "ch", "%d", ch );
-			if( !( nfa_st->ccl = pregex_ccl_addrange( nfa_st->ccl, ch, ch ) ) )
+			if( !pregex_ccl_add( nfa_st->ccl, ch ) )
 				RETURN( ERR_MEM );
 		}
 

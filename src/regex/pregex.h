@@ -67,8 +67,8 @@ enum _regex_ptntype
 };
 
 /* Typedefs */
-typedef struct	_pregex_cr		pregex_cr;
-typedef struct	_pregex_cr*		pregex_ccl;
+typedef struct	_regex_cr		pregex_cr;
+typedef struct	_regex_ccl		pregex_ccl;
 
 typedef struct	_regex_accept	pregex_accept;
 
@@ -97,12 +97,26 @@ typedef	int 					(*pregex_in_fn)( pregex_in* );
 
 /* Character class */
 #define PREGEX_CCL_MIN			0x0
-#define PREGEX_CCL_MAX			pregex_ccl_max()
+#if UNICODE
+#define PREGEX_CCL_MAX			0xffff
+#else
+#define PREGEX_CCL_MAX			0xff
+#endif
 
-struct _pregex_cr
+struct _regex_cr
 {
 	pchar			begin;
 	pchar			end;
+};
+
+struct _regex_ccl
+{
+	int				min;
+	int				max;
+
+	plist*			ranges;
+
+	char*			str;
 };
 
 /* Accepting state definition */
@@ -116,7 +130,7 @@ struct _regex_accept
 /* NFA state */
 struct _regex_nfa_st
 {
-	pregex_ccl		ccl;		/* Char-class; if ccl == (pregex_ccl*)NULL,
+	pregex_ccl*		ccl;		/* Char-class; if ccl == (pregex_ccl*)NULL,
 									then this is an epsilon edge */
 	pregex_nfa_st*	next;		/* First following NFA-state */
 	pregex_nfa_st*	next2;		/* Second following NFA-state */
@@ -140,7 +154,7 @@ struct _regex_nfa
 /* DFA transition */
 struct _regex_dfa_tr
 {
-	pregex_ccl		ccl;		/* Matching character range */
+	pregex_ccl*		ccl;		/* Matching character range */
 	unsigned int	go_to;		/* Go-To state */
 };
 
@@ -175,7 +189,7 @@ struct _regex_dfa
 struct _regex_ptn
 {
 	pregex_ptntype	type;		/* Pattern state element type */
-	pregex_ccl		ccl;		/* Character-class for PREGEX_PTN_CHAR */
+	pregex_ccl*		ccl;		/* Character-class for PREGEX_PTN_CHAR */
 
 	pregex_ptn*		child[ 2 ];	/* Links to child */
 	pregex_ptn*		next;		/* Next sequence element */

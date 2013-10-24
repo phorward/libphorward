@@ -40,7 +40,7 @@ and will be directly assigned to the object.
 Returns a pregex_ptn-node which can be child of another pattern construct or
 part of a sequence.
 */
-pregex_ptn* pregex_ptn_create_char( pregex_ccl ccl )
+pregex_ptn* pregex_ptn_create_char( pregex_ccl* ccl )
 {
 	pregex_ptn*		pattern;
 
@@ -70,7 +70,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 	wchar		ch;
 	pregex_ptn*	chr;
 	pregex_ptn*	seq		= (pregex_ptn*)NULL;
-	pregex_ccl	ccl;
+	pregex_ccl*	ccl;
 
 	PROC( "pregex_ptn_create_string" );
 	PARMS( "str", "%s", str );
@@ -98,8 +98,14 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 
 		VARS( "ch", "%d", ch );
 
-		if( !( ccl = pregex_ccl_addrange( (pregex_ccl)NULL, ch, ch ) ) )
+		ccl = pregex_ccl_create(
+					PREGEX_CCL_MIN, PREGEX_CCL_MAX, (char*)NULL );
+
+		if( !( ccl && pregex_ccl_add( ccl, ch ) ) )
+		{
+			pregex_ccl_free( ccl );
 			RETURN( (pregex_ptn*)NULL );
+		}
 
 		/* Is case-insensitive flag set? */
 		if( flags & PREGEX_MOD_INSENSITIVE )
@@ -121,12 +127,18 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 			MSG( "Case-insensity set, new character evaluated is:" );
 			VARS( "ch", "%d", ch );
 
-			if( !( ccl = pregex_ccl_addrange( ccl, ch, ch ) ) )
+			if( !pregex_ccl_add( ccl, ch ) )
+			{
+				pregex_ccl_free( ccl );
 				RETURN( (pregex_ptn*)NULL );
+			}
 		}
 
 		if( !( chr = pregex_ptn_create_char( ccl ) ) )
+		{
+			pregex_ccl_free( ccl );
 			RETURN( (pregex_ptn*)NULL );
+		}
 
 		if( ! seq )
 			seq = chr;
@@ -375,11 +387,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 		fprintf( stderr, "%s%s", gap, types[ ptn->type ] );
 
 		if( ptn->type == PREGEX_PTN_CHAR )
-		{
-			ptr = pregex_ccl_to_str( ptn->ccl, FALSE );
-			fprintf( stderr, " %s", ptr );
-			pfree( ptr );
-		}
+			fprintf( stderr, " %s", pregex_ccl_to_str( ptn->ccl, FALSE ) );
 
 		fprintf( stderr, "\n" );
 
@@ -415,13 +423,14 @@ static void pregex_char_to_REGEX( char* str, int size,
 }
 
 /* Internal function for pregex_ptn_to_regex() */
-static void pregex_ccl_to_REGEX( char** str, pregex_ccl ccl )
+static void pregex_ccl_to_REGEX( char** str, pregex_ccl* ccl )
 {
-	pregex_ccl		neg		= (pregex_ccl)NULL;
-	pregex_ccl		i;
+	int				i;
+	pregex_cr*		cr;
 	char			from	[ 40 + 1 ];
 	char			to		[ 20 + 1 ];
 	pboolean		range	= FALSE;
+	pboolean		neg		= FALSE;
 
 	/*
 	 * If this caracter class contains PREGEX_CCL_MAX characters, then simply
@@ -440,9 +449,12 @@ static void pregex_ccl_to_REGEX( char** str, pregex_ccl ccl )
 	ccl = pregex_ccl_dup( ccl );
 
 	if( pregex_ccl_count( ccl ) > 128 )
-		ccl = neg = pregex_ccl_negate( ccl );
+	{
+		neg = TRUE;
+		pregex_ccl_negate( ccl );
+	}
 
-	if( neg || pregex_ccl_count( ccl) > 1 )
+	if( neg || pregex_ccl_count( ccl ) > 1 )
 	{
 		range = TRUE;
 		*str = pstrcatchar( *str, '[' );
@@ -452,24 +464,25 @@ static void pregex_ccl_to_REGEX( char** str, pregex_ccl ccl )
 
 	/*
 	 * If ccl contains a dash,
-	 * it should be printed first!
+	 * this must be printed first!
 	 */
 	if( pregex_ccl_test( ccl, '-' ) )
 	{
 		*str = pstrcatchar( *str, '-' );
-		ccl = pregex_ccl_delrange( ccl, '-', '-' );
+		pregex_ccl_del( ccl, '-' );
 	}
 
 	/* Go trough ccl... */
-	for( i = ccl; !pregex_ccl_end( i ); i++ )
+
+	for( i = 0; !( cr = (pregex_cr*)plist_get( ccl->ranges, i ) ); i++ )
 	{
 		pregex_char_to_REGEX( from, (int)sizeof( from ),
-								i->begin, TRUE, range );
+									cr->begin, TRUE, range );
 
-		if( i->begin != i->end )
+		if( cr->begin != cr->end )
 		{
 			pregex_char_to_REGEX( to, (int)sizeof( to ),
-									i->end, TRUE, range );
+										cr->end, TRUE, range );
 			psprintf( from + strlen( from ), "-%s", to );
 		}
 
@@ -925,7 +938,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 static int parse_char( pregex_ptn** ptn, char** pstr,
 		pregex_accept* accept, int flags )
 {
-	pregex_ccl			ccl;
+	pregex_ccl*	ccl;
 	int			ret;
 	pregex_ptn*	alter;
 	wchar		single;
@@ -959,12 +972,21 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 			if( accept )
 				accept->greedy = FALSE;
 
-			if( !( ccl = pregex_ccl_addrange( (pregex_ccl)NULL,
-							PREGEX_CCL_MIN, PREGEX_CCL_MAX ) ) )
+			ccl = pregex_ccl_create(
+					PREGEX_CCL_MIN, PREGEX_CCL_MAX, (char*)NULL );
+
+			if( !( ccl && pregex_ccl_addrange( ccl,
+								PREGEX_CCL_MIN, PREGEX_CCL_MAX ) ) )
+			{
+				pregex_ccl_free( ccl );
 				return ERR_MEM;
+			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
+			{
+				pregex_ccl_free( ccl );
 				return ERR_MEM;
+			}
 
 			(*pstr)++;
 			break;
@@ -981,14 +1003,19 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 					(*pstr)++;
 				}
 
-				if( !( ccl = pregex_ccl_create( (*pstr) + 1 ) ) )
+				if( !( ccl = pregex_ccl_create(
+								PREGEX_CCL_MIN, PREGEX_CCL_MAX,
+									(*pstr) + 1 ) ) )
 					return ERR_MEM;
 
 				if( neg )
-					ccl = pregex_ccl_negate( ccl );
+					pregex_ccl_negate( ccl );
 
 				if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
+				{
+					pregex_ccl_free( ccl );
 					return ERR_MEM;
+				}
 
 				*zero = restore;
 				*pstr = zero + 1;
@@ -999,11 +1026,20 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 		default:
 			*pstr += pstrparsechar( &single, *pstr, TRUE );
 
-			if( !( ccl = pregex_ccl_add( (pregex_ccl)NULL, single ) ) )
+			ccl = pregex_ccl_create(
+					PREGEX_CCL_MIN, PREGEX_CCL_MAX, (char*)NULL );
+
+			if( !( ccl && pregex_ccl_add( ccl, single ) ) )
+			{
+				pregex_ccl_free( ccl );
 				return ERR_MEM;
+			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
+			{
+				pregex_ccl_free( ccl );
 				return ERR_MEM;
+			}
 
 			break;
 	}

@@ -384,8 +384,8 @@ enum _regex_ptntype
 };
 
 
-typedef struct	_pregex_cr		pregex_cr;
-typedef struct	_pregex_cr*		pregex_ccl;
+typedef struct	_regex_cr		pregex_cr;
+typedef struct	_regex_ccl		pregex_ccl;
 
 typedef struct	_regex_accept	pregex_accept;
 
@@ -414,12 +414,26 @@ typedef	int 					(*pregex_in_fn)( pregex_in* );
 
 
 #define PREGEX_CCL_MIN			0x0
-#define PREGEX_CCL_MAX			pregex_ccl_max()
+#if UNICODE
+#define PREGEX_CCL_MAX			0xffff
+#else
+#define PREGEX_CCL_MAX			0xff
+#endif
 
-struct _pregex_cr
+struct _regex_cr
 {
 	pchar			begin;
 	pchar			end;
+};
+
+struct _regex_ccl
+{
+	int				min;
+	int				max;
+
+	plist*			ranges;
+
+	char*			str;
 };
 
 
@@ -433,7 +447,7 @@ struct _regex_accept
 
 struct _regex_nfa_st
 {
-	pregex_ccl		ccl;		
+	pregex_ccl*		ccl;		
 	pregex_nfa_st*	next;		
 	pregex_nfa_st*	next2;		
 
@@ -456,7 +470,7 @@ struct _regex_nfa
 
 struct _regex_dfa_tr
 {
-	pregex_ccl		ccl;		
+	pregex_ccl*		ccl;		
 	unsigned int	go_to;		
 };
 
@@ -486,7 +500,7 @@ struct _regex_dfa
 struct _regex_ptn
 {
 	pregex_ptntype	type;		
-	pregex_ccl		ccl;		
+	pregex_ccl*		ccl;		
 
 	pregex_ptn*		child[ 2 ];	
 	pregex_ptn*		next;		
@@ -976,27 +990,27 @@ void stack_dump( char* file, int line, char* name, STACK* stack, void (*pf)( pby
 int stack_count( STACK* stack );
 
 
-pchar pregex_ccl_max( void );
-pboolean pregex_ccl_end( pregex_ccl ccl );
-pregex_ccl pregex_ccl_free( pregex_ccl ccl );
-int pregex_ccl_size( pregex_ccl ccl );
-int pregex_ccl_count( pregex_ccl ccl );
-pregex_ccl pregex_ccl_dup( pregex_ccl ccl );
-pregex_ccl pregex_ccl_negate( pregex_ccl ccl );
-pregex_ccl pregex_ccl_union( pregex_ccl first, pregex_ccl second );
-pregex_ccl pregex_ccl_create( char* ccldef );
-void pregex_ccl_print( FILE* stream, pregex_ccl ccl, int break_after );
-char* pregex_ccl_to_str( pregex_ccl ccl, pboolean escape );
-pregex_ccl pregex_ccl_addrange( pregex_ccl ccl, pchar begin, pchar end );
-pregex_ccl pregex_ccl_delrange( pregex_ccl ccl, pchar begin, pchar end );
-pregex_ccl pregex_ccl_add( pregex_ccl ccl, pchar ch );
-pregex_ccl pregex_ccl_del( pregex_ccl ccl, pchar ch );
-pboolean pregex_ccl_test( pregex_ccl ccl, pchar ch );
-pboolean pregex_ccl_testrange( pregex_ccl ccl, pchar begin, pchar end );
-pboolean pregex_ccl_instest( pregex_ccl ccl, pchar ch );
-int pregex_ccl_compare( pregex_ccl first, pregex_ccl second );
-pregex_ccl pregex_ccl_intersect( pregex_ccl first, pregex_ccl second );
-pregex_ccl pregex_ccl_diff( pregex_ccl first, pregex_ccl second );
+pboolean pregex_ccl_compat( pregex_ccl* l, pregex_ccl* r );
+int pregex_ccl_size( pregex_ccl* ccl );
+int pregex_ccl_count( pregex_ccl* ccl );
+pregex_ccl* pregex_ccl_dup( pregex_ccl* ccl );
+pboolean pregex_ccl_testrange( pregex_ccl* ccl, pchar begin, pchar end );
+pboolean pregex_ccl_test( pregex_ccl* ccl, pchar ch );
+pboolean pregex_ccl_instest( pregex_ccl* ccl, pchar ch );
+pboolean pregex_ccl_addrange( pregex_ccl* ccl, pchar begin, pchar end );
+pboolean pregex_ccl_add( pregex_ccl* ccl, pchar ch );
+pboolean pregex_ccl_delrange( pregex_ccl* ccl, pchar begin, pchar end );
+pboolean pregex_ccl_del( pregex_ccl* ccl, pchar ch );
+pboolean pregex_ccl_negate( pregex_ccl* ccl );
+pregex_ccl* pregex_ccl_union( pregex_ccl* ccl, pregex_ccl* add );
+pregex_ccl* pregex_ccl_diff( pregex_ccl* ccl, pregex_ccl* rem );
+int pregex_ccl_compare( pregex_ccl* left, pregex_ccl* right );
+pregex_ccl* pregex_ccl_intersect( pregex_ccl* ccl, pregex_ccl* within );
+int pregex_ccl_get( pregex_ccl* ccl, int offset );
+pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );
+pregex_ccl* pregex_ccl_free( pregex_ccl* ccl );
+char* pregex_ccl_to_str( pregex_ccl* ccl, pboolean escape );
+void pregex_ccl_print( FILE* stream, pregex_ccl* ccl, int break_after );
 
 
 void pregex_dfa_print( FILE* stream, pregex_dfa* dfa );
@@ -1024,7 +1038,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors, preg
 int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
 
-pregex_ptn* pregex_ptn_create_char( pregex_ccl ccl );
+pregex_ptn* pregex_ptn_create_char( pregex_ccl* ccl );
 pregex_ptn* pregex_ptn_create_string( char* str, int flags );
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... );
