@@ -709,33 +709,85 @@ pregex_ccl* pregex_ccl_intersect( pregex_ccl* ccl, pregex_ccl* within )
 	RETURN( in );
 }
 
-/** Return a character by its offset.
+/** Return a character or a character-range by its offset.
 
-The function returns the character in //offset//th position of the
-character-class. If no character with the given offset exists, the function
-returns -1, meaning that the end of the characters is reached. */
-int pregex_ccl_get( pregex_ccl* ccl, int offset )
+If the function is called only with pointer //from// provided, and //to// as
+(char*)NULL, it writes the character in //offset//th position of the
+character-class into from.
+
+If the function is called both with pointer //from// and //to// provided,
+it writes the //begin// and //end// character of the character-range in the
+//offset//th position of the character-class into //from// and //to//.
+
+If no character or range with the given offset was found, the function
+returns FALSE, meaning that the end of the characters is reached.
+On success, the function will always return TRUE. */
+pboolean pregex_ccl_get( pchar* from, pchar* to, pregex_ccl* ccl, int offset )
 {
 	plistel*	e;
 	pregex_cr*	cr;
 
-	if( !ccl )
+	PROC( "pregex_ccl_get" );
+	PARMS( "from", "%p", from );
+	PARMS( "to", "%p", to );
+	PARMS( "ccl", "%p", ccl );
+	PARMS( "offset", "%d", offset );
+
+	if( !( ccl && from && offset >= 0 ) )
 	{
 		WRONGPARAM;
-		return -1;
+		RETURN( FALSE );
 	}
 
-	for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
+	if( !to )
 	{
-		cr = (pregex_cr*)plist_access( e );
+		MSG( "Single-character retrival" );
 
-		if( offset >= ( cr->end - cr->begin ) + 1 )
-			offset -= ( cr->end - cr->begin ) + 1;
-		else if( offset < ( cr->end - cr->begin ) + 1 )
-			return cr->begin + offset;
+		for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
+		{
+			cr = (pregex_cr*)plist_access( e );
+
+			VARS( "offset", "%d", offset );
+			VARS( "cr->begin", "%d", cr->begin );
+			VARS( "cr->end", "%d", cr->end );
+			VARS( "LEN cr->end - cr->begin + 1", "%d",
+					cr->end - cr->begin + 1 );
+
+			if( offset >= ( cr->end - cr->begin ) + 1 )
+			{
+				MSG( "Offset not in this range" );
+				offset -= ( cr->end - cr->begin ) + 1;
+			}
+			else if( offset < ( cr->end - cr->begin ) + 1 )
+			{
+				MSG( "Offset is within this class" );
+
+				*from = cr->begin + offset;
+
+				VARS( "*from", "%d", *from );
+				RETURN( TRUE );
+			}
+		}
+	}
+	else
+	{
+		MSG( "Range retrival" );
+
+		if( ( cr = (pregex_cr*)plist_access(
+						plist_get( ccl->ranges, offset ) ) ) )
+		{
+			*from = cr->begin;
+			*to = cr->end;
+
+			VARS( "*from", "%d", *from );
+			VARS( "*to", "%d", *to );
+
+			RETURN( TRUE );
+		}
 	}
 
-	return -1;
+	MSG( "Offset not available" );
+	RETURN( FALSE );
 }
 
 

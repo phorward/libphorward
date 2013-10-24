@@ -299,8 +299,9 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	pregex_nfa_st*	nfa_st;
 	int				state_next	= 0;
 	pboolean		changed;
-	plistel*		e;
-	pregex_cr*		cr;
+	int				i;
+	pchar			begin;
+	pchar			end;
 	pregex_ccl*		ccl;
 	pregex_ccl*		test;
 	pregex_ccl*		del;
@@ -413,17 +414,16 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 			ccl = (pregex_ccl*)list_access( l );
 
 			MSG( "Check char class" );
-			for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
+			for( i = 0; pregex_ccl_get( &begin, &end, ccl, i ); i++ )
 			{
-				cr = (pregex_cr*)plist_access( e );
-				VARS( "cr->begin", "%d", cr->begin );
-				VARS( "cr->end", "%d", cr->end );
+				VARS( ">begin", "%d", begin );
+				VARS( ">end", "%d", end );
 
 				if( !( transitions = list_dup( current->nfa_set ) ) )
 					RETURN( ERR_MEM );
 
 				if( ( transitions = pregex_nfa_move(
-						nfa, transitions, cr->begin, cr->end ) ) )
+						nfa, transitions, begin, end ) ) )
 				{
 					transitions = pregex_nfa_epsilon_closure(
 						nfa, transitions, (pregex_accept*)NULL );
@@ -492,7 +492,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				}
 
 				/* Append current range */
-				if( !pregex_ccl_addrange( trans->ccl, cr->begin, cr->end ) )
+				if( !pregex_ccl_addrange( trans->ccl, begin, end ) )
 					RETURN( ERR_MEM );
 
 			}

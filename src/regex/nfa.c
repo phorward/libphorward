@@ -88,7 +88,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 			iccl = pregex_ccl_dup( ptr->ccl );
 
 			MSG( "PREGEX_MOD_INSENSITIVE set" );
-			for( i = 0; ( ch = pregex_ccl_get( ptr->ccl, i ) ) >= 0; i++ )
+			for( i = 0; pregex_ccl_get( &ch, (pchar*)NULL, ptr->ccl, i ); i++ )
 			{
 				VARS( "ch", "%d", ch );
 #ifdef UNICODE

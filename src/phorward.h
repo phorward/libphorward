@@ -1006,7 +1006,7 @@ pregex_ccl* pregex_ccl_union( pregex_ccl* ccl, pregex_ccl* add );
 pregex_ccl* pregex_ccl_diff( pregex_ccl* ccl, pregex_ccl* rem );
 int pregex_ccl_compare( pregex_ccl* left, pregex_ccl* right );
 pregex_ccl* pregex_ccl_intersect( pregex_ccl* ccl, pregex_ccl* within );
-int pregex_ccl_get( pregex_ccl* ccl, int offset );
+pboolean pregex_ccl_get( pchar* from, pchar* to, pregex_ccl* ccl, int offset );
 pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );
 pregex_ccl* pregex_ccl_free( pregex_ccl* ccl );
 char* pregex_ccl_to_str( pregex_ccl* ccl, pboolean escape );
