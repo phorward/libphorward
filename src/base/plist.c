@@ -224,7 +224,10 @@ plist* plist_dup( plist* list )
 	return dup;
 }
 
-/** Erase all allocated content of the list //list//. */
+/** Erase all allocated content of the list //list//.
+
+The object //list// will be still alive, but must be re-configured
+using plist_init(). */
 pboolean plist_erase( plist* list )
 {
 	plistel*	e;
@@ -613,7 +616,7 @@ pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) )
 
 /** Retrieve list element by pointer.
 
-This function returns the list element of the unit within the list //list/
+This function returns the list element of the unit within the list //list//
 that is the pointer //ptr//.
 */
 plistel* plist_get_by_ptr( plist* list, void* ptr )

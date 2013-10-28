@@ -98,8 +98,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 
 		VARS( "ch", "%d", ch );
 
-		ccl = pregex_ccl_create(
-					PREGEX_CCL_MIN, PREGEX_CCL_MAX, (char*)NULL );
+		ccl = pregex_ccl_create( -1, -1, (char*)NULL );
 
 		if( !( ccl && pregex_ccl_add( ccl, ch ) ) )
 		{
@@ -972,8 +971,7 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 			if( accept )
 				accept->greedy = FALSE;
 
-			ccl = pregex_ccl_create(
-					PREGEX_CCL_MIN, PREGEX_CCL_MAX, (char*)NULL );
+			ccl = pregex_ccl_create( -1, -1, (char*)NULL );
 
 			if( !( ccl && pregex_ccl_addrange( ccl,
 								PREGEX_CCL_MIN, PREGEX_CCL_MAX ) ) )
@@ -1003,9 +1001,7 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 					(*pstr)++;
 				}
 
-				if( !( ccl = pregex_ccl_create(
-								PREGEX_CCL_MIN, PREGEX_CCL_MAX,
-									(*pstr) + 1 ) ) )
+				if( !( ccl = pregex_ccl_create( -1, -1, (*pstr) + 1 ) ) )
 					return ERR_MEM;
 
 				if( neg )
@@ -1026,8 +1022,7 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 		default:
 			*pstr += pstrparsechar( &single, *pstr, TRUE );
 
-			ccl = pregex_ccl_create(
-					PREGEX_CCL_MIN, PREGEX_CCL_MAX, (char*)NULL );
+			ccl = pregex_ccl_create( -1, -1, (char*)NULL );
 
 			if( !( ccl && pregex_ccl_add( ccl, single ) ) )
 			{

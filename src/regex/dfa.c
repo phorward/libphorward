@@ -481,9 +481,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 								sizeof( pregex_dfa_tr ) ) ) )
 						RETURN( ERR_MEM );
 
-					trans->ccl = pregex_ccl_create(
-									PREGEX_CCL_MIN, PREGEX_CCL_MAX,
-										(char*)NULL );
+					trans->ccl = pregex_ccl_create( -1, -1, (char*)NULL );
 					trans->go_to = state_next;
 
 					if( !( current->trans = list_push( current->trans,

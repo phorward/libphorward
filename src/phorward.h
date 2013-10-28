@@ -990,6 +990,7 @@ void stack_dump( char* file, int line, char* name, STACK* stack, void (*pf)( pby
 int stack_count( STACK* stack );
 
 
+pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );
 pboolean pregex_ccl_compat( pregex_ccl* l, pregex_ccl* r );
 int pregex_ccl_size( pregex_ccl* ccl );
 int pregex_ccl_count( pregex_ccl* ccl );
@@ -1007,7 +1008,8 @@ pregex_ccl* pregex_ccl_diff( pregex_ccl* ccl, pregex_ccl* rem );
 int pregex_ccl_compare( pregex_ccl* left, pregex_ccl* right );
 pregex_ccl* pregex_ccl_intersect( pregex_ccl* ccl, pregex_ccl* within );
 pboolean pregex_ccl_get( pchar* from, pchar* to, pregex_ccl* ccl, int offset );
-pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );
+pboolean pregex_ccl_parse( pregex_ccl* ccl, char* ccldef, pboolean extend );
+pboolean pregex_ccl_erase( pregex_ccl* ccl );
 pregex_ccl* pregex_ccl_free( pregex_ccl* ccl );
 char* pregex_ccl_to_str( pregex_ccl* ccl, pboolean escape );
 void pregex_ccl_print( FILE* stream, pregex_ccl* ccl, int break_after );

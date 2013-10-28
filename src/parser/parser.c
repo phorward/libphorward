@@ -81,7 +81,7 @@ BOOLEAN pg_parser_is_lr( pgparser* p )
 	return FALSE;
 }
 
-/** Check if parser is top-dpwn? */
+/** Check if parser is top-down? */
 BOOLEAN pg_parser_is_ll( pgparser* p )
 {
 	if( p && ( p->paradigm == PGPARADIGM_LL1 ) )

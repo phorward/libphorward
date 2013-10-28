@@ -70,8 +70,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 		MSG( "Required to parse chardef" );
 		VARS( "chardef", "%s", chardef );
 
-		if( !( ptr->ccl = pregex_ccl_create(
-							PREGEX_CCL_MIN, PREGEX_CCL_MAX, chardef ) ) )
+		if( !( ptr->ccl = pregex_ccl_create( -1, -1, chardef ) ) )
 		{
 			MSG( "Out of memory error" );
 			RETURN( (pregex_nfa_st*)NULL );
@@ -551,8 +550,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 		ch = u8_parse_char( &pstr );
 		VARS( "ch", "%d", ch );
 
-		nfa_st->ccl = pregex_ccl_create(
-						PREGEX_CCL_MIN, PREGEX_CCL_MAX, (char*)NULL );
+		nfa_st->ccl = pregex_ccl_create( -1, -1, (char*)NULL );
 
 		if( !( nfa_st->ccl && pregex_ccl_add( nfa_st->ccl, ch ) ) )
 			RETURN( ERR_MEM );

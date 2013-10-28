@@ -12,6 +12,47 @@ Usage:	Charclass-Handling
 #define PREGEX_LOCAL
 #include "phorward.h"
 
+/** Constructor function to create a new character-class.
+
+
+Returns a pointer to the newly created character-class. This pointer should be
+released with pregex_ccl_free() when its existence is no longer required.
+*/
+pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef )
+{
+	pregex_ccl*	ccl;
+
+	PROC( "pregex_ccl_create" );
+	PARMS( "min", "%d", min );
+	PARMS( "max", "%d", max );
+	PARMS( "ccldef", "%s", ccldef );
+
+	if( min < 0 )
+		min = PREGEX_CCL_MIN;
+	if( max < 0 )
+		max = PREGEX_CCL_MAX;
+
+	ccl = (pregex_ccl*)pmalloc( sizeof( pregex_ccl ) );
+	ccl->ranges = plist_create( sizeof( pregex_cr ), PLIST_MOD_RECYCLE );
+
+	if( min > max )
+	{
+		ccl->min = max;
+		ccl->max = min;
+	}
+	else
+	{
+		ccl->min = min;
+		ccl->max = max;
+	}
+
+	if( ccldef )
+		pregex_ccl_parse( ccl, ccldef, FALSE );
+
+
+	RETURN( ccl );
+}
+
 /** Checks if the character-classes //l// and //r// are in the same
 character universe and compatible for operations. */
 pboolean pregex_ccl_compat( pregex_ccl* l, pregex_ccl* r )
@@ -791,41 +832,42 @@ pboolean pregex_ccl_get( pchar* from, pchar* to, pregex_ccl* ccl, int offset )
 }
 
 
-/** Parses a character-class definition and returns a normalized character-class
-to be used for further operations.
+/** Parses the character-class definition provided in //ccldef// and assigns
+this definition to the character-class //ccl//. //ccldef// may contain
+UTF-8 formatted input. Escape-sequences will be interpretered to their correct
+character representations.
 
-//ccldef// is the character-class definition string, accepting UTF-8 formatted
-input.
+A typical character-class definition simply exists of single characters and
+range definitions. For example, "$A-Z#0-9" defines a character-class that
+consists of the characters "$#0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".
 
-Returns a pointer to the newly created character-class. This pointer should be
-released with pregex_ccl_free() when its existence is no longer required.
+The parameter //extend// specifies, if the provided character-class overwrites
+(//extend// = FALSE) or extends (//extend// = TRUE) the provided
+character-class. This means that definitions that already exist in the
+character-class, should be erased first or not.
+
+The function returns TRUE on success, and FALSE on an error.
 */
-pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef )
+pboolean pregex_ccl_parse( pregex_ccl* ccl, char* ccldef, pboolean extend )
 {
 	char*		cclptr;
-	pregex_ccl*	ccl;
 	pregex_cr	cr;
 	pchar		begin;
 	pchar		end;
-	pchar		swap;
-	pchar		size	= 0;
 
-	PROC( "pregex_ccl_create" );
+	PROC( "pregex_ccl_parse" );
+	PARMS( "ccl", "%p", ccl );
 	PARMS( "ccldef", "%s", ccldef );
+	PARMS( "extend", "%s", BOOLEAN_STR( extend ) );
 
-	ccl = (pregex_ccl*)pmalloc( sizeof( pregex_ccl ) );
-	ccl->ranges = plist_create( sizeof( pregex_cr ), PLIST_MOD_RECYCLE );
+	if( !( ccl ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
 
-	if( min > max )
-	{
-		ccl->min = max;
-		ccl->max = min;
-	}
-	else
-	{
-		ccl->min = min;
-		ccl->max = max;
-	}
+	if( !extend )
+		pregex_ccl_erase( ccl );
 
 	for( cclptr = pgetstr( ccldef ); *cclptr; )
 	{
@@ -854,7 +896,24 @@ pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef )
 	MSG( "Finally normalize the character-class" );
 	pregex_ccl_normalize( ccl );
 
-	RETURN( ccl );
+	RETURN( TRUE );
+}
+
+/** Erases a character-class //ccl//.
+
+The function sets a character-class to zero, as it continas no character range
+definitions. The object //ccl// will be still alive. To delete the entire
+object, use pregex_ccl_free().
+*/
+pboolean pregex_ccl_erase( pregex_ccl* ccl )
+{
+	if( !ccl )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	return plist_erase( ccl->ranges );
 }
 
 /** Frees a character-class //ccl// and all its used memory.
@@ -1013,3 +1072,4 @@ int main( int argc, char** argv )
 	return 0;
 }
 #endif
+
