@@ -226,11 +226,12 @@ typedef struct llist
 #define PLIST_H
 
 
-#define PLIST_MOD_NONE		0
-#define PLIST_MOD_RECYCLE	1
-#define PLIST_MOD_EXTKEYS	2
-#define PLIST_MOD_UNIQUE	4
-#define PLIST_MOD_WCHAR		8
+#define PLIST_MOD_NONE		0	
+#define PLIST_MOD_RECYCLE	1	
+#define PLIST_MOD_EXTKEYS	2	
+#define PLIST_MOD_UNIQUE	4	
+#define PLIST_MOD_WCHAR		8	
+#define PLIST_MOD_PTR		16	
 
 
 typedef struct Plistel		plistel;
@@ -268,6 +269,10 @@ struct Plist
 	plistel*				last;
 	plistel**				hash;
 };
+
+
+#define plist_for( l, e )	\
+	for( (e) = plist_first( l ); (e); (e) = plist_next( e ) )
 
 #endif 
 

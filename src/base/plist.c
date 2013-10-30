@@ -174,6 +174,14 @@ pboolean plist_init( plist* list, psize size, pbyte flags )
 		return FALSE;
 	}
 
+	/* A size of zero causes a pointer list allocation,
+		so the flag must also be set. */
+	if( size == 0 )
+		flags |= PLIST_MOD_PTR;
+
+	if( flags & PLIST_MOD_PTR && size < sizeof( void* ) )
+		size = sizeof( void* );
+
 	memset( list, 0, sizeof( plist ) );
 	list->flags = flags;
 	list->size = size;
@@ -183,8 +191,20 @@ pboolean plist_init( plist* list, psize size, pbyte flags )
 }
 
 /** Create a new plist as an object with an element allocation size //size//.
+Providing a //size// of 0 causes automatic configuration of PLIST_MOD_PTR.
+
 //flags// defines an optional flag configuration that modifies the behavior
-of the linked list and hash table usage.
+of the linked list and hash table usage. The flags can be merged together using
+bitwise or (|).
+
+Possible flags are:
+- **PLIST_MOD_NONE** for no special flagging.
+- **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later.
+- **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
+- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
+- **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
+- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
+-
 
 Use plist_free() to erase and release the returned list object. */
 plist* plist_create( psize size, pbyte flags )
@@ -328,7 +348,16 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		VARS( "sizeof( plistel )", "%d", sizeof( plistel ) );
 		VARS( "size", "%d", list->size );
 
-		memcpy( e + 1, src, list->size );
+		if( list->flags & PLIST_MOD_PTR )
+		{
+			MSG( "Pointer mode, just store the pointer" );
+			*( (void**)( e + 1 ) ) = src;
+		}
+		else
+		{
+			MSG( "Copy memory of size-bytes" );
+			memcpy( e + 1, src, list->size );
+		}
 	}
 
 	if( !pos )
@@ -462,7 +491,12 @@ pboolean plist_pop( plist* list, void* dest )
 		return FALSE;
 
 	if( dest )
-		memcpy( dest, plist_access( list->last ), list->size );
+	{
+		if( list->flags & PLIST_MOD_PTR )
+			*( (void**)dest ) = plist_access( list->last );
+		else
+			memcpy( dest, plist_access( list->last ), list->size );
+	}
 
 	plist_remove( list, list->last );
 	return TRUE;
@@ -641,6 +675,10 @@ void* plist_access( plistel* e )
 {
 	if( !( e ) )
 		return (void*)NULL;
+
+	/* Dereference pointer list differently */
+	if( e->list->flags & PLIST_MOD_PTR )
+		return *((void**)( e + 1 ));
 
 	return (void*)( e + 1 );
 }

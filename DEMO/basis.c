@@ -17,7 +17,8 @@ struct person
 void string_demo( void )
 {
 	char	str[ 1024 ];
-	int	all, i;
+	int		all;
+	int		i;
 	char**	tokens;
 	char*	str1;
 	char*	str2;
@@ -305,55 +306,56 @@ void plist_demo( void )
 	my = plist_free( my );
 }
 
-void hashtab_demo( void )
+/*
+	plist_demo2() is an example based on the list_demo() example from above,
+	but uses the plist-object with PLIST_MOD_PTR-flag for pointer mode enabled,
+	to result in the same behavior.
+*/
+void plist_demo2( void )
 {
-	HASHTAB		ht;
-	HASHELEM*	e;
-	LIST*		l;
+	plist*		mylist; /* This is list object */
+	plistel*	e; 		/* e, for list iteration */
+	char*		values[] = { "Hello", "World", "out there!" };
+	char*		tmp;
 
-	printf( "\n*** hashtab_demo ***\n\n" );
+	printf( "\n*** plist_demo2 ***\n\n" );
 
-	/* We configure a hash-table with 6 buckets, wide-character enabled and
-		list-feature enabled */
-	hashtab_init( &ht, 6, HASHTAB_MOD_WCHAR | HASHTAB_MOD_LIST );
+	mylist = plist_create( sizeof( char* ),
+				PLIST_MOD_RECYCLE | PLIST_MOD_PTR );
 
-	/* Let's insert some data */
-	hashtab_insert( &ht, (char*)L"Hello", "This is my first string" );
-	hashtab_insert( &ht, (char*)L"World", "And this is my second one" );
-	hashtab_insert( &ht, (char*)L"Test", "Last but no least, the third :)" );
+	/* Create the list. */
+	plist_push( mylist, (void*)values[0] );
+	plist_push( mylist, (void*)values[1] );
+	plist_push( mylist, (void*)values[2] );
 
-	/* Get one entry */
-	e = hashtab_get( &ht, (char*)L"World" );
-	printf( ">%s<\n", (char*)hashelem_access( e ) );
-	printf( "%d items in table\n", hashtab_count( &ht ) );
+	printf( "%p\n", values[0] );
+	printf( "%p\n", values[1] );
+	printf( "%p\n", values[2] );
 
-	/* Loop trough the entries, without any order */
-	for( e = hashtab_fetch( &ht, (HASHELEM*)NULL );
-			e; e = hashtab_fetch( &ht, e ) )
-		printf( ">%ls<: >%s<\n",
-			(pchar*)hashelem_key( e ),
-				(char*)hashelem_access( e ) );
+	/* Let's iterate it. */
+	printf( "mylist contains %d items\n", plist_count( mylist ) );
+	for( e = plist_first( mylist ); e; e = plist_next( e ) )
+		printf( "%s(%p) ", (char*)plist_access( e ),
+								(char*)plist_access( e ) );
 
-	/* Loop trough the entries using the list */
-	LISTFOR( hashtab_list( &ht ), l )
-	{
-		e = (HASHELEM*)list_access( l );
-		printf( ">%ls<: >%s<\n",
-			(pchar*)hashelem_key( e ),
-				(char*)hashelem_access( e ) );
-	}
+	/* Now, we remove one element (identified by its pointer)
+		and iterate the list again */
+	plist_remove( mylist, plist_get_by_ptr( mylist, (void*)values[1] ) );
+	printf( "\nmylist contains now %d items\n", plist_count( mylist ) );
 
-	/* Dump the table to stderr */
-	hashtab_print( &ht, stderr );
+	/* The macro plist_for() expands into a
+		for-loop like above, but is shorter! ;) */
+	plist_for( mylist, e )
+		printf( "%s(%p) ", (char*)plist_access( e ),
+								(char*)plist_access( e ) );
 
-	/* Discard the element with the key "World" */
-	hashtab_discard( &ht, (char*)L"World", HASHTAB_NO_CALLBACK );
+	printf( "\n" );
 
-	/* Print again! */
-	hashtab_print( &ht, stderr );
+	plist_pop( mylist, (void*)&tmp );
+	printf( "tmp = %p >%s<\n", tmp, tmp );
 
-	/* Free entire table, reset all */
-	hashtab_free( &ht, HASHTAB_NO_CALLBACK );
+	/* Free the entire list */
+	mylist = plist_free( mylist );
 }
 
 static void stack_demo_callback( struct person* p )
@@ -523,8 +525,8 @@ int main( int argc, char** argv )
 	unicode_demo();
 	utf8_demo();
 	list_demo();
+	plist_demo2();
 	plist_demo();
-	hashtab_demo();
 	stack_demo();
 	printf( "faculty of 3 is %d\n", dbg_demo( 3 ) );
 	xml_demo();
