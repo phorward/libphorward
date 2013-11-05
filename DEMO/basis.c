@@ -6,12 +6,14 @@
 
 #include <phorward.h>
 
-/* Required for stack functions */
-struct person
+#define DEMO( name )	printf( "\n*** %s ***\n\n", (name) )
+
+/* Required for various demonstration functions */
+typedef struct
 {
 	char	first_name	[ 30 + 1 ];
 	char	last_name	[ 30 + 1 ];
-};
+} person;
 
 /* Extended String Functions */
 void string_demo( void )
@@ -91,7 +93,7 @@ void unicode_demo( void )
 	pchar	mystr		[ 255 ];
 	pchar*	mydynamicstr;
 
-	printf( "\n*** unicode_demo ***\n\n" );
+	DEMO( "unicode_demo" );
 
 	wcscpy( mystr, L"Yes, w€ cän üse standard C function "
 			L"names for Unicode-strings!" );
@@ -125,7 +127,7 @@ void pregex_ccl_demo( void )
 	pregex_ccl*	e;
 	char* 		x;
 
-	printf( "\n*** pregex_ccl_demo ***\n\n" );
+	DEMO( "pregex_ccl_demo" );
 
 	/* c = pregex_ccl_create( "\\1-\\n€A-ZX-dÄÜÖ" ); */
 	c = pregex_ccl_create( PREGEX_CCL_MIN, PREGEX_CCL_MAX, "^ €A-Z\n" );
@@ -161,7 +163,7 @@ void list_demo( void )
 	char*	values[] = { "Hello", "World", "out there!" };
 	char*	tmp;
 
-	printf( "\n*** list_demo ***\n\n" );
+	DEMO( "list_demo" );
 
 	/* Create the list. */
 	mylist = list_push( mylist, (void*)values[0] );
@@ -196,14 +198,13 @@ void list_demo( void )
 
 static void plist_demo_print( plist* list )
 {
-	struct
 	person*		pp;
 	plistel*	e;
 
 	printf( "\n" );
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 	{
-		pp = (struct person*)plist_access( e );
+		pp = (person*)plist_access( e );
 		printf( "- %s, %s\n", pp->last_name, pp->first_name );
 	}
 	printf( "~~~\n%d elements\n\n", plist_count( list ) );
@@ -211,7 +212,6 @@ static void plist_demo_print( plist* list )
 
 static void plist_demo_print_by_key( plist* list, char* key )
 {
-	struct
 	person*		pp;
 	plistel*	e;
 
@@ -221,14 +221,14 @@ static void plist_demo_print_by_key( plist* list, char* key )
 		return;
 	}
 
-	pp = (struct person*)plist_access( e );
+	pp = (person*)plist_access( e );
 	printf( "%s => %s, %s\n", key, pp->last_name, pp->first_name );
 }
 
 static pboolean by_name( void* a, void* b )
 {
-	struct person*	ap = a;
-	struct person*	bp = b;
+	person*	ap = a;
+	person*	bp = b;
 
 	if( strcmp( ap->last_name, bp->last_name ) < 0 )
 		return TRUE;
@@ -238,14 +238,13 @@ static pboolean by_name( void* a, void* b )
 
 void plist_demo( void )
 {
-	struct
 	person		p;
 	plist*		my;
 	plistel*	e;
 
-	printf( "\n*** plist_demo ***\n" );
+	DEMO( "plist_demo" );
 
-	my = plist_create( sizeof( struct person ), PLIST_MOD_RECYCLE );
+	my = plist_create( sizeof( person ), PLIST_MOD_RECYCLE );
 
 	/* Add some data */
 	strcpy( p.first_name, "Melinda" );
@@ -318,7 +317,7 @@ void plist_demo2( void )
 	char*		values[] = { "Hello", "World", "out there!" };
 	char*		tmp;
 
-	printf( "\n*** plist_demo2 ***\n\n" );
+	DEMO( "plist_demo2" );
 
 	mylist = plist_create( sizeof( char* ),
 				PLIST_MOD_RECYCLE | PLIST_MOD_PTR );
@@ -358,52 +357,43 @@ void plist_demo2( void )
 	mylist = plist_free( mylist );
 }
 
-static void stack_demo_callback( struct person* p )
+void pstack_demo( void )
 {
-	fprintf( stderr, "--- %s, %s\n", p->last_name, p->first_name );
-}
+	person 	x;
+	person*	p;
+	pstack*	st;
 
-void stack_demo( void )
-{
-	struct person x;
-	struct person* p;
+	DEMO( "pstack_demo" );
 
-	STACK	s;
-
-	printf( "\n*** stack_demo ***\n\n" );
-
-	stack_init( &s, sizeof( struct person ), 3 );
+	st = pstack_create( sizeof( person ), 3 );
 
 	strcpy( x.last_name, "Zufall" );
 	strcpy( x.first_name, "Reiner" );
-	stack_push( &s, (pbyte*)&x );
+	pstack_push( st, (void*)&x );
 
 	strcpy( x.last_name, "Pfahl" );
 	strcpy( x.first_name, "Martha" );
-	stack_push( &s, (pbyte*)&x );
+	pstack_push( st, (void*)&x );
 
 	strcpy( x.last_name, "Racho" );
 	strcpy( x.first_name, "Volker" );
-	stack_push( &s, (pbyte*)&x );
+	pstack_push( st, (void*)&x );
 
 	strcpy( x.last_name, "Pete" );
 	strcpy( x.first_name, "Dieter" );
-	stack_push( &s, (pbyte*)&x );
+	pstack_push( st, (void*)&x );
 
-	stack_dump( __FILE__, __LINE__, "s", &s,
-		(STACK_CALLBACK)stack_demo_callback );
+	while( ( p = (person*)pstack_pop( st ) ) )
+		fprintf( stderr, "%s %s\n", p->first_name, p->last_name );
 
-	while( ( p = (struct person*)stack_pop( &s ) ) )
-		fprintf( stderr, "Pop: %s %s\n", p->first_name, p->last_name );
-
-	stack_free( &s, (STACK_CALLBACK)stack_demo_callback );
+	st = pstack_free( st );
 }
 
-int dbg_demo( int x )
+int faculty( int x )
 {
 	int ret;
 
-	PROC( "dbg_demo" );
+	PROC( "faculty" );
 	PARMS( "x", "%d", x );
 
 	if( x < 0 )
@@ -420,11 +410,26 @@ int dbg_demo( int x )
 	{
 		MSG( "Calling dbg_demo recurisvely with:" );
 		VARS( "x - 1", "%d", x - 1 );
-		ret = x * dbg_demo( x - 1 );
+		ret = x * faculty( x - 1 );
 	}
 
 	VARS( "ret", "%d", ret );
 	RETURN( ret );
+}
+
+void dbg_demo( void )
+{
+	int		s = 3;
+	int		f;
+
+	DEMO( "dbg_demo" );
+
+	putenv( "TRACEMODULE=*" );
+
+	f = faculty( 3 );
+	printf( "The faculty of %d is %d\n", s, f );
+
+	putenv( "TRACEMODULE=" );
 }
 
 void xml_demo( void )
@@ -433,6 +438,8 @@ void xml_demo( void )
 	XML_T	div;
 	XML_T	emp;
 	char*	s;
+
+	DEMO( "xml_demo" );
 
 	comp = xml_new( "company" );
 
@@ -483,6 +490,8 @@ void union_demo( void )
 	 */
 	punion	utest;
 
+	DEMO( "punion_demo" );
+
 	/* Initialize the union structure */
 	punion_init( &utest );
 
@@ -527,8 +536,8 @@ int main( int argc, char** argv )
 	list_demo();
 	plist_demo2();
 	plist_demo();
-	stack_demo();
-	printf( "faculty of 3 is %d\n", dbg_demo( 3 ) );
+	pstack_demo();
+	dbg_demo();
 	xml_demo();
 	union_demo();
 

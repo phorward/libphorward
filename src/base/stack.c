@@ -6,7 +6,7 @@ All rights reserved. See LICENSE for more information.
 
 File:	stack.c
 Author:	Jan Max Meyer
-Usage:	Universal, dynamic stack management functions
+Usage:	Universal, dynamic stack management functions (on the heap ;))
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -23,52 +23,83 @@ If, e.g. this is set to 128, then, if the 128th item is pushed onto the stack,
 a realloction is done. Once allocated memory remains until the stack is freed
 again.
 */
-void stack_init( STACK* stack, psize size, psize step )
+pboolean pstack_init( pstack* stack, size_t size, size_t step )
 {
-	PROC( "stack_init" );
+	PROC( "pstack_init" );
 	PARMS( "stack", "%p", stack );
-	PARMS( "size", "%d", size );
-	PARMS( "step", "%d", step );
+	PARMS( "size", "%ld", size );
+	PARMS( "step", "%ld", step );
 
-	memset( stack, 0, sizeof( STACK ) );
+	if( !( stack && size > 0 ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( step <= 0 )
+		step = 1;
+
+	memset( stack, 0, sizeof( pstack ) );
 	stack->size = size;
 	stack->step = step;
 
-	VOIDRET;
+	RETURN( TRUE );
 }
 
-/** Frees the entire stack.
-The stack must not be reinitalized after destruction.
+/** Create a new pstack as an object with an element allocation size //size//
+and a reallocation-step-size of //step//. 
 
-//stack// is the stack to be freed.
-The function //void (*ff)( pbyte*)// is a pointer to callback-function that is
-used to free one element. The function retrieves the pointer of the element.
-*/
-void stack_free( STACK* stack, void (*ff)( pbyte* ) )
+The returned memory must be released with pstack_free().  */
+pstack* pstack_create( size_t size, size_t step )
 {
-	psize	i;
+	pstack*	stack;
 
-	PROC( "stack_free" );
-	PARMS( "stack", "%p", stack );
-	PARMS( "ff", "%p", ff );
-
-	if( ff )
+	if( size <= 0 )
 	{
-		MSG( "Freeing each element" );
-		for( i = 0; i < stack->top; i++ )
-		{
-			VARS( "i", "%d", i );
-			(*ff)( stack_access( stack, i ) );
-		}
+		WRONGPARAM;
+		return (pstack*)NULL;
 	}
 
-	pfree( stack->stack );
+	stack = (pstack*)pmalloc( sizeof( pstack ) );
+	pstack_init( stack, size, step );
 
-	stack->stack = (pbyte*)NULL;
+	return stack;
+}
+
+/** Erase a dynamic stack.
+The stack must not be reinitalized after destruction.
+
+//stack// is the stack to be erased. */
+pboolean pstack_erase( pstack* stack )
+{
+	PROC( "pstack_free" );
+	PARMS( "stack", "%p", stack );
+
+	if( !stack )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	stack->stack = pfree( stack->stack );
 	stack->top = 0;
 	stack->count = 0;
 
-	VOIDRET;
+	RETURN( TRUE );
+}
+
+/** Releases all the memory //stack// uses and destroys the stack object.
+
+The function always returns (plist*)NULL. */
+pstack* pstack_free( pstack* stack )
+{
+	if( !stack )
+		return (pstack*)NULL;
+
+	pstack_erase( stack );
+	pfree( stack );
+
+	return (pstack*)NULL;
 }
 
 /** Pushes an element onto the stack.
@@ -79,17 +110,23 @@ memory size as used at stack initialization.
 //stack// is the pointer to stack where to push an item on.
 
 //item// is the pointer to the memory of the item that should be pushed onto the
-stack. The caller should cast his type into pbyte, or wrap the push-operation
+stack. The caller should cast his type into void, or wrap the push-operation
 with a macro.
 
-The function returns the address of the newly pushed item, and (pbyte*)NULL if
+The function returns the address of the newly pushed item, and (void*)NULL if
 the item could not be pushed.
 */
-pbyte* stack_push( STACK* stack, pbyte* item )
+void* pstack_push( pstack* stack, void* item )
 {
-	PROC( "stack_push" );
+	PROC( "pstack_push" );
 	PARMS( "stack", "%p", stack );
 	PARMS( "item", "%p", item );
+
+	if( !( stack ) ) 
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
 
 	/* Is memory (re-)allocation required? */
 	VARS( "stack->count", "%d", stack->count );
@@ -97,10 +134,10 @@ pbyte* stack_push( STACK* stack, pbyte* item )
 	{
 		MSG( "Performing first allocation" );
 		VARS( "Allocating bytes", "%d", stack->step * stack->size );
-		if( !( stack->stack = (pbyte*)pmalloc( stack->step * stack->size ) ) )
+		if( !( stack->stack = (void*)pmalloc( stack->step * stack->size ) ) )
 		{
 			MSG( "Memory failure - Can't allocate..." );
-			return (pbyte*)NULL;
+			RETURN( (void*)NULL );
 		}
 
 		stack->count = stack->step;
@@ -113,17 +150,19 @@ pbyte* stack_push( STACK* stack, pbyte* item )
 		stack->count += stack->step;
 
 		VARS( "Re-allocating bytes", "%d", stack->step * stack->size );
-		if( !( stack->stack = (pbyte*)prealloc( (void*)stack->stack,
+		if( !( stack->stack = (void*)prealloc( (void*)stack->stack,
 					stack->count * stack->size ) ) )
 		{
 			MSG( "Memory failure - Can't reallocate..." );
-			return (pbyte*)NULL;
+			RETURN( (void*)NULL );
 		}
 	}
 
 	/* Copy item into top of stack */
-	memcpy( stack->stack + stack->top * stack->size, item, stack->size );
-	return stack->stack + stack->top++ * stack->size;
+	if( item )
+		memcpy( stack->stack + stack->top * stack->size, item, stack->size );
+
+	RETURN( stack->stack + stack->top++ * stack->size );
 }
 
 /** Pops an element off the stack.
@@ -134,86 +173,65 @@ only be overwritten with the next push operation.
 
 //stack// is the pointer to stack where to pop an item off.
 
-The function returns the address of the popped item, and (pbyte*)NULL if the
+The function returns the address of the popped item, and (void*)NULL if the
 item could not be popped (e.g. stack is empty).
 */
-pbyte* stack_pop( STACK* stack )
+void* pstack_pop( pstack* stack )
 {
-	PROC( "stack_pop" );
+	PROC( "pstack_pop" );
 	PARMS( "stack", "%p", stack );
+
+	if( !stack )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
 
 	if( stack->top == 0 )
 	{
 		MSG( "top is zero, no items on the stack." );
-		RETURN( (pbyte*)NULL );
+		RETURN( (void*)NULL );
 	}
 
 	RETURN( stack->stack + --stack->top * stack->size );
 }
 
-/** Accesses an element from the stack via its offset position.
+/** Access an element from the stack via its offset position.
 
 //stack// is the pointer to stack where to access the element from.
 //offset// is the offset of the element to be accessed from the stack's
 base address.
 
-Returns the address of the accessed item, and (pbyte*)NULL if the item could not
+Returns the address of the accessed item, and (void*)NULL if the item could not
 be accessed (e.g. if the stack is empty or offset is beyond the top of stack).
 */
-pbyte* stack_access( STACK* stack, psize offset )
+void* pstack_access( pstack* stack, size_t offset )
 {
-	PROC( "stack_pop" );
+	PROC( "pstack_pop" );
 	PARMS( "stack", "%p", stack );
 	PARMS( "offset", "%d", offset );
+
+	if( !stack )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
 
 	if( stack->top == 0 || offset >= stack->top )
 	{
 		MSG( "offset defines an item that is out of bounds within stack" );
-		RETURN( (pbyte*)NULL );
+		RETURN( (void*)NULL );
 	}
 
 	RETURN( stack->stack + offset * stack->size );
 }
 
-/** Dumps all stack-items to stderr.
-
-//file// is the name of the source file of stack dump occurence.
-Use the ``__FILE__``-macro to obtain source file name.
-
-//line// is the line within the source file of stack dump occurence.
-Use ``__LINE__``-macro to obtain source file name.
-
-//name// defines the stack's name, in string letters.
-
-//stack// is the pointer to stack to be dumped.
-
-//void (*pf)( pbyte*)// is a pointer to callback-function that is used to print
-one element. The function retrieves the pointer of the element.
-*/
-void stack_dump( char* file, int line, char* name,
-		STACK* stack, void (*pf)( pbyte* ) )
-{
-	psize	i;
-
- 	fprintf( stderr, "%s [%d]: %s %p\n", file, line, name, stack );
-
-	for( i = 0; i < stack->top; i++ )
-	{
-		if( pf )
-			(*pf)( stack_access( stack, i ) );
-		else
-			fprintf( stderr, "\t%p\n", stack_access( stack, i ) );
-	}
-
-	fprintf( stderr, "%s [%d]: %s %ld active, %ld left empty\n",
-		file, line, name, stack->top, stack->count - stack->top );
-}
-
 /** Returns the number of elements in a stack. */
-int stack_count( STACK* stack )
+int pstack_count( pstack* stack )
 {
 	if( !stack )
 		return 0;
 
 	return stack->top;
 }
+

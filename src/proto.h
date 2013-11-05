@@ -54,13 +54,14 @@ void* pfree( void* ptr );
 void* pmemdup( void* ptr, psize size );
 
 /* base/stack.c */
-void stack_init( STACK* stack, psize size, psize step );
-void stack_free( STACK* stack, void (*ff)( pbyte* ) );
-pbyte* stack_push( STACK* stack, pbyte* item );
-pbyte* stack_pop( STACK* stack );
-pbyte* stack_access( STACK* stack, psize offset );
-void stack_dump( char* file, int line, char* name, STACK* stack, void (*pf)( pbyte* ) );
-int stack_count( STACK* stack );
+pboolean pstack_init( pstack* stack, size_t size, size_t step );
+pstack* pstack_create( size_t size, size_t step );
+pboolean pstack_erase( pstack* stack );
+pstack* pstack_free( pstack* stack );
+void* pstack_push( pstack* stack, void* item );
+void* pstack_pop( pstack* stack );
+void* pstack_access( pstack* stack, size_t offset );
+int pstack_count( pstack* stack );
 
 /* regex/ccl.c */
 pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );

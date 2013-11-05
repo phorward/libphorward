@@ -14,14 +14,11 @@ Usage:	Universal, dynamic stack management functions
 
 typedef struct
 {
-	pbyte*	stack;
-	psize	size;
-	psize	top;
-	psize	count;
-	psize	step;
-} STACK;
-
-#define STACK_CALLBACK		void(*) ( pbyte* )
-#define STACK_NO_CALLBACK	( (STACK_CALLBACK)NULL )
+	void*	stack;
+	size_t	size;
+	size_t	top;
+	size_t	count;
+	size_t	step;
+} pstack;
 
 #endif
