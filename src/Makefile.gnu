@@ -11,7 +11,6 @@ PATHEXT = PATH="../run:$(PATH)"
 
 SRC = \
 	base/dbg.c \
-	base/hashtab.c \
 	base/llist.c \
 	base/plist.c \
 	base/memory.c \
@@ -47,7 +46,6 @@ SRC = \
 
 HSRC = \
 	base/dbg.h \
-	base/hashtab.h \
 	base/llist.h \
 	base/plist.h \
 	base/stack.h \

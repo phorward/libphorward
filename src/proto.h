@@ -6,22 +6,6 @@
 void _dbg_trace( char* file, int line, char* type, char* format, ... );
 void _dbg_time( char* file, int line );
 
-/* base/hashtab.c */
-pint hashtab_init( HASHTAB* ht, pint size, pint flags );
-pint hashtab_free( HASHTAB* hashtab, void (*freefct)(void*) );
-HASHELEM* hashtab_insert( HASHTAB* hashtab, char* key, void* data );
-HASHELEM* hashtab_get( HASHTAB* hashtab, char* key );
-HASHELEM* hashtab_update( HASHTAB* hashtab, char* key, void* data );
-HASHELEM* hashtab_discard( HASHTAB* hashtab, char* key, void (*freefct)(void*) );
-pint hashtab_delete( HASHTAB* hashtab, char* key, void (*freefct)(void*) );
-void hashtab_print( HASHTAB* hashtab, FILE* channel );
-pint hashtab_count( HASHTAB* hashtab );
-HASHELEM* hashtab_fetch( HASHTAB* hashtab, HASHELEM* current );
-void* hashelem_access( HASHELEM* hashelem );
-char* hashelem_key( HASHELEM* hashelem );
-HASHELEM* hashelem_next( HASHELEM* hashelem );
-HASHELEM* hashelem_prev( HASHELEM* hashelem );
-
 /* base/llist.c */
 LIST* list_push( LIST* list, void* ptr );
 LIST* list_pop( LIST* list, void** ptr );
@@ -53,6 +37,7 @@ pboolean plist_subsort( plistel* from, plistel* to, pboolean (*less)( void*, voi
 pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) );
 plistel* plist_get_by_ptr( plist* list, void* ptr );
 void* plist_access( plistel* e );
+char* plist_key( plistel* e );
 plistel* plist_next( plistel* u );
 plistel* plist_prev( plistel* u );
 int plist_offset( plistel* u );

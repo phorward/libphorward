@@ -71,17 +71,18 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 	plistel*	he;
 	plistel**	bucket;
 
+	PROC( "plist_hash_insert" );
+	PARMS( "list", "%p", list );
+	PARMS( "e", "%p", e );
+
 	if( !( list && e ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
 	}
 
 	if( !e->key )
-		return FALSE;
-
-	if( !list->hash && !plist_hash_rebuild( list ) )
-		return FALSE;
+		RETURN( FALSE );
 
 	e->hashnext = (plistel*)NULL;
 	e->hashprev = (plistel*)NULL;
@@ -89,15 +90,23 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 	bucket = &( list->hash[ plist_hash_index( list, e->key ) ] );
 
 	if( ! *bucket )
+	{
+		MSG( "Bucket is empty, chaining start position" );
 		*bucket = e;
+	}
 	else
 	{
+		MSG( "Chaining into hash" );
+
 		for( he = *bucket; he; he = he->hashnext )
 		{
+			VARS( "he->key", "%s", he->key );
+			VARS( "e->key", "%s", e->key );
+
 			if( plist_hash_compare( list, he->key, e->key ) == 0 )
 			{
 				if( list->flags & PLIST_MOD_UNIQUE )
-					return FALSE;
+					RETURN( FALSE );
 
 				if( he == *bucket )
 					*bucket = e;
@@ -117,7 +126,7 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 		}
 	}
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 /* Rebuild hash-table */
@@ -324,6 +333,10 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		RETURN( (plistel*)NULL );
 	}
 
+	/* Rebuild hash-table if necessary */
+	if( key && !list->hash && !plist_hash_rebuild( list ) )
+		RETURN( (plistel*)NULL );
+
 	/* Recycle existing elements? */
 	if( list->unused )
 	{
@@ -393,7 +406,10 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		else
 			e->key = pstrdup( key );
 
-		plist_hash_insert( list, e );
+		if( !plist_hash_insert( list, e ) )
+		{
+			MSG( "This should not happen..." );
+		}
 	}
 
 	list->count++;
@@ -529,27 +545,42 @@ with the key //key//.
 */
 plistel* plist_get_by_key( plist* list, char* key )
 {
+	int			i = 0;
 	int			idx;
 	plistel*	e;
+
+	PROC( "plist_get_by_key" );
+	PARMS( "list", "%p", list );
+	PARMS( "key", "%s", key );
 
 	if( !( list && key ) )
 	{
 		WRONGPARAM;
-		return (plistel*)NULL;
+		RETURN( (plistel*)NULL );
 	}
 
 	if( !list->hash )
-		return (plistel*)NULL;
+		RETURN( (plistel*)NULL );
 
 	idx = plist_hash_index( list, key );
+	VARS( "idx", "%d", idx );
 
 	for( e = list->hash[ idx ]; e; e = e->hashnext )
 	{
+		VARS( "e", "%p", e );
+		VARS( "e->key", "%s", e->key );
+
 		if( plist_hash_compare( list, e->key, key ) == 0 )
-			return e;
+		{
+			MSG( "Key matches" );
+			RETURN( e );
+		}
+
+		if( i++ == 20 )
+			exit( 1 );
 	}
 
-	return e;
+	RETURN( e );
 }
 
 /** Sort a list. */
@@ -681,6 +712,15 @@ void* plist_access( plistel* e )
 		return *((void**)( e + 1 ));
 
 	return (void*)( e + 1 );
+}
+
+/** Access key-content of the current element //e//. */
+char* plist_key( plistel* e )
+{
+	if( !( e ) )
+		return (char*)NULL;
+
+	return e->key;
 }
 
 /** Access next element of current unit //u//. */

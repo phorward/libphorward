@@ -141,7 +141,6 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #include "base/dbg.h"
 #include "base/llist.h"
 #include "base/plist.h"
-#include "base/hashtab.h"
 #include "base/stack.h"
 #include "regex/pregex.h"
 #include "union/union.h"

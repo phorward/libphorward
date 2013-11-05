@@ -16,7 +16,6 @@ lib_LTLIBRARIES = libphorward.la
 
 libphorward_la_SOURCES = \
 	base/dbg.c \
-	base/hashtab.c \
 	base/llist.c \
 	base/plist.c \
 	base/memory.c \
@@ -42,7 +41,6 @@ libphorward_la_SOURCES = \
 
 noinst_HEADERS = \
 	base/dbg.h \
-	base/hashtab.h \
 	base/llist.h \
 	base/plist.h \
 	base/stack.h \

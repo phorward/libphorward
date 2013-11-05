@@ -130,13 +130,13 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(phorwarddir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libphorward_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libphorward_la_OBJECTS = base/dbg.lo base/hashtab.lo base/llist.lo \
-	base/plist.lo base/memory.lo base/stack.lo ccl/ccl.lo \
-	regex/dfa.lo regex/direct.lo regex/misc.lo regex/nfa.lo \
-	regex/pattern.lo regex/pregex.lo regex/range.lo regex/ref.lo \
-	string/convert.lo string/string.lo string/utf8.lo \
-	util/system.lo union/union.lo union/union.conv.lo \
-	union/union.get.lo union/union.set.lo xml/xml.lo
+am_libphorward_la_OBJECTS = base/dbg.lo base/llist.lo base/plist.lo \
+	base/memory.lo base/stack.lo ccl/ccl.lo regex/dfa.lo \
+	regex/direct.lo regex/misc.lo regex/nfa.lo regex/pattern.lo \
+	regex/pregex.lo regex/range.lo regex/ref.lo string/convert.lo \
+	string/string.lo string/utf8.lo util/system.lo union/union.lo \
+	union/union.conv.lo union/union.get.lo union/union.set.lo \
+	xml/xml.lo
 libphorward_la_OBJECTS = $(am_libphorward_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -328,7 +328,6 @@ PATHEXT = PATH="../run:$(PATH)"
 lib_LTLIBRARIES = libphorward.la
 libphorward_la_SOURCES = \
 	base/dbg.c \
-	base/hashtab.c \
 	base/llist.c \
 	base/plist.c \
 	base/memory.c \
@@ -354,7 +353,6 @@ libphorward_la_SOURCES = \
 
 noinst_HEADERS = \
 	base/dbg.h \
-	base/hashtab.h \
 	base/llist.h \
 	base/plist.h \
 	base/stack.h \
@@ -448,7 +446,6 @@ base/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) base/$(DEPDIR)
 	@: > base/$(DEPDIR)/$(am__dirstamp)
 base/dbg.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
-base/hashtab.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
 base/llist.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
 base/plist.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
 base/memory.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
@@ -539,7 +536,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/dbg.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/hashtab.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/llist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/plist.Plo@am__quote@
