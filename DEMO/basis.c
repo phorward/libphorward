@@ -472,58 +472,54 @@ void xml_demo( void )
 void union_demo( void )
 {
 	/*
-	 * This is a demonstration of the punion data type, which implements
-	 * a union type. A union type is a variable which is capable to
-	 * store different values, by using a type flag.
+	 * This is a demonstration of the punion object, which implements
+	 * a union data type storage. A union type is a variable which is capable to
+	 * store different values, by using a type flag, but only one memory store.
 	 *
-	 * The punion-data type and its support functions of the Phorward
-	 * Foundation Libraries allows to store byte, char, int, long,
-	 * unsigned long (ulong), float, double, string (char*) and
-	 * wide-character string (wstring) and their conversion among each
-	 * other.
+	 * The punion-data type and its support functions of libphorward allows to
+	 * store byte, char, int, long, unsigned long (ulong), float, double,
+	 * string (char*) and wide-character string (wchar*) and their conversion
+	 * among each other.
 	 *
 	 * String memory is always hold with the punion-object, until the
 	 * structure is converted into another type or freed.
-	 *
-	 * It is recommended to clean-up every punion structure using
-	 * punion_reset(), to ensure that all used memory is free again.
 	 */
-	punion	utest;
+	punion*	utest;
 
 	DEMO( "punion_demo" );
 
-	/* Initialize the union structure */
-	punion_init( &utest );
+	/* Get new union object */
+	utest = punion_create();
 
 	/* Set a string, duplicate its memory (*_d) */
-	punion_set_string_d( &utest, "123 Hello World" );
+	punion_set_string_d( utest, "123 Hello World" );
 
 	/* Get the string */
-	printf( "utest(str) = %s\n", punion_get_string( &utest ) );
+	printf( "utest(str) = %s\n", punion_get_string( utest ) );
 
 	/* Get the string as wide-character value */
-	printf( "utest(wstr) = %ls\n", punion_get_wstring( &utest ) );
+	printf( "utest(wstr) = %ls\n", punion_get_wstring( utest ) );
 
 	/*
 	 * Well, this is not possible, because the punion object is
 	 * configured to be not convertible by default. Let's enable this.
 	 */
-	punion_set_convertible( &utest );
+	punion_set_convertible( utest );
 
 	/* Get the string as wide-character value, again. */
-	printf( "utest(wstr) = %ls\n", punion_get_wstring( &utest ) );
+	printf( "utest(wstr) = %ls\n", punion_get_wstring( utest ) );
 
 	/* The the string as integer value - only 123 will be returned! */
-	printf( "utest(int) = %d\n", punion_get_int( &utest ) );
+	printf( "utest(int) = %d\n", punion_get_int( utest ) );
 
 	/* Reset the value by a floating point number */
-	punion_set_double( &utest, 123.456 );
+	punion_set_double( utest, 123.456 );
 
-	printf( "utest(double) = %lf\n", punion_get_double( &utest ) );
-	printf( "utest(str) = %s\n", punion_get_string( &utest ) );
+	printf( "utest(double) = %lf\n", punion_get_double( utest ) );
+	printf( "utest(str) = %s\n", punion_get_string( utest ) );
 
-	/* Free (possibly) used memory */
-	punion_reset( &utest );
+	/* Free the object */
+	utest = punion_free( utest );
 }
 
 int main( int argc, char** argv )

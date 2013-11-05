@@ -16,15 +16,34 @@ Usage:	punion implements a variant data type, which can hold any of
 
 //var// is the pointer to the punion-structure to be initialized.
 */
-void punion_init( punion* var )
+pboolean punion_init( punion* var )
 {
 	PROC( "punion_init" );
 	PARMS( "var", "%p", var );
 
+	if( !var )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
 	memset( var, 0, sizeof( punion ) );
 	var->type = PUNION_NULL;
 
-	VOIDRET;
+	RETURN( TRUE );
+}
+
+/** Creates a new punion-object.
+
+This object must be released after usage using punion_free(). */
+punion* punion_create( void )
+{
+	punion*		u;
+
+	u = (punion*)pmalloc( sizeof( punion ) );
+	punion_init( u );
+
+	return u;
 }
 
 /** Frees all memory used by a punion-element.
@@ -32,11 +51,17 @@ void punion_init( punion* var )
 All memory used by the element is freed, and the union's structure is reset
 to be of type PUNION_NULL.
 
-//var// is the Pointer to punion structure. */
-void punion_reset( punion* var )
+//var// is the pointer to punion structure. */
+pboolean punion_reset( punion* var )
 {
 	PROC( "punion_free" );
 	PARMS( "var", "%p", var );
+
+	if( !( var ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
 
 	switch( punion_type( var ) )
 	{
@@ -55,6 +80,20 @@ void punion_reset( punion* var )
 
 	var->type &= ~0x0F;
 
-	VOIDRET;
+	RETURN( TRUE );
+}
+
+/** Frees an allocated punion object and all its used memory.
+
+The function always returns (punion*)NULL. */
+punion* punion_free( punion* u )
+{
+	if( !u )
+		return (punion*)NULL;
+
+	punion_reset( u );
+	pfree( u );
+
+	return (punion*)NULL;
 }
 

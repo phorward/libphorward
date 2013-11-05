@@ -58,6 +58,28 @@ struct Plist
 };
 
 /* Macros */
+
+/** Macro that expands into a for-loop trough a plist-object //l// using
+element walker variable //e//.
+
+This macro expands into a for-loop of the format
+
+``` for( e = plist_first( l ); e; e = plist_next( e ) )
+
+where //e// is a walker variable for each element.
+
+**Example:**
+
+```
+plist_for( my_list, e )
+{
+	\* Access current element data part *\
+	ptr = (cast*)plist_access( e );
+	...
+}
+```
+*/
+/*MACRO:plist_for( plist* l, plistel* e )*/
 #define plist_for( l, e )	\
 	for( (e) = plist_first( l ); (e); (e) = plist_next( e ) )
 

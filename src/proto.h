@@ -232,8 +232,10 @@ int map_file( char** cont, char* filename );
 pint pgetopt( char* opt, char** param, pint* next, pint argc, char** argv, char* optstr, char* loptstr, pint idx );
 
 /* union/union.c */
-void punion_init( punion* var );
-void punion_reset( punion* var );
+pboolean punion_init( punion* var );
+punion* punion_create( void );
+pboolean punion_reset( punion* var );
+punion* punion_free( punion* u );
 
 /* union/union.conv.c */
 pbyte punion_to_byte( punion* var );
