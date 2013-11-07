@@ -160,9 +160,9 @@ void* pstack_push( pstack* stack, void* item )
 
 	/* Copy item into top of stack */
 	if( item )
-		memcpy( stack->stack + stack->top * stack->size, item, stack->size );
+		memcpy( (char*)stack->stack + stack->top * stack->size, item, stack->size );
 
-	RETURN( stack->stack + stack->top++ * stack->size );
+	RETURN( (char*)stack->stack + stack->top++ * stack->size );
 }
 
 /** Pops an element off the stack.
@@ -193,7 +193,7 @@ void* pstack_pop( pstack* stack )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( stack->stack + --stack->top * stack->size );
+	RETURN( (char*)stack->stack + ( --stack->top * stack->size ) );
 }
 
 /** Access an element from the stack via its offset position.
@@ -223,7 +223,7 @@ void* pstack_access( pstack* stack, size_t offset )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( stack->stack + offset * stack->size );
+	RETURN( (char*)stack->stack + offset * stack->size );
 }
 
 /** Returns the number of elements in a stack. */

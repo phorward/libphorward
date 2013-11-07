@@ -413,7 +413,7 @@ with inserted values.
 */
 char* pasprintf( char* fmt, ... )
 {
-	char*	str;
+	char*	str		= (char*)NULL;
 	va_list	args;
 
 	PROC( "pasprintf" );

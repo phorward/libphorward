@@ -384,7 +384,7 @@ void pstack_demo( void )
 	pstack_push( st, (void*)&x );
 
 	while( ( p = (person*)pstack_pop( st ) ) )
-		fprintf( stderr, "%s %s\n", p->first_name, p->last_name );
+		printf( "%s %s\n", p->first_name, p->last_name );
 
 	st = pstack_free( st );
 }

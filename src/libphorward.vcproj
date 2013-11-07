@@ -150,55 +150,43 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="util\base64.c"
+				RelativePath=".\regex\ccl.c"
 				>
 			</File>
 			<File
-				RelativePath="base\bitset.c"
+				RelativePath=".\string\convert.c"
 				>
 			</File>
 			<File
-				RelativePath="ccl\ccl.c"
+				RelativePath=".\base\dbg.c"
 				>
 			</File>
 			<File
-				RelativePath="string\convert.c"
+				RelativePath=".\regex\dfa.c"
 				>
 			</File>
 			<File
-				RelativePath="base\dbg.c"
+				RelativePath=".\regex\direct.c"
 				>
 			</File>
 			<File
-				RelativePath="regex\dfa.c"
+				RelativePath=".\base\llist.c"
 				>
 			</File>
 			<File
-				RelativePath="regex\direct.c"
+				RelativePath=".\base\memory.c"
 				>
 			</File>
 			<File
-				RelativePath="base\hashtab.c"
+				RelativePath=".\regex\misc.c"
 				>
 			</File>
 			<File
-				RelativePath="base\llist.c"
+				RelativePath=".\regex\nfa.c"
 				>
 			</File>
 			<File
-				RelativePath="base\memory.c"
-				>
-			</File>
-			<File
-				RelativePath="regex\misc.c"
-				>
-			</File>
-			<File
-				RelativePath="regex\nfa.c"
-				>
-			</File>
-			<File
-				RelativePath="regex\pattern.c"
+				RelativePath=".\regex\pattern.c"
 				>
 			</File>
 			<File
@@ -206,51 +194,51 @@
 				>
 			</File>
 			<File
-				RelativePath="regex\pregex.c"
+				RelativePath=".\regex\pregex.c"
 				>
 			</File>
 			<File
-				RelativePath="regex\range.c"
+				RelativePath=".\regex\range.c"
 				>
 			</File>
 			<File
-				RelativePath="regex\ref.c"
+				RelativePath=".\regex\ref.c"
 				>
 			</File>
 			<File
-				RelativePath="base\stack.c"
+				RelativePath=".\base\stack.c"
 				>
 			</File>
 			<File
-				RelativePath="string\string.c"
+				RelativePath=".\string\string.c"
 				>
 			</File>
 			<File
-				RelativePath="util\system.c"
+				RelativePath=".\util\system.c"
 				>
 			</File>
 			<File
-				RelativePath="union\union.c"
+				RelativePath=".\union\union.c"
 				>
 			</File>
 			<File
-				RelativePath="union\union.conv.c"
+				RelativePath=".\union\union.conv.c"
 				>
 			</File>
 			<File
-				RelativePath="union\union.get.c"
+				RelativePath=".\union\union.get.c"
 				>
 			</File>
 			<File
-				RelativePath="union\union.set.c"
+				RelativePath=".\union\union.set.c"
 				>
 			</File>
 			<File
-				RelativePath="string\utf8.c"
+				RelativePath=".\string\utf8.c"
 				>
 			</File>
 			<File
-				RelativePath="xml\xml.c"
+				RelativePath=".\xml\xml.c"
 				>
 			</File>
 		</Filter>
