@@ -21,6 +21,7 @@ pggrammar* pg_grammar_create( void )
 	g->symbols = plist_create( sizeof( pgsymbol ),
 						PLIST_MOD_RECYCLE | PLIST_MOD_UNIQUE |
 							PLIST_MOD_EXTKEYS );
+	g->productions = plist_create( sizeof( pgproduction ), PLIST_MOD_RECYCLE );
 
 	g->eoi = pg_terminal_create( g, "@eof", (char*)NULL );
 
@@ -35,6 +36,7 @@ pggrammar* pg_grammar_free( pggrammar* g )
 		return (pggrammar*)NULL;
 
 	g->symbols = plist_free( g->symbols );
+	g->productions = plist_free( g->productions );
 	TODO;
 	pfree( g );
 
@@ -45,26 +47,26 @@ pggrammar* pg_grammar_free( pggrammar* g )
 
 void pg_grammar_print( pggrammar* g )
 {
-	LIST*			l;
-	LIST*			m;
+	plistel*		ep;
+	plistel*		es;
 	pgproduction*	p;
 	pgsymbol*		s;
 	int				i;
 
 	printf( "--- Productions ---\n" );
-	LISTFOR( g->productions, l )
+	plist_for( g->productions, ep )
 	{
-		p = (pgproduction*)list_access( l );
+		p = (pgproduction*)plist_access( ep );
 		printf( "%02d %s\n", pg_production_get_id( p ),
 								pg_production_to_string( p ) );
 
-		if( p->select )
+		if( plist_count( p->select ) )
 		{
 			printf( "    SELECT => " );
 
-			LISTFOR( p->select, m )
+			plist_for( p->select, es )
 				printf( "%s ", pg_symbol_get_name(
-									(pgsymbol*)list_access( m ) ) );
+									(pgsymbol*)plist_access( es ) ) );
 
 			printf( "\n" );
 		}
@@ -75,23 +77,23 @@ void pg_grammar_print( pggrammar* g )
 	{
 		printf( "%02d %s\n", pg_symbol_get_id( s ), pg_symbol_get_name( s ) );
 
-		if( s->first )
+		if( plist_count( s->first ) )
 		{
 			printf( "    FIRST  => " );
 
-			LISTFOR( s->first, l )
+			plist_for( s->first, es )
 				printf( "%s ", pg_symbol_get_name(
-									(pgsymbol*)list_access( l ) ) );
+									(pgsymbol*)plist_access( es ) ) );
 
 			printf( "\n" );
 		}
 
-		if( s->follow )
+		if( plist_count( s->follow ) )
 		{
 			printf( "    FOLLOW => " );
-			LISTFOR( s->follow, l )
+			plist_for( s->follow, es )
 				printf( "%s ", pg_symbol_get_name(
-								(pgsymbol*)list_access( l ) ) );
+								(pgsymbol*)plist_access( es ) ) );
 
 			printf( "\n" );
 		}
@@ -112,45 +114,55 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 	int				f			= 0;		/* Current FIRST count */
 	int				pf;						/* Previous FIRST count */
 
+	PROC( "pg_grammar_compute_first" );
+	PARMS( "g", "%p", g );
+
 	if( !( g ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
 	}
 
-	/* Required dependencies */
+	MSG( "Required dependencies" );
 	if( !( pg_grammar_get_goal( g ) && pg_grammar_get_eoi( g ) ) )
 	{
 		PGERR( "Grammar must provide a goal symbol and end-of-file." );
-		return FALSE;
+		RETURN( FALSE );
 	}
 
-	/* Reset all symbols */
+	MSG( "Reset all symbols" );
 	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
 	{
 		if( pg_symbol_is_terminal( s ) )
 		{
+			MSG( "Terminal" );
 			/* Terminal symbols are their own FIRST set - this must be set only
 				once in the entire symbol's lifetime. */
-			if( !s->first )
-				s->first = list_push( s->first, s );
+			if( !plist_count( s->first ) )
+				plist_push( s->first, s );
 		}
 		else
+		{
+			MSG( "Nonterminal" );
+
 			/* Nonterminal symbols must be reset */
-			s->first = list_free( s->first );
+			plist_clear( s->first );
+		}
 
 		s->nullable = FALSE;
 	}
 
-	/* Loop until no more changes appear */
+	MSG( "Loop until no more changes appear" );
 	do
 	{
+		fprintf( stderr, "--\n" );
 		pf = f;
 		f = 0;
 
 		/* Loop trough nonterminal symbols */
 		for( i = 0; cs = pg_nonterminal_get( g, i ); i++ )
 		{
+			fprintf( stderr, " cs = '%s'\n", pg_symbol_get_name( cs ) );
 			/* Loop trough all nonterminal productions */
 			for( j = 0; p = pg_production_get_by_lhs( cs, j ); j++ )
 			{
@@ -163,7 +175,11 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 					for( k = 0; s = pg_production_get_rhs( p, k ); k++ )
 					{
 						/* Union FIRST sets... */
-						cs->first = list_union( cs->first, s->first );
+						fprintf( stderr, "  union '%s' with '%s'\n",
+							pg_symbol_get_name( s ),
+								pg_symbol_get_name( cs ) );
+
+						plist_union( cs->first, s->first );
 
 						/* ...until the right-hand side symbol is not
 								nullable */
@@ -177,12 +193,12 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 				cs->nullable |= nullable;
 			}
 
-			f += list_count( cs->first );
+			f += plist_count( cs->first );
 		}
 	}
 	while( pf != f );
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 /* FOLLOW set computation */
@@ -219,17 +235,17 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
 	{
 		/* First set computation must be done first */
-		if( !( s->first ) )
+		if( !plist_count( s->first ) )
 		{
 			PGERR( "FIRST-set must be computed first" );
 			return FALSE;
 		}
 
-		s->follow = list_free( s->follow );
+		plist_clear( s->follow );
 	}
 
 	/* Goal symbol has end-of-input in its follow set */
-	fs->follow = list_push( fs->follow, pg_grammar_get_eoi( g ) );
+	plist_push( fs->follow, pg_grammar_get_eoi( g ) );
 
 	/* Loop until no more changes appear */
 	do
@@ -248,16 +264,16 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 				{
 					for( l = k + 1; fs = pg_production_get_rhs( p, l ); l++ )
 					{
-						s->follow = list_union( s->follow, fs->first );
+						plist_union( s->follow, fs->first );
 
 						if( !fs->nullable )
 							break;
 					}
 
 					if( !fs )
-						s->follow = list_union( s->follow, ns->follow );
+						plist_union( s->follow, ns->follow );
 
-					f += list_count( s->follow );
+					f += plist_count( s->follow );
 				}
 			}
 		}
@@ -292,12 +308,12 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 
 	for( i = 0; ( p = pg_production_get( g, i ) ); i++ )
 	{
-		p->select = list_free( p->select );
+		p->select = plist_free( p->select );
 
 		nullable = TRUE;
 		for( j = 0; ( s = pg_production_get_rhs( p, j ) ); j++ )
 		{
-			p->select = list_union( p->select, s->first );
+			plist_union( p->select, s->first );
 
 			if( !( nullable |= s->nullable ) )
 				break;
@@ -307,7 +323,7 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 		{
 			/* TODO: Multiple lhs */
 			s = pg_production_get_lhs( p );
-			p->select = list_union( p->select, s->first );
+			plist_union( p->select, s->first );
 		}
 	}
 

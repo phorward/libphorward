@@ -25,6 +25,8 @@ pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name )
 	if( !( sym = pg_symbol_create( grammar, PGSYMTYPE_NONTERMINAL, name ) ) )
 		return (pgterminal*)NULL;
 
+	sym->productions = plist_create( 0, PLIST_MOD_PTR );
+
 	if( !( grammar->goal ) )
 		grammar->goal = sym;
 
@@ -44,9 +46,11 @@ pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal )
 		return (pgnonterminal*)NULL;
 	}
 
-	while( nonterminal->productions )
-		pg_production_drop( (pgproduction*)list_access(
-								nonterminal->productions ) );
+	while( plist_count( nonterminal->productions ) )
+		pg_production_drop( (pgproduction*)plist_access(
+								plist_first( nonterminal->productions ) ) );
+
+	plist_free( nonterminal->productions );
 
 	return pg_symbol_free( nonterminal );
 }

@@ -5,7 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	parser.h
-Usage:	
+Usage:
 ----------------------------------------------------------------------------- */
 
 typedef struct _pgparser			pgparser;
@@ -26,7 +26,7 @@ struct _pgparser
 	pglexer*		lexer;			/* The lexer */
 	pgparadigm		paradigm;		/* Parsing paradigm */
 
-	LIST*			states;			/* The parser states */
+	plist*			states;			/* The parser states */
 
 	pboolean		optimize;		/* Enable state optimizeion */
 	char*			source;			/* Source */

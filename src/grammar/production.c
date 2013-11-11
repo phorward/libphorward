@@ -24,15 +24,17 @@ pgproduction* pg_production_create( pgnonterminal* lhs, ... )
 		return (pgproduction*)NULL;
 	}
 
-	p = (pgproduction*)pmalloc( sizeof( pgproduction ) );
+	p = (pgproduction*)plist_malloc( lhs->grammar->productions );
+
+	p->rhs = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+	p->select = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
 	/* Connect with grammar */
 	p->grammar = pg_symbol_get_grammar( lhs );
-	p->grammar->productions = list_push( p->grammar->productions, p );
 
 	/* Connect with left-hand side */
 	p->lhs = lhs;
-	lhs->productions = list_push( lhs->productions, p );
+	plist_push( lhs->productions, p );
 
 	/* Fill in right-hand side symbols */
 	va_start( args, lhs );
@@ -54,7 +56,7 @@ pgproduction* pg_production_drop( pgproduction* p )
 
 	pfree( p->strval );
 
-	p->select = list_free( p->select );
+	p->select = plist_free( p->select );
 
 	return (pgproduction*)NULL;
 }
@@ -63,7 +65,7 @@ pgproduction* pg_production_drop( pgproduction* p )
 
 char* pg_production_to_string( pgproduction* p )
 {
-	LIST*		l;
+	plistel*	e;
 	pgsymbol*	sym;
 
 	if( ( !p ) )
@@ -77,11 +79,11 @@ char* pg_production_to_string( pgproduction* p )
 	p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
 	p->strval = pstrcatstr( p->strval, " : ", FALSE );
 
-	LISTFOR( p->rhs, l )
+	plist_for( p->rhs, e )
 	{
-		sym = (pgsymbol*)list_access( l );
+		sym = (pgsymbol*)plist_access( e );
 
-		if( l != p->rhs )
+		if( e != plist_first( p->rhs ) )
 			p->strval = pstrcatstr( p->strval, " ", FALSE );
 
 		if( pg_symbol_is_terminal( sym ) )
@@ -131,8 +133,7 @@ pboolean pg_production_append( pgproduction* p, pgsymbol* sym )
 		return FALSE;
 	}
 
-	p->rhs = list_push( p->rhs, sym );
-
+	plist_push( p->rhs, sym );
 	return TRUE;
 }
 
@@ -146,7 +147,7 @@ pgproduction* pg_production_get( pggrammar* grammar, int i )
 		return (pgproduction*)NULL;
 	}
 
-	return (pgproduction*)list_getptr( grammar->productions, i );
+	return (pgproduction*)plist_access( plist_get( grammar->productions, i ) );
 }
 
 /* Retrieve: By offset from keft-hand side */
@@ -161,7 +162,7 @@ pgproduction* pg_production_get_by_lhs( pgnonterminal* lhs, int i )
 		return (pgproduction*)NULL;
 	}
 
-	return (pgproduction*)list_getptr( lhs->productions, i );
+	return (pgproduction*)plist_access( plist_get( lhs->productions, i ) );
 }
 
 /* Retrieve: Right-hand side */
@@ -174,7 +175,7 @@ pgsymbol* pg_production_get_rhs( pgproduction* p, int i )
 		return (pgsymbol*)NULL;
 	}
 
-	return list_getptr( p->rhs, i );
+	return (pgsymbol*)plist_access( plist_get( p->rhs, i ) );
 }
 
 /* Attribute: id */
@@ -188,7 +189,7 @@ int pg_production_get_id( pgproduction* p )
 		return -1;
 	}
 
-	return list_find( p->grammar->productions, p );
+	return plist_offset( plist_get_by_ptr( p->grammar->productions, p ) );
 }
 
 /* Attribute: grammar */
@@ -230,5 +231,5 @@ int pg_production_get_rhs_length( pgproduction* p )
 		return 0;
 	}
 
-	return list_count( p->rhs );
+	return plist_count( p->rhs );
 }

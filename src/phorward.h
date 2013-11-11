@@ -227,11 +227,12 @@ typedef struct llist
 
 
 #define PLIST_MOD_NONE		0	
-#define PLIST_MOD_RECYCLE	1	
-#define PLIST_MOD_EXTKEYS	2	
-#define PLIST_MOD_UNIQUE	4	
-#define PLIST_MOD_WCHAR		8	
-#define PLIST_MOD_PTR		16	
+#define PLIST_MOD_PTR		1	
+#define PLIST_MOD_RECYCLE	2	
+#define PLIST_MOD_EXTKEYS	4	
+#define PLIST_MOD_UNIQUE	8	
+#define PLIST_MOD_WCHAR		16	
+
 
 
 typedef struct Plistel		plistel;
@@ -763,8 +764,8 @@ struct _pgsymbol
 
 	pboolean		nullable;		
 
-	LIST*			first;			
-	LIST*			follow;			
+	plist*			first;			
+	plist*			follow;			
 
 	
 	pregex_ptn*		ptn;			
@@ -772,7 +773,7 @@ struct _pgsymbol
 	pgassoc			assoc;			
 
 	
-	LIST*			productions;	
+	plist*			productions;	
 };
 
 typedef pgsymbol	pgterminal;		
@@ -786,12 +787,12 @@ struct _pgproduction
 	int				id;				
 
 	pgsymbol*		lhs;			
-	LIST*			rhs;			
+	plist*			rhs;			
 
 	int				prec;			
 	pgassoc			assoc;			
 
-	LIST*			select;			
+	plist*			select;			
 
 	char*			strval;			
 };
@@ -800,7 +801,7 @@ struct _pgproduction
 struct _pggrammar
 {
 	plist*			symbols;		
-	LIST*			productions;	
+	plist*			productions;	
 
 	pgnonterminal*	goal;			
 	pgterminal*		eoi;			
@@ -842,7 +843,7 @@ struct _pgparser
 	pglexer*		lexer;			
 	pgparadigm		paradigm;		
 
-	LIST*			states;			
+	plist*			states;			
 
 	pboolean		optimize;		
 	char*			source;			
@@ -894,16 +895,20 @@ pboolean plist_init( plist* list, psize size, pbyte flags );
 plist* plist_create( psize size, pbyte flags );
 plist* plist_dup( plist* list );
 pboolean plist_erase( plist* list );
+pboolean plist_clear( plist* list );
 plist* plist_free( plist* list );
 plistel* plist_insert( plist* list, plistel* pos, char* key, void* src );
 plistel* plist_push( plist* list, void* src );
-plistel* plist_remove( plist* list, plistel* e );
+void* plist_malloc( plist* list );
+pboolean plist_remove( plist* list, plistel* e );
 pboolean plist_pop( plist* list, void* dest );
 plistel* plist_get( plist* list, int n );
 plistel* plist_get_by_key( plist* list, char* key );
+plistel* plist_get_by_ptr( plist* list, void* ptr );
+int plist_union( plist* all, plist* from );
+int plist_diff( plist* left, plist* right );
 pboolean plist_subsort( plistel* from, plistel* to, pboolean (*less)( void*, void * ) );
 pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) );
-plistel* plist_get_by_ptr( plist* list, void* ptr );
 void* plist_access( plistel* e );
 char* plist_key( plistel* e );
 plistel* plist_next( plistel* u );

@@ -14,7 +14,7 @@ static void pg_lritem_print( pglritem* it, FILE* f )
 {
 	int			i;
 	pgsymbol*	sym;
-	LIST*		l;
+	plistel*	e;
 
 	if( ( !it ) )
 	{
@@ -46,12 +46,13 @@ static void pg_lritem_print( pglritem* it, FILE* f )
 		if( it->lookahead )
 		{
 			fprintf( f, "   [ " );
-			LISTFOR( it->lookahead, l )
+
+			plist_for( it->lookahead, e )
 			{
-				if( l != it->lookahead )
+				if( e != plist_first( it->lookahead ) )
 					fprintf( f, " " );
 
-				pg_symbol_print( (pgsymbol*)list_access( l ), stderr );
+				pg_symbol_print( (pgsymbol*)plist_access( e ), stderr );
 			}
 
 			fprintf( f, " ]" );
@@ -61,9 +62,9 @@ static void pg_lritem_print( pglritem* it, FILE* f )
 	fprintf( f, "\n" );
 }
 
-static void pg_lritems_print( LIST* items, FILE* f, char* what )
+static void pg_lritems_print( plist* items, FILE* f, char* what )
 {
-	LIST*	l;
+	plistel*	e;
 
 	if( ( !items ) )
 		return;
@@ -74,20 +75,20 @@ static void pg_lritems_print( LIST* items, FILE* f, char* what )
 	if( what && *what )
 		fprintf( f, "%s:\n", what );
 
-	LISTFOR( items, l )
+	plist_for( items, e )
 	{
 		if( what && *what )
 			fprintf( f, "\t" );
 
-		pg_lritem_print( (pglritem*)list_access( l ), f );
+		pg_lritem_print( (pglritem*)plist_access( e ), f );
 	}
 }
 
-static pglritem* pg_lritem_create( LIST** list, pgproduction* prod, int dot )
+static pglritem* pg_lritem_create( plist* list, pgproduction* prod, int dot )
 {
 	pglritem*	item;
 
-	if( !( prod ) )
+	if( !( list && prod ) )
 	{
 		WRONGPARAM;
 		return (pglritem*)NULL;
@@ -98,12 +99,10 @@ static pglritem* pg_lritem_create( LIST** list, pgproduction* prod, int dot )
 	else if( dot > pg_production_get_rhs_length( prod ) )
 		dot = pg_production_get_rhs_length( prod );
 
-	item = pmalloc( sizeof( pglritem ) );
+	item = (pglritem*)plist_malloc( list );
 	item->prod = prod;
 	item->dot = dot;
-
-	if( list )
-		*list = list_push( *list, item );
+	item->lookahead = plist_create( 0, PLIST_MOD_PTR );
 
 	return item;
 }
@@ -113,8 +112,7 @@ static pglritem* pg_lritem_free( pglritem* it )
 	if( !( it ) )
 		return (pglritem*)NULL;
 
-	list_free( it->lookahead );
-	pfree( it );
+	it->lookahead = plist_free( it->lookahead );
 
 	return (pglritem*)NULL;
 }
@@ -124,22 +122,21 @@ static pglrcolumn* pg_lrcolumn_create(
 {
 	pglrcolumn*		col;
 
-	col = (pglrcolumn*)pmalloc( sizeof( pglrcolumn ) );
+	if( pg_symbol_is_terminal( sym ) )
+		col = (pglrcolumn*)plist_malloc( st->actions );
+	else
+		col = (pglrcolumn*)plist_malloc( st->gotos );
 
 	col->symbol = sym;
 	col->shift = shift;
 	col->reduce = reduce;
 
-	if( pg_symbol_is_terminal( sym ) )
-		st->actions = list_push( st->actions, col );
-	else
-		st->gotos = list_push( st->gotos, col );
-
 	return col;
 }
 
-static pglrstate* pg_lrstate_create( pgparser* parser )
+static pglrstate* pg_lrstate_create( pgparser* parser, plist* kernel )
 {
+	plistel*	e;
 	pglrstate*	state;
 
 	if( !( parser ) )
@@ -148,42 +145,26 @@ static pglrstate* pg_lrstate_create( pgparser* parser )
 		return (pglrstate*)NULL;
 	}
 
-	state = pmalloc( sizeof( pglrstate ) );
-	parser->states = list_push( parser->states, state );
+	state = plist_malloc( parser->states );
+
+	state->kernel = plist_create( sizeof( pglritem ), PLIST_MOD_NONE );
+	state->actions = plist_create( sizeof( pglrcolumn ), PLIST_MOD_NONE );
+	state->gotos = plist_create( sizeof( pglrcolumn ), PLIST_MOD_NONE );
+
+	plist_for( kernel, e )
+		plist_push( state->kernel, plist_access( e ) );
 
 	return state;
 }
 
 static pglrstate* pg_lrstate_free( pglrstate* state )
 {
-	LIST*		l;
-	pglrcolumn*	col;
-	pglritem*	it;
-
 	if( !state )
 		return (pglrstate*)NULL;
 
-	LISTFOR( state->actions, l )
-	{
-		col = (pglrcolumn*)list_access( l );
-		pfree( col );
-	}
-
-	LISTFOR( state->gotos, l )
-	{
-		col = (pglrcolumn*)list_access( l );
-		pfree( col );
-	}
-
-	LISTFOR( state->kernel, l )
-	{
-		it = (pglritem*)list_access( l );
-		pfree( col );
-	}
-
-	state->actions = list_free( state->actions );
-	state->gotos = list_free( state->gotos );
-	state->kernel = list_free( state->kernel );
+	plist_free( state->actions );
+	plist_free( state->gotos );
+	plist_free( state->kernel );
 
 	pfree( state );
 
@@ -191,28 +172,28 @@ static pglrstate* pg_lrstate_free( pglrstate* state )
 }
 
 static BOOLEAN pg_parser_lr_compare(
-		LIST* kernel1, LIST* kernel2, pgparadigm para )
+		plist* kernel1, plist* kernel2, pgparadigm para )
 {
-	LIST*		l;
-	LIST*		m;
+	plistel*	e;
+	plistel*	f;
 	pglritem*	it1;
 	pglritem*	it2;
 	int			same	= 0;
 
-	if( list_count( kernel1 ) == list_count( kernel2 ) )
+	if( plist_count( kernel1 ) == plist_count( kernel2 ) )
 	{
-		LISTFOR( kernel1, l )
+		plist_for( kernel1, e )
 		{
-			it1 = (pglritem*)list_access( l );
+			it1 = (pglritem*)plist_access( e );
 
-			LISTFOR( kernel2, m )
+			plist_for( kernel2, f )
 			{
-				it2 = (pglritem*)list_access( m );
+				it2 = (pglritem*)plist_access( f );
 
 				if( it1->prod == it2->prod
 					&& it1->dot == it2->dot
 					&& ( para != PGPARADIGM_LR1
-							|| list_diff( it1->lookahead, it2->lookahead ) )
+							|| plist_diff( it1->lookahead, it2->lookahead ) )
 					)
 				{
 					same++;
@@ -220,7 +201,7 @@ static BOOLEAN pg_parser_lr_compare(
 			}
 		}
 
-		if( list_count( kernel1 ) == same )
+		if( plist_count( kernel1 ) == same )
 			return TRUE;
 	}
 
@@ -230,11 +211,12 @@ static BOOLEAN pg_parser_lr_compare(
 static pglrstate* pg_parser_lr_get_undone( pgparser* parser )
 {
 	pglrstate*	st;
-	LIST*		l;
+	plistel*	e;
 
-	LISTFOR( parser->states, l )
+	plist_for( parser->states, e )
 	{
-		st = (pglrstate*)list_access( l );
+		st = (pglrstate*)plist_access( e );
+
 		if( !st->done )
 			return st;
 	}
@@ -253,12 +235,12 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	pgsymbol*		lhs;
 	pgproduction*	prod;
 	pglrcolumn*		col;
-	LIST*			closure;
-	LIST*			start;
-	LIST*			l;
-	LIST*			m;
-	LIST*			n;
-	LIST*			o;
+	plist*			closure;
+	plist*			part;
+	plistel*		e;		/* l */
+	plistel*		f;		/* m */
+	plistel*		g;		/* n */
+	plistel*		h;		/* o */
 	int				i;
 	int				j;
 	int				cnt;
@@ -281,34 +263,39 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 
 	/* Perform FIRST set computation */
 	pg_grammar_compute_first( pg_parser_get_grammar( parser ) );
+	pg_grammar_print( pg_parser_get_grammar( parser ) );
 
-	/* Create a starting seed */
-	nst = pg_lrstate_create( parser );
-	it = pg_lritem_create( &nst->kernel,
+	/* Create a parting seed */
+	nst = pg_lrstate_create( parser, (plist*)NULL );
+	it = pg_lritem_create( nst->kernel,
 				pg_production_get_by_lhs(
 					pg_grammar_get_goal( parser->grammar ), 0 ), 0 );
 
-	it->lookahead = list_push( it->lookahead,
-						pg_grammar_get_eoi( parser->grammar ) );
+	plist_push( it->lookahead, pg_grammar_get_eoi( parser->grammar ) );
 
+	/* Initialize part and closure lists */
+	part = plist_create( sizeof( pglritem ), PLIST_MOD_RECYCLE );
+	closure = plist_create( sizeof( pglritem ), PLIST_MOD_RECYCLE );
+
+	/* Run the closure loop */
 	while( ( st = pg_parser_lr_get_undone( parser ) ) )
 	{
 		fprintf( stderr, "---\nClosing state %d\n",
-					list_find( parser->states, st ) );
+					plist_offset( plist_get_by_ptr( parser->states, st ) ) );
 		st->done = TRUE;
 
 		/* Close all items of the current state */
 		cnt = 0;
-		closure = (LIST*)NULL;
+		plist_clear( closure );
 
 		pg_lritems_print( st->kernel, stderr, "Kernel" );
 
 		/* Duplicate state kernel to closure */
-		LISTFOR( st->kernel, l )
+		plist_for( st->kernel, e )
 		{
-			kit = (pglritem*)list_access( l );
-			it = pg_lritem_create( &closure, kit->prod, kit->dot );
-			it->lookahead = list_dup( kit->lookahead );
+			kit = (pglritem*)plist_access( e );
+			it = pg_lritem_create( closure, kit->prod, kit->dot );
+			it->lookahead = plist_dup( kit->lookahead );
 		}
 
 		/* Close the closure! */
@@ -318,9 +305,9 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			cnt = 0;
 
 			/* Loop trought all items of the current state */
-			LISTFOR( closure, l )
+			plist_for( closure, e )
 			{
-				it = (pglritem*)list_access( l );
+				it = (pglritem*)plist_access( e );
 
 				/* Check if symbol right to the dot is a nonterminal */
 				if( !( lhs = pg_production_get_rhs( it->prod, it->dot ) )
@@ -331,15 +318,15 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 					if not already in */
 				for( i = 0; ( prod = pg_production_get_by_lhs( lhs, i ) ); i++ )
 				{
-					LISTFOR( closure, m )
+					plist_for( closure, f )
 					{
-						cit = (pglritem*)list_access( m );
+						cit = (pglritem*)plist_access( f );
 						if( cit->prod == prod )
 							break;
 					}
 
-					if( !m )
-						cit = pg_lritem_create( &closure, prod, 0 );
+					if( !f )
+						cit = pg_lritem_create( closure, prod, 0 );
 
 					/* Merge lookahead */
 					if( parser->paradigm != PGPARADIGM_LR0 )
@@ -354,8 +341,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 								( sym = pg_production_get_rhs( it->prod, j ) );
 									j++ )
 						{
-							cit->lookahead = list_union( cit->lookahead,
-															sym->first );
+							plist_union( cit->lookahead, sym->first );
 
 							if( !sym->nullable )
 								break;
@@ -367,13 +353,12 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 							items lookahead to the closed items lookahead.
 						*/
 						if( !sym )
-							cit->lookahead = list_union( cit->lookahead,
-															it->lookahead );
+							plist_union( cit->lookahead, it->lookahead );
 					}
 				}
 			}
 
-			cnt = list_count( closure );
+			cnt = plist_count( closure );
 		}
 		while( prev_cnt != cnt );
 
@@ -385,32 +370,39 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		do
 		{
 			sym = (pgsymbol*)NULL;
-			start = (LIST*)NULL;
+			plist_clear( part );
 
-			LISTFOR( closure, l )
+			for( e = plist_first( closure ); e; )
 			{
-				it = (pglritem*)list_access( l );
+				it = (pglritem*)plist_access( e );
 
 				/* Check if symbol right to the dot is a nonterminal */
 				if( !sym && !( sym = pg_production_get_rhs(
-								it->prod, it->dot ) ) )
+											it->prod, it->dot ) ) )
+				{
+					e = plist_next( e );
 					continue;
+				}
 
 				/* Add item to new state kernel */
 				if( pg_production_get_rhs( it->prod, it->dot ) == sym )
 				{
 					it->dot++;
-					start = list_push( start, it );
+					plist_push( part, it );
+
+					f = plist_prev( e );
+					plist_remove( closure, e );
+
+					if( !( e = f ) )
+						e = plist_first( closure );
 				}
+				else
+					e = plist_next( e );
 			}
 
-			/* Stop if no more partitions found! */
-			if( !start )
+			/* Stop if no more partitions found (there is no first item) */
+			if( !( it = (pglritem*)plist_access( plist_first( part ) ) ) )
 				break;
-
-			/* Remove this partition from closure */
-			LISTFOR( start, l )
-				closure = list_remove( closure, list_access( l ) );
 
 			/*
 				Can we do a shift and reduce in one transition?
@@ -423,66 +415,65 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				terminals and/or nonterminals or even epsilon, and z is a
 				terminal or nonterminal.
 			*/
-			if( pg_parser_get_optimize( parser ) &&
-					( list_count( start ) == 1 &&
-						!pg_production_get_rhs( it->prod, it->dot ) ) )
+			if( pg_parser_get_optimize( parser )
+					&& ( plist_count( part ) == 1
+							&& !pg_production_get_rhs( it->prod, it->dot ) ) )
 			{
+
 				if( !st->closed )
 					pg_lrcolumn_create( st, sym,
 							(pglrstate*)it->prod, it->prod );
 
 				/* Forget current partition
 					- its not needed anymore... */
-				LISTFOR( start, l )
-					pg_lritem_free( (pglritem*)list_access( l ) );
+				plist_for( part, e )
+					pg_lritem_free( (pglritem*)plist_access( e ) );
 
-				list_free( start );
 				continue;
 			}
 
 			/* Check if state already exists */
-			LISTFOR( parser->states, l )
+			plist_for( parser->states, e )
 			{
-				nst = (pglrstate*)list_access( l );
+				nst = (pglrstate*)plist_access( e );
 
 				if( pg_parser_lr_compare(
-						nst->kernel, start, parser->paradigm ) )
+						nst->kernel, part, parser->paradigm ) )
 					break;
 			}
 
 			/* State does not already exists?
 				Create it as new! */
-			if( !l )
+			if( !e )
 			{
 				fprintf( stderr, "Creating new state %d\n",
-									list_count( parser->states ) );
-				pg_lritems_print( start, stderr, "Kernel" );
+									plist_count( parser->states ) );
+				pg_lritems_print( part, stderr, "Kernel" );
 
-				nst = pg_lrstate_create( parser );
-				nst->kernel = start;
+				nst = pg_lrstate_create( parser, part );
 			}
 			else
 			/* State already exists?
 				Merge lookaheads (if needed). */
 			{
 				fprintf( stderr, "Using existing state %d\n",
-							list_find( parser->states, nst ) );
+							plist_offset( e ) );
 
 				if( parser->paradigm != PGPARADIGM_LR0 )
 				{
 					cnt = 0;
 					prev_cnt = 0;
 
-					for( l = nst->kernel, m = start; l;
-							l = list_next( l ), m = list_next( m ) )
+					for( e = plist_first( nst->kernel ),
+							f = plist_first( part ); e;
+								e = plist_next( e ), f = plist_next( f ) )
 					{
-						it = (pglritem*)list_access( l );
-						cit = (pglritem*)list_access( l );
+						it = (pglritem*)plist_access( e );
+						cit = (pglritem*)plist_access( f );
 
-						prev_cnt += list_count( it->lookahead );
-						it->lookahead = list_union( it->lookahead,
-														cit->lookahead );
-						cnt += list_count( it->lookahead );
+						prev_cnt += plist_count( it->lookahead );
+						plist_union( it->lookahead, cit->lookahead );
+						cnt += plist_count( it->lookahead );
 					}
 
 					if( cnt != prev_cnt )
@@ -490,11 +481,6 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				}
 
 				pg_lritems_print( st->kernel, stderr, "Kernel" );
-
-				LISTFOR( start, l )
-					pg_lritem_free( (pglritem*)list_access( l ) );
-
-				list_free( start );
 			}
 
 			if( sym && !st->closed )
@@ -502,36 +488,37 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		}
 		while( TRUE );
 
-		/*
 		getchar();
-		*/
 		st->closed = TRUE;
 	}
 
-	/* Perform reductions */
-	LISTFOR( parser->states, l )
-	{
-		st = (pglrstate*)list_access( l );
+	plist_free( closure );
+	plist_free( part );
 
-		LISTFOR( st->kernel, m )
+	/* Perform reductions */
+	plist_for( parser->states, e )
+	{
+		st = (pglrstate*)plist_access( e );
+
+		plist_for( st->kernel, f )
 		{
-			it = (pglritem*)list_access( m );
+			it = (pglritem*)plist_access( f );
 
 			if( pg_production_get_rhs( it->prod, it->dot ) )
 				continue;
 
-			LISTFOR( it->lookahead, n )
+			plist_for( it->lookahead, g )
 			{
-				sym = (pgsymbol*)list_access( n );
+				sym = (pgsymbol*)plist_access( g );
 
-				LISTFOR( st->actions, o )
+				plist_for( st->actions, h )
 				{
-					col = (pglrcolumn*)list_access( o );
+					col = (pglrcolumn*)plist_access( h );
 					if( col->symbol == sym )
 						break;
 				}
 
-				if( o )
+				if( h )
 				{
 					/* TODO Conflict resolution */
 					fprintf( stderr,
@@ -548,17 +535,16 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 
 	fprintf( stderr, "\n*** FINAL STATES***\n\n" );
 
-	LISTFOR( parser->states, l )
+	plist_for( parser->states, e )
 	{
-		st = (pglrstate*)list_access( l );
-		fprintf( stderr, "-- State %d --\n",
-			list_find( parser->states, st ) );
+		st = (pglrstate*)plist_access( e );
+		fprintf( stderr, "-- State %d --\n", plist_offset( e ) );
 
 		pg_lritems_print( st->kernel, stderr, "Kernel" );
 
-		LISTFOR( st->actions, m )
+		plist_for( st->actions, f )
 		{
-			col = (pglrcolumn*)list_access( m );
+			col = (pglrcolumn*)plist_access( f );
 
 			if( col->shift && col->reduce )
 				fprintf( stderr, "\t<- Shift/Reduce on '%s' by "
@@ -568,7 +554,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			else if( col->shift )
 				fprintf( stderr, "\t-> Shift on '%s' to state %d\n",
 							pg_symbol_get_name( col->symbol ),
-								list_find( parser->states, col->shift ) );
+								plist_offset( plist_get_by_ptr(
+									parser->states, col->shift ) ) );
 			else if( col->reduce )
 				fprintf( stderr, "\t<- Reduce on '%s' by production '%s'\n",
 							pg_symbol_get_name( col->symbol ),
@@ -578,9 +565,9 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 					pg_symbol_get_name( col->symbol ) );
 		}
 
-		LISTFOR( st->gotos, m )
+		plist_for( st->gotos, f )
 		{
-			col = (pglrcolumn*)list_access( m );
+			col = (pglrcolumn*)plist_access( f );
 
 			if( col->shift && col->reduce )
 				fprintf( stderr, "\t<- Goto/Reduce by production '%s' in '%s'\n",
@@ -588,7 +575,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 								pg_symbol_get_name( col->symbol ) );
 			else if( col->shift )
 				fprintf( stderr, "\t-> Goto state %d on '%s'\n",
-							list_find( parser->states, col->shift ),
+							plist_offset( plist_get_by_ptr(
+									parser->states, col->shift ) ),
 								pg_symbol_get_name( col->symbol ) );
 			else
 				MISSINGCASE;
@@ -600,7 +588,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 
 BOOLEAN pg_parser_lr_reset( pgparser* parser )
 {
-	LIST*		l;
+	plistel*	e;
 	pglrstate*	st;
 
 	if( !( parser ) )
@@ -615,11 +603,18 @@ BOOLEAN pg_parser_lr_reset( pgparser* parser )
 		return FALSE;
 	}
 
-	LISTFOR( parser->states, l )
+	if( parser->states )
 	{
-		st = (pglrstate*)list_access( l );
-		pg_lrstate_free( st );
+		plist_for( parser->states, e )
+		{
+			st = (pglrstate*)plist_access( e );
+			pg_lrstate_free( st );
+		}
+
+		plist_clear( parser->states );
 	}
+	else
+		parser->states = plist_create( sizeof( pglrstate ), PLIST_MOD_RECYCLE );
 
 	return TRUE;
 }

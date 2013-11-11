@@ -55,8 +55,8 @@ struct _pgsymbol
 
 	pboolean		nullable;		/* Nullable-flag (FIRST-set computation) */
 
-	LIST*			first;			/* FIRST-set */
-	LIST*			follow;			/* FOLLOW-set */
+	plist*			first;			/* FIRST-set */
+	plist*			follow;			/* FOLLOW-set */
 
 	/* Terminal-specific */
 	pregex_ptn*		ptn;			/* Regular expression pattern */
@@ -64,7 +64,7 @@ struct _pgsymbol
 	pgassoc			assoc;			/* Associativity */
 
 	/* Nonterminal-specific */
-	LIST*			productions;	/* Productions that belong to a
+	plist*			productions;	/* Productions that belong to a
 										nonterminal symbol */
 };
 
@@ -79,12 +79,12 @@ struct _pgproduction
 	int				id;				/* Production ID */
 
 	pgsymbol*		lhs;			/* Left-hand side */
-	LIST*			rhs;			/* Right-hand side */
+	plist*			rhs;			/* Right-hand side */
 
 	int				prec;			/* Precedence level */
 	pgassoc			assoc;			/* Associativity */
 
-	LIST*			select;			/* SELECT-set */
+	plist*			select;			/* SELECT-set */
 
 	char*			strval;			/* String representation */
 };
@@ -93,7 +93,7 @@ struct _pgproduction
 struct _pggrammar
 {
 	plist*			symbols;		/* Symbol table */
-	LIST*			productions;	/* Production table */
+	plist*			productions;	/* Production table */
 
 	pgnonterminal*	goal;			/* Goal non-terminal symbol */
 	pgterminal*		eoi;			/* End of input terminal symbol */

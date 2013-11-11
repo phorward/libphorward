@@ -208,11 +208,11 @@ bitwise or (|).
 
 Possible flags are:
 - **PLIST_MOD_NONE** for no special flagging.
+- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
 - **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later.
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
 - **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
 - **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
-- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
 -
 
 Use plist_free() to erase and release the returned list object. */
@@ -292,6 +292,29 @@ pboolean plist_erase( plist* list )
 	list->hash = (plistel**)NULL;
 	list->unused = (plistel*)NULL;
 	list->count = 0;
+
+	RETURN( TRUE );
+}
+
+/** Clear content of the list //list//.
+
+The function has nearly the same purpose as plist_erase(), except that
+the entire list is only cleared, but if the list was initialized with
+PLIST_MOD_RECYCLE, existing pointers are hold for later usage. */
+pboolean plist_clear( plist* list )
+{
+	plistel*	e;
+
+	PROC( "plist_clear" );
+
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	while( list->first )
+		plist_remove( list, list->first );
 
 	RETURN( TRUE );
 }
@@ -434,18 +457,33 @@ plistel* plist_push( plist* list, void* src )
 	return plist_insert( list, (plistel*)NULL, (char*)NULL, src );
 }
 
-/** Removes the element //e// from the the //list// and free it or puts
- it into the unused element chain if PLIST_MOD_RECYCLE is flagged.
+/** Allocates memory for a new element in list //list//, push it to the end and
+return the pointer to this.
 
-Will always return (plistel*)NULL. */
-plistel* plist_remove( plist* list, plistel* e )
+The function works as a shortcut for plist_access() in combination with
+plist_push().
+*/
+void* plist_malloc( plist* list )
+{
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		return (void*)NULL;
+	}
+
+	return plist_access( plist_push( list, (void*)NULL ) );
+}
+
+/** Removes the element //e// from the the //list// and frees it or puts
+ it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
+pboolean plist_remove( plist* list, plistel* e )
 {
 	PROC( "plist_remove" );
 
 	if( !( list && e && e->list == list ) )
 	{
 		WRONGPARAM;
-		RETURN( (plistel*)NULL );
+		RETURN( FALSE );
 	}
 
 	if( e->prev )
@@ -485,7 +523,7 @@ plistel* plist_remove( plist* list, plistel* e )
 	}
 
 	list->count--;
-	RETURN( (plistel*)NULL );
+	RETURN( TRUE );
 }
 
 /** Pop last element to //dest// off the list //list//.
@@ -575,13 +613,152 @@ plistel* plist_get_by_key( plist* list, char* key )
 			MSG( "Key matches" );
 			RETURN( e );
 		}
-
-		if( i++ == 20 )
-			exit( 1 );
 	}
 
 	RETURN( e );
 }
+
+/** Retrieve list element by pointer.
+
+This function returns the list element of the unit within the list //list//
+that is the pointer //ptr//.
+*/
+plistel* plist_get_by_ptr( plist* list, void* ptr )
+{
+	plistel*	e;
+
+	if( !( list && ptr ) )
+	{
+		WRONGPARAM;
+		return (plistel*)NULL;
+	}
+
+	for( e = plist_first( list ); e; e = plist_next( e ) )
+		if( plist_access( e ) == ptr )
+			return e;
+
+	return (plistel*)NULL;
+}
+
+/** Unions elements from list //from// into list //all//.
+An element is only added to //all//, if there exists no other
+element with the same size and content.
+
+The function will not run if both lists have different element size settings.
+
+The function returns the number of elements added to //from//. */
+int plist_union( plist* all, plist* from )
+{
+	int			added	= 0;
+	plistel*	ea;
+	plistel*	ef;
+
+	PROC( "plist_union" );
+	PARMS( "all", "%p", all );
+	PARMS( "from", "%p", from );
+
+	if( !( all && from && all->size == from->size ) )
+	{
+		WRONGPARAM;
+		RETURN( 0 );
+	}
+
+	plist_for( from, ef )
+	{
+		VARS( "ef", "%p", ef );
+		plist_for( all, ea )
+		{
+			VARS( "ea", "%p", ea );
+
+			if( memcmp( ea + 1, ef + 1, all->size ) == 0 )
+			{
+				MSG( "Elements match" );
+				break;
+			}
+		}
+
+		if( !ea && plist_insert( all, (plistel*)NULL,
+						(char*)NULL, plist_access( ef ) ) )
+		{
+			MSG( "Added element" );
+			added++;
+		}
+	}
+
+	VARS( "added", "%d", added );
+	RETURN( added );
+}
+
+/** Checks the contents of list //left// and list //right// for equality. */
+int plist_diff( plist* left, plist* right )
+{
+	plistel*	el;
+	plistel*	er;
+
+	int			diff;
+
+	PROC( "plist_diff" );
+	PARMS( "left", "%p", left );
+	PARMS( "right", "%p", right );
+
+	if( !( left && right && left->size == right->size ) )
+	{
+		WRONGPARAM;
+		RETURN( 0 );
+	}
+
+	if( !( diff = right->count - left->count ) )
+	{
+		plist_for( left, el )
+		{
+			VARS( "el", "%p", el );
+			plist_for( right, er )
+			{
+				VARS( "er", "%p", er );
+				if( ( diff = memcmp( el + 1, er + 1, left->size ) ) )
+				{
+					MSG( "Elements are not equal" );
+					VARS( "diff", "%d", diff );
+					RETURN( diff );
+				}
+			}
+		}
+	}
+
+	VARS( "diff", "%d", diff );
+	RETURN( diff );
+}
+
+/** Moves all elements from list //src// into list //dst//.
+
+Both lists must have the same element size, else the move operation cannot be
+performed.
+*/
+/*
+int plist_move( plist* dst, plist* src )
+{
+	int			count	= 0;
+	plistel*	e;
+
+	PROC( "plist_move" );
+	PARMS( "dst", "%p", dst );
+	PARMS( "src", "%p", src );
+
+	if( !( dst && src && dst->size == src->size ) )
+	{
+		WRONGPARAM;
+		RETURN( 0 );
+	}
+
+	MSG( "Looping trough elements" );
+	plist_for( src, e )
+	{
+
+	}
+
+	RETURN( count );
+}
+*/
 
 /** Sort a list. */
 pboolean plist_subsort( plistel* from, plistel* to,
@@ -677,28 +854,6 @@ pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) )
 		return TRUE;
 
 	return plist_subsort( plist_first( list ), plist_last( list ), less );
-}
-
-/** Retrieve list element by pointer.
-
-This function returns the list element of the unit within the list //list//
-that is the pointer //ptr//.
-*/
-plistel* plist_get_by_ptr( plist* list, void* ptr )
-{
-	plistel*	e;
-
-	if( !( list && ptr ) )
-	{
-		WRONGPARAM;
-		return (plistel*)NULL;
-	}
-
-	for( e = plist_first( list ); e; e = plist_next( e ) )
-		if( plist_access( e ) == ptr )
-			return e;
-
-	return (plistel*)NULL;
 }
 
 /** Access data-content of the current element //e//. */

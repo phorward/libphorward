@@ -41,7 +41,11 @@ pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name )
 	sym.id = plist_count( grammar->symbols );
 	sym.name = pstrdup( name );
 
-	e = plist_insert( grammar->symbols, (plistel*)NULL, sym.name, (pbyte*)&sym );
+	sym.first = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+	sym.follow = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+
+	e = plist_insert( grammar->symbols,
+			(plistel*)NULL, sym.name, (pbyte*)&sym );
 
 	return (pgsymbol*)plist_access( e );
 }
@@ -69,8 +73,9 @@ pgsymbol* pg_symbol_free( pgsymbol* symbol )
 	}
 
 	/* Free members */
+	plist_free( symbol->first );
+	plist_free( symbol->follow );
 	pfree( symbol->name );
-
 
 	/* --- Other dependencies --- */
 
@@ -96,8 +101,8 @@ BOOLEAN pg_symbol_reset( pgsymbol* s )
 		return FALSE;
 	}
 
-	s->first = list_free( s->first );
-	s->follow = list_free( s->follow );
+	s->first = plist_free( s->first );
+	s->follow = plist_free( s->follow );
 
 	return TRUE;
 }

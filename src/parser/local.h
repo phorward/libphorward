@@ -15,16 +15,16 @@ typedef struct
 {
 	pgproduction*	prod;			/* Production */
 	int				dot;			/* Dot offset */
-	LIST*			lookahead;		/* Lookahead symbols */
+	plist*			lookahead;		/* Lookahead symbols */
 } pglritem;
 
 /* LR-State */
 typedef struct
 {
-	LIST*			kernel;			/* Kernel items */
+	plist*			kernel;			/* Kernel items */
 
-	LIST*			actions;		/* Action row entries */
-	LIST*			gotos;			/* Goto row entries */
+	plist*			actions;		/* Action row entries */
+	plist*			gotos;			/* Goto row entries */
 
 	pgproduction*	def_prod;		/* Default production */
 

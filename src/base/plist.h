@@ -13,12 +13,13 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 
 /* Defines */
 #define PLIST_MOD_NONE		0	/* No modification (for sake of completeness) */
-#define PLIST_MOD_RECYCLE	1	/* Recycle removed elements for later
+#define PLIST_MOD_PTR		1	/* Pointer mode: Store only pointers */
+#define PLIST_MOD_RECYCLE	2	/* Recycle removed elements for later
 									usage */
-#define PLIST_MOD_EXTKEYS	2	/* Store keys as pointer, no copying */
-#define PLIST_MOD_UNIQUE	4	/* Unique keys, no collisions */
-#define PLIST_MOD_WCHAR		8	/* Wide-character keys */
-#define PLIST_MOD_PTR		16	/* Pointer mode: Store only pointers */
+#define PLIST_MOD_EXTKEYS	4	/* Store keys as pointer, no copying */
+#define PLIST_MOD_UNIQUE	8	/* Unique keys, no collisions */
+#define PLIST_MOD_WCHAR		16	/* Wide-character keys */
+
 
 /* Typedefs */
 typedef struct Plistel		plistel;
