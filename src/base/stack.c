@@ -47,7 +47,7 @@ pboolean pstack_init( pstack* stack, size_t size, size_t step )
 }
 
 /** Create a new pstack as an object with an element allocation size //size//
-and a reallocation-step-size of //step//. 
+and a reallocation-step-size of //step//.
 
 The returned memory must be released with pstack_free().  */
 pstack* pstack_create( size_t size, size_t step )
@@ -122,7 +122,7 @@ void* pstack_push( pstack* stack, void* item )
 	PARMS( "stack", "%p", stack );
 	PARMS( "item", "%p", item );
 
-	if( !( stack ) ) 
+	if( !( stack ) )
 	{
 		WRONGPARAM;
 		RETURN( (void*)NULL );
@@ -207,7 +207,7 @@ be accessed (e.g. if the stack is empty or offset is beyond the top of stack).
 */
 void* pstack_access( pstack* stack, size_t offset )
 {
-	PROC( "pstack_pop" );
+	PROC( "pstack_access" );
 	PARMS( "stack", "%p", stack );
 	PARMS( "offset", "%d", offset );
 
@@ -225,6 +225,51 @@ void* pstack_access( pstack* stack, size_t offset )
 
 	RETURN( (char*)stack->stack + offset * stack->size );
 }
+
+/** Access top element of the stack.
+
+Returns the address of the accessed item, and (void*)NULL if nothing is on
+the stack.
+*/
+void* pstack_top( pstack* stack )
+{
+	PROC( "pstack_top" );
+	PARMS( "stack", "%p", stack );
+
+	if( !stack )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	if( stack->count == 0 )
+		RETURN( (void*)NULL );
+
+	RETURN( (char*)stack->stack + stack->top );
+}
+
+/** Access bottom element of the stack.
+
+Returns the address of the accessed item, and (void*)NULL if nothing is on
+the stack.
+*/
+void* pstack_bottom( pstack* stack )
+{
+	PROC( "pstack_bottom" );
+	PARMS( "stack", "%p", stack );
+
+	if( !stack )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	if( stack->count == 0 )
+		RETURN( (void*)NULL );
+
+	RETURN( (char*)stack->stack );
+}
+
 
 /** Returns the number of elements in a stack. */
 int pstack_count( pstack* stack )

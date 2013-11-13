@@ -23,7 +23,7 @@ typedef struct
 	pgparser*		p;		/* Parser */
 	pggrammar*		g;		/* Grammar */
 
-	plist			st;		/* Stack */
+	pstack*			st;		/* Stack */
 	pglrse*			tos;	/* Top of stack */
 
 	pgtoken			la;		/* Current look ahead */
@@ -43,7 +43,7 @@ static pboolean push( pglrpcb* pcb, pglrstate* state, pgtoken* token )
 	e.state = state;
 	e.token = token;
 
-	if( !( pcb->tos = (pglrse*)plist_push( &pcb->st, (void*)&e ) ) )
+	if( !( pcb->tos = (pglrse*)pstack_push( pcb->st, &e ) ) )
 		return FALSE;
 
 	return TRUE;
@@ -55,9 +55,9 @@ static pboolean pop( pglrpcb* pcb, int n )
 	int		i;
 
 	for( i = 0; i < n; i++ )
-		plist_pop( &pcb->st, (void*)NULL );
+		pstack_pop( pcb->st );
 
-	pcb->tos = (pglrse*)plist_access( plist_last( &pcb->st ) );
+	pcb->tos = (pglrse*)pstack_top( pcb->st );
 
 	return TRUE;
 }
@@ -66,14 +66,14 @@ static pboolean pop( pglrpcb* pcb, int n )
 static pboolean get_action( pglrpcb* pcb, pgsymbol* sym )
 {
 	pglrcolumn*	col;
-	LIST*		l;
+	plistel*	e;
 
 	pcb->shift = (pglrstate*)NULL;
 	pcb->reduce = (pgproduction*)NULL;
 
-	LISTFOR( pcb->tos->state->actions, l )
+	plist_for( pcb->tos->state->actions, e )
 	{
-		col = (pglrcolumn*)list_access( l );
+		col = (pglrcolumn*)plist_access( e );
 
 		if( col->symbol == sym )
 		{
@@ -96,14 +96,14 @@ static pboolean get_action( pglrpcb* pcb, pgsymbol* sym )
 static pboolean get_goto( pglrpcb* pcb )
 {
 	pglrcolumn*	col;
-	LIST*		l;
+	plistel*	e;
 
 	pcb->shift = (pglrstate*)NULL;
 	pcb->reduce = (pgproduction*)NULL;
 
-	LISTFOR( pcb->tos->state->gotos, l )
+	plist_for( pcb->tos->state->gotos, e )
 	{
-		col = (pglrcolumn*)list_access( l );
+		col = (pglrcolumn*)plist_access( e );
 
 		if( col->symbol == pcb->lhs )
 		{
@@ -137,7 +137,7 @@ pboolean pg_parser_lr_eval( pgparser* parser, char* input )
 
 	pcb->p = parser;
 	pcb->g = pg_parser_get_grammar( pcb->p );
-	plist_init( &pcb->st, sizeof( pglrse ), PLIST_MOD_RECYCLE );
+	pcb->st = pstack_create( sizeof( pglrse ), 64 );
 
 	memset( &tok, 0, sizeof( pgtoken ) );
 	tok.symbol = pg_grammar_get_goal( pcb->g );
@@ -166,7 +166,7 @@ pboolean pg_parser_lr_eval( pgparser* parser, char* input )
 
 			/* Goal symbol reduced? */
 			if( pcb->lhs == pg_grammar_get_goal( pcb->g )
-					&& plist_count( &pcb->st ) == 1 )
+					&& pstack_count( pcb->st ) == 1 )
 				break;
 
 			get_goto( pcb );

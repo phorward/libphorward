@@ -172,6 +172,21 @@ static pboolean plistel_drop( plistel* e )
 	RETURN( TRUE );
 }
 
+/* Compare elements of a list */
+static int plist_compare( plist* list, plistel* l, plistel* r )
+{
+	if( !( list && l && r ) )
+	{
+		WRONGPARAM;
+		return -1;
+	}
+
+	if( list->comparefn )
+		return (*list->comparefn)( list, l, r );
+
+	return memcmp( l + 1, r + 1, list->size );
+}
+
 /** Initialize the list //list// with an element allocation size //size//.
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage. */
@@ -195,6 +210,8 @@ pboolean plist_init( plist* list, psize size, pbyte flags )
 	list->flags = flags;
 	list->size = size;
 	list->hashsize = 64;
+
+	list->sortfn = plist_compare;
 
 	return TRUE;
 }
@@ -435,6 +452,9 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		}
 	}
 
+	if( list->flags & PLIST_MOD_AUTOSORT )
+		plist_sort( list );
+
 	list->count++;
 
 	VARS( "list->count", "%d", list->count );
@@ -670,7 +690,7 @@ int plist_union( plist* all, plist* from )
 		{
 			VARS( "ea", "%p", ea );
 
-			if( memcmp( ea + 1, ef + 1, all->size ) == 0 )
+			if( plist_compare( all, ea, ef ) == 0 )
 			{
 				MSG( "Elements match" );
 				break;
@@ -689,12 +709,11 @@ int plist_union( plist* all, plist* from )
 	RETURN( added );
 }
 
-/** Checks the contents of list //left// and list //right// for equality. */
+/** Checks the contents of list //left// and list //right//for equal elements. */
 int plist_diff( plist* left, plist* right )
 {
 	plistel*	el;
 	plistel*	er;
-
 	int			diff;
 
 	PROC( "plist_diff" );
@@ -704,23 +723,22 @@ int plist_diff( plist* left, plist* right )
 	if( !( left && right && left->size == right->size ) )
 	{
 		WRONGPARAM;
-		RETURN( 0 );
+		RETURN( -1 );
 	}
 
+	MSG( "Checking for same list sizes" );
 	if( !( diff = right->count - left->count ) )
 	{
-		plist_for( left, el )
+		MSG( "OK, requiring deep check" );
+
+		for( el = plist_first( left ), er = plist_first( right );
+					el && er; el = plist_next( el ), er = plist_next( er ) )
 		{
-			VARS( "el", "%p", el );
-			plist_for( right, er )
+			if( ( diff = plist_compare( left, el, er ) ) )
 			{
-				VARS( "er", "%p", er );
-				if( ( diff = memcmp( el + 1, er + 1, left->size ) ) )
-				{
-					MSG( "Elements are not equal" );
-					VARS( "diff", "%d", diff );
-					RETURN( diff );
-				}
+				MSG( "Elements are not equal" );
+				VARS( "diff", "%d", diff );
+				RETURN( diff );
 			}
 		}
 	}
@@ -761,8 +779,7 @@ int plist_move( plist* dst, plist* src )
 */
 
 /** Sort a list. */
-pboolean plist_subsort( plistel* from, plistel* to,
-							pboolean (*less)( void*, void * ) )
+pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 {
 	plistel*	a	= from;
 	plistel*	b	= to;
@@ -772,7 +789,7 @@ pboolean plist_subsort( plistel* from, plistel* to,
 	int			i	= 0;
 	int			j	= 0;
 
-	if( !( from && to && less ) )
+	if( !( list && from && to && from->list == list && to->list == list ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -797,13 +814,13 @@ pboolean plist_subsort( plistel* from, plistel* to,
 
 	do
 	{
-		while( (*less)( plist_access( a ), ref ) )
+		while( ( *list->sortfn )( from->list, a, from ) < 0 )
 		{
 			i++;
 			a = a->next;
 		}
 
-		while( (*less)( ref, plist_access( b ) ) )
+		while( ( *list->sortfn )( from->list, from, b ) < 0 )
 		{
 			j--;
 			b = b->prev;
@@ -834,17 +851,17 @@ pboolean plist_subsort( plistel* from, plistel* to,
 	while( i <= j );
 
 	if( ( b != from ) && ( b != from->prev ) )
-		plist_subsort( from, b, less );
+		plist_subsort( list, from, b );
 
 	if( ( a != to ) && ( a != to->next ) )
-		plist_subsort( a, to, less );
+		plist_subsort( list, a, to );
 
 	return TRUE;
 }
 
-pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) )
+pboolean plist_sort( plist* list )
 {
-	if( !( list && less ) )
+	if( !( list ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -853,7 +870,47 @@ pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) )
 	if( !plist_first( list ) )
 		return TRUE;
 
-	return plist_subsort( plist_first( list ), plist_last( list ), less );
+	return plist_subsort( list, plist_first( list ), plist_last( list ) );
+}
+
+/** Set compare function */
+pboolean plist_set_comparefn( plist* list,
+			int (*comparefn)( plist*, plistel*, plistel* ) )
+{
+	PROC( "plist_set_comparefn" );
+	PARMS( "list", "%p", list );
+	PARMS( "compare_fn", "%p", comparefn );
+
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !( list->comparefn = comparefn ) )
+		list->comparefn = plist_compare;
+
+	RETURN( TRUE );
+}
+
+/** Set sort function */
+pboolean plist_set_sortfn( plist* list,
+			int (*sortfn)( plist*, plistel*, plistel* ) )
+{
+	PROC( "plist_set_sortfn" );
+	PARMS( "list", "%p", list );
+	PARMS( "sortfn", "%p", sortfn );
+
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !( list->sortfn = sortfn ) )
+		list->sortfn = plist_compare;
+
+	RETURN( TRUE );
 }
 
 /** Access data-content of the current element //e//. */

@@ -16,17 +16,15 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 #define PLIST_MOD_PTR		1	/* Pointer mode: Store only pointers */
 #define PLIST_MOD_RECYCLE	2	/* Recycle removed elements for later
 									usage */
-#define PLIST_MOD_EXTKEYS	4	/* Store keys as pointer, no copying */
-#define PLIST_MOD_UNIQUE	8	/* Unique keys, no collisions */
-#define PLIST_MOD_WCHAR		16	/* Wide-character keys */
+#define PLIST_MOD_AUTOSORT	4	/* Automatically sort elements */
+#define PLIST_MOD_EXTKEYS	8	/* Store keys as pointer, no copying */
+#define PLIST_MOD_UNIQUE	16	/* Unique keys, no collisions */
+#define PLIST_MOD_WCHAR		32	/* Wide-character keys */
 
 
 /* Typedefs */
 typedef struct Plistel		plistel;
 typedef struct Plist		plist;
-
-typedef	pboolean			(*plistel_fn)( pbyte* e );
-#define PELEM_FN_NULL		( (plistel_fn)NULL )
 
 /* Element */
 struct Plistel
@@ -49,7 +47,8 @@ struct Plist
 	int						count;
 	int						hashsize;
 
-	plistel_fn				destruct_fn;
+	int						(*comparefn)( plist*, plistel*, plistel* );
+	int						(*sortfn)( plist*, plistel*, plistel* );
 
 	plistel*				unused;
 

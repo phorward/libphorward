@@ -38,8 +38,10 @@ plistel* plist_get_by_key( plist* list, char* key );
 plistel* plist_get_by_ptr( plist* list, void* ptr );
 int plist_union( plist* all, plist* from );
 int plist_diff( plist* left, plist* right );
-pboolean plist_subsort( plistel* from, plistel* to, pboolean (*less)( void*, void * ) );
-pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) );
+pboolean plist_subsort( plist* list, plistel* from, plistel* to );
+pboolean plist_sort( plist* list );
+pboolean plist_set_comparefn( plist* list, int (*comparefn)( plist*, plistel*, plistel* ) );
+pboolean plist_set_sortfn( plist* list, int (*sortfn)( plist*, plistel*, plistel* ) );
 void* plist_access( plistel* e );
 char* plist_key( plistel* e );
 plistel* plist_next( plistel* u );
@@ -65,6 +67,8 @@ pstack* pstack_free( pstack* stack );
 void* pstack_push( pstack* stack, void* item );
 void* pstack_pop( pstack* stack );
 void* pstack_access( pstack* stack, size_t offset );
+void* pstack_top( pstack* stack );
+void* pstack_bottom( pstack* stack );
 int pstack_count( pstack* stack );
 
 /* regex/ccl.c */

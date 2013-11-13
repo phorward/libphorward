@@ -155,14 +155,15 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 	MSG( "Loop until no more changes appear" );
 	do
 	{
-		fprintf( stderr, "--\n" );
+		MSG( "Begin of new loop" );
 		pf = f;
 		f = 0;
 
 		/* Loop trough nonterminal symbols */
 		for( i = 0; cs = pg_nonterminal_get( g, i ); i++ )
 		{
-			fprintf( stderr, " cs = '%s'\n", pg_symbol_get_name( cs ) );
+			VARS( "cs", "%s", pg_symbol_get_name( cs ) );
+
 			/* Loop trough all nonterminal productions */
 			for( j = 0; p = pg_production_get_by_lhs( cs, j ); j++ )
 			{
@@ -175,9 +176,8 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 					for( k = 0; s = pg_production_get_rhs( p, k ); k++ )
 					{
 						/* Union FIRST sets... */
-						fprintf( stderr, "  union '%s' with '%s'\n",
-							pg_symbol_get_name( s ),
-								pg_symbol_get_name( cs ) );
+						VARS( "union", "%s", pg_symbol_get_name( s ) );
+						VARS( "with", "%s", pg_symbol_get_name( cs ) );
 
 						plist_union( cs->first, s->first );
 

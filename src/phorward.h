@@ -229,17 +229,15 @@ typedef struct llist
 #define PLIST_MOD_NONE		0	
 #define PLIST_MOD_PTR		1	
 #define PLIST_MOD_RECYCLE	2	
-#define PLIST_MOD_EXTKEYS	4	
-#define PLIST_MOD_UNIQUE	8	
-#define PLIST_MOD_WCHAR		16	
+#define PLIST_MOD_AUTOSORT	4	
+#define PLIST_MOD_EXTKEYS	8	
+#define PLIST_MOD_UNIQUE	16	
+#define PLIST_MOD_WCHAR		32	
 
 
 
 typedef struct Plistel		plistel;
 typedef struct Plist		plist;
-
-typedef	pboolean			(*plistel_fn)( pbyte* e );
-#define PELEM_FN_NULL		( (plistel_fn)NULL )
 
 
 struct Plistel
@@ -262,7 +260,8 @@ struct Plist
 	int						count;
 	int						hashsize;
 
-	plistel_fn				destruct_fn;
+	int						(*comparefn)( plist*, plistel*, plistel* );
+	int						(*sortfn)( plist*, plistel*, plistel* );
 
 	plistel*				unused;
 
@@ -907,8 +906,10 @@ plistel* plist_get_by_key( plist* list, char* key );
 plistel* plist_get_by_ptr( plist* list, void* ptr );
 int plist_union( plist* all, plist* from );
 int plist_diff( plist* left, plist* right );
-pboolean plist_subsort( plistel* from, plistel* to, pboolean (*less)( void*, void * ) );
-pboolean plist_sort( plist* list, pboolean (*less)( void*, void * ) );
+pboolean plist_subsort( plist* list, plistel* from, plistel* to );
+pboolean plist_sort( plist* list );
+pboolean plist_set_comparefn( plist* list, int (*comparefn)( plist*, plistel*, plistel* ) );
+pboolean plist_set_sortfn( plist* list, int (*sortfn)( plist*, plistel*, plistel* ) );
 void* plist_access( plistel* e );
 char* plist_key( plistel* e );
 plistel* plist_next( plistel* u );
@@ -934,6 +935,8 @@ pstack* pstack_free( pstack* stack );
 void* pstack_push( pstack* stack, void* item );
 void* pstack_pop( pstack* stack );
 void* pstack_access( pstack* stack, size_t offset );
+void* pstack_top( pstack* stack );
+void* pstack_bottom( pstack* stack );
 int pstack_count( pstack* stack );
 
 

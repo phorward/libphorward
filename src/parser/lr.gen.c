@@ -102,7 +102,7 @@ static pglritem* pg_lritem_create( plist* list, pgproduction* prod, int dot )
 	item = (pglritem*)plist_malloc( list );
 	item->prod = prod;
 	item->dot = dot;
-	item->lookahead = plist_create( 0, PLIST_MOD_PTR );
+	item->lookahead = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_AUTOSORT );
 
 	return item;
 }
@@ -171,8 +171,7 @@ static pglrstate* pg_lrstate_free( pglrstate* state )
 	return (pglrstate*)NULL;
 }
 
-static BOOLEAN pg_parser_lr_compare(
-		plist* kernel1, plist* kernel2, pgparadigm para )
+static BOOLEAN pg_parser_lr_compare( plist* set1, plist* set2, pgparadigm para )
 {
 	plistel*	e;
 	plistel*	f;
@@ -180,28 +179,27 @@ static BOOLEAN pg_parser_lr_compare(
 	pglritem*	it2;
 	int			same	= 0;
 
-	if( plist_count( kernel1 ) == plist_count( kernel2 ) )
+	if( plist_count( set1 ) == plist_count( set2 ) )
 	{
-		plist_for( kernel1, e )
+		plist_for( set1, e )
 		{
 			it1 = (pglritem*)plist_access( e );
 
-			plist_for( kernel2, f )
+			plist_for( set2, f )
 			{
 				it2 = (pglritem*)plist_access( f );
 
 				if( it1->prod == it2->prod
-					&& it1->dot == it2->dot
-					&& ( para != PGPARADIGM_LR1
-							|| plist_diff( it1->lookahead, it2->lookahead ) )
-					)
+					&& it1->dot == it2->dot )
 				{
-					same++;
+					if( para != PGPARADIGM_LR1
+							|| !plist_diff( it1->lookahead, it2->lookahead ) )
+						same++;
 				}
 			}
 		}
 
-		if( plist_count( kernel1 ) == same )
+		if( plist_count( set1 ) == same )
 			return TRUE;
 	}
 
@@ -237,35 +235,38 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	pglrcolumn*		col;
 	plist*			closure;
 	plist*			part;
-	plistel*		e;		/* l */
-	plistel*		f;		/* m */
-	plistel*		g;		/* n */
-	plistel*		h;		/* o */
+	plistel*		e;
+	plistel*		f;
+	plistel*		g;
+	plistel*		h;
 	int				i;
 	int				j;
 	int				cnt;
 	int				prev_cnt;
 
+	PROC( "pg_parser_lr_closure" );
+	PARMS( "parser", "%p", parser );
+
 	if( !( parser ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
 	}
 
 	if( !pg_parser_is_lr( parser ) )
 	{
 		PGERR( "Wrong paradigm to function" );
-		return FALSE;
+		RETURN( FALSE );
 	}
 
-	/* Reset LR parse tables */
+	MSG( "Resetting LR parse tables" );
 	pg_parser_lr_reset( parser );
 
-	/* Perform FIRST set computation */
+	MSG( "Performing FIRST set computation" );
 	pg_grammar_compute_first( pg_parser_get_grammar( parser ) );
 	pg_grammar_print( pg_parser_get_grammar( parser ) );
 
-	/* Create a parting seed */
+	MSG( "Creating a closure seed" );
 	nst = pg_lrstate_create( parser, (plist*)NULL );
 	it = pg_lritem_create( nst->kernel,
 				pg_production_get_by_lhs(
@@ -273,16 +274,20 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 
 	plist_push( it->lookahead, pg_grammar_get_eoi( parser->grammar ) );
 
-	/* Initialize part and closure lists */
+	MSG( "Initializing part and closure lists" );
 	part = plist_create( sizeof( pglritem ), PLIST_MOD_RECYCLE );
 	closure = plist_create( sizeof( pglritem ), PLIST_MOD_RECYCLE );
 
-	/* Run the closure loop */
+	MSG( "Run the closure loop" );
 	while( ( st = pg_parser_lr_get_undone( parser ) ) )
 	{
 		fprintf( stderr, "---\nClosing state %d\n",
 					plist_offset( plist_get_by_ptr( parser->states, st ) ) );
 		st->done = TRUE;
+
+		MSG( "Closing state" );
+		VARS( "State", "%d", plist_offset(
+								plist_get_by_ptr( parser->states, st ) ) );
 
 		/* Close all items of the current state */
 		cnt = 0;
@@ -291,6 +296,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		pg_lritems_print( st->kernel, stderr, "Kernel" );
 
 		/* Duplicate state kernel to closure */
+		MSG( "Duplicate current kernel to closure" );
 		plist_for( st->kernel, e )
 		{
 			kit = (pglritem*)plist_access( e );
@@ -299,6 +305,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		}
 
 		/* Close the closure! */
+		MSG( "Performing closure" );
+
 		do
 		{
 			prev_cnt = cnt;
@@ -362,6 +370,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		}
 		while( prev_cnt != cnt );
 
+		MSG( "Closure finished" );
+
 		/* Add current kernel to closure */
 		pg_lritems_print( closure, stderr, "Closure" );
 
@@ -415,10 +425,11 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				terminals and/or nonterminals or even epsilon, and z is a
 				terminal or nonterminal.
 			*/
-			if( pg_parser_get_optimize( parser )
+			if( 0 && pg_parser_get_optimize( parser )
 					&& ( plist_count( part ) == 1
 							&& !pg_production_get_rhs( it->prod, it->dot ) ) )
 			{
+				MSG( "State optimization" );
 
 				if( !st->closed )
 					pg_lrcolumn_create( st, sym,
@@ -432,13 +443,13 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				continue;
 			}
 
-			/* Check if state already exists */
+			MSG( "Check in state pool for same kernel configuration" );
 			plist_for( parser->states, e )
 			{
 				nst = (pglrstate*)plist_access( e );
 
 				if( pg_parser_lr_compare(
-						nst->kernel, part, parser->paradigm ) )
+						part, nst->kernel, parser->paradigm ) )
 					break;
 			}
 
@@ -446,21 +457,19 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				Create it as new! */
 			if( !e )
 			{
-				fprintf( stderr, "Creating new state %d\n",
-									plist_count( parser->states ) );
+				MSG( "No such state, creating new state from current config" );
 				pg_lritems_print( part, stderr, "Kernel" );
-
 				nst = pg_lrstate_create( parser, part );
 			}
 			else
 			/* State already exists?
 				Merge lookaheads (if needed). */
 			{
-				fprintf( stderr, "Using existing state %d\n",
-							plist_offset( e ) );
-
+				MSG( "There is a state with such configuration" );
 				if( parser->paradigm != PGPARADIGM_LR0 )
 				{
+					MSG( "Merging lookahead" );
+
 					cnt = 0;
 					prev_cnt = 0;
 
@@ -488,14 +497,16 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		}
 		while( TRUE );
 
-		getchar();
+		/* getchar(); */
+
 		st->closed = TRUE;
+		MSG( "State closed" );
 	}
 
 	plist_free( closure );
 	plist_free( part );
 
-	/* Perform reductions */
+	MSG( "Performing reductions" );
 	plist_for( parser->states, e )
 	{
 		st = (pglrstate*)plist_access( e );
@@ -583,7 +594,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		}
 	}
 
-	return TRUE;
+	MSG( "Finished" );
+	RETURN( TRUE );
 }
 
 BOOLEAN pg_parser_lr_reset( pgparser* parser )

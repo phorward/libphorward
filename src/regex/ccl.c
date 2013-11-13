@@ -12,6 +12,15 @@ Usage:	Charclass-Handling
 #define PREGEX_LOCAL
 #include "phorward.h"
 
+/* Sort-function required for quick sort */
+static int ccl_SORTFUNC( plist* list, plistel* el, plistel* er )
+{
+	pregex_cr*	l	= (pregex_cr*)plist_access( el );
+	pregex_cr*	r	= (pregex_cr*)plist_access( er );
+
+	return r->begin - l->begin;
+}
+
 /** Constructor function to create a new character-class.
 
 
@@ -33,7 +42,9 @@ pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef )
 		max = PREGEX_CCL_MAX;
 
 	ccl = (pregex_ccl*)pmalloc( sizeof( pregex_ccl ) );
+
 	ccl->ranges = plist_create( sizeof( pregex_cr ), PLIST_MOD_RECYCLE );
+	plist_set_sortfn( ccl->ranges, ccl_SORTFUNC );
 
 	if( min > max )
 	{
@@ -136,19 +147,6 @@ pregex_ccl* pregex_ccl_dup( pregex_ccl* ccl )
 	return dup;
 }
 
-
-/* Sort-function required for quick sort */
-static pboolean ccl_SORTFUNC( void* v_r1, void* v_r2 )
-{
-	pregex_cr*	r1	= (pregex_cr*)v_r1;
-	pregex_cr*	r2	= (pregex_cr*)v_r2;
-
-	if( r1->begin < r2->begin )
-		return TRUE;
-
-	return FALSE;
-}
-
 /* Normalizes a pre-parsed or modified character-class.
 
 Normalization means, that duplicate elements will be removed, the range pairs
@@ -187,7 +185,7 @@ static int pregex_ccl_normalize( pregex_ccl* ccl )
 		oldcount = count;
 
 		/* First sort the character ranges */
-		plist_sort( ccl->ranges, ccl_SORTFUNC );
+		plist_sort( ccl->ranges );
 
 		/* Then, find intersections and... */
 		for( e = plist_first( ccl->ranges ); e; )

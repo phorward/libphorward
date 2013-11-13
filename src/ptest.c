@@ -4,6 +4,7 @@ int main()
 {
 	pggrammar*		g;
 	pgparser*		p;
+	pgparser*		p2;
 
 	pgterminal*		i;
 	pgterminal*		op_a;
