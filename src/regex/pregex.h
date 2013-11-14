@@ -91,8 +91,6 @@ typedef struct 	_regex_in		pregex_in;
 typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
-typedef	int 					(*pregex_in_fn)( pregex_in* );
-#define PREGEX_IN_FN_NULL		( (pregex_in_fn)NULL )
 
 /* Character class */
 #define PREGEX_CCL_MIN			0x0
@@ -226,8 +224,8 @@ struct _regex
 
 	union
 	{
-		pregex_nfa	nfa;		/* NFA state machine */
-		pregex_dfa	dfa;		/* DFA state machine */
+		pregex_nfa*	nfa;		/* NFA state machine */
+		pregex_dfa*	dfa;		/* DFA state machine */
 	} machine;
 
 	/* Runtime elements */
@@ -266,15 +264,3 @@ struct _regex
 									to the object */
 };
 
-/* Encapsulating input stream (in preparation) */
-struct _regex_in
-{
-	pregex*			regex;		/* Points to associated pregex object */
-
-	pregex_in_fn	get_char;	/* Get character from input stream */
-	pregex_in_fn	unget_char;	/* Unget character from input stream */
-
-	pregex_in_fn	begin;		/* Begin recording */
-	pregex_in_fn	end;		/* End recording */
-	pregex_in_fn	take;		/* Take recorded range */
-};

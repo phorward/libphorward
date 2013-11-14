@@ -151,18 +151,37 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	fprintf( stderr, "-----------------------------------\n" );
 }
 
-/** Resets a NFA-state machine structure.
+/** Allocates an initializes a new pregex_nfa-object for a nondeterministic
+finite state automata that can be used for pattern matching or to construct
+a determinisitic finite automata out of.
+
+The function pregex_nfa_free() shall be used to destruct a pregex_dfa-object. */
+pregex_nfa* pregex_nfa_create( void )
+{
+	pregex_nfa*		nfa;
+
+	nfa = (pregex_nfa*)pmalloc( sizeof( pregex_nfa ) );
+
+	return nfa;
+}
+
+/** Releases a pregex_nfa state machine.
 
 //nfa// is the pointer to the NFA state machine structure. All allocated
-elements of this structure will be released, and the structure is reset.
+elements of this structure as well as the structure itself will be freed.
+
+The function always returns (pregex_nfa*)NULL.
 */
-void pregex_nfa_free( pregex_nfa* nfa )
+pregex_nfa* pregex_nfa_free( pregex_nfa* nfa )
 {
 	LIST*			l;
 	pregex_nfa_st*	nfa_st;
 
 	PROC( "pregex_nfa_free" );
 	PARMS( "nfa", "%p", nfa );
+
+	if( !nfa )
+		RETURN( (pregex_nfa*)NULL );
 
 	MSG( "Clearing states" );
 	for( l = nfa->states; l; l = list_next( l ) )
@@ -186,9 +205,9 @@ void pregex_nfa_free( pregex_nfa* nfa )
 	list_free( nfa->states );
 	list_free( nfa->empty );
 
-	memset( nfa, 0, sizeof( pregex_nfa ) );
+	pfree( nfa );
 
-	VOIDRET;
+	RETURN( (pregex_nfa*)NULL );
 }
 
 /** Performs a move operation on a given input character from a set of NFA

@@ -63,11 +63,11 @@ pregex* pregex_free( pregex* regex )
 	switch( regex->stat )
 	{
 		case PREGEX_STAT_NFA:
-			pregex_nfa_free( &( regex->machine.nfa ) );
+			pregex_nfa_free( regex->machine.nfa );
 			break;
 
 		case PREGEX_STAT_DFA:
-			pregex_dfa_free( &( regex->machine.dfa ) );
+			pregex_dfa_free( regex->machine.dfa );
 			break;
 
 		default:
@@ -157,7 +157,7 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 	if( regex->stat == PREGEX_STAT_NONE )
 	{
 		MSG( "Machine is only self-inizialized yet - inizializing NFA!" );
-		memset( &( regex->machine.nfa ), 0, sizeof( pregex_nfa ) );
+		memset( regex->machine.nfa, 0, sizeof( pregex_nfa ) );
 		regex->stat = PREGEX_STAT_NFA;
 	}
 
@@ -167,7 +167,7 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 		required now to still keep the regular expressions working without
 		an entire redesign.
 	*/
-	if( ( ret = pregex_ptn_to_nfa( &( regex->machine.nfa ), ptn ) ) != ERR_OK )
+	if( ( ret = pregex_ptn_to_nfa( regex->machine.nfa, ptn ) ) != ERR_OK )
 	{
 		pregex_ptn_free( ptn );
 
@@ -175,7 +175,7 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 	}
 
 	if( regex->flags & PREGEX_MOD_DEBUG )
-		pregex_nfa_print( &( regex->machine.nfa ) );
+		pregex_nfa_print( regex->machine.nfa );
 
 	/*
 		Chaining the regular expression pattern definition into
@@ -224,7 +224,7 @@ int pregex_finalize( pregex* regex )
 	memset( &dfa, 0, sizeof( pregex_dfa ) );
 
 	/* Perform subset construction algorithm */
-	if( ( ret = pregex_dfa_from_nfa( &dfa, &( regex->machine.nfa ) ) )
+	if( ( ret = pregex_dfa_from_nfa( &dfa, regex->machine.nfa ) )
 			< ERR_OK )
 	{
 		MSG( "Subset construction failed" );
@@ -244,15 +244,15 @@ int pregex_finalize( pregex* regex )
 
 	/* Delete NFA */
 	if( regex->flags & PREGEX_MOD_DEBUG )
-		pregex_nfa_print( &( regex->machine.nfa ) );
+		pregex_nfa_print( regex->machine.nfa );
 
-	pregex_nfa_free( &( regex->machine.nfa ) );
+	pregex_nfa_free( regex->machine.nfa );
 
 	/* Set new regex status */
 	if( regex->flags & PREGEX_MOD_DEBUG )
 		pregex_dfa_print( stderr, &dfa );
 
-	memcpy( &( regex->machine.dfa ), &dfa, sizeof( pregex_dfa ) );
+	memcpy( regex->machine.dfa, &dfa, sizeof( pregex_dfa ) );
 	regex->stat = PREGEX_STAT_DFA;
 
 	RETURN( ERR_OK );
@@ -357,11 +357,11 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 #endif
 
 		if( regex->stat == PREGEX_STAT_NFA )
-			match = pregex_nfa_match( &( regex->machine.nfa ), pstr,
+			match = pregex_nfa_match( regex->machine.nfa, pstr,
 						&len, &anchors, &( regex->refs ), &( regex->refs_cnt ),
 							regex->flags );
 		else
-			match = pregex_dfa_match( &( regex->machine.dfa ), pstr,
+			match = pregex_dfa_match( regex->machine.dfa, pstr,
 						&len, &anchors, &( regex->refs ), &( regex->refs_cnt ),
 							regex->flags );
 

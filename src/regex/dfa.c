@@ -128,6 +128,20 @@ static int pregex_dfa_same_transitions( pregex_dfa* dfa, LIST* trans )
 	return -1;
 }
 
+/** Allocates an initializes a new pregex_dfa-object for a deterministic
+finite state automata that can be used for pattern matching. A DFA
+is currently created out of an NFA.
+
+The function pregex_dfa_free() shall be used to destruct a pregex_dfa-object. */
+pregex_dfa* pregex_dfa_create( void )
+{
+	pregex_dfa*		dfa;
+
+	dfa = (pregex_dfa*)pmalloc( sizeof( pregex_dfa ) );
+
+	return dfa;
+}
+
 /** Frees and resets a DFA state machine.
 
 //dfa// is the pointer to a DFA-machine to be reset.
@@ -168,7 +182,7 @@ pregex_dfa* pregex_dfa_free( pregex_dfa* dfa )
 
 	list_free( dfa->states );
 
-	memset( dfa, 0, sizeof( pregex_dfa ) );
+	pfree( dfa );
 
 	RETURN( (pregex_dfa*)NULL );
 }
