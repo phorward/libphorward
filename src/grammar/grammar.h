@@ -60,6 +60,8 @@ struct _pgsymbol
 
 	/* Terminal-specific */
 	pregex_ptn*		ptn;			/* Regular expression pattern */
+	pregex_accept	accept;			/* Regular expression config */
+
 	int				prec;			/* Precedence level */
 	pgassoc			assoc;			/* Associativity */
 

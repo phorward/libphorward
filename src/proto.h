@@ -133,8 +133,8 @@ pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... );
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn );
 void pregex_ptn_print( pregex_ptn* ptn, int rec );
 int pregex_ptn_to_regex( char** regex, pregex_ptn* ptn );
-int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern, pregex_accept* accept );
-int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept, char* str, int flags );
+int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern );
+int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags );
 
 /* regex/pregex.c */
 pregex* pregex_create( void );

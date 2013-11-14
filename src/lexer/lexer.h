@@ -8,14 +8,28 @@ File:	lexer.h
 Usage:
 ----------------------------------------------------------------------------- */
 
+typedef struct _pgtoken				pgtoken;
 typedef struct _pglexer				pglexer;
+
+/* Token */
+struct _pgtoken
+{
+	int				id;			/* Symbol match ID */
+	pgsymbol*		symbol;		/* Symbol terminal ID */
+	char*			token;		/* Token pointer */
+	int				len;		/* Token length */
+};
+
+/* Symbol */
+
 
 /* Lexer */
 struct _pglexer
 {
-	plist		symbols;		/* Pattern definitions of the symbols */
-	pregex_dfa	dfa;			/* DFA state machine */
+	pggrammar*	grammar;		/* Grammar (optional) */
 
-	plist		tokens;			/* Tokens array */
+	pregex_nfa*	nfa;			/* NFA state machine */
+	pregex_dfa*	dfa;			/* DFA state machine */
+
+	plist*		tokens;			/* Tokens array */
 };
-

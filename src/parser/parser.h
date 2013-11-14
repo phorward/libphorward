@@ -9,27 +9,20 @@ Usage:
 ----------------------------------------------------------------------------- */
 
 typedef struct _pgparser			pgparser;
-typedef struct _pgtoken				pgtoken;
 typedef struct _pgastnode			pgastnode;
-
-/* Token */
-struct _pgtoken
-{
-	pgsymbol*		symbol;			/* Symbol of token */
-	char*			token;			/* Token text */
-};
 
 /* Parser */
 struct _pgparser
 {
-	pggrammar*		grammar;		/* The grammar of the parser */
-	pglexer*		lexer;			/* The lexer */
-	pgparadigm		paradigm;		/* Parsing paradigm */
+	pgparadigm		paradigm;	/* Parser paradigm config */
 
-	plist*			states;			/* The parser states */
+	pggrammar*		grammar;	/* The grammar */
+	pglexer*		lexer;		/* The lexer */
 
-	pboolean		optimize;		/* Enable state optimizeion */
-	char*			source;			/* Source */
+	plist*			states;		/* The parser states */
+
+	pboolean		optimize;	/* Enable state optimizeion */
+	char*			source;		/* Source */
 };
 
 /* AST */

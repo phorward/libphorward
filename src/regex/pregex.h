@@ -81,7 +81,6 @@ typedef struct	_regex_dfa		pregex_dfa;
 
 typedef enum 	_regex_ptntype	pregex_ptntype;
 typedef struct	_regex_ptn		pregex_ptn;
-typedef struct	_regex_ptndef	pregex_ptndef;
 
 typedef struct	_regex			pregex;
 typedef	struct	_regex_range	pregex_range;
@@ -193,12 +192,8 @@ struct _regex_ptn
 
 	pregex_ptn*		child[ 2 ];	/* Links to child */
 	pregex_ptn*		next;		/* Next sequence element */
-};
 
-struct _regex_ptndef
-{
-	pregex_ptn*		pattern;	/* Pointer to pattern root */
-	pregex_accept	accept;		/* Match parameters */
+	pregex_accept*	accept;		/* Optional accepting information */
 };
 
 struct _regex_range

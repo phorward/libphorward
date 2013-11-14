@@ -43,7 +43,6 @@ Returns always (pregex*)NULL.
 pregex* pregex_free( pregex* regex )
 {
 	LIST*			l;
-	pregex_ptndef*	def;
 
 	PROC( "pregex_free" );
 	PARMS( "regex", "%p", regex );
@@ -77,12 +76,7 @@ pregex* pregex_free( pregex* regex )
 
 	/* Freeing the pattern definitions */
 	LISTFOR( regex->defs, l )
-	{
-		def = (pregex_ptndef*)list_access( l );
-
-		pregex_ptn_free( def->pattern );
-		pfree( def );
-	}
+		pregex_ptn_free( (pregex_ptn*)list_access( l ) );
 
 	regex->defs = list_free( regex->defs );
 
@@ -136,8 +130,8 @@ returned for other errors.
 */
 int pregex_compile( pregex* regex, char* pattern, int accept )
 {
-	int				ret;
-	pregex_ptndef*	def;
+	int			ret;
+	pregex_ptn*	ptn;
 
 	PROC( "pregex_compile" );
 	PARMS( "regex", "%p", regex );
@@ -152,19 +146,12 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 	}
 
 	/* Create a pattern definition */
-	def = (pregex_ptndef*)pmalloc( sizeof( pregex_ptndef ) );
-	def->accept.accept = accept;
-
-	if( ( ret = pregex_ptn_parse( &( def->pattern ), &( def->accept ),
-					pattern, regex->flags ) ) != ERR_OK )
-	{
-		pregex_ptn_free( def->pattern );
-		pfree( def );
-
+	if( ( ret = pregex_ptn_parse( &ptn, pattern, regex->flags ) ) != ERR_OK )
 		RETURN( ret );
-	}
 
-	/* pregex_ptn_print( def->pattern, 0 ); */
+	ptn->accept->accept = accept;
+
+	/* pregex_ptn_print( ptn, 0 ); */
 
 	/* Conversion to NFA */
 	if( regex->stat == PREGEX_STAT_NONE )
@@ -180,11 +167,9 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 		required now to still keep the regular expressions working without
 		an entire redesign.
 	*/
-	if( ( ret = pregex_ptn_to_nfa( &( regex->machine.nfa ),
-					def->pattern, &( def->accept ) ) ) != ERR_OK )
+	if( ( ret = pregex_ptn_to_nfa( &( regex->machine.nfa ), ptn ) ) != ERR_OK )
 	{
-		pregex_ptn_free( def->pattern );
-		pfree( def );
+		pregex_ptn_free( ptn );
 
 		RETURN( ret );
 	}
@@ -196,11 +181,9 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 		Chaining the regular expression pattern definition into
 		the list of definitions
 	*/
-	if( !( regex->defs = list_push( regex->defs, def ) ) )
+	if( !( regex->defs = list_push( regex->defs, ptn ) ) )
 	{
-		pregex_ptn_free( def->pattern );
-		pfree( def );
-
+		pregex_ptn_free( ptn );
 		RETURN( ERR_MEM );
 	}
 

@@ -354,7 +354,6 @@ typedef struct	_regex_dfa		pregex_dfa;
 
 typedef enum 	_regex_ptntype	pregex_ptntype;
 typedef struct	_regex_ptn		pregex_ptn;
-typedef struct	_regex_ptndef	pregex_ptndef;
 
 typedef struct	_regex			pregex;
 typedef	struct	_regex_range	pregex_range;
@@ -460,12 +459,8 @@ struct _regex_ptn
 
 	pregex_ptn*		child[ 2 ];	
 	pregex_ptn*		next;		
-};
 
-struct _regex_ptndef
-{
-	pregex_ptn*		pattern;	
-	pregex_accept	accept;		
+	pregex_accept*	accept;		
 };
 
 struct _regex_range
@@ -768,6 +763,8 @@ struct _pgsymbol
 
 	
 	pregex_ptn*		ptn;			
+	pregex_accept	accept;			
+
 	int				prec;			
 	pgassoc			assoc;			
 
@@ -810,42 +807,49 @@ struct _pggrammar
 
 
 
-typedef struct _pglexer				pglexer;
-
-
-struct _pglexer
-{
-	plist		symbols;		
-	pregex_dfa	dfa;			
-
-	plist		tokens;			
-};
-
-
-
-
-typedef struct _pgparser			pgparser;
 typedef struct _pgtoken				pgtoken;
-typedef struct _pgastnode			pgastnode;
+typedef struct _pglexer				pglexer;
 
 
 struct _pgtoken
 {
-	pgsymbol*		symbol;			
-	char*			token;			
+	int				id;			
+	pgsymbol*		symbol;		
+	char*			token;		
+	int				len;		
 };
+
+
+
+
+
+struct _pglexer
+{
+	pggrammar*	grammar;		
+
+	pregex_nfa*	nfa;			
+	pregex_dfa*	dfa;			
+
+	plist*		tokens;			
+};
+
+
+
+typedef struct _pgparser			pgparser;
+typedef struct _pgastnode			pgastnode;
 
 
 struct _pgparser
 {
-	pggrammar*		grammar;		
-	pglexer*		lexer;			
-	pgparadigm		paradigm;		
+	pgparadigm		paradigm;	
 
-	plist*			states;			
+	pggrammar*		grammar;	
+	pglexer*		lexer;		
 
-	pboolean		optimize;		
-	char*			source;			
+	plist*			states;		
+
+	pboolean		optimize;	
+	char*			source;		
 };
 
 
@@ -1001,8 +1005,8 @@ pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... );
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn );
 void pregex_ptn_print( pregex_ptn* ptn, int rec );
 int pregex_ptn_to_regex( char** regex, pregex_ptn* ptn );
-int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern, pregex_accept* accept );
-int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept, char* str, int flags );
+int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern );
+int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags );
 
 
 pregex* pregex_create( void );

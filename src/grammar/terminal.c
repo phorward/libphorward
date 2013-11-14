@@ -89,11 +89,8 @@ BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern )
 
 	if( pattern )
 	{
-		if( pregex_ptn_parse( &ptn, (pregex_accept*)NULL, pattern,
-				PREGEX_MOD_NONE ) != ERR_OK )
-		{
+		if( pregex_ptn_parse( &ptn, pattern, PREGEX_MOD_NONE ) != ERR_OK )
 			return FALSE;
-		}
 	}
 
 	pg_terminal_set_pattern( terminal, ptn );

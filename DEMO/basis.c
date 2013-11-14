@@ -225,15 +225,12 @@ static void plist_demo_print_by_key( plist* list, char* key )
 	printf( "%s => %s, %s\n", key, pp->last_name, pp->first_name );
 }
 
-static pboolean by_name( void* a, void* b )
+static int by_name( plist* list, plistel* a, plistel* b )
 {
-	person*	ap = a;
-	person*	bp = b;
+	person*	ap = plist_access( a );
+	person*	bp = plist_access( b );
 
-	if( strcmp( ap->last_name, bp->last_name ) < 0 )
-		return TRUE;
-
-	return FALSE;
+	return strcmp( ap->last_name, bp->last_name );
 }
 
 void plist_demo( void )
@@ -267,7 +264,8 @@ void plist_demo( void )
 	plist_demo_print( my );
 
 	/* Sort list by name */
-	plist_sort( my, by_name );
+	plist_set_sortfn( my, by_name );
+	plist_sort( my );
 
 	/* Print content */
 	plist_demo_print( my );
@@ -293,7 +291,7 @@ void plist_demo( void )
 	plist_insert( my, NULL, "Ayanami", (pbyte*)&p );
 
 	/* Sort list by name again */
-	plist_sort( my, by_name );
+	plist_sort( my );
 
 	/* Now print and get by key */
 	plist_demo_print( my );

@@ -350,6 +350,8 @@ pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 		if( ptn->child[1] )
 			pregex_ptn_free( ptn->child[1] );
 
+		if( ptn->accept )
+			pfree( ptn->accept );
 
 		next = ptn->next;
 		pfree( ptn );
@@ -767,8 +769,7 @@ This structure is optional, and can be left-out as (pregex_accept*)NULL.
 
 Returns a standard error define on failure, and ERR_OK on success.
 */
-int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
-							pregex_accept* accept )
+int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
 {
 	int				ret;
 	pregex_nfa_st*	start;
@@ -779,10 +780,6 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 	PROC( "pregex_ptn_to_nfa" );
 	PARMS( "nfa", "%p", nfa );
 	PARMS( "pattern", "%p", pattern );
-	PARMS( "accept->anchors", "%d", accept ? accept->anchors : -999 );
-	PARMS( "accept->accept", "%d", accept ? accept->accept : -999 );
-	PARMS( "accept->greedy", "%s", BOOLEAN_STR(
-									accept ? accept->greedy : FALSE ) );
 
 	if( !( nfa && pattern ) )
 	{
@@ -815,8 +812,20 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern,
 		n_first->next2 = first;
 
 	/* end becomes the accepting state */
-	if( accept )
-		memcpy( &( end->accept ), accept, sizeof( pregex_accept ) );
+	if( pattern->accept )
+	{
+		MSG( "Accepting information available" );
+
+		VARS( "anchors", "%d",
+				pattern->accept ? pattern->accept->anchors : -999 );
+		VARS( "accept", "%d",
+				pattern->accept ? pattern->accept->accept : -999 );
+		VARS( "greedy", "%s",
+				BOOLEAN_STR( pattern->accept ?
+								pattern->accept->greedy : FALSE ) );
+
+		memcpy( &( end->accept ), pattern->accept, sizeof( pregex_accept ) );
+	}
 
 	RETURN( ERR_OK );
 }
@@ -837,16 +846,15 @@ pchar-array holding wide-character strings.
 
 Returns a standard error define on failure, and ERR_OK on success.
 */
-int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
-						char* str, int flags )
+int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 {
-	int			ret;
-	char*		ptr;
+	int				ret;
+	char*			ptr;
+	pregex_accept	accept;
 
 	PROC( "pregex_ptn_parse" );
 	PARMS( "ptn", "%p", ptn );
 	PARMS( "str", "%s", str );
-	PARMS( "accept", "%p", accept );
 	PARMS( "flags", "%d", flags );
 
 	if( !( ptn && str ) )
@@ -856,11 +864,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 	}
 
 	/* Set default values into accept structure, except accept member! */
-	if( accept )
-	{
-		accept->greedy = TRUE;
-		accept->anchors = PREGEX_ANCHOR_NONE;
-	}
+	pregex_accept_init( &accept );
 
 	/* If PREGEX_MOD_STATIC is set, parsing is not required! */
 	if( flags & PREGEX_MOD_STATIC )
@@ -868,6 +872,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 		if( !( *ptn = pregex_ptn_create_string( str, flags ) ) )
 			RETURN( ERR_MEM );
 
+		(*ptn)->accept = pmemdup( &accept, sizeof( pregex_accept ) );
 		RETURN( ERR_OK );
 	}
 
@@ -887,19 +892,19 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 	VARS( "ptr", "%s", ptr );
 
 	/* Parse anchor at begin of regular expression */
-	if( accept && !( flags & PREGEX_MOD_NO_ANCHORS ) )
+	if( !( flags & PREGEX_MOD_NO_ANCHORS ) )
 	{
 		MSG( "Anchors at begin" );
 
 		if( *ptr == '^' )
 		{
-			accept->anchors |= PREGEX_ANCHOR_BOL;
+			accept.anchors |= PREGEX_ANCHOR_BOL;
 			ptr++;
 		}
 		else if( !strncmp( ptr, "\\<", 2 ) )
 			/* This is a GNU-like extension */
 		{
-			accept->anchors |= PREGEX_ANCHOR_BOW;
+			accept.anchors |= PREGEX_ANCHOR_BOW;
 			ptr += 2;
 		}
 	}
@@ -908,24 +913,27 @@ int pregex_ptn_parse( pregex_ptn** ptn, pregex_accept* accept,
 	MSG( "Starting the parser" );
 	VARS( "ptr", "%s", ptr );
 
-	if( ( ret = parse_alter( ptn, &ptr, accept, flags ) ) != ERR_OK )
+	if( ( ret = parse_alter( ptn, &ptr, &accept, flags ) ) != ERR_OK )
 		RETURN( ret );
 
 	VARS( "ptr", "%s", ptr );
 
 	/* Parse anchor at end of regular expression */
-	if( accept && !( flags & PREGEX_MOD_NO_ANCHORS ) )
+	if( !( flags & PREGEX_MOD_NO_ANCHORS ) )
 	{
 		MSG( "Anchors at end" );
 		if( !strcmp( ptr, "$" ) )
-			accept->anchors |= PREGEX_ANCHOR_EOL;
+			accept.anchors |= PREGEX_ANCHOR_EOL;
 		else if( !strcmp( ptr, "\\>" ) )
 			/* This is a GNU-style extension */
-			accept->anchors |= PREGEX_ANCHOR_EOW;
+			accept.anchors |= PREGEX_ANCHOR_EOW;
 	}
 
 	/* Free duplicated string */
 	pfree( str );
+
+	/* Copy accept structure */
+	(*ptn)->accept = pmemdup( &accept, sizeof( pregex_accept ) );
 
 	RETURN( ERR_OK );
 }
