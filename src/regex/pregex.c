@@ -157,7 +157,7 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 	if( regex->stat == PREGEX_STAT_NONE )
 	{
 		MSG( "Machine is only self-inizialized yet - inizializing NFA!" );
-		memset( regex->machine.nfa, 0, sizeof( pregex_nfa ) );
+		regex->machine.nfa = pregex_nfa_create();
 		regex->stat = PREGEX_STAT_NFA;
 	}
 

@@ -744,9 +744,8 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 			memcpy( *end, n_start, sizeof( pregex_nfa_st ) );
 			memset( n_start, 0, sizeof( pregex_nfa_st ) );
 
-			nfa->states = list_remove( nfa->states, (void*)n_start );
-			if( !( nfa->empty = list_push( nfa->empty, (void*)n_start ) ) )
-				return ERR_MEM;
+			plist_remove( nfa->states,
+				plist_get_by_ptr( nfa->states, n_start ) );
 
 			*end = n_end;
 		}
@@ -788,7 +787,7 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
 	}
 
 	/* Find last first node ;) ... */
-	for( n_first = (pregex_nfa_st*)list_access( nfa->states );
+	for( n_first = (pregex_nfa_st*)plist_access( plist_first( nfa->states ) );
 		n_first && n_first->next2; n_first = n_first->next2 )
 			;
 

@@ -17,18 +17,18 @@ Usage:	DFA creation and transformation functions
 /* Printing a DFA-state machine to a stream, for debug */
 void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
 {
-	LIST*			l;
+	plistel*		e;
+	plistel*		f;
 	pregex_dfa_st*	s;
-	pregex_dfa_tr*	e;
-	LIST*			m;
+	pregex_dfa_tr*	t;
 	int				i;
 
-	for( l = dfa->states; l; l = list_next( l ) )
+	plist_for( dfa->states, e )
 	{
-		s = (pregex_dfa_st*)list_access( l );
+		s = (pregex_dfa_st*)plist_access( e );
 		fprintf( stream, "*** STATE %d (accepts %d, ref_cnt %d, anchors %d)\n",
-			list_find( dfa->states, (void*)s ), s->accept.accept,
-				s->ref_cnt, s->accept.anchors );
+			plist_offset( plist_get_by_ptr( dfa->states, s ) ),
+				s->accept.accept, s->ref_cnt, s->accept.anchors );
 
 		if( s->ref_cnt )
 		{
@@ -38,12 +38,12 @@ void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
 			fprintf( stream, "\n" );
 		}
 
-		for( m = s->trans; m; m = list_next( m ) )
+		plist_for( s->trans, f )
 		{
-			e = (pregex_dfa_tr*)list_access( m );
+			t = (pregex_dfa_tr*)plist_access( f );
 
-			pregex_ccl_print( stream, e->ccl, 0 );
-			fprintf( stream, "-> %d\n", e->go_to );
+			pregex_ccl_print( stream, t->ccl, 0 );
+			fprintf( stream, "-> %d\n", t->go_to );
 		}
 
 		fprintf( stream, "\n" );
@@ -55,19 +55,12 @@ static pregex_dfa_st* pregex_dfa_create_state( pregex_dfa* dfa )
 {
 	pregex_dfa_st* 	ptr;
 
-	if( !( ptr = pmalloc( sizeof( pregex_dfa_st ) ) ) )
-		return (pregex_dfa_st*)NULL;
-
-	memset( ptr, 0, sizeof( pregex_dfa_st ) );
+	ptr = (pregex_dfa_st*)plist_malloc( dfa->states );
+	ptr->trans = plist_create( sizeof( pregex_dfa_tr ), PLIST_MOD_RECYCLE );
+	ptr->nfa_set = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_AUTOSORT );
 
 	pregex_accept_init( &( ptr->accept ) );
 	ptr->done = FALSE;
-
-	if( !( dfa->states = list_push( dfa->states, (void*)ptr ) ) )
-	{
-		pfree( ptr );
-		return (pregex_dfa_st*)NULL;
-	}
 
 	return ptr;
 }
@@ -75,20 +68,18 @@ static pregex_dfa_st* pregex_dfa_create_state( pregex_dfa* dfa )
 /* Freeing a DFA-state */
 static void pregex_dfa_delete_state( pregex_dfa_st* st )
 {
-	LIST*			l;
+	plistel*		e;
 	pregex_dfa_tr*	tr;
 
-	for( l = st->trans; l; l = list_next( l ) )
+	plist_for( st->trans, e )
 	{
-		tr = (pregex_dfa_tr*)list_access( l );
+		tr = (pregex_dfa_tr*)plist_access( e );
 		pregex_ccl_free( tr->ccl );
-		pfree( tr );
 	}
 
-	list_free( st->trans );
-
-	pfree( st->ref );
-	pfree( st );
+	st->trans = plist_free( st->trans );
+	st->nfa_set = plist_free( st->nfa_set );
+	st->ref = pfree( st->ref );
 }
 
 /* Checks the unfinished DFA state machine for states having the done-flag
@@ -96,12 +87,13 @@ static void pregex_dfa_delete_state( pregex_dfa_st* st )
 	are found, (regex_dfa*)NULL will be returned. */
 static pregex_dfa_st* pregex_dfa_get_undone_state( pregex_dfa* dfa )
 {
-	LIST*			l;
+	plistel*		e;
 	pregex_dfa_st*	ptr;
 
-	for( l = dfa->states; l; l = list_next( l ) )
+	plist_for( dfa->states, e )
 	{
-		ptr = (pregex_dfa_st*)list_access( l );
+		ptr = (pregex_dfa_st*)plist_access( e );
+
 		if( !ptr->done )
 			return ptr;
 	}
@@ -112,17 +104,17 @@ static pregex_dfa_st* pregex_dfa_get_undone_state( pregex_dfa* dfa )
 /* Checks for DFA-states with same NFA-epsilon transitions than the specified
 	one within the DFA-state machine. If an equal item is found, the offset of
 		that DFA-state is returned, else -1. */
-static int pregex_dfa_same_transitions( pregex_dfa* dfa, LIST* trans )
+static int pregex_dfa_same_transitions( pregex_dfa* dfa, plist* trans )
 {
-	LIST*			l;
+	plistel*		e;
 	pregex_dfa_st*	ptr;
 
-	for( l = dfa->states; l; l = list_next( l ) )
+	plist_for( dfa->states, e )
 	{
-		ptr = (pregex_dfa_st*)list_access( l );
+		ptr = (pregex_dfa_st*)plist_access( e );
 
-		if( list_diff( ptr->nfa_set, trans ) )
-			return list_find( dfa->states, (void*)ptr );
+		if( plist_diff( ptr->nfa_set, trans ) )
+			return plist_offset( plist_get_by_ptr( dfa->states, ptr ) );
 	}
 
 	return -1;
@@ -138,6 +130,7 @@ pregex_dfa* pregex_dfa_create( void )
 	pregex_dfa*		dfa;
 
 	dfa = (pregex_dfa*)pmalloc( sizeof( pregex_dfa ) );
+	dfa->states = plist_create( sizeof( pregex_dfa_st ), PLIST_MOD_RECYCLE );
 
 	return dfa;
 }
@@ -150,8 +143,7 @@ Always returns (pregex_dfa*)NULL.
 */
 pregex_dfa* pregex_dfa_free( pregex_dfa* dfa )
 {
-	LIST*			l;
-	LIST*			m;
+	plistel*		e;
 	pregex_dfa_st*	dfa_st;
 	pregex_dfa_tr*	tr;
 
@@ -161,27 +153,13 @@ pregex_dfa* pregex_dfa_free( pregex_dfa* dfa )
 	if( !( dfa ) )
 		RETURN( (pregex_dfa*)NULL );
 
-	LISTFOR( dfa->states, l )
+	plist_for( dfa->states, e )
 	{
-		dfa_st = (pregex_dfa_st*)list_access( l );
-
-		LISTFOR( dfa_st->trans, m )
-		{
-			tr = (pregex_dfa_tr*)list_access( m );
-
-			pregex_ccl_free( tr->ccl );
-			pfree( tr );
-		}
-
-		list_free( dfa_st->trans );
-		list_free( dfa_st->nfa_set );
-
-		pfree( dfa_st->ref );
-		pfree( dfa_st );
+		dfa_st = (pregex_dfa_st*)plist_access( e );
+		pregex_dfa_delete_state( dfa_st );
 	}
 
-	list_free( dfa->states );
-
+	plist_free( dfa->states );
 	pfree( dfa );
 
 	RETURN( (pregex_dfa*)NULL );
@@ -198,8 +176,8 @@ y will be selected as default state.
 */
 static void pregex_dfa_default_trans( pregex_dfa* dfa )
 {
-	LIST*			l;
-	LIST*			m;
+	plistel*		e;
+	plistel*		f;
 	pregex_dfa_st*	st;
 	pregex_dfa_tr*	tr;
 	int				max;
@@ -209,14 +187,14 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 	PROC( "pregex_dfa_default_trans" );
 	PARMS( "dfa", "%p", dfa );
 
-	LISTFOR( dfa->states, l )
+	plist_for( dfa->states, e )
 	{
-		st = (pregex_dfa_st*)list_access( l );
+		st = (pregex_dfa_st*)plist_access( e );
 
 		max = all = 0;
-		LISTFOR( st->trans, m )
+		plist_for( st->trans, f )
 		{
-			tr = (pregex_dfa_tr*)list_access( m );
+			tr = (pregex_dfa_tr*)plist_access( f );
 
 			if( max < ( cnt = pregex_ccl_count( tr->ccl ) ) )
 			{
@@ -243,7 +221,7 @@ Returns ERR_OK on success, and an ERR_-define on error.
 */
 static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 {
-	LIST*			l;
+	plistel*		e;
 	pregex_nfa_st*	nfa_st;
 	int				i;
 
@@ -255,9 +233,9 @@ static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 	{
 		/* Find out number of references, check for anchors */
 		MSG( "Searching for references in the NFA transitions" );
-		LISTFOR( st->nfa_set, l )
+		plist_for( st->nfa_set, e )
 		{
-			nfa_st = (pregex_nfa_st*)list_access( l );
+			nfa_st = (pregex_nfa_st*)plist_access( e );
 
 			if( nfa_st->ref > -1 )
 			{
@@ -300,16 +278,13 @@ In case of an error, an adequate ERR_-define will be returned.
 */
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 {
-	LIST*			set;
-	LIST*			transitions;
-	LIST*			item;
-	LIST*			tr;
-	LIST*			classes;
-	LIST*			l;
-	LIST*			m;
+	plist*			transitions;
+	plist*			classes;
+	plistel*		e;
+	plistel*		f;
 	pregex_dfa_tr*	trans;
 	pregex_dfa_st*	current;
-	pregex_dfa_st*	tmp;
+	pregex_dfa_st*	st;
 	pregex_nfa_st*	nfa_st;
 	int				state_next	= 0;
 	pboolean		changed;
@@ -325,18 +300,25 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	PARMS( "dfa", "%p", dfa );
 	PARMS( "nfa", "%p", nfa );
 
+	if( !( dfa && nfa ) )
+	{
+		WRONGPARAM;
+		RETURN( ERR_PARMS );
+	}
+
 	/* Initialize */
-	memset( dfa, 0, sizeof( pregex_dfa ) );
+	classes = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+	transitions = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
 	if( !( current = pregex_dfa_create_state( dfa ) ) )
 		RETURN( ERR_MEM );
 
 	/* Set starting seed */
-	if( !( set = list_push( (LIST*)NULL, list_access( nfa->states ) ) ) )
+	if( !plist_push( current->nfa_set,
+			plist_access( plist_first( nfa->states ) ) ) )
 		RETURN( ERR_MEM );
 
-	current->nfa_set = pregex_nfa_epsilon_closure( nfa, set,
-							(pregex_accept*)NULL );
+	pregex_nfa_epsilon_closure( nfa, current->nfa_set, (pregex_accept*)NULL );
 	pregex_dfa_collect_ref( current );
 
 	/* Perform algorithm until all states are done */
@@ -346,11 +328,11 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		current->accept.accept = PREGEX_ACCEPT_NONE;
 
 		/* Assemble all character sets in the alphabet list */
-		classes = (LIST*)NULL;
+		plist_erase( classes );
 
-		for( item = current->nfa_set; item; item = list_next( item ) )
+		plist_for( current->nfa_set, e )
 		{
-			nfa_st = (pregex_nfa_st*)list_access( item );
+			nfa_st = (pregex_nfa_st*)plist_access( e );
 
 			if( nfa_st->accept.accept > PREGEX_ACCEPT_NONE )
 			{
@@ -374,10 +356,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				if( !( ccl = pregex_ccl_dup( nfa_st->ccl ) ) )
 					RETURN( ERR_MEM );
 
-				if( !( classes = list_push( classes, (void*)ccl ) ) )
+				if( !plist_push( classes, ccl ) )
 					RETURN( ERR_MEM );
 
-				VARS( "count (classes)", "%d", list_count( classes ) );
+				VARS( "plist_count( classes )", "%d", plist_count( classes ) );
 			}
 		}
 
@@ -388,16 +370,16 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		{
 			changed = FALSE;
 
-			LISTFOR( classes, l )
+			plist_for( classes, e )
 			{
-				ccl = (pregex_ccl*)list_access( l );
+				ccl = (pregex_ccl*)plist_access( e );
 
-				LISTFOR( classes, m )
+				plist_for( classes, f )
 				{
-					if( l == m )
+					if( e == f )
 						continue;
 
-					test = (pregex_ccl*)list_access( m );
+					test = (pregex_ccl*)plist_access( f );
 
 					if( pregex_ccl_count( ccl ) > pregex_ccl_count( test ) )
 						continue;
@@ -407,10 +389,11 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 						test = pregex_ccl_diff( test, subset );
 						pregex_ccl_free( subset );
 
-						del = (pregex_ccl*)list_access( m );
+						del = (pregex_ccl*)plist_access( f );
 						pregex_ccl_free( del );
 
-						list_replace( m, test );
+						plist_remove( classes, f );
+						plist_push( classes, test );
 
 						changed = TRUE;
 					}
@@ -423,27 +406,37 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 		MSG( "Make transitions on constructed alphabet" );
 		/* Make transitions on constructed alphabet */
-		LISTFOR( classes, l )
+		plist_for( classes, e )
 		{
-			ccl = (pregex_ccl*)list_access( l );
+			ccl = (pregex_ccl*)plist_access( e );
 
 			MSG( "Check char class" );
 			for( i = 0; pregex_ccl_get( &begin, &end, ccl, i ); i++ )
 			{
-				VARS( ">begin", "%d", begin );
-				VARS( ">end", "%d", end );
+				VARS( "begin", "%d", begin );
+				VARS( "end", "%d", end );
 
-				if( !( transitions = list_dup( current->nfa_set ) ) )
-					RETURN( ERR_MEM );
-
-				if( ( transitions = pregex_nfa_move(
-						nfa, transitions, begin, end ) ) )
+				/* TODO: plist_copy() */
+				plist_for( current->nfa_set, f )
 				{
-					transitions = pregex_nfa_epsilon_closure(
-						nfa, transitions, (pregex_accept*)NULL );
+					if( !plist_push( transitions, plist_access( f ) ) )
+						RETURN( ERR_MEM );
 				}
 
-				if( !transitions )
+				if( pregex_nfa_move( nfa, transitions, begin, end ) < 0 )
+				{
+					MSG( "pregex_nfa_move() failed" );
+					break;
+				}
+
+				if( pregex_nfa_epsilon_closure(
+						nfa, transitions, (pregex_accept*)NULL ) < 0 )
+				{
+					MSG( "pregex_nfa_epsilon_closure() failed" );
+					break;
+				}
+
+				if( !plist_count( transitions ) )
 				{
 					/* There is no move on this character! */
 					MSG( "transition set is empty, will continue" );
@@ -456,70 +449,61 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				{
 					/* This transition is already existing in the DFA
 						- discard the transition table! */
-					transitions = list_free( transitions );
+					plist_erase( transitions );
 				}
 				else
 				{
 					MSG( "Creating new DFA state" );
 					/* Create a new DFA as undone with this transition! */
-					if( !( tmp = pregex_dfa_create_state( dfa ) ) )
+					if( !( st = pregex_dfa_create_state( dfa ) ) )
 						RETURN( ERR_MEM );
 
-					tmp->nfa_set = transitions;
-					transitions = (LIST*)NULL;
+					st->nfa_set = plist_dup( transitions );
+					pregex_dfa_collect_ref( st );
 
-					pregex_dfa_collect_ref( tmp );
-
-					state_next = list_count( dfa->states ) - 1;
+					state_next = plist_count( dfa->states ) - 1;
 				}
 
 				VARS( "state_next", "%d", state_next );
 
 				/* Find transition entry with same follow state */
-				for( tr = current->trans; tr; tr = list_next( tr ) )
+				plist_for( current->trans, f )
 				{
-					trans = (pregex_dfa_tr*)list_access( tr );
+					trans = (pregex_dfa_tr*)plist_access( f );
 
 					if( trans->go_to == state_next )
 						break;
 				}
 
-				VARS( "tr", "%p", tr );
+				VARS( "trans", "%p", trans );
 
-				if( !tr )
+				if( !trans )
 				{
 					MSG( "Need to create new transition entry" );
 
 					/* Set the transition into the transition state matrix... */
-					if( !( trans = (pregex_dfa_tr*)pmalloc(
-								sizeof( pregex_dfa_tr ) ) ) )
-						RETURN( ERR_MEM );
-
+					trans = plist_malloc( current->trans );
 					trans->ccl = pregex_ccl_create( -1, -1, (char*)NULL );
 					trans->go_to = state_next;
-
-					if( !( current->trans = list_push( current->trans,
-												(void*)trans ) ) )
-						RETURN( ERR_MEM );
 				}
 
 				/* Append current range */
 				if( !pregex_ccl_addrange( trans->ccl, begin, end ) )
 					RETURN( ERR_MEM );
-
 			}
 
 			pregex_ccl_free( ccl );
 		}
-
-		list_free( classes );
 	}
 
+	plist_free( classes );
+	plist_free( transitions );
+
 	/* Remove NFA structs */
-	for( item = dfa->states; item; item = list_next( item ) )
+	plist_for( dfa->states, e )
 	{
-		tmp = (pregex_dfa_st*)list_access( item );
-		tmp->nfa_set = list_free( tmp->nfa_set );
+		st = (pregex_dfa_st*)plist_access( e );
+		st->nfa_set = plist_free( st->nfa_set );
 	}
 
 	/* Set default transitions */
@@ -528,7 +512,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	/* Maximum number of references does not change */
 	dfa->ref_count = nfa->ref_count;
 
-	RETURN( list_count( dfa->states ) );
+	RETURN( plist_count( dfa->states ) );
 }
 
 /** Checks for transition equality within two dfa states.
@@ -540,52 +524,49 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 Returns TRUE if both states are totally equal, FALSE else.
 */
-static pboolean pregex_dfa_equal_states( pregex_dfa* dfa, LIST* groups,
-	pregex_dfa_st* first, pregex_dfa_st* second )
+static pboolean pregex_dfa_equal_states(
+	pregex_dfa* dfa, plist* groups,
+		pregex_dfa_st* first, pregex_dfa_st* second )
 {
-	LIST*			l;
-	LIST*			m;
-	LIST*			n;
-	pregex_dfa_tr*	f;
-	pregex_dfa_tr*	s;
+	plistel*		e;
+	plistel*		f;
+	plistel*		g;
+	plistel*		h;
+	pregex_dfa_tr*	tr	[ 2 ];
 
 	PROC( "pregex_dfa_equal_states" );
 	PARMS( "first", "%p", first );
 	PARMS( "second", "%p", second );
 
-	if( list_count( first->trans ) != list_count( second->trans ) )
+	if( plist_count( first->trans ) != plist_count( second->trans ) )
 	{
 		MSG( "Number of transitions is different" );
 		RETURN( FALSE );
 	}
 
-	for( l = first->trans, m = second->trans; l && m;
-			l = list_next( l ), m = list_next( m ) )
+	for( e = plist_first( first->trans ), f = plist_first( second->trans );
+			e && f; e = plist_next( e ), f = plist_next( f ) )
 	{
-		f = (pregex_dfa_tr*)list_access( l );
-		s = (pregex_dfa_tr*)list_access( m );
-
-		/* Equal goto state? */
-		/*
-		if( f->go_to != s->go_to )
-			RETURN( FALSE );
-		*/
+		tr[0] = (pregex_dfa_tr*)plist_access( e );
+		tr[1] = (pregex_dfa_tr*)plist_access( f );
 
 		/* Equal Character class selection? */
-		if( pregex_ccl_compare( f->ccl, s->ccl ) )
+		if( pregex_ccl_compare( tr[0]->ccl, tr[1]->ccl ) )
 		{
 			MSG( "Character classes are not equal" );
 			RETURN( FALSE );
 		}
 
 		/* Search for goto-state group equality */
-		first = (pregex_dfa_st*)list_getptr( dfa->states, f->go_to );
-		second = (pregex_dfa_st*)list_getptr( dfa->states, s->go_to );
+		first = (pregex_dfa_st*)plist_access(
+					plist_get( dfa->states, tr[0]->go_to ) );
+		second = (pregex_dfa_st*)plist_access(
+					plist_get( dfa->states, tr[1]->go_to ) );
 
-		for( n = groups; n; n = list_next( n ) )
+		plist_for( groups, g )
 		{
-			if( list_find( (LIST*)list_access( n ), first ) >= 0
-				&& list_find( (LIST*)list_access( n ), second ) < 0 )
+			if( plist_get_by_ptr( (plist*)plist_access( g ), first )
+				&& !plist_get_by_ptr( (plist*)plist_access( g ), second ) )
 			{
 				MSG( "Transition state are in different groups\n" );
 				RETURN( FALSE );
@@ -607,71 +588,80 @@ of //dfa//. Returns an ERR_-define on error.
 */
 int pregex_dfa_minimize( pregex_dfa* dfa )
 {
-	pregex_dfa		min_dfa;
 	pregex_dfa_st*	dfa_st;
 	pregex_dfa_st*	grp_dfa_st;
 	pregex_dfa_tr*	ent;
-	LIST*			l;
-	LIST*			m;
-	LIST*			n;
-	LIST*			groups		= (LIST*)NULL;
-	LIST*			group;
-	LIST*			newgroup;
-	LIST*			first;
-	LIST*			next;
-	LIST*			next_next;
+
+	plist*			min_states;
+	plist*			group;
+	plist*			groups;
+	plist*			newgroup;
+
+	plistel*		e;
+	plistel*		f;
+	plistel*		g;
+	plistel*		first;
+	plistel*		next;
+	plistel*		next_next;
 	int				i;
 	pboolean		changes		= TRUE;
 
 	PROC( "pregex_dfa_minimize" );
-	PARMS( "min_dfa", "%p", min_dfa );
 	PARMS( "dfa", "%p", dfa );
 
-	memset( &min_dfa, 0, sizeof( pregex_dfa ) );
-
-	/* First, all states are grouped by accepting id */
-	for( l = dfa->states; l; l = list_next( l ) )
+	if( !dfa )
 	{
-		dfa_st = (pregex_dfa_st*)list_access( l );
+		WRONGPARAM;
+		RETURN( ERR_PARMS );
+	}
 
-		for( m = groups; m; m = list_next( m ) )
+	groups = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+
+	MSG( "First, all states are grouped by accepting id" );
+	plist_for( dfa->states, e )
+	{
+		dfa_st = (pregex_dfa_st*)plist_access( e );
+
+		plist_for( groups, f )
 		{
-			group = (LIST*)list_access( m );
-			grp_dfa_st = (pregex_dfa_st*)list_access( group );
+			group = (plist*)plist_access( f );
+			grp_dfa_st = (pregex_dfa_st*)plist_access( plist_first( group ) );
 
 			if( grp_dfa_st->accept.accept == dfa_st->accept.accept )
 				break;
 		}
 
-		if( !m )
+		if( !f )
 		{
-			if( !( group = list_push( (LIST*)NULL, (void*)dfa_st ) ) )
+			group = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+			if( !plist_push( group, dfa_st ) )
 				RETURN( ERR_MEM );
 
-			if( !( groups = list_push( groups, (void*)group ) ) )
+			if( !plist_push( groups, group ) )
 				RETURN( ERR_MEM );
 		}
-		else if( !( list_push( group, (void*)dfa_st ) ) )
+		else if( !plist_push( group, dfa_st ) )
 			RETURN( ERR_MEM );
 	}
 
-	/* Perform the algorithm */
+	MSG( "Perform the algorithm" );
 	while( changes )
 	{
 		changes = FALSE;
 
-		for( l = groups; l; l = list_next( l ) )
+		plist_for( groups, e )
 		{
-			first = (LIST*)list_access( l );
-			dfa_st = (pregex_dfa_st*)list_access( first );
+			newgroup = (plist*)NULL;
 
-			newgroup = (LIST*)NULL;
-			next_next = list_next( first );
+			group = (plist*)plist_access( e );
+
+			dfa_st = (pregex_dfa_st*)plist_access( first );
+			next_next = plist_next( plist_first( group ) );
 
 			while( ( next = next_next ) )
 			{
-				next_next = list_next( next );
-				grp_dfa_st = (pregex_dfa_st*)list_access( next );
+				next_next = plist_next( next );
+				grp_dfa_st = (pregex_dfa_st*)plist_access( next );
 
 				VARS( "dfa_st", "%p", dfa_st );
 				VARS( "grp_dfa_st", "%p", grp_dfa_st );
@@ -684,47 +674,59 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 				{
 					MSG( "States aren't equal" );
 					MSG( "Removing state from current group" );
-					list_replace( l, (void*)list_remove( first,
-										(void*)grp_dfa_st ) );
+					plist_remove( group, plist_get_by_ptr(
+											group, grp_dfa_st ) );
 
-					if( !list_access( l ) )
-						groups = list_remove( groups, (void*)first );
+					if( !plist_count( group ) )
+						plist_remove( groups,
+							plist_get_by_ptr( groups, first ) );
 
 					MSG( "Appending state into new group" );
-					if( !( newgroup = list_push( newgroup,
-								(void*)grp_dfa_st ) ) )
+
+					if( !newgroup )
+					{
+						if( !( newgroup =
+								plist_create( 0,
+									PLIST_MOD_PTR | PLIST_MOD_RECYCLE ) ) )
+							RETURN( ERR_MEM );
+					}
+
+					if( plist_push( newgroup, grp_dfa_st ) )
 						RETURN( ERR_MEM );
 				}
 			}
 
-			VARS( "newgroup", "%p", newgroup );
+			VARS( "group", "%p", newgroup );
 			if( newgroup )
 			{
 				MSG( "Engaging new group into list of groups" );
-				if( !( groups = list_push( groups, (void*)newgroup ) ) )
+				if( !( plist_push( groups, newgroup ) ) )
 					return ERR_MEM;
 
 				changes = TRUE;
 			}
 		}
 
-		VARS( "changes", "%d", changes );
+		VARS( "changes", "%s", BOOLEAN_STR( changes ) );
 	}
 
 	/* Now that we have all groups, reduce each group to one state */
-	for( l = groups; l; l = list_next( l ) )
+	plist_for( groups, e )
 	{
-		group = (LIST*)list_access( l );
-		grp_dfa_st = (pregex_dfa_st*)list_access( group );
+		group = (plist*)plist_access( e );
+		grp_dfa_st = (pregex_dfa_st*)plist_access( plist_first( group ) );
 
-		for( m = grp_dfa_st->trans; m; m = list_next( m ) )
+		plist_for( grp_dfa_st->trans, f )
 		{
-			ent = (pregex_dfa_tr*)list_access( m );
+			ent = (pregex_dfa_tr*)plist_access( f );
 
-			dfa_st = (pregex_dfa_st*)list_getptr( dfa->states, ent->go_to );
-			for( n = groups, i = 0; n; n = list_next( n ), i++ )
+			dfa_st = (pregex_dfa_st*)plist_access(
+										plist_get( dfa->states, ent->go_to ) );
+
+			for( g = plist_first( groups ), i = 0;
+					g; g = plist_next( g ), i++ )
 			{
-				if( list_find( (LIST*)list_access( n ), (void*)dfa_st ) >= 0 )
+				if( plist_get_by_ptr( (plist*)plist_access( g ), dfa_st ) )
 				{
 					ent->go_to = i;
 					break;
@@ -734,39 +736,43 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	}
 
 	/* Put leading group states into new, minimized dfa state machine */
-	for( l = groups; l; l = list_next( l ) )
+	min_states = plist_create( sizeof( pregex_dfa_st ), PLIST_MOD_RECYCLE );
+
+	plist_for( groups, e )
 	{
-		group = (LIST*)list_access( l );
+		group = (plist*)plist_access( e );
 
-		for( m = list_next( group ); m; m = list_next( m ) )
-		{
-			dfa_st = (pregex_dfa_st*)list_access( m );
-			pregex_dfa_delete_state( dfa_st );
-		}
+		/* Delete all states except the first one in the group */
+		for( f = plist_next( e ); f; f = plist_next( f ) )
+			pregex_dfa_delete_state( (pregex_dfa_st*)plist_access( f ) );
 
-		min_dfa.states = list_push( min_dfa.states, list_access( group ) );
-		list_free( group );
+		/* Push the first one into the minimized list */
+		plist_push( min_states, plist_access( plist_first( group ) ) );
+
+		/* Free this group */
+		plist_free( group );
 	}
 
-	list_free( groups );
-	list_free( dfa->states );
+	plist_free( groups );
 
-	memcpy( dfa, &min_dfa, sizeof( pregex_dfa ) );
+	/* Replace states by minimized list */
+	plist_free( dfa->states );
+	dfa->states = min_states;
 
 	/* Set default transitions */
 	pregex_dfa_default_trans( dfa );
 
-	RETURN( list_count( dfa->states ) );
+	RETURN( plist_count( dfa->states ) );
 }
 
-/** Tries to match a pattern using a DFA-machine.
+/** Tries to match a pattern using a DFA state machine.
 
 //dfa// is the DFA state machine to be executed.
 //str// is the test string where the DFA should work on.
 //len// is the length of the match, -1 on error or no match.
 
 Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the
-bestmost (=longes) match.
+bestmost (=longest) match.
 */
 int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		int* anchors, pregex_range** ref, int* ref_count, int flags )
@@ -775,7 +781,7 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	pregex_dfa_st*	next_dfa_st;
 	pregex_dfa_st*	last_accept = (pregex_dfa_st*)NULL;
 	pregex_dfa_tr*	ent;
-	LIST*			l;
+	plistel*		e;
 	char*			pstr		= str;
 	size_t			plen		= 0;
 	pchar			ch;
@@ -793,6 +799,12 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	PARMS( "ref_count", "%p", ref_count );
 	PARMS( "flags", "%d", flags );
 
+	if( !( dfa && str && len ) )
+	{
+		WRONGPARAM;
+		RETURN( ERR_PARMS );
+	}
+
 	/* Initialize! */
 	if( anchors )
 		*anchors = PREGEX_ANCHOR_NONE;
@@ -802,7 +814,7 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		RETURN( i );
 
 	*len = 0;
-	dfa_st = (pregex_dfa_st*)list_access( dfa->states );
+	dfa_st = (pregex_dfa_st*)plist_access( plist_first( dfa->states ) );
 
 	while( dfa_st )
 	{
@@ -837,8 +849,9 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 			for( i = 0; i < dfa_st->ref_cnt; i++ )
 			{
 				VARS( "i", "%d", i );
-				VARS( "State", "%d", list_find(
-								dfa->states, (void*)dfa_st ) );
+				VARS( "State", "%d", plist_offset(
+										plist_get_by_ptr(
+											dfa->states, dfa_st ) ) );
 				VARS( "dfa_st->ref[i]", "%d", dfa_st->ref[ i ] );
 
 				pregex_ref_update( &( ( *ref )[ dfa_st->ref[ i ] ] ),
@@ -865,15 +878,15 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		VARS( "ch", "%d", ch );
 
 		next_dfa_st = (pregex_dfa_st*)NULL;
-		LISTFOR( dfa_st->trans, l )
+		plist_for( dfa_st->trans, e )
 		{
-			ent = (pregex_dfa_tr*)list_access( l );
+			ent = (pregex_dfa_tr*)plist_access( e );
 
 			if( pregex_ccl_test( ent->ccl, ch ) )
 			{
 				MSG( "Having a character match!" );
-				next_dfa_st = (pregex_dfa_st*)list_getptr(
-								dfa->states, ent->go_to );
+				next_dfa_st = (pregex_dfa_st*)plist_access(
+									plist_get( dfa->states, ent->go_to ) );
 				break;
 			}
 		}

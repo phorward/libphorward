@@ -425,7 +425,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				terminals and/or nonterminals or even epsilon, and z is a
 				terminal or nonterminal.
 			*/
-			if( 0 && pg_parser_get_optimize( parser )
+			if( pg_parser_get_optimize( parser )
 					&& ( plist_count( part ) == 1
 							&& !pg_production_get_rhs( it->prod, it->dot ) ) )
 			{

@@ -34,35 +34,12 @@ pregex_nfa_st* pregex_nfa_create_state(
 	PARMS( "nfa", "%p", nfa );
 	PARMS( "chardef", "%s", chardef ? chardef : "NULL" );
 
-	/* Use state from empty stack? */
-	if( nfa->empty )
-	{
-		MSG( "Re-using existing state" );
-		nfa->empty = list_pop( nfa->empty, (void**)&ptr );
-	}
-	else
-	{
-		MSG( "Get new state" );
-		if( !( ptr = pmalloc( sizeof( pregex_nfa_st ) ) ) )
-		{
-			MSG( "Out of memory error" );
-			RETURN( (pregex_nfa_st*)NULL );
-		}
-	}
+	/* Get new element */
+	ptr = plist_malloc( nfa->states );
 
 	/* Initialize */
-	memset( ptr, 0, sizeof( pregex_nfa_st ) );
 	pregex_accept_init( &( ptr->accept ) );
 	ptr->ref = nfa->ref_cur;
-
-	/* Put into list of NFA states */
-	if( !( nfa->states = list_push( nfa->states, (void*)ptr ) ) )
-	{
-		pfree( ptr );
-
-		MSG( "Out of memory error!" );
-		RETURN( (pregex_nfa_st*)NULL );
-	}
 
 	/* Define character edge? */
 	if( chardef )
@@ -126,21 +103,21 @@ pregex_nfa_st* pregex_nfa_create_state(
 */
 void pregex_nfa_print( pregex_nfa* nfa )
 {
-	LIST*			l;
+	plistel*		e;
 	pregex_nfa_st*	s;
 
 	fprintf( stderr, " no next next2 accept ref anchor\n" );
 	fprintf( stderr, "--------------------------------\n" );
 
-	for( l = nfa->states; l; l = list_next( l ) )
+	plist_for( nfa->states, e )
 	{
-		s = (pregex_nfa_st*)list_access( l );
+		s = (pregex_nfa_st*)plist_access( e );
 
 		fprintf( stderr, "#% 2d % 4d % 5d  % 6d  % 3d % 6d\n",
-			list_find( nfa->states, (void*)s ),
-			list_find( nfa->states, (void*)s->next ),
-			list_find( nfa->states, (void*)s->next2 ),
-			s->accept.accept, s->ref, s->accept.anchors );
+			plist_offset( plist_get_by_ptr( nfa->states, s ) ),
+			plist_offset( plist_get_by_ptr( nfa->states, s->next ) ),
+			plist_offset( plist_get_by_ptr( nfa->states, s->next2 ) ),
+				s->accept.accept, s->ref, s->accept.anchors );
 
 		if( s->ccl )
 			pregex_ccl_print( stderr, s->ccl, 0 );
@@ -161,6 +138,7 @@ pregex_nfa* pregex_nfa_create( void )
 	pregex_nfa*		nfa;
 
 	nfa = (pregex_nfa*)pmalloc( sizeof( pregex_nfa ) );
+	nfa->states = plist_create( sizeof( pregex_nfa_st ), PLIST_MOD_RECYCLE );
 
 	return nfa;
 }
@@ -174,8 +152,8 @@ The function always returns (pregex_nfa*)NULL.
 */
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa )
 {
-	LIST*			l;
-	pregex_nfa_st*	nfa_st;
+	plistel*		e;
+	pregex_nfa_st*	st;
 
 	PROC( "pregex_nfa_free" );
 	PARMS( "nfa", "%p", nfa );
@@ -184,27 +162,16 @@ pregex_nfa* pregex_nfa_free( pregex_nfa* nfa )
 		RETURN( (pregex_nfa*)NULL );
 
 	MSG( "Clearing states" );
-	for( l = nfa->states; l; l = list_next( l ) )
-	{
-		nfa_st = (pregex_nfa_st*)list_access( l );
-		if( nfa_st->ccl )
-			pregex_ccl_free( nfa_st->ccl );
 
-		pfree( nfa_st );
+	plist_for( nfa->states, e )
+	{
+		st = (pregex_nfa_st*)plist_access( e );
+
+		if( st->ccl )
+			pregex_ccl_free( st->ccl );
 	}
 
-	MSG( "Clearing empty state stack" );
-	for( l = nfa->empty; l; l = list_next( l ) )
-	{
-		nfa_st = (pregex_nfa_st*)list_access( l );
-		pregex_ccl_free( nfa_st->ccl );
-
-		pfree( nfa_st );
-	}
-
-	list_free( nfa->states );
-	list_free( nfa->empty );
-
+	plist_free( nfa->states );
 	pfree( nfa );
 
 	RETURN( (pregex_nfa*)NULL );
@@ -213,101 +180,121 @@ pregex_nfa* pregex_nfa_free( pregex_nfa* nfa )
 /** Performs a move operation on a given input character from a set of NFA
 states.
 
-//input// is the list of input states (pregex_nfa_st*).
+//nfa// is the state machine.
+//hits// must be the pointer to an inizialized list of pointers to
+pregex_nfa_st* that both contains the input seed for the move operation and
+also receives all states that can be reached on the given
+character-range. States from the input configuration will be removed, states
+from the move operation will be inserted.
 //from// is the character-range begin from which the move-operation should be
 processed on.
 //to// is the character-range end until the move-operation should be processed.
 
-Returns a linked-list (LIST*) to the result of the move operation. If this is
-(LIST*)NULL, there is no possible transition on the given input character.
+Returns the number of elements in //result//, or -1 on error.
 */
-LIST* pregex_nfa_move( pregex_nfa* nfa, LIST* input, pchar from, pchar to )
+int pregex_nfa_move( pregex_nfa* nfa, plist* hits, pchar from, pchar to )
 {
-	LIST*			hits	= (LIST*)NULL;
-	pregex_nfa_st*	test;
+	plistel*		first;
+	plistel*		end;
+	pregex_nfa_st*	st;
 
 	PROC( "pregex_nfa_move" );
 	PARMS( "nfa", "%p", nfa );
-	PARMS( "input", "%p", input );
+	PARMS( "hits", "%p", hits );
 	PARMS( "from", "%d", from );
 	PARMS( "to", "%d", to );
 
-	/* Loop trough the input items */
-	while( input != (LIST*)NULL )
+	if( !( nfa && hits ) )
 	{
-		input = list_pop( input, (void**)&test );
-		VARS( "input", "%p", input );
-		VARS( "test", "%p", test );
-
-		/* Not an epsilon edge? */
-		if( test->ccl )
-		{
-			/* Test for range */
-			if( pregex_ccl_testrange( test->ccl, from, to ) )
-			{
-				MSG( "State matches range!" );
-				hits = list_push( hits, test->next );
-			}
-		}
+		WRONGPARAM;
+		RETURN( -1 );
 	}
 
-	VARS( "hits", "%p", hits );
-	VARS( "hits count", "%d", list_count( hits ) );
+	if( !( end = plist_last( hits ) ) )
+	{
+		MSG( "Nothing to do, hits is empty" );
+		RETURN( 0 );
+	}
 
-	RETURN( hits );
+	/* Loop trough the input items */
+	do
+	{
+		first = plist_first( hits );
+		st = (pregex_nfa_st*)plist_access( first );
+		VARS( "st", "%p", st );
+
+		/* Not an epsilon edge? */
+		if( st->ccl )
+		{
+			/* Fine, test for range! */
+			if( pregex_ccl_testrange( st->ccl, from, to ) )
+			{
+				MSG( "State matches range!" );
+				plist_push( hits, st->next );
+			}
+		}
+
+		plist_remove( hits, first );
+	}
+	while( first != end );
+
+	VARS( "plist_count( hits )", "%d", plist_count( hits ) );
+	RETURN( plist_count( hits ) );
 }
 
 /** Performs an epsilon closure from a set of NFA states.
 
 //nfa// is the NFA state machine
-//input// is the list of input NFA states
+//closure// is a list of input NFA states, which will be extended on the closure
+after the function returned.
 //accept// is the match information structure, which recieves possible
 information about a pattern match. This parameter is optional, and can be
 left empty by providing (pregex_accept*)NULL.
 
-Returns a linked list (LIST*) to the result of the epsilon closure, which
-defines a new set of NFA states.
+Returns a number of elements in //input//.
 */
-LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
-			pregex_accept* accept )
+int pregex_nfa_epsilon_closure(
+	pregex_nfa* nfa, plist* closure, pregex_accept* accept )
 {
 	pregex_nfa_st*	top;
 	pregex_nfa_st*	next;
 	pregex_nfa_st*	last_accept	= (pregex_nfa_st*)NULL;
-	LIST*			stack;
+	plist*			stack;
 	short			i;
 
 	PROC( "pregex_nfa_epsilon_closure" );
 	PARMS( "nfa", "%p", nfa );
-	PARMS( "input", "%p", input );
+	PARMS( "closure", "%p", closure );
 	PARMS( "accept", "%p", accept );
+
+	if( !( nfa && closure ) )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
 
 	if( accept )
 		pregex_accept_init( accept );
 
-	stack = list_dup( input );
+	stack = plist_dup( closure );
 
 	/* Loop trough the items */
-	while( stack != (LIST*)NULL )
+	while( plist_pop( stack, &top ) )
 	{
-		stack = list_pop( stack, (void**)&top );
-
-		if( accept && top->accept.accept != PREGEX_ACCEPT_NONE )
-		{
-			if( !last_accept || last_accept->accept.accept >
-									top->accept.accept )
-				last_accept = top;
-		}
+		if( accept && top->accept.accept != PREGEX_ACCEPT_NONE
+			&& ( !last_accept
+					|| last_accept->accept.accept > top->accept.accept ) )
+			last_accept = top;
 
 		if( !top->ccl )
 		{
 			for( i = 0; i < 2; i++ )
 			{
 				next = ( !i ? top->next : top->next2 );
-				if( next && list_find( input, (void*)next ) == -1 )
+				if( next && !plist_get_by_ptr( closure, next ) )
 				{
-					input = list_push( input, (void*)next );
-					stack = list_push( stack, (void*)next );
+					plist_push( closure, next );
+					plist_push( stack, next );
 				}
 			}
 		}
@@ -315,11 +302,13 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 		{
 			/* This may not happen! */
 			fprintf( stderr,
-				"%s, %d: FATAL :: Character-node with two outgoing"
-						" transitions!\n", __FILE__, __LINE__ );
+				"%s, %d: Impossible character-node "
+					"has two outgoing transitions!\n", __FILE__, __LINE__ );
 			exit( 1 );
 		}
 	}
+
+	stack = plist_free( stack );
 
 	if( accept && last_accept )
 	{
@@ -333,7 +322,7 @@ LIST* pregex_nfa_epsilon_closure( pregex_nfa* nfa, LIST* input,
 		VARS( "accept->anchors", "%d", accept->anchors );
 	}
 
-	RETURN( input );
+	RETURN( plist_count( closure ) );
 }
 
 /** Tries to match a pattern using a NFA state machine.
@@ -364,8 +353,8 @@ that was found relating to a pattern in //nfa//.
 int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 		pregex_range** ref, int* ref_count, int flags )
 {
-	LIST*			res			= (LIST*)NULL;
-	LIST*			l;
+	plist*			res;
+	plistel*		e;
 	pregex_nfa_st*	st;
 	char*			pstr		= str;
 	psize			plen		= 0;
@@ -386,6 +375,12 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 	PARMS( "ref_count", "%p", ref_count );
 	PARMS( "flags", "%d", flags );
 
+	if( !( nfa && str ) )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+
 	/* Initialize */
 	pregex_accept_init( &accept );
 
@@ -397,25 +392,31 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 	if( anchors )
 		*anchors = PREGEX_ANCHOR_NONE;
 
-	res = list_push( res, list_access( nfa->states ) );
+	res = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+	plist_push( res, plist_access( plist_first( nfa->states ) ) );
 
 	/* Run the engine! */
-	while( res )
+	while( plist_count( res ) )
 	{
 		MSG( "Performing epsilon closure" );
-		res = pregex_nfa_epsilon_closure( nfa, res, &accept );
+		if( pregex_nfa_epsilon_closure( nfa, res, &accept ) < 0 )
+		{
+			MSG( "pregex_nfa_epsilon_closure() failed" );
+			break;
+		}
 
 		MSG( "Handling References" );
 		if( ref && nfa->ref_count )
 		{
-			LISTFOR( res, l )
+			plist_for( res, e )
 			{
-				st = (pregex_nfa_st*)list_access( l );
+				st = (pregex_nfa_st*)plist_access( e );
 				if( st->ref > -1 )
 				{
 					MSG( "Reference found" );
-					VARS( "State", "%d", list_find(
-									nfa->states, (void*)st ) );
+					VARS( "State", "%d",
+							plist_offset(
+								plist_get_by_ptr( nfa->states, st ) ) );
 					VARS( "st->ref", "%d", st->ref );
 
 					pregex_ref_update( &( ( *ref )[ st->ref ] ), pstr, plen );
@@ -485,12 +486,14 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 		VARS( "ch", "%d", ch );
 		VARS( "ch", "%lc", ch );
 
-		res = pregex_nfa_move( nfa, res, ch, ch );
+		if( pregex_nfa_move( nfa, res, ch, ch ) < 0 )
+		{
+			MSG( "pregex_nfa_move() failed" );
+			break;
+		}
 
 		if( flags & PREGEX_MOD_WCHAR )
-		{
 			pstr += sizeof( pchar );
-		}
 		else
 		{
 #ifdef UTF8
@@ -545,7 +548,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	}
 
 	/* Find node to integrate into existing machine */
-	for( append_to = (pregex_nfa_st*)list_access( nfa->states );
+	for( append_to = (pregex_nfa_st*)plist_access( plist_first( nfa->states ) );
 		append_to && append_to->next2; append_to = append_to->next2 )
 			; /* Find last first node ;) ... */
 

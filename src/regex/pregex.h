@@ -140,8 +140,7 @@ struct _regex_nfa_st
 /* NFA state machine */
 struct _regex_nfa
 {
-	LIST*			states;		/* List of nfa-states */
-	LIST*			empty;		/* List to pointers of states to be used */
+	plist*			states;		/* NFA states */
 	int				modifiers;	/* Regex-modifiers */
 
 	int				ref_count;	/* Number of references */
@@ -158,7 +157,7 @@ struct _regex_dfa_tr
 /* DFA state */
 struct _regex_dfa_st
 {
-	LIST*			trans;		/* Transition table row for this DFA state */
+	plist*			trans;		/* Transition table row for this DFA state */
 	pregex_dfa_tr*	def_trans;	/* If != (pregex_dfa_tr*)NULL, this points
 									to a default dfa transition, which covers
 									the most character of the entire character
@@ -169,13 +168,13 @@ struct _regex_dfa_st
 	pregex_accept	accept;		/* Match parameters */
 
 	pboolean		done;		/* Done-Flag */
-	LIST*			nfa_set;	/* List of closed sets of NFA-states */
+	plist*			nfa_set;	/* List of closed sets of NFA-states */
 };
 
 /* DFA state machine */
 struct _regex_dfa
 {
-	LIST*			states;		/* List of dfa-states */
+	plist*			states;		/* List of dfa-states */
 	int				ref_count;	/* Number of references */
 };
 
