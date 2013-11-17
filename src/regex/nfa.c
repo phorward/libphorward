@@ -544,7 +544,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	if( flags & PREGEX_MOD_WCHAR )
 	{
 		if( !( str = wchar_to_u8( (pchar*)str, FALSE ) ) )
-			return ERR_MEM;
+			RETURN( ERR_MEM );
 	}
 
 	/* Find node to integrate into existing machine */

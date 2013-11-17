@@ -29,6 +29,8 @@ pregex* pregex_create( void )
 	PROC( "pregex_create" );
 
 	regex = (pregex*)pmalloc( sizeof( pregex ) );
+	regex->patterns = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+
 	pregex_set_flags( regex, PREGEX_MOD_GLOBAL );
 
 	RETURN( regex );
@@ -42,7 +44,7 @@ Returns always (pregex*)NULL.
 */
 pregex* pregex_free( pregex* regex )
 {
-	LIST*			l;
+	plistel*	e;
 
 	PROC( "pregex_free" );
 	PARMS( "regex", "%p", regex );
@@ -75,10 +77,10 @@ pregex* pregex_free( pregex* regex )
 	}
 
 	/* Freeing the pattern definitions */
-	LISTFOR( regex->defs, l )
-		pregex_ptn_free( (pregex_ptn*)list_access( l ) );
+	plist_for( regex->patterns, e )
+		pregex_ptn_free( (pregex_ptn*)plist_access( e ) );
 
-	regex->defs = list_free( regex->defs );
+	regex->patterns = plist_free( regex->patterns );
 
 	pfree( regex );
 
@@ -181,7 +183,7 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 		Chaining the regular expression pattern definition into
 		the list of definitions
 	*/
-	if( !( regex->defs = list_push( regex->defs, ptn ) ) )
+	if( !plist_push( regex->patterns, ptn ) )
 	{
 		pregex_ptn_free( ptn );
 		RETURN( ERR_MEM );
@@ -431,7 +433,7 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 				regex->last_pos = pstr;
 				regex->match_count++;
 
-				return &( regex->range );
+				RETURN( &( regex->range ) );
 			}
 		}
 
@@ -813,6 +815,8 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 
 	regex->tmp_str = pfree( regex->tmp_str );
 
+	MSG( "Starting loop" );
+
 	for( start = str, match = pregex_match_next( regex, str );
 			/* no condition in here is correct! */ ;
 			match = pregex_match_next( regex, (char*)NULL ) )
@@ -828,7 +832,12 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 #endif
 
 		if( match )
-			end = match->begin;
+		{
+			if( regex->flags & PREGEX_MOD_WCHAR )
+				end = (char*)match->pbegin;
+			else
+				end = match->begin;
+		}
 		else
 		{
 			if( regex->flags & PREGEX_MOD_WCHAR )
@@ -837,19 +846,19 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 				end = start + pstrlen( start );
 		}
 
-#ifdef __WITH_TRACE
-		PARMS( "start", "%p", start );
-		PARMS( "end", "%p", end );
+#ifdef DEBUG
+		VARS( "start", "%p", start );
+		VARS( "end", "%p", end );
 
 		if( regex->flags & PREGEX_MOD_WCHAR )
 		{
-			PARMS( "start", "%ls", start );
-			PARMS( "end", "%ls", end );
+			VARS( "start", "%ls", start );
+			VARS( "end", "%ls", end );
 		}
 		else
 		{
-			PARMS( "start", "%s", start );
-			PARMS( "end", "%s", end );
+			VARS( "start", "%s", start );
+			VARS( "end", "%s", end );
 		}
 #endif
 
@@ -1086,7 +1095,10 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 				pfree( replace );
 		}
 
-		start = match->end;
+		if( regex->flags & PREGEX_MOD_WCHAR )
+			start = (char*)match->pend;
+		else
+			start = match->end;
 	}
 
 #ifdef __WITH_TRACE

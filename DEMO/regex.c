@@ -212,8 +212,6 @@ void direct_regex_demo( void )
 	pfree( result );
 
 	/* Matching with wide-character strings and regular expressions... */
-	/* First, a simple match. We want to match all words that consist of one
-		or two characters! */
 	lresult = (pchar*)pregex_qreplace( (char*)L"(wide-character)",
 						(char*)lstr, (char*)L"$1 (also known as 'pchar')",
 								PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR );
@@ -341,6 +339,7 @@ int main( int argc, char** argv )
 {
 	pregex* 		rx;
 	pregex_range* 	range;
+	pchar*			lstr	=	L"Awide-characterBwide-characterC";
 
 	setlocale( LC_ALL, "" );
 

@@ -480,7 +480,7 @@ struct _regex
 	short			stat;		
 	int				flags;		
 
-	LIST*			defs;		
+	plist*			patterns;	
 
 	union
 	{

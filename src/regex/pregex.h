@@ -218,7 +218,7 @@ struct _regex
 	short			stat;		/* Current regex status */
 	int				flags;		/* Compile- and runtime flags */
 
-	LIST*			defs;		/* List of pattern definitions
+	plist*			patterns;	/* List of pattern definitions
 									holding the patterns */
 
 	union
