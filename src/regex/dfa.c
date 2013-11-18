@@ -467,6 +467,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				VARS( "state_next", "%d", state_next );
 
 				/* Find transition entry with same follow state */
+				trans = (pregex_dfa_tr*)NULL;
+
 				plist_for( current->trans, f )
 				{
 					trans = (pregex_dfa_tr*)plist_access( f );
@@ -655,8 +657,10 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 
 			group = (plist*)plist_access( e );
 
+			first = plist_first( group );
+
 			dfa_st = (pregex_dfa_st*)plist_access( first );
-			next_next = plist_next( plist_first( group ) );
+			next_next = plist_next( first );
 
 			while( ( next = next_next ) )
 			{

@@ -313,6 +313,8 @@ void compiled_regex_demo( void )
 			res[i].accept, (int)res[i].len, res[i].begin );
 	}
 
+	/* pregex_finalize( rx ); */
+
 	pfree( res ); /* the array 'res' must be freed manually! */
 
 	/* Now, we replace these tokens on the fly, using a callback-function! */
@@ -339,7 +341,6 @@ int main( int argc, char** argv )
 {
 	pregex* 		rx;
 	pregex_range* 	range;
-	pchar*			lstr	=	L"Awide-characterBwide-characterC";
 
 	setlocale( LC_ALL, "" );
 

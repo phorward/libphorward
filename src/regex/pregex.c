@@ -172,7 +172,6 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 	if( ( ret = pregex_ptn_to_nfa( regex->machine.nfa, ptn ) ) != ERR_OK )
 	{
 		pregex_ptn_free( ptn );
-
 		RETURN( ret );
 	}
 
@@ -205,7 +204,7 @@ and any other ERR-define else.
 */
 int pregex_finalize( pregex* regex )
 {
-	pregex_dfa	dfa;
+	pregex_dfa*	dfa;
 	int			ret;
 
 	PROC( "pregex_finalize" );
@@ -223,23 +222,22 @@ int pregex_finalize( pregex* regex )
 		RETURN( ERR_FAILURE );
 	}
 
-	memset( &dfa, 0, sizeof( pregex_dfa ) );
+	dfa = pregex_dfa_create();
 
 	/* Perform subset construction algorithm */
-	if( ( ret = pregex_dfa_from_nfa( &dfa, regex->machine.nfa ) )
-			< ERR_OK )
+	if( ( ret = pregex_dfa_from_nfa( dfa, regex->machine.nfa ) ) < ERR_OK )
 	{
 		MSG( "Subset construction failed" );
-		pregex_dfa_free( &dfa );
+		pregex_dfa_free( dfa );
 
 		RETURN( ret );
 	}
 
 	/* Perform DFA minimization */
-	if( ( ret = pregex_dfa_minimize( &dfa ) ) != ERR_OK )
+	if( ( ret = pregex_dfa_minimize( dfa ) ) != ERR_OK )
 	{
 		MSG( "DFA minimization failed" );
-		pregex_dfa_free( &dfa );
+		pregex_dfa_free( dfa );
 
 		RETURN( ret );
 	}
@@ -252,9 +250,9 @@ int pregex_finalize( pregex* regex )
 
 	/* Set new regex status */
 	if( regex->flags & PREGEX_MOD_DEBUG )
-		pregex_dfa_print( stderr, &dfa );
+		pregex_dfa_print( stderr, dfa );
 
-	memcpy( regex->machine.dfa, &dfa, sizeof( pregex_dfa ) );
+	regex->machine.dfa = dfa;
 	regex->stat = PREGEX_STAT_DFA;
 
 	RETURN( ERR_OK );
@@ -290,7 +288,7 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 	PARMS( "regex", "%p", regex );
 	PARMS( "str", "%p", str );
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	if( str )
 	{
 		if( regex->flags & PREGEX_MOD_WCHAR )
@@ -351,7 +349,7 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 	/* Search for matching patterns */
 	while( pstr && *pstr )
 	{
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 		if( regex->flags & PREGEX_MOD_WCHAR )
 			PARMS( "pstr", "%ls", pstr );
 		else
@@ -556,7 +554,7 @@ pregex_range* pregex_split_next( pregex* regex, char* str )
 	PARMS( "regex", "%p", regex );
 	PARMS( "str", "%p", str );
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	if( str )
 	{
 		if( regex->flags & PREGEX_MOD_WCHAR )
@@ -790,7 +788,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 	PROC( "pregex_replace" );
 	PARMS( "regex", "%p", regex );
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	if( regex && regex->flags & PREGEX_MOD_WCHAR )
 	{
 		PARMS( "str", "%ls", pgetstr( str ) );
@@ -821,7 +819,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 			/* no condition in here is correct! */ ;
 			match = pregex_match_next( regex, (char*)NULL ) )
 	{
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 		if( regex->tmp_str )
 		{
 			if( regex->flags & PREGEX_MOD_WCHAR )
@@ -1024,7 +1022,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 			VARS( "rpstr", "%p", rpstr );
 			VARS( "rprev", "%p", rprev );
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 			if( regex->flags & PREGEX_MOD_WCHAR )
 			{
 				VARS( "rpstr", "%ls", replace );
@@ -1062,7 +1060,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 
 		if( replace )
 		{
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 			if( regex->flags & PREGEX_MOD_WCHAR )
 				VARS( "replace", "%ls", replace );
 			else
@@ -1101,7 +1099,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 			start = match->end;
 	}
 
-#ifdef __WITH_TRACE
+#ifdef DEBUG
 	if( regex->flags & PREGEX_MOD_WCHAR )
 		VARS( "regex->tmp_str", "%ls", regex->tmp_str );
 	else

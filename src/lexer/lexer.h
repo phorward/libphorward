@@ -14,14 +14,11 @@ typedef struct _pglexer				pglexer;
 /* Token */
 struct _pgtoken
 {
-	int				id;			/* Symbol match ID */
-	pgsymbol*		symbol;		/* Symbol terminal ID */
-	char*			token;		/* Token pointer */
-	int				len;		/* Token length */
+	int			id;			/* Symbol match ID */
+	pgsymbol*	symbol;		/* Symbol terminal ID (optional) */
+	char*		token;		/* Token pointer */
+	int			len;		/* Token length */
 };
-
-/* Symbol */
-
 
 /* Lexer */
 struct _pglexer

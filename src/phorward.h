@@ -798,14 +798,11 @@ typedef struct _pglexer				pglexer;
 
 struct _pgtoken
 {
-	int				id;			
-	pgsymbol*		symbol;		
-	char*			token;		
-	int				len;		
+	int			id;			
+	pgsymbol*	symbol;		
+	char*		token;		
+	int			len;		
 };
-
-
-
 
 
 struct _pglexer

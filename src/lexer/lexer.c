@@ -49,7 +49,10 @@ pglexer* pg_lexer_create_from_grammar( pggrammar* grammar )
 	for( i = 0; ( t = pg_terminal_get( l->grammar, i ) ); i++ )
 	{
 		if( ( p = pg_terminal_get_pattern( t ) ) )
+		{
+			p->accept->accept = pg_symbol_get_id( t );
 			pregex_ptn_to_nfa( l->nfa, p );
+		}
 	}
 
 	RETURN( l );
