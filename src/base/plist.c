@@ -303,6 +303,10 @@ pboolean plist_erase( plist* list )
 		pfree( e );
 	}
 
+	MSG( "Resetting hash table" );
+	if( list->hash )
+		pfree( list->hash );
+
 	MSG( "Resetting list-object pointers" );
 	list->first = (plistel*)NULL;
 	list->last = (plistel*)NULL;

@@ -40,6 +40,8 @@ SRC = \
 	grammar/symbol.c \
 	grammar/terminal.c \
 	\
+	lexer/lexer.c \
+	\
 	parser/lr.gen.c \
 	parser/lr.parse.c \
 	parser/parser.c

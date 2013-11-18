@@ -134,6 +134,7 @@ in error case.
 pregex_ccl* pregex_ccl_dup( pregex_ccl* ccl )
 {
 	pregex_ccl* dup;
+	plistel*	e;
 
 	if( !ccl )
 	{
@@ -141,8 +142,12 @@ pregex_ccl* pregex_ccl_dup( pregex_ccl* ccl )
 		return (pregex_ccl*)NULL;
 	}
 
+	/* Create new, empty ccl */
 	dup = pregex_ccl_create( ccl->min, ccl->max, (char*)NULL );
-	dup->ranges = plist_dup( ccl->ranges );
+
+	/* Copy elements */
+	plist_for( ccl->ranges, e )
+		plist_push( dup->ranges, plist_access( e ) );
 
 	return dup;
 }

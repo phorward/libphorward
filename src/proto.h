@@ -368,6 +368,11 @@ BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern );
 BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
+/* lexer/lexer.c */
+pglexer* pg_lexer_create( void );
+pglexer* pg_lexer_create_from_grammar( pggrammar* grammar );
+pglexer* pg_lexer_free( pglexer* lex );
+
 /* parser/lr.gen.c */
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
 BOOLEAN pg_parser_lr_reset( pgparser* parser );

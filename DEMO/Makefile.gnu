@@ -12,5 +12,5 @@ clean:
 basis: basis.o $(LIBPHORWARD)
 	$(CC) -o $@ basis.o $(LIBPHORWARD)
 
-regex: regex.o
+regex: regex.o $(LIBPHORWARD)
 	$(CC) -o $@ regex.o $(LIBPHORWARD)

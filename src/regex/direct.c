@@ -103,6 +103,8 @@ int pregex_qsplit( char* regex, char* str,
 
 	matches = pregex_split( re, str, results );
 
+	pregex_free( re );
+
 	VARS( "matches", "%d", matches );
 	RETURN( matches );
 }

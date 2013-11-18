@@ -507,6 +507,8 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 		VARS( "plen", "%ld", plen );
 	}
 
+	plist_free( res );
+
 	VARS( "*len", "%d", *len );
 	VARS( "last_accept", "%d", last_accept );
 	RETURN( last_accept );
