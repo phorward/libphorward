@@ -143,6 +143,36 @@ pregex_nfa* pregex_nfa_create( void )
 	return nfa;
 }
 
+/** Reset a pregex_nfa state machine.
+
+The object can still be used after reset. */
+pboolean pregex_nfa_reset( pregex_nfa* nfa )
+{
+	pregex_nfa_st*	st;
+
+	PROC( "pregex_nfa_free" );
+	PARMS( "nfa", "%p", nfa );
+
+	if( !nfa )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	MSG( "Resetting states" );
+	while( plist_first( nfa->states ) )
+	{
+		st = (pregex_nfa_st*)plist_access( plist_first( nfa->states ) );
+
+		if( st->ccl )
+			pregex_ccl_free( st->ccl );
+
+		plist_remove( nfa->states, plist_first( nfa->states ) );
+	}
+
+	RETURN( TRUE );
+}
+
 /** Releases a pregex_nfa state machine.
 
 //nfa// is the pointer to the NFA state machine structure. All allocated
@@ -152,9 +182,6 @@ The function always returns (pregex_nfa*)NULL.
 */
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa )
 {
-	plistel*		e;
-	pregex_nfa_st*	st;
-
 	PROC( "pregex_nfa_free" );
 	PARMS( "nfa", "%p", nfa );
 
@@ -162,15 +189,9 @@ pregex_nfa* pregex_nfa_free( pregex_nfa* nfa )
 		RETURN( (pregex_nfa*)NULL );
 
 	MSG( "Clearing states" );
+	pregex_nfa_reset( nfa );
 
-	plist_for( nfa->states, e )
-	{
-		st = (pregex_nfa_st*)plist_access( e );
-
-		if( st->ccl )
-			pregex_ccl_free( st->ccl );
-	}
-
+	MSG( "Dropping memory" );
 	plist_free( nfa->states );
 	pfree( nfa );
 

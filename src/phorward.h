@@ -808,11 +808,32 @@ struct _pgtoken
 struct _pglexer
 {
 	pggrammar*	grammar;		
+	pregex_ptn*	whitespace;		
 
 	pregex_nfa*	nfa;			
 	pregex_dfa*	dfa;			
 
+	int			flags;			
+#define PGLEXER_MOD_NONE		0
+#define PGLEXER_MOD_UTF8		1	
+#define PGLEXER_MOD_WCHAR		2	
+
 	plist*		tokens;			
+	int			fetchlimit;		
+
+	int			source;			
+#define PGLEXER_SRC_FUNCTION	0	
+#define PGLEXER_SRC_STRING		1	
+#define PGLEXER_SRC_FILE		2	
+#define PGLEXER_SRC_FD			3	
+
+	union
+	{
+		int		(*func)();		
+		char*	str;			
+		FILE*	file;			
+		int		fd;				
+	} stream;					
 };
 
 
@@ -953,6 +974,7 @@ void pregex_ccl_print( FILE* stream, pregex_ccl* ccl, int break_after );
 
 void pregex_dfa_print( FILE* stream, pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_create( void );
+pboolean pregex_dfa_reset( pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
 int pregex_dfa_minimize( pregex_dfa* dfa );
@@ -971,6 +993,7 @@ pboolean pregex_check_anchors( char* all, char* str, psize len, int anchors, int
 pregex_nfa_st* pregex_nfa_create_state( pregex_nfa* nfa, char* chardef, int flags );
 void pregex_nfa_print( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_create( void );
+pboolean pregex_nfa_reset( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa );
 int pregex_nfa_move( pregex_nfa* nfa, plist* hits, pchar from, pchar to );
 int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, pregex_accept* accept );
@@ -1225,6 +1248,7 @@ pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
 pglexer* pg_lexer_create( void );
 pglexer* pg_lexer_create_from_grammar( pggrammar* grammar );
+pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
 
 

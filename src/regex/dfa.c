@@ -135,6 +135,32 @@ pregex_dfa* pregex_dfa_create( void )
 	return dfa;
 }
 
+/** Resets a DFA state machine.
+
+The object //dfa// can still be used as fresh, empty object after reset. */
+pboolean pregex_dfa_reset( pregex_dfa* dfa )
+{
+	plistel*		e;
+	pregex_dfa_st*	dfa_st;
+
+	PROC( "pregex_dfa_free" );
+	PARMS( "dfa", "%p", dfa );
+
+	if( !( dfa ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	while( ( e = plist_first( dfa->states ) ) )
+	{
+		pregex_dfa_delete_state( (pregex_dfa_st*)plist_access( e ) );
+		plist_remove( dfa->states, e );
+	}
+
+	RETURN( TRUE );
+}
+
 /** Frees and resets a DFA state machine.
 
 //dfa// is the pointer to a DFA-machine to be reset.
@@ -153,11 +179,7 @@ pregex_dfa* pregex_dfa_free( pregex_dfa* dfa )
 	if( !( dfa ) )
 		RETURN( (pregex_dfa*)NULL );
 
-	plist_for( dfa->states, e )
-	{
-		dfa_st = (pregex_dfa_st*)plist_access( e );
-		pregex_dfa_delete_state( dfa_st );
-	}
+	pregex_dfa_reset( dfa );
 
 	plist_free( dfa->states );
 	pfree( dfa );

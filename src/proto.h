@@ -99,6 +99,7 @@ void pregex_ccl_print( FILE* stream, pregex_ccl* ccl, int break_after );
 /* regex/dfa.c */
 void pregex_dfa_print( FILE* stream, pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_create( void );
+pboolean pregex_dfa_reset( pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
 int pregex_dfa_minimize( pregex_dfa* dfa );
@@ -117,6 +118,7 @@ pboolean pregex_check_anchors( char* all, char* str, psize len, int anchors, int
 pregex_nfa_st* pregex_nfa_create_state( pregex_nfa* nfa, char* chardef, int flags );
 void pregex_nfa_print( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_create( void );
+pboolean pregex_nfa_reset( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa );
 int pregex_nfa_move( pregex_nfa* nfa, plist* hits, pchar from, pchar to );
 int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, pregex_accept* accept );
@@ -371,6 +373,7 @@ pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 /* lexer/lexer.c */
 pglexer* pg_lexer_create( void );
 pglexer* pg_lexer_create_from_grammar( pggrammar* grammar );
+pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
 
 /* parser/lr.gen.c */

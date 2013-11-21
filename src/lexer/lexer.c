@@ -48,14 +48,39 @@ pglexer* pg_lexer_create_from_grammar( pggrammar* grammar )
 	MSG( "Turning terminal symbols into lexer symbols" );
 	for( i = 0; ( t = pg_terminal_get( l->grammar, i ) ); i++ )
 	{
+		VARS( "t", "%s", pg_symbol_get_name( t ) );
+
 		if( ( p = pg_terminal_get_pattern( t ) ) )
 		{
 			p->accept->accept = pg_symbol_get_id( t );
-			pregex_ptn_to_nfa( l->nfa, p );
+			if( pregex_ptn_to_nfa( l->nfa, p ) != ERR_OK )
+			{
+				MSG( "Cannot integrate symbol" );
+
+				pg_lexer_free( l );
+				RETURN( (pglexer*)NULL );
+			}
 		}
 	}
 
 	RETURN( l );
+}
+
+pboolean pg_lexer_reset( pglexer* lex )
+{
+	PROC( "pg_lexer_reset" );
+	PARMS( "lex", "%p", lex );
+
+	if( !( lex ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	pregex_nfa_reset( lex->dfa );
+	plist_clear( lex->tokens );
+
+	RETURN( TRUE );
 }
 
 pglexer* pg_lexer_free( pglexer* lex )
@@ -65,7 +90,6 @@ pglexer* pg_lexer_free( pglexer* lex )
 
 	lex->nfa = pregex_nfa_free( lex->nfa );
 	lex->dfa = pregex_dfa_free( lex->dfa );
-
 	lex->tokens = plist_free( lex->tokens );
 
 	pfree( lex );
