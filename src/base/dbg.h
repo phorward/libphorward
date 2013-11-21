@@ -75,12 +75,4 @@ Usage:	Program Trace Facilities
 	#define PARMS( name, format, val )
 #endif
 
-/* Macro: TIME */
-#ifdef DEBUG
-	#define TIMEDUMP \
-		_dbg_time( __FILE__, __LINE__ )
-#else
-	#define TIMEDUMP
-#endif
-
 #endif

@@ -188,14 +188,6 @@ typedef char 					pboolean;
 	#define PARMS( name, format, val )
 #endif
 
-
-#ifdef DEBUG
-	#define TIMEDUMP \
-		_dbg_time( __FILE__, __LINE__ )
-#else
-	#define TIMEDUMP
-#endif
-
 #endif
 
 
@@ -879,7 +871,6 @@ extern "C"
 
 
 void _dbg_trace( char* file, int line, char* type, char* format, ... );
-void _dbg_time( char* file, int line );
 
 
 LIST* list_push( LIST* list, void* ptr );

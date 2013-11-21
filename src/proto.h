@@ -4,7 +4,6 @@
 
 /* base/dbg.c */
 void _dbg_trace( char* file, int line, char* type, char* format, ... );
-void _dbg_time( char* file, int line );
 
 /* base/llist.c */
 LIST* list_push( LIST* list, void* ptr );
