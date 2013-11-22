@@ -26,7 +26,7 @@ typedef struct
 	pstack*			st;		/* Stack */
 	pglrse*			tos;	/* Top of stack */
 
-	pgtoken			la;		/* Current look ahead */
+	pgtoken*		la;		/* Current look ahead */
 
 	/* State */
 	pglrstate*		shift;	/* Shift to state */

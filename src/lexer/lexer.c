@@ -77,7 +77,7 @@ pboolean pg_lexer_reset( pglexer* lex )
 		RETURN( FALSE );
 	}
 
-	pregex_nfa_reset( lex->dfa );
+	pregex_dfa_reset( lex->dfa );
 	plist_clear( lex->tokens );
 
 	RETURN( TRUE );

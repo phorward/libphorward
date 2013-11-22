@@ -11,15 +11,6 @@ Usage:
 typedef struct _pgtoken				pgtoken;
 typedef struct _pglexer				pglexer;
 
-/* Token */
-struct _pgtoken
-{
-	int			id;			/* Symbol match ID */
-	pgsymbol*	symbol;		/* Symbol terminal ID (optional) */
-	char*		token;		/* Token pointer */
-	int			len;		/* Token length */
-};
-
 /* Lexer */
 struct _pglexer
 {
