@@ -147,14 +147,14 @@ pboolean pg_parser_lr_eval( pgparser* parser, char* input )
 	{
 		/* TODO: Read lookahead */
 
-		if( !get_action( pcb, pcb->la.symbol ) )
+		if( !get_action( pcb, pcb->la->symbol ) )
 		{
 			/* TODO: Error recovery */
 		}
 
 		if( pcb->shift )
 		{
-			push( pcb, pcb->reduce ? (pglrstate*)NULL : pcb->shift, &pcb->la );
+			push( pcb, pcb->reduce ? (pglrstate*)NULL : pcb->shift, pcb->la );
 			/* TODO: Get next token */
 		}
 

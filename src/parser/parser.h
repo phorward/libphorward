@@ -28,13 +28,13 @@ struct _pgparser
 /* Token */
 struct _pgtoken
 {
-	int			id;			/* Symbol match ID */
-	pgsymbol*	symbol;		/* Symbol terminal ID */
-	char*		token;		/* Token pointer */
-	int			len;		/* Token length */
+	int				id;			/* Symbol match ID */
+	pgsymbol*		symbol;		/* Symbol terminal ID */
+	char*			token;		/* Token pointer */
+	int				len;		/* Token length */
 
-	int			row;		/* Line */
-	int			col;		/* Column */
+	int				row;		/* Line */
+	int				col;		/* Column */
 };
 
 /* AST */

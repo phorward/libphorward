@@ -10,30 +10,14 @@ Usage:
 
 #include "phorward.h"
 
-pglexer* pg_lexer_create( void )
-{
-	pglexer*	l;
-
-	PROC( "pg_lexer_create" );
-
-	l = (pglexer*)pmalloc( sizeof( pglexer ) );
-
-	l->nfa = pregex_nfa_create();
-	l->dfa = pregex_dfa_create();
-
-	l->tokens = plist_create( sizeof( pgtoken ), PLIST_MOD_RECYCLE );
-
-	RETURN( l );
-}
-
-pglexer* pg_lexer_create_from_grammar( pggrammar* grammar )
+pglexer* pg_lexer_create( pggrammar* grammar )
 {
 	pregex_ptn*	p;
 	pglexer*	l;
 	pgterminal*	t;
 	int			i;
 
-	PROC( "pg_lexer_create_from_grammar" );
+	PROC( "pg_lexer_create" );
 	PARMS( "grammar", "%p", grammar );
 
 	if( !( grammar ) )
@@ -42,7 +26,12 @@ pglexer* pg_lexer_create_from_grammar( pggrammar* grammar )
 		RETURN( (pglexer*)NULL );
 	}
 
-	l = pg_lexer_create();
+	l = (pglexer*)pmalloc( sizeof( pglexer ) );
+
+	l->nfa = pregex_nfa_create();
+	l->dfa = pregex_dfa_create();
+
+	l->tokens = plist_create( sizeof( pgtoken ), PLIST_MOD_RECYCLE );
 	l->grammar = grammar;
 
 	MSG( "Turning terminal symbols into lexer symbols" );
@@ -52,7 +41,7 @@ pglexer* pg_lexer_create_from_grammar( pggrammar* grammar )
 
 		if( ( p = pg_terminal_get_pattern( t ) ) )
 		{
-			p->accept->accept = pg_symbol_get_id( t );
+			p->accept->accept = pg_symbol_get_id( t ) + 1;
 			if( pregex_ptn_to_nfa( l->nfa, p ) != ERR_OK )
 			{
 				MSG( "Cannot integrate symbol" );
@@ -60,6 +49,20 @@ pglexer* pg_lexer_create_from_grammar( pggrammar* grammar )
 				pg_lexer_free( l );
 				RETURN( (pglexer*)NULL );
 			}
+		}
+	}
+
+	MSG( "Setting whitespace" );
+	if( ( p = pg_grammar_get_whitespace( grammar ) ) )
+	{
+		p->accept->accept = 0;
+
+		if( pregex_ptn_to_nfa( l->nfa, p ) != ERR_OK )
+		{
+			MSG( "Cannot integrate whitespace" );
+
+			pg_lexer_free( l );
+			RETURN( (pglexer*)NULL );
 		}
 	}
 
@@ -77,7 +80,6 @@ pboolean pg_lexer_reset( pglexer* lex )
 		RETURN( FALSE );
 	}
 
-	pregex_dfa_reset( lex->dfa );
 	plist_clear( lex->tokens );
 
 	RETURN( TRUE );

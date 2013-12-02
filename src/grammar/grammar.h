@@ -100,5 +100,7 @@ struct _pggrammar
 	pgnonterminal*	goal;			/* Goal non-terminal symbol */
 	pgterminal*		eoi;			/* End of input terminal symbol */
 	pgterminal*		error;			/* Error token terminal symbol */
+
+	pregex_ptn*		whitespace;		/* Whitespace pattern */
 };
 

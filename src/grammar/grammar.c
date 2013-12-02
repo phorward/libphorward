@@ -385,3 +385,54 @@ BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterminal* eoi )
 
 	return TRUEBOOLEAN( g->eoi );
 }
+
+/* Attribute: whitespace */
+
+BOOLEAN pg_grammar_parse_whitespace( pggrammar* grammar, char* str )
+{
+	pregex_ptn*		whitespace		= (pregex_ptn*)NULL;
+
+	if( !grammar )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( str )
+	{
+		if( pregex_ptn_parse( &whitespace,
+				str, PREGEX_MOD_NONE ) != ERR_OK )
+			return FALSE;
+	}
+
+	pg_grammar_set_whitespace( grammar, whitespace );
+
+	return TRUE;
+}
+
+BOOLEAN pg_grammar_set_whitespace( pggrammar* grammar, pregex_ptn* whitespace )
+{
+	if( !grammar )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( grammar->whitespace )
+		pregex_ptn_free( grammar->whitespace );
+
+	grammar->whitespace = whitespace;
+
+	return TRUE;
+}
+
+pregex_ptn* pg_grammar_get_whitespace( pggrammar* grammar )
+{
+	if( !grammar )
+	{
+		WRONGPARAM;
+		return (pregex_ptn*)NULL;
+	}
+
+	return grammar->whitespace;
+}

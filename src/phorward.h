@@ -779,6 +779,8 @@ struct _pggrammar
 	pgnonterminal*	goal;			
 	pgterminal*		eoi;			
 	pgterminal*		error;			
+
+	pregex_ptn*		whitespace;		
 };
 
 
@@ -786,15 +788,6 @@ struct _pggrammar
 
 typedef struct _pgtoken				pgtoken;
 typedef struct _pglexer				pglexer;
-
-
-struct _pgtoken
-{
-	int			id;			
-	pgsymbol*	symbol;		
-	char*		token;		
-	int			len;		
-};
 
 
 struct _pglexer
@@ -845,6 +838,18 @@ struct _pgparser
 
 	pboolean		optimize;	
 	char*			source;		
+};
+
+
+struct _pgtoken
+{
+	int				id;			
+	pgsymbol*		symbol;		
+	char*			token;		
+	int				len;		
+
+	int				row;		
+	int				col;		
 };
 
 
@@ -1195,6 +1200,9 @@ pgterminal* pg_grammar_get_goal( pggrammar* g );
 BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterminal* goal );
 pgterminal* pg_grammar_get_eoi( pggrammar* g );
 BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterminal* eoi );
+BOOLEAN pg_grammar_parse_whitespace( pggrammar* grammar, char* str );
+BOOLEAN pg_grammar_set_whitespace( pggrammar* grammar, pregex_ptn* whitespace );
+pregex_ptn* pg_grammar_get_whitespace( pggrammar* grammar );
 
 
 pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name );
@@ -1237,8 +1245,7 @@ BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
 
-pglexer* pg_lexer_create( void );
-pglexer* pg_lexer_create_from_grammar( pggrammar* grammar );
+pglexer* pg_lexer_create( pggrammar* grammar );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
 
