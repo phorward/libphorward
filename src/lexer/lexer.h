@@ -8,8 +8,20 @@ File:	lexer.h
 Usage:
 ----------------------------------------------------------------------------- */
 
-typedef struct _pgtoken				pgtoken;
-typedef struct _pglexer				pglexer;
+typedef struct _pgtoken			pgtoken;
+typedef struct _pglexer			pglexer;
+
+/* Token */
+struct _pgtoken
+{
+	int				id;			/* Symbol match ID */
+	pgsymbol*		symbol;		/* Symbol terminal ID */
+	char*			token;		/* Token pointer */
+	int				len;		/* Token length */
+
+	int				row;		/* Line */
+	int				col;		/* Column */
+};
 
 /* Lexer */
 struct _pglexer
@@ -28,17 +40,17 @@ struct _pglexer
 	plist*		tokens;			/* Tokens array */
 	int			fetchlimit;		/* Token fetch limit */
 
-	int			source;			/* Source flags */
-#define PGLEXER_SRC_FUNCTION	0	/* Function mode (default=getchar()) */
-#define PGLEXER_SRC_STRING		1	/* String */
-#define PGLEXER_SRC_FILE		2	/* File via file pointer */
-#define PGLEXER_SRC_FD			3	/* File via file descriptor */
+	int			srctype;		/* Source type flag */
+#define PGLEXER_SRCTYPE_FUNC	0	/* Function: Default: getchar() */
+#define PGLEXER_SRCTYPE_STRING	1	/* String */
+#define PGLEXER_SRCTYPE_FILE	2	/* File via file pointer */
+#define PGLEXER_SRCTYPE_FD		3	/* File via file descriptor */
 
 	union
 	{
-		int		(*func)();		/* Function */
-		char*	str;			/* String */
-		FILE*	file;			/* File stream */
-		int		fd;				/* File descriptor */
-	} stream;					/* Input stream */
+		int		(*func)();			/* Function */
+		char*	str;				/* String */
+		FILE*	file;				/* File stream */
+		int		fd;					/* File descriptor */
+	} src;						/* Source  destination pointer*/
 };

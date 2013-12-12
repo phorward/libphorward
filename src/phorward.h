@@ -786,8 +786,20 @@ struct _pggrammar
 
 
 
-typedef struct _pgtoken				pgtoken;
-typedef struct _pglexer				pglexer;
+typedef struct _pgtoken			pgtoken;
+typedef struct _pglexer			pglexer;
+
+
+struct _pgtoken
+{
+	int				id;			
+	pgsymbol*		symbol;		
+	char*			token;		
+	int				len;		
+
+	int				row;		
+	int				col;		
+};
 
 
 struct _pglexer
@@ -806,19 +818,19 @@ struct _pglexer
 	plist*		tokens;			
 	int			fetchlimit;		
 
-	int			source;			
-#define PGLEXER_SRC_FUNCTION	0	
-#define PGLEXER_SRC_STRING		1	
-#define PGLEXER_SRC_FILE		2	
-#define PGLEXER_SRC_FD			3	
+	int			srctype;		
+#define PGLEXER_SRCTYPE_FUNC	0	
+#define PGLEXER_SRCTYPE_STRING	1	
+#define PGLEXER_SRCTYPE_FILE	2	
+#define PGLEXER_SRCTYPE_FD		3	
 
 	union
 	{
-		int		(*func)();		
-		char*	str;			
-		FILE*	file;			
-		int		fd;				
-	} stream;					
+		int		(*func)();			
+		char*	str;				
+		FILE*	file;				
+		int		fd;					
+	} src;						
 };
 
 
@@ -838,18 +850,6 @@ struct _pgparser
 
 	pboolean		optimize;	
 	char*			source;		
-};
-
-
-struct _pgtoken
-{
-	int				id;			
-	pgsymbol*		symbol;		
-	char*			token;		
-	int				len;		
-
-	int				row;		
-	int				col;		
 };
 
 
@@ -1248,6 +1248,7 @@ pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 pglexer* pg_lexer_create( pggrammar* grammar );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
+pgtoken* pg_lexer_fetch( pglexer* lex );
 
 
 BOOLEAN pg_parser_lr_closure( pgparser* parser );

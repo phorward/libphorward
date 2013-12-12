@@ -34,6 +34,10 @@ pglexer* pg_lexer_create( pggrammar* grammar )
 	l->tokens = plist_create( sizeof( pgtoken ), PLIST_MOD_RECYCLE );
 	l->grammar = grammar;
 
+	/* Default mode */
+	l->srctype = PGLEXER_SRCTYPE_FUNC;
+	l->src.func = getchar();
+
 	MSG( "Turning terminal symbols into lexer symbols" );
 	for( i = 0; ( t = pg_terminal_get( l->grammar, i ) ); i++ )
 	{
@@ -55,6 +59,8 @@ pglexer* pg_lexer_create( pggrammar* grammar )
 	MSG( "Setting whitespace" );
 	if( ( p = pg_grammar_get_whitespace( grammar ) ) )
 	{
+		MSG( "Whitespace defined by grammar" );
+
 		p->accept->accept = 0;
 
 		if( pregex_ptn_to_nfa( l->nfa, p ) != ERR_OK )
@@ -65,7 +71,22 @@ pglexer* pg_lexer_create( pggrammar* grammar )
 			RETURN( (pglexer*)NULL );
 		}
 	}
+	else
+	{
+		MSG( "Any other input is whitespace" );
+		TODO;
+	}
 
+	MSG( "Finalize" );
+	if( pregex_dfa_from_nfa( l->dfa, l->nfa ) != ERR_OK )
+	{
+		MSG( "Something is !cool..." );
+
+		pg_lexer_free( l );
+		RETURN( (pglexer*)NULL );
+	}
+
+	MSG( "Lexer created" );
 	RETURN( l );
 }
 
@@ -97,4 +118,46 @@ pglexer* pg_lexer_free( pglexer* lex )
 	pfree( lex );
 
 	return (pglexer*)NULL;
+}
+
+static int pg_lexer_getch( pglexer* lex )
+{
+	if( !( lex ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	switch( lex->srctype )
+	{
+		case PGLEXER_SRCTYPE_FUNC:
+			break;
+
+		case PGLEXER_SRCTYPE_STRING:
+
+			break;
+
+		case PGLEXER_SRCTYPE_FILE:
+			break;
+
+		case PGLEXER_SRCTYPE_FD:
+			break;
+
+		default:
+			MISSINGCASE;
+	}
+}
+
+pgtoken* pg_lexer_fetch( pglexer* lex )
+{
+	PROC( "pg_lexer_fetch" );
+	PARMS( "lex", "%p", lex );
+
+	if( !( lex ) )
+	{
+		WRONGPARAM;
+		RETURN( (pgtoken*)NULL );
+	}
+
+
 }
