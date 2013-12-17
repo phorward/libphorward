@@ -34,10 +34,6 @@ pglexer* pg_lexer_create( pggrammar* grammar )
 	l->tokens = plist_create( sizeof( pgtoken ), PLIST_MOD_RECYCLE );
 	l->grammar = grammar;
 
-	/* Default mode */
-	l->srctype = PGLEXER_SRCTYPE_FUNC;
-	l->src.func = getchar();
-
 	MSG( "Turning terminal symbols into lexer symbols" );
 	for( i = 0; ( t = pg_terminal_get( l->grammar, i ) ); i++ )
 	{
@@ -118,34 +114,6 @@ pglexer* pg_lexer_free( pglexer* lex )
 	pfree( lex );
 
 	return (pglexer*)NULL;
-}
-
-static int pg_lexer_getch( pglexer* lex )
-{
-	if( !( lex ) )
-	{
-		WRONGPARAM;
-		return 0;
-	}
-
-	switch( lex->srctype )
-	{
-		case PGLEXER_SRCTYPE_FUNC:
-			break;
-
-		case PGLEXER_SRCTYPE_STRING:
-
-			break;
-
-		case PGLEXER_SRCTYPE_FILE:
-			break;
-
-		case PGLEXER_SRCTYPE_FD:
-			break;
-
-		default:
-			MISSINGCASE;
-	}
 }
 
 pgtoken* pg_lexer_fetch( pglexer* lex )

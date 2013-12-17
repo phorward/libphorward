@@ -289,6 +289,221 @@ typedef struct
 
 
 
+#ifndef PUNION_H
+#define PUNION_H
+
+
+#define PUNION_NULL			0	
+#define PUNION_BYTE			1
+#define PUNION_CHAR			2
+#define PUNION_INT			3
+#define PUNION_LONG			4
+#define PUNION_ULONG		5
+#define PUNION_FLOAT		6
+#define PUNION_DOUBLE		7
+#define PUNION_STRING		8
+#define PUNION_WSTRING		9
+
+#define PUNION_IS_CONSTANT	16	
+#define PUNION_IS_CONVERT	32	
+
+
+typedef struct 
+{
+	pbyte		type;
+
+	union
+	{
+		pbyte	b;
+		
+
+		char	c;
+		
+
+		pint	i;
+		
+
+		plong	l;
+		
+
+		pulong	ul;
+		
+
+		pfloat	f;
+		
+
+		pdouble	d;
+		
+
+		char*	s;
+		
+		
+
+		pchar*	ws;
+		
+		
+	} val;
+} punion;
+
+
+#define punion_set_string_d( var, val ) \
+			punion_set_string( var, pstrdup( val ) )
+#define punion_set_wstring_d( var, val ) \
+			punion_set_wstring( var, pwcsdup( val ) )
+
+#define punion_set_constant( var ) \
+			(var)->type |= PUNION_IS_CONSTANT
+#define punion_unset_constant( var ) \
+			(var)->type &= ~PUNION_IS_CONSTANT
+#define punion_set_convertible( var ) \
+			(var)->type |= PUNION_IS_CONVERT
+#define punion_unset_convertible( var ) \
+			(var)->type &= ~PUNION_IS_CONVERT
+
+#define punion_type( var ) \
+			( ( var )->type & 0x0F )
+#define punion_is_constant( var ) \
+			( ( var )->type & PUNION_IS_CONSTANT )
+#define punion_is_convertible( var ) \
+			( ( var )->type & PUNION_IS_CONVERT )
+
+#endif
+
+
+
+
+
+
+#ifndef _XML_H
+#define _XML_H
+
+#define XML_BUFSIZE 1024	
+#define XML_NAMEM	0x80	
+#define XML_TXTM	0x40	
+#define XML_DUP		0x20	
+
+typedef struct xml*		XML_T;
+struct xml
+{
+	char*		name;		
+	char **	 attr;		
+	char*		txt;		
+	size_t		off;		
+	int			line;		
+	XML_T		next;		
+	XML_T		sibling;	
+	XML_T		ordered;	
+	XML_T		child;		
+	XML_T		parent;		
+	short		flags;		
+};
+
+#define xml_next( xml )		\
+	( ( xml ) ? xml->next : NULL )
+
+#define xml_next_inorder( xml ) \
+	((xml) ? xml->ordered : NULL)
+
+#define xml_name( xml )	\
+	( ( xml ) ? xml->name : NULL )
+
+#define xml_txt( xml ) \
+	( ( xml ) ? xml->txt : "" )
+	
+#define xml_line(xml) \
+	( ( xml ) ? (xml)->line : 0 )
+
+#define xml_new_d( name ) \
+	xml_set_flag( xml_new( pstrdup(name) ),XML_NAMEM )
+
+#define xml_add_child_d( xml, name, off ) \
+	xml_set_flag \
+	( \
+		xml_add_child( xml, pstrdup(name), off ), \
+		XML_NAMEM \
+	)
+
+#define xml_set_txt_d( xml, txt ) \
+	xml_set_flag \
+	( \
+		xml_set_txt( xml, pstrdup(txt) ), \
+		XML_TXTM \
+	)
+
+#define xml_set_attr_d( xml, name, value ) \
+	xml_set_attr \
+	( \
+		xml_set_flag( xml, XML_DUP ), \
+		pstrdup( name ), \
+		pstrdup( value ) \
+	)
+	
+#define xml_add_child_f( xml, name, off ) \
+	xml_set_flag \
+	( \
+		xml_add_child( xml, name, off ), \
+		XML_NAMEM \
+	)
+	
+#define xml_set_txt_f( xml, txt ) \
+	xml_set_flag \
+	( \
+		xml_set_txt( xml, txt ), \
+		XML_TXTM \
+	)
+
+#define xml_set_attr_f( xml, name, value ) \
+	xml_set_attr \
+	( \
+		xml_set_flag( xml, XML_DUP ), \
+		pstrdup( name ), \
+		(value) \
+	)
+
+#define xml_move( xml, dest, off )	\
+	xml_insert( xml_cut( xml ),dest,off )
+
+#define xml_remove( xml ) \
+	xml_free( xml_cut( xml ) )
+
+#endif 
+
+
+
+
+typedef struct _pia				pia;
+
+typedef enum
+{
+	PIATYPE_FILE,				
+	PIATYPE_STR,				
+	PIATYPE_FUNC				
+} piatype;
+
+struct _pia
+{
+	piatype				type;	
+
+	int					eof;	
+	int					ch;		
+
+	int					flags;
+
+#define PIA_MOD_NONE	0		
+#define PIA_MOD_UTF8	1		
+#define PIA_MOD_WCHAR	2		
+#define PIA_RELEASE		4		
+
+	union
+	{
+		char*		str;		
+		FILE*		file;		
+		int			(*func)();	
+	} src;						
+};
+
+
+
 
 #define PREGEX_ACCEPT_NONE		-1
 
@@ -506,187 +721,6 @@ struct _regex
 
 
 
-#ifndef PUNION_H
-#define PUNION_H
-
-
-#define PUNION_NULL			0	
-#define PUNION_BYTE			1
-#define PUNION_CHAR			2
-#define PUNION_INT			3
-#define PUNION_LONG			4
-#define PUNION_ULONG		5
-#define PUNION_FLOAT		6
-#define PUNION_DOUBLE		7
-#define PUNION_STRING		8
-#define PUNION_WSTRING		9
-
-#define PUNION_IS_CONSTANT	16	
-#define PUNION_IS_CONVERT	32	
-
-
-typedef struct 
-{
-	pbyte		type;
-
-	union
-	{
-		pbyte	b;
-		
-
-		char	c;
-		
-
-		pint	i;
-		
-
-		plong	l;
-		
-
-		pulong	ul;
-		
-
-		pfloat	f;
-		
-
-		pdouble	d;
-		
-
-		char*	s;
-		
-		
-
-		pchar*	ws;
-		
-		
-	} val;
-} punion;
-
-
-#define punion_set_string_d( var, val ) \
-			punion_set_string( var, pstrdup( val ) )
-#define punion_set_wstring_d( var, val ) \
-			punion_set_wstring( var, pwcsdup( val ) )
-
-#define punion_set_constant( var ) \
-			(var)->type |= PUNION_IS_CONSTANT
-#define punion_unset_constant( var ) \
-			(var)->type &= ~PUNION_IS_CONSTANT
-#define punion_set_convertible( var ) \
-			(var)->type |= PUNION_IS_CONVERT
-#define punion_unset_convertible( var ) \
-			(var)->type &= ~PUNION_IS_CONVERT
-
-#define punion_type( var ) \
-			( ( var )->type & 0x0F )
-#define punion_is_constant( var ) \
-			( ( var )->type & PUNION_IS_CONSTANT )
-#define punion_is_convertible( var ) \
-			( ( var )->type & PUNION_IS_CONVERT )
-
-#endif
-
-
-
-
-
-
-#ifndef _XML_H
-#define _XML_H
-
-#define XML_BUFSIZE 1024	
-#define XML_NAMEM	0x80	
-#define XML_TXTM	0x40	
-#define XML_DUP		0x20	
-
-typedef struct xml*		XML_T;
-struct xml
-{
-	char*		name;		
-	char **	 attr;		
-	char*		txt;		
-	size_t		off;		
-	int			line;		
-	XML_T		next;		
-	XML_T		sibling;	
-	XML_T		ordered;	
-	XML_T		child;		
-	XML_T		parent;		
-	short		flags;		
-};
-
-#define xml_next( xml )		\
-	( ( xml ) ? xml->next : NULL )
-
-#define xml_next_inorder( xml ) \
-	((xml) ? xml->ordered : NULL)
-
-#define xml_name( xml )	\
-	( ( xml ) ? xml->name : NULL )
-
-#define xml_txt( xml ) \
-	( ( xml ) ? xml->txt : "" )
-	
-#define xml_line(xml) \
-	( ( xml ) ? (xml)->line : 0 )
-
-#define xml_new_d( name ) \
-	xml_set_flag( xml_new( pstrdup(name) ),XML_NAMEM )
-
-#define xml_add_child_d( xml, name, off ) \
-	xml_set_flag \
-	( \
-		xml_add_child( xml, pstrdup(name), off ), \
-		XML_NAMEM \
-	)
-
-#define xml_set_txt_d( xml, txt ) \
-	xml_set_flag \
-	( \
-		xml_set_txt( xml, pstrdup(txt) ), \
-		XML_TXTM \
-	)
-
-#define xml_set_attr_d( xml, name, value ) \
-	xml_set_attr \
-	( \
-		xml_set_flag( xml, XML_DUP ), \
-		pstrdup( name ), \
-		pstrdup( value ) \
-	)
-	
-#define xml_add_child_f( xml, name, off ) \
-	xml_set_flag \
-	( \
-		xml_add_child( xml, name, off ), \
-		XML_NAMEM \
-	)
-	
-#define xml_set_txt_f( xml, txt ) \
-	xml_set_flag \
-	( \
-		xml_set_txt( xml, txt ), \
-		XML_TXTM \
-	)
-
-#define xml_set_attr_f( xml, name, value ) \
-	xml_set_attr \
-	( \
-		xml_set_flag( xml, XML_DUP ), \
-		pstrdup( name ), \
-		(value) \
-	)
-
-#define xml_move( xml, dest, off )	\
-	xml_insert( xml_cut( xml ),dest,off )
-
-#define xml_remove( xml ) \
-	xml_free( xml_cut( xml ) )
-
-#endif 
-
-
-
 
 #define PGERR( txt )				fprintf( stderr, "%s\n", txt )
 
@@ -810,27 +844,8 @@ struct _pglexer
 	pregex_nfa*	nfa;			
 	pregex_dfa*	dfa;			
 
-	int			flags;			
-#define PGLEXER_MOD_NONE		0
-#define PGLEXER_MOD_UTF8		1	
-#define PGLEXER_MOD_WCHAR		2	
-
 	plist*		tokens;			
 	int			fetchlimit;		
-
-	int			srctype;		
-#define PGLEXER_SRCTYPE_FUNC	0	
-#define PGLEXER_SRCTYPE_STRING	1	
-#define PGLEXER_SRCTYPE_FILE	2	
-#define PGLEXER_SRCTYPE_FD		3	
-
-	union
-	{
-		int		(*func)();			
-		char*	str;				
-		FILE*	file;				
-		int		fd;					
-	} src;						
 };
 
 
@@ -941,6 +956,15 @@ void* pstack_access( pstack* stack, size_t offset );
 void* pstack_top( pstack* stack );
 void* pstack_bottom( pstack* stack );
 int pstack_count( pstack* stack );
+
+
+pia* pia_create( void );
+pia* pia_create_from_file( FILE* f );
+pia* pia_create_from_str( char* s );
+pia* pia_create_from_wstr( wchar_t* ws );
+pia* pia_free( pia* ia );
+pboolean pia_set_flags( pia* ia, int flags );
+int pia_get_flags( pia* ia );
 
 
 pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );

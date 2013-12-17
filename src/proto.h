@@ -70,6 +70,15 @@ void* pstack_top( pstack* stack );
 void* pstack_bottom( pstack* stack );
 int pstack_count( pstack* stack );
 
+/* input/input.c */
+pia* pia_create( void );
+pia* pia_create_from_file( FILE* f );
+pia* pia_create_from_str( char* s );
+pia* pia_create_from_wstr( wchar_t* ws );
+pia* pia_free( pia* ia );
+pboolean pia_set_flags( pia* ia, int flags );
+int pia_get_flags( pia* ia );
+
 /* regex/ccl.c */
 pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );
 pboolean pregex_ccl_compat( pregex_ccl* l, pregex_ccl* r );
