@@ -21,20 +21,22 @@ struct _pia
 {
 	piatype				type;	/* Input source type */
 
-	int					eof;	/* End of input symbol */
-	int					ch;		/* Current input character */
+	unsigned int		eof;	/* End of input symbol */
+	unsigned int		ch;		/* Current input character */
+	char*				ptr;	/* Current pointer (string only) */
 
-	int					flags;
+	int					flags;	/* Flags */
 
 #define PIA_MOD_NONE	0		/* For sake of completeness. */
 #define PIA_MOD_UTF8	1		/* Input is UTF-8 */
 #define PIA_MOD_WCHAR	2		/* Wide-character input */
-#define PIA_RELEASE		4		/* Close input / Free pointer */
+#define PIA_MOD_RELEASE	4		/* Close input / Free pointer */
+#define PIA_MOD_IS_EOF	8		/* Has EOF been entered? */
 
 	union
 	{
-		char*		str;		/* String */
-		FILE*		file;		/* File stream */
-		int			(*func)();	/* Function */
+		char*			str;		/* String */
+		FILE*			file;		/* File stream */
+		int				(*func)();	/* Function */
 	} src;						/* Source destination pointer*/
 };

@@ -74,8 +74,9 @@ int pstack_count( pstack* stack );
 pia* pia_create( void );
 pia* pia_create_from_file( FILE* f );
 pia* pia_create_from_str( char* s );
-pia* pia_create_from_wstr( wchar_t* ws );
+pia* pia_create_from_wstr( wchar* ws );
 pia* pia_free( pia* ia );
+unsigned int pia_read( pia* ia );
 pboolean pia_set_flags( pia* ia, int flags );
 int pia_get_flags( pia* ia );
 

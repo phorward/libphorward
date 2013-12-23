@@ -484,21 +484,23 @@ struct _pia
 {
 	piatype				type;	
 
-	int					eof;	
-	int					ch;		
+	unsigned int		eof;	
+	unsigned int		ch;		
+	char*				ptr;	
 
-	int					flags;
+	int					flags;	
 
 #define PIA_MOD_NONE	0		
 #define PIA_MOD_UTF8	1		
 #define PIA_MOD_WCHAR	2		
-#define PIA_RELEASE		4		
+#define PIA_MOD_RELEASE	4		
+#define PIA_MOD_IS_EOF	8		
 
 	union
 	{
-		char*		str;		
-		FILE*		file;		
-		int			(*func)();	
+		char*			str;		
+		FILE*			file;		
+		int				(*func)();	
 	} src;						
 };
 
@@ -961,8 +963,9 @@ int pstack_count( pstack* stack );
 pia* pia_create( void );
 pia* pia_create_from_file( FILE* f );
 pia* pia_create_from_str( char* s );
-pia* pia_create_from_wstr( wchar_t* ws );
+pia* pia_create_from_wstr( wchar* ws );
 pia* pia_free( pia* ia );
+unsigned int pia_read( pia* ia );
 pboolean pia_set_flags( pia* ia, int flags );
 int pia_get_flags( pia* ia );
 
