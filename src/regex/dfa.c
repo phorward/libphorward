@@ -797,6 +797,8 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 //str// is the test string where the DFA should work on.
 //len// is the length of the match, -1 on error or no match.
 
+//flags// are the flags to modify the DFA state machine matching behavior.
+
 Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the
 bestmost (=longest) match.
 */
@@ -815,10 +817,12 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 
 	PROC( "pregex_dfa_match" );
 	PARMS( "dfa", "%p", dfa );
+
 	if( flags & PREGEX_MOD_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
+
 	PARMS( "len", "%p", len );
 	PARMS( "anchors", "%p", anchors );
 	PARMS( "ref", "%p", ref );
@@ -890,15 +894,23 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		{
 			VARS( "pstr", "%ls", (pchar*)pstr );
 			ch = *((pchar*)pstr);
+			pstr += sizeof( pchar );
+
+			if( flags & PREGEX_MOD_DEBUG )
+				fprintf( stderr, "reading wchar >%lc< %d\n", ch, ch );
 		}
 		else
 		{
 			VARS( "pstr", "%s", pstr );
 #ifdef UTF8
 			ch = u8_char( pstr );
+			pstr += u8_seqlen( pstr );
 #else
-			ch = *pstr;
+			ch = *pstr++;
 #endif
+
+			if( flags & PREGEX_MOD_DEBUG )
+				fprintf( stderr, "reading char >%c< %d\n", ch, ch );
 		}
 
 		VARS( "ch", "%d", ch );
@@ -921,18 +933,6 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		{
 			MSG( "No transitions match!" );
 			break;
-		}
-
-		/* Move to next char */
-		if( flags & PREGEX_MOD_WCHAR )
-			pstr += sizeof( pchar );
-		else
-		{
-#ifdef UTF8
-			pstr += u8_seqlen( pstr );
-#else
-			pstr++;
-#endif
 		}
 
 		plen++;

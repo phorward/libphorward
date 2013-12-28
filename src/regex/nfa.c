@@ -386,10 +386,12 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 
 	PROC( "pregex_nfa_match" );
 	PARMS( "nfa", "%p", nfa );
+
 	if( flags & PREGEX_MOD_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
+
 	PARMS( "len", "%p", len );
 	PARMS( "anchors", "%p", anchors );
 	PARMS( "ref", "%p", ref );
@@ -485,23 +487,28 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 
 		if( flags & PREGEX_MOD_WCHAR )
 		{
+			MSG( "using wchar" );
 			VARS( "pstr", "%ls", (pchar*)pstr );
+
 			ch = *((pchar*)pstr);
+			pstr += sizeof( pchar );
 
 			if( flags & PREGEX_MOD_DEBUG )
-				fprintf( stderr, "reading >%lc< %d\n", ch, ch );
+				fprintf( stderr, "reading wchar >%lc< %d\n", ch, ch );
 		}
 		else
 		{
+			MSG( "using char" );
 			VARS( "pstr", "%s", pstr );
 #ifdef UTF8
 			ch = u8_char( pstr );
+			pstr += u8_seqlen( pstr );
 #else
-			ch = *pstr;
+			ch = *pstr++;
 #endif
 
 			if( flags & PREGEX_MOD_DEBUG )
-				fprintf( stderr, "reading >%c< %d\n", ch, ch );
+				fprintf( stderr, "reading char >%c< %d\n", ch, ch );
 		}
 
 		VARS( "ch", "%d", ch );
@@ -511,17 +518,6 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 		{
 			MSG( "pregex_nfa_move() failed" );
 			break;
-		}
-
-		if( flags & PREGEX_MOD_WCHAR )
-			pstr += sizeof( pchar );
-		else
-		{
-#ifdef UTF8
-			pstr += u8_seqlen( pstr );
-#else
-			pstr++;
-#endif
 		}
 
 		plen++;

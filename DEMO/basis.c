@@ -522,17 +522,17 @@ void union_demo( void )
 
 void ia_demo( void )
 {
-	pia*	ia;
+	pia*	in;
 	wchar	ch;
 
 	DEMO( "ia_demo" );
 
-	ia = pia_create_from_str( "Hello Wörld" );
-
-	while( ( ch = pia_read( ia ) ) )
+	in = pia_create_from_str( "H€llo Wörld" );
+	in = pia_create_from_file( "README" );
+	while( ( ch = pia_getchar( in ) ) != pia_get_eof( in ) )
 		printf( "ch = %d (%lc)\n", ch, ch );
 
-	pia_free( ia );
+	pia_free( in );
 }
 
 int main( int argc, char** argv )

@@ -475,7 +475,8 @@ typedef struct _pia				pia;
 
 typedef enum
 {
-	PIATYPE_FILE,				
+	PIATYPE_NONE,				
+	PIATYPE_STREAM,				
 	PIATYPE_STR,				
 	PIATYPE_FUNC				
 } piatype;
@@ -486,7 +487,11 @@ struct _pia
 
 	unsigned int		eof;	
 	unsigned int		ch;		
-	char*				ptr;	
+
+	unsigned int*		bufbeg;	
+	unsigned int*		bufend;	
+	size_t				bufsiz;	
+#define PIA_BUFSIZ		1024
 
 	int					flags;	
 
@@ -500,8 +505,10 @@ struct _pia
 	{
 		char*			str;		
 		FILE*			file;		
-		int				(*func)();	
+		unsigned int	(*func)();	
 	} src;						
+
+	char*				ptr;	
 };
 
 
@@ -577,9 +584,9 @@ typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 
 #define PREGEX_CCL_MIN			0x0
 #if UNICODE
-#define PREGEX_CCL_MAX			0xffff
+#define PREGEX_CCL_MAX			0xFFFF
 #else
-#define PREGEX_CCL_MAX			0xff
+#define PREGEX_CCL_MAX			0xFF
 #endif
 
 struct _regex_cr
@@ -960,14 +967,27 @@ void* pstack_bottom( pstack* stack );
 int pstack_count( pstack* stack );
 
 
+pia* pia_init( pia* in );
 pia* pia_create( void );
-pia* pia_create_from_file( FILE* f );
-pia* pia_create_from_str( char* s );
-pia* pia_create_from_wstr( wchar* ws );
-pia* pia_free( pia* ia );
-unsigned int pia_read( pia* ia );
-pboolean pia_set_flags( pia* ia, int flags );
-int pia_get_flags( pia* ia );
+pia* pia_create_from_file( char* path );
+pia* pia_create_from_stream( FILE* f );
+pia* pia_create_from_str( char* str );
+pia* pia_create_from_wstr( wchar* wstr );
+pia* pia_close( pia* in );
+pia* pia_free( pia* in );
+pboolean pia_bufreset( pia* in );
+unsigned int pia_getchar( pia* in );
+pboolean pia_is_eof( pia* in );
+pboolean pia_set_stream( pia* in, FILE* f );
+FILE* pia_get_stream( pia* in );
+pboolean pia_set_str( pia* in, char* str );
+char* pia_get_str( pia* in );
+pboolean pia_set_wstr( pia* in, wchar* wstr );
+wchar* pia_get_wstr( pia* in );
+pboolean pia_set_flags( pia* in, int flags );
+int pia_get_flags( pia* in );
+pboolean pia_set_eof( pia* in, unsigned int eof );
+unsigned int pia_get_eof( pia* in );
 
 
 pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );

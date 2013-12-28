@@ -95,9 +95,9 @@ typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 /* Character class */
 #define PREGEX_CCL_MIN			0x0
 #if UNICODE
-#define PREGEX_CCL_MAX			0xffff
+#define PREGEX_CCL_MAX			0xFFFF
 #else
-#define PREGEX_CCL_MAX			0xff
+#define PREGEX_CCL_MAX			0xFF
 #endif
 
 struct _regex_cr

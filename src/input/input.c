@@ -10,6 +10,7 @@ Usage:	Implements the Phorward Input iaer (pia)
 
 #include "phorward.h"
 
+/* UTF-8 skirmish... */
 
 static int offsets_utf8[ 6 ] =
 {
@@ -31,24 +32,60 @@ static int trailbyte_utf8[ 256 ] =
 
 /* Construction */
 
+/** Initialize a pia object. */
+pia* pia_init( pia* in )
+{
+	if( !( in ) )
+	{
+		WRONGPARAM;
+		return (pia*)NULL;
+	}
+
+	memset( in, 0, sizeof( pia ) );
+
+	in->flags = PIA_MOD_UTF8;
+	pia_set_stream( in, stdin );
+
+	return in;
+}
+
 /** Creates a standard pia object configured to read from stdin. */
 pia* pia_create( void )
 {
-	pia* 	ia;
+	pia* 	in;
 
-	ia = (pia*)pmalloc( sizeof( pia ) );
-	ia->type = PIATYPE_FILE;
-	ia->src.file = stdin;
-	ia->eof = EOF;
-	ia->flags = PIA_MOD_UTF8;
+	in = (pia*)pmalloc( sizeof( pia ) );
+	pia_init( in );
 
-	return ia;
+	return in;
 }
 
-/** Creates a pia object reading from file //f//. */
-pia* pia_create_from_file( FILE* f )
+/** Creates a pia object reading from a file specified by //path//. */
+pia* pia_create_from_file( char* path )
 {
-	pia*	ia;
+	pia*	in;
+	FILE*	f;
+
+	if( !( path && *path ) )
+	{
+		WRONGPARAM;
+		return (pia*)NULL;
+	}
+
+	if( !( f = fopen( path, "rb" ) ) )
+		return (pia*)NULL;
+
+	in = pia_create();
+	pia_set_stream( in, f );
+	in->flags |= PIA_MOD_RELEASE;
+
+	return in;
+}
+
+/** Creates a pia object reading from open file stream //f//. */
+pia* pia_create_from_stream( FILE* f )
+{
+	pia*	in;
 
 	if( !( f ) )
 	{
@@ -56,65 +93,70 @@ pia* pia_create_from_file( FILE* f )
 		return (pia*)NULL;
 	}
 
-	ia = pia_create();
-	ia->src.file = f;
+	in = pia_create();
+	pia_set_stream( in, f );
 
-	return ia;
+	return in;
 }
 
 /** Creates a pia object reading from a string //s//. */
-pia* pia_create_from_str( char* s )
+pia* pia_create_from_str( char* str )
 {
-	pia*	ia;
+	pia*	in;
 
-	if( !( s ) )
+	if( !( str ) )
 	{
 		WRONGPARAM;
 		return (pia*)NULL;
 	}
 
-	ia = pia_create();
+	in = pia_create();
+	pia_set_str( in, str );
 
-	ia->type = PIATYPE_STR;
-	ia->ptr = ia->src.str = s;
-	ia->eof = 0;
-
-	return ia;
+	return in;
 }
 
 /** Creates a pia object reading from a wide-character string //ws//. */
-pia* pia_create_from_wstr( wchar* ws )
+pia* pia_create_from_wstr( wchar* wstr )
 {
-	pia*	ia;
+	pia*	in;
 
-	if( !( ws ) )
+	if( !( wstr ) )
 	{
 		WRONGPARAM;
 		return (pia*)NULL;
 	}
 
-	ia = pia_create_from_str( (char*)ws );
-	ia->flags = PIA_MOD_WCHAR;
+	in = pia_create();
+	pia_set_wstr( in, wstr );
 
-	return ia;
+	return in;
 }
 
-/** Free pia object. */
-pia* pia_free( pia* ia )
-{
-	if( !( ia ) )
-		return (pia*)NULL;
+/* Destruction */
 
-	if( ia->flags & PIA_MOD_RELEASE )
+/** Close a pia object. The objects data source is closed or freed
+(if required and possible), the object itself remains as default object
+reading from stdin. */
+pia* pia_close( pia* in )
+{
+	if( !( in ) )
 	{
-		switch( ia->type )
+		WRONGPARAM;
+		return (pia*)NULL;
+	}
+
+	if( in->flags & PIA_MOD_RELEASE )
+	{
+		switch( in->type )
 		{
-			case PIATYPE_FILE:
-				fclose( ia->src.file );
+			case PIATYPE_STREAM:
+				if( pia_get_stream( in ) != stdin )
+					fclose( pia_get_stream( in ) );
 				break;
 
 			case PIATYPE_STR:
-				pfree( ia->src.str );
+				pfree( in->src.str );
 				break;
 
 			default:
@@ -122,56 +164,89 @@ pia* pia_free( pia* ia )
 		}
 	}
 
-	pfree( ia );
+	in->type = PIATYPE_STREAM;
+	in->src.file = stdin;
+
+	in->flags &= ~PIA_MOD_IS_EOF;
+
+	return in;
+}
+
+/** Frees a pia object and closes its source (if required). */
+pia* pia_free( pia* in )
+{
+	if( !in )
+		return (pia*)NULL;
+
+	pia_close( in );
+
+	pfree( in->bufbeg );
+	pfree( in );
 
 	return (pia*)NULL;
 }
 
-/** Get a character from input adapter. */
-unsigned int pia_read( pia* ia )
+/* Runtime */
+
+/** Clears or resets the current input buffer. */
+pboolean pia_bufreset( pia* in )
+{
+	if( !in )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	in->bufend = in->bufbeg;
+
+	return TRUE;
+}
+
+/** Read a character from input and buffer it. */
+unsigned int pia_getchar( pia* in )
 {
 	unsigned int	ch;
 	int				ubytes	= 0;
 	int				ucount	= 0;
 
-	if( !ia )
+	if( !in )
 	{
 		WRONGPARAM;
-		return EOF;
+		return 0;
 	}
 
-	if( ia->flags & PIA_MOD_IS_EOF )
-		return ia->ch;
+	if( in->flags & PIA_MOD_IS_EOF )
+		return in->ch;
 
-	ia->ch = 0;
+	in->ch = 0;
 
 	do
 	{
-		switch( ia->type )
+		switch( in->type )
 		{
-			case PIATYPE_FILE:
-				if( ia->flags & PIA_MOD_WCHAR )
+			case PIATYPE_STREAM:
+				if( in->flags & PIA_MOD_WCHAR )
 				{
-					if( fread( &ch, sizeof( wchar ), 1, ia->src.file )
+					if( fread( &ch, sizeof( wchar ), 1, in->src.file )
 							!= sizeof( wchar ) )
-						ch = ia->eof;
+						ch = in->eof;
 				}
 				else
-					ch = fgetc( ia->src.file );
+					ch = fgetc( in->src.file );
 				break;
 
 			case PIATYPE_STR:
-				if( ia->flags & PIA_MOD_WCHAR )
+				if( in->flags & PIA_MOD_WCHAR )
 				{
-					ch = (unsigned int) *( (wchar*)( ia->ptr ) );
-					ia->ptr += sizeof( wchar );
+					ch = (unsigned int) *( (wchar*)( in->ptr ) );
+					in->ptr += sizeof( wchar );
 				}
 				else
-					ch = (unsigned char)( *( ia->ptr++ ) );
+					ch = (unsigned char)( *( in->ptr++ ) );
 				break;
 
 			case PIATYPE_FUNC:
-				ch = (*(ia->src.func))();
+				ch = (*(in->src.func))();
 				break;
 
 			default:
@@ -179,40 +254,189 @@ unsigned int pia_read( pia* ia )
 				break;
 		}
 
-		if( ch == ia->eof )
+		if( ch == in->eof )
 		{
-			ia->flags |= PIA_MOD_IS_EOF;
-			ia->ch = ch;
-			break;
+			in->flags |= PIA_MOD_IS_EOF;
+			in->ch = ch;
+			return ch;
 		}
 
-		if( ia->flags & PIA_MOD_UTF8 )
+		if( !( in->flags & PIA_MOD_WCHAR ) && in->flags & PIA_MOD_UTF8 )
 		{
 			if( ucount == 0 )
 				ubytes = ucount = trailbyte_utf8[ ch ];
 			else
 				ucount--;
 
-			ia->ch += ch;
+			in->ch += ch;
 
 			if( ucount )
-				ia->ch <<= 6;
+				in->ch <<= 6;
 		}
 		else
-			ia->ch = ch;
+			in->ch = ch;
 	}
 	while( ucount );
 
-	ia->ch -= offsets_utf8[ ubytes ];
-	return ia->ch;
+	in->ch -= offsets_utf8[ ubytes ];
+
+	/* Buffer reallocation required? */
+	if( ( in->bufbeg - in->bufend ) == in->bufsiz  )
+	{
+		in->bufbeg = prealloc( in->bufbeg,
+						( in->bufsiz + BUFSIZ ) * sizeof( unsigned int ) );
+
+		in->bufend = in->bufbeg + in->bufsiz;
+		in->bufsiz += PIA_BUFSIZ;
+	}
+
+	*( in->bufend++ ) = in->ch;
+
+	return in->ch;
 }
 
-/* flags */
-
-/** Sets flags for //ia//. */
-pboolean pia_set_flags( pia* ia, int flags )
+/** Returns TRUE if the input stream read the end-of-file. */
+pboolean pia_is_eof( pia* in )
 {
-	if( !( ia ) )
+	if( !in )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( ( in->flags & PIA_MOD_IS_EOF ) )
+		return TRUE;
+
+	return FALSE;
+}
+
+/* File */
+
+/** Set file //f// as input source for //in//. */
+pboolean pia_set_stream( pia* in, FILE* f )
+{
+	if( !( in && f ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	pia_close( in );
+	in->src.file = f;
+	in->eof = EOF;
+
+	return TRUE;
+}
+
+/** Returns the stream source FILE-pointer of //in//, if given.
+
+If the adapter is not configured as a stream source, (FILE*)NULL
+will be returned. */
+FILE* pia_get_stream( pia* in )
+{
+	if( !( in ) )
+	{
+		WRONGPARAM;
+		return (FILE*)NULL;
+	}
+
+	if( in->type == PIATYPE_STREAM )
+		return in->src.file;
+
+	return (FILE*)NULL;
+}
+
+/* String */
+
+/** Set byte-character string //str// as input source for //in//. */
+pboolean pia_set_str( pia* in, char* str )
+{
+	if( !( in && str ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	pia_close( in );
+
+	in->type = PIATYPE_STR;
+
+	in->flags &= ~PIA_MOD_WCHAR;
+	in->flags |= PIA_MOD_UTF8;
+
+	in->ptr = in->src.str = str;
+	in->eof = 0;
+
+	return TRUE;
+}
+
+/** Returns the byte-character source of //in//, if given.
+
+If the adapter is not configured as byte-character source, (char*)NULL
+will be returned. */
+char* pia_get_str( pia* in )
+{
+	if( !( in ) )
+	{
+		WRONGPARAM;
+		return (char*)NULL;
+	}
+
+	if( in->type == PIATYPE_STR && !( in->flags & PIA_MOD_WCHAR ) )
+		return in->src.str;
+
+	return (char*)NULL;
+}
+
+/* Wide-character string */
+
+/** Set wide-character string //wstr// as input source for //in//. */
+pboolean pia_set_wstr( pia* in, wchar* wstr )
+{
+	if( !( in && wstr ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	pia_close( in );
+
+	in->type = PIATYPE_STR;
+
+	in->flags &= ~PIA_MOD_UTF8;
+	in->flags |= PIA_MOD_WCHAR;
+
+	in->ptr = in->src.str = (char*)wstr;
+	in->eof = 0;
+
+	return TRUE;
+}
+
+/** Returns the wide-character source of //in//, if given.
+
+If the adapter is not configured for wide-character source, (wchar*)NULL
+will be returned. */
+wchar* pia_get_wstr( pia* in )
+{
+	if( !( in ) )
+	{
+		WRONGPARAM;
+		return (wchar*)NULL;
+	}
+
+	if( in->type == PIATYPE_STR && ( in->flags & PIA_MOD_WCHAR ) )
+		return (wchar*)in->src.str;
+
+	return (wchar*)NULL;
+}
+
+
+/* Flags */
+
+/** Sets //flags// for //in//. */
+pboolean pia_set_flags( pia* in, int flags )
+{
+	if( !( in ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -222,18 +446,45 @@ pboolean pia_set_flags( pia* ia, int flags )
 	if( flags & PIA_MOD_UTF8 && flags & PIA_MOD_WCHAR )
 		flags &= ~PIA_MOD_UTF8;
 
-	ia->flags = flags;
+	in->flags = flags;
 	return TRUE;
 }
 
-/** Returns flag configuration of //ia//. */
-int pia_get_flags( pia* ia )
+/** Returns flag configuration of //in//. */
+int pia_get_flags( pia* in )
 {
-	if( !( ia ) )
+	if( !( in ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	return in->flags;
+}
+
+/* EOF */
+
+/** Configures an end-of-file charater for //in//. */
+pboolean pia_set_eof( pia* in, unsigned int eof )
+{
+	if( !( in ) )
 	{
 		WRONGPARAM;
 		return FALSE;
 	}
 
-	return ia->flags;
+	in->eof = eof;
+	return TRUE;
+}
+
+/** Returns the configured end-of-file charater of //in//. */
+unsigned int pia_get_eof( pia* in )
+{
+	if( !( in ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	return in->eof;
 }
