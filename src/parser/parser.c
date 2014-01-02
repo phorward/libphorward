@@ -29,8 +29,10 @@ pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm )
 
 	parser->optimize = TRUE;
 
-	pg_parser_generate( parser );
+	if( !pg_parser_generate( parser ) )
+		return parser;
 
+	parser->lexer = pg_lexer_create_by_parser( parser );
 	return parser;
 }
 
@@ -65,6 +67,12 @@ BOOLEAN pg_parser_generate( pgparser* p )
 	}
 
 	return FALSE;
+}
+
+/* Run */
+
+BOOLEAN pg_parser_run( pgparser* p )
+{
 }
 
 /* Check */

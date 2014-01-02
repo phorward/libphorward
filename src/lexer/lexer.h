@@ -26,12 +26,11 @@ struct _pgtoken
 /* Lexer */
 struct _pglexer
 {
-	pggrammar*	grammar;		/* Grammar (optional) */
-	pregex_ptn*	whitespace;		/* Whitespace */
+	pggrammar*		grammar;		/* Grammar (optional) */
 
-	pregex_nfa*	nfa;			/* NFA state machine */
-	pregex_dfa*	dfa;			/* DFA state machine */
+	int				dcount;			/* DFA state count */
+	int**			dtrans;		/* DFA states */
 
-	plist*		tokens;			/* Tokens array */
-	int			fetchlimit;		/* Token fetch limit */
+	unsigned int	eof;			/* End of file symbol */
+	pboolean		ignore_unknown;	/* Ignore any unknown characters */
 };

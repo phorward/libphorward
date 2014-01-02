@@ -113,7 +113,7 @@ static int pregex_dfa_same_transitions( pregex_dfa* dfa, plist* trans )
 	{
 		ptr = (pregex_dfa_st*)plist_access( e );
 
-		if( plist_diff( ptr->nfa_set, trans ) )
+		if( plist_diff( ptr->nfa_set, trans ) == 0 )
 			return plist_offset( plist_get_by_ptr( dfa->states, ptr ) );
 	}
 
@@ -385,7 +385,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 			}
 		}
 
-		VARS( "current->accept", "%d", current->accept );
+		VARS( "current->accept", "%d", current->accept.accept );
 
 		MSG( "Removing intersections within character classes" );
 		do
@@ -438,7 +438,6 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				VARS( "begin", "%d", begin );
 				VARS( "end", "%d", end );
 
-				/* TODO: plist_copy() */
 				plist_for( current->nfa_set, f )
 				{
 					if( !plist_push( transitions, plist_access( f ) ) )
@@ -469,6 +468,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				else if( ( state_next = pregex_dfa_same_transitions(
 													dfa, transitions ) ) >= 0 )
 				{
+					MSG( "State with same transitions exists" );
 					/* This transition is already existing in the DFA
 						- discard the transition table! */
 					plist_erase( transitions );
@@ -489,8 +489,6 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				VARS( "state_next", "%d", state_next );
 
 				/* Find transition entry with same follow state */
-				trans = (pregex_dfa_tr*)NULL;
-
 				plist_for( current->trans, f )
 				{
 					trans = (pregex_dfa_tr*)plist_access( f );
@@ -501,7 +499,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 				VARS( "trans", "%p", trans );
 
-				if( !trans )
+				if( !f )
 				{
 					MSG( "Need to create new transition entry" );
 

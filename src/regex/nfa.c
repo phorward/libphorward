@@ -113,11 +113,15 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	{
 		s = (pregex_nfa_st*)plist_access( e );
 
+#define GETOFF( l, s ) 	(s) ? plist_offset( plist_get_by_ptr( l, s ) ) : -1
+
 		fprintf( stderr, "#% 2d % 4d % 5d  % 6d  % 3d % 6d\n",
-			plist_offset( plist_get_by_ptr( nfa->states, s ) ),
-			plist_offset( plist_get_by_ptr( nfa->states, s->next ) ),
-			plist_offset( plist_get_by_ptr( nfa->states, s->next2 ) ),
-				s->accept.accept, s->ref, s->accept.anchors );
+			GETOFF( nfa->states, s ),
+			GETOFF( nfa->states, s->next ),
+			GETOFF( nfa->states, s->next2 ),
+			s->accept.accept, s->ref, s->accept.anchors );
+
+#undef GETOFF
 
 		if( s->ccl )
 			pregex_ccl_print( stderr, s->ccl, 0 );

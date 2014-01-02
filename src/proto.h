@@ -396,7 +396,7 @@ BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
 /* lexer/lexer.c */
-pglexer* pg_lexer_create( pggrammar* grammar );
+pglexer* pg_lexer_create_by_parser( pgparser* parser );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
 pgtoken* pg_lexer_fetch( pglexer* lex );
@@ -412,6 +412,7 @@ pboolean pg_parser_lr_eval( pgparser* parser, char* input );
 pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
 pgparser* pg_parser_free( pgparser* parser );
 BOOLEAN pg_parser_generate( pgparser* p );
+BOOLEAN pg_parser_run( pgparser* p );
 BOOLEAN pg_parser_is_lr( pgparser* p );
 BOOLEAN pg_parser_is_ll( pgparser* p );
 pggrammar* pg_parser_get_grammar( pgparser* p );
