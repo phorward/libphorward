@@ -16,7 +16,7 @@ make_update:
 	cp src/Makefile src/Makefile.gnu
 	cp DEMO/Makefile DEMO/Makefile.gnu
 	
-make_uninsall:
+make_uninstall:
 	-rm Makefile
 	-rm src/Makefile
 	-rm DEMO/Makefile

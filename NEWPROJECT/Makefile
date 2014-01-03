@@ -1,6 +1,6 @@
 # -MAKEFILE---------------------------------------------------------------------
 # Phorward Foundation Libraries :: NEWPROJECT
-# Copyright (C) 2006-2013 by Phorward Software Technologies, Jan Max Meyer
+# Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See $PHOME/LICENSE for more information.
 # ------------------------------------------------------------------------------
