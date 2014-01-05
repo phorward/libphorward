@@ -14,8 +14,29 @@ Usage:	DFA creation and transformation functions
 
 /*NO_DOC*/
 
-/* Printing a DFA-state machine to a stream, for debug */
-void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
+/* For Debug */
+static void pregex_dfa_print_state(
+	char* name, pregex_dfa* dfa, pregex_dfa_st* st )
+{
+	plistel*		e;
+	pregex_dfa_tr*	tr;
+
+	fprintf( stderr, "%s %d:", name ? name : "state",
+								plist_offset(
+									plist_get_by_ptr( dfa->states, st ) ) );
+
+	plist_for( st->trans, e )
+	{
+		tr = (pregex_dfa_tr*)plist_access( e );
+		fprintf( stderr, " %s => %d",
+			pregex_ccl_to_str( tr->ccl, TRUE ), tr->go_to );
+	}
+
+	fprintf( stderr, "\n" );
+}
+
+/* For Debug */
+void pregex_dfa_print( pregex_dfa* dfa )
 {
 	plistel*		e;
 	plistel*		f;
@@ -26,27 +47,27 @@ void pregex_dfa_print( FILE* stream, pregex_dfa* dfa )
 	plist_for( dfa->states, e )
 	{
 		s = (pregex_dfa_st*)plist_access( e );
-		fprintf( stream, "*** STATE %d (accepts %d, ref_cnt %d, anchors %d)\n",
+		fprintf( stderr, "*** STATE %d (accepts %d, ref_cnt %d, anchors %d)\n",
 			plist_offset( plist_get_by_ptr( dfa->states, s ) ),
 				s->accept.accept, s->ref_cnt, s->accept.anchors );
 
 		if( s->ref_cnt )
 		{
 			for( i = 0; i < s->ref_cnt; i++ )
-				fprintf( stream, "ref[%d]=%d ", i, s->ref[i] );
+				fprintf( stderr, "ref[%d]=%d ", i, s->ref[i] );
 
-			fprintf( stream, "\n" );
+			fprintf( stderr, "\n" );
 		}
 
 		plist_for( s->trans, f )
 		{
 			t = (pregex_dfa_tr*)plist_access( f );
 
-			pregex_ccl_print( stream, t->ccl, 0 );
-			fprintf( stream, "-> %d\n", t->go_to );
+			pregex_ccl_print( stderr, t->ccl, 0 );
+			fprintf( stderr, "-> %d\n", t->go_to );
 		}
 
-		fprintf( stream, "\n" );
+		fprintf( stderr, "\n" );
 	}
 }
 
@@ -101,25 +122,6 @@ static pregex_dfa_st* pregex_dfa_get_undone_state( pregex_dfa* dfa )
 	return (pregex_dfa_st*)NULL;
 }
 
-/* Checks for DFA-states with same NFA-epsilon transitions than the specified
-	one within the DFA-state machine. If an equal item is found, the offset of
-		that DFA-state is returned, else -1. */
-static int pregex_dfa_same_transitions( pregex_dfa* dfa, plist* trans )
-{
-	plistel*		e;
-	pregex_dfa_st*	ptr;
-
-	plist_for( dfa->states, e )
-	{
-		ptr = (pregex_dfa_st*)plist_access( e );
-
-		if( plist_diff( ptr->nfa_set, trans ) == 0 )
-			return plist_offset( plist_get_by_ptr( dfa->states, ptr ) );
-	}
-
-	return -1;
-}
-
 /** Allocates an initializes a new pregex_dfa-object for a deterministic
 finite state automata that can be used for pattern matching. A DFA
 is currently created out of an NFA.
@@ -143,13 +145,10 @@ pboolean pregex_dfa_reset( pregex_dfa* dfa )
 	plistel*		e;
 	pregex_dfa_st*	dfa_st;
 
-	PROC( "pregex_dfa_free" );
-	PARMS( "dfa", "%p", dfa );
-
 	if( !( dfa ) )
 	{
 		WRONGPARAM;
-		RETURN( FALSE );
+		return FALSE;
 	}
 
 	while( ( e = plist_first( dfa->states ) ) )
@@ -158,7 +157,7 @@ pboolean pregex_dfa_reset( pregex_dfa* dfa )
 		plist_remove( dfa->states, e );
 	}
 
-	RETURN( TRUE );
+	return TRUE;
 }
 
 /** Frees and resets a DFA state machine.
@@ -173,18 +172,15 @@ pregex_dfa* pregex_dfa_free( pregex_dfa* dfa )
 	pregex_dfa_st*	dfa_st;
 	pregex_dfa_tr*	tr;
 
-	PROC( "pregex_dfa_free" );
-	PARMS( "dfa", "%p", dfa );
-
 	if( !( dfa ) )
-		RETURN( (pregex_dfa*)NULL );
+		return (pregex_dfa*)NULL;
 
 	pregex_dfa_reset( dfa );
 
 	plist_free( dfa->states );
 	pfree( dfa );
 
-	RETURN( (pregex_dfa*)NULL );
+	return (pregex_dfa*)NULL;
 }
 
 /** Performs a check on all DFA state transitions to figure out the default
@@ -287,6 +283,25 @@ static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 	RETURN( ERR_OK );
 }
 
+/* Checks for DFA-states with same NFA-epsilon transitions than the specified
+	one within the DFA-state machine. If an equal item is found, the offset of
+		that DFA-state is returned, else -1. */
+static int pregex_dfa_same_transitions( pregex_dfa* dfa, plist* trans )
+{
+	plistel*		e;
+	pregex_dfa_st*	ptr;
+
+	plist_for( dfa->states, e )
+	{
+		ptr = (pregex_dfa_st*)plist_access( e );
+
+		if( plist_diff( ptr->nfa_set, trans ) == 0 )
+			return plist_offset( plist_get_by_ptr( dfa->states, ptr ) );
+	}
+
+	return -1;
+}
+
 /** Turns a NFA-state machine into a DFA-state machine using the
 subset-construction algorithm.
 
@@ -346,6 +361,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	/* Perform algorithm until all states are done */
 	while( ( current = pregex_dfa_get_undone_state( dfa ) ) )
 	{
+		MSG( "WHILE" );
+
 		current->done = TRUE;
 		current->accept.accept = PREGEX_ACCEPT_NONE;
 
@@ -369,11 +386,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 			}
 
 			/* Generate list of character classes */
-			VARS( "nfa_st->ccl", "%p", nfa_st->ccl );
-			VARS( "classes", "%p", classes );
-
 			if( nfa_st->ccl )
 			{
+				VARS( "nfa_st->ccl", "%s",
+						pregex_ccl_to_str( nfa_st->ccl, TRUE ) );
 				MSG( "Adding character class to list" );
 				if( !( ccl = pregex_ccl_dup( nfa_st->ccl ) ) )
 					RETURN( ERR_MEM );
@@ -481,6 +497,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 						RETURN( ERR_MEM );
 
 					st->nfa_set = plist_dup( transitions );
+					plist_erase( transitions );
+
 					pregex_dfa_collect_ref( st );
 
 					state_next = plist_count( dfa->states ) - 1;
@@ -669,10 +687,13 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	MSG( "Perform the algorithm" );
 	while( changes )
 	{
+		MSG( "LOOP" );
+		VARS( "groups", "%d", plist_count( groups ) );
 		changes = FALSE;
 
 		plist_for( groups, e )
 		{
+			MSG( "Examining group" );
 			newgroup = (plist*)NULL;
 
 			group = (plist*)plist_access( e );
@@ -687,12 +708,16 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 				next_next = plist_next( next );
 				grp_dfa_st = (pregex_dfa_st*)plist_access( next );
 
-				VARS( "dfa_st", "%p", dfa_st );
-				VARS( "grp_dfa_st", "%p", grp_dfa_st );
+				VARS( "dfa_st", "%d", plist_offset(
+										plist_get_by_ptr(
+											dfa->states, dfa_st ) ) );
+				VARS( "grp_dfa_st", "%d", plist_offset(
+										plist_get_by_ptr(
+											dfa->states, grp_dfa_st ) ) );
 				VARS( "dfa_st->trans", "%p", dfa_st->trans );
 				VARS( "grp_dfa_st->trans", "%p", grp_dfa_st->trans );
 
-				/* Perform first test: Same transition count? */
+				/* Check for state equality */
 				if( !pregex_dfa_equal_states( dfa, groups,
 							dfa_st, grp_dfa_st ) )
 				{
@@ -715,17 +740,17 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 							RETURN( ERR_MEM );
 					}
 
-					if( plist_push( newgroup, grp_dfa_st ) )
+					if( !plist_push( newgroup, grp_dfa_st ) )
 						RETURN( ERR_MEM );
 				}
 			}
 
-			VARS( "group", "%p", newgroup );
+			VARS( "newgroup", "%p", newgroup );
 			if( newgroup )
 			{
 				MSG( "Engaging new group into list of groups" );
-				if( !( plist_push( groups, newgroup ) ) )
-					return ERR_MEM;
+				if( !plist_push( groups, newgroup ) )
+					RETURN( ERR_MEM );
 
 				changes = TRUE;
 			}
@@ -767,7 +792,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 		group = (plist*)plist_access( e );
 
 		/* Delete all states except the first one in the group */
-		for( f = plist_next( e ); f; f = plist_next( f ) )
+		for( f = plist_next( plist_first( group ) ); f; f = plist_next( f ) )
 			pregex_dfa_delete_state( (pregex_dfa_st*)plist_access( f ) );
 
 		/* Push the first one into the minimized list */
@@ -954,5 +979,148 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	RETURN( ( last_accept ? last_accept->accept.accept : PREGEX_ACCEPT_NONE ) );
 }
 
-/*COD_ON*/
+/** Extracts the significant state table of a DFA state machine into a matrix.
 
+//matrix// is a pointer to a variable that receives the allocated matrix, where
+each row forms a state that follows the structure
+
+|| Column | Content |
+| 0 | Total number of columns in the current row |
+| 1 | Match ID if >= 0, or -1 if the state is not an accepting state |
+| 2 | Default transition from the current state |
+| 3 | From-Character (range begin) |
+| 4 | To-Character (range end) |
+| 5 | State to enter |
+| ... | Triples of From-Character, To-Character and State follow. |
+
+Example for a state machine that matches the regular expression ``@[a-z0-9]+``
+that has match 0:
+
+```
+6 -1 -1 64 64 2
+9 0 -1 97 122 1 48 57 1
+9 -1 -1 97 122 1 48 57
+```
+
+Interpretation:
+
+```
+#00: columns=6 accept=-1 default=-1 trans=64(@);64(@):02
+#01: columns=9 accept=0 default=-1 trans=97(a);122(z):01 trans=48(0);57(9):01
+#02: columns=9 accept=-1 default=-1 trans=97(a);122(z):01 trans=48(0);57(9):01
+```
+
+A similar dump like this interpretation above will be printed to stderr by the
+function when //matrix// is provided as (int***)NULL.
+
+The function returns the number of states of //dfa//, or -1 in error case.
+
+The pointer assigned to //matrix// must be freed after usage using a for-loop:
+
+```
+for( i = 0; i < states_count; i++ )
+	pfree( states[i] );
+
+pfree( states );
+```
+*/
+int pregex_dfa_to_matrix( int*** matrix, pregex_dfa* dfa )
+{
+	int**			trans;
+	pregex_dfa_st*	st;
+	pregex_dfa_tr*	tr;
+	int				i;
+	int				j;
+	int				k;
+	int				cnt;
+	plistel*		e;
+	plistel*		f;
+	pchar			from;
+	pchar			to;
+
+	PROC( "pregex_dfa_to_matrix" );
+	PARMS( "matrix", "%p", matrix );
+	PARMS( "dfa", "%p", dfa );
+
+	if( !( dfa ) )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+
+	if( !( trans = (int**)pmalloc(
+						plist_count( dfa->states ) * sizeof( int* ) ) ) )
+		RETURN( -1 );
+
+	for( i = 0, e = plist_first( dfa->states ); e; e = plist_next( e ), i++ )
+	{
+		VARS( "state( i )", "%d", i );
+		st = (pregex_dfa_st*)plist_access( e );
+
+		/*
+			Row formatting:
+
+			Number-of-columns;Accept;Default-Goto;From-Char;To-Char;Goto;...
+
+			The rest consists of triples containing
+			"From-Char;To-Char;Goto" each.
+		*/
+
+		MSG( "Examining required number of columns" );
+		for( cnt = 3, f = plist_first( st->trans ); f; f = plist_next( f ) )
+		{
+			tr = (pregex_dfa_tr*)plist_access( f );
+			cnt += ( pregex_ccl_size( tr->ccl ) * 3 );
+		}
+
+		VARS( "required( cnt )", "%d", cnt );
+
+		trans[i] = (int*)pmalloc( cnt * sizeof( int ) );
+
+		trans[i][0] = cnt;
+		trans[i][1] = st->accept.accept;
+		trans[i][2] = st->def_trans ? st->def_trans->go_to : -1;
+
+		MSG( "Fill column" );
+		for( j = 3, f = plist_first( st->trans ); f; f = plist_next( f ) )
+		{
+			tr = (pregex_dfa_tr*)plist_access( f );
+
+			for( k = 0; pregex_ccl_get( &from, &to, tr->ccl, k ); k++ )
+			{
+				trans[i][j++] = from;
+				trans[i][j++] = to;
+				trans[i][j++] = tr->go_to;
+			}
+		}
+	}
+
+	/* Print it to stderr? */
+	if( !matrix )
+	{
+		for( i = 0; i < plist_count( dfa->states ); i++ )
+		{
+			fprintf( stderr, "#%02d: columns=%d accept=%d default=%d",
+								i, trans[i][0], trans[i][1], trans[i][2] );
+
+			for( j = 3; j < trans[i][0]; j += 3 )
+			{
+				fprintf( stderr, " trans=%d(%lc);%d(%lc):%02d",
+					trans[i][j], trans[i][j],
+						trans[i][j+1], trans[i][j+1], trans[i][j+2] );
+			}
+
+			fprintf( stderr, "\n" );
+
+			pfree( trans[i] );
+		}
+
+		pfree( trans );
+	}
+	else
+		*matrix = trans;
+
+	RETURN( plist_count( dfa->states ) );
+}
+
+/*COD_ON*/

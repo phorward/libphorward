@@ -250,7 +250,7 @@ int pregex_finalize( pregex* regex )
 
 	/* Set new regex status */
 	if( regex->flags & PREGEX_MOD_DEBUG )
-		pregex_dfa_print( stderr, dfa );
+		pregex_dfa_print( dfa );
 
 	regex->machine.dfa = dfa;
 	regex->stat = PREGEX_STAT_DFA;

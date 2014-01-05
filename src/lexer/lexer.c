@@ -12,21 +12,14 @@ Usage:
 
 pglexer* pg_lexer_create_by_parser( pgparser* parser )
 {
-	pregex_dfa_st*	st;
-	pregex_dfa_tr*	tr;
+
 	pregex_nfa*		nfa;
 	pregex_dfa*		dfa;
 	pregex_ptn*		p;
 	pglexer*		l;
 	pgterminal*		t;
 	int				i;
-	int				j;
-	int				k;
-	int				cnt;
-	plistel*		e;
-	plistel*		f;
-	pchar			from;
-	pchar			to;
+
 
 	PROC( "pg_lexer_create" );
 	PARMS( "parser", "%p", parser );
@@ -83,95 +76,24 @@ pglexer* pg_lexer_create_by_parser( pgparser* parser )
 		l->ignore_unknown = TRUE;
 	}
 
-	MSG( "Finalize" );
+	MSG( "Construct a DFA from NFA" );
 	dfa = pregex_dfa_create();
 
-	pregex_nfa_print( nfa );
-
-	if( pregex_dfa_from_nfa( dfa, nfa ) <= 0 )
-	/* 			|| pregex_dfa_minimize( dfa ) <= 0 */
+	if( pregex_dfa_from_nfa( dfa, nfa ) <= 0
+			|| pregex_dfa_minimize( dfa ) <= 0 )
 	{
-		MSG( "Something is !cool..." );
+		MSG( "Subset construction error" );
 
+		pregex_nfa_free( nfa );
 		pg_lexer_free( l );
 		RETURN( (pglexer*)NULL );
 	}
 
-	pregex_dfa_print( stdout, dfa );
-
-	nfa = pregex_nfa_free( nfa );
-
-	/*
-		Now that we have a DFA state machine from the regular expressions
-		expressed by the grammar, this DFA can be copied into simple integer
-		tables for a better performance experience when lexical analysis
-		is performed.
-	*/
+	pregex_nfa_free( nfa );
 
 	MSG( "Convert DFA tables into lexer" );
-	l->dcount = plist_count( dfa->states );
-	l->dtrans = (int**)pmalloc( l->dcount * sizeof( int* ) );
-
-	for( i = 0, e = plist_first( dfa->states ); e; e = plist_next( e ), i++ )
-	{
-		VARS( "state( i )", "%d", i );
-		st = (pregex_dfa_st*)plist_access( e );
-
-		/*
-			Row formatting:
-
-			Number-of-columns;Accept;Default-Goto;From-Char;To-Char;Goto;...
-
-			The rest consists of triples containing
-			"From-Char;To-Char;Goto;" each.
-		*/
-
-		MSG( "Examining required number of columns" );
-		for( cnt = 3, f = plist_first( st->trans ); f; f = plist_next( f ) )
-		{
-			tr = (pregex_dfa_tr*)plist_access( f );
-			cnt += ( pregex_ccl_size( tr->ccl ) * 3 );
-		}
-
-		VARS( "required( cnt )", "%d", cnt );
-
-		l->dtrans[i] = (int*)pmalloc( cnt * sizeof( int ) );
-
-		l->dtrans[i][0] = cnt;
-		l->dtrans[i][1] = st->accept.accept;
-		l->dtrans[i][2] = st->def_trans ? st->def_trans->go_to : -1;
-
-		MSG( "Fill column" );
-		for( j = 3, f = plist_first( st->trans ); f; f = plist_next( f ) )
-		{
-			tr = (pregex_dfa_tr*)plist_access( f );
-
-			for( k = 0; pregex_ccl_get( &from, &to, tr->ccl, k ); k++ )
-			{
-				l->dtrans[i][j++] = from;
-				l->dtrans[i][j++] = to;
-				l->dtrans[i][j++] = tr->go_to;
-			}
-		}
-	}
-
-	dfa = pregex_dfa_free( dfa );
-
-#if 1
-	for( i = 0; i < l->dcount; i++ )
-	{
-		printf( "%02d: cnt=%d, accept=%d, default=%d",
-					i, l->dtrans[i][0], l->dtrans[i][1], l->dtrans[i][2] );
-
-		for( j = 3; j < l->dtrans[i][0]; j += 3 )
-		{
-			printf( " %d;%d:%02d",
-				l->dtrans[i][j], l->dtrans[i][j+1], l->dtrans[i][j+2] );
-		}
-
-		printf( "\n" );
-	}
-#endif
+	l->states_cnt = pregex_dfa_to_matrix( &l->states, dfa );
+	pregex_dfa_free( dfa );
 
 	MSG( "Lexer created" );
 	RETURN( l );

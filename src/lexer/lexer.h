@@ -28,8 +28,8 @@ struct _pglexer
 {
 	pggrammar*		grammar;		/* Grammar (optional) */
 
-	int				dcount;			/* DFA state count */
-	int**			dtrans;		/* DFA states */
+	int				states_cnt;		/* DFA state count */
+	int**			states;			/* DFA states */
 
 	unsigned int	eof;			/* End of file symbol */
 	pboolean		ignore_unknown;	/* Ignore any unknown characters */

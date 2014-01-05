@@ -19,6 +19,7 @@ int main()
 	pgnonterminal*	term;
 	pgnonterminal*	factor;
 
+	/*
 	g = pg_grammar_create();
 
 	i = pg_terminal_create( g, "INTEGER", "[0-9]+" );
@@ -44,6 +45,15 @@ int main()
 	pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
 	pg_production_create( factor, i, (pgsymbol*)NULL );
 
+	pg_grammar_print( g );
+	*/
+
+	pgterminal*		test;
+
+	g = pg_grammar_create();
+	test = pg_terminal_create( g, "INTEGER", "@[a-z0-9]+" );
+	start = pg_nonterminal_create( g, "start" );
+	pg_production_create( start, test, (pgsymbol*)NULL );
 	pg_grammar_print( g );
 
 	p = pg_parser_create( g, PGPARADIGM_LALR1 );

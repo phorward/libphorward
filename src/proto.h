@@ -119,13 +119,14 @@ char* pregex_ccl_to_str( pregex_ccl* ccl, pboolean escape );
 void pregex_ccl_print( FILE* stream, pregex_ccl* ccl, int break_after );
 
 /* regex/dfa.c */
-void pregex_dfa_print( FILE* stream, pregex_dfa* dfa );
+void pregex_dfa_print( pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_create( void );
 pboolean pregex_dfa_reset( pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
 int pregex_dfa_minimize( pregex_dfa* dfa );
 int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* anchors, pregex_range** ref, int* ref_count, int flags );
+int pregex_dfa_to_matrix( int*** matrix, pregex_dfa* dfa );
 
 /* regex/direct.c */
 int pregex_qmatch( char* regex, char* str, int flags, pregex_range** results );
