@@ -979,7 +979,8 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	RETURN( ( last_accept ? last_accept->accept.accept : PREGEX_ACCEPT_NONE ) );
 }
 
-/** Extracts the significant state table of a DFA state machine into a matrix.
+/** Extracts the significant state table of a dfa state machine into a
+two-dimensional matrix.
 
 //matrix// is a pointer to a variable that receives the allocated matrix, where
 each row forms a state that follows the structure
@@ -1011,7 +1012,7 @@ Interpretation:
 ```
 
 A similar dump like this interpretation above will be printed to stderr by the
-function when //matrix// is provided as (int***)NULL.
+function when //matrix// is provided as (long***)NULL.
 
 The function returns the number of states of //dfa//, or -1 in error case.
 
@@ -1024,9 +1025,9 @@ for( i = 0; i < states_count; i++ )
 pfree( states );
 ```
 */
-int pregex_dfa_to_matrix( int*** matrix, pregex_dfa* dfa )
+int pregex_dfa_to_matrix( pchar*** matrix, pregex_dfa* dfa )
 {
-	int**			trans;
+	pchar**			trans;
 	pregex_dfa_st*	st;
 	pregex_dfa_tr*	tr;
 	int				i;
@@ -1048,8 +1049,8 @@ int pregex_dfa_to_matrix( int*** matrix, pregex_dfa* dfa )
 		RETURN( -1 );
 	}
 
-	if( !( trans = (int**)pmalloc(
-						plist_count( dfa->states ) * sizeof( int* ) ) ) )
+	if( !( trans = (pchar**)pmalloc( plist_count( dfa->states )
+										* sizeof( pchar* ) ) ) )
 		RETURN( -1 );
 
 	for( i = 0, e = plist_first( dfa->states ); e; e = plist_next( e ), i++ )
@@ -1075,7 +1076,7 @@ int pregex_dfa_to_matrix( int*** matrix, pregex_dfa* dfa )
 
 		VARS( "required( cnt )", "%d", cnt );
 
-		trans[i] = (int*)pmalloc( cnt * sizeof( int ) );
+		trans[i] = (pchar*)pmalloc( cnt * sizeof( pchar ) );
 
 		trans[i][0] = cnt;
 		trans[i][1] = st->accept.accept;

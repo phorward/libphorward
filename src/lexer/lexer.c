@@ -10,9 +10,8 @@ Usage:
 
 #include "phorward.h"
 
-pglexer* pg_lexer_create_by_parser( pgparser* parser )
+pglexer* pg_lexer_create( pgparser* parser )
 {
-
 	pregex_nfa*		nfa;
 	pregex_dfa*		dfa;
 	pregex_ptn*		p;
@@ -33,6 +32,7 @@ pglexer* pg_lexer_create_by_parser( pgparser* parser )
 	l = (pglexer*)pmalloc( sizeof( pglexer ) );
 
 	l->grammar = pg_parser_get_grammar( parser );
+	l->flags = PLEX_MOD_UTF8;
 
 	MSG( "Turning terminal symbols into lexer symbols" );
 	nfa = pregex_nfa_create();
@@ -73,7 +73,7 @@ pglexer* pg_lexer_create_by_parser( pgparser* parser )
 	else
 	{
 		MSG( "Any other input is whitespace" );
-		l->ignore_unknown = TRUE;
+		l->flags |= PLEX_MOD_SKIP_UNKNOWN;
 	}
 
 	MSG( "Construct a DFA from NFA" );
@@ -92,6 +92,7 @@ pglexer* pg_lexer_create_by_parser( pgparser* parser )
 	pregex_nfa_free( nfa );
 
 	MSG( "Convert DFA tables into lexer" );
+	pregex_dfa_to_matrix( (pchar***)NULL, dfa );
 	l->states_cnt = pregex_dfa_to_matrix( &l->states, dfa );
 	pregex_dfa_free( dfa );
 

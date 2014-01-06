@@ -27,10 +27,22 @@ struct _pgtoken
 struct _pglexer
 {
 	pggrammar*		grammar;		/* Grammar (optional) */
+	int				flags;			/* Lexer flags */
+
+#define PLEX_MOD_NONE			0			/* No flags */
+#define PLEX_MOD_SKIP_UNKNOWN	1			/* Skip unknown characters */
+#define PLEX_MOD_UTF8			2			/* UTF-8 character processing */
+#define PLEX_MOD_WCHAR			4			/* Wide-character processing */
 
 	int				states_cnt;		/* DFA state count */
-	int**			states;			/* DFA states */
+	pchar**			states;			/* DFA states */
 
-	unsigned int	eof;			/* End of file symbol */
-	pboolean		ignore_unknown;	/* Ignore any unknown characters */
+	/* Input processing */
+	char*				bufbeg;	/* Begin of buffer */
+	char*				bufend;	/* End of buffer */
+	size_t				bufsiz;	/* Current buffer size */
+
+#define PLEX_BUFSTEP	1024
+
+	pchar			eof;			/* End of file symbol */
 };

@@ -45,7 +45,7 @@
 #ifdef UNICODE
 typedef wchar_t					wchar;
 #else
-typedef unsigned int			wchar;
+typedef int						wchar;
 #endif
 
 
@@ -485,11 +485,11 @@ struct _pia
 {
 	piatype				type;	
 
-	unsigned int		eof;	
-	unsigned int		ch;		
+	pchar				eof;	
+	pchar				ch;		
 
-	unsigned int*		bufbeg;	
-	unsigned int*		bufend;	
+	pchar*				bufbeg;	
+	pchar*				bufend;	
 	size_t				bufsiz;	
 #define PIA_BUFSIZ		1024
 
@@ -848,12 +848,24 @@ struct _pgtoken
 struct _pglexer
 {
 	pggrammar*		grammar;		
+	int				flags;			
 
-	int				dcount;			
-	int**			dtrans;		
+#define PLEX_MOD_NONE			0			
+#define PLEX_MOD_SKIP_UNKNOWN	1			
+#define PLEX_MOD_UTF8			2			
+#define PLEX_MOD_WCHAR			4			
 
-	unsigned int	eof;			
-	pboolean		ignore_unknown;	
+	int				states_cnt;		
+	pchar**			states;			
+
+	
+	char*				bufbeg;	
+	char*				bufend;	
+	size_t				bufsiz;	
+
+#define PLEX_BUFSTEP	1024
+
+	pchar			eof;			
 };
 
 
@@ -975,7 +987,7 @@ pia* pia_create_from_wstr( wchar* wstr );
 pia* pia_close( pia* in );
 pia* pia_free( pia* in );
 pboolean pia_bufreset( pia* in );
-unsigned int pia_getchar( pia* in );
+pchar pia_getchar( pia* in );
 pboolean pia_is_eof( pia* in );
 pboolean pia_set_stream( pia* in, FILE* f );
 FILE* pia_get_stream( pia* in );
@@ -985,8 +997,8 @@ pboolean pia_set_wstr( pia* in, wchar* wstr );
 wchar* pia_get_wstr( pia* in );
 pboolean pia_set_flags( pia* in, int flags );
 int pia_get_flags( pia* in );
-pboolean pia_set_eof( pia* in, unsigned int eof );
-unsigned int pia_get_eof( pia* in );
+pboolean pia_set_eof( pia* in, pchar eof );
+pchar pia_get_eof( pia* in );
 
 
 pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );
@@ -1021,7 +1033,7 @@ pregex_dfa* pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
 int pregex_dfa_minimize( pregex_dfa* dfa );
 int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* anchors, pregex_range** ref, int* ref_count, int flags );
-int pregex_dfa_to_matrix( int*** matrix, pregex_dfa* dfa );
+int pregex_dfa_to_matrix( pchar*** matrix, pregex_dfa* dfa );
 
 
 int pregex_qmatch( char* regex, char* str, int flags, pregex_range** results );
@@ -1292,7 +1304,7 @@ BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
 
-pglexer* pg_lexer_create_by_parser( pgparser* parser );
+pglexer* pg_lexer_create( pgparser* parser );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
 pgtoken* pg_lexer_fetch( pglexer* lex );

@@ -203,11 +203,11 @@ pboolean pia_bufreset( pia* in )
 }
 
 /** Read a character from input and buffer it. */
-unsigned int pia_getchar( pia* in )
+pchar pia_getchar( pia* in )
 {
-	unsigned int	ch;
-	int				ubytes	= 0;
-	int				ucount	= 0;
+	pchar	ch;
+	int		ubytes	= 0;
+	int		ucount	= 0;
 
 	if( !in )
 	{
@@ -238,7 +238,7 @@ unsigned int pia_getchar( pia* in )
 			case PIATYPE_STR:
 				if( in->flags & PIA_MOD_WCHAR )
 				{
-					ch = (unsigned int) *( (wchar*)( in->ptr ) );
+					ch = (pchar) *( (wchar*)( in->ptr ) );
 					in->ptr += sizeof( wchar );
 				}
 				else
@@ -258,6 +258,7 @@ unsigned int pia_getchar( pia* in )
 		{
 			in->flags |= PIA_MOD_IS_EOF;
 			in->ch = ch;
+
 			return ch;
 		}
 
@@ -284,7 +285,7 @@ unsigned int pia_getchar( pia* in )
 	if( ( in->bufbeg - in->bufend ) == in->bufsiz  )
 	{
 		in->bufbeg = prealloc( in->bufbeg,
-						( in->bufsiz + BUFSIZ ) * sizeof( unsigned int ) );
+						( in->bufsiz + BUFSIZ ) * sizeof( pchar ) );
 
 		in->bufend = in->bufbeg + in->bufsiz;
 		in->bufsiz += PIA_BUFSIZ;
@@ -465,7 +466,7 @@ int pia_get_flags( pia* in )
 /* EOF */
 
 /** Configures an end-of-file charater for //in//. */
-pboolean pia_set_eof( pia* in, unsigned int eof )
+pboolean pia_set_eof( pia* in, pchar eof )
 {
 	if( !( in ) )
 	{
@@ -478,7 +479,7 @@ pboolean pia_set_eof( pia* in, unsigned int eof )
 }
 
 /** Returns the configured end-of-file charater of //in//. */
-unsigned int pia_get_eof( pia* in )
+pchar pia_get_eof( pia* in )
 {
 	if( !( in ) )
 	{

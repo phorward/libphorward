@@ -53,7 +53,7 @@ Usage:	Main include file for phorward library
 #ifdef UNICODE
 typedef wchar_t					wchar;
 #else
-typedef unsigned int			wchar;
+typedef int						wchar;
 #endif
 
 /* Phorward Software primitive type specifiers */

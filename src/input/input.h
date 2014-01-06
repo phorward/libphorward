@@ -22,11 +22,11 @@ struct _pia
 {
 	piatype				type;	/* Input source type */
 
-	unsigned int		eof;	/* End of input symbol */
-	unsigned int		ch;		/* End of input symbol */
+	pchar				eof;	/* End of input symbol */
+	pchar				ch;		/* End of input symbol */
 
-	unsigned int*		bufbeg;	/* Begin of buffer */
-	unsigned int*		bufend;	/* End of buffer */
+	pchar*				bufbeg;	/* Begin of buffer */
+	pchar*				bufend;	/* End of buffer */
 	size_t				bufsiz;	/* Current buffer size */
 #define PIA_BUFSIZ		1024
 

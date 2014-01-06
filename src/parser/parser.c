@@ -32,7 +32,7 @@ pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm )
 	if( !pg_parser_generate( parser ) )
 		return parser;
 
-	parser->lexer = pg_lexer_create_by_parser( parser );
+	parser->lexer = pg_lexer_create( parser );
 	return parser;
 }
 
