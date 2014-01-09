@@ -520,21 +520,6 @@ void union_demo( void )
 	utest = punion_free( utest );
 }
 
-void ia_demo( void )
-{
-	pia*	in;
-	wchar	ch;
-
-	DEMO( "ia_demo" );
-
-	in = pia_create_from_str( "H€llo Wörld" );
-	in = pia_create_from_file( "README" );
-	while( ( ch = pia_getchar( in ) ) != pia_get_eof( in ) )
-		printf( "ch = %d (%lc)\n", ch, ch );
-
-	pia_free( in );
-}
-
 int main( int argc, char** argv )
 {
 	setlocale( LC_ALL, "" );
@@ -549,7 +534,6 @@ int main( int argc, char** argv )
 	dbg_demo();
 	xml_demo();
 	union_demo();
-	ia_demo();
 
 	return EXIT_SUCCESS;
 }

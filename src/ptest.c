@@ -58,5 +58,13 @@ int main()
 
 	p = pg_parser_create( g, PGPARADIGM_LALR1 );
 
+	p->lexer->source = PLEX_SRCTYPE_STRING;
+	p->lexer->src.str = "@1234567 hallo welt";
+	p->lexer->bufbeg = (pchar*)p->lexer->src.str;
+	p->lexer->bufend = (pchar*)( p->lexer->src.str
+							+ strlen( p->lexer->src.str ) );
+
+	pg_lexer_fetch( p->lexer );
+
 	return 0;
 }

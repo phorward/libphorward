@@ -29,20 +29,42 @@ struct _pglexer
 	pggrammar*		grammar;		/* Grammar (optional) */
 	int				flags;			/* Lexer flags */
 
-#define PLEX_MOD_NONE			0			/* No flags */
-#define PLEX_MOD_SKIP_UNKNOWN	1			/* Skip unknown characters */
-#define PLEX_MOD_UTF8			2			/* UTF-8 character processing */
-#define PLEX_MOD_WCHAR			4			/* Wide-character processing */
+#define PLEX_MOD_NONE			0		/* No flags */
+#define PLEX_MOD_SKIP_UNKNOWN	1		/* Skip unknown characters */
+#define PLEX_MOD_UTF8			2		/* UTF-8 character processing */
+#define PLEX_MOD_WCHAR			4		/* Wide-character processing */
 
 	int				states_cnt;		/* DFA state count */
 	pchar**			states;			/* DFA states */
 
 	/* Input processing */
-	char*				bufbeg;	/* Begin of buffer */
-	char*				bufend;	/* End of buffer */
-	size_t				bufsiz;	/* Current buffer size */
+	int				source;
+#define PLEX_SRCTYPE_FUNC		0		/* Function: Default: getchar() */
+#define PLEX_SRCTYPE_STRING		1		/* String */
+#define	PLEX_SRCTYPE_STREAM		2		/* File by stream (FILE*) */
+
+	union
+	{
+		char*			str;			/* String */
+		FILE*			stream;			/* File stream */
+		unsigned int	(*func)();		/* Function */
+	} src;							/* Source destination pointer*/
+
+	pchar			eof;			/* End of file symbol */
+	pboolean		is_eof;			/* Has EOF been reached? */
+
+	/* RUNTIME INFORMATION & BUFFERING */
+	int				chsize;
+
+	pchar*			bufbeg;			/* Begin of buffer */
+	pchar*			bufend;			/* End of buffer */
+	size_t			bufsiz;			/* Actual buffer size */
+
+	char*			lexem;			/* Lexem value */
+	size_t			lexem_siz;		/* Actual lexem buffer size */
 
 #define PLEX_BUFSTEP	1024
 
-	pchar			eof;			/* End of file symbol */
+	int				line;			/* Current line */
+	int				column;			/* Current column */
 };

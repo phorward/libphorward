@@ -145,7 +145,6 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #include "union/union.h"
 #include "xml/xml.h"
 
-#include "input/input.h"
 #include "regex/pregex.h"
 
 #include "grammar/grammar.h"

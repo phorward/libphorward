@@ -15,7 +15,6 @@ SRC = \
 	base/plist.c \
 	base/memory.c \
 	base/stack.c \
-	input/input.c \
 	regex/ccl.c \
 	regex/dfa.c \
 	regex/direct.c \
@@ -52,7 +51,6 @@ HSRC = \
 	base/llist.h \
 	base/plist.h \
 	base/stack.h \
-	input/input.h \
 	grammar/grammar.h \
 	lexer/lexer.h \
 	parser/parser.h \

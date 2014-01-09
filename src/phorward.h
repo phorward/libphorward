@@ -471,48 +471,6 @@ struct xml
 
 
 
-typedef struct _pia				pia;
-
-typedef enum
-{
-	PIATYPE_NONE,				
-	PIATYPE_STREAM,				
-	PIATYPE_STR,				
-	PIATYPE_FUNC				
-} piatype;
-
-struct _pia
-{
-	piatype				type;	
-
-	pchar				eof;	
-	pchar				ch;		
-
-	pchar*				bufbeg;	
-	pchar*				bufend;	
-	size_t				bufsiz;	
-#define PIA_BUFSIZ		1024
-
-	int					flags;	
-
-#define PIA_MOD_NONE	0		
-#define PIA_MOD_UTF8	1		
-#define PIA_MOD_WCHAR	2		
-#define PIA_MOD_RELEASE	4		
-#define PIA_MOD_IS_EOF	8		
-
-	union
-	{
-		char*			str;		
-		FILE*			file;		
-		unsigned int	(*func)();	
-	} src;						
-
-	char*				ptr;	
-};
-
-
-
 
 #define PREGEX_ACCEPT_NONE		-1
 
@@ -850,22 +808,44 @@ struct _pglexer
 	pggrammar*		grammar;		
 	int				flags;			
 
-#define PLEX_MOD_NONE			0			
-#define PLEX_MOD_SKIP_UNKNOWN	1			
-#define PLEX_MOD_UTF8			2			
-#define PLEX_MOD_WCHAR			4			
+#define PLEX_MOD_NONE			0		
+#define PLEX_MOD_SKIP_UNKNOWN	1		
+#define PLEX_MOD_UTF8			2		
+#define PLEX_MOD_WCHAR			4		
 
 	int				states_cnt;		
 	pchar**			states;			
 
 	
-	char*				bufbeg;	
-	char*				bufend;	
-	size_t				bufsiz;	
+	int				source;
+#define PLEX_SRCTYPE_FUNC		0		
+#define PLEX_SRCTYPE_STRING		1		
+#define	PLEX_SRCTYPE_STREAM		2		
+
+	union
+	{
+		char*			str;			
+		FILE*			stream;			
+		unsigned int	(*func)();		
+	} src;							
+
+	pchar			eof;			
+	pboolean		is_eof;			
+
+	
+	int				chsize;
+
+	pchar*			bufbeg;			
+	pchar*			bufend;			
+	size_t			bufsiz;			
+
+	char*			lexem;			
+	size_t			lexem_siz;		
 
 #define PLEX_BUFSTEP	1024
 
-	pchar			eof;			
+	int				line;			
+	int				column;			
 };
 
 
@@ -976,29 +956,6 @@ void* pstack_access( pstack* stack, size_t offset );
 void* pstack_top( pstack* stack );
 void* pstack_bottom( pstack* stack );
 int pstack_count( pstack* stack );
-
-
-pia* pia_init( pia* in );
-pia* pia_create( void );
-pia* pia_create_from_file( char* path );
-pia* pia_create_from_stream( FILE* f );
-pia* pia_create_from_str( char* str );
-pia* pia_create_from_wstr( wchar* wstr );
-pia* pia_close( pia* in );
-pia* pia_free( pia* in );
-pboolean pia_bufreset( pia* in );
-pchar pia_getchar( pia* in );
-pboolean pia_is_eof( pia* in );
-pboolean pia_set_stream( pia* in, FILE* f );
-FILE* pia_get_stream( pia* in );
-pboolean pia_set_str( pia* in, char* str );
-char* pia_get_str( pia* in );
-pboolean pia_set_wstr( pia* in, wchar* wstr );
-wchar* pia_get_wstr( pia* in );
-pboolean pia_set_flags( pia* in, int flags );
-int pia_get_flags( pia* in );
-pboolean pia_set_eof( pia* in, pchar eof );
-pchar pia_get_eof( pia* in );
 
 
 pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );
