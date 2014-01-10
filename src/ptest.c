@@ -49,22 +49,29 @@ int main()
 	*/
 
 	pgterminal*		test;
+	pgterminal*		test2;
 
 	g = pg_grammar_create();
-	test = pg_terminal_create( g, "INTEGER", "@[a-z0-9]+" );
+	test = pg_terminal_create( g, "INTEGER", "[0-9]+" );
+	test2 = pg_terminal_create( g, "NAME", "[a-z]+" );
 	start = pg_nonterminal_create( g, "start" );
-	pg_production_create( start, test, (pgsymbol*)NULL );
+	pg_production_create( start, test, test2, (pgsymbol*)NULL );
 	pg_grammar_print( g );
 
 	p = pg_parser_create( g, PGPARADIGM_LALR1 );
-
+	/*
 	p->lexer->source = PLEX_SRCTYPE_STRING;
+
 	p->lexer->src.str = "@1234567 hallo welt";
 	p->lexer->bufbeg = (pchar*)p->lexer->src.str;
 	p->lexer->bufend = (pchar*)( p->lexer->src.str
 							+ strlen( p->lexer->src.str ) );
+	*/
 
-	pg_lexer_fetch( p->lexer );
+	while( pg_lexer_fetch( p->lexer ) )
+		;
+
+
 
 	return 0;
 }

@@ -840,7 +840,7 @@ struct _pglexer
 	size_t			bufsiz;			
 
 	char*			lexem;			
-	size_t			lexem_siz;		
+	size_t			len;			
 
 #define PLEX_BUFSTEP	1024
 
@@ -1264,7 +1264,7 @@ pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 pglexer* pg_lexer_create( pgparser* parser );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
-pgtoken* pg_lexer_fetch( pglexer* lex );
+pboolean pg_lexer_fetch( pglexer* lex );
 
 
 BOOLEAN pg_parser_lr_closure( pgparser* parser );

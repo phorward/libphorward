@@ -35,7 +35,7 @@ pglexer* pg_lexer_create( pgparser* parser )
 
 	l->source = PLEX_SRCTYPE_STREAM;
 	l->src.stream = stdin;
-	l->eof = '\n';
+	l->eof = EOF;
 
 	l->flags = PLEX_MOD_UTF8;
 
@@ -294,21 +294,17 @@ static pchar pg_lexer_getinput( pglexer* lex, size_t offset )
 		return u8_char( ptr );
 	}
 
-	printf( "getchar offset %ld: %p >= %p\n",
-		offset, lex->bufbeg + offset, lex->bufend );
 	while( lex->bufbeg + offset >= lex->bufend )
 	{
 		/* Is buffer reallocation required? */
 		if( !lex->bufbeg )
 		{
-			printf( "malloc\n" );
 			lex->bufbeg = lex->bufend = (pchar*)pmalloc(
 											PLEX_BUFSTEP * sizeof( pchar ) );
 			lex->bufsiz = PLEX_BUFSTEP;
 		}
 		else if( ( count = ( lex->bufend - lex->bufbeg ) ) > lex->bufsiz )
 		{
-			printf( "realloc\n" );
 			lex->bufbeg = (pchar*)prealloc( lex->bufbeg,
 									( lex->bufsiz + PLEX_BUFSTEP )
 										* sizeof( pchar ) );
@@ -325,14 +321,8 @@ static pchar pg_lexer_getinput( pglexer* lex, size_t offset )
 			return lex->eof;
 		}
 
-		printf( "getchar buffered %d (%c)\n",
-			*( lex->bufend ), *( lex->bufend ) );
-
 		*( ++lex->bufend ) = 0;
 	}
-
-	printf( "getchar ret %ld: %d (%c)\n",
-		offset, lex->bufbeg[ offset ], lex->bufbeg[ offset ] );
 
 	return lex->bufbeg[ offset ];
 }
@@ -346,6 +336,9 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 		WRONGPARAM;
 		return;
 	}
+
+	if( len == 0 )
+		return;
 
 	if( lex->source == PLEX_SRCTYPE_STRING )
 	{
@@ -375,6 +368,11 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 				}
 				else
 					lex->column++;
+
+				if( lex->flags & PLEX_MOD_UTF8 )
+					ptr += u8_seqlen( ptr );
+				else
+					ptr++;
 			}
 
 			lex->bufbeg = (pchar*)ptr;
@@ -395,15 +393,14 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 	}
 }
 
-pgtoken* pg_lexer_fetch( pglexer* lex )
+pboolean pg_lexer_fetch( pglexer* lex )
 {
 	int		i;
 	int		state;
 	int		trans;
 	int		accept;
 	pchar	ch;
-	size_t	len		= 0;
-	size_t	hlen	= 0;
+	size_t	len;
 
 	PROC( "pg_lexer_fetch" );
 	PARMS( "lex", "%p", lex );
@@ -411,21 +408,23 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	if( !( lex ) )
 	{
 		WRONGPARAM;
-		RETURN( (pgtoken*)NULL );
+		RETURN( FALSE );
 	}
+
+	pg_lexer_clearinput( lex, lex->len );
 
 	do
 	{
+		lex->len = 0;
+		len = 0;
+
 		state = 0;
 		accept = -1;
 
 		do
 		{
-			printf( "lex state = %d\n", state );
-
 			trans = -1;
 			ch = pg_lexer_getinput( lex, len++ );
-			printf( "lex ch = %d (%c)\n", ch, (char)ch );
 
 			VARS( "ch", "%d", ch );
 			VARS( "state", "%d", state );
@@ -443,7 +442,7 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 			if( lex->states[ state ][1] >= 0 )
 			{
 				accept = lex->states[ state ][1];
-				hlen = len - 1;
+				lex->len = len - 1;
 			}
 
 			if( trans < 0 )
@@ -458,8 +457,8 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 		{
 			if( lex->is_eof )
 			{
-				printf( "EOF read\n" );
-				RETURN( (pgtoken*)NULL );
+				fprintf( stderr, "EOF read\n" );
+				RETURN( FALSE );
 			}
 
 			pg_lexer_clearinput( lex, 1 );
@@ -467,16 +466,12 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	}
 	while( accept < 0 );
 
-	printf( "Token read: %d\n", accept );
+	if( lex->source == PLEX_SRCTYPE_STRING && lex->flags & PLEX_MOD_UTF8 )
+		fprintf( stderr, "Token %d len %d lexem >%.*s<\n",
+			accept, lex->len, lex->len, (char*)lex->bufbeg );
+	else
+		fprintf( stderr, "Token %d len %d lexem >%.*ls<\n",
+			accept, lex->len, lex->len, lex->bufbeg );
 
-	/*
-	printf( "Current buffer input: >%ls<\n", lex->bufbeg );
-	printf( "Last matching handle length %d >%.*ls<\n",
-				hlen, hlen, lex->bufbeg );
-	*/
-	printf( "Current buffer input: >%s<\n", lex->bufbeg );
-	printf( "Last matching handle length %d >%.*s<\n",
-				hlen, hlen, lex->bufbeg );
-
-	RETURN( (pgtoken*)NULL );
+	RETURN( TRUE );
 }

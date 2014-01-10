@@ -61,7 +61,7 @@ struct _pglexer
 	size_t			bufsiz;			/* Actual buffer size */
 
 	char*			lexem;			/* Lexem value */
-	size_t			lexem_siz;		/* Actual lexem buffer size */
+	size_t			len;			/* Current lexem length */
 
 #define PLEX_BUFSTEP	1024
 
