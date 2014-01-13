@@ -377,6 +377,7 @@ pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 pglexer* pg_lexer_create( pgparser* parser );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
+pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr );
 pboolean pg_lexer_fetch( pglexer* lex );
 
 /* parser/lr.gen.c */

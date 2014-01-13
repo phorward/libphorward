@@ -19,7 +19,6 @@ pglexer* pg_lexer_create( pgparser* parser )
 	pgterminal*		t;
 	int				i;
 
-
 	PROC( "pg_lexer_create" );
 	PARMS( "parser", "%p", parser );
 
@@ -30,14 +29,10 @@ pglexer* pg_lexer_create( pgparser* parser )
 	}
 
 	l = (pglexer*)pmalloc( sizeof( pglexer ) );
-
 	l->grammar = pg_parser_get_grammar( parser );
-
-	l->source = PLEX_SRCTYPE_STREAM;
-	l->src.stream = stdin;
-	l->eof = EOF;
-
 	l->flags = PLEX_MOD_UTF8;
+
+	pg_lexer_set_source( l, PLEX_SRCTYPE_FUNC, getchar );
 
 	MSG( "Turning terminal symbols into lexer symbols" );
 	nfa = pregex_nfa_create();
@@ -120,10 +115,7 @@ pboolean pg_lexer_reset( pglexer* lex )
 	}
 
 	if( lex->source != PLEX_SRCTYPE_STRING )
-	{
-		lex->bufbeg = lex->bufend = pfree( lex->bufbeg );
-		lex->bufsiz = 0;
-	}
+		lex->bufbeg = lex->bufend;
 
 	if( lex->flags & PLEX_MOD_UTF8 || lex->flags & PLEX_MOD_WCHAR )
 		lex->chsize = sizeof( wchar );
@@ -142,9 +134,66 @@ pglexer* pg_lexer_free( pglexer* lex )
 		return (pglexer*)NULL;
 
 	pg_lexer_reset( lex );
+
+	if( lex->bufsiz > 0 )
+		lex->bufbeg = lex->bufend = pfree( lex->bufbeg );
+
 	pfree( lex );
 
 	return (pglexer*)NULL;
+}
+
+pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr )
+{
+	if( !( lex && ptr ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	switch( type )
+	{
+		case PLEX_SRCTYPE_FUNC:
+			lex->src.func = (unsigned int (*)(void))ptr;
+			break;
+
+		case PLEX_SRCTYPE_STRING:
+			lex->src.str = (char*)ptr;
+			break;
+
+		case PLEX_SRCTYPE_STREAM:
+			lex->src.stream = (FILE*)ptr;
+			break;
+
+
+		default:
+			WRONGPARAM;
+			return FALSE;
+	}
+
+	pg_lexer_reset( lex );
+
+	/* In String mode, the buffer is the string */
+	if( ( lex->source = type ) == PLEX_SRCTYPE_STRING )
+	{
+		if( lex->flags & PLEX_MOD_WCHAR )
+		{
+			lex->bufbeg = (pchar*)lex->src.str;
+			lex->bufend = (pchar*)( (pchar*)lex->src.str
+									+ wcslen( (pchar*)lex->src.str ) );
+		}
+		else
+		{
+			lex->bufbeg = (pchar*)lex->src.str;
+			lex->bufend = (pchar*)( lex->src.str + strlen( lex->src.str ) );
+		}
+
+		lex->eof = 0;
+	}
+	else
+		lex->eof = EOF;
+
+	return TRUE;
 }
 
 /* Read next character from input. */
@@ -261,15 +310,21 @@ static pchar pg_lexer_getinput( pglexer* lex, size_t offset )
 	{
 		if( lex->flags & PLEX_MOD_WCHAR )
 		{
-			if( lex->bufbeg + offset > lex->bufend )
+			if( lex->bufbeg + offset >= lex->bufend )
+			{
+				lex->is_eof = TRUE;
 				return *( lex->bufend );
+			}
 
 			return lex->bufbeg[ offset ];
 		}
 		else if( !( lex->flags & PLEX_MOD_UTF8 ) )
 		{
-			if( (char*)lex->bufbeg + offset > (char*)lex->bufend )
+			if( (char*)lex->bufbeg + offset >= (char*)lex->bufend )
+			{
+				lex->is_eof = TRUE;
 				return *( (char*)lex->bufend );
+			}
 
 			return ( (char*)lex->bufbeg )[ offset ];
 		}
@@ -344,7 +399,7 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 	{
 		if( lex->flags & PLEX_MOD_WCHAR )
 		{
-			while( len-- )
+			for( ; *lex->bufbeg && len; lex->bufbeg++, len-- )
 			{
 				if( *lex->bufbeg == '\n' )
 				{
@@ -353,8 +408,6 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 				}
 				else
 					lex->column++;
-
-				lex->bufbeg++;
 			}
 		}
 		else
@@ -466,7 +519,7 @@ pboolean pg_lexer_fetch( pglexer* lex )
 	}
 	while( accept < 0 );
 
-	if( lex->source == PLEX_SRCTYPE_STRING && lex->flags & PLEX_MOD_UTF8 )
+	if( !( lex->flags & PLEX_MOD_WCHAR ) )
 		fprintf( stderr, "Token %d len %d lexem >%.*s<\n",
 			accept, lex->len, lex->len, (char*)lex->bufbeg );
 	else
