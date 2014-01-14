@@ -360,6 +360,7 @@ void pg_symbol_print( pgsymbol* symbol, FILE* f );
 BOOLEAN pg_symbol_is_terminal( pgsymbol* symbol );
 BOOLEAN pg_symbol_is_nonterminal( pgsymbol* symbol );
 pgsymbol* pg_symbol_get( pggrammar* g, int i );
+pgsymbol* pg_symbol_get_by_id( pggrammar* g, int id );
 int pg_symbol_get_id( pgsymbol* s );
 pgsymtype pg_symbol_get_type( pgsymbol* s );
 pggrammar* pg_symbol_get_grammar( pgsymbol* s );
@@ -373,12 +374,23 @@ BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern );
 BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
+/* grammar/token.c */
+pgtoken* pg_token_create( pgsymbol* sym, char* lexem );
+pboolean pg_token_reset( pgtoken* tok );
+pgtoken* pg_token_free( pgtoken* tok );
+void pg_token_print( pgtoken* tok );
+pboolean pg_token_set_symbol( pgtoken* tok, pgsymbol* symbol );
+pgsymbol* pg_token_get_symbol( pgtoken* tok );
+pboolean pg_token_set_lexem( pgtoken* tok, char* lexem );
+char* pg_token_get_lexem( pgtoken* tok );
+
 /* lexer/lexer.c */
 pglexer* pg_lexer_create( pgparser* parser );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
 pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr );
-pboolean pg_lexer_fetch( pglexer* lex );
+char* pg_lexer_isolate( pglexer* lex );
+pgtoken* pg_lexer_fetch( pglexer* lex );
 
 /* parser/lr.gen.c */
 BOOLEAN pg_parser_lr_closure( pgparser* parser );

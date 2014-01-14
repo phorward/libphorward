@@ -8,20 +8,7 @@ File:	lexer.h
 Usage:
 ----------------------------------------------------------------------------- */
 
-typedef struct _pgtoken			pgtoken;
 typedef struct _pglexer			pglexer;
-
-/* Token */
-struct _pgtoken
-{
-	int				id;			/* Symbol match ID */
-	pgsymbol*		symbol;		/* Symbol terminal ID */
-	char*			token;		/* Token pointer */
-	int				len;		/* Token length */
-
-	int				row;		/* Line */
-	int				col;		/* Column */
-};
 
 /* Lexer */
 struct _pglexer
@@ -29,19 +16,19 @@ struct _pglexer
 	pggrammar*		grammar;		/* Grammar (optional) */
 	int				flags;			/* Lexer flags */
 
-#define PLEX_MOD_NONE			0		/* No flags */
-#define PLEX_MOD_SKIP_UNKNOWN	1		/* Skip unknown characters */
-#define PLEX_MOD_UTF8			2		/* UTF-8 character processing */
-#define PLEX_MOD_WCHAR			4		/* Wide-character processing */
+#define PG_LEXMOD_NONE			0		/* No flags */
+#define PG_LEXMOD_SKIP_UNKNOWN	1		/* Skip unknown characters */
+#define PG_LEXMOD_UTF8			2		/* UTF-8 character processing */
+#define PG_LEXMOD_WCHAR			4		/* Wide-character processing */
 
 	int				states_cnt;		/* DFA state count */
 	pchar**			states;			/* DFA states */
 
 	/* Input processing */
 	int				source;
-#define PLEX_SRCTYPE_FUNC		0		/* Function: Default: getchar() */
-#define PLEX_SRCTYPE_STRING		1		/* String */
-#define	PLEX_SRCTYPE_STREAM		2		/* File by stream (FILE*) */
+#define PG_LEX_SRCTYPE_FUNC		0		/* Function: Default: getchar() */
+#define PG_LEX_SRCTYPE_STRING		1		/* String */
+#define	PG_LEX_SRCTYPE_STREAM		2		/* File by stream (FILE*) */
 
 	union
 	{
@@ -67,4 +54,6 @@ struct _pglexer
 
 	int				line;			/* Current line */
 	int				column;			/* Current column */
+
+	pgtoken*		token;			/* Current token */
 };

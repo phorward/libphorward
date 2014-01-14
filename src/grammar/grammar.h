@@ -13,7 +13,7 @@ Usage:	Definitions for the grammar parsing module
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
-
+typedef struct _pgtoken				pgtoken;
 
 typedef enum
 {
@@ -102,5 +102,21 @@ struct _pggrammar
 	pgterminal*		error;			/* Error token terminal symbol */
 
 	pregex_ptn*		whitespace;		/* Whitespace pattern */
+};
+
+/* Token */
+struct _pgtoken
+{
+	pgsymbol*		symbol;			/* Token ID */
+	int				flags;			/* Flag configuration */
+#define PG_TOKFLAG_NONE		0			/* No current config */
+#define PG_TOKFLAG_ALLOC	1			/* Allocated content in lexem */
+#define PG_TOKFLAG_ZEROTERM	2			/* Zero terminated content in lexem */
+#define PG_TOKFLAG_WCHAR	4			/* Wide-character in lexem */
+
+	char*			lexem;			/* Token lexem */
+
+	int				row;			/* Line */
+	int				col;			/* Column */
 };
 

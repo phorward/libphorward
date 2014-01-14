@@ -157,6 +157,26 @@ pgsymbol* pg_symbol_get( pggrammar* g, int i )
 	return (pgsymbol*)plist_access( plist_get( g->symbols, i ) );
 }
 
+/* Retrieve: By ID */
+
+pgsymbol* pg_symbol_get_by_id( pggrammar* g, int id )
+{
+	int			i;
+	pgsymbol*	sym;
+
+	if( !( g && id >= 0 ) )
+	{
+		WRONGPARAM;
+		return (pgsymbol*)NULL;
+	}
+
+	for( i = 0; sym = pg_symbol_get( g, i ); i++ )
+		if( pg_symbol_get_id( sym ) == id )
+			return sym;
+
+	return (pgsymbol*)NULL;
+}
+
 /* Attribute: id */
 
 /* GET ONLY! */

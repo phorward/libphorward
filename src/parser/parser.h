@@ -8,8 +8,8 @@ File:	parser.h
 Usage:
 ----------------------------------------------------------------------------- */
 
-typedef struct _pgparser			pgparser;
-typedef struct _pgastnode			pgastnode;
+typedef struct _pgparser		pgparser;
+typedef struct _pgastnode		pgastnode;
 
 /* Parser */
 struct _pgparser
@@ -28,11 +28,11 @@ struct _pgparser
 /* AST */
 struct _pgastnode
 {
-	pgtoken*		token;			/* Token of node */
+	pgtoken*		token;		/* Token of node */
 
-	pgastnode*		parent;			/* Parent node */
-	pgastnode*		child;			/* First child node */
-	pgastnode*		prev;			/* Previous node in current level */
-	pgastnode*		next;			/* Next node in current level */
+	pgastnode*		parent;		/* Parent node */
+	pgastnode*		child;		/* First child node */
+	pgastnode*		prev;		/* Previous node in current level */
+	pgastnode*		next;		/* Next node in current level */
 };
 

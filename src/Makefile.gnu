@@ -39,6 +39,7 @@ SRC = \
 	grammar/production.c \
 	grammar/symbol.c \
 	grammar/terminal.c \
+	grammar/token.c \
 	\
 	lexer/lexer.c \
 	\

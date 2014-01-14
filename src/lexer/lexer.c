@@ -30,9 +30,9 @@ pglexer* pg_lexer_create( pgparser* parser )
 
 	l = (pglexer*)pmalloc( sizeof( pglexer ) );
 	l->grammar = pg_parser_get_grammar( parser );
-	l->flags = PLEX_MOD_UTF8;
+	l->flags = PG_LEXMOD_UTF8;
 
-	pg_lexer_set_source( l, PLEX_SRCTYPE_FUNC, getchar );
+	pg_lexer_set_source( l, PG_LEX_SRCTYPE_FUNC, getchar );
 
 	MSG( "Turning terminal symbols into lexer symbols" );
 	nfa = pregex_nfa_create();
@@ -73,7 +73,7 @@ pglexer* pg_lexer_create( pgparser* parser )
 	else
 	{
 		MSG( "Any other input is whitespace" );
-		l->flags |= PLEX_MOD_SKIP_UNKNOWN;
+		l->flags |= PG_LEXMOD_SKIP_UNKNOWN;
 	}
 
 	MSG( "Construct a DFA from NFA" );
@@ -114,10 +114,10 @@ pboolean pg_lexer_reset( pglexer* lex )
 		RETURN( FALSE );
 	}
 
-	if( lex->source != PLEX_SRCTYPE_STRING )
+	if( lex->source != PG_LEX_SRCTYPE_STRING )
 		lex->bufbeg = lex->bufend;
 
-	if( lex->flags & PLEX_MOD_UTF8 || lex->flags & PLEX_MOD_WCHAR )
+	if( lex->flags & PG_LEXMOD_UTF8 || lex->flags & PG_LEXMOD_WCHAR )
 		lex->chsize = sizeof( wchar );
 	else
 		lex->chsize = sizeof( char );
@@ -153,15 +153,15 @@ pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr )
 
 	switch( type )
 	{
-		case PLEX_SRCTYPE_FUNC:
+		case PG_LEX_SRCTYPE_FUNC:
 			lex->src.func = (unsigned int (*)(void))ptr;
 			break;
 
-		case PLEX_SRCTYPE_STRING:
+		case PG_LEX_SRCTYPE_STRING:
 			lex->src.str = (char*)ptr;
 			break;
 
-		case PLEX_SRCTYPE_STREAM:
+		case PG_LEX_SRCTYPE_STREAM:
 			lex->src.stream = (FILE*)ptr;
 			break;
 
@@ -174,9 +174,9 @@ pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr )
 	pg_lexer_reset( lex );
 
 	/* In String mode, the buffer is the string */
-	if( ( lex->source = type ) == PLEX_SRCTYPE_STRING )
+	if( ( lex->source = type ) == PG_LEX_SRCTYPE_STRING )
 	{
-		if( lex->flags & PLEX_MOD_WCHAR )
+		if( lex->flags & PG_LEXMOD_WCHAR )
 		{
 			lex->bufbeg = (pchar*)lex->src.str;
 			lex->bufend = (pchar*)( (pchar*)lex->src.str
@@ -233,12 +233,12 @@ static pchar pg_lexer_getchar( pglexer* lex )
 	{
 		switch( lex->source )
 		{
-			case PLEX_SRCTYPE_FUNC:
+			case PG_LEX_SRCTYPE_FUNC:
 				cch = (pchar)(*(lex->src.func))();
 				break;
 
-			case PLEX_SRCTYPE_STRING:
-				if( lex->flags & PLEX_MOD_WCHAR )
+			case PG_LEX_SRCTYPE_STRING:
+				if( lex->flags & PG_LEXMOD_WCHAR )
 				{
 					cch = (pchar) *( (wchar*)( lex->src.str ) );
 					lex->src.str += sizeof( wchar );
@@ -248,8 +248,8 @@ static pchar pg_lexer_getchar( pglexer* lex )
 
 				break;
 
-			case PLEX_SRCTYPE_STREAM:
-				if( lex->flags & PLEX_MOD_WCHAR )
+			case PG_LEX_SRCTYPE_STREAM:
+				if( lex->flags & PG_LEXMOD_WCHAR )
 				{
 					if( fread( &ch, sizeof( wchar ), 1, lex->src.stream )
 							!= sizeof( wchar ) )
@@ -274,7 +274,7 @@ static pchar pg_lexer_getchar( pglexer* lex )
 			return cch;
 		}
 
-		if( !( lex->flags & PLEX_MOD_WCHAR ) && lex->flags & PLEX_MOD_UTF8 )
+		if( !( lex->flags & PG_LEXMOD_WCHAR ) && lex->flags & PG_LEXMOD_UTF8 )
 		{
 			if( ucount == 0 )
 				ubytes = ucount = trailbyte_utf8[ cch ];
@@ -306,9 +306,9 @@ static pchar pg_lexer_getinput( pglexer* lex, size_t offset )
 		return 0;
 	}
 
-	if( lex->source == PLEX_SRCTYPE_STRING )
+	if( lex->source == PG_LEX_SRCTYPE_STRING )
 	{
-		if( lex->flags & PLEX_MOD_WCHAR )
+		if( lex->flags & PG_LEXMOD_WCHAR )
 		{
 			if( lex->bufbeg + offset >= lex->bufend )
 			{
@@ -318,7 +318,7 @@ static pchar pg_lexer_getinput( pglexer* lex, size_t offset )
 
 			return lex->bufbeg[ offset ];
 		}
-		else if( !( lex->flags & PLEX_MOD_UTF8 ) )
+		else if( !( lex->flags & PG_LEXMOD_UTF8 ) )
 		{
 			if( (char*)lex->bufbeg + offset >= (char*)lex->bufend )
 			{
@@ -395,9 +395,9 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 	if( len == 0 )
 		return;
 
-	if( lex->source == PLEX_SRCTYPE_STRING )
+	if( lex->source == PG_LEX_SRCTYPE_STRING )
 	{
-		if( lex->flags & PLEX_MOD_WCHAR )
+		if( lex->flags & PG_LEXMOD_WCHAR )
 		{
 			for( ; *lex->bufbeg && len; lex->bufbeg++, len-- )
 			{
@@ -422,7 +422,7 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 				else
 					lex->column++;
 
-				if( lex->flags & PLEX_MOD_UTF8 )
+				if( lex->flags & PG_LEXMOD_UTF8 )
 					ptr += u8_seqlen( ptr );
 				else
 					ptr++;
@@ -446,14 +446,36 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 	}
 }
 
-pboolean pg_lexer_fetch( pglexer* lex )
+char* pg_lexer_isolate( pglexer* lex )
 {
-	int		i;
-	int		state;
-	int		trans;
-	int		accept;
-	pchar	ch;
-	size_t	len;
+	char*	ret;
+
+	if( !( lex ) )
+	{
+		WRONGPARAM;
+		return (char*)NULL;
+	}
+
+	if( lex->flags & PG_LEXMOD_WCHAR )
+	{
+		ret = (char*)pmalloc( ( lex->len + 1 ) * sizeof( pchar ) );
+		memcpy( ret, lex->bufbeg, lex->len * sizeof( pchar ) );
+	}
+	else
+		ret = pstrndup( (char*)lex->bufbeg, lex->len );
+
+	return ret;
+}
+
+pgtoken* pg_lexer_fetch( pglexer* lex )
+{
+	int			i;
+	int			state;
+	int			trans;
+	int			accept;
+	pchar		ch;
+	size_t		len;
+	pgsymbol*	sym;
 
 	PROC( "pg_lexer_fetch" );
 	PARMS( "lex", "%p", lex );
@@ -461,7 +483,7 @@ pboolean pg_lexer_fetch( pglexer* lex )
 	if( !( lex ) )
 	{
 		WRONGPARAM;
-		RETURN( FALSE );
+		RETURN( (pgtoken*)NULL );
 	}
 
 	pg_lexer_clearinput( lex, lex->len );
@@ -505,13 +527,14 @@ pboolean pg_lexer_fetch( pglexer* lex )
 		}
 		while( state >= 0 );
 
-		/* TODO: Is this allowed?  PLEX_MOD_SKIP_UNKNOWN */
+		/* TODO: Is this allowed?  PG_LEXMOD_SKIP_UNKNOWN */
 		if( accept < 0 )
 		{
 			if( lex->is_eof )
 			{
+				MSG( "EOF reached" );
 				fprintf( stderr, "EOF read\n" );
-				RETURN( FALSE );
+				RETURN( (pgtoken*)NULL );
 			}
 
 			pg_lexer_clearinput( lex, 1 );
@@ -519,12 +542,19 @@ pboolean pg_lexer_fetch( pglexer* lex )
 	}
 	while( accept < 0 );
 
-	if( !( lex->flags & PLEX_MOD_WCHAR ) )
+	MSG( "Token fetched" );
+	VARS( "token", "%d", accept );
+	VARS( "len", "%d", lex->len );
+
+	if( !( lex->flags & PG_LEXMOD_WCHAR ) )
 		fprintf( stderr, "Token %d len %d lexem >%.*s<\n",
 			accept, lex->len, lex->len, (char*)lex->bufbeg );
 	else
 		fprintf( stderr, "Token %d len %d lexem >%.*ls<\n",
 			accept, lex->len, lex->len, lex->bufbeg );
 
-	RETURN( TRUE );
+	sym = pg_symbol_get_by_id( lex->grammar, accept - 1 );
+	lex->token = pg_token_create( sym, pg_lexer_isolate( lex ) );
+
+	RETURN( lex->token );
 }

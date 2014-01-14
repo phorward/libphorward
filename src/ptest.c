@@ -19,6 +19,8 @@ int main()
 	pgnonterminal*	term;
 	pgnonterminal*	factor;
 
+	pgtoken*		tok;
+
 	/*
 	g = pg_grammar_create();
 
@@ -53,18 +55,19 @@ int main()
 
 	g = pg_grammar_create();
 	test = pg_terminal_create( g, "INTEGER", "[0-9]+" );
-	test2 = pg_terminal_create( g, "NAME", "[a-z]+" );
+	test2 = pg_terminal_create( g, "NAME", "[A-Za-z_!]+" );
 	start = pg_nonterminal_create( g, "start" );
 	pg_production_create( start, test, test2, (pgsymbol*)NULL );
 	pg_grammar_print( g );
 
 	p = pg_parser_create( g, PGPARADIGM_LALR1 );
 
-	p->lexer->flags = PLEX_MOD_NONE;
-	pg_lexer_set_source( p->lexer, PLEX_SRCTYPE_STRING, "abc123defäöüxxy" );
+	p->lexer->flags = PG_LEXMOD_NONE;
+	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING,
+		"Die Welt is voller Bier 1337 so_nimm_es_dir!" );
 
-	while( pg_lexer_fetch( p->lexer ) )
-		;
+	while( ( tok = pg_lexer_fetch( p->lexer ) ) )
+		pg_token_print( tok );
 
 	return 0;
 }

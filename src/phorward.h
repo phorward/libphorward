@@ -694,7 +694,7 @@ struct _regex
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
-
+typedef struct _pgtoken				pgtoken;
 
 typedef enum
 {
@@ -785,22 +785,25 @@ struct _pggrammar
 };
 
 
-
-
-typedef struct _pgtoken			pgtoken;
-typedef struct _pglexer			pglexer;
-
-
 struct _pgtoken
 {
-	int				id;			
-	pgsymbol*		symbol;		
-	char*			token;		
-	int				len;		
+	pgsymbol*		symbol;			
+	int				flags;			
+#define PG_TOKFLAG_NONE		0			
+#define PG_TOKFLAG_ALLOC	1			
+#define PG_TOKFLAG_ZEROTERM	2			
+#define PG_TOKFLAG_WCHAR	4			
 
-	int				row;		
-	int				col;		
+	char*			lexem;			
+
+	int				row;			
+	int				col;			
 };
+
+
+
+
+typedef struct _pglexer			pglexer;
 
 
 struct _pglexer
@@ -808,19 +811,19 @@ struct _pglexer
 	pggrammar*		grammar;		
 	int				flags;			
 
-#define PLEX_MOD_NONE			0		
-#define PLEX_MOD_SKIP_UNKNOWN	1		
-#define PLEX_MOD_UTF8			2		
-#define PLEX_MOD_WCHAR			4		
+#define PG_LEXMOD_NONE			0		
+#define PG_LEXMOD_SKIP_UNKNOWN	1		
+#define PG_LEXMOD_UTF8			2		
+#define PG_LEXMOD_WCHAR			4		
 
 	int				states_cnt;		
 	pchar**			states;			
 
 	
 	int				source;
-#define PLEX_SRCTYPE_FUNC		0		
-#define PLEX_SRCTYPE_STRING		1		
-#define	PLEX_SRCTYPE_STREAM		2		
+#define PG_LEX_SRCTYPE_FUNC		0		
+#define PG_LEX_SRCTYPE_STRING		1		
+#define	PG_LEX_SRCTYPE_STREAM		2		
 
 	union
 	{
@@ -846,12 +849,14 @@ struct _pglexer
 
 	int				line;			
 	int				column;			
+
+	pgtoken*		token;			
 };
 
 
 
-typedef struct _pgparser			pgparser;
-typedef struct _pgastnode			pgastnode;
+typedef struct _pgparser		pgparser;
+typedef struct _pgastnode		pgastnode;
 
 
 struct _pgparser
@@ -870,12 +875,12 @@ struct _pgparser
 
 struct _pgastnode
 {
-	pgtoken*		token;			
+	pgtoken*		token;		
 
-	pgastnode*		parent;			
-	pgastnode*		child;			
-	pgastnode*		prev;			
-	pgastnode*		next;			
+	pgastnode*		parent;		
+	pgastnode*		child;		
+	pgastnode*		prev;		
+	pgastnode*		next;		
 };
 
 
@@ -1247,6 +1252,7 @@ void pg_symbol_print( pgsymbol* symbol, FILE* f );
 BOOLEAN pg_symbol_is_terminal( pgsymbol* symbol );
 BOOLEAN pg_symbol_is_nonterminal( pgsymbol* symbol );
 pgsymbol* pg_symbol_get( pggrammar* g, int i );
+pgsymbol* pg_symbol_get_by_id( pggrammar* g, int id );
 int pg_symbol_get_id( pgsymbol* s );
 pgsymtype pg_symbol_get_type( pgsymbol* s );
 pggrammar* pg_symbol_get_grammar( pgsymbol* s );
@@ -1261,11 +1267,22 @@ BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
 
 
+pgtoken* pg_token_create( pgsymbol* sym, char* lexem );
+pboolean pg_token_reset( pgtoken* tok );
+pgtoken* pg_token_free( pgtoken* tok );
+void pg_token_print( pgtoken* tok );
+pboolean pg_token_set_symbol( pgtoken* tok, pgsymbol* symbol );
+pgsymbol* pg_token_get_symbol( pgtoken* tok );
+pboolean pg_token_set_lexem( pgtoken* tok, char* lexem );
+char* pg_token_get_lexem( pgtoken* tok );
+
+
 pglexer* pg_lexer_create( pgparser* parser );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
 pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr );
-pboolean pg_lexer_fetch( pglexer* lex );
+char* pg_lexer_isolate( pglexer* lex );
+pgtoken* pg_lexer_fetch( pglexer* lex );
 
 
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
