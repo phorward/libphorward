@@ -245,7 +245,7 @@ void* pstack_top( pstack* stack )
 	if( stack->count == 0 )
 		RETURN( (void*)NULL );
 
-	RETURN( (char*)stack->stack + stack->top );
+	RETURN( pstack_access( stack, stack->top - 1 ) );
 }
 
 /** Access bottom element of the stack.

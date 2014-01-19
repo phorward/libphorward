@@ -71,8 +71,12 @@ BOOLEAN pg_parser_generate( pgparser* p )
 
 /* Run */
 
-BOOLEAN pg_parser_run( pgparser* p )
+BOOLEAN pg_parser_parse( pgparser* p )
 {
+	if( pg_parser_is_lr( p ) )
+		return pg_parser_lr_parse( p );
+
+	return FALSE;
 }
 
 /* Check */

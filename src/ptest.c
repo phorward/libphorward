@@ -21,7 +21,6 @@ int main()
 
 	pgtoken*		tok;
 
-	/*
 	g = pg_grammar_create();
 
 	i = pg_terminal_create( g, "INTEGER", "[0-9]+" );
@@ -48,8 +47,8 @@ int main()
 	pg_production_create( factor, i, (pgsymbol*)NULL );
 
 	pg_grammar_print( g );
-	*/
 
+	/*
 	pgterminal*		test;
 	pgterminal*		test2;
 
@@ -59,15 +58,18 @@ int main()
 	start = pg_nonterminal_create( g, "start" );
 	pg_production_create( start, test, test2, (pgsymbol*)NULL );
 	pg_grammar_print( g );
+	*/
 
 	p = pg_parser_create( g, PGPARADIGM_LALR1 );
 
-	p->lexer->flags = PG_LEXMOD_NONE;
-	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING,
-		"Die Welt is voller Bier 1337 so_nimm_es_dir!" );
+	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "1*2+3" );
+	pg_parser_parse( p );
 
-	while( ( tok = pg_lexer_fetch( p->lexer ) ) )
-		pg_token_print( tok );
+	getchar();
+	fprintf( stderr, "------------------------------\n" );
+
+	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "(7+3)*2" );
+	pg_parser_parse( p );
 
 	return 0;
 }

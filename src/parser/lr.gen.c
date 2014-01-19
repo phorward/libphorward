@@ -549,7 +549,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	plist_for( parser->states, e )
 	{
 		st = (pglrstate*)plist_access( e );
-		fprintf( stderr, "-- State %d --\n", plist_offset( e ) );
+		fprintf( stderr, "-- State %d %p --\n",
+			plist_offset( e ), plist_access( e ) );
 
 		pg_lritems_print( st->kernel, stderr, "Kernel" );
 

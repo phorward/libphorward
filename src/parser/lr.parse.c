@@ -13,6 +13,8 @@ Usage:	Parse LR/LALR parser
 /* Stack Element */
 typedef struct
 {
+	pgsymbol*		symbol;	/* Symbol */
+
 	pglrstate*		state;	/* State */
 	pgtoken*		token;	/* Token */
 } pglrse;
@@ -35,16 +37,46 @@ typedef struct
 }
 pglrpcb;
 
+static void print_stack( pglrpcb* pcb )
+{
+	int		i;
+	pglrse*	e;
+
+	for( i = 0; i < pstack_count( pcb->st ); i++ )
+	{
+		e = (pglrse*)pstack_access( pcb->st, i );
+
+		fprintf( stderr, "%02d: sym: '%s' state: %d token: %s(%s)\n", i,
+				e->symbol ? pg_symbol_get_name( e->symbol ) : "(X)",
+				e->state ? plist_offset( plist_get_by_ptr(
+								pcb->p->states, e->state ) ) : -1,
+				e->token ?
+					pg_symbol_get_name( pg_token_get_symbol( e->token ) )
+						: "(X)",
+				e->token ?
+					pg_token_get_lexem( e->token )
+						: "(X)" );
+	}
+
+}
+
 /* Push state on stack */
-static pboolean push( pglrpcb* pcb, pglrstate* state, pgtoken* token )
+static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 {
 	pglrse	e;
 
-	e.state = state;
-	e.token = token;
+	e.state = st;
+
+	if( ( e.token = tok ) )
+		e.symbol = pg_token_get_symbol( tok );
+	else
+		e.symbol = sym;
 
 	if( !( pcb->tos = (pglrse*)pstack_push( pcb->st, &e ) ) )
 		return FALSE;
+
+	fprintf( stderr, ">>>\n" );
+	print_stack( pcb );
 
 	return TRUE;
 }
@@ -55,9 +87,14 @@ static pboolean pop( pglrpcb* pcb, int n )
 	int		i;
 
 	for( i = 0; i < n; i++ )
+	{
+		fprintf( stderr, "<<<\n" );
 		pstack_pop( pcb->st );
+	}
 
 	pcb->tos = (pglrse*)pstack_top( pcb->st );
+
+	print_stack( pcb );
 
 	return TRUE;
 }
@@ -77,8 +114,10 @@ static pboolean get_action( pglrpcb* pcb, pgsymbol* sym )
 
 		if( col->symbol == sym )
 		{
-			if( !( pcb->shift = col->shift ) &&
-					!( pcb->reduce = col->reduce ) )
+			pcb->shift = col->shift;
+			pcb->reduce = col->reduce;
+
+			if( !( pcb->shift || col->reduce ) )
 				return FALSE; /* Forced parse error! */
 
 			return TRUE;
@@ -117,12 +156,11 @@ static pboolean get_goto( pglrpcb* pcb )
 	return FALSE;
 }
 
-
-pboolean pg_parser_lr_eval( pgparser* parser, char* input )
+pboolean pg_parser_lr_parse( pgparser* parser )
 {
 	pglrpcb		PCB;
 	pglrpcb*	pcb = &PCB;
-	pgtoken		tok;
+	pgtoken*	tok;
 
 	PROC( "pg_parser_eval" );
 
@@ -139,29 +177,56 @@ pboolean pg_parser_lr_eval( pgparser* parser, char* input )
 	pcb->g = pg_parser_get_grammar( pcb->p );
 	pcb->st = pstack_create( sizeof( pglrse ), 64 );
 
-	memset( &tok, 0, sizeof( pgtoken ) );
-	tok.symbol = pg_grammar_get_goal( pcb->g );
-	push( pcb, 0, &tok );
+	push( pcb, (pgsymbol*)NULL,
+				(pglrstate*)plist_access( plist_get( parser->states, 0 ) ),
+					(pgtoken*)NULL );
 
 	do
 	{
-		/* TODO: Read lookahead */
+		fprintf( stderr, "get token\n" );
 
-		if( !get_action( pcb, pcb->la->symbol ) )
+		if( !pcb->la && !( pcb->la = pg_lexer_fetch( parser->lexer ) ) )
+		{
+			pcb->la = pg_token_create(
+						pg_grammar_get_eoi( pcb->g ), (char*)NULL );
+		}
+
+		fprintf( stderr, "got token '%s' lexem '%s'\n",
+			pg_symbol_get_name( pg_token_get_symbol( pcb->la ) ),
+				pg_token_get_lexem( pcb->la ) );
+
+		if( !get_action( pcb, pg_token_get_symbol( pcb->la ) ) )
 		{
 			/* TODO: Error recovery */
+			return FALSE;
 		}
 
 		if( pcb->shift )
 		{
-			push( pcb, pcb->reduce ? (pglrstate*)NULL : pcb->shift, pcb->la );
-			/* TODO: Get next token */
+			if( pcb->reduce )
+				fprintf( stderr, "shift/reduce by production %d\n",
+					pg_production_get_id( pcb->reduce ) );
+			else
+				fprintf( stderr, "shift to state %d\n",
+					plist_offset( plist_get_by_ptr(
+						parser->states, pcb->shift ) ) );
+
+			push( pcb, (pgsymbol*)NULL,
+					pcb->reduce ? (pglrstate*)NULL : pcb->shift, pcb->la );
+
+			pcb->la = (pgtoken*)NULL;
 		}
 
 		while( pcb->reduce )
 		{
-			pcb->lhs = pg_production_get_lhs( pcb->reduce );
+			fprintf( stderr,
+				"reduce by production %d\n"
+				"popping %d items off the stack, replacing by '%s'\n",
+				pg_production_get_id( pcb->reduce ),
+				pg_production_get_rhs_length( pcb->reduce ),
+				pg_symbol_get_name( pg_production_get_lhs( pcb->reduce ) ) );
 
+			pcb->lhs = pg_production_get_lhs( pcb->reduce );
 			pop( pcb, pg_production_get_rhs_length( pcb->reduce ) );
 
 			/* Goal symbol reduced? */
@@ -170,11 +235,11 @@ pboolean pg_parser_lr_eval( pgparser* parser, char* input )
 				break;
 
 			get_goto( pcb );
-
-			tok.symbol = pcb->lhs;
-			push( pcb, pcb->shift, &tok );
+			push( pcb, pcb->lhs, pcb->shift, (pgtoken*)NULL );
 		}
 	}
 	while( !pcb->reduce ); /* Break on goal */
 
+	fprintf( stderr, "goal symbol reduced!\n" );
+	return TRUE;
 }
