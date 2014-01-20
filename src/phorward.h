@@ -875,6 +875,7 @@ struct _pgparser
 
 struct _pgastnode
 {
+	pgsymbol*		symbol;		
 	pgtoken*		token;		
 
 	pgastnode*		parent;		

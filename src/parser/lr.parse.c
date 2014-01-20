@@ -34,6 +34,11 @@ typedef struct
 	pglrstate*		shift;	/* Shift to state */
 	pgproduction*	reduce;	/* Reduce by production */
 	pgsymbol*		lhs;	/* Default left-hand side */
+
+	/* AST */
+	pgastnode*		ast;	/* Syntax tree (not an AST for now) */
+	pgastnode*		child;
+	pgastnode*		last;
 }
 pglrpcb;
 
@@ -60,10 +65,35 @@ static void print_stack( pglrpcb* pcb )
 
 }
 
+static void print_ast( int cnt, pgastnode* node )
+{
+	int			i;
+	pgastnode*	child;
+
+	while( node )
+	{
+		for( i = 0; i < cnt; i++ )
+			fprintf( stderr, " " );
+
+		if( node->token )
+			fprintf( stderr, "%s = >%s<\n",
+				pg_symbol_get_name( node->symbol ),
+					pg_token_get_lexem( node->token ) );
+		else
+			fprintf( stderr, "%s\n",
+				pg_symbol_get_name( node->symbol ) );
+
+		print_ast( cnt + 1, node->child );
+
+		node = node->next;
+	}
+}
+
 /* Push state on stack */
 static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 {
-	pglrse	e;
+	pglrse		e;
+	pgastnode*	node;
 
 	e.state = st;
 
@@ -75,6 +105,33 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 	if( !( pcb->tos = (pglrse*)pstack_push( pcb->st, &e ) ) )
 		return FALSE;
 
+	/* SynTree */
+	if( e.symbol )
+	{
+		node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
+		node->symbol = e.symbol;
+		node->token = tok;
+
+		if( pcb->last )
+		{
+			pcb->last->next = node;
+			node->prev = pcb->last;
+		}
+		else
+			pcb->ast = node;
+
+		pcb->last = node;
+
+		if( pcb->child )
+		{
+			pcb->last->child = pcb->child;
+			pcb->child->parent = pcb->last;
+
+			pcb->child = (pgastnode*)NULL;
+		}
+	}
+
+	/* Debug */
 	fprintf( stderr, ">>>\n" );
 	print_stack( pcb );
 
@@ -87,12 +144,27 @@ static pboolean pop( pglrpcb* pcb, int n )
 	int		i;
 
 	for( i = 0; i < n; i++ )
-	{
-		fprintf( stderr, "<<<\n" );
 		pstack_pop( pcb->st );
-	}
 
 	pcb->tos = (pglrse*)pstack_top( pcb->st );
+
+	/* SynTree */
+	if( n )
+	{
+		for( i = 1, pcb->child = pcb->last; i < n; i++ )
+			pcb->child = pcb->child->prev;
+
+		if( ( pcb->last = pcb->child->prev ) )
+			pcb->child->prev->next = (pgastnode*)NULL;
+
+		pcb->child->prev = (pgastnode*)NULL;
+	}
+	else
+		pcb->child = (pgastnode*)NULL;
+
+	/* Debug */
+	for( i = 0; i < n; i++ )
+		fprintf( stderr, "<<<\n" );
 
 	print_stack( pcb );
 
@@ -241,5 +313,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 	while( !pcb->reduce ); /* Break on goal */
 
 	fprintf( stderr, "goal symbol reduced!\n" );
+	print_ast( 0, pcb->ast );
+
 	return TRUE;
 }

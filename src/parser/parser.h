@@ -28,6 +28,7 @@ struct _pgparser
 /* AST */
 struct _pgastnode
 {
+	pgsymbol*		symbol;		/* Symbol of node */
 	pgtoken*		token;		/* Token of node */
 
 	pgastnode*		parent;		/* Parent node */
