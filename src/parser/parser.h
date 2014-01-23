@@ -9,7 +9,6 @@ Usage:
 ----------------------------------------------------------------------------- */
 
 typedef struct _pgparser		pgparser;
-typedef struct _pgastnode		pgastnode;
 
 /* Parser */
 struct _pgparser
@@ -23,17 +22,5 @@ struct _pgparser
 
 	pboolean		optimize;	/* Enable state optimizeion */
 	char*			source;		/* Source */
-};
-
-/* AST */
-struct _pgastnode
-{
-	pgsymbol*		symbol;		/* Symbol of node */
-	pgtoken*		token;		/* Token of node */
-
-	pgastnode*		parent;		/* Parent node */
-	pgastnode*		child;		/* First child node */
-	pgastnode*		prev;		/* Previous node in current level */
-	pgastnode*		next;		/* Next node in current level */
 };
 

@@ -36,7 +36,18 @@ typedef struct
 	pgsymbol*		lhs;	/* Default left-hand side */
 
 	/* AST */
-	pgastnode*		ast;	/* Syntax tree (not an AST for now) */
+	short			type;	/* 	0 do nothing
+								1 make AST
+								2 make syntax tree
+							*/
+
+#define TREETYPE_NONE	0
+#define TREETYPE_AST	1
+#define TREETYPE_SYNTAX	2
+
+	pgastnode*		ast;	/* AST root */
+
+	pgastnode*		begin;
 	pgastnode*		child;
 	pgastnode*		last;
 }
@@ -75,7 +86,10 @@ static void print_ast( int cnt, pgastnode* node )
 		for( i = 0; i < cnt; i++ )
 			fprintf( stderr, " " );
 
-		if( node->token )
+		if( node->type )
+			fprintf( stderr, "%s\n",
+				pg_production_get_astname( node->type ) );
+		else if( node->token )
 			fprintf( stderr, "%s = >%s<\n",
 				pg_symbol_get_name( node->symbol ),
 					pg_token_get_lexem( node->token ) );
@@ -87,6 +101,63 @@ static void print_ast( int cnt, pgastnode* node )
 
 		node = node->next;
 	}
+}
+
+static pboolean tree_push( pglrpcb* pcb, pgastnode* node )
+{
+	if( pcb->last )
+	{
+		pcb->last->next = node;
+		node->prev = pcb->last;
+	}
+	else
+		pcb->ast = node;
+
+	if( !pcb->begin )
+		pcb->begin = node;
+
+	pcb->last = node;
+
+	if( pcb->child )
+	{
+		pcb->last->child = pcb->child;
+		pcb->child->parent = pcb->last;
+
+		pcb->child = (pgastnode*)NULL;
+	}
+
+	return TRUE;
+}
+
+static pboolean tree_pop( pglrpcb* pcb, int n )
+{
+	int		i;
+
+	if( n != 0 )
+	{
+		if( n > 0 )
+		{
+			for( i = 1, pcb->child = pcb->last; i < n; i++ )
+				pcb->child = pcb->child->prev;
+		}
+		else
+		{
+			for( pcb->child = pcb->last;
+					pcb->child != pcb->begin;
+						pcb->child = pcb->child->prev )
+				;
+		}
+
+		if( ( pcb->last = pcb->child->prev ) )
+			pcb->child->prev->next = (pgastnode*)NULL;
+
+		pcb->child->prev = (pgastnode*)NULL;
+		pcb->begin = (pgastnode*)NULL;
+	}
+	else
+		pcb->child = (pgastnode*)NULL;
+
+	return TRUE;
 }
 
 /* Push state on stack */
@@ -106,29 +177,17 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 		return FALSE;
 
 	/* SynTree */
-	if( e.symbol )
+	if( ( pcb->type == TREETYPE_SYNTAX && e.symbol )
+		/* TEST TEST TEST */
+			|| ( pcb->type == TREETYPE_AST
+					&& pg_symbol_is_terminal( e.symbol )
+					&& *pg_symbol_get_name( e.symbol ) == '@' ) )
 	{
 		node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
 		node->symbol = e.symbol;
 		node->token = tok;
 
-		if( pcb->last )
-		{
-			pcb->last->next = node;
-			node->prev = pcb->last;
-		}
-		else
-			pcb->ast = node;
-
-		pcb->last = node;
-
-		if( pcb->child )
-		{
-			pcb->last->child = pcb->child;
-			pcb->child->parent = pcb->last;
-
-			pcb->child = (pgastnode*)NULL;
-		}
+		tree_push( pcb, node );
 	}
 
 	/* Debug */
@@ -149,18 +208,8 @@ static pboolean pop( pglrpcb* pcb, int n )
 	pcb->tos = (pglrse*)pstack_top( pcb->st );
 
 	/* SynTree */
-	if( n )
-	{
-		for( i = 1, pcb->child = pcb->last; i < n; i++ )
-			pcb->child = pcb->child->prev;
-
-		if( ( pcb->last = pcb->child->prev ) )
-			pcb->child->prev->next = (pgastnode*)NULL;
-
-		pcb->child->prev = (pgastnode*)NULL;
-	}
-	else
-		pcb->child = (pgastnode*)NULL;
+	if( pcb->type == TREETYPE_SYNTAX )
+		tree_pop( pcb, n );
 
 	/* Debug */
 	for( i = 0; i < n; i++ )
@@ -233,6 +282,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 	pglrpcb		PCB;
 	pglrpcb*	pcb = &PCB;
 	pgtoken*	tok;
+	pgastnode*	node;
 
 	PROC( "pg_parser_eval" );
 
@@ -245,6 +295,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 	/* Initialize parser control block */
 	memset( pcb, 0, sizeof( pglrpcb ) );
 
+	pcb->type = TREETYPE_AST;
 	pcb->p = parser;
 	pcb->g = pg_parser_get_grammar( pcb->p );
 	pcb->st = pstack_create( sizeof( pglrse ), 64 );
@@ -300,6 +351,15 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 
 			pcb->lhs = pg_production_get_lhs( pcb->reduce );
 			pop( pcb, pg_production_get_rhs_length( pcb->reduce ) );
+
+			if( pg_production_get_astname( pcb->reduce ) )
+			{
+				node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
+				node->type = pcb->reduce;
+
+				tree_pop( pcb, -1 );
+				tree_push( pcb, node );
+			}
 
 			/* Goal symbol reduced? */
 			if( pcb->lhs == pg_grammar_get_goal( pcb->g )

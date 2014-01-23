@@ -23,7 +23,7 @@ int main()
 
 	g = pg_grammar_create();
 
-	i = pg_terminal_create( g, "INTEGER", "[0-9]+" );
+	i = pg_terminal_create( g, "@INTEGER", "[0-9]+" );
 	op_a = pg_terminal_create( g, "+", "\\+" );
 	op_s = pg_terminal_create( g, "-", "-" );
 	op_d = pg_terminal_create( g, "/", "/" );
@@ -36,6 +36,7 @@ int main()
 	term = pg_nonterminal_create( g, "term" );
 	factor = pg_nonterminal_create( g, "factor" );
 
+	/*
 	pg_production_create( start, expr, (pgsymbol*)NULL );
 	pg_production_create( expr, expr, op_a, term, (pgsymbol*)NULL );
 	pg_production_create( expr, expr, op_s, term, (pgsymbol*)NULL );
@@ -43,6 +44,28 @@ int main()
 	pg_production_create( term, term, op_m, factor, (pgsymbol*)NULL );
 	pg_production_create( term, term, op_d, factor, (pgsymbol*)NULL );
 	pg_production_create( term, factor, (pgsymbol*)NULL );
+	pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
+	pg_production_create( factor, i, (pgsymbol*)NULL );
+	*/
+
+	/* start */
+	pg_production_create( start, expr, (pgsymbol*)NULL );
+
+	/* expr */
+	pg_production_create_as_node( expr, "add", NULL,
+		expr, op_a, term, (pgsymbol*)NULL );
+	pg_production_create_as_node( expr, "sub", NULL,
+		expr, op_s, term, (pgsymbol*)NULL );
+	pg_production_create( expr, term, (pgsymbol*)NULL );
+
+	/* term */
+	pg_production_create_as_node( term, "mul", NULL,
+		term, op_m, factor, (pgsymbol*)NULL );
+	pg_production_create_as_node( term, "div", NULL,
+		term, op_d, factor, (pgsymbol*)NULL );
+	pg_production_create( term, factor, (pgsymbol*)NULL );
+
+	/* factor */
 	pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
 	pg_production_create( factor, i, (pgsymbol*)NULL );
 
@@ -68,7 +91,7 @@ int main()
 	getchar();
 	fprintf( stderr, "------------------------------\n" );
 
-	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "(7+3)*2" );
+	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "(7+3)*2-5" );
 	pg_parser_parse( p );
 
 	return 0;

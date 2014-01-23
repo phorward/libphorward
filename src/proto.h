@@ -340,6 +340,7 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
 
 /* grammar/production.c */
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );
+pgproduction* pg_production_create_as_node( pgnonterminal* lhs, char* name, pgastfn func, ... );
 pgproduction* pg_production_drop( pgproduction* p );
 char* pg_production_to_string( pgproduction* p );
 void pg_production_print( pgproduction* p, FILE* f );
@@ -351,6 +352,10 @@ int pg_production_get_id( pgproduction* p );
 pggrammar* pg_production_get_grammar( pgproduction* p );
 pgnonterminal* pg_production_get_lhs( pgproduction* p );
 int pg_production_get_rhs_length( pgproduction* p );
+char* pg_production_get_astname( pgproduction* p );
+pboolean pg_production_set_astname( pgproduction* p, char* name );
+pgastfn pg_production_get_astfunc( pgproduction* p );
+pboolean pg_production_set_astfunc( pgproduction* p, pgastfn func );
 
 /* grammar/symbol.c */
 pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name );

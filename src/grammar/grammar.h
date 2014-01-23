@@ -14,6 +14,9 @@ typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
+typedef struct _pgastnode			pgastnode;
+
+typedef int 						(*pgastfn)( short mode, pgastnode* node );
 
 typedef enum
 {
@@ -89,6 +92,9 @@ struct _pgproduction
 	plist*			select;			/* SELECT-set */
 
 	char*			strval;			/* String representation */
+
+	char*			astname;		/* Generating AST node name */
+	pgastfn			astfunc;		/* AST node traversal function */
 };
 
 /* Grammar */
@@ -118,5 +124,18 @@ struct _pgtoken
 
 	int				row;			/* Line */
 	int				col;			/* Column */
+};
+
+/* AST */
+struct _pgastnode
+{
+	pgproduction*	type;		/* Typing production */
+	pgsymbol*		symbol;		/* Symbol of node */
+	pgtoken*		token;		/* Token of node */
+
+	pgastnode*		parent;		/* Parent node */
+	pgastnode*		child;		/* First child node */
+	pgastnode*		prev;		/* Previous node in current level */
+	pgastnode*		next;		/* Next node in current level */
 };
 

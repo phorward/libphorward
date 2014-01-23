@@ -695,6 +695,9 @@ typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
+typedef struct _pgastnode			pgastnode;
+
+typedef int 						(*pgastfn)( short mode, pgastnode* node );
 
 typedef enum
 {
@@ -769,6 +772,9 @@ struct _pgproduction
 	plist*			select;			
 
 	char*			strval;			
+
+	char*			astname;		
+	pgastfn			astfunc;		
 };
 
 
@@ -798,6 +804,19 @@ struct _pgtoken
 
 	int				row;			
 	int				col;			
+};
+
+
+struct _pgastnode
+{
+	pgproduction*	type;		
+	pgsymbol*		symbol;		
+	pgtoken*		token;		
+
+	pgastnode*		parent;		
+	pgastnode*		child;		
+	pgastnode*		prev;		
+	pgastnode*		next;		
 };
 
 
@@ -856,7 +875,6 @@ struct _pglexer
 
 
 typedef struct _pgparser		pgparser;
-typedef struct _pgastnode		pgastnode;
 
 
 struct _pgparser
@@ -870,18 +888,6 @@ struct _pgparser
 
 	pboolean		optimize;	
 	char*			source;		
-};
-
-
-struct _pgastnode
-{
-	pgsymbol*		symbol;		
-	pgtoken*		token;		
-
-	pgastnode*		parent;		
-	pgastnode*		child;		
-	pgastnode*		prev;		
-	pgastnode*		next;		
 };
 
 
@@ -1233,6 +1239,7 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
 
 
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );
+pgproduction* pg_production_create_as_node( pgnonterminal* lhs, char* name, pgastfn func, ... );
 pgproduction* pg_production_drop( pgproduction* p );
 char* pg_production_to_string( pgproduction* p );
 void pg_production_print( pgproduction* p, FILE* f );
@@ -1244,6 +1251,10 @@ int pg_production_get_id( pgproduction* p );
 pggrammar* pg_production_get_grammar( pgproduction* p );
 pgnonterminal* pg_production_get_lhs( pgproduction* p );
 int pg_production_get_rhs_length( pgproduction* p );
+char* pg_production_get_astname( pgproduction* p );
+pboolean pg_production_set_astname( pgproduction* p, char* name );
+pgastfn pg_production_get_astfunc( pgproduction* p );
+pboolean pg_production_set_astfunc( pgproduction* p, pgastfn func );
 
 
 pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name );
