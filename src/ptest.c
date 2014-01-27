@@ -1,5 +1,85 @@
 #include <phorward.h>
 
+PG_AST_FUNC( tadd )
+{
+	switch( astpass )
+	{
+		case PGASTPASS_RECOGNIZE:
+			break;
+		case PGASTPASS_TOPDOWN:
+			break;
+		case PGASTPASS_PASSOVER:
+			break;
+		case PGASTPASS_BOTTOMUP:
+			fprintf( stderr, "ADD\n" );
+			break;
+
+		default:
+			MISSINGCASE;
+			break;
+	}
+}
+
+PG_AST_FUNC( tsub )
+{
+	switch( astpass )
+	{
+		case PGASTPASS_RECOGNIZE:
+			break;
+		case PGASTPASS_TOPDOWN:
+			break;
+		case PGASTPASS_PASSOVER:
+			break;
+		case PGASTPASS_BOTTOMUP:
+			fprintf( stderr, "SUB\n" );
+			break;
+
+		default:
+			MISSINGCASE;
+			break;
+	}
+}
+
+PG_AST_FUNC( tmul )
+{
+	switch( astpass )
+	{
+		case PGASTPASS_RECOGNIZE:
+			break;
+		case PGASTPASS_TOPDOWN:
+			break;
+		case PGASTPASS_PASSOVER:
+			break;
+		case PGASTPASS_BOTTOMUP:
+			fprintf( stderr, "MUL\n" );
+			break;
+
+		default:
+			MISSINGCASE;
+			break;
+	}
+}
+
+PG_AST_FUNC( tdiv )
+{
+	switch( astpass )
+	{
+		case PGASTPASS_RECOGNIZE:
+			break;
+		case PGASTPASS_TOPDOWN:
+			break;
+		case PGASTPASS_PASSOVER:
+			break;
+		case PGASTPASS_BOTTOMUP:
+			fprintf( stderr, "DIV\n" );
+			break;
+
+		default:
+			MISSINGCASE;
+			break;
+	}
+}
+
 int main()
 {
 	pggrammar*		g;
@@ -52,16 +132,16 @@ int main()
 	pg_production_create( start, expr, (pgsymbol*)NULL );
 
 	/* expr */
-	pg_production_create_as_node( expr, "add", NULL,
+	pg_production_create_as_node( expr, "add", tadd,
 		expr, op_a, term, (pgsymbol*)NULL );
-	pg_production_create_as_node( expr, "sub", NULL,
+	pg_production_create_as_node( expr, "sub", tsub,
 		expr, op_s, term, (pgsymbol*)NULL );
 	pg_production_create( expr, term, (pgsymbol*)NULL );
 
 	/* term */
-	pg_production_create_as_node( term, "mul", NULL,
+	pg_production_create_as_node( term, "mul", tmul,
 		term, op_m, factor, (pgsymbol*)NULL );
-	pg_production_create_as_node( term, "div", NULL,
+	pg_production_create_as_node( term, "div", tdiv,
 		term, op_d, factor, (pgsymbol*)NULL );
 	pg_production_create( term, factor, (pgsymbol*)NULL );
 

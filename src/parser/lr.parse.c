@@ -103,6 +103,45 @@ static void print_ast( int cnt, pgastnode* node )
 	}
 }
 
+static void traverse_ast( pgastnode* node )
+{
+	pgastnode*	child;
+	pgastfn		fn;
+	char*		name;
+
+	while( node )
+	{
+		if( node->type )
+		{
+			name = pg_production_get_astname( node->type );
+			fn = pg_production_get_astfunc( node->type );
+		}
+		else
+			fn = (pgastfn)NULL;
+
+		if( node->child )
+		{
+			if( fn )
+				(*fn)( name, PGASTPASS_TOPDOWN, node );
+
+			traverse_ast( node->child );
+
+			if( fn )
+				(*fn)( name, PGASTPASS_BOTTOMUP, node );
+		}
+
+		if( node->token )
+			fprintf( stderr, "PUSH %s = >%s<\n",
+				pg_symbol_get_name( node->symbol ),
+					pg_token_get_lexem( node->token ) );
+
+		if( fn )
+			(*fn)( name, PGASTPASS_PASSOVER, node );
+
+		node = node->next;
+	}
+}
+
 static pboolean tree_push( pglrpcb* pcb, pgastnode* node )
 {
 	if( pcb->last )
@@ -373,7 +412,11 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 	while( !pcb->reduce ); /* Break on goal */
 
 	fprintf( stderr, "goal symbol reduced!\n" );
+
+	fprintf( stderr, "--- AST visualization ---\n" );
 	print_ast( 0, pcb->ast );
+	fprintf( stderr, "--- AST traversal ---\n" );
+	traverse_ast( pcb->ast );
 
 	return TRUE;
 }

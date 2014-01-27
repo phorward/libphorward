@@ -697,8 +697,6 @@ typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
 typedef struct _pgastnode			pgastnode;
 
-typedef int 						(*pgastfn)( short mode, pgastnode* node );
-
 typedef enum
 {
 	PGSYMTYPE_UNDEFINED,			
@@ -727,6 +725,23 @@ typedef enum
 	
 	PGPARADIGM_EOP					
 } pgparadigm;
+
+
+typedef enum
+{
+	PGASTPASS_RECOGNIZE,			
+	PGASTPASS_TOPDOWN,				
+	PGASTPASS_PASSOVER,				
+	PGASTPASS_BOTTOMUP				
+} pgastpass;
+
+
+typedef void						(*pgastfn)( char* astname,
+													pgastpass astpass,
+														pgastnode* astnode );
+#define PG_AST_FUNC( name )			void name( char* astname, \
+													pgastpass astpass, \
+														pgastnode* astnode )
 
 
 struct _pgsymbol

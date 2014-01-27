@@ -16,8 +16,6 @@ typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
 typedef struct _pgastnode			pgastnode;
 
-typedef int 						(*pgastfn)( short mode, pgastnode* node );
-
 typedef enum
 {
 	PGSYMTYPE_UNDEFINED,			/* Undefined symbol */
@@ -46,6 +44,23 @@ typedef enum
 	/* ~~~ */
 	PGPARADIGM_EOP					/* End Of Paradigms */
 } pgparadigm;
+
+/* AST traversal passes */
+typedef enum
+{
+	PGASTPASS_RECOGNIZE,			/* Pass during recognition */
+	PGASTPASS_TOPDOWN,				/* Pass during AST top-down traversal */
+	PGASTPASS_PASSOVER,				/* Pass during AST pass-over traversal */
+	PGASTPASS_BOTTOMUP				/* Pass during AST bottom-up traversal */
+} pgastpass;
+
+/* AST traversal function */
+typedef void						(*pgastfn)( char* astname,
+													pgastpass astpass,
+														pgastnode* astnode );
+#define PG_AST_FUNC( name )			void name( char* astname, \
+													pgastpass astpass, \
+														pgastnode* astnode )
 
 /* Symbol (Terminal, Nonterminal) */
 struct _pgsymbol
@@ -93,8 +108,8 @@ struct _pgproduction
 
 	char*			strval;			/* String representation */
 
-	char*			astname;		/* Generating AST node name */
-	pgastfn			astfunc;		/* AST node traversal function */
+	char*			astname;		/* AST node name */
+	pgastfn			astfunc;		/* AST traversal function */
 };
 
 /* Grammar */
