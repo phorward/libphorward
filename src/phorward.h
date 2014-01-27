@@ -1302,6 +1302,8 @@ pboolean pg_token_set_symbol( pgtoken* tok, pgsymbol* symbol );
 pgsymbol* pg_token_get_symbol( pgtoken* tok );
 pboolean pg_token_set_lexem( pgtoken* tok, char* lexem );
 char* pg_token_get_lexem( pgtoken* tok );
+pboolean pg_token_set_wlexem( pgtoken* tok, pchar* lexem );
+pchar* pg_token_get_wlexem( pgtoken* tok );
 
 
 pglexer* pg_lexer_create( pgparser* parser );

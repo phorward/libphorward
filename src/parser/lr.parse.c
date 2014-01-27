@@ -90,9 +90,10 @@ static void print_ast( int cnt, pgastnode* node )
 			fprintf( stderr, "%s\n",
 				pg_production_get_astname( node->type ) );
 		else if( node->token )
-			fprintf( stderr, "%s = >%s<\n",
+			fprintf( stderr, "%s = >%s< w>%ls<\n",
 				pg_symbol_get_name( node->symbol ),
-					pg_token_get_lexem( node->token ) );
+					pg_token_get_lexem( node->token ),
+					pg_token_get_wlexem( node->token ) );
 		else
 			fprintf( stderr, "%s\n",
 				pg_symbol_get_name( node->symbol ) );
@@ -131,9 +132,10 @@ static void traverse_ast( pgastnode* node )
 		}
 
 		if( node->token )
-			fprintf( stderr, "PUSH %s = >%s<\n",
+			fprintf( stderr, "PUSH %s = >%s< w>%ls<\n",
 				pg_symbol_get_name( node->symbol ),
-					pg_token_get_lexem( node->token ) );
+					pg_token_get_lexem( node->token ),
+					pg_token_get_wlexem( node->token ) );
 
 		if( fn )
 			(*fn)( name, PGASTPASS_PASSOVER, node );

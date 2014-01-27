@@ -456,13 +456,14 @@ char* pg_lexer_isolate( pglexer* lex )
 		return (char*)NULL;
 	}
 
-	if( lex->flags & PG_LEXMOD_WCHAR )
+	if( lex->source == PG_LEX_SRCTYPE_STRING
+	 		&& !( lex->flags & PG_LEXMOD_WCHAR ) )
+		ret = pstrndup( (char*)lex->bufbeg, lex->len );
+	else
 	{
 		ret = (char*)pmalloc( ( lex->len + 1 ) * sizeof( pchar ) );
 		memcpy( ret, lex->bufbeg, lex->len * sizeof( pchar ) );
 	}
-	else
-		ret = pstrndup( (char*)lex->bufbeg, lex->len );
 
 	return ret;
 }
@@ -546,7 +547,8 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	VARS( "token", "%d", accept );
 	VARS( "len", "%d", lex->len );
 
-	if( !( lex->flags & PG_LEXMOD_WCHAR ) )
+	if( lex->source == PG_LEX_SRCTYPE_STRING
+	 		&& !( lex->flags & PG_LEXMOD_WCHAR ) )
 		fprintf( stderr, "Token %d len %d lexem >%.*s<\n",
 			accept, lex->len, lex->len, (char*)lex->bufbeg );
 	else
@@ -554,7 +556,14 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 			accept, lex->len, lex->len, lex->bufbeg );
 
 	sym = pg_symbol_get_by_id( lex->grammar, accept - 1 );
-	lex->token = pg_token_create( sym, pg_lexer_isolate( lex ) );
+
+	lex->token = pg_token_create( sym, (char*)NULL );
+
+	if( lex->source == PG_LEX_SRCTYPE_STRING
+	 		&& !( lex->flags & PG_LEXMOD_WCHAR ) )
+		pg_token_set_lexem( lex->token, pg_lexer_isolate( lex ) );
+	else
+		pg_token_set_wlexem( lex->token, (pchar*)pg_lexer_isolate( lex ) );
 
 	RETURN( lex->token );
 }
