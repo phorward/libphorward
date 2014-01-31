@@ -25,6 +25,9 @@ pggrammar* pg_grammar_create( void )
 
 	g->eoi = pg_terminal_create( g, "@eof", (char*)NULL );
 
+	g->asttypes = plist_create( sizeof( pgasttype ),
+						PLIST_MOD_RECYCLE | PLIST_MOD_UNIQUE );
+
 	return g;
 }
 

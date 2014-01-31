@@ -14,7 +14,9 @@ typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
-typedef struct _pgastnode			pgastnode;
+
+typedef struct _pgasttype			pgasttype;	/* AST node type */
+typedef struct _pgastnode			pgastnode;	/* AST node */
 
 typedef enum
 {
@@ -44,23 +46,6 @@ typedef enum
 	/* ~~~ */
 	PGPARADIGM_EOP					/* End Of Paradigms */
 } pgparadigm;
-
-/* AST traversal passes */
-typedef enum
-{
-	PGASTPASS_RECOGNIZE,			/* Pass during recognition */
-	PGASTPASS_TOPDOWN,				/* Pass during AST top-down traversal */
-	PGASTPASS_PASSOVER,				/* Pass during AST pass-over traversal */
-	PGASTPASS_BOTTOMUP				/* Pass during AST bottom-up traversal */
-} pgastpass;
-
-/* AST traversal function */
-typedef void						(*pgastfn)( char* astname,
-													pgastpass astpass,
-														pgastnode* astnode );
-#define PG_AST_FUNC( name )			void name( char* astname, \
-													pgastpass astpass, \
-														pgastnode* astnode )
 
 /* Symbol (Terminal, Nonterminal) */
 struct _pgsymbol
@@ -108,8 +93,7 @@ struct _pgproduction
 
 	char*			strval;			/* String representation */
 
-	char*			astname;		/* AST node name */
-	pgastfn			astfunc;		/* AST traversal function */
+	pgasttype*		asttype;		/* Generating AST type */
 };
 
 /* Grammar */
@@ -123,6 +107,7 @@ struct _pggrammar
 	pgterminal*		error;			/* Error token terminal symbol */
 
 	pregex_ptn*		whitespace;		/* Whitespace pattern */
+	plist*			asttypes;		/* AST node types */
 };
 
 /* Token */
@@ -141,10 +126,26 @@ struct _pgtoken
 	int				col;			/* Column */
 };
 
-/* AST */
+/* -- Abstract Syntax Tree (AST) -- */
+
+/* AST traversal function */
+typedef void						(*pgastfn)( pgastnode* astnode );
+#define PG_ASTFUNC( name )			void name( pgastnode* astnode )
+
+/* AST node type */
+struct _pgasttype
+{
+	char*			name;		/* Type name */
+	pgastfn			topdown;	/* Top-down callback */
+	pgastfn			passover;	/* Passover callback */
+	pgastfn			bottomup;	/* Bottom-up callback */
+};
+
+/* AST node (also used for syntax tree) */
 struct _pgastnode
 {
-	pgproduction*	type;		/* Typing production */
+	pgasttype*		type;		/* AST node type */
+
 	pgsymbol*		symbol;		/* Symbol of node */
 	pgtoken*		token;		/* Token of node */
 

@@ -1,83 +1,23 @@
 #include <phorward.h>
 
-PG_AST_FUNC( tadd )
+PG_ASTFUNC( tadd )
 {
-	switch( astpass )
-	{
-		case PGASTPASS_RECOGNIZE:
-			break;
-		case PGASTPASS_TOPDOWN:
-			break;
-		case PGASTPASS_PASSOVER:
-			break;
-		case PGASTPASS_BOTTOMUP:
-			fprintf( stderr, "ADD\n" );
-			break;
-
-		default:
-			MISSINGCASE;
-			break;
-	}
+	fprintf( stderr, "ADD\n" );
 }
 
-PG_AST_FUNC( tsub )
+PG_ASTFUNC( tsub )
 {
-	switch( astpass )
-	{
-		case PGASTPASS_RECOGNIZE:
-			break;
-		case PGASTPASS_TOPDOWN:
-			break;
-		case PGASTPASS_PASSOVER:
-			break;
-		case PGASTPASS_BOTTOMUP:
-			fprintf( stderr, "SUB\n" );
-			break;
-
-		default:
-			MISSINGCASE;
-			break;
-	}
+	fprintf( stderr, "SUB\n" );
 }
 
-PG_AST_FUNC( tmul )
+PG_ASTFUNC( tmul )
 {
-	switch( astpass )
-	{
-		case PGASTPASS_RECOGNIZE:
-			break;
-		case PGASTPASS_TOPDOWN:
-			break;
-		case PGASTPASS_PASSOVER:
-			break;
-		case PGASTPASS_BOTTOMUP:
-			fprintf( stderr, "MUL\n" );
-			break;
-
-		default:
-			MISSINGCASE;
-			break;
-	}
+	fprintf( stderr, "MUL\n" );
 }
 
-PG_AST_FUNC( tdiv )
+PG_ASTFUNC( tdiv )
 {
-	switch( astpass )
-	{
-		case PGASTPASS_RECOGNIZE:
-			break;
-		case PGASTPASS_TOPDOWN:
-			break;
-		case PGASTPASS_PASSOVER:
-			break;
-		case PGASTPASS_BOTTOMUP:
-			fprintf( stderr, "DIV\n" );
-			break;
-
-		default:
-			MISSINGCASE;
-			break;
-	}
+	fprintf( stderr, "DIV\n" );
 }
 
 int main()
@@ -98,6 +38,9 @@ int main()
 	pgnonterminal*	expr;
 	pgnonterminal*	term;
 	pgnonterminal*	factor;
+
+	pgproduction*	prod;
+	pgasttype*		at;
 
 	pgtoken*		tok;
 
@@ -129,25 +72,45 @@ int main()
 	*/
 
 	/* start */
-	pg_production_create( start, expr, (pgsymbol*)NULL );
+	prod = pg_production_create( start, expr, (pgsymbol*)NULL );
 
-	/* expr */
-	pg_production_create_as_node( expr, "add", tadd,
-		expr, op_a, term, (pgsymbol*)NULL );
-	pg_production_create_as_node( expr, "sub", tsub,
-		expr, op_s, term, (pgsymbol*)NULL );
-	pg_production_create( expr, term, (pgsymbol*)NULL );
+	/* --- expr --- */
+	prod = pg_production_create( expr, expr, op_a, term, (pgsymbol*)NULL );
 
-	/* term */
-	pg_production_create_as_node( term, "mul", tmul,
-		term, op_m, factor, (pgsymbol*)NULL );
-	pg_production_create_as_node( term, "div", tdiv,
-		term, op_d, factor, (pgsymbol*)NULL );
-	pg_production_create( term, factor, (pgsymbol*)NULL );
+	/* AST type: add */
+	at = pg_asttype_create( g, "add" );
+	pg_asttype_set_bottomup( at, tadd );
+	pg_production_set_asttype( prod, at );
 
-	/* factor */
-	pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
-	pg_production_create( factor, i, (pgsymbol*)NULL );
+	prod = pg_production_create( expr, expr, op_s, term, (pgsymbol*)NULL );
+
+	/* AST type: sub */
+	at = pg_asttype_create( g, "sub" );
+	pg_asttype_set_bottomup( at, tsub );
+	pg_production_set_asttype( prod, at );
+
+	prod = pg_production_create( expr, term, (pgsymbol*)NULL );
+
+	/* --- term --- */
+	prod = pg_production_create( term, term, op_m, factor, (pgsymbol*)NULL );
+
+	/* AST type: mul */
+	at = pg_asttype_create( g, "mul" );
+	pg_asttype_set_bottomup( at, tmul );
+	pg_production_set_asttype( prod, at );
+
+	prod = pg_production_create( term, term, op_d, factor, (pgsymbol*)NULL );
+
+	/* AST type: div */
+	at = pg_asttype_create( g, "div" );
+	pg_asttype_set_bottomup( at, tdiv );
+	pg_production_set_asttype( prod, at );
+
+	prod = pg_production_create( term, factor, (pgsymbol*)NULL );
+
+	/* --- factor --- */
+	prod = pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
+	prod = pg_production_create( factor, i, (pgsymbol*)NULL );
 
 	pg_grammar_print( g );
 
@@ -165,14 +128,16 @@ int main()
 
 	p = pg_parser_create( g, PGPARADIGM_LALR1 );
 
-	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "1*2+3" );
+	/* pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "1*2+3" ); */
 	pg_parser_parse( p );
 
+	/*
 	getchar();
 	fprintf( stderr, "------------------------------\n" );
 
 	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "(7+3)*2-5" );
 	pg_parser_parse( p );
+	*/
 
 	return 0;
 }

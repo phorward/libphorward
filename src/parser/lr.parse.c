@@ -88,7 +88,7 @@ static void print_ast( int cnt, pgastnode* node )
 
 		if( node->type )
 			fprintf( stderr, "%s\n",
-				pg_production_get_astname( node->type ) );
+				pg_asttype_get_name( node->type ) );
 		else if( node->token )
 			fprintf( stderr, "%s = >%s< w>%ls<\n",
 				pg_symbol_get_name( node->symbol ),
@@ -107,28 +107,19 @@ static void print_ast( int cnt, pgastnode* node )
 static void traverse_ast( pgastnode* node )
 {
 	pgastnode*	child;
-	pgastfn		fn;
 	char*		name;
 
 	while( node )
 	{
-		if( node->type )
-		{
-			name = pg_production_get_astname( node->type );
-			fn = pg_production_get_astfunc( node->type );
-		}
-		else
-			fn = (pgastfn)NULL;
-
 		if( node->child )
 		{
-			if( fn )
-				(*fn)( name, PGASTPASS_TOPDOWN, node );
+			if( node->type )
+				pg_asttype_call_topdown( node->type, node );
 
 			traverse_ast( node->child );
 
-			if( fn )
-				(*fn)( name, PGASTPASS_BOTTOMUP, node );
+			if( node->type )
+				pg_asttype_call_bottomup( node->type, node );
 		}
 
 		if( node->token )
@@ -137,8 +128,8 @@ static void traverse_ast( pgastnode* node )
 					pg_token_get_lexem( node->token ),
 					pg_token_get_wlexem( node->token ) );
 
-		if( fn )
-			(*fn)( name, PGASTPASS_PASSOVER, node );
+		if( node->type )
+			pg_asttype_call_passover( node->type, node );
 
 		node = node->next;
 	}
@@ -393,10 +384,10 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 			pcb->lhs = pg_production_get_lhs( pcb->reduce );
 			pop( pcb, pg_production_get_rhs_length( pcb->reduce ) );
 
-			if( pg_production_get_astname( pcb->reduce ) )
+			if( pg_production_get_asttype( pcb->reduce ) )
 			{
 				node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
-				node->type = pcb->reduce;
+				node->type = pg_production_get_asttype( pcb->reduce );
 
 				tree_pop( pcb, -1 );
 				tree_push( pcb, node );

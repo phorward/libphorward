@@ -47,29 +47,6 @@ pgproduction* pg_production_create( pgnonterminal* lhs, ... )
 	return p;
 }
 
-pgproduction* pg_production_create_as_node(
-	pgnonterminal* lhs, char* name, pgastfn func, ... )
-{
-	pgproduction*	p;
-	pgsymbol*		sym;
-	va_list			args;
-
-	p = pg_production_create( lhs, (pgsymbol*)NULL );
-
-	pg_production_set_astname( p, name );
-	pg_production_set_astfunc( p, func );
-
-	/* Fill in right-hand side symbols */
-	va_start( args, func );
-
-	while( ( sym = va_arg( args, pgsymbol* ) ) )
-		pg_production_append( p, sym );
-
-	va_end( args );
-
-	return p;
-}
-
 /* Destructor */
 
 pgproduction* pg_production_drop( pgproduction* p )
@@ -257,20 +234,20 @@ int pg_production_get_rhs_length( pgproduction* p )
 	return plist_count( p->rhs );
 }
 
-/* Attribute: astname */
+/* Attribute: asttype */
 
-char* pg_production_get_astname( pgproduction* p )
+pgasttype* pg_production_get_asttype( pgproduction* p )
 {
 	if( !( p ) )
 	{
 		WRONGPARAM;
-		return (char*)NULL;
+		return (pgasttype*)NULL;
 	}
 
-	return p->astname;
+	return p->asttype;
 }
 
-pboolean pg_production_set_astname( pgproduction* p, char* name )
+pboolean pg_production_set_asttype( pgproduction* p, pgasttype* type )
 {
 	if( !( p ) )
 	{
@@ -278,31 +255,6 @@ pboolean pg_production_set_astname( pgproduction* p, char* name )
 		return FALSE;
 	}
 
-	psetstr( &p->astname, name );
-	return TRUE;
-}
-
-/* Attribute: astfunc */
-
-pgastfn pg_production_get_astfunc( pgproduction* p )
-{
-	if( !( p ) )
-	{
-		WRONGPARAM;
-		return (pgastfn)NULL;
-	}
-
-	return p->astfunc;
-}
-
-pboolean pg_production_set_astfunc( pgproduction* p, pgastfn func )
-{
-	if( !( p ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
-
-	p->astfunc = func;
+	p->asttype = type;
 	return TRUE;
 }

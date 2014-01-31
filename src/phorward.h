@@ -695,7 +695,9 @@ typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
-typedef struct _pgastnode			pgastnode;
+
+typedef struct _pgasttype			pgasttype;	
+typedef struct _pgastnode			pgastnode;	
 
 typedef enum
 {
@@ -725,23 +727,6 @@ typedef enum
 	
 	PGPARADIGM_EOP					
 } pgparadigm;
-
-
-typedef enum
-{
-	PGASTPASS_RECOGNIZE,			
-	PGASTPASS_TOPDOWN,				
-	PGASTPASS_PASSOVER,				
-	PGASTPASS_BOTTOMUP				
-} pgastpass;
-
-
-typedef void						(*pgastfn)( char* astname,
-													pgastpass astpass,
-														pgastnode* astnode );
-#define PG_AST_FUNC( name )			void name( char* astname, \
-													pgastpass astpass, \
-														pgastnode* astnode )
 
 
 struct _pgsymbol
@@ -788,8 +773,7 @@ struct _pgproduction
 
 	char*			strval;			
 
-	char*			astname;		
-	pgastfn			astfunc;		
+	pgasttype*		asttype;		
 };
 
 
@@ -803,6 +787,7 @@ struct _pggrammar
 	pgterminal*		error;			
 
 	pregex_ptn*		whitespace;		
+	plist*			asttypes;		
 };
 
 
@@ -822,9 +807,25 @@ struct _pgtoken
 };
 
 
+
+
+typedef void						(*pgastfn)( pgastnode* astnode );
+#define PG_ASTFUNC( name )			void name( pgastnode* astnode )
+
+
+struct _pgasttype
+{
+	char*			name;		
+	pgastfn			topdown;	
+	pgastfn			passover;	
+	pgastfn			bottomup;	
+};
+
+
 struct _pgastnode
 {
-	pgproduction*	type;		
+	pgasttype*		type;		
+
 	pgsymbol*		symbol;		
 	pgtoken*		token;		
 
@@ -1233,6 +1234,20 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
+pgasttype* pg_asttype_create( pggrammar* g, char* name );
+pgasttype* pg_asttype_get_by_name( pggrammar* g, char* name );
+char* pg_asttype_get_name( pgasttype* asttype );
+pboolean pg_asttype_get_topdown( pgasttype* asttype );
+pboolean pg_asttype_set_topdown( pgasttype* asttype, pgastfn topdown );
+pboolean pg_asttype_call_topdown( pgasttype* asttype, pgastnode* node );
+pboolean pg_asttype_get_passover( pgasttype* asttype );
+pboolean pg_asttype_set_passover( pgasttype* asttype, pgastfn passover );
+pboolean pg_asttype_call_passover( pgasttype* asttype, pgastnode* node );
+pboolean pg_asttype_get_bottomup( pgasttype* asttype );
+pboolean pg_asttype_set_bottomup( pgasttype* asttype, pgastfn bottomup );
+pboolean pg_asttype_call_bottomup( pgasttype* asttype, pgastnode* node );
+
+
 pggrammar* pg_grammar_create( void );
 pggrammar* pg_grammar_free( pggrammar* g );
 void pg_grammar_print( pggrammar* g );
@@ -1254,7 +1269,6 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
 
 
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );
-pgproduction* pg_production_create_as_node( pgnonterminal* lhs, char* name, pgastfn func, ... );
 pgproduction* pg_production_drop( pgproduction* p );
 char* pg_production_to_string( pgproduction* p );
 void pg_production_print( pgproduction* p, FILE* f );
@@ -1266,10 +1280,8 @@ int pg_production_get_id( pgproduction* p );
 pggrammar* pg_production_get_grammar( pgproduction* p );
 pgnonterminal* pg_production_get_lhs( pgproduction* p );
 int pg_production_get_rhs_length( pgproduction* p );
-char* pg_production_get_astname( pgproduction* p );
-pboolean pg_production_set_astname( pgproduction* p, char* name );
-pgastfn pg_production_get_astfunc( pgproduction* p );
-pboolean pg_production_set_astfunc( pgproduction* p, pgastfn func );
+pgasttype* pg_production_get_asttype( pgproduction* p );
+pboolean pg_production_set_asttype( pgproduction* p, pgasttype* type );
 
 
 pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name );

@@ -318,6 +318,20 @@ int xml_count( XML_T xml );
 int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
+/* grammar/asttype.c */
+pgasttype* pg_asttype_create( pggrammar* g, char* name );
+pgasttype* pg_asttype_get_by_name( pggrammar* g, char* name );
+char* pg_asttype_get_name( pgasttype* asttype );
+pboolean pg_asttype_get_topdown( pgasttype* asttype );
+pboolean pg_asttype_set_topdown( pgasttype* asttype, pgastfn topdown );
+pboolean pg_asttype_call_topdown( pgasttype* asttype, pgastnode* node );
+pboolean pg_asttype_get_passover( pgasttype* asttype );
+pboolean pg_asttype_set_passover( pgasttype* asttype, pgastfn passover );
+pboolean pg_asttype_call_passover( pgasttype* asttype, pgastnode* node );
+pboolean pg_asttype_get_bottomup( pgasttype* asttype );
+pboolean pg_asttype_set_bottomup( pgasttype* asttype, pgastfn bottomup );
+pboolean pg_asttype_call_bottomup( pgasttype* asttype, pgastnode* node );
+
 /* grammar/grammar.c */
 pggrammar* pg_grammar_create( void );
 pggrammar* pg_grammar_free( pggrammar* g );
@@ -340,7 +354,6 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
 
 /* grammar/production.c */
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );
-pgproduction* pg_production_create_as_node( pgnonterminal* lhs, char* name, pgastfn func, ... );
 pgproduction* pg_production_drop( pgproduction* p );
 char* pg_production_to_string( pgproduction* p );
 void pg_production_print( pgproduction* p, FILE* f );
@@ -352,10 +365,8 @@ int pg_production_get_id( pgproduction* p );
 pggrammar* pg_production_get_grammar( pgproduction* p );
 pgnonterminal* pg_production_get_lhs( pgproduction* p );
 int pg_production_get_rhs_length( pgproduction* p );
-char* pg_production_get_astname( pgproduction* p );
-pboolean pg_production_set_astname( pgproduction* p, char* name );
-pgastfn pg_production_get_astfunc( pgproduction* p );
-pboolean pg_production_set_astfunc( pgproduction* p, pgastfn func );
+pgasttype* pg_production_get_asttype( pgproduction* p );
+pboolean pg_production_set_asttype( pgproduction* p, pgasttype* type );
 
 /* grammar/symbol.c */
 pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name );
