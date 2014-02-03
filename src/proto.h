@@ -322,13 +322,13 @@ XML_T xml_cut( XML_T xml );
 pgasttype* pg_asttype_create( pggrammar* g, char* name );
 pgasttype* pg_asttype_get_by_name( pggrammar* g, char* name );
 char* pg_asttype_get_name( pgasttype* asttype );
-pboolean pg_asttype_get_topdown( pgasttype* asttype );
+pgastfn pg_asttype_get_topdown( pgasttype* asttype );
 pboolean pg_asttype_set_topdown( pgasttype* asttype, pgastfn topdown );
 pboolean pg_asttype_call_topdown( pgasttype* asttype, pgastnode* node );
-pboolean pg_asttype_get_passover( pgasttype* asttype );
+pgastfn pg_asttype_get_passover( pgasttype* asttype );
 pboolean pg_asttype_set_passover( pgasttype* asttype, pgastfn passover );
 pboolean pg_asttype_call_passover( pgasttype* asttype, pgastnode* node );
-pboolean pg_asttype_get_bottomup( pgasttype* asttype );
+pgastfn pg_asttype_get_bottomup( pgasttype* asttype );
 pboolean pg_asttype_set_bottomup( pgasttype* asttype, pgastfn bottomup );
 pboolean pg_asttype_call_bottomup( pgasttype* asttype, pgastnode* node );
 
