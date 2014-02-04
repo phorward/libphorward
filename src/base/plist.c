@@ -788,7 +788,7 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 	plistel*	a	= from;
 	plistel*	b	= to;
 	plistel*	e;
-	void*		ref;
+	plistel*	ref;
 
 	int			i	= 0;
 	int			j	= 0;
@@ -814,17 +814,17 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 	}
 
 	a = from;
-	ref = plist_access( from );
+	ref = from;
 
 	do
 	{
-		while( ( *list->sortfn )( from->list, a, from ) < 0 )
+		while( ( *list->sortfn )( from->list, a, ref ) > 0 )
 		{
 			i++;
 			a = a->next;
 		}
 
-		while( ( *list->sortfn )( from->list, from, b ) < 0 )
+		while( ( *list->sortfn )( from->list, ref, b ) > 0 )
 		{
 			j--;
 			b = b->prev;
