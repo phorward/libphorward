@@ -35,6 +35,7 @@ SRC = \
 	xml/xml.c \
 	\
 	grammar/asttype.c \
+	grammar/bnf.c \
 	grammar/grammar.c \
 	grammar/nonterm.c \
 	grammar/production.c \

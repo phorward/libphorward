@@ -25,7 +25,11 @@ pgterminal* pg_terminal_create( pggrammar* grammar, char* name, char* pattern )
 	if( !( sym = pg_symbol_create( grammar, PGSYMTYPE_TERMINAL, name ) ) )
 		return (pgterminal*)NULL;
 
-	pg_terminal_parse_pattern( sym, pattern );
+	if( pattern )
+		pg_terminal_parse_pattern( sym, pattern );
+	else
+		pg_terminal_set_pattern( sym,
+			pregex_ptn_create_string( name, PREGEX_MOD_NONE ) );
 
 	return sym;
 }
@@ -108,6 +112,9 @@ BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn )
 
 	if( terminal->ptn )
 		pregex_ptn_free( terminal->ptn );
+
+	if( !ptn->accept )
+		ptn->accept = (pregex_accept*)pmalloc( sizeof( pregex_accept ) );
 
 	terminal->ptn = ptn;
 

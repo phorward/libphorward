@@ -44,6 +44,9 @@ int main()
 
 	pgtoken*		tok;
 
+	pg_grammar_from_bnf();
+	return 0;
+
 	g = pg_grammar_create();
 
 	i = pg_terminal_create( g, "@INTEGER", "[0-9]+" );

@@ -332,6 +332,9 @@ pgastfn pg_asttype_get_bottomup( pgasttype* asttype );
 pboolean pg_asttype_set_bottomup( pgasttype* asttype, pgastfn bottomup );
 pboolean pg_asttype_call_bottomup( pgasttype* asttype, pgastnode* node );
 
+/* grammar/bnf.c */
+void pg_grammar_from_bnf( void );
+
 /* grammar/grammar.c */
 pggrammar* pg_grammar_create( void );
 pggrammar* pg_grammar_free( pggrammar* g );

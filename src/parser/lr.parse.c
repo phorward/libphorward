@@ -172,7 +172,7 @@ static pboolean tree_pop( pglrpcb* pcb, int n )
 			for( i = 1, pcb->child = pcb->last; i < n; i++ )
 				pcb->child = pcb->child->prev;
 		}
-		else
+		else if( pcb->last )
 		{
 			for( pcb->child = pcb->last;
 					pcb->child != pcb->begin;
@@ -180,10 +180,14 @@ static pboolean tree_pop( pglrpcb* pcb, int n )
 				;
 		}
 
-		if( ( pcb->last = pcb->child->prev ) )
-			pcb->child->prev->next = (pgastnode*)NULL;
+		if( pcb->child )
+		{
+			if( ( pcb->last = pcb->child->prev ) )
+				pcb->child->prev->next = (pgastnode*)NULL;
 
-		pcb->child->prev = (pgastnode*)NULL;
+			pcb->child->prev = (pgastnode*)NULL;
+		}
+
 		pcb->begin = (pgastnode*)NULL;
 	}
 	else
@@ -213,7 +217,8 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 		/* TEST TEST TEST */
 			|| ( pcb->type == TREETYPE_AST
 					&& pg_symbol_is_terminal( e.symbol )
-					&& *pg_symbol_get_name( e.symbol ) == '@' ) )
+					&& isupper( *pg_symbol_get_name( e.symbol ) ) )
+					/* && *pg_symbol_get_name( e.symbol ) == '@' */ )
 	{
 		node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
 		node->symbol = e.symbol;
@@ -353,6 +358,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 		if( !get_action( pcb, pg_token_get_symbol( pcb->la ) ) )
 		{
 			/* TODO: Error recovery */
+			fprintf( stderr, "Parse error\n" );
 			return FALSE;
 		}
 

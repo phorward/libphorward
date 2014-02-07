@@ -265,7 +265,6 @@ static pchar pg_lexer_getchar( pglexer* lex )
 				break;
 		}
 
-
 		if( cch == lex->eof )
 		{
 			lex->is_eof = TRUE;
@@ -502,6 +501,8 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 			trans = -1;
 			ch = pg_lexer_getinput( lex, len++ );
 
+			fprintf( stderr, "ch = >%c<\n", ch );
+
 			VARS( "ch", "%d", ch );
 			VARS( "state", "%d", state );
 
@@ -528,16 +529,16 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 		}
 		while( state >= 0 );
 
-		/* TODO: Is this allowed?  PG_LEXMOD_SKIP_UNKNOWN */
 		if( accept < 0 )
 		{
-			if( lex->is_eof )
+			if( ch == lex->eof )
 			{
 				MSG( "EOF reached" );
 				fprintf( stderr, "EOF read\n" );
 				RETURN( (pgtoken*)NULL );
 			}
 
+			/* TODO: Is this wanted?  PG_LEXMOD_SKIP_UNKNOWN */
 			pg_lexer_clearinput( lex, 1 );
 		}
 	}
