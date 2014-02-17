@@ -17,6 +17,8 @@ typedef struct
 
 	pglrstate*		state;	/* State */
 	pgtoken*		token;	/* Token */
+
+	pgastnode*		node;	/* Node */
 } pglrse;
 
 /* Parser Command Block */
@@ -44,12 +46,7 @@ typedef struct
 #define TREETYPE_NONE	0
 #define TREETYPE_AST	1
 #define TREETYPE_SYNTAX	2
-
-	pgastnode*		ast;	/* AST root */
-
-	pgastnode*		begin;
-	pgastnode*		child;
-	pgastnode*		last;
+	pgastnode*		ast;
 }
 pglrpcb;
 
@@ -62,16 +59,28 @@ static void print_stack( pglrpcb* pcb )
 	{
 		e = (pglrse*)pstack_access( pcb->st, i );
 
-		fprintf( stderr, "%02d: sym: '%s' state: %d token: %s(%s)\n", i,
+		fprintf( stderr, "%02d: sym: '%s' state: %d "
+							"token: %s(%s) ast: %s/%s/%s\n",
+				i,
 				e->symbol ? pg_symbol_get_name( e->symbol ) : "(X)",
 				e->state ? plist_offset( plist_get_by_ptr(
 								pcb->p->states, e->state ) ) : -1,
+				/* Token */
 				e->token ?
 					pg_symbol_get_name( pg_token_get_symbol( e->token ) )
 						: "(X)",
 				e->token ?
 					pg_token_get_lexem( e->token )
-						: "(X)" );
+						: "(X)",
+				/* AST */
+				e->node && e->node->type ?
+					pg_asttype_get_name( e->node->type ) : "(X)",
+				e->node && e->node->symbol ?
+					pg_symbol_get_name( e->node->symbol ) : "(X)",
+				e->node && e->node->token ?
+					pg_token_get_lexem( e->node->token ) : "(X)"
+
+					) ;
 	}
 
 }
@@ -135,72 +144,13 @@ static void traverse_ast( pgastnode* node )
 	}
 }
 
-static pboolean tree_push( pglrpcb* pcb, pgastnode* node )
-{
-	if( pcb->last )
-	{
-		pcb->last->next = node;
-		node->prev = pcb->last;
-	}
-	else
-		pcb->ast = node;
-
-	if( !pcb->begin )
-		pcb->begin = node;
-
-	pcb->last = node;
-
-	if( pcb->child )
-	{
-		pcb->last->child = pcb->child;
-		pcb->child->parent = pcb->last;
-
-		pcb->child = (pgastnode*)NULL;
-	}
-
-	return TRUE;
-}
-
-static pboolean tree_pop( pglrpcb* pcb, int n )
-{
-	int		i;
-
-	if( n != 0 )
-	{
-		if( n > 0 )
-		{
-			for( i = 1, pcb->child = pcb->last; i < n; i++ )
-				pcb->child = pcb->child->prev;
-		}
-		else if( pcb->last )
-		{
-			for( pcb->child = pcb->last;
-					pcb->child != pcb->begin;
-						pcb->child = pcb->child->prev )
-				;
-		}
-
-		if( pcb->child )
-		{
-			if( ( pcb->last = pcb->child->prev ) )
-				pcb->child->prev->next = (pgastnode*)NULL;
-
-			pcb->child->prev = (pgastnode*)NULL;
-		}
-
-		pcb->begin = (pgastnode*)NULL;
-	}
-	else
-		pcb->child = (pgastnode*)NULL;
-
-	return TRUE;
-}
-
 /* Push state on stack */
 static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 {
 	pglrse		e;
 	pgastnode*	node;
+
+	memset( &e, 0, sizeof( pglrse ) );
 
 	e.state = st;
 
@@ -209,23 +159,21 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 	else
 		e.symbol = sym;
 
-	if( !( pcb->tos = (pglrse*)pstack_push( pcb->st, &e ) ) )
-		return FALSE;
-
-	/* SynTree */
+	/* AST */
 	if( ( pcb->type == TREETYPE_SYNTAX && e.symbol )
 		/* TEST TEST TEST */
 			|| ( pcb->type == TREETYPE_AST
 					&& pg_symbol_is_terminal( e.symbol )
-					&& isupper( *pg_symbol_get_name( e.symbol ) ) )
-					/* && *pg_symbol_get_name( e.symbol ) == '@' */ )
+					&& ( isupper( *pg_symbol_get_name( e.symbol ) )
+						|| *pg_symbol_get_name( e.symbol ) == '@' ) ) )
 	{
-		node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
-		node->symbol = e.symbol;
-		node->token = tok;
-
-		tree_push( pcb, node );
+		e.node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
+		e.node->symbol = e.symbol;
+		e.node->token = tok;
 	}
+
+	if( !( pcb->tos = (pglrse*)pstack_push( pcb->st, &e ) ) )
+		return FALSE;
 
 	/* Debug */
 	fprintf( stderr, ">>>\n" );
@@ -235,23 +183,29 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 }
 
 /* Pop elements off the stack */
-static pboolean pop( pglrpcb* pcb, int n )
+static pboolean pop( pglrpcb* pcb, int n, pgastnode** chain )
 {
-	int		i;
+	pglrse*		e;
+	pgastnode*	node;
 
-	for( i = 0; i < n; i++ )
-		pstack_pop( pcb->st );
+	while( n-- > 0 )
+	{
+		fprintf( stderr, "<<<\n" );
+		e = (pglrse*)pstack_pop( pcb->st );
+
+		if( chain && e->node )
+		{
+			for( node = e->node; node->next; node = node->next )
+				;
+
+			if( ( node->next = *chain ) )
+				(*chain)->prev = node;
+
+			*chain = e->node;
+		}
+	}
 
 	pcb->tos = (pglrse*)pstack_top( pcb->st );
-
-	/* SynTree */
-	if( pcb->type == TREETYPE_SYNTAX )
-		tree_pop( pcb, n );
-
-	/* Debug */
-	for( i = 0; i < n; i++ )
-		fprintf( stderr, "<<<\n" );
-
 	print_stack( pcb );
 
 	return TRUE;
@@ -317,9 +271,10 @@ static pboolean get_goto( pglrpcb* pcb )
 pboolean pg_parser_lr_parse( pgparser* parser )
 {
 	pglrpcb		PCB;
-	pglrpcb*	pcb = &PCB;
+	pglrpcb*	pcb 	= &PCB;
 	pgtoken*	tok;
-	pgastnode*	node;
+	pgastnode*	node	= (pgastnode*)NULL;
+	pgastnode*	nnode;
 
 	PROC( "pg_parser_eval" );
 
@@ -388,24 +343,30 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 				pg_symbol_get_name( pg_production_get_lhs( pcb->reduce ) ) );
 
 			pcb->lhs = pg_production_get_lhs( pcb->reduce );
-			pop( pcb, pg_production_get_rhs_length( pcb->reduce ) );
-
-			if( pg_production_get_asttype( pcb->reduce ) )
-			{
-				node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
-				node->type = pg_production_get_asttype( pcb->reduce );
-
-				tree_pop( pcb, -1 );
-				tree_push( pcb, node );
-			}
+			pop( pcb, pg_production_get_rhs_length( pcb->reduce ), &node );
 
 			/* Goal symbol reduced? */
 			if( pcb->lhs == pg_grammar_get_goal( pcb->g )
 					&& pstack_count( pcb->st ) == 1 )
+			{
+				pcb->ast = node;
 				break;
+			}
+
+			if( pg_production_get_asttype( pcb->reduce ) )
+			{
+				nnode = (pgastnode*)pmalloc( sizeof( pgastnode ) );
+				nnode->type = pg_production_get_asttype( pcb->reduce );
+				nnode->child = node;
+
+				node = nnode;
+			}
 
 			get_goto( pcb );
 			push( pcb, pcb->lhs, pcb->shift, (pgtoken*)NULL );
+			pcb->tos->node = node;
+
+			node = (pgastnode*)NULL;
 		}
 	}
 	while( !pcb->reduce ); /* Break on goal */

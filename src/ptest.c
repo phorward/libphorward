@@ -131,13 +131,13 @@ int main()
 
 	p = pg_parser_create( g, PGPARADIGM_LALR1 );
 
-	/* pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "1*2+3" ); */
+	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING,
+		"1+2*3/4-5" );
 	pg_parser_parse( p );
 
 	/*
 	getchar();
 	fprintf( stderr, "------------------------------\n" );
-
 	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "(7+3)*2-5" );
 	pg_parser_parse( p );
 	*/

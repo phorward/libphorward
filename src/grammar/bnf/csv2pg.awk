@@ -158,7 +158,7 @@ END				{
 						next
 					}
 
-					if( term == "colon" )
+					if( term == "colon" || term == "COLON" )
 						$2 = ":"
 
 					if( $2 != "" )

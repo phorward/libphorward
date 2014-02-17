@@ -23,7 +23,7 @@ pggrammar* pg_grammar_create( void )
 							PLIST_MOD_EXTKEYS );
 	g->productions = plist_create( sizeof( pgproduction ), PLIST_MOD_RECYCLE );
 
-	g->eoi = pg_terminal_create( g, "@eof", (char*)NULL );
+	g->eoi = pg_terminal_create( g, "@eof", "" );
 
 	g->asttypes = plist_create( sizeof( pgasttype ),
 						PLIST_MOD_RECYCLE | PLIST_MOD_UNIQUE );

@@ -1,29 +1,29 @@
 @IDENT:[A-Za-z_][A-Za-z0-9_]*
 @REGEX:/([^\\]|\\/)*/
 @STRING:".*"
-@colon:
+@COLON:
 
-terminal:@@:@IDENT:@REGEX
-terminal:@@:@IDENT:@STRING
-terminal:@@:@IDENT
+%:termdef:@@:@IDENT:@REGEX
+%:termdef:@@:@IDENT:@STRING
+%:termdef:@@:@IDENT
 
-nonterminal:@IDENT:@colon:productions
-nonterminal:@IDENT
+%:nontermdef:@IDENT:@COLON:productions
+%:nontermdef:@IDENT
 
-symbol:@@:@IDENT
-symbol:@IDENT
+%:symbol:@@:@IDENT
+%:symbol:@IDENT
 
 production:production:symbol
 production:symbol
 
-rhs:production
-rhs:
+%:rhs:production
+%:rhs:
 
 productions:productions:@|:rhs
 productions:rhs
 
-definition:terminal:@;
-definition:nonterminal:@;
+definition:termdef:@;
+definition:nontermdef:@;
 
 definitions:definitions:definition
 definitions:definition
