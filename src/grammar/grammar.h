@@ -144,7 +144,7 @@ struct _pgasttype
 /* AST node (also used for syntax tree) */
 struct _pgastnode
 {
-	pgasttype*		type;		/* AST node type */
+	pgasttype*		type;		/* Node type */
 
 	pgsymbol*		symbol;		/* Symbol of node */
 	pgtoken*		token;		/* Token of node */

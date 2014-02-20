@@ -31,7 +31,7 @@ void pg_grammar_from_bnf( void )
 	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING,
 							"@ident /A-Za-z+/;"
 							"start: @ident;"
-							"test: start @ident;" );
+							"test: start @ident+;" );
 
 	pg_parser_parse( p );
 }

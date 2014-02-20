@@ -26,7 +26,10 @@ pgproduction* pg_production_create( pgnonterminal* lhs, ... )
 
 	p = (pgproduction*)plist_malloc( lhs->grammar->productions );
 
-	p->rhs = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+	p->rhs = plist_create( 0, PLIST_MOD_PTR |
+								PLIST_MOD_UNIQUE |
+									PLIST_MOD_RECYCLE );
+
 	p->select = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
 	/* Connect with grammar */
@@ -133,7 +136,29 @@ pboolean pg_production_append( pgproduction* p, pgsymbol* sym )
 		return FALSE;
 	}
 
-	plist_push( p->rhs, sym );
+	if( !plist_push( p->rhs, sym ) )
+		return FALSE;
+
+	return TRUE;
+}
+
+/* Append right-hand side with key */
+
+pboolean pg_production_append_with_key(
+	pgproduction* p, char* key, pgsymbol* sym )
+{
+	if( !( p && sym ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !( key && *key ) )
+		return pg_production_append( p, sym );
+
+	if( !plist_insert( p->rhs, (plistel*)NULL, key, sym ) )
+		return FALSE;
+
 	return TRUE;
 }
 
@@ -165,7 +190,7 @@ pgproduction* pg_production_get_by_lhs( pgnonterminal* lhs, int i )
 	return (pgproduction*)plist_access( plist_get( lhs->productions, i ) );
 }
 
-/* Retrieve: Right-hand side */
+/* Retrieve: Right-hand side item */
 
 pgsymbol* pg_production_get_rhs( pgproduction* p, int i )
 {
@@ -176,6 +201,19 @@ pgsymbol* pg_production_get_rhs( pgproduction* p, int i )
 	}
 
 	return (pgsymbol*)plist_access( plist_get( p->rhs, i ) );
+}
+
+/* Retrieve: Right-hand side item by key */
+
+pgsymbol* pg_production_get_rhs_by_key( pgproduction* p, char* key )
+{
+	if( !( p && key && *key ) )
+	{
+		WRONGPARAM;
+		return (pgsymbol*)NULL;
+	}
+
+	return (pgsymbol*)plist_get_by_key( p->rhs, key );
 }
 
 /* Attribute: id */

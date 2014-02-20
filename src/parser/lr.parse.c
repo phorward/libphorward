@@ -288,6 +288,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 	memset( pcb, 0, sizeof( pglrpcb ) );
 
 	pcb->type = TREETYPE_AST;
+	/* pcb->type = TREETYPE_SYNTAX; */
 	pcb->p = parser;
 	pcb->g = pg_parser_get_grammar( pcb->p );
 	pcb->st = pstack_create( sizeof( pglrse ), 64 );
@@ -345,6 +346,17 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 			pcb->lhs = pg_production_get_lhs( pcb->reduce );
 			pop( pcb, pg_production_get_rhs_length( pcb->reduce ), &node );
 
+			/* Construct syntax tree? */
+			if( pcb->type == TREETYPE_SYNTAX )
+			{
+				nnode = (pgastnode*)pmalloc( sizeof( pgastnode ) );
+
+				nnode->symbol = pcb->lhs;
+				nnode->child = node;
+
+				node = nnode;
+			}
+
 			/* Goal symbol reduced? */
 			if( pcb->lhs == pg_grammar_get_goal( pcb->g )
 					&& pstack_count( pcb->st ) == 1 )
@@ -353,9 +365,12 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 				break;
 			}
 
-			if( pg_production_get_asttype( pcb->reduce ) )
+			/* Construct abstract syntax tree */
+			if( pcb->type == TREETYPE_AST
+					&& pg_production_get_asttype( pcb->reduce ) )
 			{
 				nnode = (pgastnode*)pmalloc( sizeof( pgastnode ) );
+
 				nnode->type = pg_production_get_asttype( pcb->reduce );
 				nnode->child = node;
 
@@ -364,8 +379,8 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 
 			get_goto( pcb );
 			push( pcb, pcb->lhs, pcb->shift, (pgtoken*)NULL );
-			pcb->tos->node = node;
 
+			pcb->tos->node = node;
 			node = (pgastnode*)NULL;
 		}
 	}
@@ -375,7 +390,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 
 	fprintf( stderr, "--- AST visualization ---\n" );
 	print_ast( 0, pcb->ast );
-	fprintf( stderr, "--- AST traversal ---\n" );
+	fprintf( stderr, "--- AST traversal (demo) ---\n" );
 	traverse_ast( pcb->ast );
 
 	return TRUE;

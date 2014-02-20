@@ -3,24 +3,38 @@
 @STRING:".*"
 @COLON:
 
+# Terminal definition ----------------------------------------------------------
+
 %:termdef:@@:@IDENT:@REGEX
 %:termdef:@@:@IDENT:@STRING
 %:termdef:@@:@IDENT
 
+# Nonterminal definition -------------------------------------------------------
+
 %:nontermdef:@IDENT:@COLON:productions
 %:nontermdef:@IDENT
 
-%:symbol:@@:@IDENT
-%:symbol:@IDENT
+# Production definition --------------------------------------------------------
 
-production:production:symbol
-production:symbol
+%rhs_term_sym:symbol:@@:@IDENT
+%rhs_nonterm_sym:symbol:@IDENT
+
+# Repetitions
+%one_or_multi:csymbol:symbol:@+
+%zero_or_multi:csymbol:symbol:@*
+%one_or_zero:csymbol:symbol:@?
+csymbol:symbol
+
+production:production:csymbol
+production:csymbol
 
 %:rhs:production
 %:rhs:
 
 productions:productions:@|:rhs
 productions:rhs
+
+# Grammar definition -----------------------------------------------------------
 
 definition:termdef:@;
 definition:nontermdef:@;
@@ -30,4 +44,3 @@ definitions:definition
 
 grammar:definitions
 grammar:
-
