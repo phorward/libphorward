@@ -129,7 +129,9 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 	MSG( "Required dependencies" );
 	if( !( pg_grammar_get_goal( g ) && pg_grammar_get_eoi( g ) ) )
 	{
-		PGERR( "Grammar must provide a goal symbol and end-of-file." );
+		PGERR( g, __FILE__, __LINE__,
+				"Grammar must provide a goal symbol and end-of-file" );
+
 		RETURN( FALSE );
 	}
 
@@ -230,7 +232,9 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 	/* Required dependencies */
 	if( !( ( fs = pg_grammar_get_goal( g ) ) && pg_grammar_get_eoi( g ) ) )
 	{
-		PGERR( "Grammar must provide a goal symbol and end-of-file." );
+		PGERR( g, __FILE__, __LINE__,
+				"grammar must provide a goal symbol and end-of-file" );
+
 		return FALSE;
 	}
 
@@ -240,7 +244,9 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 		/* First set computation must be done first */
 		if( !plist_count( s->first ) )
 		{
-			PGERR( "FIRST-set must be computed first" );
+			PGERR( g, __FILE__, __LINE__,
+				"FIRST-sets must be computed first" );
+
 			return FALSE;
 		}
 
@@ -305,7 +311,8 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 
 	if( !pg_production_get( g, 0 ) )
 	{
-		PGERR( "Grammar must contain at least one production" );
+		PGERR( g, __FILE__, __LINE__,
+			"Grammar must contain at least one production" );
 		return FALSE;
 	}
 

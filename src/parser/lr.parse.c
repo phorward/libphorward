@@ -167,9 +167,10 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 					&& ( isupper( *pg_symbol_get_name( e.symbol ) )
 						|| *pg_symbol_get_name( e.symbol ) == '@' ) ) )
 	{
-		e.node = (pgastnode*)pmalloc( sizeof( pgastnode ) );
-		e.node->symbol = e.symbol;
-		e.node->token = tok;
+		e.node = pg_astnode_create( (pgasttype*)NULL );
+
+		pg_astnode_set_symbol( e.node, e.symbol );
+		pg_astnode_set_token( e.node, tok );
 	}
 
 	if( !( pcb->tos = (pglrse*)pstack_push( pcb->st, &e ) ) )
@@ -349,9 +350,9 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 			/* Construct syntax tree? */
 			if( pcb->type == TREETYPE_SYNTAX )
 			{
-				nnode = (pgastnode*)pmalloc( sizeof( pgastnode ) );
+				nnode = pg_astnode_create( (pgasttype*)NULL );
 
-				nnode->symbol = pcb->lhs;
+				pg_astnode_set_symbol( nnode, pcb->lhs );
 				nnode->child = node;
 
 				node = nnode;
@@ -369,11 +370,9 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 			if( pcb->type == TREETYPE_AST
 					&& pg_production_get_asttype( pcb->reduce ) )
 			{
-				nnode = (pgastnode*)pmalloc( sizeof( pgastnode ) );
-
-				nnode->type = pg_production_get_asttype( pcb->reduce );
+				nnode = pg_astnode_create(
+							pg_production_get_asttype( pcb->reduce ) );
 				nnode->child = node;
-
 				node = nnode;
 			}
 

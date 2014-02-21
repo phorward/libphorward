@@ -689,8 +689,6 @@ struct _regex
 
 
 
-#define PGERR( txt )				fprintf( stderr, "%s\n", txt )
-
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
@@ -787,6 +785,7 @@ struct _pggrammar
 	pgterminal*		error;			
 
 	pregex_ptn*		whitespace;		
+
 	plist*			asttypes;		
 };
 
@@ -807,8 +806,6 @@ struct _pgtoken
 };
 
 
-
-
 typedef void						(*pgastfn)( pgastnode* astnode );
 #define PG_ASTFUNC( name )			void name( pgastnode* astnode )
 
@@ -816,6 +813,8 @@ typedef void						(*pgastfn)( pgastnode* astnode );
 struct _pgasttype
 {
 	char*			name;		
+	size_t			size;		
+
 	pgastfn			topdown;	
 	pgastfn			passover;	
 	pgastfn			bottomup;	
@@ -1234,9 +1233,21 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
+pgastnode* pg_astnode_create( pgasttype* type );
+pgastnode* pg_astnode_free( pgastnode* node );
+void pg_astnode_print( pgastnode* node, FILE* stream );
+pgasttype* pg_astnode_get_type( pgastnode* node );
+pgsymbol* pg_astnode_get_symbol( pgastnode* node );
+pboolean pg_astnode_set_symbol( pgastnode* node, pgsymbol* symbol );
+pgtoken* pg_astnode_get_token( pgastnode* node );
+pboolean pg_astnode_set_token( pgastnode* node, pgtoken* token );
+
+
 pgasttype* pg_asttype_create( pggrammar* g, char* name );
 pgasttype* pg_asttype_get_by_name( pggrammar* g, char* name );
 char* pg_asttype_get_name( pgasttype* asttype );
+size_t pg_asttype_get_size( pgasttype* asttype );
+pboolean pg_asttype_set_size( pgasttype* asttype, size_t size );
 pgastfn pg_asttype_get_topdown( pgasttype* asttype );
 pboolean pg_asttype_set_topdown( pgasttype* asttype, pgastfn topdown );
 pboolean pg_asttype_call_topdown( pgasttype* asttype, pgastnode* node );
@@ -1249,6 +1260,9 @@ pboolean pg_asttype_call_bottomup( pgasttype* asttype, pgastnode* node );
 
 
 void pg_grammar_from_bnf( void );
+
+
+void PGERR( pggrammar* g, char* file, int line, char* fmt, ... );
 
 
 pggrammar* pg_grammar_create( void );

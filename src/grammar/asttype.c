@@ -5,7 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	asttype.c
-Usage:
+Usage:	AST node type
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -25,7 +25,10 @@ pgasttype* pg_asttype_create( pggrammar* g, char* name )
 
 	if( plist_get_by_key( g->asttypes, name ) )
 	{
-		/* TODO: AST-type exists in grammar */
+		PGERR( g, __FILE__, __LINE__,
+		"A ast-nodetype with name '%s' already "
+			"exists in this grammar", name );
+
 		return (pgasttype*)NULL;
 	}
 
@@ -65,6 +68,31 @@ char* pg_asttype_get_name( pgasttype* asttype )
 	}
 
 	return pgetstr( asttype->name );
+}
+
+/* Attribute: size */
+
+size_t pg_asttype_get_size( pgasttype* asttype )
+{
+	if( !( asttype ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	return asttype->size;
+}
+
+pboolean pg_asttype_set_size( pgasttype* asttype, size_t size )
+{
+	if( !( asttype ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	asttype->size = size;
+	return TRUE;
 }
 
 /* Attribute: topdown */

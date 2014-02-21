@@ -34,8 +34,10 @@ SRC = \
 	union/union.set.c \
 	xml/xml.c \
 	\
+	grammar/astnode.c \
 	grammar/asttype.c \
 	grammar/bnf.c \
+	grammar/error.c \
 	grammar/grammar.c \
 	grammar/nonterm.c \
 	grammar/production.c \

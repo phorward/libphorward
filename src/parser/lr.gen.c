@@ -255,7 +255,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 
 	if( !pg_parser_is_lr( parser ) )
 	{
-		PGERR( "Wrong paradigm to function" );
+		PGERR( pg_parser_get_grammar( parser ),
+				__FILE__, __LINE__, "Wrong paradigm to function" );
 		RETURN( FALSE );
 	}
 
@@ -612,7 +613,8 @@ BOOLEAN pg_parser_lr_reset( pgparser* parser )
 
 	if( !pg_parser_is_lr( parser ) )
 	{
-		PGERR( "Wrong paradigm to function" );
+		PGERR( pg_parser_get_grammar( parser ),
+				__FILE__, __LINE__, "Wrong paradigm to function" );
 		return FALSE;
 	}
 

@@ -30,8 +30,10 @@ pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name )
 
 	if( plist_get_by_key( grammar->symbols, name ) )
 	{
-		TODO;
-		fprintf( stderr, "Symbol '%s' already exists in this grammar\n", name );
+		PGERR( grammar, __FILE__, __LINE__,
+				"A symbol with name '%s' already "
+					"exists in this grammar", name );
+
 		return (pgsymbol*)NULL;
 	}
 

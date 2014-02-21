@@ -8,8 +8,6 @@ File:	grammar.h
 Usage:	Definitions for the grammar parsing module
 ----------------------------------------------------------------------------- */
 
-#define PGERR( txt )				fprintf( stderr, "%s\n", txt )
-
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
@@ -107,6 +105,7 @@ struct _pggrammar
 	pgterminal*		error;			/* Error token terminal symbol */
 
 	pregex_ptn*		whitespace;		/* Whitespace pattern */
+
 	plist*			asttypes;		/* AST node types */
 };
 
@@ -126,8 +125,6 @@ struct _pgtoken
 	int				col;			/* Column */
 };
 
-/* -- Abstract Syntax Tree (AST) -- */
-
 /* AST traversal function */
 typedef void						(*pgastfn)( pgastnode* astnode );
 #define PG_ASTFUNC( name )			void name( pgastnode* astnode )
@@ -136,6 +133,8 @@ typedef void						(*pgastfn)( pgastnode* astnode );
 struct _pgasttype
 {
 	char*			name;		/* Type name */
+	size_t			size;		/* User type size */
+
 	pgastfn			topdown;	/* Top-down callback */
 	pgastfn			passover;	/* Passover callback */
 	pgastfn			bottomup;	/* Bottom-up callback */
