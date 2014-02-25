@@ -6,11 +6,11 @@ all: basis regex
 clean:
 	-rm -f basis.o
 	-rm -f regex.o
-	-rm -f regex
-	-rm -f basis
+	-rm -f regex$(EXE)
+	-rm -f basis$(EXE)
 
 basis: basis.o $(LIBPHORWARD)
-	$(CC) -o $@ basis.o $(LIBPHORWARD)
+	$(CC) -o $@$(EXE) basis.o $(LIBPHORWARD)
 
 regex: regex.o $(LIBPHORWARD)
-	$(CC) -o $@ regex.o $(LIBPHORWARD)
+	$(CC) -o $@$(EXE) regex.o $(LIBPHORWARD)

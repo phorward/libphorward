@@ -70,10 +70,10 @@ OBJ = $(patsubst %.c,%.o,$(SRC))
 all: $(LIBPHORWARD) ptest
 
 ptest: ptest.o $(LIBPHORWARD)
-	$(CC) -o $@ ptest.o $(LIBPHORWARD)
+	$(CC) -o $@$(EXE) ptest.o $(LIBPHORWARD)
 
 $(LIBPHORWARD): $(LIBHEADER) $(OBJ)
-	ar rv $@ $(OBJ)
+	$(AR) rv $@ $(OBJ)
 
 clean:
 	-rm -f $(OBJ)
