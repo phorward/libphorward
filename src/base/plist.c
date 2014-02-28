@@ -34,7 +34,9 @@ static int plist_hash_compare( plist* list, char* l, char* r )
 		return -1;
 	}
 
-	if( list->flags & PLIST_MOD_WCHAR )
+	if( list->flags & PLIST_MOD_PTRKEYS )
+		res = (int)( l - r );
+	else if( list->flags & PLIST_MOD_WCHAR )
 		res = wcscmp( (pchar*)l, (pchar*)r );
 	else
 		res = strcmp( l, r );
@@ -45,8 +47,8 @@ static int plist_hash_compare( plist* list, char* l, char* r )
 /* Get hash table index */
 static int plist_hash_index( plist* list, char* key )
 {
-	psize hashval	= 0L;
-	psize len;
+	long hashval	= 0L;
+	long len;
 
 	if( !( list ) )
 	{
@@ -54,12 +56,14 @@ static int plist_hash_index( plist* list, char* key )
 		return 0;
 	}
 
-	if( list->flags & PLIST_MOD_WCHAR )
+	if( list->flags & PLIST_MOD_PTRKEYS )
+		hashval = (long)key;
+	else if( list->flags & PLIST_MOD_WCHAR )
 		for( len = (pchar)pwcslen( (pchar*)key ); len > 0; len-- )
-			hashval += (int)( (pchar*)key )[ len - 1 ];
+			hashval += (long)( (pchar*)key )[ len - 1 ];
 	else
 		for( len = (pchar)pstrlen( key ); len > 0; len-- )
-			hashval += (int)key[ len - 1 ];
+			hashval += (long)key[ len - 1 ];
 
 	return (int)( hashval % list->hashsize );
 }
@@ -166,7 +170,8 @@ static pboolean plistel_drop( plistel* e )
 	}
 
 	/* TODO: Call element destructor? */
-	if( !( e->list->flags & PLIST_MOD_EXTKEYS ) )
+	if( !( e->list->flags & PLIST_MOD_EXTKEYS )
+			&& !( e->list->flags & PLIST_MOD_PTRKEYS ) )
 		e->key = pfree( e->key );
 
 	RETURN( TRUE );
@@ -230,6 +235,7 @@ Possible flags are:
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
 - **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
 - **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
+- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
 -
 
 Use plist_free() to erase and release the returned list object. */
@@ -443,7 +449,8 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		MSG( "Key provided, will insert into hash table" );
 		VARS( "key", "%s", key );
 
-		if( list->flags & PLIST_MOD_EXTKEYS )
+		if( list->flags & PLIST_MOD_EXTKEYS
+				|| list->flags & PLIST_MOD_PTRKEYS )
 			e->key = key;
 		else if( list->flags & PLIST_MOD_WCHAR )
 			e->key = (char*)pwcsdup( (pchar*)key );
@@ -453,6 +460,7 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		if( !plist_hash_insert( list, e ) )
 		{
 			MSG( "This should not happen..." );
+			TODO;
 		}
 	}
 
@@ -613,7 +621,7 @@ plistel* plist_get_by_key( plist* list, char* key )
 
 	PROC( "plist_get_by_key" );
 	PARMS( "list", "%p", list );
-	PARMS( "key", "%s", key );
+	PARMS( "key", "%p", key );
 
 	if( !( list && key ) )
 	{
@@ -630,7 +638,7 @@ plistel* plist_get_by_key( plist* list, char* key )
 	for( e = list->hash[ idx ]; e; e = e->hashnext )
 	{
 		VARS( "e", "%p", e );
-		VARS( "e->key", "%s", e->key );
+		VARS( "e->key", "%p", e->key );
 
 		if( plist_hash_compare( list, e->key, key ) == 0 )
 		{

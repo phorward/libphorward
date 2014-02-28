@@ -160,7 +160,10 @@ void* pstack_push( pstack* stack, void* item )
 
 	/* Copy item into top of stack */
 	if( item )
-		memcpy( (char*)stack->stack + stack->top * stack->size, item, stack->size );
+	{
+		memcpy( (char*)stack->stack + stack->top * stack->size,
+					item, stack->size );
+	}
 
 	RETURN( (char*)stack->stack + stack->top++ * stack->size );
 }

@@ -13,13 +13,17 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 
 /* Defines */
 #define PLIST_MOD_NONE		0	/* No modification (for sake of completeness) */
-#define PLIST_MOD_PTR		1	/* Pointer mode: Store only pointers */
+#define PLIST_MOD_PTR		1	/* Pointer mode: Store only pointers
+									into list elements */
 #define PLIST_MOD_RECYCLE	2	/* Recycle removed elements for later
 									usage */
 #define PLIST_MOD_AUTOSORT	4	/* Automatically sort elements */
 #define PLIST_MOD_EXTKEYS	8	/* Store keys as pointer, no copying */
-#define PLIST_MOD_UNIQUE	16	/* Unique keys, no collisions */
-#define PLIST_MOD_WCHAR		32	/* Wide-character keys */
+#define PLIST_MOD_PTRKEYS	16	/* Keys are directly used and compared
+									(pointer value) */
+#define PLIST_MOD_UNIQUE	32	/* Unique keys, no collisions */
+#define PLIST_MOD_WCHAR		64	/* Use wide-character strings for keys */
+
 
 
 /* Typedefs */
