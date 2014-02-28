@@ -8,7 +8,7 @@ File:	parser.c
 Usage:
 ----------------------------------------------------------------------------- */
 
-#include "local.h"
+#include "phorward.h"
 
 /* Constructor */
 
@@ -61,10 +61,9 @@ BOOLEAN pg_parser_generate( pgparser* p )
 	if( pg_parser_is_lr( p ) )
 		return pg_parser_lr_closure( p );
 	else if( pg_parser_is_ll( p ) )
-	{
-		TODO;
-		return FALSE;
-	}
+		return pg_parser_ll_closure( p );
+	else
+		MISSINGCASE;
 
 	return FALSE;
 }
@@ -75,6 +74,10 @@ BOOLEAN pg_parser_parse( pgparser* p )
 {
 	if( pg_parser_is_lr( p ) )
 		return pg_parser_lr_parse( p );
+	else if( pg_parser_is_ll( p ) )
+		return pg_parser_ll_parse( p );
+	else
+		MISSINGCASE;
 
 	return FALSE;
 }

@@ -430,6 +430,13 @@ pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr );
 char* pg_lexer_isolate( pglexer* lex );
 pgtoken* pg_lexer_fetch( pglexer* lex );
 
+/* parser/ll.gen.c */
+pboolean pg_parser_ll_closure( pgparser* parser );
+pboolean pg_parser_ll_reset( pgparser* parser );
+
+/* parser/ll.parse.c */
+pboolean pg_parser_ll_parse( pgparser* parser );
+
 /* parser/lr.gen.c */
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
 BOOLEAN pg_parser_lr_reset( pgparser* parser );

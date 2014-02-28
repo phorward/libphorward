@@ -300,7 +300,6 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 	int				j;
 	pgproduction*	p;
 	pgsymbol*		s;
-	BOOLEAN			nullable;
 
 	/* Check parameter validity and bounding */
 	if( !( g ) )
@@ -318,22 +317,22 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 
 	for( i = 0; ( p = pg_production_get( g, i ) ); i++ )
 	{
-		p->select = plist_free( p->select );
+		plist_free( p->select );
+		p->select = plist_create( 0, PLIST_MOD_PTR );
 
-		nullable = TRUE;
 		for( j = 0; ( s = pg_production_get_rhs( p, j ) ); j++ )
 		{
 			plist_union( p->select, s->first );
 
-			if( !( nullable |= s->nullable ) )
+			if( !( s->nullable ) )
 				break;
 		}
 
-		if( nullable )
+		if( !s )
 		{
 			/* TODO: Multiple lhs */
 			s = pg_production_get_lhs( p );
-			plist_union( p->select, s->first );
+			plist_union( p->select, s->follow );
 		}
 	}
 

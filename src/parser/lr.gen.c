@@ -8,7 +8,8 @@ File:	lr.gen.c
 Usage:	LR/LALR/SLR parse table computation
 ----------------------------------------------------------------------------- */
 
-#include "local.h"
+#include "phorward.h"
+#include "lr.h"
 
 static void pg_lritem_print( pglritem* it, FILE* f )
 {

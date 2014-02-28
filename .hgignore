@@ -20,4 +20,5 @@ DEMO/regex
 NEWPROJECT/newproject
 
 tmp
-src/ptest
+src/lrtest
+src/lltest

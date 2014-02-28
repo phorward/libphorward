@@ -8,7 +8,8 @@ File:	lr.parse.c
 Usage:	Parse LR/LALR parser
 ----------------------------------------------------------------------------- */
 
-#include "local.h"
+#include "phorward.h"
+#include "lr.h"
 
 /* Stack Element */
 typedef struct

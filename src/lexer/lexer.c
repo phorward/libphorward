@@ -92,8 +92,13 @@ pglexer* pg_lexer_create( pgparser* parser )
 	pregex_nfa_free( nfa );
 
 	MSG( "Convert DFA tables into lexer" );
-	pregex_dfa_to_matrix( (pchar***)NULL, dfa );
 	l->states_cnt = pregex_dfa_to_matrix( &l->states, dfa );
+
+#if LEXTRACE
+	/* Print DFA matrix */
+	pregex_dfa_to_matrix( (pchar***)NULL, dfa );
+#endif
+
 	pregex_dfa_free( dfa );
 
 	MSG( "Reset lexer" );
@@ -500,9 +505,9 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 		{
 			trans = -1;
 			ch = pg_lexer_getinput( lex, len++ );
-
+#if LEXTRACE
 			fprintf( stderr, "ch = >%c<\n", ch );
-
+#endif
 			VARS( "ch", "%d", ch );
 			VARS( "state", "%d", state );
 
@@ -534,7 +539,9 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 			if( ch == lex->eof )
 			{
 				MSG( "EOF reached" );
+#if LEXTRACE
 				fprintf( stderr, "EOF read\n" );
+#endif
 				RETURN( (pgtoken*)NULL );
 			}
 
@@ -548,6 +555,7 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	VARS( "token", "%d", accept );
 	VARS( "len", "%d", lex->len );
 
+#if LEXTRACE
 	if( lex->source == PG_LEX_SRCTYPE_STRING
 	 		&& !( lex->flags & PG_LEXMOD_WCHAR ) )
 		fprintf( stderr, "Token %d len %d lexem >%.*s<\n",
@@ -555,6 +563,7 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	else
 		fprintf( stderr, "Token %d len %d lexem >%.*ls<\n",
 			accept, lex->len, lex->len, lex->bufbeg );
+#endif
 
 	sym = pg_symbol_get_by_id( lex->grammar, accept - 1 );
 

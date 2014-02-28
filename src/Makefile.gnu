@@ -47,6 +47,8 @@ SRC = \
 	\
 	lexer/lexer.c \
 	\
+	parser/ll.gen.c \
+	parser/ll.parse.c \
 	parser/lr.gen.c \
 	parser/lr.parse.c \
 	parser/parser.c
@@ -67,10 +69,13 @@ HSRC = \
 
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
-all: $(LIBPHORWARD) ptest
+all: $(LIBPHORWARD) lrtest$(EXE) lltest$(EXE)
 
-ptest: ptest.o $(LIBPHORWARD)
-	$(CC) -o $@$(EXE) ptest.o $(LIBPHORWARD)
+lrtest$(EXE): lrtest.o $(LIBPHORWARD)
+	$(CC) -o $@$(EXE) lrtest.o $(LIBPHORWARD)
+
+lltest$(EXE): lltest.o $(LIBPHORWARD)
+	$(CC) -o $@$(EXE) lltest.o $(LIBPHORWARD)
 
 $(LIBPHORWARD): $(LIBHEADER) $(OBJ)
 	$(AR) rv $@ $(OBJ)

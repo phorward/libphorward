@@ -24,8 +24,6 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 #define PLIST_MOD_UNIQUE	32	/* Unique keys, no collisions */
 #define PLIST_MOD_WCHAR		64	/* Use wide-character strings for keys */
 
-
-
 /* Typedefs */
 typedef struct Plistel		plistel;
 typedef struct Plist		plist;

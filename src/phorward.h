@@ -223,9 +223,9 @@ typedef struct llist
 #define PLIST_MOD_RECYCLE	2	
 #define PLIST_MOD_AUTOSORT	4	
 #define PLIST_MOD_EXTKEYS	8	
-#define PLIST_MOD_UNIQUE	16	
-#define PLIST_MOD_WCHAR		32	
-
+#define PLIST_MOD_PTRKEYS	16	
+#define PLIST_MOD_UNIQUE	32	
+#define PLIST_MOD_WCHAR		64	
 
 
 typedef struct Plistel		plistel;
@@ -1343,6 +1343,13 @@ pglexer* pg_lexer_free( pglexer* lex );
 pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr );
 char* pg_lexer_isolate( pglexer* lex );
 pgtoken* pg_lexer_fetch( pglexer* lex );
+
+
+pboolean pg_parser_ll_closure( pgparser* parser );
+pboolean pg_parser_ll_reset( pgparser* parser );
+
+
+pboolean pg_parser_ll_parse( pgparser* parser );
 
 
 BOOLEAN pg_parser_lr_closure( pgparser* parser );

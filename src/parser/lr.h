@@ -4,11 +4,9 @@ Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	local.h
-Usage:	Local definitions
+File:	lr.h
+Usage:	LR parsing definitions
 ----------------------------------------------------------------------------- */
-
-#include "phorward.h"
 
 /* Closure item */
 typedef struct
