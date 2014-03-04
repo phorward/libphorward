@@ -128,8 +128,6 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 				}
 			}
 
-			fprintf( stderr, "prev = %p\n", prev );
-
 			if( prev )
 			{
 				if( prev->child )
@@ -145,11 +143,11 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 			}
 			else if( root )
 			{
-				while( root->next )
-					root = root->next;
+				for( prev = root; prev->next; prev = prev->next )
+					;
 
-				root->next = tos->node;
-				tos->node->prev = root->next;
+				prev->next = tos->node;
+				tos->node->prev = prev->next;
 			}
 			else
 				root = tos->node;
@@ -169,7 +167,12 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 			}
 
 			/* if there is a AST node for the production, push it */
-			if( 1 )
+			if( parser->treemode == PGTREEMODE_SYNTAX
+				/* TEST TEST TEST */
+					|| ( parser->treemode == PGTREEMODE_AST
+							&& ( isupper( *pg_symbol_get_name( tos->symbol ) )
+								|| *pg_symbol_get_name( tos->symbol ) == '@' )
+							) )
 			{
 				tos->node = pg_astnode_create( (pgasttype*)NULL );
 				tos->node->symbol = tos->symbol;
@@ -202,13 +205,17 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 			}
 
 			/* if there is a AST node for the production, push this first */
-			if( 1 || pg_production_get_asttype( p ) )
+			if( parser->treemode == PGTREEMODE_AST &&
+					pg_production_get_asttype( p ) )
 			{
 				tos->node = pg_astnode_create( pg_production_get_asttype( p ) );
+				tos->symbol = (pgsymbol*)NULL;
+			}
+			else if( parser->treemode == PGTREEMODE_SYNTAX )
+			{
+				tos->node = pg_astnode_create( (pgasttype*)NULL );
 				tos->node->symbol = pg_production_get_lhs( p );
 				tos->symbol = (pgsymbol*)NULL;
-
-				fprintf( stderr, "new node %p\n", tos->node );
 			}
 			else
 				pstack_pop( stack );

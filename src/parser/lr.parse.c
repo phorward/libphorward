@@ -39,14 +39,6 @@ typedef struct
 	pgsymbol*		lhs;	/* Default left-hand side */
 
 	/* AST */
-	short			type;	/* 	0 do nothing
-								1 make AST
-								2 make syntax tree
-							*/
-
-#define TREETYPE_NONE	0
-#define TREETYPE_AST	1
-#define TREETYPE_SYNTAX	2
 	pgastnode*		ast;
 }
 pglrpcb;
@@ -161,9 +153,9 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 		e.symbol = sym;
 
 	/* AST */
-	if( ( pcb->type == TREETYPE_SYNTAX && e.symbol )
+	if( ( pcb->p->treemode == PGTREEMODE_SYNTAX && e.symbol )
 		/* TEST TEST TEST */
-			|| ( pcb->type == TREETYPE_AST
+			|| ( pcb->p->treemode == PGTREEMODE_AST
 					&& pg_symbol_is_terminal( e.symbol )
 					&& ( isupper( *pg_symbol_get_name( e.symbol ) )
 						|| *pg_symbol_get_name( e.symbol ) == '@' ) ) )
@@ -289,8 +281,6 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 	/* Initialize parser control block */
 	memset( pcb, 0, sizeof( pglrpcb ) );
 
-	pcb->type = TREETYPE_AST;
-	/* pcb->type = TREETYPE_SYNTAX; */
 	pcb->p = parser;
 	pcb->g = pg_parser_get_grammar( pcb->p );
 	pcb->st = pstack_create( sizeof( pglrse ), 64 );
@@ -349,7 +339,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 			pop( pcb, pg_production_get_rhs_length( pcb->reduce ), &node );
 
 			/* Construct syntax tree? */
-			if( pcb->type == TREETYPE_SYNTAX )
+			if( pcb->p->treemode == PGTREEMODE_SYNTAX )
 			{
 				nnode = pg_astnode_create( (pgasttype*)NULL );
 
@@ -368,7 +358,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 			}
 
 			/* Construct abstract syntax tree */
-			if( pcb->type == TREETYPE_AST
+			if( pcb->p->treemode == PGTREEMODE_AST
 					&& pg_production_get_asttype( pcb->reduce ) )
 			{
 				nnode = pg_astnode_create(

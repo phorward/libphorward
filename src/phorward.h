@@ -891,6 +891,13 @@ struct _pglexer
 
 typedef struct _pgparser		pgparser;
 
+typedef enum
+{
+	PGTREEMODE_NONE,
+	PGTREEMODE_SYNTAX,
+	PGTREEMODE_AST
+} pgtreemode;
+
 
 struct _pgparser
 {
@@ -900,6 +907,8 @@ struct _pgparser
 	pglexer*		lexer;		
 
 	plist*			states;		
+
+	pgtreemode		treemode;	
 
 	pboolean		optimize;	
 	char*			source;		

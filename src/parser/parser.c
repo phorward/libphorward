@@ -26,6 +26,7 @@ pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm )
 	parser = (pgparser*)pmalloc( sizeof( pgparser ) );
 	parser->grammar = grammar;
 	parser->paradigm = paradigm;
+	parser->treemode = PGTREEMODE_AST;
 
 	parser->optimize = TRUE;
 
