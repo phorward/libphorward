@@ -199,7 +199,7 @@ void* pstack_pop( pstack* stack )
 	RETURN( (char*)stack->stack + ( --stack->top * stack->size ) );
 }
 
-/** Access an element from the stack via its offset position.
+/** Access an element from the stack via its offset position from the bottom.
 
 //stack// is the pointer to stack where to access the element from.
 //offset// is the offset of the element to be accessed from the stack's
@@ -207,6 +207,8 @@ base address.
 
 Returns the address of the accessed item, and (void*)NULL if the item could not
 be accessed (e.g. if the stack is empty or offset is beyond the top of stack).
+
+Use pstack_raccess() for access items from the top.
 */
 void* pstack_access( pstack* stack, size_t offset )
 {
@@ -227,6 +229,33 @@ void* pstack_access( pstack* stack, size_t offset )
 	}
 
 	RETURN( (char*)stack->stack + offset * stack->size );
+}
+
+/** Access an element from the stack via its offset position from the top.
+
+//stack// is the pointer to stack where to access the element from.
+//offset// is the offset of the element to be accessed from the stack's
+base address.
+
+Returns the address of the accessed item, and (void*)NULL if the item could not
+be accessed (e.g. if the stack is empty or offset is beyond the bottom of
+the stack).
+
+Use pstack_access() for access items from the bottom.
+*/
+void* pstack_raccess( pstack* stack, size_t offset )
+{
+	PROC( "pstack_raccess" );
+	PARMS( "stack", "%p", stack );
+	PARMS( "offset", "%d", offset );
+
+	if( !stack )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	RETURN( pstack_access( stack, stack->top - 1 - offset ) );
 }
 
 /** Access top element of the stack.
@@ -282,4 +311,3 @@ int pstack_count( pstack* stack )
 
 	return stack->top;
 }
-

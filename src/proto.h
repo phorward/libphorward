@@ -66,6 +66,7 @@ pstack* pstack_free( pstack* stack );
 void* pstack_push( pstack* stack, void* item );
 void* pstack_pop( pstack* stack );
 void* pstack_access( pstack* stack, size_t offset );
+void* pstack_raccess( pstack* stack, size_t offset );
 void* pstack_top( pstack* stack );
 void* pstack_bottom( pstack* stack );
 int pstack_count( pstack* stack );

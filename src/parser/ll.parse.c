@@ -15,7 +15,7 @@ Usage:	LL parser
 typedef struct
 {
 	pgsymbol*		symbol;
-	pgastnode*		parent;
+	pgastnode*		node;
 } pgllse;
 
 static pgtoken* lookahead( pgparser* parser )
@@ -31,6 +31,34 @@ static pgtoken* lookahead( pgparser* parser )
 	return la;
 }
 
+static void print_ast( int cnt, pgastnode* node )
+{
+	int			i;
+	pgastnode*	child;
+
+	while( node )
+	{
+		for( i = 0; i < cnt; i++ )
+			fprintf( stderr, " " );
+
+		if( node->type )
+			fprintf( stderr, "%s\n",
+				pg_asttype_get_name( node->type ) );
+		else if( node->token )
+			fprintf( stderr, "%s = >%s< w>%ls<\n",
+				pg_symbol_get_name( node->symbol ),
+					pg_token_get_lexem( node->token ),
+					pg_token_get_wlexem( node->token ) );
+		else
+			fprintf( stderr, "%s\n",
+				pg_symbol_get_name( node->symbol ) );
+
+		print_ast( cnt + 1, node->child );
+
+		node = node->next;
+	}
+}
+
 pboolean pg_parser_ll_parse( pgparser* parser )
 {
 	int				i;
@@ -41,8 +69,8 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 	pgtoken*		la;
 	plist*			trans;
 	pgproduction*	p;
-
 	pgastnode*		root		= (pgastnode*)NULL;
+	pgastnode*		prev;
 
 	PROC( "pg_parser_ll_parse" );
 	PARMS( "parser", "%p", parser );
@@ -70,20 +98,66 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 
 	while( ( tos = (pgllse*)pstack_top( stack ) ) )
 	{
-		/* print stack */
+		/* DEBUG: print stack */
 		fprintf( stderr, "--\n" );
 
 		for( i = 0; i < pstack_count( stack ); i++ )
 		{
 			se = (pgllse*)pstack_access( stack, i );
 
-			fprintf( stderr, "%02d: %s%s\n", i,
-				pg_symbol_is_terminal( se->symbol ) ?
-					"@" : "",
-				pg_symbol_get_name( se->symbol ) );
+			if( se->symbol )
+				fprintf( stderr, "%02d: %s%s\n", i,
+					pg_symbol_is_terminal( se->symbol ) ?
+						"@" : "",
+					pg_symbol_get_name( se->symbol ) );
+			else
+				fprintf( stderr, "%02d: (node) %p\n", i,
+					se->node );
 		}
 
-		if( pg_symbol_is_terminal( tos->symbol ) )
+		/* If this is a AST node, chain it */
+		if( tos->node  )
+		{
+			for( i = 1, prev = (pgastnode*)NULL;
+					se = (pgllse*)pstack_raccess( stack, i ); i++ )
+			{
+				if( se->node )
+				{
+					prev = se->node;
+					break;
+				}
+			}
+
+			fprintf( stderr, "prev = %p\n", prev );
+
+			if( prev )
+			{
+				if( prev->child )
+				{
+					for( prev = prev->child; prev->next; prev = prev->next )
+						;
+
+					prev->next = tos->node;
+					tos->node->prev= prev->next;
+				}
+				else
+					prev->child = tos->node;
+			}
+			else if( root )
+			{
+				while( root->next )
+					root = root->next;
+
+				root->next = tos->node;
+				tos->node->prev = root->next;
+			}
+			else
+				root = tos->node;
+
+			pstack_pop( stack );
+		}
+		/* Terminal */
+		else if( pg_symbol_is_terminal( tos->symbol ) )
 		{
 			fprintf( stderr, "tos is terminal\n" );
 
@@ -94,12 +168,23 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 				break;
 			}
 
-			pstack_pop( stack );
+			/* if there is a AST node for the production, push it */
+			if( 1 )
+			{
+				tos->node = pg_astnode_create( (pgasttype*)NULL );
+				tos->node->symbol = tos->symbol;
+				tos->node->token = la;
+
+				tos->symbol = (pgsymbol*)NULL;
+			}
+			else
+				pstack_pop( stack );
 
 			/* get next lookahead */
 			la = lookahead( parser );
 		}
-		else
+		/* Nonterminal */
+		else if( tos->symbol )
 		{
 			fprintf( stderr, "tos is nonterminal\n" );
 
@@ -116,7 +201,17 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 				break;
 			}
 
-			pstack_pop( stack );
+			/* if there is a AST node for the production, push this first */
+			if( 1 || pg_production_get_asttype( p ) )
+			{
+				tos->node = pg_astnode_create( pg_production_get_asttype( p ) );
+				tos->node->symbol = pg_production_get_lhs( p );
+				tos->symbol = (pgsymbol*)NULL;
+
+				fprintf( stderr, "new node %p\n", tos->node );
+			}
+			else
+				pstack_pop( stack );
 
 			/* push symbols in reverse order */
 			for( i = pg_production_get_rhs_length( p ) - 1;
@@ -124,14 +219,21 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 			{
 				tos = (pgllse*)pstack_push( stack, (void*)NULL );
 				tos->symbol = sym;
+				tos->node = (pgastnode*)NULL;
 			}
 		}
+		/* Anything else (empty) */
+		else
+			pstack_pop( stack );
 	}
 
 	pstack_free( stack );
 
 	if( !tos )
 		fprintf( stderr, "Parse complete\n" );
+
+	if( root )
+		print_ast( 0, root );
 
 	RETURN( tos ? FALSE : TRUE );
 }

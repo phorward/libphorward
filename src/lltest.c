@@ -63,7 +63,7 @@ int main()
 
 	p = pg_parser_create( g, PGPARADIGM_LL1 );
 
-	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "123+4*567+3" );
+	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "1+2*3+456" );
 	pg_parser_parse( p );
 
 	/*
