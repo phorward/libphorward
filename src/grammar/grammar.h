@@ -15,6 +15,7 @@ typedef struct _pgtoken				pgtoken;
 
 typedef struct _pgasttype			pgasttype;	/* AST node type */
 typedef struct _pgastnode			pgastnode;	/* AST node */
+typedef struct _pgast				pgast;
 
 typedef enum
 {
@@ -91,7 +92,7 @@ struct _pgproduction
 
 	char*			strval;			/* String representation */
 
-	pgasttype*		asttype;		/* Generating AST type */
+	pgasttype*		asttype;		/* Associated AST type */
 };
 
 /* Grammar */
@@ -154,3 +155,18 @@ struct _pgastnode
 	pgastnode*		next;		/* Next node in current level */
 };
 
+/* AST creation mode */
+typedef enum
+{
+	PGASTMODE_NONE,				/* For sake of completeness */
+	PGASTMODE_SYNTAX,			/* Syntax tree */
+	PGASTMODE_AST				/* Abstract syntax tree */
+} pgastmode;
+
+/* AST */
+struct _pgast
+{
+	pggrammar*		grammar;	/* Grammar where AST belongs to */
+	pgastmode		mode;		/* AST creation mode */
+	pgastnode*		root;		/* AST root node */
+};

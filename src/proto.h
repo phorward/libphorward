@@ -319,6 +319,14 @@ int xml_count( XML_T xml );
 int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
+/* grammar/ast.c */
+pgast* pg_ast_create( pggrammar* g, pgastmode mode );
+pgast* pg_ast_free( pgast* ast );
+void pg_ast_print( pgast* ast );
+pgastmode pg_ast_get_mode( pgast* ast );
+pgastnode* pg_ast_get_root( pgast* ast );
+pboolean pg_ast_set_root( pgast* ast, pgastnode* root );
+
 /* grammar/astnode.c */
 pgastnode* pg_astnode_create( pgasttype* type );
 pgastnode* pg_astnode_free( pgastnode* node );
@@ -436,20 +444,21 @@ pboolean pg_parser_ll_closure( pgparser* parser );
 pboolean pg_parser_ll_reset( pgparser* parser );
 
 /* parser/ll.parse.c */
-pboolean pg_parser_ll_parse( pgparser* parser );
+pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast );
 
 /* parser/lr.gen.c */
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
 BOOLEAN pg_parser_lr_reset( pgparser* parser );
 
 /* parser/lr.parse.c */
-pboolean pg_parser_lr_parse( pgparser* parser );
+pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast );
 
 /* parser/parser.c */
 pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
 pgparser* pg_parser_free( pgparser* parser );
 BOOLEAN pg_parser_generate( pgparser* p );
 BOOLEAN pg_parser_parse( pgparser* p );
+pgast* pg_parser_parse_to_ast( pgparser* p, pgastmode mode );
 BOOLEAN pg_parser_is_lr( pgparser* p );
 BOOLEAN pg_parser_is_ll( pgparser* p );
 pggrammar* pg_parser_get_grammar( pgparser* p );

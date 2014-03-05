@@ -10,13 +10,6 @@ Usage:
 
 typedef struct _pgparser		pgparser;
 
-typedef enum
-{
-	PGTREEMODE_NONE,
-	PGTREEMODE_SYNTAX,
-	PGTREEMODE_AST
-} pgtreemode;
-
 /* Parser */
 struct _pgparser
 {
@@ -26,8 +19,6 @@ struct _pgparser
 	pglexer*		lexer;		/* The lexer */
 
 	plist*			states;		/* The parser states */
-
-	pgtreemode		treemode;	/* Tree creation mode */
 
 	pboolean		optimize;	/* Enable state optimizeion */
 	char*			source;		/* Source */

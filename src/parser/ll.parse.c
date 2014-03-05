@@ -59,7 +59,7 @@ static void print_ast( int cnt, pgastnode* node )
 	}
 }
 
-pboolean pg_parser_ll_parse( pgparser* parser )
+pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 {
 	int				i;
 	pgsymbol*		sym;
@@ -116,7 +116,7 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 		}
 
 		/* If this is a AST node, chain it */
-		if( tos->node  )
+		if( tos->node )
 		{
 			for( i = 1, prev = (pgastnode*)NULL;
 					se = (pgllse*)pstack_raccess( stack, i ); i++ )
@@ -167,12 +167,13 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 			}
 
 			/* if there is a AST node for the production, push it */
-			if( parser->treemode == PGTREEMODE_SYNTAX
-				/* TEST TEST TEST */
-					|| ( parser->treemode == PGTREEMODE_AST
+			if( ast && ( pg_ast_get_mode( ast ) == PGASTMODE_SYNTAX
+						/* TEST TEST TEST */
+						|| ( pg_ast_get_mode( ast ) == PGASTMODE_AST
 							&& ( isupper( *pg_symbol_get_name( tos->symbol ) )
 								|| *pg_symbol_get_name( tos->symbol ) == '@' )
-							) )
+							)
+						) )
 			{
 				tos->node = pg_astnode_create( (pgasttype*)NULL );
 				tos->node->symbol = tos->symbol;
@@ -205,13 +206,13 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 			}
 
 			/* if there is a AST node for the production, push this first */
-			if( parser->treemode == PGTREEMODE_AST &&
+			if( ast && pg_ast_get_mode( ast ) == PGASTMODE_AST &&
 					pg_production_get_asttype( p ) )
 			{
 				tos->node = pg_astnode_create( pg_production_get_asttype( p ) );
 				tos->symbol = (pgsymbol*)NULL;
 			}
-			else if( parser->treemode == PGTREEMODE_SYNTAX )
+			else if(  ast && pg_ast_get_mode( ast ) == PGASTMODE_SYNTAX )
 			{
 				tos->node = pg_astnode_create( (pgasttype*)NULL );
 				tos->node->symbol = pg_production_get_lhs( p );
@@ -239,8 +240,8 @@ pboolean pg_parser_ll_parse( pgparser* parser )
 	if( !tos )
 		fprintf( stderr, "Parse complete\n" );
 
-	if( root )
-		print_ast( 0, root );
+	if( ast && root )
+		pg_ast_set_root( ast, root );
 
 	RETURN( tos ? FALSE : TRUE );
 }

@@ -26,7 +26,6 @@ pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm )
 	parser = (pgparser*)pmalloc( sizeof( pgparser ) );
 	parser->grammar = grammar;
 	parser->paradigm = paradigm;
-	parser->treemode = PGTREEMODE_AST;
 
 	parser->optimize = TRUE;
 
@@ -73,14 +72,44 @@ BOOLEAN pg_parser_generate( pgparser* p )
 
 BOOLEAN pg_parser_parse( pgparser* p )
 {
+	if( !p )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
 	if( pg_parser_is_lr( p ) )
-		return pg_parser_lr_parse( p );
+		return pg_parser_lr_parse( p, (pgast*)NULL );
 	else if( pg_parser_is_ll( p ) )
-		return pg_parser_ll_parse( p );
+		return pg_parser_ll_parse( p, (pgast*)NULL  );
 	else
 		MISSINGCASE;
 
 	return FALSE;
+}
+
+pgast* pg_parser_parse_to_ast( pgparser* p, pgastmode mode )
+{
+	pgast*	ast;
+
+	if( !p )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	ast = pg_ast_create( pg_parser_get_grammar( p ), mode );
+
+	if( pg_parser_is_lr( p ) && pg_parser_lr_parse( p, ast ) )
+		return ast;
+	else if( pg_parser_is_ll( p ) && pg_parser_ll_parse( p, ast ) )
+		return ast;
+	else
+		MISSINGCASE;
+
+	ast = pg_ast_free( ast );
+
+	return ast;
 }
 
 /* Check */

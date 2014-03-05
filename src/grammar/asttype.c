@@ -23,11 +23,10 @@ pgasttype* pg_asttype_create( pggrammar* g, char* name )
 		return (pgasttype*)NULL;
 	}
 
-	if( plist_get_by_key( g->asttypes, name ) )
+	if( pg_asttype_get_by_name( g, name ) )
 	{
 		PGERR( g, __FILE__, __LINE__,
-		"A ast-nodetype with name '%s' already "
-			"exists in this grammar", name );
+			"This grammar already contains a type named '%s'", name );
 
 		return (pgasttype*)NULL;
 	}

@@ -43,6 +43,7 @@ int main()
 	pgasttype*		at;
 
 	pgtoken*		tok;
+	pgast*			ast;
 
 	pg_grammar_from_bnf();
 	return 0;
@@ -133,7 +134,8 @@ int main()
 
 	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING,
 		"1+2*3/4-5" );
-	pg_parser_parse( p );
+	if( ( ast = pg_parser_parse_to_ast( p, PGASTMODE_AST ) ) )
+		pg_ast_print( ast );
 
 	/*
 	getchar();

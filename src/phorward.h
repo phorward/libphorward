@@ -696,6 +696,7 @@ typedef struct _pgtoken				pgtoken;
 
 typedef struct _pgasttype			pgasttype;	
 typedef struct _pgastnode			pgastnode;	
+typedef struct _pgast				pgast;
 
 typedef enum
 {
@@ -835,6 +836,21 @@ struct _pgastnode
 };
 
 
+typedef enum
+{
+	PGASTMODE_NONE,				
+	PGASTMODE_SYNTAX,			
+	PGASTMODE_AST				
+} pgastmode;
+
+
+struct _pgast
+{
+	pggrammar*		grammar;	
+	pgastmode		mode;		
+	pgastnode*		root;		
+};
+
 
 
 typedef struct _pglexer			pglexer;
@@ -891,13 +907,6 @@ struct _pglexer
 
 typedef struct _pgparser		pgparser;
 
-typedef enum
-{
-	PGTREEMODE_NONE,
-	PGTREEMODE_SYNTAX,
-	PGTREEMODE_AST
-} pgtreemode;
-
 
 struct _pgparser
 {
@@ -907,8 +916,6 @@ struct _pgparser
 	pglexer*		lexer;		
 
 	plist*			states;		
-
-	pgtreemode		treemode;	
 
 	pboolean		optimize;	
 	char*			source;		
@@ -1243,6 +1250,14 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
+pgast* pg_ast_create( pggrammar* g, pgastmode mode );
+pgast* pg_ast_free( pgast* ast );
+void pg_ast_print( pgast* ast );
+pgastmode pg_ast_get_mode( pgast* ast );
+pgastnode* pg_ast_get_root( pgast* ast );
+pboolean pg_ast_set_root( pgast* ast, pgastnode* root );
+
+
 pgastnode* pg_astnode_create( pgasttype* type );
 pgastnode* pg_astnode_free( pgastnode* node );
 void pg_astnode_print( pgastnode* node, FILE* stream );
@@ -1359,20 +1374,21 @@ pboolean pg_parser_ll_closure( pgparser* parser );
 pboolean pg_parser_ll_reset( pgparser* parser );
 
 
-pboolean pg_parser_ll_parse( pgparser* parser );
+pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast );
 
 
 BOOLEAN pg_parser_lr_closure( pgparser* parser );
 BOOLEAN pg_parser_lr_reset( pgparser* parser );
 
 
-pboolean pg_parser_lr_parse( pgparser* parser );
+pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast );
 
 
 pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
 pgparser* pg_parser_free( pgparser* parser );
 BOOLEAN pg_parser_generate( pgparser* p );
 BOOLEAN pg_parser_parse( pgparser* p );
+pgast* pg_parser_parse_to_ast( pgparser* p, pgastmode mode );
 BOOLEAN pg_parser_is_lr( pgparser* p );
 BOOLEAN pg_parser_is_ll( pgparser* p );
 pggrammar* pg_parser_get_grammar( pgparser* p );

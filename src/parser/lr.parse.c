@@ -27,6 +27,7 @@ typedef struct
 {
 	pgparser*		p;		/* Parser */
 	pggrammar*		g;		/* Grammar */
+	pgast*			ast;	/* AST */
 
 	pstack*			st;		/* Stack */
 	pglrse*			tos;	/* Top of stack */
@@ -37,9 +38,6 @@ typedef struct
 	pglrstate*		shift;	/* Shift to state */
 	pgproduction*	reduce;	/* Reduce by production */
 	pgsymbol*		lhs;	/* Default left-hand side */
-
-	/* AST */
-	pgastnode*		ast;
 }
 pglrpcb;
 
@@ -76,34 +74,6 @@ static void print_stack( pglrpcb* pcb )
 					) ;
 	}
 
-}
-
-static void print_ast( int cnt, pgastnode* node )
-{
-	int			i;
-	pgastnode*	child;
-
-	while( node )
-	{
-		for( i = 0; i < cnt; i++ )
-			fprintf( stderr, " " );
-
-		if( node->type )
-			fprintf( stderr, "%s\n",
-				pg_asttype_get_name( node->type ) );
-		else if( node->token )
-			fprintf( stderr, "%s = >%s< w>%ls<\n",
-				pg_symbol_get_name( node->symbol ),
-					pg_token_get_lexem( node->token ),
-					pg_token_get_wlexem( node->token ) );
-		else
-			fprintf( stderr, "%s\n",
-				pg_symbol_get_name( node->symbol ) );
-
-		print_ast( cnt + 1, node->child );
-
-		node = node->next;
-	}
 }
 
 static void traverse_ast( pgastnode* node )
@@ -153,12 +123,14 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 		e.symbol = sym;
 
 	/* AST */
-	if( ( pcb->p->treemode == PGTREEMODE_SYNTAX && e.symbol )
+	if( pcb->ast && ( ( pg_ast_get_mode( pcb->ast ) == PGASTMODE_SYNTAX
+						&& e.symbol )
 		/* TEST TEST TEST */
-			|| ( pcb->p->treemode == PGTREEMODE_AST
-					&& pg_symbol_is_terminal( e.symbol )
-					&& ( isupper( *pg_symbol_get_name( e.symbol ) )
-						|| *pg_symbol_get_name( e.symbol ) == '@' ) ) )
+					|| ( pg_ast_get_mode( pcb->ast ) == PGASTMODE_AST
+							&& pg_symbol_is_terminal( e.symbol )
+							&& ( isupper( *pg_symbol_get_name( e.symbol ) )
+								|| *pg_symbol_get_name( e.symbol ) == '@' )
+						) ) )
 	{
 		e.node = pg_astnode_create( (pgasttype*)NULL );
 
@@ -262,7 +234,7 @@ static pboolean get_goto( pglrpcb* pcb )
 	return FALSE;
 }
 
-pboolean pg_parser_lr_parse( pgparser* parser )
+pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast )
 {
 	pglrpcb		PCB;
 	pglrpcb*	pcb 	= &PCB;
@@ -283,6 +255,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 
 	pcb->p = parser;
 	pcb->g = pg_parser_get_grammar( pcb->p );
+	pcb->ast = ast;
 	pcb->st = pstack_create( sizeof( pglrse ), 64 );
 
 	push( pcb, (pgsymbol*)NULL,
@@ -339,7 +312,7 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 			pop( pcb, pg_production_get_rhs_length( pcb->reduce ), &node );
 
 			/* Construct syntax tree? */
-			if( pcb->p->treemode == PGTREEMODE_SYNTAX )
+			if( pcb->ast && pg_ast_get_mode( pcb->ast ) == PGASTMODE_SYNTAX )
 			{
 				nnode = pg_astnode_create( (pgasttype*)NULL );
 
@@ -353,12 +326,14 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 			if( pcb->lhs == pg_grammar_get_goal( pcb->g )
 					&& pstack_count( pcb->st ) == 1 )
 			{
-				pcb->ast = node;
+				if( pcb->ast )
+					pg_ast_set_root( pcb->ast, node );
+
 				break;
 			}
 
 			/* Construct abstract syntax tree */
-			if( pcb->p->treemode == PGTREEMODE_AST
+			if( pcb->ast && pg_ast_get_mode( pcb->ast ) == PGASTMODE_AST
 					&& pg_production_get_asttype( pcb->reduce ) )
 			{
 				nnode = pg_astnode_create(
@@ -377,11 +352,6 @@ pboolean pg_parser_lr_parse( pgparser* parser )
 	while( !pcb->reduce ); /* Break on goal */
 
 	fprintf( stderr, "goal symbol reduced!\n" );
-
-	fprintf( stderr, "--- AST visualization ---\n" );
-	print_ast( 0, pcb->ast );
-	fprintf( stderr, "--- AST traversal (demo) ---\n" );
-	traverse_ast( pcb->ast );
 
 	return TRUE;
 }

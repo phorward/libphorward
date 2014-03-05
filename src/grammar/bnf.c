@@ -20,6 +20,7 @@ void pg_grammar_from_bnf( void )
 {
 	pggrammar*	g;
 	pgparser*	p;
+	pgast*		ast;
 
 	g = pg_grammar_create();
 	bnf_grammar( g );
@@ -33,5 +34,6 @@ void pg_grammar_from_bnf( void )
 							"start: @ident;"
 							"test: start @ident+;" );
 
-	pg_parser_parse( p );
+	if( ( ast = pg_parser_parse_to_ast( p, PGASTMODE_AST ) ) )
+		pg_ast_print( ast );
 }
