@@ -16,17 +16,27 @@
 
 # Production definition --------------------------------------------------------
 
-%rhs_term_sym:symbol:@@:@IDENT
-%rhs_nonterm_sym:symbol:@IDENT
+# Symbols
+
+%:nonterm:@IDENT
+%:term:@@:@IDENT
+
+symbol:term
+symbol:nonterm
 
 # Repetitions
-%one_or_multi:csymbol:symbol:@+
-%zero_or_multi:csymbol:symbol:@*
-%one_or_zero:csymbol:symbol:@?
-csymbol:symbol
+%mod_positive:mod_symbol:symbol:@+
+%mod_kleene:mod_symbol:symbol:@*
+%mod_optional:mod_symbol:symbol:@?
+mod_symbol:symbol
 
-production:production:csymbol
-production:csymbol
+# Named symbol
+named_symbol:mod_symbol:@=:@@IDENT
+named_symbol:mod_symbol
+
+# Production
+production:production:named_symbol
+production:named_symbol
 
 %:rhs:production
 %:rhs:

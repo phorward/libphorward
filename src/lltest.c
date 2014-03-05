@@ -62,6 +62,7 @@ int main()
 	pg_grammar_print( g );
 
 	p = pg_parser_create( g, PGPARADIGM_LL1 );
+	p->treemode = PGTREEMODE_SYNTAX;
 
 	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "1+2*3" );
 	pg_parser_parse( p );
