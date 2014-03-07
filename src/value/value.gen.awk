@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #This is a utility script to generate get-/set and conversion-functions for the
-#union data type punion implemented in union.h
+#union data type pgvalue implemented in union.h
 #
 #I was lazy, had not the wish to write every of  this functions by hand... so
 #I'm sorry for yet another generator script...
@@ -18,7 +18,9 @@ BEGIN								{
 
 										print "/*"
 										print " * WARNING:"
-										print " * THIS FILE IS GENERATED - DO NOT EDIT MANUALLY - IT WILL GO AWAY!"
+										print " * THIS FILE IS GENERATED "\
+												"- DO NOT EDIT MANUALLY - "\
+												"IT WILL GO AWAY!"
 										print " */"
 										print ""
 										print "#include \"phorward.h\""
@@ -79,7 +81,8 @@ END									{
 										members[ datatype SUBSEP \
 													"var_define" ] = var_define
 										members[ datatype SUBSEP \
-													"var_emptyval" ] = var_emptyval
+													"var_emptyval" ] = \
+														var_emptyval
 
 										setcode = ""
 										first = 1
@@ -145,69 +148,68 @@ END									{
 function setfunc()
 {
 	# Comment
-	print "/** Sets a variants " datatype " data value and type."
+	print "/** Sets the " datatype " data value and type."
+	print "//val// is the pgvalue-object to be set."
 	print ""
-	print "//var// is the pointer to the punion structure."
-	print ""
-	print "//" member "// is the " datatype " value to be assigned to //var//."
+	print "//" member "// is the " datatype " value to be assigned to //val//."
 	print ""
 	print "The function always returns the value //" member "//."
 	print "*/"
 
 	# Code
-	print datatype " punion_set_" var_type "( punion* var, " \
+	print datatype " pgvalue_set_" var_type "( pgvalue* val, " \
 				datatype " " member " )"
 	print "{"
-	print "	PROC( \"punion_set_" var_type "\" );"
-	print "	PARMS( \"var\", \"%p\", var );"
+	print "	PROC( \"pgvalue_set_" var_type "\" );"
+	print "	PARMS( \"val\", \"%p\", val );"
 	print "	PARMS( \"" member "\", \"" var_format "\", " member " );"
 	print ""
-	print "	punion_reset( var );"
-	print "	var->type &= ~0x0F;"
-	print "	var->type |= " var_define ";"
-	print "	var->val." member " = " member ";"
+	print "	pgvalue_reset( val );"
+	print "	val->type &= ~0x0F;"
+	print "	val->type |= " var_define ";"
+	print "	val->val." member " = " member ";"
 
 	if( setcode != "" )
 		print setcode
 
 	print ""
-	print "	RETURN( var->val." member " );"
+	print "	RETURN( val->val." member " );"
 	print "}\n"
 }
 
 function getfunc()
 {
 	# Comment
-	print "/** Returns a punions " datatype " data value."
+	print "/** Returns the " datatype " data value if //val//."
 	print ""
-	print "If the variant exists in another data type, it will be converted,"
-	print "so use it carefully if data loss is not desired."
+	print "If the pgvalue contains another data type, it will be converted,"
+	print "so use it carefully if data loss is not wanted."
 	print ""
-	print "//var// is the pointer to the punion structure."
+	print "//val// is the pointer to the pgvalue structure."
 	print ""
-	print "The function returns the value assigned to //var// as " datatype "."
-	print "This value could be converted from the punions original value."
+	print "The function returns the value assigned to //val// as " datatype "."
+	print "This value could be converted from the original value."
 	print "*/"
 
 	# Code
-	print datatype " punion_get_" var_type "( punion* var )"
+	print datatype " pgvalue_get_" var_type "( pgvalue* val )"
 	print "{"
-	print "	PROC( \"punion_get_" var_type "\" );"
-	print "	PARMS( \"var\", \"%p\", var );"
+	print "	PROC( \"pgvalue_get_" var_type "\" );"
+	print "	PARMS( \"val\", \"%p\", val );"
 	print ""
-	print "	if( punion_type( var ) != " var_define ")"
+	print "	if( pgvalue_type( val ) != " var_define ")"
 	print "	{"
-	print "		if( punion_is_convertible( var ) )"
+	print "		if( pgvalue_is_convertible( val ) )"
 	print "		{"
 	print "			MSG( \"Conversion allowed and required\" );"
-	print "			if( punion_convert( var, " var_define " ) != ERR_OK )"
+	print "			if( !pgvalue_convert( val, " var_define " ) )"
 	print "				RETURN( (" datatype ")" var_emptyval " );"
 	print "		}"
 	print "		else"
 	print "			RETURN( (" datatype ")" var_emptyval " );"
 	print "	}"
 	print ""
-	print "	RETURN( var->val." member " );"
+	print "	RETURN( val->val." member " );"
 	print "}\n"
 }
 
@@ -222,13 +224,14 @@ function convfunc( type )
 	var_define = members[ type SUBSEP "var_define" ]
 	var_emptyval = members[ type SUBSEP "var_emptyval" ]
 
-	print "/** Converts a variant's current value into a " type " value."
+	print "/** Converts the current value of //val// into a " type " value."
 
 	if( var_type ~ /string/ )
-		print "The returned memory is allocated, and must be freed by the caller."
+		print "The returned memory is allocated, "\
+			"and must be freed by the caller."
 
 	print ""
-	print "//var// is a pointer to the punion structure to convert from."
+	print "//val// is the pgvalue-object to convert from."
 	print ""
 	print "The function returns the " type "-value of the variant."
 
@@ -237,13 +240,13 @@ function convfunc( type )
 	print "*/"
 
 	# Code
-	print type " punion_to_" var_type "( punion* var )"
+	print type " pgvalue_to_" var_type "( pgvalue* val )"
 	print "{"
-	print "	PROC( \"punion_to_" var_type "\" );"
-	print "	PARMS( \"var\", \"%p\", var );"
+	print "	PROC( \"pgvalue_to_" var_type "\" );"
+	print "	PARMS( \"val\", \"%p\", val );"
 	print ""
 
-	print "	switch( punion_type( var ) )"
+	print "	switch( pgvalue_type( val ) )"
 	print "	{"
 
 	for( j = 1; j <= variants_cnt; j++ )
@@ -256,12 +259,12 @@ function convfunc( type )
 
 		if( variants[j] == type )
 		{
-			print "			RETURN( var->val." member " );"
+			print "			RETURN( val->val." member " );"
 			continue
 		}
 
 		if( ( conv = convert[ type SUBSEP variants[j] ] ) == "" )
-			conv = "var->val." members[ variants[j] SUBSEP "member" ]
+			conv = "val->val." members[ variants[j] SUBSEP "member" ]
 
 		print "			RETURN( (" type ")" conv " );"
 	}
@@ -278,24 +281,23 @@ function allconv_func()
 		okdone[ ok ] = 0
 
 	# Comment
-	print "/** Converts a punion-structure to any supported type."
+	print "/** Converts a pgvalue-structure to any supported type."
 	print ""
-	print "//var// is the pointer to punion structure to be converted."
+	print "//val// is the pgvalue-object to be converted."
+	print "//type// is the type define to which //val// should be converted to."
 	print ""
-	print "//type// is the type define to which //var// should be converted to."
-	print ""
-	print "The function returns ERR_OK on success, else an ERR_-define."
+	print "The function returns TRUE on success, FALSE else."
 	print "*/"
 
 	#Code
-	print "pint punion_convert( punion* var, pbyte type )"
+	print "pboolean pgvalue_convert( pgvalue* val, pbyte type )"
 	print "{"
-	print "	PROC( \"punion_convert\" );"
-	print "	PARMS( \"var\", \"%p\", var );"
+	print "	PROC( \"pgvalue_convert\" );"
+	print "	PARMS( \"val\", \"%p\", val );"
 	print "	PARMS( \"type\", \"%d\", type );"
 	print ""
-	print "	if( punion_type( var ) == type )"
-	print "		RETURN( ERR_OK );"
+	print "	if( pgvalue_type( val ) == type )"
+	print "		RETURN( TRUE );"
 	print ""
 	print "	switch( type )"
 	print "	{"
@@ -308,15 +310,15 @@ function allconv_func()
 		okdone[ variants[i] ] = 1
 
 		print "		case " members[ variants[i] SUBSEP "var_define" ] ":"
-		print "			punion_set_" members[ variants[i] SUBSEP "var_type" ] \
-			  "( var, punion_to_" members[ variants[i] SUBSEP "var_type" ] \
-			  "( var ) );"
-		print "			RETURN( ERR_OK );\n"
+		print "			pgvalue_set_" members[ variants[i] SUBSEP "var_type" ] \
+			  "( val, pgvalue_to_" members[ variants[i] SUBSEP "var_type" ] \
+			  "( val ) );"
+		print "			RETURN( TRUE );\n"
 	}
 
 	print "	}"
 	print ""
-	print "	RETURN( ERR_FAILURE );"
+	print "	RETURN( FALSE );"
 	print "}\n"
 }
 

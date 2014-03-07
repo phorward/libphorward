@@ -28,10 +28,10 @@ SRC = \
 	string/string.c \
 	string/utf8.c \
 	util/system.c \
-	union/union.c \
-	union/union.conv.c \
-	union/union.get.c \
-	union/union.set.c \
+	value/value.c \
+	value/value.conv.c \
+	value/value.get.c \
+	value/value.set.c \
 	xml/xml.c \
 	\
 	grammar/ast.c \
@@ -64,7 +64,7 @@ HSRC = \
 	parser/parser.h \
 	phorward.tpl.h \
 	regex/pregex.h \
-	union/union.h \
+	value/value.h \
 	xml/xml.h \
 	$(PROTOFILE)
 
@@ -87,9 +87,9 @@ clean:
 	-rm -f ptest ptest.o
 
 clean_all: clean
-	-rm union/union.get.c
-	-rm union/union.set.c
-	-rm union/union.conv.c
+	-rm value/value.get.c
+	-rm value/value.set.c
+	-rm value/value.conv.c
 
 # Prototypes Files
 $(PROTOFILE): $(SRC)
@@ -100,12 +100,12 @@ $(LIBHEADER): $(HSRC)
 	$(PATHEXT) pinclude phorward.tpl.h >$@
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
-union/union.get.c: union/union.h union/union.gen.awk
-	$(AWK) -f union/union.gen.awk -vwith_get=1 union/union.h >$@
+value/value.get.c: value/value.h value/value.gen.awk
+	$(AWK) -f value/value.gen.awk -vwith_get=1 value/value.h >$@
 
-union/union.set.c: union/union.h union/union.gen.awk
-	$(AWK) -f union/union.gen.awk -vwith_set=1 union/union.h >$@
+value/value.set.c: value/value.h value/value.gen.awk
+	$(AWK) -f value/value.gen.awk -vwith_set=1 value/value.h >$@
 
-union/union.conv.c: union/union.h union/union.gen.awk
-	$(AWK) -f union/union.gen.awk -vwith_conv=1 union/union.h >$@
+value/value.conv.c: value/value.h value/value.gen.awk
+	$(AWK) -f value/value.gen.awk -vwith_conv=1 value/value.h >$@
 

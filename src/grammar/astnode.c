@@ -33,6 +33,7 @@ pgastnode* pg_astnode_create( pgasttype* type )
 pgastnode* pg_astnode_free( pgastnode* node )
 {
 	pgastnode*	next;
+	plistel*	e;
 
 	while( node )
 	{
@@ -40,6 +41,10 @@ pgastnode* pg_astnode_free( pgastnode* node )
 
 		if( node->child )
 			pg_astnode_free( node->child );
+
+		if( node->attributes )
+			plist_for( node->attributes, e )
+				pfree( plist_access( e ) );
 
 		pfree( node );
 		node = next;
@@ -133,3 +138,74 @@ pboolean pg_astnode_set_token( pgastnode* node, pgtoken* token )
 	node->token = token;
 	return TRUE;
 }
+
+/* Attribute: Attributes */
+#if 0
+pboolean pg_astnode_set_attribute( pgastnode* node, char* key, char* value )
+{
+	plistel*	e;
+
+	if( !( node ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !node->attributes )
+		node->attributes = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_UNIQUE );
+
+	if( key && *key && ( e = plist_get_by_key( node->attributes, key ) ) )
+	{
+		if( !value )
+			plist_remove( node->attributes, e );
+		else
+		{
+			pfree( plist_access( e ) );
+			*( (char**)plist_access( e ) ) = pstrdup( value );
+		}
+	}
+	else
+		plist_insert( node->attributes, (plistel*)NULL,
+						key, pstrdup( value ) );
+
+	return TRUE;
+}
+
+char* pg_astnode_get_attribute( pgastnode* node, int off )
+{
+	plistel*	e;
+
+	if( !( node && off >= 0 ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !node->attributes )
+		return (char*)NULL;
+
+	if( ( e = plist_get( node->attributes, off ) ) )
+		return (char*)plist_access( e );
+
+	return (char*)NULL;
+}
+
+char* pg_astnode_get_attribute_by_key( pgastnode* node, char* key )
+{
+	plistel*	e;
+
+	if( !( node && key && *key ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !node->attributes )
+		return (char*)NULL;
+
+	if( ( e = plist_get_by_key( node->attributes, key ) ) )
+		return *( (char**)plist_access( e ) );
+
+	return (char*)NULL;
+}
+#endif

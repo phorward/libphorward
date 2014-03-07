@@ -289,89 +289,6 @@ typedef struct
 
 
 
-#ifndef PUNION_H
-#define PUNION_H
-
-
-#define PUNION_NULL			0	
-#define PUNION_BYTE			1
-#define PUNION_CHAR			2
-#define PUNION_INT			3
-#define PUNION_LONG			4
-#define PUNION_ULONG		5
-#define PUNION_FLOAT		6
-#define PUNION_DOUBLE		7
-#define PUNION_STRING		8
-#define PUNION_WSTRING		9
-
-#define PUNION_IS_CONSTANT	16	
-#define PUNION_IS_CONVERT	32	
-
-
-typedef struct 
-{
-	pbyte		type;
-
-	union
-	{
-		pbyte	b;
-		
-
-		char	c;
-		
-
-		pint	i;
-		
-
-		plong	l;
-		
-
-		pulong	ul;
-		
-
-		pfloat	f;
-		
-
-		pdouble	d;
-		
-
-		char*	s;
-		
-		
-
-		pchar*	ws;
-		
-		
-	} val;
-} punion;
-
-
-#define punion_set_string_d( var, val ) \
-			punion_set_string( var, pstrdup( val ) )
-#define punion_set_wstring_d( var, val ) \
-			punion_set_wstring( var, pwcsdup( val ) )
-
-#define punion_set_constant( var ) \
-			(var)->type |= PUNION_IS_CONSTANT
-#define punion_unset_constant( var ) \
-			(var)->type &= ~PUNION_IS_CONSTANT
-#define punion_set_convertible( var ) \
-			(var)->type |= PUNION_IS_CONVERT
-#define punion_unset_convertible( var ) \
-			(var)->type &= ~PUNION_IS_CONVERT
-
-#define punion_type( var ) \
-			( ( var )->type & 0x0F )
-#define punion_is_constant( var ) \
-			( ( var )->type & PUNION_IS_CONSTANT )
-#define punion_is_convertible( var ) \
-			( ( var )->type & PUNION_IS_CONVERT )
-
-#endif
-
-
-
-
 
 
 #ifndef _XML_H
@@ -689,6 +606,90 @@ struct _regex
 
 
 
+
+#ifndef PUNION_H
+#define PUNION_H
+
+
+#define PUNION_NULL			0	
+#define PUNION_BYTE			1
+#define PUNION_CHAR			2
+#define PUNION_INT			3
+#define PUNION_LONG			4
+#define PUNION_ULONG		5
+#define PUNION_FLOAT		6
+#define PUNION_DOUBLE		7
+#define PUNION_STRING		8
+#define PUNION_WSTRING		9
+
+#define PUNION_IS_CONSTANT	16	
+#define PUNION_IS_CONVERT	32	
+
+
+typedef struct
+{
+	pbyte		type;
+
+	union
+	{
+		pbyte	b;
+		
+
+		char	c;
+		
+
+		pint	i;
+		
+
+		plong	l;
+		
+
+		pulong	ul;
+		
+
+		pfloat	f;
+		
+
+		pdouble	d;
+		
+
+		char*	s;
+		
+		
+
+		pchar*	ws;
+		
+		
+	} val;
+} pgvalue;
+
+
+#define pgvalue_set_string_d( val, str ) \
+			pgvalue_set_string( val, pstrdup( str ) )
+#define pgvalue_set_wstring_d( val, str ) \
+			pgvalue_set_wstring( val, pwcsdup( str ) )
+
+#define pgvalue_set_constant( val ) \
+			(val)->type |= PUNION_IS_CONSTANT
+#define pgvalue_unset_constant( val ) \
+			(val)->type &= ~PUNION_IS_CONSTANT
+#define pgvalue_set_convertible( val ) \
+			(val)->type |= PUNION_IS_CONVERT
+#define pgvalue_unset_convertible( val ) \
+			(val)->type &= ~PUNION_IS_CONVERT
+
+#define pgvalue_type( val ) \
+			( ( val )->type & 0x0F )
+#define pgvalue_is_constant( val ) \
+			( ( val )->type & PUNION_IS_CONSTANT )
+#define pgvalue_is_convertible( val ) \
+			( ( val )->type & PUNION_IS_CONVERT )
+
+#endif
+
+
+
+
 typedef struct _pggrammar			pggrammar;
 typedef struct _pgproduction		pgproduction;
 typedef struct _pgsymbol			pgsymbol;
@@ -747,6 +748,8 @@ struct _pgsymbol
 
 	int				prec;			
 	pgassoc			assoc;			
+
+	pgasttype*		asttype;		
 
 	
 	plist*			productions;	
@@ -828,6 +831,8 @@ struct _pgastnode
 
 	pgsymbol*		symbol;		
 	pgtoken*		token;		
+
+	plist*			attributes;	
 
 	pgastnode*		parent;		
 	pgastnode*		child;		
@@ -1175,48 +1180,48 @@ int map_file( char** cont, char* filename );
 pint pgetopt( char* opt, char** param, pint* next, pint argc, char** argv, char* optstr, char* loptstr, pint idx );
 
 
-pboolean punion_init( punion* var );
-punion* punion_create( void );
-pboolean punion_reset( punion* var );
-punion* punion_free( punion* u );
+pboolean pgvalue_init( pgvalue* val );
+pgvalue* pgvalue_create( void );
+pboolean pgvalue_reset( pgvalue* val );
+pgvalue* pgvalue_free( pgvalue* u );
 
 
-pbyte punion_to_byte( punion* var );
-char punion_to_char( punion* var );
-pint punion_to_int( punion* var );
-plong punion_to_long( punion* var );
-pulong punion_to_ulong( punion* var );
-pfloat punion_to_float( punion* var );
-pdouble punion_to_double( punion* var );
-char* punion_to_string( punion* var );
-pchar* punion_to_wstring( punion* var );
-pint punion_convert( punion* var, pbyte type );
+pbyte pgvalue_to_byte( pgvalue* val );
+char pgvalue_to_char( pgvalue* val );
+pint pgvalue_to_int( pgvalue* val );
+plong pgvalue_to_long( pgvalue* val );
+pulong pgvalue_to_ulong( pgvalue* val );
+pfloat pgvalue_to_float( pgvalue* val );
+pdouble pgvalue_to_double( pgvalue* val );
+char* pgvalue_to_string( pgvalue* val );
+pchar* pgvalue_to_wstring( pgvalue* val );
+pboolean pgvalue_convert( pgvalue* val, pbyte type );
 
 
-pbyte punion_get_byte( punion* var );
-char punion_get_char( punion* var );
-pint punion_get_int( punion* var );
-plong punion_get_long( punion* var );
-pulong punion_get_ulong( punion* var );
-pfloat punion_get_float( punion* var );
-pdouble punion_get_double( punion* var );
-char* punion_get_cstring( punion* var );
-char* punion_get_string( punion* var );
-pchar* punion_get_wcstring( punion* var );
-pchar* punion_get_wstring( punion* var );
+pbyte pgvalue_get_byte( pgvalue* val );
+char pgvalue_get_char( pgvalue* val );
+pint pgvalue_get_int( pgvalue* val );
+plong pgvalue_get_long( pgvalue* val );
+pulong pgvalue_get_ulong( pgvalue* val );
+pfloat pgvalue_get_float( pgvalue* val );
+pdouble pgvalue_get_double( pgvalue* val );
+char* pgvalue_get_cstring( pgvalue* val );
+char* pgvalue_get_string( pgvalue* val );
+pchar* pgvalue_get_wcstring( pgvalue* val );
+pchar* pgvalue_get_wstring( pgvalue* val );
 
 
-pbyte punion_set_byte( punion* var, pbyte b );
-char punion_set_char( punion* var, char c );
-pint punion_set_int( punion* var, pint i );
-plong punion_set_long( punion* var, plong l );
-pulong punion_set_ulong( punion* var, pulong ul );
-pfloat punion_set_float( punion* var, pfloat f );
-pdouble punion_set_double( punion* var, pdouble d );
-char* punion_set_cstring( punion* var, char* s );
-char* punion_set_string( punion* var, char* s );
-pchar* punion_set_wcstring( punion* var, pchar* ws );
-pchar* punion_set_wstring( punion* var, pchar* ws );
+pbyte pgvalue_set_byte( pgvalue* val, pbyte b );
+char pgvalue_set_char( pgvalue* val, char c );
+pint pgvalue_set_int( pgvalue* val, pint i );
+plong pgvalue_set_long( pgvalue* val, plong l );
+pulong pgvalue_set_ulong( pgvalue* val, pulong ul );
+pfloat pgvalue_set_float( pgvalue* val, pfloat f );
+pdouble pgvalue_set_double( pgvalue* val, pdouble d );
+char* pgvalue_set_cstring( pgvalue* val, char* s );
+char* pgvalue_set_string( pgvalue* val, char* s );
+pchar* pgvalue_set_wcstring( pgvalue* val, pchar* ws );
+pchar* pgvalue_set_wstring( pgvalue* val, pchar* ws );
 
 
 XML_T xml_child( XML_T xml, char* name );
@@ -1266,6 +1271,11 @@ pgsymbol* pg_astnode_get_symbol( pgastnode* node );
 pboolean pg_astnode_set_symbol( pgastnode* node, pgsymbol* symbol );
 pgtoken* pg_astnode_get_token( pgastnode* node );
 pboolean pg_astnode_set_token( pgastnode* node, pgtoken* token );
+#if 0
+pboolean pg_astnode_set_attribute( pgastnode* node, char* key, char* value );
+char* pg_astnode_get_attribute( pgastnode* node, int off );
+char* pg_astnode_get_attribute_by_key( pgastnode* node, char* key );
+#endif
 
 
 pgasttype* pg_asttype_create( pggrammar* g, char* name );
@@ -1348,6 +1358,8 @@ pgterminal* pg_terminal_get( pggrammar* g, int offset );
 BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern );
 BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
+pgasttype* pg_terminal_get_asttype( pgterminal* terminal );
+pboolean pg_terminal_set_asttype( pgterminal* terminal, pgasttype* type );
 
 
 pgtoken* pg_token_create( pgsymbol* sym, char* lexem );

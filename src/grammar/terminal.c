@@ -131,3 +131,28 @@ pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal )
 
 	return terminal->ptn;
 }
+
+/* Attribute: asttype */
+
+pgasttype* pg_terminal_get_asttype( pgterminal* terminal )
+{
+	if( !( terminal ) )
+	{
+		WRONGPARAM;
+		return (pgasttype*)NULL;
+	}
+
+	return terminal->asttype;
+}
+
+pboolean pg_terminal_set_asttype( pgterminal* terminal, pgasttype* type )
+{
+	if( !( terminal ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	terminal->asttype = type;
+	return TRUE;
+}

@@ -67,6 +67,8 @@ struct _pgsymbol
 	int				prec;			/* Precedence level */
 	pgassoc			assoc;			/* Associativity */
 
+	pgasttype*		asttype;		/* Associated AST type */
+
 	/* Nonterminal-specific */
 	plist*			productions;	/* Productions that belong to a
 										nonterminal symbol */
@@ -148,6 +150,8 @@ struct _pgastnode
 
 	pgsymbol*		symbol;		/* Symbol of node */
 	pgtoken*		token;		/* Token of node */
+
+	plist*			attributes;	/* Attributes */
 
 	pgastnode*		parent;		/* Parent node */
 	pgastnode*		child;		/* First child node */
