@@ -68,7 +68,7 @@ END									{
 										var_emptyval = types[5]
 
 										if( var_define == "" )
-											var_define = "PUNION_" \
+											var_define = "PGVALUE_" \
 												toupper( var_type )
 
 										variants[ ++variants_cnt ] = datatype
@@ -99,7 +99,8 @@ END									{
 										if( convcode == "(same)" )
 											convcode = lastconvcode
 
-										#print $3 SUBSEP datatype
+										#print "/*" $3 SUBSEP datatype " = " \
+										# convcode " */"
 										convert[ $3 SUBSEP datatype ] = convcode
 
 										lastconvcode = convcode
@@ -164,9 +165,14 @@ function setfunc()
 	print "	PARMS( \"val\", \"%p\", val );"
 	print "	PARMS( \"" member "\", \"" var_format "\", " member " );"
 	print ""
+	print "	if( !val )"
+	print "	{"
+	print "		WRONGPARAM;"
+	print "		RETURN( (" datatype ")" var_emptyval " );"
+	print "	}"
+	print ""
 	print "	pgvalue_reset( val );"
-	print "	val->type &= ~0x0F;"
-	print "	val->type |= " var_define ";"
+	print "	val->type = " var_define ";"
 	print "	val->val." member " = " member ";"
 
 	if( setcode != "" )
@@ -197,9 +203,15 @@ function getfunc()
 	print "	PROC( \"pgvalue_get_" var_type "\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print ""
-	print "	if( pgvalue_type( val ) != " var_define ")"
+	print "	if( !val )"
 	print "	{"
-	print "		if( pgvalue_is_convertible( val ) )"
+	print "		WRONGPARAM;"
+	print "		RETURN( (" datatype ")" var_emptyval " );"
+	print "	}"
+	print ""
+	print "	if( val->type != " var_define ")"
+	print "	{"
+	print "		if( pgvalue_get_autoconvert( val ) )"
 	print "		{"
 	print "			MSG( \"Conversion allowed and required\" );"
 	print "			if( !pgvalue_convert( val, " var_define " ) )"
@@ -245,8 +257,13 @@ function convfunc( type )
 	print "	PROC( \"pgvalue_to_" var_type "\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print ""
-
-	print "	switch( pgvalue_type( val ) )"
+	print "	if( !val )"
+	print "	{"
+	print "		WRONGPARAM;"
+	print "		RETURN( (" type ")" var_emptyval " );"
+	print "	}"
+	print ""
+	print "	switch( val->type )"
 	print "	{"
 
 	for( j = 1; j <= variants_cnt; j++ )
@@ -290,13 +307,19 @@ function allconv_func()
 	print "*/"
 
 	#Code
-	print "pboolean pgvalue_convert( pgvalue* val, pbyte type )"
+	print "pboolean pgvalue_convert( pgvalue* val, pgvaluetype type )"
 	print "{"
 	print "	PROC( \"pgvalue_convert\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print "	PARMS( \"type\", \"%d\", type );"
 	print ""
-	print "	if( pgvalue_type( val ) == type )"
+	print "	if( !val )"
+	print "	{"
+	print "		WRONGPARAM;"
+	print "		RETURN( FALSE );"
+	print "	}"
+	print
+	print "	if( val->type == type )"
 	print "		RETURN( TRUE );"
 	print ""
 	print "	switch( type )"

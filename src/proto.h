@@ -171,12 +171,6 @@ void pregex_ref_update( pregex_range* ref, char* strp, psize off );
 /* string/convert.c */
 char* wchar_to_u8( pchar* str, pboolean freestr );
 pchar* u8_to_wchar( char* str, pboolean freestr );
-char* plong_to_uchar( plong l );
-pchar* plong_to_pchar( plong l );
-char* pulong_to_uchar( pulong ul );
-pchar* pulong_to_pchar( pulong ul );
-char* pdouble_to_uchar( pdouble d );
-pchar* pdouble_to_pchar( pdouble d );
 
 /* string/string.c */
 char* pstrcatchar( char* str, wchar chr );
@@ -244,50 +238,6 @@ pboolean pfileexists( char* filename );
 int map_file( char** cont, char* filename );
 pint pgetopt( char* opt, char** param, pint* next, pint argc, char** argv, char* optstr, char* loptstr, pint idx );
 
-/* value/value.c */
-pboolean pgvalue_init( pgvalue* val );
-pgvalue* pgvalue_create( void );
-pboolean pgvalue_reset( pgvalue* val );
-pgvalue* pgvalue_free( pgvalue* u );
-
-/* value/value.conv.c */
-pbyte pgvalue_to_byte( pgvalue* val );
-char pgvalue_to_char( pgvalue* val );
-pint pgvalue_to_int( pgvalue* val );
-plong pgvalue_to_long( pgvalue* val );
-pulong pgvalue_to_ulong( pgvalue* val );
-pfloat pgvalue_to_float( pgvalue* val );
-pdouble pgvalue_to_double( pgvalue* val );
-char* pgvalue_to_string( pgvalue* val );
-pchar* pgvalue_to_wstring( pgvalue* val );
-pboolean pgvalue_convert( pgvalue* val, pbyte type );
-
-/* value/value.get.c */
-pbyte pgvalue_get_byte( pgvalue* val );
-char pgvalue_get_char( pgvalue* val );
-pint pgvalue_get_int( pgvalue* val );
-plong pgvalue_get_long( pgvalue* val );
-pulong pgvalue_get_ulong( pgvalue* val );
-pfloat pgvalue_get_float( pgvalue* val );
-pdouble pgvalue_get_double( pgvalue* val );
-char* pgvalue_get_cstring( pgvalue* val );
-char* pgvalue_get_string( pgvalue* val );
-pchar* pgvalue_get_wcstring( pgvalue* val );
-pchar* pgvalue_get_wstring( pgvalue* val );
-
-/* value/value.set.c */
-pbyte pgvalue_set_byte( pgvalue* val, pbyte b );
-char pgvalue_set_char( pgvalue* val, char c );
-pint pgvalue_set_int( pgvalue* val, pint i );
-plong pgvalue_set_long( pgvalue* val, plong l );
-pulong pgvalue_set_ulong( pgvalue* val, pulong ul );
-pfloat pgvalue_set_float( pgvalue* val, pfloat f );
-pdouble pgvalue_set_double( pgvalue* val, pdouble d );
-char* pgvalue_set_cstring( pgvalue* val, char* s );
-char* pgvalue_set_string( pgvalue* val, char* s );
-pchar* pgvalue_set_wcstring( pgvalue* val, pchar* ws );
-pchar* pgvalue_set_wstring( pgvalue* val, pchar* ws );
-
 /* xml/xml.c */
 XML_T xml_child( XML_T xml, char* name );
 XML_T xml_idx( XML_T xml, int idx );
@@ -318,6 +268,58 @@ XML_T xml_set_flag( XML_T xml, short flag );
 int xml_count( XML_T xml );
 int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
+
+/* value/convert.c */
+char* pdouble_to_uchar( pdouble d );
+pchar* pdouble_to_pchar( pdouble d );
+
+/* value/value.c */
+pboolean pgvalue_init( pgvalue* val );
+pgvalue* pgvalue_create( void );
+pboolean pgvalue_reset( pgvalue* val );
+pgvalue* pgvalue_free( pgvalue* val );
+pboolean pg_value_set_constant( pgvalue* val, pboolean constant );
+pboolean pg_value_get_constant( pgvalue* val );
+pboolean pg_value_set_autoconvert( pgvalue* val, pboolean autoconvert );
+pboolean pg_value_get_autoconvert( pgvalue* val );
+
+/* value/value.conv.c */
+char pgvalue_to_char( pgvalue* val );
+int pgvalue_to_int( pgvalue* val );
+long pgvalue_to_long( pgvalue* val );
+ulong pgvalue_to_ulong( pgvalue* val );
+float pgvalue_to_float( pgvalue* val );
+double pgvalue_to_double( pgvalue* val );
+char* pgvalue_to_string( pgvalue* val );
+pchar* pgvalue_to_wstring( pgvalue* val );
+void* pgvalue_to_ptr( pgvalue* val );
+pboolean pgvalue_convert( pgvalue* val, pgvaluetype type );
+
+/* value/value.get.c */
+char pgvalue_get_char( pgvalue* val );
+int pgvalue_get_int( pgvalue* val );
+long pgvalue_get_long( pgvalue* val );
+ulong pgvalue_get_ulong( pgvalue* val );
+float pgvalue_get_float( pgvalue* val );
+double pgvalue_get_double( pgvalue* val );
+char* pgvalue_get_cstring( pgvalue* val );
+char* pgvalue_get_string( pgvalue* val );
+pchar* pgvalue_get_wcstring( pgvalue* val );
+pchar* pgvalue_get_wstring( pgvalue* val );
+void* pgvalue_get_ptr( pgvalue* val );
+
+/* value/value.set.c */
+char pgvalue_set_char( pgvalue* val, char c );
+int pgvalue_set_int( pgvalue* val, int i );
+long pgvalue_set_long( pgvalue* val, long l );
+ulong pgvalue_set_ulong( pgvalue* val, ulong ul );
+float pgvalue_set_float( pgvalue* val, float f );
+double pgvalue_set_double( pgvalue* val, double d );
+char* pgvalue_set_cstring( pgvalue* val, char* s );
+char* pgvalue_set_string( pgvalue* val, char* s );
+pchar* pgvalue_set_wcstring( pgvalue* val, pchar* ws );
+pchar* pgvalue_set_wstring( pgvalue* val, pchar* ws );
+void* pgvalue_set_ptr( pgvalue* val, void* ptr );
 
 /* grammar/ast.c */
 pgast* pg_ast_create( pggrammar* g, pgastmode mode );

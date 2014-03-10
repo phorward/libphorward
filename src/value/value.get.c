@@ -5,36 +5,6 @@
 
 #include "phorward.h"
 
-/** Returns the pbyte data value if //val//.
-
-If the pgvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pgvalue structure.
-
-The function returns the value assigned to //val// as pbyte.
-This value could be converted from the original value.
-*/
-pbyte pgvalue_get_byte( pgvalue* val )
-{
-	PROC( "pgvalue_get_byte" );
-	PARMS( "val", "%p", val );
-
-	if( pgvalue_type( val ) != PUNION_BYTE)
-	{
-		if( pgvalue_is_convertible( val ) )
-		{
-			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_BYTE ) )
-				RETURN( (pbyte)0 );
-		}
-		else
-			RETURN( (pbyte)0 );
-	}
-
-	RETURN( val->val.b );
-}
-
 /** Returns the char data value if //val//.
 
 If the pgvalue contains another data type, it will be converted,
@@ -50,12 +20,18 @@ char pgvalue_get_char( pgvalue* val )
 	PROC( "pgvalue_get_char" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_CHAR)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (char)0 );
+	}
+
+	if( val->type != PGVALUE_CHAR)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_CHAR ) )
+			if( !pgvalue_convert( val, PGVALUE_CHAR ) )
 				RETURN( (char)0 );
 		}
 		else
@@ -65,151 +41,181 @@ char pgvalue_get_char( pgvalue* val )
 	RETURN( val->val.c );
 }
 
-/** Returns the pint data value if //val//.
+/** Returns the int data value if //val//.
 
 If the pgvalue contains another data type, it will be converted,
 so use it carefully if data loss is not wanted.
 
 //val// is the pointer to the pgvalue structure.
 
-The function returns the value assigned to //val// as pint.
+The function returns the value assigned to //val// as int.
 This value could be converted from the original value.
 */
-pint pgvalue_get_int( pgvalue* val )
+int pgvalue_get_int( pgvalue* val )
 {
 	PROC( "pgvalue_get_int" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_INT)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (int)0 );
+	}
+
+	if( val->type != PGVALUE_INT)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_INT ) )
-				RETURN( (pint)0 );
+			if( !pgvalue_convert( val, PGVALUE_INT ) )
+				RETURN( (int)0 );
 		}
 		else
-			RETURN( (pint)0 );
+			RETURN( (int)0 );
 	}
 
 	RETURN( val->val.i );
 }
 
-/** Returns the plong data value if //val//.
+/** Returns the long data value if //val//.
 
 If the pgvalue contains another data type, it will be converted,
 so use it carefully if data loss is not wanted.
 
 //val// is the pointer to the pgvalue structure.
 
-The function returns the value assigned to //val// as plong.
+The function returns the value assigned to //val// as long.
 This value could be converted from the original value.
 */
-plong pgvalue_get_long( pgvalue* val )
+long pgvalue_get_long( pgvalue* val )
 {
 	PROC( "pgvalue_get_long" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_LONG)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (long)0 );
+	}
+
+	if( val->type != PGVALUE_LONG)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_LONG ) )
-				RETURN( (plong)0 );
+			if( !pgvalue_convert( val, PGVALUE_LONG ) )
+				RETURN( (long)0 );
 		}
 		else
-			RETURN( (plong)0 );
+			RETURN( (long)0 );
 	}
 
 	RETURN( val->val.l );
 }
 
-/** Returns the pulong data value if //val//.
+/** Returns the ulong data value if //val//.
 
 If the pgvalue contains another data type, it will be converted,
 so use it carefully if data loss is not wanted.
 
 //val// is the pointer to the pgvalue structure.
 
-The function returns the value assigned to //val// as pulong.
+The function returns the value assigned to //val// as ulong.
 This value could be converted from the original value.
 */
-pulong pgvalue_get_ulong( pgvalue* val )
+ulong pgvalue_get_ulong( pgvalue* val )
 {
 	PROC( "pgvalue_get_ulong" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_ULONG)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (ulong)0 );
+	}
+
+	if( val->type != PGVALUE_ULONG)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_ULONG ) )
-				RETURN( (pulong)0 );
+			if( !pgvalue_convert( val, PGVALUE_ULONG ) )
+				RETURN( (ulong)0 );
 		}
 		else
-			RETURN( (pulong)0 );
+			RETURN( (ulong)0 );
 	}
 
 	RETURN( val->val.ul );
 }
 
-/** Returns the pfloat data value if //val//.
+/** Returns the float data value if //val//.
 
 If the pgvalue contains another data type, it will be converted,
 so use it carefully if data loss is not wanted.
 
 //val// is the pointer to the pgvalue structure.
 
-The function returns the value assigned to //val// as pfloat.
+The function returns the value assigned to //val// as float.
 This value could be converted from the original value.
 */
-pfloat pgvalue_get_float( pgvalue* val )
+float pgvalue_get_float( pgvalue* val )
 {
 	PROC( "pgvalue_get_float" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_FLOAT)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (float)0.0 );
+	}
+
+	if( val->type != PGVALUE_FLOAT)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_FLOAT ) )
-				RETURN( (pfloat)0.0 );
+			if( !pgvalue_convert( val, PGVALUE_FLOAT ) )
+				RETURN( (float)0.0 );
 		}
 		else
-			RETURN( (pfloat)0.0 );
+			RETURN( (float)0.0 );
 	}
 
 	RETURN( val->val.f );
 }
 
-/** Returns the pdouble data value if //val//.
+/** Returns the double data value if //val//.
 
 If the pgvalue contains another data type, it will be converted,
 so use it carefully if data loss is not wanted.
 
 //val// is the pointer to the pgvalue structure.
 
-The function returns the value assigned to //val// as pdouble.
+The function returns the value assigned to //val// as double.
 This value could be converted from the original value.
 */
-pdouble pgvalue_get_double( pgvalue* val )
+double pgvalue_get_double( pgvalue* val )
 {
 	PROC( "pgvalue_get_double" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_DOUBLE)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (double)0.0 );
+	}
+
+	if( val->type != PGVALUE_DOUBLE)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_DOUBLE ) )
-				RETURN( (pdouble)0.0 );
+			if( !pgvalue_convert( val, PGVALUE_DOUBLE ) )
+				RETURN( (double)0.0 );
 		}
 		else
-			RETURN( (pdouble)0.0 );
+			RETURN( (double)0.0 );
 	}
 
 	RETURN( val->val.d );
@@ -230,12 +236,18 @@ char* pgvalue_get_cstring( pgvalue* val )
 	PROC( "pgvalue_get_cstring" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_STRING)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (char*)NULL );
+	}
+
+	if( val->type != PGVALUE_STRING)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_STRING ) )
+			if( !pgvalue_convert( val, PGVALUE_STRING ) )
 				RETURN( (char*)NULL );
 		}
 		else
@@ -260,12 +272,18 @@ char* pgvalue_get_string( pgvalue* val )
 	PROC( "pgvalue_get_string" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_STRING)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (char*)NULL );
+	}
+
+	if( val->type != PGVALUE_STRING)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_STRING ) )
+			if( !pgvalue_convert( val, PGVALUE_STRING ) )
 				RETURN( (char*)NULL );
 		}
 		else
@@ -290,12 +308,18 @@ pchar* pgvalue_get_wcstring( pgvalue* val )
 	PROC( "pgvalue_get_wcstring" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_WSTRING)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (pchar*)NULL );
+	}
+
+	if( val->type != PGVALUE_WSTRING)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_WSTRING ) )
+			if( !pgvalue_convert( val, PGVALUE_WSTRING ) )
 				RETURN( (pchar*)NULL );
 		}
 		else
@@ -320,12 +344,18 @@ pchar* pgvalue_get_wstring( pgvalue* val )
 	PROC( "pgvalue_get_wstring" );
 	PARMS( "val", "%p", val );
 
-	if( pgvalue_type( val ) != PUNION_WSTRING)
+	if( !val )
 	{
-		if( pgvalue_is_convertible( val ) )
+		WRONGPARAM;
+		RETURN( (pchar*)NULL );
+	}
+
+	if( val->type != PGVALUE_WSTRING)
+	{
+		if( pgvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PUNION_WSTRING ) )
+			if( !pgvalue_convert( val, PGVALUE_WSTRING ) )
 				RETURN( (pchar*)NULL );
 		}
 		else
@@ -333,5 +363,41 @@ pchar* pgvalue_get_wstring( pgvalue* val )
 	}
 
 	RETURN( val->val.ws );
+}
+
+/** Returns the void* data value if //val//.
+
+If the pgvalue contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pgvalue structure.
+
+The function returns the value assigned to //val// as void*.
+This value could be converted from the original value.
+*/
+void* pgvalue_get_ptr( pgvalue* val )
+{
+	PROC( "pgvalue_get_ptr" );
+	PARMS( "val", "%p", val );
+
+	if( !val )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	if( val->type != PGVALUE_PTR)
+	{
+		if( pgvalue_get_autoconvert( val ) )
+		{
+			MSG( "Conversion allowed and required" );
+			if( !pgvalue_convert( val, PGVALUE_PTR ) )
+				RETURN( (void*)NULL );
+		}
+		else
+			RETURN( (void*)NULL );
+	}
+
+	RETURN( val->val.ptr );
 }
 
