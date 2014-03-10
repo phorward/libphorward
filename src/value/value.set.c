@@ -12,9 +12,9 @@
 
 The function always returns the value //c//.
 */
-char pgvalue_set_char( pgvalue* val, char c )
+char pg_value_set_char( pgvalue* val, char c )
 {
-	PROC( "pgvalue_set_char" );
+	PROC( "pg_value_set_char" );
 	PARMS( "val", "%p", val );
 	PARMS( "c", "%c", c );
 
@@ -24,8 +24,8 @@ char pgvalue_set_char( pgvalue* val, char c )
 		RETURN( (char)0 );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_CHAR;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_CHAR;
 	val->val.c = c;
 
 	RETURN( val->val.c );
@@ -38,9 +38,9 @@ char pgvalue_set_char( pgvalue* val, char c )
 
 The function always returns the value //i//.
 */
-int pgvalue_set_int( pgvalue* val, int i )
+int pg_value_set_int( pgvalue* val, int i )
 {
-	PROC( "pgvalue_set_int" );
+	PROC( "pg_value_set_int" );
 	PARMS( "val", "%p", val );
 	PARMS( "i", "%d", i );
 
@@ -50,8 +50,8 @@ int pgvalue_set_int( pgvalue* val, int i )
 		RETURN( (int)0 );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_INT;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_INT;
 	val->val.i = i;
 
 	RETURN( val->val.i );
@@ -64,9 +64,9 @@ int pgvalue_set_int( pgvalue* val, int i )
 
 The function always returns the value //l//.
 */
-long pgvalue_set_long( pgvalue* val, long l )
+long pg_value_set_long( pgvalue* val, long l )
 {
-	PROC( "pgvalue_set_long" );
+	PROC( "pg_value_set_long" );
 	PARMS( "val", "%p", val );
 	PARMS( "l", "%ld", l );
 
@@ -76,8 +76,8 @@ long pgvalue_set_long( pgvalue* val, long l )
 		RETURN( (long)0 );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_LONG;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_LONG;
 	val->val.l = l;
 
 	RETURN( val->val.l );
@@ -90,9 +90,9 @@ long pgvalue_set_long( pgvalue* val, long l )
 
 The function always returns the value //ul//.
 */
-ulong pgvalue_set_ulong( pgvalue* val, ulong ul )
+ulong pg_value_set_ulong( pgvalue* val, ulong ul )
 {
-	PROC( "pgvalue_set_ulong" );
+	PROC( "pg_value_set_ulong" );
 	PARMS( "val", "%p", val );
 	PARMS( "ul", "%ld", ul );
 
@@ -102,8 +102,8 @@ ulong pgvalue_set_ulong( pgvalue* val, ulong ul )
 		RETURN( (ulong)0 );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_ULONG;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_ULONG;
 	val->val.ul = ul;
 
 	RETURN( val->val.ul );
@@ -116,9 +116,9 @@ ulong pgvalue_set_ulong( pgvalue* val, ulong ul )
 
 The function always returns the value //f//.
 */
-float pgvalue_set_float( pgvalue* val, float f )
+float pg_value_set_float( pgvalue* val, float f )
 {
-	PROC( "pgvalue_set_float" );
+	PROC( "pg_value_set_float" );
 	PARMS( "val", "%p", val );
 	PARMS( "f", "%f", f );
 
@@ -128,8 +128,8 @@ float pgvalue_set_float( pgvalue* val, float f )
 		RETURN( (float)0.0 );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_FLOAT;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_FLOAT;
 	val->val.f = f;
 
 	RETURN( val->val.f );
@@ -142,9 +142,9 @@ float pgvalue_set_float( pgvalue* val, float f )
 
 The function always returns the value //d//.
 */
-double pgvalue_set_double( pgvalue* val, double d )
+double pg_value_set_double( pgvalue* val, double d )
 {
-	PROC( "pgvalue_set_double" );
+	PROC( "pg_value_set_double" );
 	PARMS( "val", "%p", val );
 	PARMS( "d", "%lf", d );
 
@@ -154,8 +154,8 @@ double pgvalue_set_double( pgvalue* val, double d )
 		RETURN( (double)0.0 );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_DOUBLE;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_DOUBLE;
 	val->val.d = d;
 
 	RETURN( val->val.d );
@@ -168,9 +168,9 @@ double pgvalue_set_double( pgvalue* val, double d )
 
 The function always returns the value //s//.
 */
-char* pgvalue_set_cstring( pgvalue* val, char* s )
+char* pg_value_set_cstring( pgvalue* val, char* s )
 {
-	PROC( "pgvalue_set_cstring" );
+	PROC( "pg_value_set_cstring" );
 	PARMS( "val", "%p", val );
 	PARMS( "s", "%s", s );
 
@@ -180,10 +180,10 @@ char* pgvalue_set_cstring( pgvalue* val, char* s )
 		RETURN( (char*)NULL );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_STRING;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_STRING;
 	val->val.s = s;
-	pgvalue_set_constant( val );
+	pg_value_set_constant( val, TRUE );
 
 	RETURN( val->val.s );
 }
@@ -195,9 +195,9 @@ char* pgvalue_set_cstring( pgvalue* val, char* s )
 
 The function always returns the value //s//.
 */
-char* pgvalue_set_string( pgvalue* val, char* s )
+char* pg_value_set_string( pgvalue* val, char* s )
 {
-	PROC( "pgvalue_set_string" );
+	PROC( "pg_value_set_string" );
 	PARMS( "val", "%p", val );
 	PARMS( "s", "%s", s );
 
@@ -207,8 +207,8 @@ char* pgvalue_set_string( pgvalue* val, char* s )
 		RETURN( (char*)NULL );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_STRING;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_STRING;
 	val->val.s = s;
 
 	RETURN( val->val.s );
@@ -221,9 +221,9 @@ char* pgvalue_set_string( pgvalue* val, char* s )
 
 The function always returns the value //ws//.
 */
-pchar* pgvalue_set_wcstring( pgvalue* val, pchar* ws )
+pchar* pg_value_set_wcstring( pgvalue* val, pchar* ws )
 {
-	PROC( "pgvalue_set_wcstring" );
+	PROC( "pg_value_set_wcstring" );
 	PARMS( "val", "%p", val );
 	PARMS( "ws", "%ls", ws );
 
@@ -233,10 +233,10 @@ pchar* pgvalue_set_wcstring( pgvalue* val, pchar* ws )
 		RETURN( (pchar*)NULL );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_WSTRING;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_WSTRING;
 	val->val.ws = ws;
-	pgvalue_set_constant( val );
+	pg_value_set_constant( val, TRUE );
 
 	RETURN( val->val.ws );
 }
@@ -248,9 +248,9 @@ pchar* pgvalue_set_wcstring( pgvalue* val, pchar* ws )
 
 The function always returns the value //ws//.
 */
-pchar* pgvalue_set_wstring( pgvalue* val, pchar* ws )
+pchar* pg_value_set_wstring( pgvalue* val, pchar* ws )
 {
-	PROC( "pgvalue_set_wstring" );
+	PROC( "pg_value_set_wstring" );
 	PARMS( "val", "%p", val );
 	PARMS( "ws", "%ls", ws );
 
@@ -260,8 +260,8 @@ pchar* pgvalue_set_wstring( pgvalue* val, pchar* ws )
 		RETURN( (pchar*)NULL );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_WSTRING;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_WSTRING;
 	val->val.ws = ws;
 
 	RETURN( val->val.ws );
@@ -274,9 +274,9 @@ pchar* pgvalue_set_wstring( pgvalue* val, pchar* ws )
 
 The function always returns the value //ptr//.
 */
-void* pgvalue_set_ptr( pgvalue* val, void* ptr )
+void* pg_value_set_ptr( pgvalue* val, void* ptr )
 {
-	PROC( "pgvalue_set_ptr" );
+	PROC( "pg_value_set_ptr" );
 	PARMS( "val", "%p", val );
 	PARMS( "ptr", "%p", ptr );
 
@@ -286,8 +286,8 @@ void* pgvalue_set_ptr( pgvalue* val, void* ptr )
 		RETURN( (void*)NULL );
 	}
 
-	pgvalue_reset( val );
-	val->type = PGVALUE_PTR;
+	pg_value_reset( val );
+	val->type = PGVALUETYPE_PTR;
 	val->val.ptr = ptr;
 
 	RETURN( val->val.ptr );

@@ -1520,7 +1520,7 @@ XML_T xml_set_int_attr( XML_T xml, char* name, plong value )
 {
 	char*		v;
 
-	if( !( v = plong_to_uchar( value ) ) )
+	if( !( v = pasprintf( "%ld", value ) ) )
 		return (XML_T)NULL;
 
 	return xml_set_attr_f( xml, name, v );
@@ -1533,7 +1533,7 @@ XML_T xml_set_float_attr( XML_T xml, char* name, pdouble value )
 {
 	char*		v;
 
-	if( !( v = pdouble_to_uchar( value ) ) )
+	if( !( v = pdbl_to_str( value ) ) )
 		return (XML_T)NULL;
 
 	return xml_set_attr_f( xml, name, v );

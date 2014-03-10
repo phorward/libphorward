@@ -15,9 +15,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as char.
 This value could be converted from the original value.
 */
-char pgvalue_get_char( pgvalue* val )
+char pg_value_get_char( pgvalue* val )
 {
-	PROC( "pgvalue_get_char" );
+	PROC( "pg_value_get_char" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -26,12 +26,12 @@ char pgvalue_get_char( pgvalue* val )
 		RETURN( (char)0 );
 	}
 
-	if( val->type != PGVALUE_CHAR)
+	if( val->type != PGVALUETYPE_CHAR)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_CHAR ) )
+			if( !pg_value_convert( val, PGVALUETYPE_CHAR ) )
 				RETURN( (char)0 );
 		}
 		else
@@ -51,9 +51,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as int.
 This value could be converted from the original value.
 */
-int pgvalue_get_int( pgvalue* val )
+int pg_value_get_int( pgvalue* val )
 {
-	PROC( "pgvalue_get_int" );
+	PROC( "pg_value_get_int" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -62,12 +62,12 @@ int pgvalue_get_int( pgvalue* val )
 		RETURN( (int)0 );
 	}
 
-	if( val->type != PGVALUE_INT)
+	if( val->type != PGVALUETYPE_INT)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_INT ) )
+			if( !pg_value_convert( val, PGVALUETYPE_INT ) )
 				RETURN( (int)0 );
 		}
 		else
@@ -87,9 +87,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as long.
 This value could be converted from the original value.
 */
-long pgvalue_get_long( pgvalue* val )
+long pg_value_get_long( pgvalue* val )
 {
-	PROC( "pgvalue_get_long" );
+	PROC( "pg_value_get_long" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -98,12 +98,12 @@ long pgvalue_get_long( pgvalue* val )
 		RETURN( (long)0 );
 	}
 
-	if( val->type != PGVALUE_LONG)
+	if( val->type != PGVALUETYPE_LONG)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_LONG ) )
+			if( !pg_value_convert( val, PGVALUETYPE_LONG ) )
 				RETURN( (long)0 );
 		}
 		else
@@ -123,9 +123,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as ulong.
 This value could be converted from the original value.
 */
-ulong pgvalue_get_ulong( pgvalue* val )
+ulong pg_value_get_ulong( pgvalue* val )
 {
-	PROC( "pgvalue_get_ulong" );
+	PROC( "pg_value_get_ulong" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -134,12 +134,12 @@ ulong pgvalue_get_ulong( pgvalue* val )
 		RETURN( (ulong)0 );
 	}
 
-	if( val->type != PGVALUE_ULONG)
+	if( val->type != PGVALUETYPE_ULONG)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_ULONG ) )
+			if( !pg_value_convert( val, PGVALUETYPE_ULONG ) )
 				RETURN( (ulong)0 );
 		}
 		else
@@ -159,9 +159,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as float.
 This value could be converted from the original value.
 */
-float pgvalue_get_float( pgvalue* val )
+float pg_value_get_float( pgvalue* val )
 {
-	PROC( "pgvalue_get_float" );
+	PROC( "pg_value_get_float" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -170,12 +170,12 @@ float pgvalue_get_float( pgvalue* val )
 		RETURN( (float)0.0 );
 	}
 
-	if( val->type != PGVALUE_FLOAT)
+	if( val->type != PGVALUETYPE_FLOAT)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_FLOAT ) )
+			if( !pg_value_convert( val, PGVALUETYPE_FLOAT ) )
 				RETURN( (float)0.0 );
 		}
 		else
@@ -195,9 +195,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as double.
 This value could be converted from the original value.
 */
-double pgvalue_get_double( pgvalue* val )
+double pg_value_get_double( pgvalue* val )
 {
-	PROC( "pgvalue_get_double" );
+	PROC( "pg_value_get_double" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -206,12 +206,12 @@ double pgvalue_get_double( pgvalue* val )
 		RETURN( (double)0.0 );
 	}
 
-	if( val->type != PGVALUE_DOUBLE)
+	if( val->type != PGVALUETYPE_DOUBLE)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_DOUBLE ) )
+			if( !pg_value_convert( val, PGVALUETYPE_DOUBLE ) )
 				RETURN( (double)0.0 );
 		}
 		else
@@ -231,9 +231,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as char*.
 This value could be converted from the original value.
 */
-char* pgvalue_get_cstring( pgvalue* val )
+char* pg_value_get_cstring( pgvalue* val )
 {
-	PROC( "pgvalue_get_cstring" );
+	PROC( "pg_value_get_cstring" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -242,12 +242,12 @@ char* pgvalue_get_cstring( pgvalue* val )
 		RETURN( (char*)NULL );
 	}
 
-	if( val->type != PGVALUE_STRING)
+	if( val->type != PGVALUETYPE_STRING)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_STRING ) )
+			if( !pg_value_convert( val, PGVALUETYPE_STRING ) )
 				RETURN( (char*)NULL );
 		}
 		else
@@ -267,9 +267,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as char*.
 This value could be converted from the original value.
 */
-char* pgvalue_get_string( pgvalue* val )
+char* pg_value_get_string( pgvalue* val )
 {
-	PROC( "pgvalue_get_string" );
+	PROC( "pg_value_get_string" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -278,12 +278,12 @@ char* pgvalue_get_string( pgvalue* val )
 		RETURN( (char*)NULL );
 	}
 
-	if( val->type != PGVALUE_STRING)
+	if( val->type != PGVALUETYPE_STRING)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_STRING ) )
+			if( !pg_value_convert( val, PGVALUETYPE_STRING ) )
 				RETURN( (char*)NULL );
 		}
 		else
@@ -303,9 +303,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as pchar*.
 This value could be converted from the original value.
 */
-pchar* pgvalue_get_wcstring( pgvalue* val )
+pchar* pg_value_get_wcstring( pgvalue* val )
 {
-	PROC( "pgvalue_get_wcstring" );
+	PROC( "pg_value_get_wcstring" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -314,12 +314,12 @@ pchar* pgvalue_get_wcstring( pgvalue* val )
 		RETURN( (pchar*)NULL );
 	}
 
-	if( val->type != PGVALUE_WSTRING)
+	if( val->type != PGVALUETYPE_WSTRING)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_WSTRING ) )
+			if( !pg_value_convert( val, PGVALUETYPE_WSTRING ) )
 				RETURN( (pchar*)NULL );
 		}
 		else
@@ -339,9 +339,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as pchar*.
 This value could be converted from the original value.
 */
-pchar* pgvalue_get_wstring( pgvalue* val )
+pchar* pg_value_get_wstring( pgvalue* val )
 {
-	PROC( "pgvalue_get_wstring" );
+	PROC( "pg_value_get_wstring" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -350,12 +350,12 @@ pchar* pgvalue_get_wstring( pgvalue* val )
 		RETURN( (pchar*)NULL );
 	}
 
-	if( val->type != PGVALUE_WSTRING)
+	if( val->type != PGVALUETYPE_WSTRING)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_WSTRING ) )
+			if( !pg_value_convert( val, PGVALUETYPE_WSTRING ) )
 				RETURN( (pchar*)NULL );
 		}
 		else
@@ -375,9 +375,9 @@ so use it carefully if data loss is not wanted.
 The function returns the value assigned to //val// as void*.
 This value could be converted from the original value.
 */
-void* pgvalue_get_ptr( pgvalue* val )
+void* pg_value_get_ptr( pgvalue* val )
 {
-	PROC( "pgvalue_get_ptr" );
+	PROC( "pg_value_get_ptr" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -386,12 +386,12 @@ void* pgvalue_get_ptr( pgvalue* val )
 		RETURN( (void*)NULL );
 	}
 
-	if( val->type != PGVALUE_PTR)
+	if( val->type != PGVALUETYPE_PTR)
 	{
-		if( pgvalue_get_autoconvert( val ) )
+		if( pg_value_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pgvalue_convert( val, PGVALUE_PTR ) )
+			if( !pg_value_convert( val, PGVALUETYPE_PTR ) )
 				RETURN( (void*)NULL );
 		}
 		else

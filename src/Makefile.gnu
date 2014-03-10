@@ -30,7 +30,6 @@ SRC = \
 	util/system.c \
 	xml/xml.c \
 	\
-	value/convert.c \
 	value/value.c \
 	value/value.conv.c \
 	value/value.get.c \

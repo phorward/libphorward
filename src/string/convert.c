@@ -6,7 +6,8 @@ All rights reserved. See LICENSE for more information.
 
 File:	convert.c
 Author:	Jan Max Meyer
-Usage:	Conversion functions for data type and storage type conversion.
+Usage:	String conversion functions.
+
 		All functions within this module reserve memory for their returned
 		data, so there is not always a pendant-function right in here for
 		every conversion function. For example, plong_to_uchar() converts a
@@ -29,12 +30,12 @@ conversion, if set to TRUE.
 Returns the UTF-8 character pendant of //str// as pointer to dynamically
 allocated memory.
 */
-char* wchar_to_u8( pchar* str, pboolean freestr )
+char* pwcs_to_str( pchar* str, pboolean freestr )
 {
 	psize	size;
 	char*	retstr;
 
-	PROC( "pchar_to_uchar" );
+	PROC( "pwcs_to_str" );
 	PARMS( "str", "%ls", str );
 	PARMS( "freestr", "%s", BOOLEAN_STR( freestr ) );
 
@@ -65,7 +66,7 @@ char* wchar_to_u8( pchar* str, pboolean freestr )
 	RETURN( retstr );
 }
 
-/** This functions converts a UTF-8-multi-byte string into an Unicode
+/** This functions converts an UTF-8-multi-byte string into an Unicode
 wide-character string.
 
 The string conversion is performed into dynamically allocated memory.
@@ -80,12 +81,12 @@ conversion, if set to TRUE.
 Returns the wide-character pendant of //str// as pointer to dynamically
 allocated memory.
 */
-pchar* u8_to_wchar( char* str, pboolean freestr )
+pchar* pstr_to_wcs( char* str, pboolean freestr )
 {
 	psize	size;
 	pchar*	retstr;
 
-	PROC( "uchar_to_pchar" );
+	PROC( "pstr_to_wcs" );
 	PARMS( "str", "%s", str );
 	PARMS( "freestr", "%s", BOOLEAN_STR( freestr ) );
 
@@ -115,3 +116,69 @@ pchar* u8_to_wchar( char* str, pboolean freestr )
 	VARS( "retstr", "%ls", retstr );
 	RETURN( retstr );
 }
+
+/** Converts a double-value into an allocated string buffer.
+
+//d// is the double value to become converted. Zero-digits behind the decimal
+dot will be removed after conversion, so 1.65000 will become "1.65" in its
+string representation.
+
+Returns a pointer to the newly allocated string, which contains the
+string-representation of the double value. This pointer must be released
+by the caller.
+*/
+char* pdbl_to_str( pdouble d )
+{
+	char*		ret;
+	char*		trail;
+
+	PROC( "pdbl_to_str" );
+	PARMS( "d", "%lf", d );
+
+	if( !( ret = pasprintf( "%lf", d ) ) )
+		RETURN( (char*)NULL );
+	VARS( "ret", "%s", ret );
+
+	for( trail = ret + pstrlen( ret ) - 1;
+			*trail == '0'; trail-- )
+		;
+
+	*( trail + 1 ) = '\0';
+
+	VARS( "ret", "%s", ret );
+	RETURN( ret );
+}
+
+/** Converts a double-value into an allocated wide-character string buffer.
+
+//d// is the double value to become converted. Zero-digits behind the decimal
+dot will be removed after conversion, so 1.65000 will become L"1.65" in its
+wide-character string representation.
+
+Returns a pointer to the newly allocated wide-character string, which contains
+the string-representation of the double value. This pointer must be released
+by the caller.
+*/
+pchar* pdbl_to_wcs( pdouble d )
+{
+	pchar*		ret;
+	pchar*		trail;
+
+	PROC( "pdbl_to_wcs" );
+	PARMS( "d", "%lf", d );
+
+	if( !( ret = pawcsprintf( L"%lf", d ) ) )
+		RETURN( (pchar*)NULL );
+
+	VARS( "ret", "%ls", ret );
+
+	for( trail = ret + pwcslen( ret ) - 1;
+			*trail == '0'; trail-- )
+		;
+
+	*( trail + 1 ) = '\0';
+
+	VARS( "ret", "%ls", ret );
+	RETURN( ret );
+}
+

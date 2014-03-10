@@ -15,28 +15,28 @@ Usage:	Structures and definitions for a variant-style data storage type pgvalue.
 		new data types without huger code changes.
 ----------------------------------------------------------------------------- */
 
-#ifndef PGVALUE_H
-#define PGVALUE_H
+#ifndef PGVALUETYPE_H
+#define PGVALUETYPE_H
 
 /* Defines */
 typedef enum
 {
-	PGVALUE_NULL,
+	PGVALUETYPE_NULL,
 
 	/* Primary */
-	PGVALUE_CHAR,
-	PGVALUE_INT,
-	PGVALUE_LONG,
-	PGVALUE_ULONG,
-	PGVALUE_FLOAT,
-	PGVALUE_DOUBLE,
+	PGVALUETYPE_CHAR,
+	PGVALUETYPE_INT,
+	PGVALUETYPE_LONG,
+	PGVALUETYPE_ULONG,
+	PGVALUETYPE_FLOAT,
+	PGVALUETYPE_DOUBLE,
 
 	/* String */
-	PGVALUE_STRING,
-	PGVALUE_WSTRING,
+	PGVALUETYPE_STRING,
+	PGVALUETYPE_WSTRING,
 
 	/* Special */
-	PGVALUE_PTR
+	PGVALUETYPE_PTR
 } pgvaluetype;
 
 
@@ -83,21 +83,21 @@ typedef struct
 
 		float	f;
 		/*vargen:float:%f::0.0
-			to char*: pdouble_to_uchar( (double)val->val.f )
-			to pchar*: pdouble_to_pchar( (double)val->val.f )
+			to char*: pdbl_to_str( (double)val->val.f )
+			to pchar*: pdbl_to_wcs( (double)val->val.f )
 			to void*: NULL
 		*/
 
 		double	d;
 		/*vargen:double:%lf::0.0
-			to char*: pdouble_to_uchar( val->val.d )
-			to pchar*: pdouble_to_pchar( val->val.d )
+			to char*: pdbl_to_str( val->val.d )
+			to pchar*: pdbl_to_wcs( val->val.d )
 			to void*: NULL
 		*/
 
 		char*	s;
-		/*vargen:cstring:%s:PGVALUE_STRING:NULL
-			set: pgvalue_set_constant( val );
+		/*vargen:cstring:%s:PGVALUETYPE_STRING:NULL
+			set: pg_value_set_constant( val, TRUE );
 		*/
 		/*vargen:string:%s::NULL
 			to char: strtol( val->val.s, (char**)NULL, 0 )
@@ -106,13 +106,13 @@ typedef struct
 			to ulong: (same)
 			to float: strtod( val->val.s, (char**)NULL )
 			to double: (same)
-			to pchar*: u8_to_wchar( val->val.s, FALSE )
+			to pchar*: pstr_to_wcs( val->val.s, FALSE )
 			to void*: val->val.s
 		*/
 
 		pchar*	ws;
-		/*vargen:wcstring:%ls:PGVALUE_WSTRING:NULL
-			set: pgvalue_set_constant( val );
+		/*vargen:wcstring:%ls:PGVALUETYPE_WSTRING:NULL
+			set: pg_value_set_constant( val, TRUE );
 		*/
 		/*vargen:wstring:%ls::NULL
 			to char: wcstol( val->val.ws, (pchar**)NULL, 0 )
@@ -121,7 +121,7 @@ typedef struct
 			to ulong: (same)
 			to float: wcstod( val->val.ws, (pchar**)NULL )
 			to double: (same)
-			to char*: wchar_to_u8( val->val.ws, FALSE )
+			to char*: pwcs_to_str( val->val.ws, FALSE )
 			to void*: val->val.ws
 		*/
 
@@ -140,10 +140,10 @@ typedef struct
 } pgvalue;
 
 /* Macros */
-#define pgvalue_set_string_d( val, str ) \
-			pgvalue_set_string( val, pstrdup( str ) )
-#define pgvalue_set_wstring_d( val, str ) \
-			pgvalue_set_wstring( val, pwcsdup( str ) )
+#define pg_value_set_string_d( val, str ) \
+			pg_value_set_string( val, pstrdup( str ) )
+#define pg_value_set_wstring_d( val, str ) \
+			pg_value_set_wstring( val, pwcsdup( str ) )
 
 #endif
 

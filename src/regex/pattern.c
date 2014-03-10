@@ -86,7 +86,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 	/* Convert string to UTF-8, if in wide-character mode */
 	if( flags & PREGEX_MOD_WCHAR )
 	{
-		if( !( str = wchar_to_u8( (pchar*)str, FALSE ) ) )
+		if( !( str = pwcs_to_str( (pchar*)str, FALSE ) ) )
 			RETURN( (pregex_ptn*)NULL );
 	}
 
@@ -879,7 +879,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 		because of memory modification during the parse */
 	if( flags & PREGEX_MOD_WCHAR )
 	{
-		if( !( ptr = str = wchar_to_u8( (pchar*)str, FALSE ) ) )
+		if( !( ptr = str = pwcs_to_str( (pchar*)str, FALSE ) ) )
 			RETURN( ERR_MEM );
 	}
 	else

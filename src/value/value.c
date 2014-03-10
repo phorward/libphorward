@@ -6,8 +6,13 @@ All rights reserved. See LICENSE for more information.n.
 
 File:	value.c
 Author:	Jan Max Meyer
-Usage:	pgvalue implements a variant data type, which can hold any of
-		Phorward Foundation Toolkit' generic types as declared in pbasis.h.
+Usage:	pgvalue implements a universal data type object, which can hold any of
+		generic C type.
+
+		The functions in value.conv.c, value.get.c and value.set.c are generated
+		by an awk-script reading its definitions from value.h, so the supported
+		data types can easily be extended without writing any convert/get/set
+		functions.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -16,9 +21,9 @@ Usage:	pgvalue implements a variant data type, which can hold any of
 
 //val// is the pointer to the pgvalue-structure to be initialized.
 */
-pboolean pgvalue_init( pgvalue* val )
+pboolean pg_value_init( pgvalue* val )
 {
-	PROC( "pgvalue_init" );
+	PROC( "pg_value_init" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -28,7 +33,7 @@ pboolean pgvalue_init( pgvalue* val )
 	}
 
 	memset( val, 0, sizeof( pgvalue ) );
-	val->type = PGVALUE_NULL;
+	val->type = PGVALUETYPE_NULL;
 
 	RETURN( TRUE );
 }
@@ -36,12 +41,12 @@ pboolean pgvalue_init( pgvalue* val )
 /** Creates a new pgvalue-object.
 
 This object must be released after usage using pgvalue_free(). */
-pgvalue* pgvalue_create( void )
+pgvalue* pg_value_create( void )
 {
 	pgvalue*		val;
 
 	val = (pgvalue*)pmalloc( sizeof( pgvalue ) );
-	pgvalue_init( val );
+	pg_value_init( val );
 
 	return val;
 }
@@ -49,12 +54,12 @@ pgvalue* pgvalue_create( void )
 /** Frees all memory used by a pgvalue-element.
 
 All memory used by the element is freed, and the union's structure is reset
-to be of type PGVALUE_NULL.
+to be of type PGVALUETYPE_NULL.
 
 //val// is the pointer to pgvalue structure. */
-pboolean pgvalue_reset( pgvalue* val )
+pboolean pg_value_reset( pgvalue* val )
 {
-	PROC( "pgvalue_reset" );
+	PROC( "pg_value_reset" );
 	PARMS( "val", "%p", val );
 
 	if( !( val ) )
@@ -63,13 +68,13 @@ pboolean pgvalue_reset( pgvalue* val )
 		RETURN( FALSE );
 	}
 
-	switch( pgvalue_type( val ) )
+	switch( val->type )
 	{
-		case PGVALUE_STRING:
+		case PGVALUETYPE_STRING:
 			pfree( val->val.s );
 			break;
 
-		case PGVALUE_WSTRING:
+		case PGVALUETYPE_WSTRING:
 			pfree( val->val.ws );
 			break;
 
@@ -78,7 +83,7 @@ pboolean pgvalue_reset( pgvalue* val )
 			break;
 	}
 
-	val->type = PGVALUE_NULL;
+	val->type = PGVALUETYPE_NULL;
 
 	RETURN( TRUE );
 }
@@ -86,12 +91,12 @@ pboolean pgvalue_reset( pgvalue* val )
 /** Frees an allocated pgvalue object and all its used memory.
 
 The function always returns (pgvalue*)NULL. */
-pgvalue* pgvalue_free( pgvalue* val )
+pgvalue* pg_value_free( pgvalue* val )
 {
 	if( !val )
 		return (pgvalue*)NULL;
 
-	pgvalue_reset( val );
+	pg_value_reset( val );
 	pfree( val );
 
 	return (pgvalue*)NULL;

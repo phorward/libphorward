@@ -487,37 +487,37 @@ void value_demo( void )
 	DEMO( "value_demo" );
 
 	/* Get new union object */
-	utest = pgvalue_create();
+	utest = pg_value_create();
 
 	/* Set a string, duplicate its memory (*_d) */
-	pgvalue_set_string_d( utest, "123 Hello World" );
+	pg_value_set_string_d( utest, "123 Hello World" );
 
 	/* Get the string */
-	printf( "utest(str) = %s\n", pgvalue_get_string( utest ) );
+	printf( "utest(str) = %s\n", pg_value_get_string( utest ) );
 
 	/* Get the string as wide-character value */
-	printf( "utest(wstr) = %ls\n", pgvalue_get_wstring( utest ) );
+	printf( "utest(wstr) = %ls\n", pg_value_get_wstring( utest ) );
 
 	/*
 	 * Well, this is not possible, because the pgvalue object is
 	 * configured to be not convertible by default. Let's enable this.
 	 */
-	pgvalue_set_convertible( utest );
+	pg_value_set_autoconvert( utest, TRUE );
 
 	/* Get the string as wide-character value, again. */
-	printf( "utest(wstr) = %ls\n", pgvalue_get_wstring( utest ) );
+	printf( "utest(wstr) = %ls\n", pg_value_get_wstring( utest ) );
 
 	/* The the string as integer value - only 123 will be returned! */
-	printf( "utest(int) = %d\n", pgvalue_get_int( utest ) );
+	printf( "utest(int) = %d\n", pg_value_get_int( utest ) );
 
 	/* Reset the value by a floating point number */
-	pgvalue_set_double( utest, 123.456 );
+	pg_value_set_double( utest, 123.456 );
 
-	printf( "utest(double) = %lf\n", pgvalue_get_double( utest ) );
-	printf( "utest(str) = %s\n", pgvalue_get_string( utest ) );
+	printf( "utest(double) = %lf\n", pg_value_get_double( utest ) );
+	printf( "utest(str) = %s\n", pg_value_get_string( utest ) );
 
 	/* Free the object */
-	utest = pgvalue_free( utest );
+	utest = pg_value_free( utest );
 }
 
 int main( int argc, char** argv )
