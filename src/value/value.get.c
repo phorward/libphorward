@@ -293,17 +293,17 @@ char* pg_value_get_string( pgvalue* val )
 	RETURN( val->val.s );
 }
 
-/** Returns the pchar* data value if //val//.
+/** Returns the wchar_t* data value if //val//.
 
 If the pgvalue contains another data type, it will be converted,
 so use it carefully if data loss is not wanted.
 
 //val// is the pointer to the pgvalue structure.
 
-The function returns the value assigned to //val// as pchar*.
+The function returns the value assigned to //val// as wchar_t*.
 This value could be converted from the original value.
 */
-pchar* pg_value_get_wcstring( pgvalue* val )
+wchar_t* pg_value_get_wcstring( pgvalue* val )
 {
 	PROC( "pg_value_get_wcstring" );
 	PARMS( "val", "%p", val );
@@ -311,7 +311,7 @@ pchar* pg_value_get_wcstring( pgvalue* val )
 	if( !val )
 	{
 		WRONGPARAM;
-		RETURN( (pchar*)NULL );
+		RETURN( (wchar_t*)NULL );
 	}
 
 	if( val->type != PGVALUETYPE_WSTRING)
@@ -320,26 +320,26 @@ pchar* pg_value_get_wcstring( pgvalue* val )
 		{
 			MSG( "Conversion allowed and required" );
 			if( !pg_value_convert( val, PGVALUETYPE_WSTRING ) )
-				RETURN( (pchar*)NULL );
+				RETURN( (wchar_t*)NULL );
 		}
 		else
-			RETURN( (pchar*)NULL );
+			RETURN( (wchar_t*)NULL );
 	}
 
 	RETURN( val->val.ws );
 }
 
-/** Returns the pchar* data value if //val//.
+/** Returns the wchar_t* data value if //val//.
 
 If the pgvalue contains another data type, it will be converted,
 so use it carefully if data loss is not wanted.
 
 //val// is the pointer to the pgvalue structure.
 
-The function returns the value assigned to //val// as pchar*.
+The function returns the value assigned to //val// as wchar_t*.
 This value could be converted from the original value.
 */
-pchar* pg_value_get_wstring( pgvalue* val )
+wchar_t* pg_value_get_wstring( pgvalue* val )
 {
 	PROC( "pg_value_get_wstring" );
 	PARMS( "val", "%p", val );
@@ -347,7 +347,7 @@ pchar* pg_value_get_wstring( pgvalue* val )
 	if( !val )
 	{
 		WRONGPARAM;
-		RETURN( (pchar*)NULL );
+		RETURN( (wchar_t*)NULL );
 	}
 
 	if( val->type != PGVALUETYPE_WSTRING)
@@ -356,10 +356,10 @@ pchar* pg_value_get_wstring( pgvalue* val )
 		{
 			MSG( "Conversion allowed and required" );
 			if( !pg_value_convert( val, PGVALUETYPE_WSTRING ) )
-				RETURN( (pchar*)NULL );
+				RETURN( (wchar_t*)NULL );
 		}
 		else
-			RETURN( (pchar*)NULL );
+			RETURN( (wchar_t*)NULL );
 	}
 
 	RETURN( val->val.ws );

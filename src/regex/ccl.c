@@ -233,7 +233,7 @@ static int pregex_ccl_normalize( pregex_ccl* ccl )
 
 Returns TRUE if the entire character range matches the class, and FALSE if not.
 */
-pboolean pregex_ccl_testrange( pregex_ccl* ccl, pchar begin, pchar end )
+pboolean pregex_ccl_testrange( pregex_ccl* ccl, wchar_t begin, wchar_t end )
 {
 	pregex_cr*	cr;
 	plistel*	e;
@@ -264,7 +264,7 @@ The function is a shortcut for pregex_ccl_testrange().
 
 It returns TRUE, if the character matches the class, and FALSE if not.
 */
-pboolean pregex_ccl_test( pregex_ccl* ccl, pchar ch )
+pboolean pregex_ccl_test( pregex_ccl* ccl, wchar_t ch )
 {
 	return pregex_ccl_testrange( ccl, ch, ch );
 }
@@ -279,7 +279,7 @@ The function is a shortcut for pregex_ccl_testrange().
 
 It returns TRUE, if the character matches the class, and FALSE if not.
 */
-pboolean pregex_ccl_instest( pregex_ccl* ccl, pchar ch )
+pboolean pregex_ccl_instest( pregex_ccl* ccl, wchar_t ch )
 {
 	if( !ccl )
 	{
@@ -306,7 +306,7 @@ pboolean pregex_ccl_instest( pregex_ccl* ccl, pchar ch )
 }
 
 /* Internal function without normalization */
-static pboolean pregex_ccl_ADDRANGE( pregex_ccl* ccl, pchar begin, pchar end )
+static pboolean pregex_ccl_ADDRANGE( pregex_ccl* ccl, wchar_t begin, wchar_t end )
 {
 	pregex_cr	cr;
 
@@ -365,7 +365,7 @@ provided as (pregex_ccl*)NULL, it will be created by the function.
 
 If //begin// is greater than //end//, the values will be swapped.
 */
-pboolean pregex_ccl_addrange( pregex_ccl* ccl, pchar begin, pchar end )
+pboolean pregex_ccl_addrange( pregex_ccl* ccl, wchar_t begin, wchar_t end )
 {
 	PROC( "pregex_ccl_addrange" );
 	PARMS( "ccl", "%p", ccl );
@@ -387,7 +387,7 @@ pboolean pregex_ccl_addrange( pregex_ccl* ccl, pchar begin, pchar end )
 
 The function is a shortcut for pregex_ccl_addrange().
 */
-pboolean pregex_ccl_add( pregex_ccl* ccl, pchar ch )
+pboolean pregex_ccl_add( pregex_ccl* ccl, wchar_t ch )
 {
 	return pregex_ccl_addrange( ccl, ch, ch );
 }
@@ -398,7 +398,7 @@ pboolean pregex_ccl_add( pregex_ccl* ccl, pchar ch )
 //begin// is the begin of character range to be removed.
 //end// is the end of character range to be removed.
 */
-pboolean pregex_ccl_delrange( pregex_ccl* ccl, pchar begin, pchar end )
+pboolean pregex_ccl_delrange( pregex_ccl* ccl, wchar_t begin, wchar_t end )
 {
 	plistel*	e;
 	pregex_cr	d;
@@ -484,7 +484,7 @@ pboolean pregex_ccl_delrange( pregex_ccl* ccl, pchar begin, pchar end )
 
 The function is a shortcut for pregex_ccl_delrange().
 */
-pboolean pregex_ccl_del( pregex_ccl* ccl, pchar ch )
+pboolean pregex_ccl_del( pregex_ccl* ccl, wchar_t ch )
 {
 	return pregex_ccl_delrange( ccl, ch, ch );
 }
@@ -497,8 +497,8 @@ Returns a pointer to //ccl//.
 */
 pboolean pregex_ccl_negate( pregex_ccl* ccl )
 {
-	pchar		start;
-	pchar		end;
+	wchar_t		start;
+	wchar_t		end;
 	plistel*	e;
 	plistel*	ne;
 	pregex_cr*	r;
@@ -766,7 +766,7 @@ it writes the //begin// and //end// character of the character-range in the
 If no character or range with the given offset was found, the function
 returns FALSE, meaning that the end of the characters is reached.
 On success, the function will always return TRUE. */
-pboolean pregex_ccl_get( pchar* from, pchar* to, pregex_ccl* ccl, int offset )
+pboolean pregex_ccl_get( wchar_t* from, wchar_t* to, pregex_ccl* ccl, int offset )
 {
 	plistel*	e;
 	pregex_cr*	cr;
@@ -855,8 +855,8 @@ pboolean pregex_ccl_parse( pregex_ccl* ccl, char* ccldef, pboolean extend )
 {
 	char*		cclptr;
 	pregex_cr	cr;
-	pchar		begin;
-	pchar		end;
+	wchar_t		begin;
+	wchar_t		end;
 
 	PROC( "pregex_ccl_parse" );
 	PARMS( "ccl", "%p", ccl );

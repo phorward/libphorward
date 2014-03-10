@@ -1,12 +1,12 @@
 /* -HEADER----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2009-2013 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	pregex.h
 Author:	Jan Max Meyer
-Usage:	Header for the pregex object and functions
+Usage:	Header for the pregex object and functions.
 ----------------------------------------------------------------------------- */
 
 /* Defines */
@@ -25,7 +25,7 @@ Usage:	Header for the pregex object and functions
 #define PREGEX_MOD_WCHAR		1		/* 	Regular expression and/or
 											search string for direct
 											pattern executions are
-											of type pchar (wide character,
+											of type wchar_t (wide character,
 											if UNICODE is flagged!) */
 #define PREGEX_MOD_INSENSITIVE	2		/* 	Regular expression is case
 											insensitive */
@@ -102,8 +102,8 @@ typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 
 struct _regex_cr
 {
-	pchar			begin;
-	pchar			end;
+	wchar_t			begin;
+	wchar_t			end;
 };
 
 struct _regex_ccl
@@ -196,14 +196,14 @@ struct _regex_ptn
 struct _regex_range
 {
 	char*			begin;		/* Begin pointer */
-	pchar*			pbegin;		/* Wide-character begin pointer */
+	wchar_t*		pbegin;		/* Wide-character begin pointer */
 	char*			end;		/* End pointer */
-	pchar*			pend;		/* Wide-character end pointer */
-	psize			pos;		/* Position from string begin in bytes */
-	psize			len;		/* Length of result in bytes */
+	wchar_t*		pend;		/* Wide-character end pointer */
+	size_t			pos;		/* Position from string begin in bytes */
+	size_t			len;		/* Length of result in bytes */
 	int				accept;		/* The ID of the accepting state;
 									This is only filled in a pattern match */
-	pbyte*			user;		/* User data pointer; This can be set from
+	void*			user;		/* User data pointer; This can be set from
 									within callback-functions and is copied
 									into elements of result-descriptors;
 									It is also used in replace-function-call-

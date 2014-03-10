@@ -281,7 +281,7 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 {
 	int				match	= PREGEX_ACCEPT_NONE;
 	int				anchors;
-	psize			len;
+	size_t			len;
 	char*			pstr	= str;
 
 	PROC( "pregex_match_next" );
@@ -380,12 +380,12 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 			{
 				regex->range.begin = pstr;
 				regex->range.end = pstr + len;
-				regex->range.pos = (pchar*)pstr - (pchar*)regex->last_str;
+				regex->range.pos = (wchar_t*)pstr - (wchar_t*)regex->last_str;
 			}
 			else
 			{
-				regex->range.pbegin = (pchar*)pstr;
-				regex->range.pend = (pchar*)pstr + len;
+				regex->range.pbegin = (wchar_t*)pstr;
+				regex->range.pend = (wchar_t*)pstr + len;
 				regex->range.pos = pstr - regex->last_str;
 			}
 
@@ -411,9 +411,9 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 				/* Move pstr to len characters forward */
 				if( regex->flags & PREGEX_MOD_WCHAR )
 				{
-					pstr += len * sizeof( pchar );
-					regex->range.pend = (pchar*)pstr;
-					regex->range.len = (pchar*)pstr - regex->range.pbegin;
+					pstr += len * sizeof( wchar_t );
+					regex->range.pend = (wchar_t*)pstr;
+					regex->range.len = (wchar_t*)pstr - regex->range.pbegin;
 				}
 				else
 				{
@@ -437,7 +437,7 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 
 		/* Move one character forward to try out next match */
 		if( regex->flags & PREGEX_MOD_WCHAR )
-			pstr += sizeof( pchar );
+			pstr += sizeof( wchar_t );
 		else
 		{
 #ifdef UTF8
@@ -618,17 +618,17 @@ pregex_range* pregex_split_next( pregex* regex, char* str )
 		{
 			regex->split.begin = last;
 			regex->split.end = match->begin;
-			regex->split.pos = regex->split.pbegin - (pchar*)regex->last_str;
+			regex->split.pos = regex->split.pbegin - (wchar_t*)regex->last_str;
 			regex->split.len = regex->split.end - regex->split.begin;
 		}
 		else
 		{
-			regex->split.pbegin = (pchar*)last;
+			regex->split.pbegin = (wchar_t*)last;
 			regex->split.pend = match->pbegin;
 			regex->split.pos = regex->split.pbegin
-									- (pchar*)regex->last_str;
-			regex->split.len = (pchar*)regex->split.end
-									- (pchar*)regex->split.begin;
+									- (wchar_t*)regex->last_str;
+			regex->split.len = (wchar_t*)regex->split.end
+									- (wchar_t*)regex->split.begin;
 		}
 
 		RETURN( &( regex->split ) );
@@ -643,13 +643,13 @@ pregex_range* pregex_split_next( pregex* regex, char* str )
 		if( !( regex->flags & PREGEX_MOD_WCHAR ) )
 			regex->split.begin = last;
 		else
-			regex->split.pbegin = (pchar*)last;
+			regex->split.pbegin = (wchar_t*)last;
 
 		while( *last )
 		{
 			/* Move one character forward */
 			if( regex->flags & PREGEX_MOD_WCHAR )
-				last += sizeof( pchar );
+				last += sizeof( wchar_t );
 			else
 			{
 #ifdef UTF8
@@ -663,16 +663,16 @@ pregex_range* pregex_split_next( pregex* regex, char* str )
 		if( !( regex->flags & PREGEX_MOD_WCHAR ) )
 		{
 			regex->split.end = last;
-			regex->split.pos = regex->split.pbegin - (pchar*)regex->last_str;
+			regex->split.pos = regex->split.pbegin - (wchar_t*)regex->last_str;
 			regex->split.len = regex->split.end - regex->split.begin;
 		}
 		else
 		{
-			regex->split.pend = (pchar*)last;
+			regex->split.pend = (wchar_t*)last;
 			regex->split.pos = regex->split.pbegin
-									- (pchar*)regex->last_str;
-			regex->split.len = (pchar*)regex->split.end
-									- (pchar*)regex->split.begin;
+									- (wchar_t*)regex->last_str;
+			regex->split.len = (wchar_t*)regex->split.end
+									- (wchar_t*)regex->split.begin;
 		}
 
 		regex->last_pos = (char*)NULL;
@@ -775,7 +775,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 	int				charsize	= sizeof( char );
 	int				ref;
 	int				anchors;
-	psize			len;
+	size_t			len;
 	char*			pstr;
 	char*			start;
 	char*			end;
@@ -809,7 +809,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 	}
 
 	if( regex->flags & PREGEX_MOD_WCHAR )
-		charsize = sizeof( pchar );
+		charsize = sizeof( wchar_t );
 
 	regex->tmp_str = pfree( regex->tmp_str );
 
@@ -839,7 +839,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 		else
 		{
 			if( regex->flags & PREGEX_MOD_WCHAR )
-				end = (char*)( (pchar*)start + pwcslen( (pchar*)start ) );
+				end = (char*)( (wchar_t*)start + pwcslen( (wchar_t*)start ) );
 			else
 				end = start + pstrlen( start );
 		}
@@ -866,8 +866,8 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 			if( regex->flags & PREGEX_MOD_WCHAR )
 			{
 				if( !( regex->tmp_str = (char*)pwcsncatstr(
-						(pchar*)regex->tmp_str, (pchar*)start,
-							( (pchar*)end - (pchar*)start ) ) ) )
+						(wchar_t*)regex->tmp_str, (wchar_t*)start,
+							( (wchar_t*)end - (wchar_t*)start ) ) ) )
 				{
 					regex->last_err = ERR_MEM;
 					OUTOFMEM;
@@ -913,8 +913,8 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 
 					if( regex->flags & PREGEX_MOD_WCHAR )
 					{
-						pchar*		end;
-						pchar*		_rpstr = (pchar*)rpstr;
+						wchar_t*		end;
+						wchar_t*		_rpstr = (wchar_t*)rpstr;
 
 						MSG( "Switching to wide-character mode" );
 
@@ -930,8 +930,8 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 
 							/* Extend first from prev of replacement */
 							if( !( replace = (char*)pwcsncatstr(
-									(pchar*)replace, (pchar*)rprev,
-										(pchar*)rbegin - (pchar*)rprev ) ) )
+									(wchar_t*)replace, (wchar_t*)rprev,
+										(wchar_t*)rbegin - (wchar_t*)rprev ) ) )
 							{
 								regex->last_err = ERR_MEM;
 								OUTOFMEM;
@@ -949,7 +949,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 								VARS( "len", "%d", reference->len );
 
 								if( !( replace = (char*)pwcsncatstr(
-										(pchar*)replace, reference->pbegin,
+										(wchar_t*)replace, reference->pbegin,
 											reference->len ) ) )
 								{
 									regex->last_err = ERR_MEM;
@@ -958,7 +958,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 								}
 							}
 
-							VARS( "replace", "%ls", (pchar*)replace );
+							VARS( "replace", "%ls", (wchar_t*)replace );
 							rprev = rpstr = (char*)_rpstr;
 						}
 						else
@@ -1039,7 +1039,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 			{
 				if( rpstr != rprev &&
 						!( replace = (char*)pwcscatstr(
-								(pchar*)replace, (pchar*)rprev, FALSE ) ) )
+								(wchar_t*)replace, (wchar_t*)rprev, FALSE ) ) )
 				{
 					regex->last_err = ERR_MEM;
 					OUTOFMEM;
@@ -1069,8 +1069,8 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 			if( regex->flags & PREGEX_MOD_WCHAR )
 			{
 				if( !( regex->tmp_str = (char*)pwcsncatstr(
-						(pchar*)regex->tmp_str, (pchar*)replace,
-							pwcslen( (pchar*)replace ) ) ) )
+						(wchar_t*)regex->tmp_str, (wchar_t*)replace,
+							pwcslen( (wchar_t*)replace ) ) ) )
 				{
 					regex->last_err = ERR_MEM;
 					OUTOFMEM;
@@ -1234,7 +1234,7 @@ Possible flags are:
 || Flag | Meaning |
 | PREGEX_MOD_NONE | No modification (for the sake of completeness) |
 | PREGEX_MOD_WCHAR | Regular expression and/or search string for direct \
-pattern executions are handled (=casted) as type pchar (wide character, \
+pattern executions are handled (=casted) as type wchar_t (wide character, \
 if UNICODE is flagged!) |
 | PREGEX_MOD_INSENSITIVE | Regular expression is parsed case insensitive |
 | PREGEX_MOD_GLOBAL | The regular expression execution is run globally, not \

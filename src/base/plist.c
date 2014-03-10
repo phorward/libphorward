@@ -37,7 +37,7 @@ static int plist_hash_compare( plist* list, char* l, char* r )
 	if( list->flags & PLIST_MOD_PTRKEYS )
 		res = (int)( l - r );
 	else if( list->flags & PLIST_MOD_WCHAR )
-		res = wcscmp( (pchar*)l, (pchar*)r );
+		res = wcscmp( (wchar_t*)l, (wchar_t*)r );
 	else
 		res = strcmp( l, r );
 
@@ -59,10 +59,10 @@ static int plist_hash_index( plist* list, char* key )
 	if( list->flags & PLIST_MOD_PTRKEYS )
 		hashval = (long)key;
 	else if( list->flags & PLIST_MOD_WCHAR )
-		for( len = (pchar)pwcslen( (pchar*)key ); len > 0; len-- )
-			hashval += (long)( (pchar*)key )[ len - 1 ];
+		for( len = (wchar_t)pwcslen( (wchar_t*)key ); len > 0; len-- )
+			hashval += (long)( (wchar_t*)key )[ len - 1 ];
 	else
-		for( len = (pchar)pstrlen( key ); len > 0; len-- )
+		for( len = (wchar_t)pstrlen( key ); len > 0; len-- )
 			hashval += (long)key[ len - 1 ];
 
 	return (int)( hashval % list->hashsize );
@@ -195,7 +195,7 @@ static int plist_compare( plist* list, plistel* l, plistel* r )
 /** Initialize the list //list// with an element allocation size //size//.
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage. */
-pboolean plist_init( plist* list, psize size, pbyte flags )
+pboolean plist_init( plist* list, size_t size, int flags )
 {
 	if( !( list && size >= 0 ) )
 	{
@@ -239,7 +239,7 @@ Possible flags are:
 -
 
 Use plist_free() to erase and release the returned list object. */
-plist* plist_create( psize size, pbyte flags )
+plist* plist_create( size_t size, int flags )
 {
 	plist*	list;
 
@@ -369,7 +369,6 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 {
 	plistel*	e;
 	int			size;
-	pbyte*		dst;
 
 	PROC( "plist_insert" );
 	PARMS( "list", "%p", list );
@@ -453,7 +452,7 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 				|| list->flags & PLIST_MOD_PTRKEYS )
 			e->key = key;
 		else if( list->flags & PLIST_MOD_WCHAR )
-			e->key = (char*)pwcsdup( (pchar*)key );
+			e->key = (char*)pwcsdup( (wchar_t*)key );
 		else
 			e->key = pstrdup( key );
 

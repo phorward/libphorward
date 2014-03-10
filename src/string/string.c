@@ -27,7 +27,7 @@ Returns a char*-pointer to the (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated. This pointer must
 be released with pfree() when its existence is no longer required.
 */
-char* pstrcatchar( char* str, wchar chr )
+char* pstrcatchar( char* str, wchar_t chr )
 {
 	PROC( "pstrcatchar" );
 	PARMS( "str", "%p", str );
@@ -128,9 +128,9 @@ Returns a char*-pointer to (possibly re-)allocated and appended string.
 where NULL. This pointer must be released with pfree() when its existence
 is no longer required.
 */
-char* pstrncatstr( char* str, char* append, psize n )
+char* pstrncatstr( char* str, char* append, size_t n )
 {
-	psize	len		= 0;
+	size_t	len		= 0;
 
 	PROC( "pstrncatstr" );
 	PARMS( "str", "%p", str );
@@ -270,7 +270,7 @@ Returns a char*-pointer to the allocated memory holding the zero-terminated
 string duplicate. This pointer must be released with pfree() when its existence
 is no longer required.
 */
-char* pstrndup( char* str, psize len )
+char* pstrndup( char* str, size_t len )
 {
 	char*	ret;
 
@@ -295,7 +295,7 @@ a NULL-pointer is provided.
 
 Returns the length of the string //str//.
 */
-psize pstrlen( char* str )
+size_t pstrlen( char* str )
 {
 	if( !str )
 		return 0;
@@ -776,7 +776,7 @@ int	pstrcasecmp( char* s1, char* s2 )
 Returns 0 if both strings are equal. Returns a value <0 if //s1// is lower than
 //s2// or a value >0 if //s1// is greater than //s2//.
 */
-int	pstrncasecmp( char* s1, char* s2, pint n )
+int	pstrncasecmp( char* s1, char* s2, int n )
 {
 	if( !( s1 && s2 && n < 1 ) )
 	{
@@ -802,9 +802,9 @@ them.
 
 Returns the number of bytes that had been read for the character.
 */
-int pstrparsechar( wchar* retc, char *str, pboolean escapeseq )
+int pstrparsechar( wchar_t* retc, char *str, pboolean escapeseq )
 {
-	wchar	ch;
+	wchar_t	ch;
     char 	digs[9]		=	"\0\0\0\0\0\0\0\0";
     int		dno 		= 0;
 	char*	p			= str;
@@ -916,7 +916,7 @@ int pstrparsechar( wchar* retc, char *str, pboolean escapeseq )
 }
 
 /******************************************************************************
- * FUNCTIONS FOR UNICODE PROCESSING (pchar)                                   *
+ * FUNCTIONS FOR UNICODE PROCESSING (wchar_t)                                   *
  ******************************************************************************/
 
 #ifdef UNICODE
@@ -926,15 +926,15 @@ int pstrparsechar( wchar* retc, char *str, pboolean escapeseq )
 //str// is the string to be copied in memory. If //str// is provided as NULL,
 the function will also return NULL.
 
-Returns a pchar*-pointer to the newly allocated copy of //str//. This pointer
+Returns a wchar_t*-pointer to the newly allocated copy of //str//. This pointer
 must be released with pfree() when its existence is no longer required.
 */
-pchar* pwcsdup( pchar* str )
+wchar_t* pwcsdup( wchar_t* str )
 {
 	if( !str )
-		return (pchar*)NULL;
+		return (wchar_t*)NULL;
 
-	return (pchar*)pmemdup( str, ( pwcslen( str ) + 1 ) * sizeof( pchar ) );
+	return (wchar_t*)pmemdup( str, ( pwcslen( str ) + 1 ) * sizeof( wchar_t ) );
 }
 
 /** pwcsprintf() is a repleacement for a parameter-compatible sprintf-behavior
@@ -947,7 +947,7 @@ Yes, it's unsafe, but the same behavior as sprintf().
 
 Returns a int Returns the number of characters written, -1 in error case.
 */
-int pwcsprintf( pchar* res, pchar* fmt, ... )
+int pwcsprintf( wchar_t* res, wchar_t* fmt, ... )
 {
 	int ret;
 	va_list	args;
@@ -983,9 +983,9 @@ int pwcsprintf( pchar* res, pchar* fmt, ... )
 
 Returns a int Returns the number of characters written.
 */
-int pvawcsprintf( pchar** str, pchar* fmt, va_list ap )
+int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 {
-	pchar*		istr;
+	wchar_t*		istr;
 	int			ilen;
 	int			len;
 	va_list		w_ap;
@@ -995,8 +995,8 @@ int pvawcsprintf( pchar** str, pchar* fmt, va_list ap )
 	PARMS( "fmt", "%ls", fmt );
 	PARMS( "ap", "%p", ap );
 
-	if( !( istr = (pchar*)pmalloc( ( ilen = MALLOC_STEP + 1 )
-				* sizeof( pchar ) ) ) )
+	if( !( istr = (wchar_t*)pmalloc( ( ilen = MALLOC_STEP + 1 )
+				* sizeof( wchar_t ) ) ) )
 		RETURN( ERR_MEM );
 
 	do
@@ -1009,7 +1009,7 @@ int pvawcsprintf( pchar** str, pchar* fmt, va_list ap )
 #else
 		vswprintf
 #endif
-		( istr, (psize)ilen, fmt, w_ap );
+		( istr, (size_t)ilen, fmt, w_ap );
 
 		va_end( w_ap );
 		VARS( "len", "%d", len );
@@ -1017,7 +1017,7 @@ int pvawcsprintf( pchar** str, pchar* fmt, va_list ap )
 		if( len < 0 )
 		{
 			if( !( istr = prealloc( istr, ( ilen = ilen + MALLOC_STEP + 1 )
-					* sizeof( pchar ) ) ) )
+					* sizeof( wchar_t ) ) ) )
 			{
 				RETURN( ERR_MEM );
 			}
@@ -1030,26 +1030,26 @@ int pvawcsprintf( pchar** str, pchar* fmt, va_list ap )
 	RETURN( len );
 }
 
-/** An implementation of pasprintf() for wide-character pchar. pasprintf() takes
+/** An implementation of pasprintf() for wide-character wchar_t. pasprintf() takes
 only the format-string and various arguments. It outputs an allocated string to
 be released with pfree() later on.
 
 //fmt// is the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
-Returns a pchar* Returns the allocated string which cointains the format string
+Returns a wchar_t* Returns the allocated string which cointains the format string
 with inserted values.
 */
-pchar* pawcsprintf( pchar* fmt, ... )
+wchar_t* pawcsprintf( wchar_t* fmt, ... )
 {
-	pchar*	str;
+	wchar_t*	str;
 	va_list	args;
 
 	PROC( "pasprintf" );
 	PARMS( "fmt", "%ls", fmt );
 
 	if( !( fmt ) )
-		RETURN( (pchar*)NULL );
+		RETURN( (wchar_t*)NULL );
 
 	va_start( args, fmt );
 	pvawcsprintf( &str, fmt, args );
@@ -1061,14 +1061,14 @@ pchar* pawcsprintf( pchar* fmt, ... )
 
 /** Appends a character to a dynamic wide-character string.
 
-//str// is the pointer to a pchar-string to be appended. If this is
-(pchar*)NULL, the string is newly allocated. //chr// is the the character to be
+//str// is the pointer to a wchar_t-string to be appended. If this is
+(wchar_t*)NULL, the string is newly allocated. //chr// is the the character to be
 appended to str.
 
-Returns a pchar* Pointer to (possibly re-)allo- cated and appended string.
-(pchar*)NULL is returned if no memory could be (re)allocated.
+Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
+(wchar_t*)NULL is returned if no memory could be (re)allocated.
 */
-pchar* pwcscatchar( pchar* str, wchar chr )
+wchar_t* pwcscatchar( wchar_t* str, wchar_t chr )
 {
 	PROC( "pwcscatchar" );
 	PARMS( "str", "%p", str );
@@ -1077,7 +1077,7 @@ pchar* pwcscatchar( pchar* str, wchar chr )
 	if( !str )
 	{
 		MSG( "Allocating new string" );
-		str = (pchar*)pmalloc( ( 1 + 1 ) * sizeof( pchar ) );
+		str = (wchar_t*)pmalloc( ( 1 + 1 ) * sizeof( wchar_t ) );
 
 		if( str )
 			*str = L'\0';
@@ -1085,8 +1085,8 @@ pchar* pwcscatchar( pchar* str, wchar chr )
 	else
 	{
 		MSG( "Reallocating existing string" );
-		str = (pchar*)prealloc( (pchar*)str,
-				( pwcslen( str ) + 1 + 1) * sizeof( pchar ) );
+		str = (wchar_t*)prealloc( (wchar_t*)str,
+				( pwcslen( str ) + 1 + 1) * sizeof( wchar_t ) );
 	}
 
 	VARS( "str", "%p", str );
@@ -1104,16 +1104,16 @@ pchar* pwcscatchar( pchar* str, wchar chr )
 /** Appends a (possibly dynamic) wide-character string to a dynamic
 wide-character string.
 
-//str// is the pointer to a pchar-string to be appended. If this is
-(pchar*)NULL, the string is newly allocated.
+//str// is the pointer to a wchar_t-string to be appended. If this is
+(wchar_t*)NULL, the string is newly allocated.
 //append// is the the string to be appended.
 //freesrc// if true, //append// is free'd automatically by this function.
 
-Returns a pchar* Pointer to (possibly re-)allo- cated and appended string.
-(pchar*)NULL is returned if no memory could be (re)allocated, or both strings
+Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
+(wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 where NULL.
 */
-pchar* pwcscatstr( pchar* dest, pchar* src, boolean freesrc )
+wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, boolean freesrc )
 {
 	PROC( "pwcscatstr" );
 	PARMS( "dest", "%p", dest );
@@ -1134,9 +1134,9 @@ pchar* pwcscatstr( pchar* dest, pchar* src, boolean freesrc )
 		}
 		else
 		{
-			dest = (pchar*)prealloc( (pchar*)dest,
+			dest = (wchar_t*)prealloc( (wchar_t*)dest,
 					( pwcslen( dest ) + pwcslen( src ) + 1 )
-						* sizeof( pchar ) );
+						* sizeof( wchar_t ) );
 			wcscat( dest, src );
 		}
 
@@ -1150,18 +1150,18 @@ pchar* pwcscatstr( pchar* dest, pchar* src, boolean freesrc )
 /** Appends a number of N characters from one wide-character string to a dynamic
 string.
 
-//str// is the pointer to a pchar-string to be appended. If this is
-(pchar*)NULL, the string is newly allocated.
+//str// is the pointer to a wchar_t-string to be appended. If this is
+(wchar_t*)NULL, the string is newly allocated.
 //append// is the begin of character sequence to be appended.
 //num// is the number of characters to be appended to str.
 
-Returns a pchar* Pointer to (possibly re-)allo- cated and appended string.
-(pchar*)NULL is returned if no memory could be (re)allocated, or both strings
+Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
+(wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 where NULL.
 */
-pchar* pwcsncatstr( pchar* str, pchar* append, psize num )
+wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t num )
 {
-	psize	len		= 0;
+	size_t	len		= 0;
 
 	PROC( "pwcsncatstr" );
 	PARMS( "str", "%p", str );
@@ -1174,20 +1174,20 @@ pchar* pwcsncatstr( pchar* str, pchar* append, psize num )
 	{
 		if( !str )
 		{
-			if( !( str = (pchar*)pmalloc( ( num + 1 ) * sizeof( pchar ) ) ) )
-				RETURN( (pchar*)NULL );
+			if( !( str = (wchar_t*)pmalloc( ( num + 1 ) * sizeof( wchar_t ) ) ) )
+				RETURN( (wchar_t*)NULL );
 		}
 		else
 		{
 			len = pwcslen( str );
 
 			VARS( "len", "%d", len );
-			VARS( "( len + num + 1 ) * sizeof( pchar )",
-						"%d", ( len + num + 1 ) * sizeof( pchar ) );
+			VARS( "( len + num + 1 ) * sizeof( wchar_t )",
+						"%d", ( len + num + 1 ) * sizeof( wchar_t ) );
 
-			if( !( str = (pchar*)prealloc( (pchar*)str,
-					( len + num + 1 ) * sizeof( pchar ) ) ) )
-				RETURN( (pchar*)NULL );
+			if( !( str = (wchar_t*)prealloc( (wchar_t*)str,
+					( len + num + 1 ) * sizeof( wchar_t ) ) ) )
+				RETURN( (wchar_t*)NULL );
 		}
 
 		wcsncpy( str + len, append, num );
@@ -1200,9 +1200,9 @@ pchar* pwcsncatstr( pchar* str, pchar* append, psize num )
 /*REMOVE?*/
 /** Saver strlen replacement for wide-character.
 
-//str// is the parameter string to be evaluated. If (pchar*)NULL,
+//str// is the parameter string to be evaluated. If (wchar_t*)NULL,
 the function returns 0. */
-psize pwcslen( pchar* str )
+size_t pwcslen( wchar_t* str )
 {
 	if( !str )
 		return 0;

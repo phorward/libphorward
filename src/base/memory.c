@@ -22,7 +22,7 @@ can be allocated.
 The function returns the allocated heap memory pointer. The returned memory
 address should be freed using pfree() after it is not required anymore.
 */
-void* pmalloc( psize size )
+void* pmalloc( size_t size )
 {
 	void*	ptr;
 
@@ -50,7 +50,7 @@ prealloc() works like a normal call to pmalloc().
 The function returns the allocated heap memory pointer. The returned memory
 address should be freed using pfree() after it is not required anymore.
 */
-void* prealloc( void* oldptr, psize size )
+void* prealloc( void* oldptr, size_t size )
 {
 	void*	ptr;
 
@@ -95,7 +95,7 @@ void* pfree( void* ptr )
 Returns the new pointer to the memory copy. This should be casted back to the
 type of //ptr// again.
 */
-void* pmemdup( void* ptr, psize size )
+void* pmemdup( void* ptr, size_t size )
 {
 	void*	ret;
 

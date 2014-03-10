@@ -39,7 +39,7 @@ char pg_value_to_char( pgvalue* val )
 		case PGVALUETYPE_STRING:
 			RETURN( (char)strtol( val->val.s, (char**)NULL, 0 ) );
 		case PGVALUETYPE_WSTRING:
-			RETURN( (char)wcstol( val->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (char)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (char)0 );
 	}
@@ -82,7 +82,7 @@ int pg_value_to_int( pgvalue* val )
 		case PGVALUETYPE_STRING:
 			RETURN( (int)strtol( val->val.s, (char**)NULL, 0 ) );
 		case PGVALUETYPE_WSTRING:
-			RETURN( (int)wcstol( val->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (int)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (int)0 );
 	}
@@ -125,7 +125,7 @@ long pg_value_to_long( pgvalue* val )
 		case PGVALUETYPE_STRING:
 			RETURN( (long)strtol( val->val.s, (char**)NULL, 0 ) );
 		case PGVALUETYPE_WSTRING:
-			RETURN( (long)wcstol( val->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (long)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (long)val->val.ptr );
 	}
@@ -168,7 +168,7 @@ ulong pg_value_to_ulong( pgvalue* val )
 		case PGVALUETYPE_STRING:
 			RETURN( (ulong)strtol( val->val.s, (char**)NULL, 0 ) );
 		case PGVALUETYPE_WSTRING:
-			RETURN( (ulong)wcstol( val->val.ws, (pchar**)NULL, 0 ) );
+			RETURN( (ulong)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (ulong)val->val.ptr );
 	}
@@ -211,7 +211,7 @@ float pg_value_to_float( pgvalue* val )
 		case PGVALUETYPE_STRING:
 			RETURN( (float)strtod( val->val.s, (char**)NULL ) );
 		case PGVALUETYPE_WSTRING:
-			RETURN( (float)wcstod( val->val.ws, (pchar**)NULL ) );
+			RETURN( (float)wcstod( val->val.ws, (wchar_t**)NULL ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (float)0.0 );
 	}
@@ -254,7 +254,7 @@ double pg_value_to_double( pgvalue* val )
 		case PGVALUETYPE_STRING:
 			RETURN( (double)strtod( val->val.s, (char**)NULL ) );
 		case PGVALUETYPE_WSTRING:
-			RETURN( (double)wcstod( val->val.ws, (pchar**)NULL ) );
+			RETURN( (double)wcstod( val->val.ws, (wchar_t**)NULL ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (double)0.0 );
 	}
@@ -308,15 +308,15 @@ char* pg_value_to_string( pgvalue* val )
 	RETURN( (char*)NULL );
 }
 
-/** Converts the current value of //val// into a pchar* value.
+/** Converts the current value of //val// into a wchar_t* value.
 The returned memory is allocated, and must be freed by the caller.
 
 //val// is the pgvalue-object to convert from.
 
-The function returns the pchar*-value of //val//.
+The function returns the wchar_t*-value of //val//.
 This pointer must be manually freed by the caller.
 */
-pchar* pg_value_to_wstring( pgvalue* val )
+wchar_t* pg_value_to_wstring( pgvalue* val )
 {
 	PROC( "pg_value_to_wstring" );
 	PARMS( "val", "%p", val );
@@ -324,33 +324,33 @@ pchar* pg_value_to_wstring( pgvalue* val )
 	if( !val )
 	{
 		WRONGPARAM;
-		RETURN( (pchar*)NULL );
+		RETURN( (wchar_t*)NULL );
 	}
 
 	switch( val->type )
 	{
 		case PGVALUETYPE_CHAR:
-			RETURN( (pchar*)pawcsprintf( L"%d", val->val.c ) );
+			RETURN( (wchar_t*)pawcsprintf( L"%d", val->val.c ) );
 		case PGVALUETYPE_INT:
-			RETURN( (pchar*)pawcsprintf( L"%d", val->val.i ) );
+			RETURN( (wchar_t*)pawcsprintf( L"%d", val->val.i ) );
 		case PGVALUETYPE_LONG:
-			RETURN( (pchar*)pawcsprintf( L"%ld", val->val.l ) );
+			RETURN( (wchar_t*)pawcsprintf( L"%ld", val->val.l ) );
 		case PGVALUETYPE_ULONG:
-			RETURN( (pchar*)pawcsprintf( L"%ld", val->val.ul ) );
+			RETURN( (wchar_t*)pawcsprintf( L"%ld", val->val.ul ) );
 		case PGVALUETYPE_FLOAT:
-			RETURN( (pchar*)pdbl_to_wcs( (double)val->val.f ) );
+			RETURN( (wchar_t*)pdbl_to_wcs( (double)val->val.f ) );
 		case PGVALUETYPE_DOUBLE:
-			RETURN( (pchar*)pdbl_to_wcs( val->val.d ) );
+			RETURN( (wchar_t*)pdbl_to_wcs( val->val.d ) );
 		case PGVALUETYPE_STRING:
-			RETURN( (pchar*)pstr_to_wcs( val->val.s, FALSE ) );
+			RETURN( (wchar_t*)pstr_to_wcs( val->val.s, FALSE ) );
 		case PGVALUETYPE_WSTRING:
 			RETURN( val->val.ws );
 		case PGVALUETYPE_PTR:
-			RETURN( (pchar*)pawcsprintf( L"%p", val->val.ptr ) );
+			RETURN( (wchar_t*)pawcsprintf( L"%p", val->val.ptr ) );
 	}
 
 	MSG( "Can't convert this type!" );
-	RETURN( (pchar*)NULL );
+	RETURN( (wchar_t*)NULL );
 }
 
 /** Converts the current value of //val// into a void* value.

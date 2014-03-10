@@ -214,14 +214,14 @@ char* pg_value_set_string( pgvalue* val, char* s )
 	RETURN( val->val.s );
 }
 
-/** Sets the pchar* data value and type.
+/** Sets the wchar_t* data value and type.
 //val// is the pgvalue-object to be set.
 
-//ws// is the pchar* value to be assigned to //val//.
+//ws// is the wchar_t* value to be assigned to //val//.
 
 The function always returns the value //ws//.
 */
-pchar* pg_value_set_wcstring( pgvalue* val, pchar* ws )
+wchar_t* pg_value_set_wcstring( pgvalue* val, wchar_t* ws )
 {
 	PROC( "pg_value_set_wcstring" );
 	PARMS( "val", "%p", val );
@@ -230,7 +230,7 @@ pchar* pg_value_set_wcstring( pgvalue* val, pchar* ws )
 	if( !val )
 	{
 		WRONGPARAM;
-		RETURN( (pchar*)NULL );
+		RETURN( (wchar_t*)NULL );
 	}
 
 	pg_value_reset( val );
@@ -241,14 +241,14 @@ pchar* pg_value_set_wcstring( pgvalue* val, pchar* ws )
 	RETURN( val->val.ws );
 }
 
-/** Sets the pchar* data value and type.
+/** Sets the wchar_t* data value and type.
 //val// is the pgvalue-object to be set.
 
-//ws// is the pchar* value to be assigned to //val//.
+//ws// is the wchar_t* value to be assigned to //val//.
 
 The function always returns the value //ws//.
 */
-pchar* pg_value_set_wstring( pgvalue* val, pchar* ws )
+wchar_t* pg_value_set_wstring( pgvalue* val, wchar_t* ws )
 {
 	PROC( "pg_value_set_wstring" );
 	PARMS( "val", "%p", val );
@@ -257,7 +257,7 @@ pchar* pg_value_set_wstring( pgvalue* val, pchar* ws )
 	if( !val )
 	{
 		WRONGPARAM;
-		RETURN( (pchar*)NULL );
+		RETURN( (wchar_t*)NULL );
 	}
 
 	pg_value_reset( val );

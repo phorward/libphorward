@@ -138,7 +138,7 @@ char* xml_attr( XML_T xml, char* attr )
 /* =============================================================================
     returns the integer value of the requested tag attribute or 0 if not found.
  ============================================================================ */
-plong xml_int_attr( XML_T xml, char* attr )
+long xml_int_attr( XML_T xml, char* attr )
 {
 	char*		v;
 
@@ -151,14 +151,14 @@ plong xml_int_attr( XML_T xml, char* attr )
 /* =============================================================================
     returns the float value of the requested tag attribute or 0.0 if not found.
  ============================================================================ */
-pdouble xml_float_attr( XML_T xml, char* attr )
+double xml_float_attr( XML_T xml, char* attr )
 {
 	char*		v;
 
 	if( !( v = xml_attr( xml, attr ) ) )
-		return (pdouble)0.0;
+		return (double)0.0;
 
-	return (pdouble)strtod( v, (char**)NULL );
+	return (double)strtod( v, (char**)NULL );
 }
 
 /* =============================================================================
@@ -382,7 +382,7 @@ static void xml_open_tag( xml_root_t root, char* name, char ** attr )
 /* =============================================================================
     called when parser finds character content between open and closing tag
  ============================================================================ */
-static void xml_uchar_content( xml_root_t root, char* s, size_t len, char t )
+static void xml_char_content( xml_root_t root, char* s, size_t len, char t )
 {
 
 	XML_T	xml = root->cur;
@@ -896,7 +896,7 @@ XML_T xml_parse_str( char* s, size_t len )
 		else if( !strncmp( s, "![CDATA[", 8 ) )
 		{	/* cdata */
 			if( ( s = strstr(s, "]]>") ) )
-				xml_uchar_content( root, d + 8, ( s += 2 ) - d - 10, 'c' );
+				xml_char_content( root, d + 8, ( s += 2 ) - d - 10, 'c' );
 			else
 				return xml_err( root, d, "unclosed <![CDATA[" );
 		}
@@ -948,7 +948,7 @@ XML_T xml_parse_str( char* s, size_t len )
 				s++;
 
 			if( *s )
-				xml_uchar_content( root, d, s - d, '&' );
+				xml_char_content( root, d, s - d, '&' );
 			else
 				break;
 		}
@@ -1516,7 +1516,7 @@ XML_T xml_set_attr( XML_T xml, char* name, char* value )
 /* =============================================================================
     Set integer value into attribute.
  ============================================================================ */
-XML_T xml_set_int_attr( XML_T xml, char* name, plong value )
+XML_T xml_set_int_attr( XML_T xml, char* name, long value )
 {
 	char*		v;
 
@@ -1529,7 +1529,7 @@ XML_T xml_set_int_attr( XML_T xml, char* name, plong value )
 /* =============================================================================
     Set float value into attribute.
  ============================================================================ */
-XML_T xml_set_float_attr( XML_T xml, char* name, pdouble value )
+XML_T xml_set_float_attr( XML_T xml, char* name, double value )
 {
 	char*		v;
 

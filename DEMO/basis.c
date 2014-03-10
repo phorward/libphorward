@@ -90,8 +90,8 @@ void utf8_demo( void )
 /* Unicode-Function replacements */
 void unicode_demo( void )
 {
-	pchar	mystr		[ 255 ];
-	pchar*	mydynamicstr;
+	wchar_t	mystr		[ 255 ];
+	wchar_t*	mydynamicstr;
 
 	DEMO( "unicode_demo" );
 
@@ -246,19 +246,19 @@ void plist_demo( void )
 	/* Add some data */
 	strcpy( p.first_name, "Melinda" );
 	strcpy( p.last_name, "Smith" );
-	plist_insert( my, NULL, "Smith", (pbyte*)&p );
+	plist_insert( my, NULL, "Smith", &p );
 
 	strcpy( p.first_name, "Brenda" );
 	strcpy( p.last_name, "Brandon" );
-	plist_insert( my, NULL, "Brandon", (pbyte*)&p );
+	plist_insert( my, NULL, "Brandon", &p );
 
 	strcpy( p.first_name, "Monique" );
 	strcpy( p.last_name, "Joli" );
-	e = plist_insert( my, NULL, "Joli", (pbyte*)&p );
+	e = plist_insert( my, NULL, "Joli", &p );
 
 	strcpy( p.first_name, "Susan" );
 	strcpy( p.last_name, "Mueller" );
-	plist_insert( my, NULL, "Mueller", (pbyte*)&p );
+	plist_insert( my, NULL, "Mueller", &p );
 
 	/* Print content */
 	plist_demo_print( my );
@@ -282,13 +282,13 @@ void plist_demo( void )
 	/* Add more data - first element will be recycled. */
 	strcpy( p.first_name, "Rei" );
 	strcpy( p.last_name, "Ayanami" );
-	plist_insert( my, NULL, "Ayanami", (pbyte*)&p );
+	plist_insert( my, NULL, "Ayanami", &p );
 	plist_demo_print_by_key( my, "Ayanami" );
 
 	/* Add data with same key, test collision */
 	strcpy( p.first_name, "Throttle" );
 	strcpy( p.last_name, "Full" );
-	plist_insert( my, NULL, "Ayanami", (pbyte*)&p );
+	plist_insert( my, NULL, "Ayanami", &p );
 
 	/* Sort list by name again */
 	plist_sort( my );
@@ -476,7 +476,7 @@ void value_demo( void )
 	 *
 	 * The pgvalue-data type and its support functions of libphorward allows to
 	 * store byte, char, int, long, unsigned long (ulong), float, double,
-	 * string (char*) and wide-character string (wchar*) and their conversion
+	 * string (char*) and wide-character string (wchar_t*) and their conversion
 	 * among each other.
 	 *
 	 * String memory is always hold with the pgvalue-object, until the

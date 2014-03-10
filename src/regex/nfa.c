@@ -58,13 +58,13 @@ pregex_nfa_st* pregex_nfa_create_state(
 		{
 			pregex_ccl*	iccl;
 			int			i;
-			wchar		ch;
-			wchar		cch;
+			wchar_t		ch;
+			wchar_t		cch;
 
 			iccl = pregex_ccl_dup( ptr->ccl );
 
 			MSG( "PREGEX_MOD_INSENSITIVE set" );
-			for( i = 0; pregex_ccl_get( &ch, (pchar*)NULL, ptr->ccl, i ); i++ )
+			for( i = 0; pregex_ccl_get( &ch, (wchar_t*)NULL, ptr->ccl, i ); i++ )
 			{
 				VARS( "ch", "%d", ch );
 #ifdef UNICODE
@@ -217,7 +217,7 @@ processed on.
 
 Returns the number of elements in //result//, or -1 on error.
 */
-int pregex_nfa_move( pregex_nfa* nfa, plist* hits, pchar from, pchar to )
+int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to )
 {
 	plistel*		first;
 	plistel*		end;
@@ -375,17 +375,17 @@ in //ref//, so the array can be re-used in multiple calls.
 Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the match
 that was found relating to a pattern in //nfa//.
 */
-int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
+int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
 		pregex_range** ref, int* ref_count, int flags )
 {
 	plist*			res;
 	plistel*		e;
 	pregex_nfa_st*	st;
 	char*			pstr		= str;
-	psize			plen		= 0;
+	size_t			plen		= 0;
 	int				last_accept = PREGEX_ACCEPT_NONE;
 	int				rc;
-	pchar			ch;
+	wchar_t			ch;
 	pregex_accept	accept;
 
 	PROC( "pregex_nfa_match" );
@@ -458,7 +458,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 			{
 				if( flags & PREGEX_MOD_WCHAR )
 					fprintf( stderr, "accept %d, len %d >%.*ls<\n",
-						accept.accept, plen, plen, (pchar*)str );
+						accept.accept, plen, plen, (wchar_t*)str );
 				else
 					fprintf( stderr, "accept %d, len %d >%.*s<\n",
 						accept.accept, plen, plen, str );
@@ -491,14 +491,14 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, psize* len, int* anchors,
 
 		if( flags & PREGEX_MOD_WCHAR )
 		{
-			MSG( "using wchar" );
-			VARS( "pstr", "%ls", (pchar*)pstr );
+			MSG( "using wchar_t" );
+			VARS( "pstr", "%ls", (wchar_t*)pstr );
 
-			ch = *((pchar*)pstr);
-			pstr += sizeof( pchar );
+			ch = *((wchar_t*)pstr);
+			pstr += sizeof( wchar_t );
 
 			if( flags & PREGEX_MOD_DEBUG )
-				fprintf( stderr, "reading wchar >%lc< %d\n", ch, ch );
+				fprintf( stderr, "reading wchar_t >%lc< %d\n", ch, ch );
 		}
 		else
 		{
@@ -552,7 +552,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	pregex_nfa_st*	first_nfa_st;
 	pregex_nfa_st*	prev_nfa_st;
 	char*			pstr;
-	wchar			ch;
+	wchar_t			ch;
 
 	PROC( "pregex_nfa_from_string" );
 	PARMS( "nfa", "%p", nfa );
@@ -566,7 +566,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	/* For wide-character execution, copy string content */
 	if( flags & PREGEX_MOD_WCHAR )
 	{
-		if( !( str = pwcs_to_str( (pchar*)str, FALSE ) ) )
+		if( !( str = pwcs_to_str( (wchar_t*)str, FALSE ) ) )
 			RETURN( ERR_MEM );
 	}
 

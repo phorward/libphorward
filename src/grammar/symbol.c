@@ -46,8 +46,7 @@ pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name )
 	sym.first = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 	sym.follow = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
-	e = plist_insert( grammar->symbols,
-			(plistel*)NULL, sym.name, (pbyte*)&sym );
+	e = plist_insert( grammar->symbols, (plistel*)NULL, sym.name, &sym );
 
 	return (pgsymbol*)plist_access( e );
 }

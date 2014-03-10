@@ -22,7 +22,7 @@ struct _pglexer
 #define PG_LEXMOD_WCHAR			4		/* Wide-character processing */
 
 	int				states_cnt;		/* DFA state count */
-	pchar**			states;			/* DFA states */
+	wchar_t**			states;			/* DFA states */
 
 	/* Input processing */
 	int				source;
@@ -37,14 +37,14 @@ struct _pglexer
 		unsigned int	(*func)();		/* Function */
 	} src;							/* Source destination pointer*/
 
-	pchar			eof;			/* End of file symbol */
+	wchar_t			eof;			/* End of file symbol */
 	pboolean		is_eof;			/* Has EOF been reached? */
 
 	/* RUNTIME INFORMATION & BUFFERING */
 	int				chsize;
 
-	pchar*			bufbeg;			/* Begin of buffer */
-	pchar*			bufend;			/* End of buffer */
+	wchar_t*			bufbeg;			/* Begin of buffer */
+	wchar_t*			bufend;			/* End of buffer */
 	size_t			bufsiz;			/* Actual buffer size */
 
 	char*			lexem;			/* Lexem value */

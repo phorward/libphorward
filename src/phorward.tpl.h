@@ -46,27 +46,6 @@ Usage:	Main include file for phorward library
 #endif
 
 /*
- * General Data Types & Structures
- */
-
-/* wchar - universal (wide?) character type */
-#ifdef UNICODE
-typedef wchar_t					wchar;
-#else
-typedef int						wchar;
-#endif
-
-/* Phorward Software primitive type specifiers */
-typedef unsigned char			pbyte;		/* Byte type */
-typedef wchar					pchar;		/* Phorward char type (wide char) */
-typedef	int						pint;		/* Integer type */
-typedef	float					pfloat;		/* Floating point */
-typedef double					pdouble;	/* Double type */
-typedef long					plong;		/* Long-type */
-typedef size_t					pulong;		/* Unsigned long */
-typedef size_t					psize;		/* Size-type */
-
-/*
  * Boolean
  */
 

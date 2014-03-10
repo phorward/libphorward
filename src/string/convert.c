@@ -10,7 +10,7 @@ Usage:	String conversion functions.
 
 		All functions within this module reserve memory for their returned
 		data, so there is not always a pendant-function right in here for
-		every conversion function. For example, plong_to_uchar() converts a
+		every conversion function. For example, long_to_char() converts a
 		long-value into an allocated char-string, but the C standard library
 		wrapper strtol() is the pendant to convert a string into a long value.
 ----------------------------------------------------------------------------- */
@@ -30,9 +30,9 @@ conversion, if set to TRUE.
 Returns the UTF-8 character pendant of //str// as pointer to dynamically
 allocated memory.
 */
-char* pwcs_to_str( pchar* str, pboolean freestr )
+char* pwcs_to_str( wchar_t* str, pboolean freestr )
 {
-	psize	size;
+	size_t	size;
 	char*	retstr;
 
 	PROC( "pwcs_to_str" );
@@ -81,23 +81,23 @@ conversion, if set to TRUE.
 Returns the wide-character pendant of //str// as pointer to dynamically
 allocated memory.
 */
-pchar* pstr_to_wcs( char* str, pboolean freestr )
+wchar_t* pstr_to_wcs( char* str, pboolean freestr )
 {
-	psize	size;
-	pchar*	retstr;
+	size_t	size;
+	wchar_t*	retstr;
 
 	PROC( "pstr_to_wcs" );
 	PARMS( "str", "%s", str );
 	PARMS( "freestr", "%s", BOOLEAN_STR( freestr ) );
 
 #ifdef UNICODE
-	size = mbstowcs( (pchar*)NULL, str, 0 );
+	size = mbstowcs( (wchar_t*)NULL, str, 0 );
 	VARS( "size", "%ld", size );
 
-	if( !( retstr = (pchar*)pmalloc( ( size + 1 ) * sizeof( pchar ) ) ) )
+	if( !( retstr = (wchar_t*)pmalloc( ( size + 1 ) * sizeof( wchar_t ) ) ) )
 	{
 		MSG( "Out of memory?" );
-		RETURN( (pchar*)NULL );
+		RETURN( (wchar_t*)NULL );
 	}
 
 	mbstowcs( retstr, str, size + 1 ); /* JMM 23.09.2010 */
@@ -127,7 +127,7 @@ Returns a pointer to the newly allocated string, which contains the
 string-representation of the double value. This pointer must be released
 by the caller.
 */
-char* pdbl_to_str( pdouble d )
+char* pdbl_to_str( double d )
 {
 	char*		ret;
 	char*		trail;
@@ -159,16 +159,16 @@ Returns a pointer to the newly allocated wide-character string, which contains
 the string-representation of the double value. This pointer must be released
 by the caller.
 */
-pchar* pdbl_to_wcs( pdouble d )
+wchar_t* pdbl_to_wcs( double d )
 {
-	pchar*		ret;
-	pchar*		trail;
+	wchar_t*		ret;
+	wchar_t*		trail;
 
 	PROC( "pdbl_to_wcs" );
 	PARMS( "d", "%lf", d );
 
 	if( !( ret = pawcsprintf( L"%lf", d ) ) )
-		RETURN( (pchar*)NULL );
+		RETURN( (wchar_t*)NULL );
 
 	VARS( "ret", "%ls", ret );
 

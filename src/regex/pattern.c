@@ -67,7 +67,7 @@ part of a sequence.
 pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 {
 	char*		ptr;
-	wchar		ch;
+	wchar_t		ch;
 	pregex_ptn*	chr;
 	pregex_ptn*	seq		= (pregex_ptn*)NULL;
 	pregex_ccl*	ccl;
@@ -86,7 +86,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 	/* Convert string to UTF-8, if in wide-character mode */
 	if( flags & PREGEX_MOD_WCHAR )
 	{
-		if( !( str = pwcs_to_str( (pchar*)str, FALSE ) ) )
+		if( !( str = pwcs_to_str( (wchar_t*)str, FALSE ) ) )
 			RETURN( (pregex_ptn*)NULL );
 	}
 
@@ -412,7 +412,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 
 /* Internal function for pregex_ptn_to_regex() */
 static void pregex_char_to_REGEX( char* str, int size,
-				pchar ch, pboolean escape, pboolean in_range )
+				wchar_t ch, pboolean escape, pboolean in_range )
 {
 	if( ( !in_range && ( strchr( "|()[]*+?", ch ) || ch == '.' ) ) ||
 			( in_range && ch == ']' ) )
@@ -839,7 +839,7 @@ This parameter is optional, and can be left-out as (pregex_accept*)NULL.
 
 //str// is the pointer to the string which contains the pattern to be parsed. If
 PREGEX_MOD_WCHAR is assigned in //flags//, this pointer must be set to a
-pchar-array holding wide-character strings.
+wchar_t-array holding wide-character strings.
 
 //flags// provides compile-time flags.
 
@@ -879,7 +879,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 		because of memory modification during the parse */
 	if( flags & PREGEX_MOD_WCHAR )
 	{
-		if( !( ptr = str = pwcs_to_str( (pchar*)str, FALSE ) ) )
+		if( !( ptr = str = pwcs_to_str( (wchar_t*)str, FALSE ) ) )
 			RETURN( ERR_MEM );
 	}
 	else
@@ -947,7 +947,7 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 	pregex_ccl*	ccl;
 	int			ret;
 	pregex_ptn*	alter;
-	wchar		single;
+	wchar_t		single;
 	char		restore;
 	char*		zero;
 	pboolean	neg		= FALSE;

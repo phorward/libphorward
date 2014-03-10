@@ -53,10 +53,10 @@ checking.
 
 Returns TRUE, if all anchors flagged as //anchors// match, else FALSE.
 */
-pboolean pregex_check_anchors( char* all, char* str, psize len,
+pboolean pregex_check_anchors( char* all, char* str, size_t len,
 										int anchors, int flags )
 {
-	pchar	ch;
+	wchar_t	ch;
 	int		charsize = sizeof( char );
 
 	PROC( "pregex_check_anchors" );
@@ -91,7 +91,7 @@ pboolean pregex_check_anchors( char* all, char* str, psize len,
 		all = str;
 
 	if( flags & PREGEX_MOD_WCHAR )
-		charsize = sizeof( pchar );
+		charsize = sizeof( wchar_t );
 
 	/* Begin of line anchor */
 	if( anchors & PREGEX_ANCHOR_BOL )
@@ -101,8 +101,8 @@ pboolean pregex_check_anchors( char* all, char* str, psize len,
 		{
 			if( flags & PREGEX_MOD_WCHAR )
 			{
-				VARS( "str-1", "%ls", (pchar*)( str - 1 ) );
-				ch = *( (pchar*)( str - 1 ) );
+				VARS( "str-1", "%ls", (wchar_t*)( str - 1 ) );
+				ch = *( (wchar_t*)( str - 1 ) );
 			}
 			else
 			{
@@ -136,8 +136,8 @@ pboolean pregex_check_anchors( char* all, char* str, psize len,
 		{
 			if( flags & PREGEX_MOD_WCHAR )
 			{
-				VARS( "str-1", "%ls", (pchar*)( str - 1 ) );
-				ch = *( (pchar*)( str - 1 ) );
+				VARS( "str-1", "%ls", (wchar_t*)( str - 1 ) );
+				ch = *( (wchar_t*)( str - 1 ) );
 			}
 			else
 			{

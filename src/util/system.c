@@ -185,7 +185,7 @@ the full name. The string will be zero-terminated.
 option allows for parameters.
 
 //next// receives the index in argv of the next evaluated option. It can be
-left (pint*)NULL. It points to the next valid index in argv[] after all
+left (int*)NULL. It points to the next valid index in argv[] after all
 parameters have been evaluated. Check it for < argc, to point to valid data.
 
 //argc// is the argument count as taken from the main() function.
@@ -214,9 +214,9 @@ It returns ERR_FAILURE if no more options could be read, or if an option could
 not be evaluated (unknown option). In such case, param will hold a string to the
 option that is now known.
 */
-pint pgetopt( char* opt, char** param, pint* next,
-				pint argc, char** argv, char* optstr,
-					char* loptstr, pint idx )
+int pgetopt( char* opt, char** param, int* next,
+				int argc, char** argv, char* optstr,
+					char* loptstr, int idx )
 {
 	BOOLEAN		has_parm;
 	BOOLEAN		found;

@@ -326,8 +326,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	int				state_next	= 0;
 	pboolean		changed;
 	int				i;
-	pchar			begin;
-	pchar			end;
+	wchar_t			begin;
+	wchar_t			end;
 	pregex_ccl*		ccl;
 	pregex_ccl*		test;
 	pregex_ccl*		del;
@@ -835,7 +835,7 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	plistel*		e;
 	char*			pstr		= str;
 	size_t			plen		= 0;
-	pchar			ch;
+	wchar_t			ch;
 	int				i;
 
 	PROC( "pregex_dfa_match" );
@@ -915,12 +915,12 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		/* Get next character */
 		if( flags & PREGEX_MOD_WCHAR )
 		{
-			VARS( "pstr", "%ls", (pchar*)pstr );
-			ch = *((pchar*)pstr);
-			pstr += sizeof( pchar );
+			VARS( "pstr", "%ls", (wchar_t*)pstr );
+			ch = *((wchar_t*)pstr);
+			pstr += sizeof( wchar_t );
 
 			if( flags & PREGEX_MOD_DEBUG )
-				fprintf( stderr, "reading wchar >%lc< %d\n", ch, ch );
+				fprintf( stderr, "reading wchar_t >%lc< %d\n", ch, ch );
 		}
 		else
 		{
@@ -1025,9 +1025,9 @@ for( i = 0; i < states_count; i++ )
 pfree( states );
 ```
 */
-int pregex_dfa_to_matrix( pchar*** matrix, pregex_dfa* dfa )
+int pregex_dfa_to_matrix( wchar_t*** matrix, pregex_dfa* dfa )
 {
-	pchar**			trans;
+	wchar_t**			trans;
 	pregex_dfa_st*	st;
 	pregex_dfa_tr*	tr;
 	int				i;
@@ -1036,8 +1036,8 @@ int pregex_dfa_to_matrix( pchar*** matrix, pregex_dfa* dfa )
 	int				cnt;
 	plistel*		e;
 	plistel*		f;
-	pchar			from;
-	pchar			to;
+	wchar_t			from;
+	wchar_t			to;
 
 	PROC( "pregex_dfa_to_matrix" );
 	PARMS( "matrix", "%p", matrix );
@@ -1049,8 +1049,8 @@ int pregex_dfa_to_matrix( pchar*** matrix, pregex_dfa* dfa )
 		RETURN( -1 );
 	}
 
-	if( !( trans = (pchar**)pmalloc( plist_count( dfa->states )
-										* sizeof( pchar* ) ) ) )
+	if( !( trans = (wchar_t**)pmalloc( plist_count( dfa->states )
+										* sizeof( wchar_t* ) ) ) )
 		RETURN( -1 );
 
 	for( i = 0, e = plist_first( dfa->states ); e; e = plist_next( e ), i++ )
@@ -1076,7 +1076,7 @@ int pregex_dfa_to_matrix( pchar*** matrix, pregex_dfa* dfa )
 
 		VARS( "required( cnt )", "%d", cnt );
 
-		trans[i] = (pchar*)pmalloc( cnt * sizeof( pchar ) );
+		trans[i] = (wchar_t*)pmalloc( cnt * sizeof( wchar_t ) );
 
 		trans[i][0] = cnt;
 		trans[i][1] = st->accept.accept;

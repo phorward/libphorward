@@ -114,7 +114,7 @@ char* pg_token_get_lexem( pgtoken* tok )
 /*
 	Attribute: Wlexem
 */
-pboolean pg_token_set_wlexem( pgtoken* tok, pchar* lexem )
+pboolean pg_token_set_wlexem( pgtoken* tok, wchar_t* lexem )
 {
 	if( !tok )
 	{
@@ -127,17 +127,17 @@ pboolean pg_token_set_wlexem( pgtoken* tok, pchar* lexem )
 	return TRUE;
 }
 
-pchar* pg_token_get_wlexem( pgtoken* tok )
+wchar_t* pg_token_get_wlexem( pgtoken* tok )
 {
 	if( !tok )
 	{
 		WRONGPARAM;
-		return (pchar*)NULL;
+		return (wchar_t*)NULL;
 	}
 
 	if( !( tok->flags & PG_TOKFLAG_WCHAR ) )
 		return L"";
 
-	return (pchar*)pgetstr( tok->lexem );
+	return (wchar_t*)pgetstr( tok->lexem );
 }
 

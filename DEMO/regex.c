@@ -135,7 +135,7 @@ void direct_regex_demo( void )
 									under the Creative Commons
 										Attribution-ShareAlike License */
 
-	pchar*			lstr	=	L"This is the wide-character version of a test "
+	wchar_t*			lstr	=	L"This is the wide-character version of a test "
 								L"string to show even the wide-character "
 								L"support of our regular expression library! "
 								L"Yeahhh! ÖÜÄ€€€öäü€€ß and the €uro-Symbol";
@@ -145,7 +145,7 @@ void direct_regex_demo( void )
 	int				matches;
 	int				i;
 	char*			result;
-	pchar*			lresult;
+	wchar_t*			lresult;
 
 	printf( "\n*** direct_regex_demo ***\n\n" );
 
@@ -170,18 +170,18 @@ void direct_regex_demo( void )
 							member variable.
 		char* begin		char*-Pointer (byte-Pointer) to the begin of the
 							match.
-		pchar* pbegin		If compiled with UNICODE-flag and the function
+		wchar_t* pbegin		If compiled with UNICODE-flag and the function
 							was called with PREGEX_MOD_WCHAR, this contains the
 							wide-character begin pointer of the match.
 		char* end			char*-Pointer (byte-Pointer) to the end of the
 							match.
-		pchar* pend			If compiled with UNICODE-flag and the function
+		wchar_t* pend			If compiled with UNICODE-flag and the function
 							was called with PREGEX_MOD_WCHAR, this contains the
 							wide-character end pointer of the match.
-		psize len			The length of the match. If the string is UTF-8,
+		size_t len			The length of the match. If the string is UTF-8,
 							this represents the number of bytes, for
 							wide-characters the true number of characters.
-		psize pos			The position of the match from the string beginning.
+		size_t pos			The position of the match from the string beginning.
 							If the string is UTF-8, this represents the number
 							of bytes, for wide-characters the true number of
 							characters.
@@ -212,15 +212,15 @@ void direct_regex_demo( void )
 	pfree( result );
 
 	/* Matching with wide-character strings and regular expressions... */
-	lresult = (pchar*)pregex_qreplace( (char*)L"(wide-character)",
-						(char*)lstr, (char*)L"$1 (also known as 'pchar')",
+	lresult = (wchar_t*)pregex_qreplace( (char*)L"(wide-character)",
+						(char*)lstr, (char*)L"$1 (also known as 'wchar_t')",
 								PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR );
 
 	printf( "2) This is the modified wide-character string:"
 					"\n%ls\n\n", lresult );
 	pfree( lresult );
 
-	lresult = (pchar*)pregex_qreplace( (char*)L"€+", (char*)lstr,
+	lresult = (wchar_t*)pregex_qreplace( (char*)L"€+", (char*)lstr,
 						(char*)L"EUR", PREGEX_MOD_GLOBAL | PREGEX_MOD_WCHAR );
 
 	printf( "3) This is the modified wide-character string:"
@@ -249,13 +249,13 @@ static int regex_callback1( pregex* regex, pregex_range* res )
 	switch( res->accept )
 	{
 		case 0:
-			res->user = (pbyte*)"IDENT";
+			res->user = "IDENT";
 			break;
 		case 1:
-			res->user = (pbyte*)"INTEGER";
+			res->user = "INTEGER";
 			break;
 		case 2:
-			res->user = (pbyte*)"FLOAT";
+			res->user = "FLOAT";
 			break;
 
 		default:

@@ -17,7 +17,7 @@ This function is used to quickly extract a substring by duplicating the
 memory range described by the provided //range// structure. The function pays
 attention if the provided range is a range for a wide-character or UTF-8
 character range to be duplicated, so the returned pointer needs to be casted to
-(pchar*) when working with wide-character strings.
+(wchar_t*) when working with wide-character strings.
 
 The returned pointer is an allocated memory address where the zero-terminated
 copy of the extracted string remains, and has to be released with pfree() when
@@ -45,9 +45,9 @@ char* pregex_range_to_string( pregex_range* range )
 	else
 	{
 		MSG( "In wide-character mode" );
-		str = (char*)pmalloc( ( range->len + 1 ) * sizeof( pchar ) );
-		pwcsprintf( (pchar*)str, L"%.*s", range->len, range->pbegin );
-		VARS( "str", "%ls", (pchar*)str );
+		str = (char*)pmalloc( ( range->len + 1 ) * sizeof( wchar_t ) );
+		pwcsprintf( (wchar_t*)str, L"%.*s", range->len, range->pbegin );
+		VARS( "str", "%ls", (wchar_t*)str );
 	}
 
 	RETURN( str );

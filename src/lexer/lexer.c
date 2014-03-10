@@ -96,7 +96,7 @@ pglexer* pg_lexer_create( pgparser* parser )
 
 #if LEXTRACE
 	/* Print DFA matrix */
-	pregex_dfa_to_matrix( (pchar***)NULL, dfa );
+	pregex_dfa_to_matrix( (wchar_t***)NULL, dfa );
 #endif
 
 	pregex_dfa_free( dfa );
@@ -123,7 +123,7 @@ pboolean pg_lexer_reset( pglexer* lex )
 		lex->bufbeg = lex->bufend;
 
 	if( lex->flags & PG_LEXMOD_UTF8 || lex->flags & PG_LEXMOD_WCHAR )
-		lex->chsize = sizeof( wchar );
+		lex->chsize = sizeof( wchar_t );
 	else
 		lex->chsize = sizeof( char );
 
@@ -183,14 +183,14 @@ pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr )
 	{
 		if( lex->flags & PG_LEXMOD_WCHAR )
 		{
-			lex->bufbeg = (pchar*)lex->src.str;
-			lex->bufend = (pchar*)( (pchar*)lex->src.str
-									+ wcslen( (pchar*)lex->src.str ) );
+			lex->bufbeg = (wchar_t*)lex->src.str;
+			lex->bufend = (wchar_t*)( (wchar_t*)lex->src.str
+									+ wcslen( (wchar_t*)lex->src.str ) );
 		}
 		else
 		{
-			lex->bufbeg = (pchar*)lex->src.str;
-			lex->bufend = (pchar*)( lex->src.str + strlen( lex->src.str ) );
+			lex->bufbeg = (wchar_t*)lex->src.str;
+			lex->bufend = (wchar_t*)( lex->src.str + strlen( lex->src.str ) );
 		}
 
 		lex->eof = 0;
@@ -202,10 +202,10 @@ pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr )
 }
 
 /* Read next character from input. */
-static pchar pg_lexer_getchar( pglexer* lex )
+static wchar_t pg_lexer_getchar( pglexer* lex )
 {
-	pchar	ch		= 0;
-	pchar	cch;
+	wchar_t	ch		= 0;
+	wchar_t	cch;
 	int		ubytes	= 0;
 	int		ucount	= 0;
 
@@ -239,29 +239,29 @@ static pchar pg_lexer_getchar( pglexer* lex )
 		switch( lex->source )
 		{
 			case PG_LEX_SRCTYPE_FUNC:
-				cch = (pchar)(*(lex->src.func))();
+				cch = (wchar_t)(*(lex->src.func))();
 				break;
 
 			case PG_LEX_SRCTYPE_STRING:
 				if( lex->flags & PG_LEXMOD_WCHAR )
 				{
-					cch = (pchar) *( (wchar*)( lex->src.str ) );
-					lex->src.str += sizeof( wchar );
+					cch = (wchar_t) *( (wchar_t*)( lex->src.str ) );
+					lex->src.str += sizeof( wchar_t );
 				}
 				else
-					cch = (pchar)( *( lex->src.str++ ) );
+					cch = (wchar_t)( *( lex->src.str++ ) );
 
 				break;
 
 			case PG_LEX_SRCTYPE_STREAM:
 				if( lex->flags & PG_LEXMOD_WCHAR )
 				{
-					if( fread( &ch, sizeof( wchar ), 1, lex->src.stream )
-							!= sizeof( wchar ) )
+					if( fread( &ch, sizeof( wchar_t ), 1, lex->src.stream )
+							!= sizeof( wchar_t ) )
 						cch = lex->eof;
 				}
 				else
-					cch = (pchar)fgetc( lex->src.stream );
+					cch = (wchar_t)fgetc( lex->src.stream );
 
 				break;
 
@@ -299,7 +299,7 @@ static pchar pg_lexer_getchar( pglexer* lex )
 }
 
 /* Get character from buffer */
-static pchar pg_lexer_getinput( pglexer* lex, size_t offset )
+static wchar_t pg_lexer_getinput( pglexer* lex, size_t offset )
 {
 	char*		ptr;
 	size_t		count;
@@ -358,15 +358,15 @@ static pchar pg_lexer_getinput( pglexer* lex, size_t offset )
 		/* Is buffer reallocation required? */
 		if( !lex->bufbeg )
 		{
-			lex->bufbeg = lex->bufend = (pchar*)pmalloc(
-											PLEX_BUFSTEP * sizeof( pchar ) );
+			lex->bufbeg = lex->bufend = (wchar_t*)pmalloc(
+											PLEX_BUFSTEP * sizeof( wchar_t ) );
 			lex->bufsiz = PLEX_BUFSTEP;
 		}
 		else if( ( count = ( lex->bufend - lex->bufbeg ) ) > lex->bufsiz )
 		{
-			lex->bufbeg = (pchar*)prealloc( lex->bufbeg,
+			lex->bufbeg = (wchar_t*)prealloc( lex->bufbeg,
 									( lex->bufsiz + PLEX_BUFSTEP )
-										* sizeof( pchar ) );
+										* sizeof( wchar_t ) );
 
 			lex->bufend = lex->bufbeg + count;
 			lex->bufsiz += PLEX_BUFSTEP;
@@ -432,14 +432,14 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 					ptr++;
 			}
 
-			lex->bufbeg = (pchar*)ptr;
+			lex->bufbeg = (wchar_t*)ptr;
 		}
 	}
 	else if( len > 0 )
 	{
 		memmove( lex->bufbeg, lex->bufbeg + len,
 					( ( lex->bufend - ( lex->bufbeg + len ) ) + 1 + 1 )
-						* sizeof( pchar ) );
+						* sizeof( wchar_t ) );
 
 		lex->bufend = lex->bufbeg + ( lex->bufend - ( lex->bufbeg + len ) );
 	}
@@ -465,8 +465,8 @@ char* pg_lexer_isolate( pglexer* lex )
 		ret = pstrndup( (char*)lex->bufbeg, lex->len );
 	else
 	{
-		ret = (char*)pmalloc( ( lex->len + 1 ) * sizeof( pchar ) );
-		memcpy( ret, lex->bufbeg, lex->len * sizeof( pchar ) );
+		ret = (char*)pmalloc( ( lex->len + 1 ) * sizeof( wchar_t ) );
+		memcpy( ret, lex->bufbeg, lex->len * sizeof( wchar_t ) );
 	}
 
 	return ret;
@@ -478,7 +478,7 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	int			state;
 	int			trans;
 	int			accept;
-	pchar		ch;
+	wchar_t		ch;
 	size_t		len;
 	pgsymbol*	sym;
 
@@ -573,7 +573,7 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	 		&& !( lex->flags & PG_LEXMOD_WCHAR ) )
 		pg_token_set_lexem( lex->token, pg_lexer_isolate( lex ) );
 	else
-		pg_token_set_wlexem( lex->token, (pchar*)pg_lexer_isolate( lex ) );
+		pg_token_set_wlexem( lex->token, (wchar_t*)pg_lexer_isolate( lex ) );
 
 	RETURN( lex->token );
 }
