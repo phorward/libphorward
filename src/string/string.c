@@ -1210,4 +1210,38 @@ size_t pwcslen( wchar_t* str )
 	return wcslen( str );
 }
 
+/** Duplicate //n// characters from a wide-character string in memory.
+
+The function mixes the functionalities of wcsdup() and wcsncpy().
+The resulting wide-character string will be zero-terminated.
+
+//str// is the parameter wide-character string to be duplicated.
+If this is provided as (wchar_t*)NULL, the function will also return
+(wchar_t*)NULL.
+
+//n// is the the number of characters to be copied and duplicated from //str//.
+If //n// is greater than the length of //str//, copying will stop at the zero
+terminator.
+
+Returns a wchar_t*-pointer to the allocated memory holding the zero-terminated
+wide-character string duplicate. This pointer must be released with pfree()
+when its existence is no longer required.
+*/
+wchar_t* pwcsndup( wchar_t* str, size_t len )
+{
+	wchar_t*	ret;
+
+	if( !str )
+		return (wchar_t*)NULL;
+
+	if( pwcslen( str ) < len )
+		len = pwcslen( str );
+
+	ret = (wchar_t*)pmalloc( ( len + 1 ) * sizeof( wchar_t ) );
+	wcsncpy( ret, str, len );
+	ret[ len ] = '\0';
+
+	return ret;
+}
+
 #endif

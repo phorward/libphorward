@@ -61,7 +61,7 @@ static void print_stack( pglrpcb* pcb )
 					pg_symbol_get_name( pg_token_get_symbol( e->token ) )
 						: "(X)",
 				e->token ?
-					pg_token_get_lexem( e->token )
+					pg_value_get_string( pg_token_get_lexem( e->token ) )
 						: "(X)",
 				/* AST */
 				e->node && e->node->type ?
@@ -69,7 +69,8 @@ static void print_stack( pglrpcb* pcb )
 				e->node && e->node->symbol ?
 					pg_symbol_get_name( e->node->symbol ) : "(X)",
 				e->node && e->node->token ?
-					pg_token_get_lexem( e->node->token ) : "(X)"
+					pg_value_get_string(
+						pg_token_get_lexem( e->node->token ) ): "(X)"
 
 					) ;
 	}
@@ -97,8 +98,7 @@ static void traverse_ast( pgastnode* node )
 		if( node->token )
 			fprintf( stderr, "PUSH %s = >%s< w>%ls<\n",
 				pg_symbol_get_name( node->symbol ),
-					pg_token_get_lexem( node->token ),
-					pg_token_get_wlexem( node->token ) );
+					pg_value_get_string( pg_token_get_lexem( node->token ) ) );
 
 		if( node->type )
 			pg_asttype_call_passover( node->type, node );
@@ -269,7 +269,7 @@ pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast )
 		if( !pcb->la && !( pcb->la = pg_lexer_fetch( parser->lexer ) ) )
 		{
 			pcb->la = pg_token_create(
-						pg_grammar_get_eoi( pcb->g ), (char*)NULL );
+						pg_grammar_get_eoi( pcb->g ), (pgvalue*)NULL );
 		}
 
 		fprintf( stderr, "got token '%s' lexem '%s'\n",

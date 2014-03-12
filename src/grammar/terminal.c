@@ -133,7 +133,7 @@ pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal )
 }
 
 /* Attribute: asttype */
-
+/*
 pgasttype* pg_terminal_get_asttype( pgterminal* terminal )
 {
 	if( !( terminal ) )
@@ -154,5 +154,31 @@ pboolean pg_terminal_set_asttype( pgterminal* terminal, pgasttype* type )
 	}
 
 	terminal->asttype = type;
+	return TRUE;
+}
+*/
+
+/* Attribute: valuetype */
+
+pgvaluetype pg_terminal_get_valuetype( pgterminal* terminal )
+{
+	if( !( terminal ) )
+	{
+		WRONGPARAM;
+		return PGVALUETYPE_NULL;
+	}
+
+	return terminal->valuetype;
+}
+
+pboolean pg_terminal_set_valuetype( pgterminal* terminal, pgvaluetype type )
+{
+	if( !( terminal ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	terminal->valuetype = type;
 	return TRUE;
 }

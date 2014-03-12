@@ -10,14 +10,15 @@ Usage:
 
 #include "phorward.h"
 
-pgtoken* pg_token_create( pgsymbol* sym, char* lexem )
+pgtoken* pg_token_create( pgsymbol* sym, pgvalue* lexem )
 {
 	pgtoken*	tok;
 
 	tok = (pgtoken*)pmalloc( sizeof( pgtoken ) );
 	tok->symbol = sym;
 
-	pg_token_set_lexem( tok, lexem );
+	if( lexem )
+		pg_token_set_lexem( tok, lexem );
 
 	return tok;
 }
@@ -80,7 +81,11 @@ pgsymbol* pg_token_get_symbol( pgtoken* tok )
 	return tok->symbol;
 }
 
-pboolean pg_token_set_lexem( pgtoken* tok, char* lexem )
+/*
+	Attribute: Lexem
+*/
+
+pboolean pg_token_set_lexem( pgtoken* tok, pgvalue* lexem )
 {
 	if( !tok )
 	{
@@ -88,32 +93,28 @@ pboolean pg_token_set_lexem( pgtoken* tok, char* lexem )
 		return FALSE;
 	}
 
-	tok->flags &= ~PG_TOKFLAG_WCHAR;
-	tok->lexem = lexem;
+	if( tok->lexem )
+		pg_value_free( tok->lexem );
 
+	tok->lexem = lexem;
 	return TRUE;
 }
 
-/*
-	Attribute: Lexem
-*/
-char* pg_token_get_lexem( pgtoken* tok )
+pgvalue* pg_token_get_lexem( pgtoken* tok )
 {
 	if( !tok )
 	{
 		WRONGPARAM;
-		return (char*)NULL;
+		return (pgvalue*)NULL;
 	}
 
-	if( tok->flags & PG_TOKFLAG_WCHAR )
-		return "";
-
-	return pgetstr( tok->lexem );
+	return tok->lexem;
 }
 
 /*
 	Attribute: Wlexem
 */
+/*
 pboolean pg_token_set_wlexem( pgtoken* tok, wchar_t* lexem )
 {
 	if( !tok )
@@ -141,3 +142,4 @@ wchar_t* pg_token_get_wlexem( pgtoken* tok )
 	return (wchar_t*)pgetstr( tok->lexem );
 }
 
+*/

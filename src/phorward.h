@@ -726,6 +726,7 @@ struct _pgsymbol
 	pgassoc			assoc;			
 
 	pgasttype*		asttype;		
+	pgvaluetype		valuetype;		
 
 	
 	plist*			productions;	
@@ -774,12 +775,8 @@ struct _pgtoken
 {
 	pgsymbol*		symbol;			
 	int				flags;			
-#define PG_TOKFLAG_NONE		0			
-#define PG_TOKFLAG_ALLOC	1			
-#define PG_TOKFLAG_ZEROTERM	2			
-#define PG_TOKFLAG_WCHAR	4			
 
-	char*			lexem;			
+	pgvalue*		lexem;			
 
 	int				row;			
 	int				col;			
@@ -808,7 +805,7 @@ struct _pgastnode
 	pgsymbol*		symbol;		
 	pgtoken*		token;		
 
-	plist*			attributes;	
+	plist*			atts;		
 
 	pgastnode*		parent;		
 	pgastnode*		child;		
@@ -1117,6 +1114,7 @@ wchar_t* pwcscatchar( wchar_t* str, wchar_t chr );
 wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, boolean freesrc );
 wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t num );
 size_t pwcslen( wchar_t* str );
+wchar_t* pwcsndup( wchar_t* str, size_t len );
 #endif
 
 
@@ -1247,11 +1245,9 @@ pgsymbol* pg_astnode_get_symbol( pgastnode* node );
 pboolean pg_astnode_set_symbol( pgastnode* node, pgsymbol* symbol );
 pgtoken* pg_astnode_get_token( pgastnode* node );
 pboolean pg_astnode_set_token( pgastnode* node, pgtoken* token );
-#if 0
-pboolean pg_astnode_set_attribute( pgastnode* node, char* key, char* value );
-char* pg_astnode_get_attribute( pgastnode* node, int off );
-char* pg_astnode_get_attribute_by_key( pgastnode* node, char* key );
-#endif
+pboolean pg_astnode_set_att( pgastnode* node, char* key, pgvalue* value );
+pgvalue* pg_astnode_get_att( pgastnode* node, int off );
+pgvalue* pg_astnode_get_att_by_key( pgastnode* node, char* key );
 
 
 pgasttype* pg_asttype_create( pggrammar* g, char* name );
@@ -1334,27 +1330,24 @@ pgterminal* pg_terminal_get( pggrammar* g, int offset );
 BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern );
 BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
-pgasttype* pg_terminal_get_asttype( pgterminal* terminal );
-pboolean pg_terminal_set_asttype( pgterminal* terminal, pgasttype* type );
+pgvaluetype pg_terminal_get_valuetype( pgterminal* terminal );
+pboolean pg_terminal_set_valuetype( pgterminal* terminal, pgvaluetype type );
 
 
-pgtoken* pg_token_create( pgsymbol* sym, char* lexem );
+pgtoken* pg_token_create( pgsymbol* sym, pgvalue* lexem );
 pboolean pg_token_reset( pgtoken* tok );
 pgtoken* pg_token_free( pgtoken* tok );
 void pg_token_print( pgtoken* tok );
 pboolean pg_token_set_symbol( pgtoken* tok, pgsymbol* symbol );
 pgsymbol* pg_token_get_symbol( pgtoken* tok );
-pboolean pg_token_set_lexem( pgtoken* tok, char* lexem );
-char* pg_token_get_lexem( pgtoken* tok );
-pboolean pg_token_set_wlexem( pgtoken* tok, wchar_t* lexem );
-wchar_t* pg_token_get_wlexem( pgtoken* tok );
+pboolean pg_token_set_lexem( pgtoken* tok, pgvalue* lexem );
+pgvalue* pg_token_get_lexem( pgtoken* tok );
 
 
 pglexer* pg_lexer_create( pgparser* parser );
 pboolean pg_lexer_reset( pglexer* lex );
 pglexer* pg_lexer_free( pglexer* lex );
 pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr );
-char* pg_lexer_isolate( pglexer* lex );
 pgtoken* pg_lexer_fetch( pglexer* lex );
 
 

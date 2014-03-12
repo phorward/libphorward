@@ -67,7 +67,8 @@ struct _pgsymbol
 	int				prec;			/* Precedence level */
 	pgassoc			assoc;			/* Associativity */
 
-	pgasttype*		asttype;		/* Associated AST type */
+	pgasttype*		asttype;		/* Associated AST type (???) */
+	pgvaluetype		valuetype;		/* Value type */
 
 	/* Nonterminal-specific */
 	plist*			productions;	/* Productions that belong to a
@@ -117,12 +118,8 @@ struct _pgtoken
 {
 	pgsymbol*		symbol;			/* Token ID */
 	int				flags;			/* Flag configuration */
-#define PG_TOKFLAG_NONE		0			/* No current config */
-#define PG_TOKFLAG_ALLOC	1			/* Allocated content in lexem */
-#define PG_TOKFLAG_ZEROTERM	2			/* Zero terminated content in lexem */
-#define PG_TOKFLAG_WCHAR	4			/* Wide-character in lexem */
 
-	char*			lexem;			/* Token lexem */
+	pgvalue*		lexem;			/* Token lexem */
 
 	int				row;			/* Line */
 	int				col;			/* Column */
@@ -151,7 +148,7 @@ struct _pgastnode
 	pgsymbol*		symbol;		/* Symbol of node */
 	pgtoken*		token;		/* Token of node */
 
-	plist*			attributes;	/* Attributes */
+	plist*			atts;		/* Attributes */
 
 	pgastnode*		parent;		/* Parent node */
 	pgastnode*		child;		/* First child node */

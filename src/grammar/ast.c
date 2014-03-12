@@ -53,10 +53,9 @@ static void print_ast( int cnt, pgastnode* node )
 			fprintf( stderr, "%s\n",
 				pg_asttype_get_name( node->type ) );
 		else if( node->token )
-			fprintf( stderr, "%s = >%s< w>%ls<\n",
+			fprintf( stderr, "%s = >%s<\n",
 				pg_symbol_get_name( node->symbol ),
-					pg_token_get_lexem( node->token ),
-					pg_token_get_wlexem( node->token ) );
+					pg_value_get_string( pg_token_get_lexem( node->token ) ) );
 		else
 			fprintf( stderr, "%s\n",
 				pg_symbol_get_name( node->symbol ) );

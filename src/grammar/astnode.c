@@ -42,8 +42,8 @@ pgastnode* pg_astnode_free( pgastnode* node )
 		if( node->child )
 			pg_astnode_free( node->child );
 
-		if( node->attributes )
-			plist_for( node->attributes, e )
+		if( node->atts )
+			plist_for( node->atts, e )
 				pfree( plist_access( e ) );
 
 		pfree( node );
@@ -72,7 +72,8 @@ void pg_astnode_print( pgastnode* node, FILE* stream )
 		node && pg_astnode_get_symbol( node ) ?
 			pg_symbol_get_name( pg_astnode_get_symbol( node ) ) : "(X)",
 		node && pg_astnode_get_token( node ) ?
-			pg_token_get_lexem( pg_astnode_get_token( node ) ) : "(X)" );
+			pg_value_to_string( pg_token_get_lexem(
+				pg_astnode_get_token( node ) ) ) : "(X)" );
 }
 
 /* Attribute: type */
@@ -140,8 +141,8 @@ pboolean pg_astnode_set_token( pgastnode* node, pgtoken* token )
 }
 
 /* Attribute: Attributes */
-#if 0
-pboolean pg_astnode_set_attribute( pgastnode* node, char* key, char* value )
+
+pboolean pg_astnode_set_att( pgastnode* node, char* key, pgvalue* value )
 {
 	plistel*	e;
 
@@ -151,61 +152,57 @@ pboolean pg_astnode_set_attribute( pgastnode* node, char* key, char* value )
 		return FALSE;
 	}
 
-	if( !node->attributes )
-		node->attributes = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_UNIQUE );
+	if( !node->atts )
+		node->atts = plist_create( 0, PLIST_MOD_PTR
+										| PLIST_MOD_UNIQUE
+											| PLIST_MOD_RECYCLE );
 
-	if( key && *key && ( e = plist_get_by_key( node->attributes, key ) ) )
+	if( key && *key && ( e = plist_get_by_key( node->atts, key ) ) )
 	{
-		if( !value )
-			plist_remove( node->attributes, e );
-		else
-		{
-			pfree( plist_access( e ) );
-			*( (char**)plist_access( e ) ) = pstrdup( value );
-		}
+		pg_value_free( (pgvalue*)plist_access( e ) );
+		plist_remove( node->atts, e );
 	}
-	else
-		plist_insert( node->attributes, (plistel*)NULL,
-						key, pstrdup( value ) );
+
+	if( !plist_insert( node->atts, (plistel*)NULL, key, value ) )
+		return FALSE;
 
 	return TRUE;
 }
 
-char* pg_astnode_get_attribute( pgastnode* node, int off )
+pgvalue* pg_astnode_get_att( pgastnode* node, int off )
 {
 	plistel*	e;
 
 	if( !( node && off >= 0 ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		return (pgvalue*)NULL;
 	}
 
-	if( !node->attributes )
-		return (char*)NULL;
+	if( !node->atts )
+		return (pgvalue*)NULL;
 
-	if( ( e = plist_get( node->attributes, off ) ) )
-		return (char*)plist_access( e );
+	if( ( e = plist_get( node->atts, off ) ) )
+		return (pgvalue*)plist_access( e );
 
-	return (char*)NULL;
+	return (pgvalue*)NULL;
 }
 
-char* pg_astnode_get_attribute_by_key( pgastnode* node, char* key )
+pgvalue* pg_astnode_get_att_by_key( pgastnode* node, char* key )
 {
 	plistel*	e;
 
 	if( !( node && key && *key ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		return (pgvalue*)NULL;
 	}
 
-	if( !node->attributes )
-		return (char*)NULL;
+	if( !node->atts )
+		return (pgvalue*)NULL;
 
-	if( ( e = plist_get_by_key( node->attributes, key ) ) )
-		return *( (char**)plist_access( e ) );
+	if( ( e = plist_get_by_key( node->atts, key ) ) )
+		return (pgvalue*)plist_access( e );
 
-	return (char*)NULL;
+	return (pgvalue*)NULL;
 }
-#endif

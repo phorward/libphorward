@@ -16,6 +16,7 @@ typedef struct
 {
 	pgsymbol*		symbol;
 	pgastnode*		node;
+	int				offset;
 } pgllse;
 
 static pgtoken* lookahead( pgparser* parser )
@@ -25,38 +26,10 @@ static pgtoken* lookahead( pgparser* parser )
 	if( !( la = pg_lexer_fetch( parser->lexer ) ) )
 	{
 		la = pg_token_create( pg_grammar_get_eoi(
-				pg_parser_get_grammar( parser ) ), (char*)NULL );
+				pg_parser_get_grammar( parser ) ), (pgvalue*)NULL );
 	}
 
 	return la;
-}
-
-static void print_ast( int cnt, pgastnode* node )
-{
-	int			i;
-	pgastnode*	child;
-
-	while( node )
-	{
-		for( i = 0; i < cnt; i++ )
-			fprintf( stderr, " " );
-
-		if( node->type )
-			fprintf( stderr, "%s\n",
-				pg_asttype_get_name( node->type ) );
-		else if( node->token )
-			fprintf( stderr, "%s = >%s< w>%ls<\n",
-				pg_symbol_get_name( node->symbol ),
-					pg_token_get_lexem( node->token ),
-					pg_token_get_wlexem( node->token ) );
-		else
-			fprintf( stderr, "%s\n",
-				pg_symbol_get_name( node->symbol ) );
-
-		print_ast( cnt + 1, node->child );
-
-		node = node->next;
-	}
 }
 
 pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
@@ -106,12 +79,15 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 			se = (pgllse*)pstack_access( stack, i );
 
 			if( se->symbol )
-				fprintf( stderr, "%02d: %s%s\n", i,
-					pg_symbol_is_terminal( se->symbol ) ?
-						"@" : "",
+				fprintf( stderr, "%02d: %d %s%s\n",
+					i,
+					se->offset,
+					pg_symbol_is_terminal( se->symbol ) ? "@" : "",
 					pg_symbol_get_name( se->symbol ) );
 			else
-				fprintf( stderr, "%02d: (node) %p\n", i,
+				fprintf( stderr, "%02d: %d (node) %p\n",
+					i,
+					se->offset,
 					se->node );
 		}
 
@@ -166,20 +142,27 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 				break;
 			}
 
-			/* if there is a AST node for the production, push it */
+			/* If an AST node for the terminal shall be created,
+				replace the current tos with an astnode. */
 			if( ast && ( pg_ast_get_mode( ast ) == PGASTMODE_SYNTAX
 						/* TEST TEST TEST */
+
 						|| ( pg_ast_get_mode( ast ) == PGASTMODE_AST
 							&& ( isupper( *pg_symbol_get_name( tos->symbol ) )
 								|| *pg_symbol_get_name( tos->symbol ) == '@' )
 							)
 						) )
 			{
+				tos->offset = -1;
 				tos->node = pg_astnode_create( (pgasttype*)NULL );
 				tos->node->symbol = tos->symbol;
 				tos->node->token = la;
 
 				tos->symbol = (pgsymbol*)NULL;
+			}
+			else if( pg_ast_get_mode( ast ) == PGASTMODE_AST )
+			{
+				TODO;
 			}
 			else
 				pstack_pop( stack );
@@ -211,12 +194,15 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 			{
 				tos->node = pg_astnode_create( pg_production_get_asttype( p ) );
 				tos->symbol = (pgsymbol*)NULL;
+				tos->offset = -1;
 			}
+			/* On syntax tree mode, always push a node */
 			else if(  ast && pg_ast_get_mode( ast ) == PGASTMODE_SYNTAX )
 			{
 				tos->node = pg_astnode_create( (pgasttype*)NULL );
 				tos->node->symbol = pg_production_get_lhs( p );
 				tos->symbol = (pgsymbol*)NULL;
+				tos->offset = -1;
 			}
 			else
 				pstack_pop( stack );
@@ -226,8 +212,10 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 					i >= 0 && ( sym = pg_production_get_rhs( p, i ) ); i-- )
 			{
 				tos = (pgllse*)pstack_push( stack, (void*)NULL );
+
 				tos->symbol = sym;
 				tos->node = (pgastnode*)NULL;
+				tos->offset = i;
 			}
 		}
 		/* Anything else (empty) */

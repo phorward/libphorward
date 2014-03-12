@@ -450,28 +450,6 @@ static void pg_lexer_clearinput( pglexer* lex, size_t len )
 	}
 }
 
-char* pg_lexer_isolate( pglexer* lex )
-{
-	char*	ret;
-
-	if( !( lex ) )
-	{
-		WRONGPARAM;
-		return (char*)NULL;
-	}
-
-	if( lex->source == PG_LEX_SRCTYPE_STRING
-	 		&& !( lex->flags & PG_LEXMOD_WCHAR ) )
-		ret = pstrndup( (char*)lex->bufbeg, lex->len );
-	else
-	{
-		ret = (char*)pmalloc( ( lex->len + 1 ) * sizeof( wchar_t ) );
-		memcpy( ret, lex->bufbeg, lex->len * sizeof( wchar_t ) );
-	}
-
-	return ret;
-}
-
 pgtoken* pg_lexer_fetch( pglexer* lex )
 {
 	int			i;
@@ -481,6 +459,7 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	wchar_t		ch;
 	size_t		len;
 	pgsymbol*	sym;
+	pgvalue*	lexem;
 
 	PROC( "pg_lexer_fetch" );
 	PARMS( "lex", "%p", lex );
@@ -565,15 +544,23 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 			accept, lex->len, lex->len, lex->bufbeg );
 #endif
 
+	/* Whats my terminal? */
 	sym = pg_symbol_get_by_id( lex->grammar, accept - 1 );
 
-	lex->token = pg_token_create( sym, (char*)NULL );
+	/* Create a lexem, convert it if necessary */
+	lexem = pg_value_create();
 
 	if( lex->source == PG_LEX_SRCTYPE_STRING
 	 		&& !( lex->flags & PG_LEXMOD_WCHAR ) )
-		pg_token_set_lexem( lex->token, pg_lexer_isolate( lex ) );
+		pg_value_set_string( lexem, pstrndup( (char*)lex->bufbeg, lex->len ) );
 	else
-		pg_token_set_wlexem( lex->token, (wchar_t*)pg_lexer_isolate( lex ) );
+		pg_value_set_wstring( lexem, pwcsndup( lex->bufbeg, lex->len ) );
+
+	if( pg_terminal_get_valuetype( sym ) != PGVALUETYPE_NULL )
+		pg_value_convert( lexem, pg_terminal_get_valuetype( sym ) );
+
+	/* Create a token with the lexem */
+	lex->token = pg_token_create( sym, lexem );
 
 	RETURN( lex->token );
 }

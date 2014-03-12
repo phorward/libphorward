@@ -102,6 +102,26 @@ pgvalue* pg_value_free( pgvalue* val )
 	return (pgvalue*)NULL;
 }
 
+/* Parse value or accept only preferred type */
+/*
+pboolean pg_value_parse( pgvalue* val, char* str, pgvaluetype prefer )
+{
+	if( !( val && str && *str ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( prefer != PGVALUETYPE_NULL )
+	{
+		switch( prefer )
+		{
+
+		}
+	}
+}
+*/
+
 /*
 	Get & Set
 */
