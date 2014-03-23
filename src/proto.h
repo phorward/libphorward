@@ -1,26 +1,7 @@
-/*
- * This is a generated file - manual editing is not recommended!
- */
-
 /* base/dbg.c */
 void _dbg_trace( char* file, int line, char* type, char* format, ... );
 
-/* base/llist.c */
-LIST* list_push( LIST* list, void* ptr );
-LIST* list_pop( LIST* list, void** ptr );
-LIST* list_remove( LIST* list, void* ptr );
-LIST* list_free( LIST* list );
-void list_print( LIST* list, void (*callback)( void* ) );
-LIST* list_dup( LIST* src );
-int list_find( LIST* list, void* ptr );
-void* list_getptr( LIST* list, int cnt );
-int list_diff( LIST* first, LIST* second );
-LIST* list_union( LIST* first, LIST* second );
-int list_count( LIST* list );
-pboolean list_subset( LIST* list, LIST* subset );
-LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
-
-/* base/plist.c */
+/* base/list.c */
 pboolean plist_init( plist* list, size_t size, int flags );
 plist* plist_create( size_t size, int flags );
 plist* plist_dup( plist* list );
@@ -30,6 +11,9 @@ plist* plist_free( plist* list );
 plistel* plist_insert( plist* list, plistel* pos, char* key, void* src );
 plistel* plist_push( plist* list, void* src );
 void* plist_malloc( plist* list );
+#if 0
+pboolean plist_preallocate( plist* list, int n, int chunk );
+#endif
 pboolean plist_remove( plist* list, plistel* e );
 pboolean plist_pop( plist* list, void* dest );
 plistel* plist_get( plist* list, int n );
@@ -45,6 +29,8 @@ void* plist_access( plistel* e );
 char* plist_key( plistel* e );
 plistel* plist_next( plistel* u );
 plistel* plist_prev( plistel* u );
+plistel* plist_hashnext( plistel* u );
+plistel* plist_hashprev( plistel* u );
 int plist_offset( plistel* u );
 pboolean plist_swap( plistel* a, plistel* b );
 plistel* plist_first( plist* l );

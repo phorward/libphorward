@@ -11,8 +11,7 @@ PATHEXT = PATH="../run:$(PATH)"
 
 SRC = \
 	base/dbg.c \
-	base/llist.c \
-	base/plist.c \
+	base/list.c \
 	base/memory.c \
 	base/stack.c \
 	regex/ccl.c \
@@ -56,8 +55,7 @@ SRC = \
 
 HSRC = \
 	base/dbg.h \
-	base/llist.h \
-	base/plist.h \
+	base/list.h \
 	base/stack.h \
 	grammar/grammar.h \
 	lexer/lexer.h \

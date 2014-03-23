@@ -17,8 +17,9 @@ void PGERR( pggrammar* g, char* file, int line, char* fmt, ... )
 	va_start( args, fmt );
 
 	if( file && line > 0 )
-		fprintf( stderr, "%s, %d: " );
+		fprintf( stderr, "%s, %d: ", file, line );
 
 	vfprintf( stderr, fmt, args );
 	va_end( args );
+	fprintf( stderr, "\n" );
 }

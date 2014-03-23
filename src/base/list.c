@@ -4,7 +4,7 @@ Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	plist.c
+File:	list.c
 Usage:	An improved, double linked, optionally hashed list collection object.
 ----------------------------------------------------------------------------- */
 
@@ -17,7 +17,12 @@ The plist-object implements
 - hash-table
 - dynamic stack functionalities
 
-into one tool. It is the replacement for LIST, HASHTAB and STACK.
+into one tool.
+It serves as the replacement for the old libphorward data structrues
+LIST (llist), HASHTAB and STACK, which had been used and provided in the
+past.
+
+The object pstack can be used for better runtime performance.
 */
 
 /* Local prototypes */
@@ -59,10 +64,10 @@ static int plist_hash_index( plist* list, char* key )
 	if( list->flags & PLIST_MOD_PTRKEYS )
 		hashval = (long)key;
 	else if( list->flags & PLIST_MOD_WCHAR )
-		for( len = (wchar_t)pwcslen( (wchar_t*)key ); len > 0; len-- )
+		for( len = (long)pwcslen( (wchar_t*)key ); len > 0; len-- )
 			hashval += (long)( (wchar_t*)key )[ len - 1 ];
 	else
-		for( len = (wchar_t)pstrlen( key ); len > 0; len-- )
+		for( len = (long)pstrlen( key ); len > 0; len-- )
 			hashval += (long)key[ len - 1 ];
 
 	return (int)( hashval % list->hashsize );
@@ -212,9 +217,10 @@ pboolean plist_init( plist* list, size_t size, int flags )
 		size = sizeof( void* );
 
 	memset( list, 0, sizeof( plist ) );
+
 	list->flags = flags;
 	list->size = size;
-	list->hashsize = 64;
+	list->hashsize = PLIST_DFT_HASHSIZE;
 
 	list->sortfn = plist_compare;
 
@@ -505,6 +511,57 @@ void* plist_malloc( plist* list )
 	return plist_access( plist_push( list, (void*)NULL ) );
 }
 
+#if 0
+/* THIS WAS AN IDEA. But it increases the size of each plistel-element object,
+because additonal flags would be required. */
+
+/** Pre-allocates //n// elements in list //list// and sets the allocation step
+size to //chunk//, so that //chunk// elements will be allocated the next time
+when more memory for list elements is required.
+
+If //chunk// is < 0, the parameter will be ignored.
+
+The function returns true if all elements could be pre-allocated.
+*/
+pboolean plist_preallocate( plist* list, int n, int chunk )
+{
+	plistel*	chain;
+	int			i;
+
+	if( !list )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( n > 0 )
+	{
+		chain = (plistel*)plist_malloc( n * sizeof( plistel ) );
+
+		/* Allocate chunk table */
+		if( ( list->chunks_cnt % PLIST_CHUNKSTEP ) == 0 )
+			list->chunks = (plistel**)prealloc( list->chunks,
+								( list->chunks_cnt + PLIST_CHUNKSTEP )
+									* sizeof( plistel* ) );
+
+		list->chunks[ list->chunks++ ] = chain;
+
+		for( i = 0; i < n; i++ )
+		{
+			if( i < n - 1 )
+				list->chunks[ i ].next = list->chunks[ i + 1 ].next;
+
+			list->chunks[ i ].from_chunk = TRUE;
+		}
+	}
+
+	if( chunk >= 0 )
+	{
+
+	}
+}
+#endif
+
 /** Removes the element //e// from the the //list// and frees it or puts
  it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
 pboolean plist_remove( plist* list, plistel* e )
@@ -672,6 +729,7 @@ plistel* plist_get_by_ptr( plist* list, void* ptr )
 }
 
 /** Unions elements from list //from// into list //all//.
+
 An element is only added to //all//, if there exists no other
 element with the same size and content.
 
@@ -720,7 +778,12 @@ int plist_union( plist* all, plist* from )
 	RETURN( added );
 }
 
-/** Checks the contents of list //left// and list //right//for equal elements. */
+/** Tests the contents (data parts) of the list //left// and the list //right//
+for equal elements.
+
+The function returns a value < 0 if //left// is lower //right//, a value > 0
+if //left// is greater //right// and a value == 0 if //left// is equal to
+//right//. */
 int plist_diff( plist* left, plist* right )
 {
 	plistel*	el;
@@ -758,38 +821,14 @@ int plist_diff( plist* left, plist* right )
 	RETURN( diff );
 }
 
-/** Moves all elements from list //src// into list //dst//.
+/** Sorts //list// between the elements //from// and //to// according to the
+sort-function that was set for the list.
 
-Both lists must have the same element size, else the move operation cannot be
-performed.
-*/
-/*
-int plist_move( plist* dst, plist* src )
-{
-	int			count	= 0;
-	plistel*	e;
+To sort the entire list, use plist_sort().
 
-	PROC( "plist_move" );
-	PARMS( "dst", "%p", dst );
-	PARMS( "src", "%p", src );
-
-	if( !( dst && src && dst->size == src->size ) )
-	{
-		WRONGPARAM;
-		RETURN( 0 );
-	}
-
-	MSG( "Looping trough elements" );
-	plist_for( src, e )
-	{
-
-	}
-
-	RETURN( count );
-}
-*/
-
-/** Sort a list. */
+The sort-function can be modified by using plist_set_sortfn().
+The default sort function sorts the list by they contents, internally by using
+the memcmp() standard function. */
 pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 {
 	plistel*	a	= from;
@@ -870,6 +909,13 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 	return TRUE;
 }
 
+/** Sorts //list// according to the sort-function that was set for the list.
+
+To sort only parts of a list, use plist_subsort().
+
+The sort-function can be modified by using plist_set_sortfn().
+The default sort function sorts the list by they contents, internally by using
+the memcmp() standard function. */
 pboolean plist_sort( plist* list )
 {
 	if( !( list ) )
@@ -962,6 +1008,24 @@ plistel* plist_prev( plistel* u )
 		return (plistel*)NULL;
 
 	return u->prev;
+}
+
+/** Access next element with same hash value of current unit //u//. */
+plistel* plist_hashnext( plistel* u )
+{
+	if( !( u ) )
+		return (plistel*)NULL;
+
+	return u->hashnext;
+}
+
+/** Access previous element with same hash value of a current unit //u//. */
+plistel* plist_hashprev( plistel* u )
+{
+	if( !( u ) )
+		return (plistel*)NULL;
+
+	return u->hashprev;
 }
 
 /** Return the offset of the unit //u// within the list it belongs to. */

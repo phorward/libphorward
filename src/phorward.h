@@ -173,40 +173,8 @@ typedef char 					pboolean;
 
 
 
-#ifndef LLIST_H
-#define LLIST_H
-
-
-typedef struct llist
-{
-	void*			pptr;
-	struct llist*	next;
-} LIST;
-
-
-#define list_access( ll )		( (ll) ? (ll)->pptr : (void*)NULL )
-#define list_next( ll )			( (ll) ? (ll)->next : (LIST*)NULL )
-#define list_replace( ll, ptr )	( (ll) ? (ll)->pptr = (ptr) : 0 )
-
-#define LISTFOR( ll, cc )		for( (cc) = (ll); (cc); (cc) = list_next(cc) )
-
-#endif
-
-
-
-
 #ifndef PLIST_H
 #define PLIST_H
-
-
-#define PLIST_MOD_NONE		0	
-#define PLIST_MOD_PTR		1	
-#define PLIST_MOD_RECYCLE	2	
-#define PLIST_MOD_AUTOSORT	4	
-#define PLIST_MOD_EXTKEYS	8	
-#define PLIST_MOD_PTRKEYS	16	
-#define PLIST_MOD_UNIQUE	32	
-#define PLIST_MOD_WCHAR		64	
 
 
 typedef struct Plistel		plistel;
@@ -229,9 +197,19 @@ struct Plistel
 struct Plist
 {
 	int						flags;
+#define PLIST_MOD_NONE		0	
+#define PLIST_MOD_PTR		1	
+#define PLIST_MOD_RECYCLE	2	
+#define PLIST_MOD_AUTOSORT	4	
+#define PLIST_MOD_EXTKEYS	8	
+#define PLIST_MOD_PTRKEYS	16	
+#define PLIST_MOD_UNIQUE	32	
+#define PLIST_MOD_WCHAR		64	
+
 	int						size;
 	int						count;
 	int						hashsize;
+#define PLIST_DFT_HASHSIZE	64
 
 	int						(*comparefn)( plist*, plistel*, plistel* );
 	int						(*sortfn)( plist*, plistel*, plistel* );
@@ -909,24 +887,7 @@ extern "C"
 
 
 
-
-
 void _dbg_trace( char* file, int line, char* type, char* format, ... );
-
-
-LIST* list_push( LIST* list, void* ptr );
-LIST* list_pop( LIST* list, void** ptr );
-LIST* list_remove( LIST* list, void* ptr );
-LIST* list_free( LIST* list );
-void list_print( LIST* list, void (*callback)( void* ) );
-LIST* list_dup( LIST* src );
-int list_find( LIST* list, void* ptr );
-void* list_getptr( LIST* list, int cnt );
-int list_diff( LIST* first, LIST* second );
-LIST* list_union( LIST* first, LIST* second );
-int list_count( LIST* list );
-pboolean list_subset( LIST* list, LIST* subset );
-LIST* list_sort( LIST* list, int (*sf)( void*, void* ) );
 
 
 pboolean plist_init( plist* list, size_t size, int flags );
@@ -938,6 +899,9 @@ plist* plist_free( plist* list );
 plistel* plist_insert( plist* list, plistel* pos, char* key, void* src );
 plistel* plist_push( plist* list, void* src );
 void* plist_malloc( plist* list );
+#if 0
+pboolean plist_preallocate( plist* list, int n, int chunk );
+#endif
 pboolean plist_remove( plist* list, plistel* e );
 pboolean plist_pop( plist* list, void* dest );
 plistel* plist_get( plist* list, int n );
@@ -953,6 +917,8 @@ void* plist_access( plistel* e );
 char* plist_key( plistel* e );
 plistel* plist_next( plistel* u );
 plistel* plist_prev( plistel* u );
+plistel* plist_hashnext( plistel* u );
+plistel* plist_hashprev( plistel* u );
 int plist_offset( plistel* u );
 pboolean plist_swap( plistel* a, plistel* b );
 plistel* plist_first( plist* l );

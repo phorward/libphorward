@@ -1,7 +1,7 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
 # Phorward Foundation Toolkit
-# Copyright (C) 2009-2013 by Phorward Software Technologies, Jan Max Meyer
+# Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See LICENSE for more information.
 #
@@ -40,11 +40,6 @@ do
 done
 
 #build the prototypes
-
-echo "/*"
-echo " * This is a generated file - manual editing is not recommended!"
-echo " */" 
-echo
 
 while [ "$1" != "" ]
 do

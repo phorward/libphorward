@@ -179,8 +179,6 @@ pgproduction* pg_production_get( pggrammar* grammar, int i )
 
 pgproduction* pg_production_get_by_lhs( pgnonterminal* lhs, int i )
 {
-	LIST*	l;
-
 	if( !( pg_symbol_is_nonterminal( lhs ) && i >= 0 ) )
 	{
 		WRONGPARAM;

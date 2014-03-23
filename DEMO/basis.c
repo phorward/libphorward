@@ -156,46 +156,6 @@ void pregex_ccl_demo( void )
 	pregex_ccl_free( e );
 }
 
-void list_demo( void )
-{
-	LIST*	mylist = (LIST*)NULL; /* This is our main list */
-	LIST*	l; /* l, for list iteration */
-	char*	values[] = { "Hello", "World", "out there!" };
-	char*	tmp;
-
-	DEMO( "list_demo" );
-
-	/* Create the list. */
-	mylist = list_push( mylist, (void*)values[0] );
-	mylist = list_push( mylist, (void*)values[1] );
-	mylist = list_push( mylist, (void*)values[2] );
-
-	/* Let's iterate it. */
-	printf( "mylist contains %d items\n", list_count( mylist ) );
-	for( l = mylist; l; l = list_next( l ) )
-	{
-		tmp = (char*)list_access( l );
-		printf( "%s ", tmp );
-	}
-
-	/* Now, we remove one element (identified by its pointer) and iterate
-		the list again */
-	mylist = list_remove( mylist, (void*)values[1] );
-	printf( "\nmylist contains now %d items\n", list_count( mylist ) );
-
-	/* LISTFOR expands in a for-loop as above, but is shorter! ;) */
-	LISTFOR( mylist, l )
-	{
-		tmp = (char*)list_access( l );
-		printf( "%s ", tmp );
-	}
-
-	printf( "\n" );
-
-	/* Free the entire list */
-	mylist = list_free( mylist );
-}
-
 static void plist_demo_print( plist* list )
 {
 	person*		pp;
@@ -527,7 +487,6 @@ int main( int argc, char** argv )
 	string_demo();
 	unicode_demo();
 	utf8_demo();
-	list_demo();
 	plist_demo2();
 	plist_demo();
 	pstack_demo();

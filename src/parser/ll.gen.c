@@ -27,7 +27,7 @@ static void print_tab( pgparser* parser )
 		plist_for( trans, f )
 		{
 			p = (pgproduction*)plist_access( f );
-			fprintf( stderr, "	@%s => %s\n",
+			fprintf( stderr, "	%s => %s\n",
 				pg_symbol_get_name( (pgsymbol*)plist_key( f ) ),
 				pg_production_to_string( p ) );
 		}

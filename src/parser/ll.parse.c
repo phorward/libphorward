@@ -17,6 +17,8 @@ typedef struct
 	pgsymbol*		symbol;
 	pgastnode*		node;
 	int				offset;
+
+	pgproduction*	left;		/* Marker for a left-recursive production */
 } pgllse;
 
 static pgtoken* lookahead( pgparser* parser )
@@ -187,6 +189,28 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 				fprintf( stderr, "Syntax error %p %p\n", trans, p );
 				break;
 			}
+
+			/* Test for left-recursive grammars. */
+			/*
+			{
+				plistel*	e;
+
+				e = plist_get_by_key( trans, (char*)pg_token_get_symbol( la ) );
+
+				while( ( p = (pgproduction*)plist_access( e ) ) )
+				{
+					fprintf( stderr, "handle >%s<\n",
+						pg_production_to_string( p ) );
+
+					e = plist_hashnext( e );
+					if( plist_key( e ) != (char*)pg_token_get_symbol( la ) )
+						break;
+
+				}
+
+				getchar();
+			}
+			*/
 
 			/* if there is a AST node for the production, push this first */
 			if( ast && pg_ast_get_mode( ast ) == PGASTMODE_AST &&
