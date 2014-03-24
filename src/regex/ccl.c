@@ -159,11 +159,8 @@ are sorted and intersections are resolved. The result is a unique, normalized
 character-class to be used for further operations.
 
 //ccl// is the character-class to be normalized.
-//mem_opt// specifies if memory optimization should be performed, so that
-exactly the required size of memory is used that is exactly holds the character
-class.
 
-Returns the pointer //ccl//.
+Returns the number of cycles used for normalization.
 */
 static int pregex_ccl_normalize( pregex_ccl* ccl )
 {
