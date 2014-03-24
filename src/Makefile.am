@@ -19,7 +19,7 @@ libphorward_la_SOURCES = \
 	base/list.c \
 	base/memory.c \
 	base/stack.c \
-	ccl/ccl.c \
+	regex/ccl.c \
 	regex/dfa.c \
 	regex/direct.c \
 	regex/misc.c \
@@ -32,20 +32,19 @@ libphorward_la_SOURCES = \
 	string/string.c \
 	string/utf8.c \
 	util/system.c \
-	union/union.c \
-	union/union.conv.c \
-	union/union.get.c \
-	union/union.set.c \
+	value/value.c \
+	value/value.conv.c \
+	value/value.get.c \
+	value/value.set.c \
 	xml/xml.c
 
 noinst_HEADERS = \
 	base/dbg.h \
 	base/list.h \
 	base/stack.h \
-	ccl/ccl.h \
 	phorward.tpl.h \
 	regex/pregex.h \
-	union/union.h \
+	value/value.h \
 	xml/xml.h \
 	$(PROTOFILE)
 
@@ -78,14 +77,14 @@ $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 
-union/union.get.c: union/union.h union/union.gen.awk
-	$(AWK) -f union/union.gen.awk -vwith_get=1 union/union.h >$@
+value/value.get.c: value/value.h value/value.gen.awk
+	$(AWK) -f value/value.gen.awk -vwith_get=1 value/value.h >$@
 
-union/union.set.c: union/union.h union/union.gen.awk
-	$(AWK) -f union/union.gen.awk -vwith_set=1 union/union.h >$@
+value/value.set.c: value/value.h value/value.gen.awk
+	$(AWK) -f value/value.gen.awk -vwith_set=1 value/value.h >$@
 
-union/union.conv.c: union/union.h union/union.gen.awk
-	$(AWK) -f union/union.gen.awk -vwith_conv=1 union/union.h >$@
+value/value.conv.c: value/value.h value/value.gen.awk
+	$(AWK) -f value/value.gen.awk -vwith_conv=1 value/value.h >$@
 
 # Phorward Foundation Library Documentation
 $(DOCFILE): $(libphorward_la_SOURCES)
