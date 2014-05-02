@@ -556,9 +556,6 @@ pgtoken* pg_lexer_fetch( pglexer* lex )
 	else
 		pg_value_set_wstring( lexem, pwcsndup( lex->bufbeg, lex->len ) );
 
-	if( pg_terminal_get_valuetype( sym ) != PGVALUETYPE_NULL )
-		pg_value_convert( lexem, pg_terminal_get_valuetype( sym ) );
-
 	/* Create a token with the lexem */
 	lex->token = pg_token_create( sym, lexem );
 

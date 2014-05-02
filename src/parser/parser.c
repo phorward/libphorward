@@ -88,7 +88,7 @@ BOOLEAN pg_parser_parse( pgparser* p )
 	return FALSE;
 }
 
-pgast* pg_parser_parse_to_ast( pgparser* p, pgastmode mode )
+pgast* pg_parser_parse_to_ast( pgparser* p )
 {
 	pgast*	ast;
 
@@ -98,7 +98,7 @@ pgast* pg_parser_parse_to_ast( pgparser* p, pgastmode mode )
 		return FALSE;
 	}
 
-	ast = pg_ast_create( pg_parser_get_grammar( p ), mode );
+	ast = pg_ast_create( pg_parser_get_grammar( p ) );
 
 	if( pg_parser_is_lr( p ) && pg_parser_lr_parse( p, ast ) )
 		return ast;

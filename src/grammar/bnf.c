@@ -34,6 +34,6 @@ void pg_grammar_from_bnf( void )
 							"start: @ident;"
 							"test: start @ident+;" );
 
-	if( ( ast = pg_parser_parse_to_ast( p, PGASTMODE_AST ) ) )
+	if( ( ast = pg_parser_parse_to_ast( p ) ) )
 		pg_ast_print( ast );
 }

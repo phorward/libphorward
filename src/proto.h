@@ -307,41 +307,20 @@ wchar_t* pg_value_set_wstring( pgvalue* val, wchar_t* ws );
 void* pg_value_set_ptr( pgvalue* val, void* ptr );
 
 /* grammar/ast.c */
-pgast* pg_ast_create( pggrammar* g, pgastmode mode );
+pgast* pg_ast_create( pggrammar* g );
 pgast* pg_ast_free( pgast* ast );
 void pg_ast_print( pgast* ast );
-pgastmode pg_ast_get_mode( pgast* ast );
 pgastnode* pg_ast_get_root( pgast* ast );
 pboolean pg_ast_set_root( pgast* ast, pgastnode* root );
 
 /* grammar/astnode.c */
-pgastnode* pg_astnode_create( pgasttype* type );
+pgastnode* pg_astnode_create( pgsymbol* symbol );
 pgastnode* pg_astnode_free( pgastnode* node );
 void pg_astnode_print( pgastnode* node, FILE* stream );
-pgasttype* pg_astnode_get_type( pgastnode* node );
 pgsymbol* pg_astnode_get_symbol( pgastnode* node );
 pboolean pg_astnode_set_symbol( pgastnode* node, pgsymbol* symbol );
 pgtoken* pg_astnode_get_token( pgastnode* node );
 pboolean pg_astnode_set_token( pgastnode* node, pgtoken* token );
-pboolean pg_astnode_set_att( pgastnode* node, char* key, pgvalue* value );
-pgvalue* pg_astnode_get_att( pgastnode* node, int off );
-pgvalue* pg_astnode_get_att_by_key( pgastnode* node, char* key );
-
-/* grammar/asttype.c */
-pgasttype* pg_asttype_create( pggrammar* g, char* name );
-pgasttype* pg_asttype_get_by_name( pggrammar* g, char* name );
-char* pg_asttype_get_name( pgasttype* asttype );
-size_t pg_asttype_get_size( pgasttype* asttype );
-pboolean pg_asttype_set_size( pgasttype* asttype, size_t size );
-pgastfn pg_asttype_get_topdown( pgasttype* asttype );
-pboolean pg_asttype_set_topdown( pgasttype* asttype, pgastfn topdown );
-pboolean pg_asttype_call_topdown( pgasttype* asttype, pgastnode* node );
-pgastfn pg_asttype_get_passover( pgasttype* asttype );
-pboolean pg_asttype_set_passover( pgasttype* asttype, pgastfn passover );
-pboolean pg_asttype_call_passover( pgasttype* asttype, pgastnode* node );
-pgastfn pg_asttype_get_bottomup( pgasttype* asttype );
-pboolean pg_asttype_set_bottomup( pgasttype* asttype, pgastfn bottomup );
-pboolean pg_asttype_call_bottomup( pgasttype* asttype, pgastnode* node );
 
 /* grammar/bnf.c */
 void pg_grammar_from_bnf( void );
@@ -368,6 +347,8 @@ pregex_ptn* pg_grammar_get_whitespace( pggrammar* grammar );
 pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name );
 pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal );
 pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
+pboolean pg_nonterminal_get_emit( pgnonterminal* nt );
+pboolean pg_nonterminal_set_emit( pgnonterminal* nt, pboolean emit );
 
 /* grammar/production.c */
 pgproduction* pg_production_create( pgnonterminal* lhs, ... );
@@ -384,8 +365,6 @@ int pg_production_get_id( pgproduction* p );
 pggrammar* pg_production_get_grammar( pgproduction* p );
 pgnonterminal* pg_production_get_lhs( pgproduction* p );
 int pg_production_get_rhs_length( pgproduction* p );
-pgasttype* pg_production_get_asttype( pgproduction* p );
-pboolean pg_production_set_asttype( pgproduction* p, pgasttype* type );
 
 /* grammar/symbol.c */
 pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name );
@@ -408,8 +387,6 @@ pgterminal* pg_terminal_get( pggrammar* g, int offset );
 BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern );
 BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
 pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
-pgvaluetype pg_terminal_get_valuetype( pgterminal* terminal );
-pboolean pg_terminal_set_valuetype( pgterminal* terminal, pgvaluetype type );
 
 /* grammar/token.c */
 pgtoken* pg_token_create( pgsymbol* sym, pgvalue* lexem );
@@ -447,7 +424,7 @@ pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
 pgparser* pg_parser_free( pgparser* parser );
 BOOLEAN pg_parser_generate( pgparser* p );
 BOOLEAN pg_parser_parse( pgparser* p );
-pgast* pg_parser_parse_to_ast( pgparser* p, pgastmode mode );
+pgast* pg_parser_parse_to_ast( pgparser* p );
 BOOLEAN pg_parser_is_lr( pgparser* p );
 BOOLEAN pg_parser_is_ll( pgparser* p );
 pggrammar* pg_parser_get_grammar( pgparser* p );

@@ -146,25 +146,16 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 
 			/* If an AST node for the terminal shall be created,
 				replace the current tos with an astnode. */
-			if( ast && ( pg_ast_get_mode( ast ) == PGASTMODE_SYNTAX
-						/* TEST TEST TEST */
-
-						|| ( pg_ast_get_mode( ast ) == PGASTMODE_AST
-							&& ( isupper( *pg_symbol_get_name( tos->symbol ) )
-								|| *pg_symbol_get_name( tos->symbol ) == '@' )
-							)
-						) )
+			if( ast
+					/* TEST TEST TEST */
+						&& ( isupper( *pg_symbol_get_name( tos->symbol ) )
+								|| *pg_symbol_get_name( tos->symbol ) == '@' ) )
 			{
 				tos->offset = -1;
-				tos->node = pg_astnode_create( (pgasttype*)NULL );
-				tos->node->symbol = tos->symbol;
-				tos->node->token = la;
+				tos->node = pg_astnode_create( tos->symbol );
+				pg_astnode_set_token( tos->node, la );
 
 				tos->symbol = (pgsymbol*)NULL;
-			}
-			else if( pg_ast_get_mode( ast ) == PGASTMODE_AST )
-			{
-				TODO;
 			}
 			else
 				pstack_pop( stack );
@@ -212,19 +203,10 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 			}
 			*/
 
-			/* if there is a AST node for the production, push this first */
-			if( ast && pg_ast_get_mode( ast ) == PGASTMODE_AST &&
-					pg_production_get_asttype( p ) )
+			/* if there is node for the production, push this first */
+			if( ast && pg_nonterminal_get_emit( pg_production_get_lhs( p ) ) )
 			{
-				tos->node = pg_astnode_create( pg_production_get_asttype( p ) );
-				tos->symbol = (pgsymbol*)NULL;
-				tos->offset = -1;
-			}
-			/* On syntax tree mode, always push a node */
-			else if(  ast && pg_ast_get_mode( ast ) == PGASTMODE_SYNTAX )
-			{
-				tos->node = pg_astnode_create( (pgasttype*)NULL );
-				tos->node->symbol = pg_production_get_lhs( p );
+				tos->node = pg_astnode_create( pg_production_get_lhs( p ) );
 				tos->symbol = (pgsymbol*)NULL;
 				tos->offset = -1;
 			}

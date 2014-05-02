@@ -81,3 +81,29 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset )
 
 	return (pgnonterminal*)NULL;
 }
+
+/* Attribute: emit */
+
+pboolean pg_nonterminal_get_emit( pgnonterminal* nt )
+{
+	if( !nt )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	return nt->emit;
+}
+
+
+pboolean pg_nonterminal_set_emit( pgnonterminal* nt, pboolean emit )
+{
+	if( !nt )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	nt->emit = emit;
+	return TRUE;
+}

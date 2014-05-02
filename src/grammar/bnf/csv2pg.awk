@@ -14,7 +14,6 @@ BEGIN			{
 
 					grammar = "g"
 
-					var[ "a" ]	= "A_"
 					var[ "t" ]	= "T_"
 					var[ "n" ]	= "N_"
 					var[ "p" ]	= "P_"
@@ -68,10 +67,6 @@ END				{
 						}
 					}
 
-					for( a in asttypes )
-						printf "pgasttype*	%s%s;\n", \
-							var[ "a" ], asttypes[ a ]
-
 					# Objects
 					printf "\n/* Terminals */\n"
 
@@ -89,23 +84,11 @@ END				{
 						printf \
 						"%s%s = pg_nonterminal_create( %s, \"%s\" );\n", \
 							var[ "n" ], to_cname( n ), grammar, n
+
+						if( emit[ n ] )
+							printf( "pg_nonterminal_set_emit( %s%s, TRUE );", \
+								var[ "n" ], to_cname( n ) )
 					}
-
-					first = 1
-
-					for( a in asttypes )
-					{
-						if( first )
-						{
-							printf "\n/* AST-Types */\n"
-							first = 0
-						}
-
-						printf "%s%s = pg_asttype_create( %s, \"%s\" );\n", \
-							var[ "a" ], asttypes[ a ], grammar, \
-								asttypes[ a ]
-					}
-
 
 					for( n in nonterminals )
 					{
@@ -131,18 +114,6 @@ END				{
 							}
 
 							printf ", (pgsymbol*)NULL );\n"
-						}
-
-						print ""
-
-						for( i = 1; i <= nonterminals[ n ]; i++ )
-						{
-							if( prodast[ n ][ i ] != "" )
-								printf "pg_production_set_asttype( " \
-									"%s%s_%d, %s%s );\n", \
-										var[ "p" ], to_cname( n ), i, \
-											var[ "a" ], \
-												to_cname( prodast[ n ][ i ] )
 						}
 					}
 				}
@@ -178,16 +149,15 @@ END				{
 
 					if( substr( $1, 1, 1 ) == "%" ) 
 					{
-						ast = substr( $1, 2 )
-						if( ast == "" )
-							ast = $2
+						doemit = substr( $1, 2 )
+						if( doemit == "" )
+							doemit = $2
 
-						asttypes[ ast ] = ast 
 						i = 2
 					}
 					else
 					{
-						ast = ""
+						doemit = ""
 						i = 1
 					}
 
@@ -212,7 +182,8 @@ END				{
 						productions[ nt ][ idx ][ j++ ] = sym
 					}
 
-					prodast[ nt ][ idx ] = ast
+					if( doemit != "" )
+						emit[ nt ] = doemit
 				}
 
 function to_cname( name )

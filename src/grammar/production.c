@@ -269,28 +269,3 @@ int pg_production_get_rhs_length( pgproduction* p )
 
 	return plist_count( p->rhs );
 }
-
-/* Attribute: asttype */
-
-pgasttype* pg_production_get_asttype( pgproduction* p )
-{
-	if( !( p ) )
-	{
-		WRONGPARAM;
-		return (pgasttype*)NULL;
-	}
-
-	return p->asttype;
-}
-
-pboolean pg_production_set_asttype( pgproduction* p, pgasttype* type )
-{
-	if( !( p ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
-
-	p->asttype = type;
-	return TRUE;
-}

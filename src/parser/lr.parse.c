@@ -51,7 +51,7 @@ static void print_stack( pglrpcb* pcb )
 		e = (pglrse*)pstack_access( pcb->st, i );
 
 		fprintf( stderr, "%02d: sym: '%s' state: %d "
-							"token: %s(%s) ast: %s/%s/%s\n",
+							"token: %s(%s) ast: %s/%s\n",
 				i,
 				e->symbol ? pg_symbol_get_name( e->symbol ) : "(X)",
 				e->state ? plist_offset( plist_get_by_ptr(
@@ -64,8 +64,6 @@ static void print_stack( pglrpcb* pcb )
 					pg_value_get_string( pg_token_get_lexem( e->token ) )
 						: "(X)",
 				/* AST */
-				e->node && e->node->type ?
-					pg_asttype_get_name( e->node->type ) : "(X)",
 				e->node && e->node->symbol ?
 					pg_symbol_get_name( e->node->symbol ) : "(X)",
 				e->node && e->node->token ?
@@ -77,6 +75,7 @@ static void print_stack( pglrpcb* pcb )
 
 }
 
+/*
 static void traverse_ast( pgastnode* node )
 {
 	pgastnode*	child;
@@ -106,6 +105,7 @@ static void traverse_ast( pgastnode* node )
 		node = node->next;
 	}
 }
+*/
 
 /* Push state on stack */
 static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
@@ -123,18 +123,13 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 		e.symbol = sym;
 
 	/* AST */
-	if( pcb->ast && ( ( pg_ast_get_mode( pcb->ast ) == PGASTMODE_SYNTAX
-						&& e.symbol )
-		/* TEST TEST TEST */
-					|| ( pg_ast_get_mode( pcb->ast ) == PGASTMODE_AST
-							&& pg_symbol_is_terminal( e.symbol )
-							&& ( isupper( *pg_symbol_get_name( e.symbol ) )
-								|| *pg_symbol_get_name( e.symbol ) == '@' )
-						) ) )
+	if( pcb->ast &&
+			/* TEST TEST TEST */
+			( pg_symbol_is_terminal( e.symbol )
+					&& ( isupper( *pg_symbol_get_name( e.symbol ) )
+						|| *pg_symbol_get_name( e.symbol ) == '@' ) ) )
 	{
-		e.node = pg_astnode_create( (pgasttype*)NULL );
-
-		pg_astnode_set_symbol( e.node, e.symbol );
+		e.node = pg_astnode_create( e.symbol );
 		pg_astnode_set_token( e.node, tok );
 	}
 
@@ -311,17 +306,6 @@ pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast )
 			pcb->lhs = pg_production_get_lhs( pcb->reduce );
 			pop( pcb, pg_production_get_rhs_length( pcb->reduce ), &node );
 
-			/* Construct syntax tree? */
-			if( pcb->ast && pg_ast_get_mode( pcb->ast ) == PGASTMODE_SYNTAX )
-			{
-				nnode = pg_astnode_create( (pgasttype*)NULL );
-
-				pg_astnode_set_symbol( nnode, pcb->lhs );
-				nnode->child = node;
-
-				node = nnode;
-			}
-
 			/* Goal symbol reduced? */
 			if( pcb->lhs == pg_grammar_get_goal( pcb->g )
 					&& pstack_count( pcb->st ) == 1 )
@@ -333,11 +317,11 @@ pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast )
 			}
 
 			/* Construct abstract syntax tree */
-			if( pcb->ast && pg_ast_get_mode( pcb->ast ) == PGASTMODE_AST
-					&& pg_production_get_asttype( pcb->reduce ) )
+			if( pcb->ast && pg_nonterminal_get_emit(
+								pg_production_get_lhs( pcb->reduce ) ) )
 			{
 				nnode = pg_astnode_create(
-							pg_production_get_asttype( pcb->reduce ) );
+							pg_production_get_lhs( pcb->reduce ) );
 				nnode->child = node;
 				node = nnode;
 			}

@@ -36,8 +36,10 @@ int main()
 
 	start = pg_nonterminal_create( g, "start" );
 	expr = pg_nonterminal_create( g, "expr" );
+	pg_nonterminal_set_emit( expr, TRUE );
 	exprl = pg_nonterminal_create( g, "expr'" );
 	term = pg_nonterminal_create( g, "term" );
+	pg_nonterminal_set_emit( term, TRUE );
 	terml = pg_nonterminal_create( g, "term'" );
 	factor = pg_nonterminal_create( g, "factor" );
 
@@ -59,13 +61,12 @@ int main()
 	pg_production_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
 	pg_production_create( factor, i, (pgsymbol*)NULL );
 
-
 	pg_grammar_print( g );
 
 	p = pg_parser_create( g, PGPARADIGM_LL1 );
 
 	pg_lexer_set_source( p->lexer, PG_LEX_SRCTYPE_STRING, "1+2*3" );
-	if( ( ast = pg_parser_parse_to_ast( p, PGASTMODE_SYNTAX ) ) )
+	if( ( ast = pg_parser_parse_to_ast( p ) ) )
 		pg_ast_print( ast );
 
 	/*

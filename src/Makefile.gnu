@@ -35,7 +35,6 @@ SRC = \
 	value/value.set.c \
 	grammar/ast.c \
 	grammar/astnode.c \
-	grammar/asttype.c \
 	grammar/bnf.c \
 	grammar/error.c \
 	grammar/grammar.c \

@@ -10,7 +10,7 @@ Usage:
 
 #include "phorward.h"
 
-pgast* pg_ast_create( pggrammar* g, pgastmode mode )
+pgast* pg_ast_create( pggrammar* g )
 {
 	pgast*		ast;
 
@@ -22,7 +22,6 @@ pgast* pg_ast_create( pggrammar* g, pgastmode mode )
 
 	ast = (pgast*)pmalloc( sizeof( pgast ) );
 	ast->grammar = g;
-	ast->mode = mode;
 
 	return ast;
 }
@@ -49,16 +48,13 @@ static void print_ast( int cnt, pgastnode* node )
 		for( i = 0; i < cnt; i++ )
 			fprintf( stderr, " " );
 
-		if( node->type )
-			fprintf( stderr, "%s\n",
-				pg_asttype_get_name( node->type ) );
-		else if( node->token )
-			fprintf( stderr, "%s = >%s<\n",
-				pg_symbol_get_name( node->symbol ),
-					pg_value_get_string( pg_token_get_lexem( node->token ) ) );
+		fprintf( stderr, "%s", pg_symbol_get_name( node->symbol ) );
+
+		if( node->token )
+			fprintf( stderr, " = >%s<\n",
+				pg_value_get_string( pg_token_get_lexem( node->token ) ) );
 		else
-			fprintf( stderr, "%s\n",
-				pg_symbol_get_name( node->symbol ) );
+			fprintf( stderr, "\n" );
 
 		print_ast( cnt + 1, node->child );
 
@@ -75,20 +71,6 @@ void pg_ast_print( pgast* ast )
 	}
 
 	print_ast( 0, ast->root );
-}
-
-/* Attribute: mode */
-
-/* GET ONLY! */
-pgastmode pg_ast_get_mode( pgast* ast )
-{
-	if( !ast )
-	{
-		WRONGPARAM;
-		return PGASTMODE_NONE;
-	}
-
-	return ast->mode;
 }
 
 /* Attribute: root */

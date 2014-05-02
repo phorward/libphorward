@@ -67,12 +67,11 @@ struct _pgsymbol
 	int				prec;			/* Precedence level */
 	pgassoc			assoc;			/* Associativity */
 
-	pgasttype*		asttype;		/* Associated AST type (???) */
-	pgvaluetype		valuetype;		/* Value type */
-
 	/* Nonterminal-specific */
 	plist*			productions;	/* Productions that belong to a
 										nonterminal symbol */
+
+	pboolean		emit;			/* Emit an AST node for this nonterminal */
 };
 
 typedef pgsymbol	pgterminal;		/* Terminal data type */
@@ -93,9 +92,8 @@ struct _pgproduction
 
 	plist*			select;			/* SELECT-set */
 
-	char*			strval;			/* String representation */
-
-	pgasttype*		asttype;		/* Associated AST type */
+	char*			strval;			/* DEBUG: String representation
+										of the production */
 };
 
 /* Grammar */
@@ -109,8 +107,6 @@ struct _pggrammar
 	pgterminal*		error;			/* Error token terminal symbol */
 
 	pregex_ptn*		whitespace;		/* Whitespace pattern */
-
-	plist*			asttypes;		/* AST node types */
 };
 
 /* Token */
@@ -125,30 +121,11 @@ struct _pgtoken
 	int				col;			/* Column */
 };
 
-/* AST traversal function */
-typedef void						(*pgastfn)( pgastnode* astnode );
-#define PG_ASTFUNC( name )			void name( pgastnode* astnode )
-
-/* AST node type */
-struct _pgasttype
-{
-	char*			name;		/* Type name */
-	size_t			size;		/* User type size */
-
-	pgastfn			topdown;	/* Top-down callback */
-	pgastfn			passover;	/* Passover callback */
-	pgastfn			bottomup;	/* Bottom-up callback */
-};
-
 /* AST node (also used for syntax tree) */
 struct _pgastnode
 {
-	pgasttype*		type;		/* Node type */
-
-	pgsymbol*		symbol;		/* Symbol of node */
-	pgtoken*		token;		/* Token of node */
-
-	plist*			atts;		/* Attributes */
+	pgsymbol*		symbol;		/* Symbol */
+	pgtoken*		token;		/* Token */
 
 	pgastnode*		parent;		/* Parent node */
 	pgastnode*		child;		/* First child node */
@@ -156,18 +133,9 @@ struct _pgastnode
 	pgastnode*		next;		/* Next node in current level */
 };
 
-/* AST creation mode */
-typedef enum
-{
-	PGASTMODE_NONE,				/* For sake of completeness */
-	PGASTMODE_SYNTAX,			/* Syntax tree */
-	PGASTMODE_AST				/* Abstract syntax tree */
-} pgastmode;
-
 /* AST */
 struct _pgast
 {
 	pggrammar*		grammar;	/* Grammar where AST belongs to */
-	pgastmode		mode;		/* AST creation mode */
 	pgastnode*		root;		/* AST root node */
 };
