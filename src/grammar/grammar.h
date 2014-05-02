@@ -9,11 +9,10 @@ Usage:	Definitions for the grammar parsing module
 ----------------------------------------------------------------------------- */
 
 typedef struct _pggrammar			pggrammar;
-typedef struct _pgproduction		pgproduction;
+typedef struct _pgproduction		pgprod;
 typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
 
-typedef struct _pgasttype			pgasttype;	/* AST node type */
 typedef struct _pgastnode			pgastnode;	/* AST node */
 typedef struct _pgast				pgast;
 
@@ -74,8 +73,8 @@ struct _pgsymbol
 	pboolean		emit;			/* Emit an AST node for this nonterminal */
 };
 
-typedef pgsymbol	pgterminal;		/* Terminal data type */
-typedef pgsymbol	pgnonterminal;	/* Non-terminal data type */
+typedef pgsymbol	pgterm;		/* Terminal data type */
+typedef pgsymbol	pgnonterm;	/* Non-terminal data type */
 
 /* Production */
 struct _pgproduction
@@ -102,9 +101,9 @@ struct _pggrammar
 	plist*			symbols;		/* Symbol table */
 	plist*			productions;	/* Production table */
 
-	pgnonterminal*	goal;			/* Goal non-terminal symbol */
-	pgterminal*		eoi;			/* End of input terminal symbol */
-	pgterminal*		error;			/* Error token terminal symbol */
+	pgnonterm*		goal;			/* Goal non-terminal symbol */
+	pgterm*			eoi;			/* End of input terminal symbol */
+	pgterm*			error;			/* Error token terminal symbol */
 
 	pregex_ptn*		whitespace;		/* Whitespace pattern */
 };

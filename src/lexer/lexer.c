@@ -16,7 +16,7 @@ pglexer* pg_lexer_create( pgparser* parser )
 	pregex_dfa*		dfa;
 	pregex_ptn*		p;
 	pglexer*		l;
-	pgterminal*		t;
+	pgterm*		t;
 	int				i;
 
 	PROC( "pg_lexer_create" );
@@ -37,11 +37,11 @@ pglexer* pg_lexer_create( pgparser* parser )
 	MSG( "Turning terminal symbols into lexer symbols" );
 	nfa = pregex_nfa_create();
 
-	for( i = 0; ( t = pg_terminal_get( l->grammar, i ) ); i++ )
+	for( i = 0; ( t = pg_term_get( l->grammar, i ) ); i++ )
 	{
 		VARS( "t", "%s", pg_symbol_get_name( t ) );
 
-		if( ( p = pg_terminal_get_pattern( t ) ) )
+		if( ( p = pg_term_get_pattern( t ) ) )
 		{
 			p->accept->accept = pg_symbol_get_id( t ) + 1;
 

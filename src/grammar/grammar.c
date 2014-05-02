@@ -21,9 +21,9 @@ pggrammar* pg_grammar_create( void )
 	g->symbols = plist_create( sizeof( pgsymbol ),
 						PLIST_MOD_RECYCLE | PLIST_MOD_UNIQUE |
 							PLIST_MOD_EXTKEYS );
-	g->productions = plist_create( sizeof( pgproduction ), PLIST_MOD_RECYCLE );
+	g->productions = plist_create( sizeof( pgprod ), PLIST_MOD_RECYCLE );
 
-	g->eoi = pg_terminal_create( g, "@eof", "" );
+	g->eoi = pg_term_create( g, "@eof", "" );
 
 	return g;
 }
@@ -49,16 +49,16 @@ void pg_grammar_print( pggrammar* g )
 {
 	plistel*		ep;
 	plistel*		es;
-	pgproduction*	p;
+	pgprod*	p;
 	pgsymbol*		s;
 	int				i;
 
 	printf( "--- Productions ---\n" );
 	plist_for( g->productions, ep )
 	{
-		p = (pgproduction*)plist_access( ep );
-		printf( "%02d %s\n", pg_production_get_id( p ),
-								pg_production_to_string( p ) );
+		p = (pgprod*)plist_access( ep );
+		printf( "%02d %s\n", pg_prod_get_id( p ),
+								pg_prod_to_string( p ) );
 
 		if( plist_count( p->select ) )
 		{
@@ -108,7 +108,7 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 	int				j;
 	int				k;
 	pgsymbol*		cs;						/* Current symbol */
-	pgproduction*	p;						/* Production */
+	pgprod*	p;						/* Production */
 	pgsymbol*		s;						/* RHS symbol */
 	pboolean		nullable;				/* Nullable flag */
 	int				f			= 0;		/* Current FIRST count */
@@ -135,7 +135,7 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 	MSG( "Reset all symbols" );
 	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
 	{
-		if( pg_symbol_is_terminal( s ) )
+		if( pg_symbol_is_term( s ) )
 		{
 			MSG( "Terminal" );
 			/* Terminal symbols are their own FIRST set - this must be set only
@@ -162,20 +162,20 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 		f = 0;
 
 		/* Loop trough nonterminal symbols */
-		for( i = 0; cs = pg_nonterminal_get( g, i ); i++ )
+		for( i = 0; cs = pg_nonterm_get( g, i ); i++ )
 		{
 			VARS( "cs", "%s", pg_symbol_get_name( cs ) );
 
 			/* Loop trough all nonterminal productions */
-			for( j = 0; p = pg_production_get_by_lhs( cs, j ); j++ )
+			for( j = 0; p = pg_prod_get_by_lhs( cs, j ); j++ )
 			{
 				nullable = FALSE;
 
 				/* Right-hand side is not empty? */
-				if( pg_production_get_rhs( p, 0 ) )
+				if( pg_prod_get_rhs( p, 0 ) )
 				{
 					/* Loop trough right-hand side */
-					for( k = 0; s = pg_production_get_rhs( p, k ); k++ )
+					for( k = 0; s = pg_prod_get_rhs( p, k ); k++ )
 					{
 						/* Union FIRST sets... */
 						VARS( "union", "%s", pg_symbol_get_name( s ) );
@@ -212,7 +212,7 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 	int				k;
 	int				l;
 	pgsymbol*		ns;						/* Nonterminal symbol */
-	pgproduction*	p;						/* Production */
+	pgprod*	p;						/* Production */
 	pgsymbol*		s;						/* RHS symbol */
 	pgsymbol*		fs;						/* Following symbol */
 	pboolean		nullable;				/* Nullable flag */
@@ -260,15 +260,15 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 		f = 0;
 
 		/* Loop trough all nonterminal symbols */
-		for( i = 0; ns = pg_nonterminal_get( g, i ); i++ )
+		for( i = 0; ns = pg_nonterm_get( g, i ); i++ )
 		{
 			/* Loop trough all productions */
-			for( j = 0; p = pg_production_get_by_lhs( ns, j ); j++ )
+			for( j = 0; p = pg_prod_get_by_lhs( ns, j ); j++ )
 			{
 				/* Loop trough right-hand side */
-				for( k = 0; s = pg_production_get_rhs( p, k ); k++ )
+				for( k = 0; s = pg_prod_get_rhs( p, k ); k++ )
 				{
-					for( l = k + 1; fs = pg_production_get_rhs( p, l ); l++ )
+					for( l = k + 1; fs = pg_prod_get_rhs( p, l ); l++ )
 					{
 						plist_union( s->follow, fs->first );
 
@@ -295,7 +295,7 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 {
 	int				i;
 	int				j;
-	pgproduction*	p;
+	pgprod*	p;
 	pgsymbol*		s;
 
 	/* Check parameter validity and bounding */
@@ -305,19 +305,19 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 		return FALSE;
 	}
 
-	if( !pg_production_get( g, 0 ) )
+	if( !pg_prod_get( g, 0 ) )
 	{
 		PGERR( g, __FILE__, __LINE__,
 			"Grammar must contain at least one production" );
 		return FALSE;
 	}
 
-	for( i = 0; ( p = pg_production_get( g, i ) ); i++ )
+	for( i = 0; ( p = pg_prod_get( g, i ) ); i++ )
 	{
 		plist_free( p->select );
 		p->select = plist_create( 0, PLIST_MOD_PTR );
 
-		for( j = 0; ( s = pg_production_get_rhs( p, j ) ); j++ )
+		for( j = 0; ( s = pg_prod_get_rhs( p, j ) ); j++ )
 		{
 			plist_union( p->select, s->first );
 
@@ -328,7 +328,7 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 		if( !s )
 		{
 			/* TODO: Multiple lhs */
-			s = pg_production_get_lhs( p );
+			s = pg_prod_get_lhs( p );
 			plist_union( p->select, s->follow );
 		}
 	}
@@ -338,19 +338,19 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 
 /* Attribute: goal */
 
-pgterminal* pg_grammar_get_goal( pggrammar* g )
+pgterm* pg_grammar_get_goal( pggrammar* g )
 {
 	if( !( g ) )
 	{
 		WRONGPARAM;
-		return (pgterminal*)NULL;
+		return (pgterm*)NULL;
 	}
 
 	return g->goal;
 }
 
 /** Set the goal symbol of grammar //g// to nonterminal //goal//. */
-BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterminal* goal )
+BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterm* goal )
 {
 	if( !( g ) )
 	{
@@ -359,26 +359,26 @@ BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterminal* goal )
 	}
 
 	if( !( g->goal = goal ) )
-		g->goal = pg_nonterminal_get( g, 0 );
+		g->goal = pg_nonterm_get( g, 0 );
 
 	return TRUEBOOLEAN( ( g->goal ) );
 }
 
 /* Attribute: eoi */
 
-pgterminal* pg_grammar_get_eoi( pggrammar* g )
+pgterm* pg_grammar_get_eoi( pggrammar* g )
 {
 	if( !( g ) )
 	{
 		WRONGPARAM;
-		return (pgterminal*)NULL;
+		return (pgterm*)NULL;
 	}
 
 	return g->eoi;
 }
 
 /** Set the end-of-input symbol of grammar //g// to terminal //eoi//. */
-BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterminal* eoi )
+BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterm* eoi )
 {
 	if( !( g ) )
 	{
@@ -387,7 +387,7 @@ BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterminal* eoi )
 	}
 
 	if( !( g->eoi = eoi ) )
-		g->eoi = pg_terminal_get( g, 0 );
+		g->eoi = pg_term_get( g, 0 );
 
 	return TRUEBOOLEAN( g->eoi );
 }

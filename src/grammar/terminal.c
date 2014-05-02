@@ -12,7 +12,7 @@ Usage:
 
 /* Constructor */
 
-pgterminal* pg_terminal_create( pggrammar* grammar, char* name, char* pattern )
+pgterm* pg_term_create( pggrammar* grammar, char* name, char* pattern )
 {
 	pgsymbol*	sym;
 
@@ -23,12 +23,12 @@ pgterminal* pg_terminal_create( pggrammar* grammar, char* name, char* pattern )
 	}
 
 	if( !( sym = pg_symbol_create( grammar, PGSYMTYPE_TERMINAL, name ) ) )
-		return (pgterminal*)NULL;
+		return (pgterm*)NULL;
 
 	if( pattern )
-		pg_terminal_parse_pattern( sym, pattern );
+		pg_term_parse_pattern( sym, pattern );
 	else
-		pg_terminal_set_pattern( sym,
+		pg_term_set_pattern( sym,
 			pregex_ptn_create_string( name, PREGEX_MOD_NONE ) );
 
 	return sym;
@@ -36,25 +36,25 @@ pgterminal* pg_terminal_create( pggrammar* grammar, char* name, char* pattern )
 
 /* Destructor */
 
-pgterminal* pg_terminal_drop( pgterminal* terminal )
+pgterm* pg_term_drop( pgterm* terminal )
 {
 	if( !terminal )
-		return (pgterminal*)NULL;
+		return (pgterm*)NULL;
 
-	if( !pg_symbol_is_terminal( terminal ) )
+	if( !pg_symbol_is_term( terminal ) )
 	{
 		WRONGPARAM;
-		return (pgterminal*)NULL;
+		return (pgterm*)NULL;
 	}
 
-	pg_terminal_set_pattern( terminal, (pregex_ptn*)NULL );
+	pg_term_set_pattern( terminal, (pregex_ptn*)NULL );
 
 	return pg_symbol_free( terminal );
 }
 
 /* Retrieval */
 
-pgterminal* pg_terminal_get( pggrammar* g, int offset )
+pgterm* pg_term_get( pggrammar* g, int offset )
 {
 	int			i;
 	pgsymbol*	s;
@@ -62,7 +62,7 @@ pgterminal* pg_terminal_get( pggrammar* g, int offset )
 	if( !( g && offset >= 0 ) )
 	{
 		WRONGPARAM;
-		return (pgterminal*)NULL;
+		return (pgterm*)NULL;
 	}
 
 	for( i = 0; s = pg_symbol_get( g, i ); i++ )
@@ -70,22 +70,22 @@ pgterminal* pg_terminal_get( pggrammar* g, int offset )
 		if( pg_symbol_get_type( s ) == PGSYMTYPE_TERMINAL )
 		{
 			if( !offset )
-				return (pgterminal*)s;
+				return (pgterm*)s;
 
 			offset--;
 		}
 	}
 
-	return (pgterminal*)NULL;
+	return (pgterm*)NULL;
 }
 
 /* Attribute: pattern */
 
-BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern )
+BOOLEAN pg_term_parse_pattern( pgterm* terminal, char* pattern )
 {
 	pregex_ptn*		ptn		= (pregex_ptn*)NULL;
 
-	if( !pg_symbol_is_terminal( terminal ) )
+	if( !pg_symbol_is_term( terminal ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -97,14 +97,14 @@ BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern )
 			return FALSE;
 	}
 
-	pg_terminal_set_pattern( terminal, ptn );
+	pg_term_set_pattern( terminal, ptn );
 
 	return TRUE;
 }
 
-BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn )
+BOOLEAN pg_term_set_pattern( pgterm* terminal, pregex_ptn* ptn )
 {
-	if( !pg_symbol_is_terminal( terminal ) )
+	if( !pg_symbol_is_term( terminal ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -121,9 +121,9 @@ BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn )
 	return TRUE;
 }
 
-pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal )
+pregex_ptn* pg_term_get_pattern( pgterm* terminal )
 {
-	if( !pg_symbol_is_terminal( terminal ) )
+	if( !pg_symbol_is_term( terminal ) )
 	{
 		WRONGPARAM;
 		return (pregex_ptn*)NULL;

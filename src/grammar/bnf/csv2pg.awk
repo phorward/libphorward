@@ -51,18 +51,18 @@ BEGIN			{
 END				{
 					# Declarations
 					for( s in terminals )
-						printf "pgterminal*	%s%s;\n", \
+						printf "pgterm*	%s%s;\n", \
 							var[ "t" ], to_cname( s )
 
 					for( n in nonterminals )
-						printf "pgnonterminal*	%s%s;\n", \
+						printf "pgnonterm*	%s%s;\n", \
 							var[ "n" ], to_cname( n )
 
 					for( n in nonterminals )
 					{
 						for( i = 1; i <= nonterminals[ n ]; i++ )
 						{
-							printf "pgproduction*	%s%s_%d;\n", \
+							printf "pgprod*	%s%s_%d;\n", \
 								var[ "p" ], to_cname( n ), i
 						}
 					}
@@ -72,7 +72,7 @@ END				{
 
 					for( s in terminals )
 						printf \
-						"%s%s = pg_terminal_create( %s, \"%s\", %s );\n", \
+						"%s%s = pg_term_create( %s, \"%s\", %s );\n", \
 							var[ "t" ], to_cname( s ), grammar,
 								s, terminals[ s ] == s ? "(char*)NULL" : \
 									"\"" terminals[ s ] "\""
@@ -82,11 +82,11 @@ END				{
 					for( n in nonterminals )
 					{
 						printf \
-						"%s%s = pg_nonterminal_create( %s, \"%s\" );\n", \
+						"%s%s = pg_nonterm_create( %s, \"%s\" );\n", \
 							var[ "n" ], to_cname( n ), grammar, n
 
 						if( emit[ n ] )
-							printf( "pg_nonterminal_set_emit( %s%s, TRUE );", \
+							printf( "pg_nonterm_set_emit( %s%s, TRUE );", \
 								var[ "n" ], to_cname( n ) )
 					}
 
@@ -96,7 +96,7 @@ END				{
 
 						for( i = 1; i <= nonterminals[ n ]; i++ )
 						{
-							printf "%s%s_%d = pg_production_create( %s%s", \
+							printf "%s%s_%d = pg_prod_create( %s%s", \
 								var[ "p" ], to_cname( n ), i, \
 									var[ "n" ], to_cname( n )
 

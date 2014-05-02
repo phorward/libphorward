@@ -16,7 +16,7 @@ static void print_tab( pgparser* parser )
 	plistel*		e;
 	plistel*		f;
 	plist*			trans;
-	pgproduction*	p;
+	pgprod*	p;
 
 	plist_for( parser->states, e )
 	{
@@ -26,10 +26,10 @@ static void print_tab( pgparser* parser )
 
 		plist_for( trans, f )
 		{
-			p = (pgproduction*)plist_access( f );
+			p = (pgprod*)plist_access( f );
 			fprintf( stderr, "	%s => %s\n",
 				pg_symbol_get_name( (pgsymbol*)plist_key( f ) ),
-				pg_production_to_string( p ) );
+				pg_prod_to_string( p ) );
 		}
 	}
 }
@@ -37,9 +37,9 @@ static void print_tab( pgparser* parser )
 pboolean pg_parser_ll_closure( pgparser* parser )
 {
 	int				i;
-	pgproduction*	p;
-	pgnonterminal*	lhs;
-	pgterminal*		term;
+	pgprod*	p;
+	pgnonterm*	lhs;
+	pgterm*		term;
 	plistel*		e;
 	plist*			trans;
 
@@ -74,10 +74,10 @@ pboolean pg_parser_ll_closure( pgparser* parser )
 		RETURN( FALSE );
 
 	MSG( "Building the LL parse tables" );
-	for( i = 0; ( p = pg_production_get( pg_parser_get_grammar( parser ), i ) );
+	for( i = 0; ( p = pg_prod_get( pg_parser_get_grammar( parser ), i ) );
 			i++ )
 	{
-		lhs = pg_production_get_lhs( p );
+		lhs = pg_prod_get_lhs( p );
 
 		if( !( trans = (plist*)plist_access(
 							plist_get_by_key( parser->states, (char*)lhs ) ) ) )

@@ -12,19 +12,19 @@ Usage:
 
 /* Constructor */
 
-pgproduction* pg_production_create( pgnonterminal* lhs, ... )
+pgprod* pg_prod_create( pgnonterm* lhs, ... )
 {
-	pgproduction*	p;
+	pgprod*	p;
 	pgsymbol*		sym;
 	va_list			args;
 
 	if( !( lhs && pg_symbol_get_type( lhs ) == PGSYMTYPE_NONTERMINAL ) )
 	{
 		WRONGPARAM;
-		return (pgproduction*)NULL;
+		return (pgprod*)NULL;
 	}
 
-	p = (pgproduction*)plist_malloc( lhs->grammar->productions );
+	p = (pgprod*)plist_malloc( lhs->grammar->productions );
 
 	p->rhs = plist_create( 0, PLIST_MOD_PTR |
 								PLIST_MOD_UNIQUE |
@@ -43,7 +43,7 @@ pgproduction* pg_production_create( pgnonterminal* lhs, ... )
 	va_start( args, lhs );
 
 	while( ( sym = va_arg( args, pgsymbol* ) ) )
-		pg_production_append( p, sym );
+		pg_prod_append( p, sym );
 
 	va_end( args );
 
@@ -52,21 +52,21 @@ pgproduction* pg_production_create( pgnonterminal* lhs, ... )
 
 /* Destructor */
 
-pgproduction* pg_production_drop( pgproduction* p )
+pgprod* pg_prod_drop( pgprod* p )
 {
 	if( !p )
-		return (pgproduction*)NULL;
+		return (pgprod*)NULL;
 
 	pfree( p->strval );
 
 	p->select = plist_free( p->select );
 
-	return (pgproduction*)NULL;
+	return (pgprod*)NULL;
 }
 
 /* Debug */
 
-char* pg_production_to_string( pgproduction* p )
+char* pg_prod_to_string( pgprod* p )
 {
 	plistel*	e;
 	pgsymbol*	sym;
@@ -89,7 +89,7 @@ char* pg_production_to_string( pgproduction* p )
 		if( e != plist_first( p->rhs ) )
 			p->strval = pstrcatstr( p->strval, " ", FALSE );
 
-		if( pg_symbol_is_terminal( sym ) )
+		if( pg_symbol_is_term( sym ) )
 			p->strval = pstrcatstr( p->strval, "@", FALSE );
 
 		p->strval = pstrcatstr( p->strval, sym->name, FALSE );
@@ -98,7 +98,7 @@ char* pg_production_to_string( pgproduction* p )
 	return p->strval;
 }
 
-void pg_production_print( pgproduction* p, FILE* f )
+void pg_prod_print( pgprod* p, FILE* f )
 {
 	int			i;
 	pgsymbol*	sym;
@@ -115,7 +115,7 @@ void pg_production_print( pgproduction* p, FILE* f )
 	pg_symbol_print( p->lhs, f );
 	fprintf( f, " : " );
 
-	for( i = 0; ( sym = pg_production_get_rhs( p, i ) ); i++ )
+	for( i = 0; ( sym = pg_prod_get_rhs( p, i ) ); i++ )
 	{
 		if( i > 0 )
 			fprintf( f, " " );
@@ -128,7 +128,7 @@ void pg_production_print( pgproduction* p, FILE* f )
 
 /* Append right-hand side */
 
-pboolean pg_production_append( pgproduction* p, pgsymbol* sym )
+pboolean pg_prod_append( pgprod* p, pgsymbol* sym )
 {
 	if( !( p && sym ) )
 	{
@@ -144,8 +144,8 @@ pboolean pg_production_append( pgproduction* p, pgsymbol* sym )
 
 /* Append right-hand side with key */
 
-pboolean pg_production_append_with_key(
-	pgproduction* p, char* key, pgsymbol* sym )
+pboolean pg_prod_append_with_key(
+	pgprod* p, char* key, pgsymbol* sym )
 {
 	if( !( p && sym ) )
 	{
@@ -154,7 +154,7 @@ pboolean pg_production_append_with_key(
 	}
 
 	if( !( key && *key ) )
-		return pg_production_append( p, sym );
+		return pg_prod_append( p, sym );
 
 	if( !plist_insert( p->rhs, (plistel*)NULL, key, sym ) )
 		return FALSE;
@@ -164,33 +164,33 @@ pboolean pg_production_append_with_key(
 
 /* Retrieve: By offset from grammar */
 
-pgproduction* pg_production_get( pggrammar* grammar, int i )
+pgprod* pg_prod_get( pggrammar* grammar, int i )
 {
 	if( !( grammar && i >= 0 ) )
 	{
 		WRONGPARAM;
-		return (pgproduction*)NULL;
+		return (pgprod*)NULL;
 	}
 
-	return (pgproduction*)plist_access( plist_get( grammar->productions, i ) );
+	return (pgprod*)plist_access( plist_get( grammar->productions, i ) );
 }
 
 /* Retrieve: By offset from keft-hand side */
 
-pgproduction* pg_production_get_by_lhs( pgnonterminal* lhs, int i )
+pgprod* pg_prod_get_by_lhs( pgnonterm* lhs, int i )
 {
-	if( !( pg_symbol_is_nonterminal( lhs ) && i >= 0 ) )
+	if( !( pg_symbol_is_nonterm( lhs ) && i >= 0 ) )
 	{
 		WRONGPARAM;
-		return (pgproduction*)NULL;
+		return (pgprod*)NULL;
 	}
 
-	return (pgproduction*)plist_access( plist_get( lhs->productions, i ) );
+	return (pgprod*)plist_access( plist_get( lhs->productions, i ) );
 }
 
 /* Retrieve: Right-hand side item */
 
-pgsymbol* pg_production_get_rhs( pgproduction* p, int i )
+pgsymbol* pg_prod_get_rhs( pgprod* p, int i )
 {
 	if( !( p && i >= 0 ) )
 	{
@@ -203,7 +203,7 @@ pgsymbol* pg_production_get_rhs( pgproduction* p, int i )
 
 /* Retrieve: Right-hand side item by key */
 
-pgsymbol* pg_production_get_rhs_by_key( pgproduction* p, char* key )
+pgsymbol* pg_prod_get_rhs_by_key( pgprod* p, char* key )
 {
 	if( !( p && key && *key ) )
 	{
@@ -217,7 +217,7 @@ pgsymbol* pg_production_get_rhs_by_key( pgproduction* p, char* key )
 /* Attribute: id */
 
 /* GET ONLY! */
-int pg_production_get_id( pgproduction* p )
+int pg_prod_get_id( pgprod* p )
 {
 	if( !( p ) )
 	{
@@ -231,7 +231,7 @@ int pg_production_get_id( pgproduction* p )
 /* Attribute: grammar */
 
 /* GET ONLY! */
-pggrammar* pg_production_get_grammar( pgproduction* p )
+pggrammar* pg_prod_get_grammar( pgprod* p )
 {
 	if( !( p ) )
 	{
@@ -245,12 +245,12 @@ pggrammar* pg_production_get_grammar( pgproduction* p )
 /* Attribute: lhs */
 
 /* GET ONLY! */
-pgnonterminal* pg_production_get_lhs( pgproduction* p )
+pgnonterm* pg_prod_get_lhs( pgprod* p )
 {
 	if( !( p ) )
 	{
 		WRONGPARAM;
-		return (pgnonterminal*)NULL;
+		return (pgnonterm*)NULL;
 	}
 
 	return p->lhs;
@@ -259,7 +259,7 @@ pgnonterminal* pg_production_get_lhs( pgproduction* p )
 /* Attribute: rhs_length */
 
 /* GET ONLY! */
-int pg_production_get_rhs_length( pgproduction* p )
+int pg_prod_get_rhs_length( pgprod* p )
 {
 	if( !( p ) )
 	{

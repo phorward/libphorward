@@ -12,7 +12,7 @@ Usage:
 
 /* Constructor */
 
-pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name )
+pgnonterm* pg_nonterm_create( pggrammar* grammar, char* name )
 {
 	pgsymbol*	sym;
 
@@ -23,7 +23,7 @@ pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name )
 	}
 
 	if( !( sym = pg_symbol_create( grammar, PGSYMTYPE_NONTERMINAL, name ) ) )
-		return (pgterminal*)NULL;
+		return (pgterm*)NULL;
 
 	sym->productions = plist_create( 0, PLIST_MOD_PTR );
 
@@ -35,19 +35,19 @@ pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name )
 
 /* Destructor */
 
-pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal )
+pgnonterm* pg_nonterm_drop( pgterm* nonterminal )
 {
 	if( !nonterminal )
-		return (pgnonterminal*)NULL;
+		return (pgnonterm*)NULL;
 
-	if( !pg_symbol_is_nonterminal( nonterminal ) )
+	if( !pg_symbol_is_nonterm( nonterminal ) )
 	{
 		WRONGPARAM;
-		return (pgnonterminal*)NULL;
+		return (pgnonterm*)NULL;
 	}
 
 	while( plist_count( nonterminal->productions ) )
-		pg_production_drop( (pgproduction*)plist_access(
+		pg_prod_drop( (pgprod*)plist_access(
 								plist_first( nonterminal->productions ) ) );
 
 	plist_free( nonterminal->productions );
@@ -57,7 +57,7 @@ pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal )
 
 /* Retrieval */
 
-pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset )
+pgnonterm* pg_nonterm_get( pggrammar* g, int offset )
 {
 	int			i;
 	pgsymbol*	s;
@@ -65,7 +65,7 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset )
 	if( !( g && offset >= 0 ) )
 	{
 		WRONGPARAM;
-		return (pgnonterminal*)NULL;
+		return (pgnonterm*)NULL;
 	}
 
 	for( i = 0; s = pg_symbol_get( g, i ); i++ )
@@ -73,18 +73,18 @@ pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset )
 		if( pg_symbol_get_type( s ) == PGSYMTYPE_NONTERMINAL )
 		{
 			if( !offset )
-				return (pgnonterminal*)s;
+				return (pgnonterm*)s;
 
 			offset--;
 		}
 	}
 
-	return (pgnonterminal*)NULL;
+	return (pgnonterm*)NULL;
 }
 
 /* Attribute: emit */
 
-pboolean pg_nonterminal_get_emit( pgnonterminal* nt )
+pboolean pg_nonterm_get_emit( pgnonterm* nt )
 {
 	if( !nt )
 	{
@@ -96,7 +96,7 @@ pboolean pg_nonterminal_get_emit( pgnonterminal* nt )
 }
 
 
-pboolean pg_nonterminal_set_emit( pgnonterminal* nt, pboolean emit )
+pboolean pg_nonterm_set_emit( pgnonterm* nt, pboolean emit )
 {
 	if( !nt )
 	{

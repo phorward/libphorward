@@ -29,7 +29,7 @@ static void pg_lritem_print( pglritem* it, FILE* f )
 	pg_symbol_print( it->prod->lhs, f );
 	fprintf( f, " : " );
 
-	for( i = 0; ( sym = pg_production_get_rhs( it->prod, i ) ); i++ )
+	for( i = 0; ( sym = pg_prod_get_rhs( it->prod, i ) ); i++ )
 	{
 		if( i > 0 )
 			fprintf( f, " " );
@@ -85,7 +85,7 @@ static void pg_lritems_print( plist* items, FILE* f, char* what )
 	}
 }
 
-static pglritem* pg_lritem_create( plist* list, pgproduction* prod, int dot )
+static pglritem* pg_lritem_create( plist* list, pgprod* prod, int dot )
 {
 	pglritem*	item;
 
@@ -97,8 +97,8 @@ static pglritem* pg_lritem_create( plist* list, pgproduction* prod, int dot )
 
 	if( dot < 0 )
 		dot = 0;
-	else if( dot > pg_production_get_rhs_length( prod ) )
-		dot = pg_production_get_rhs_length( prod );
+	else if( dot > pg_prod_get_rhs_length( prod ) )
+		dot = pg_prod_get_rhs_length( prod );
 
 	item = (pglritem*)plist_malloc( list );
 	item->prod = prod;
@@ -119,11 +119,11 @@ static pglritem* pg_lritem_free( pglritem* it )
 }
 
 static pglrcolumn* pg_lrcolumn_create(
-	pglrstate* st, pgsymbol* sym, pglrstate* shift, pgproduction* reduce )
+	pglrstate* st, pgsymbol* sym, pglrstate* shift, pgprod* reduce )
 {
 	pglrcolumn*		col;
 
-	if( pg_symbol_is_terminal( sym ) )
+	if( pg_symbol_is_term( sym ) )
 		col = (pglrcolumn*)plist_malloc( st->actions );
 	else
 		col = (pglrcolumn*)plist_malloc( st->gotos );
@@ -232,7 +232,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	pglritem*		cit;
 	pgsymbol*		sym;
 	pgsymbol*		lhs;
-	pgproduction*	prod;
+	pgprod*	prod;
 	pglrcolumn*		col;
 	plist*			closure;
 	plist*			part;
@@ -271,7 +271,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	MSG( "Creating a closure seed" );
 	nst = pg_lrstate_create( parser, (plist*)NULL );
 	it = pg_lritem_create( nst->kernel,
-				pg_production_get_by_lhs(
+				pg_prod_get_by_lhs(
 					pg_grammar_get_goal( parser->grammar ), 0 ), 0 );
 
 	plist_push( it->lookahead, pg_grammar_get_eoi( parser->grammar ) );
@@ -320,13 +320,13 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				it = (pglritem*)plist_access( e );
 
 				/* Check if symbol right to the dot is a nonterminal */
-				if( !( lhs = pg_production_get_rhs( it->prod, it->dot ) )
-						|| !pg_symbol_is_nonterminal( lhs ) )
+				if( !( lhs = pg_prod_get_rhs( it->prod, it->dot ) )
+						|| !pg_symbol_is_nonterm( lhs ) )
 					continue;
 
 				/* Add all productions of the nonterminal to the closure,
 					if not already in */
-				for( i = 0; ( prod = pg_production_get_by_lhs( lhs, i ) ); i++ )
+				for( i = 0; ( prod = pg_prod_get_by_lhs( lhs, i ) ); i++ )
 				{
 					plist_for( closure, f )
 					{
@@ -348,7 +348,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 							side.
 						*/
 						for( j = it->dot + 1;
-								( sym = pg_production_get_rhs( it->prod, j ) );
+								( sym = pg_prod_get_rhs( it->prod, j ) );
 									j++ )
 						{
 							plist_union( cit->lookahead, sym->first );
@@ -389,7 +389,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				it = (pglritem*)plist_access( e );
 
 				/* Check if symbol right to the dot is a nonterminal */
-				if( !sym && !( sym = pg_production_get_rhs(
+				if( !sym && !( sym = pg_prod_get_rhs(
 											it->prod, it->dot ) ) )
 				{
 					e = plist_next( e );
@@ -397,7 +397,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				}
 
 				/* Add item to new state kernel */
-				if( pg_production_get_rhs( it->prod, it->dot ) == sym )
+				if( pg_prod_get_rhs( it->prod, it->dot ) == sym )
 				{
 					it->dot++;
 					plist_push( part, it );
@@ -429,7 +429,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			*/
 			if( pg_parser_get_optimize( parser )
 					&& ( plist_count( part ) == 1
-							&& !pg_production_get_rhs( it->prod, it->dot ) ) )
+							&& !pg_prod_get_rhs( it->prod, it->dot ) ) )
 			{
 				MSG( "State optimization" );
 
@@ -495,7 +495,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			}
 
 			if( sym && !st->closed )
-				pg_lrcolumn_create( st, sym, nst, (pgproduction*)NULL );
+				pg_lrcolumn_create( st, sym, nst, (pgprod*)NULL );
 		}
 		while( TRUE );
 
@@ -517,7 +517,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		{
 			it = (pglritem*)plist_access( f );
 
-			if( pg_production_get_rhs( it->prod, it->dot ) )
+			if( pg_prod_get_rhs( it->prod, it->dot ) )
 				continue;
 
 			plist_for( it->lookahead, g )
@@ -564,7 +564,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 				fprintf( stderr, "\t<- Shift/Reduce on '%s' by "
 									"production '%s'\n",
 							pg_symbol_get_name( col->symbol ),
-								pg_production_to_string( col->reduce ) );
+								pg_prod_to_string( col->reduce ) );
 			else if( col->shift )
 				fprintf( stderr, "\t-> Shift on '%s' to state %d\n",
 							pg_symbol_get_name( col->symbol ),
@@ -573,7 +573,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			else if( col->reduce )
 				fprintf( stderr, "\t<- Reduce on '%s' by production '%s'\n",
 							pg_symbol_get_name( col->symbol ),
-								pg_production_to_string( col->reduce ) );
+								pg_prod_to_string( col->reduce ) );
 			else
 				fprintf( stderr, "\tXX Error on '%s'\n",
 					pg_symbol_get_name( col->symbol ) );
@@ -585,7 +585,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 
 			if( col->shift && col->reduce )
 				fprintf( stderr, "\t<- Goto/Reduce by production '%s' in '%s'\n",
-							pg_production_to_string( col->reduce ),
+							pg_prod_to_string( col->reduce ),
 								pg_symbol_get_name( col->symbol ) );
 			else if( col->shift )
 				fprintf( stderr, "\t-> Goto state %d on '%s'\n",

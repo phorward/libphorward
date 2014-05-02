@@ -82,11 +82,11 @@ pgsymbol* pg_symbol_free( pgsymbol* symbol )
 
 		/* End-Of-Input */
 	if( pg_grammar_get_eoi( symbol->grammar ) == symbol )
-		pg_grammar_set_eoi( symbol->grammar, (pgterminal*)NULL );
+		pg_grammar_set_eoi( symbol->grammar, (pgterm*)NULL );
 
 		/* Goal */
 	if( pg_grammar_get_goal( symbol->grammar ) == symbol )
-		pg_grammar_set_goal( symbol->grammar, (pgterminal*)NULL );
+		pg_grammar_set_goal( symbol->grammar, (pgterm*)NULL );
 
 	/* Remove from symbol list */
 	plist_remove( symbol->grammar->symbols, se );
@@ -121,14 +121,14 @@ void pg_symbol_print( pgsymbol* symbol, FILE* f )
 	if( !f )
 		f = stderr;
 
-	fprintf( f, "%s%s", pg_symbol_is_terminal( symbol ) ? "@" : "",
+	fprintf( f, "%s%s", pg_symbol_is_term( symbol ) ? "@" : "",
 							pg_symbol_get_name( symbol ) );
 }
 
 /* Check */
 
 /** Check if //symbol// is of type **PGSYMTYPE_TERMINAL**. */
-BOOLEAN pg_symbol_is_terminal( pgsymbol* symbol )
+BOOLEAN pg_symbol_is_term( pgsymbol* symbol )
 {
 	if( symbol && pg_symbol_get_type( symbol ) == PGSYMTYPE_TERMINAL  )
 		return TRUE;
@@ -137,7 +137,7 @@ BOOLEAN pg_symbol_is_terminal( pgsymbol* symbol )
 }
 
 /** Check if //symbol// is of type **PGSYMTYPE_NONTERMINAL**. */
-BOOLEAN pg_symbol_is_nonterminal( pgsymbol* symbol )
+BOOLEAN pg_symbol_is_nonterm( pgsymbol* symbol )
 {
 	if( symbol && pg_symbol_get_type( symbol ) == PGSYMTYPE_NONTERMINAL  )
 		return TRUE;

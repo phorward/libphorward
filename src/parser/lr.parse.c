@@ -36,7 +36,7 @@ typedef struct
 
 	/* State */
 	pglrstate*		shift;	/* Shift to state */
-	pgproduction*	reduce;	/* Reduce by production */
+	pgprod*	reduce;	/* Reduce by production */
 	pgsymbol*		lhs;	/* Default left-hand side */
 }
 pglrpcb;
@@ -125,7 +125,7 @@ static pboolean push( pglrpcb* pcb, pgsymbol* sym, pglrstate* st, pgtoken* tok )
 	/* AST */
 	if( pcb->ast &&
 			/* TEST TEST TEST */
-			( pg_symbol_is_terminal( e.symbol )
+			( pg_symbol_is_term( e.symbol )
 					&& ( isupper( *pg_symbol_get_name( e.symbol ) )
 						|| *pg_symbol_get_name( e.symbol ) == '@' ) ) )
 	{
@@ -179,7 +179,7 @@ static pboolean get_action( pglrpcb* pcb, pgsymbol* sym )
 	plistel*	e;
 
 	pcb->shift = (pglrstate*)NULL;
-	pcb->reduce = (pgproduction*)NULL;
+	pcb->reduce = (pgprod*)NULL;
 
 	plist_for( pcb->tos->state->actions, e )
 	{
@@ -211,7 +211,7 @@ static pboolean get_goto( pglrpcb* pcb )
 	plistel*	e;
 
 	pcb->shift = (pglrstate*)NULL;
-	pcb->reduce = (pgproduction*)NULL;
+	pcb->reduce = (pgprod*)NULL;
 
 	plist_for( pcb->tos->state->gotos, e )
 	{
@@ -282,7 +282,7 @@ pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast )
 		{
 			if( pcb->reduce )
 				fprintf( stderr, "shift/reduce by production %d\n",
-					pg_production_get_id( pcb->reduce ) );
+					pg_prod_get_id( pcb->reduce ) );
 			else
 				fprintf( stderr, "shift to state %d\n",
 					plist_offset( plist_get_by_ptr(
@@ -299,12 +299,12 @@ pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast )
 			fprintf( stderr,
 				"reduce by production %d\n"
 				"popping %d items off the stack, replacing by '%s'\n",
-				pg_production_get_id( pcb->reduce ),
-				pg_production_get_rhs_length( pcb->reduce ),
-				pg_symbol_get_name( pg_production_get_lhs( pcb->reduce ) ) );
+				pg_prod_get_id( pcb->reduce ),
+				pg_prod_get_rhs_length( pcb->reduce ),
+				pg_symbol_get_name( pg_prod_get_lhs( pcb->reduce ) ) );
 
-			pcb->lhs = pg_production_get_lhs( pcb->reduce );
-			pop( pcb, pg_production_get_rhs_length( pcb->reduce ), &node );
+			pcb->lhs = pg_prod_get_lhs( pcb->reduce );
+			pop( pcb, pg_prod_get_rhs_length( pcb->reduce ), &node );
 
 			/* Goal symbol reduced? */
 			if( pcb->lhs == pg_grammar_get_goal( pcb->g )
@@ -317,11 +317,11 @@ pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast )
 			}
 
 			/* Construct abstract syntax tree */
-			if( pcb->ast && pg_nonterminal_get_emit(
-								pg_production_get_lhs( pcb->reduce ) ) )
+			if( pcb->ast && pg_nonterm_get_emit(
+								pg_prod_get_lhs( pcb->reduce ) ) )
 			{
 				nnode = pg_astnode_create(
-							pg_production_get_lhs( pcb->reduce ) );
+							pg_prod_get_lhs( pcb->reduce ) );
 				nnode->child = node;
 				node = nnode;
 			}

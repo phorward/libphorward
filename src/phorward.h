@@ -645,7 +645,7 @@ typedef struct
 
 
 typedef struct _pggrammar			pggrammar;
-typedef struct _pgproduction		pgproduction;
+typedef struct _pgproduction		pgprod;
 typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
 
@@ -709,8 +709,8 @@ struct _pgsymbol
 	pboolean		emit;			
 };
 
-typedef pgsymbol	pgterminal;		
-typedef pgsymbol	pgnonterminal;	
+typedef pgsymbol	pgterm;		
+typedef pgsymbol	pgnonterm;	
 
 
 struct _pgproduction
@@ -736,9 +736,9 @@ struct _pggrammar
 	plist*			symbols;		
 	plist*			productions;	
 
-	pgnonterminal*	goal;			
-	pgterminal*		eoi;			
-	pgterminal*		error;			
+	pgnonterm*	goal;			
+	pgterm*		eoi;			
+	pgterm*		error;			
 
 	pregex_ptn*		whitespace;		
 };
@@ -1190,44 +1190,44 @@ void pg_grammar_print( pggrammar* g );
 BOOLEAN pg_grammar_compute_first( pggrammar* g );
 BOOLEAN pg_grammar_compute_follow( pggrammar* g );
 BOOLEAN pg_grammar_compute_select( pggrammar* g );
-pgterminal* pg_grammar_get_goal( pggrammar* g );
-BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterminal* goal );
-pgterminal* pg_grammar_get_eoi( pggrammar* g );
-BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterminal* eoi );
+pgterm* pg_grammar_get_goal( pggrammar* g );
+BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterm* goal );
+pgterm* pg_grammar_get_eoi( pggrammar* g );
+BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterm* eoi );
 BOOLEAN pg_grammar_parse_whitespace( pggrammar* grammar, char* str );
 BOOLEAN pg_grammar_set_whitespace( pggrammar* grammar, pregex_ptn* whitespace );
 pregex_ptn* pg_grammar_get_whitespace( pggrammar* grammar );
 
 
-pgnonterminal* pg_nonterminal_create( pggrammar* grammar, char* name );
-pgnonterminal* pg_nonterminal_drop( pgterminal* nonterminal );
-pgnonterminal* pg_nonterminal_get( pggrammar* g, int offset );
-pboolean pg_nonterminal_get_emit( pgnonterminal* nt );
-pboolean pg_nonterminal_set_emit( pgnonterminal* nt, pboolean emit );
+pgnonterm* pg_nonterm_create( pggrammar* grammar, char* name );
+pgnonterm* pg_nonterm_drop( pgterm* nonterminal );
+pgnonterm* pg_nonterm_get( pggrammar* g, int offset );
+pboolean pg_nonterm_get_emit( pgnonterm* nt );
+pboolean pg_nonterm_set_emit( pgnonterm* nt, pboolean emit );
 
 
-pgproduction* pg_production_create( pgnonterminal* lhs, ... );
-pgproduction* pg_production_drop( pgproduction* p );
-char* pg_production_to_string( pgproduction* p );
-void pg_production_print( pgproduction* p, FILE* f );
-pboolean pg_production_append( pgproduction* p, pgsymbol* sym );
-pboolean pg_production_append_with_key( pgproduction* p, char* key, pgsymbol* sym );
-pgproduction* pg_production_get( pggrammar* grammar, int i );
-pgproduction* pg_production_get_by_lhs( pgnonterminal* lhs, int i );
-pgsymbol* pg_production_get_rhs( pgproduction* p, int i );
-pgsymbol* pg_production_get_rhs_by_key( pgproduction* p, char* key );
-int pg_production_get_id( pgproduction* p );
-pggrammar* pg_production_get_grammar( pgproduction* p );
-pgnonterminal* pg_production_get_lhs( pgproduction* p );
-int pg_production_get_rhs_length( pgproduction* p );
+pgprod* pg_prod_create( pgnonterm* lhs, ... );
+pgprod* pg_prod_drop( pgprod* p );
+char* pg_prod_to_string( pgprod* p );
+void pg_prod_print( pgprod* p, FILE* f );
+pboolean pg_prod_append( pgprod* p, pgsymbol* sym );
+pboolean pg_prod_append_with_key( pgprod* p, char* key, pgsymbol* sym );
+pgprod* pg_prod_get( pggrammar* grammar, int i );
+pgprod* pg_prod_get_by_lhs( pgnonterm* lhs, int i );
+pgsymbol* pg_prod_get_rhs( pgprod* p, int i );
+pgsymbol* pg_prod_get_rhs_by_key( pgprod* p, char* key );
+int pg_prod_get_id( pgprod* p );
+pggrammar* pg_prod_get_grammar( pgprod* p );
+pgnonterm* pg_prod_get_lhs( pgprod* p );
+int pg_prod_get_rhs_length( pgprod* p );
 
 
 pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name );
 pgsymbol* pg_symbol_free( pgsymbol* symbol );
 BOOLEAN pg_symbol_reset( pgsymbol* s );
 void pg_symbol_print( pgsymbol* symbol, FILE* f );
-BOOLEAN pg_symbol_is_terminal( pgsymbol* symbol );
-BOOLEAN pg_symbol_is_nonterminal( pgsymbol* symbol );
+BOOLEAN pg_symbol_is_term( pgsymbol* symbol );
+BOOLEAN pg_symbol_is_nonterm( pgsymbol* symbol );
 pgsymbol* pg_symbol_get( pggrammar* g, int i );
 pgsymbol* pg_symbol_get_by_id( pggrammar* g, int id );
 int pg_symbol_get_id( pgsymbol* s );
@@ -1236,12 +1236,12 @@ pggrammar* pg_symbol_get_grammar( pgsymbol* s );
 char* pg_symbol_get_name( pgsymbol* s );
 
 
-pgterminal* pg_terminal_create( pggrammar* grammar, char* name, char* pattern );
-pgterminal* pg_terminal_drop( pgterminal* terminal );
-pgterminal* pg_terminal_get( pggrammar* g, int offset );
-BOOLEAN pg_terminal_parse_pattern( pgterminal* terminal, char* pattern );
-BOOLEAN pg_terminal_set_pattern( pgterminal* terminal, pregex_ptn* ptn );
-pregex_ptn* pg_terminal_get_pattern( pgterminal* terminal );
+pgterm* pg_term_create( pggrammar* grammar, char* name, char* pattern );
+pgterm* pg_term_drop( pgterm* terminal );
+pgterm* pg_term_get( pggrammar* g, int offset );
+BOOLEAN pg_term_parse_pattern( pgterm* terminal, char* pattern );
+BOOLEAN pg_term_set_pattern( pgterm* terminal, pregex_ptn* ptn );
+pregex_ptn* pg_term_get_pattern( pgterm* terminal );
 
 
 pgtoken* pg_token_create( pgsymbol* sym, pgvalue* lexem );

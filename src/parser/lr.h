@@ -11,7 +11,7 @@ Usage:	LR parsing definitions
 /* Closure item */
 typedef struct
 {
-	pgproduction*	prod;			/* Production */
+	pgprod*	prod;			/* Production */
 	int				dot;			/* Dot offset */
 	plist*			lookahead;		/* Lookahead symbols */
 } pglritem;
@@ -24,7 +24,7 @@ typedef struct
 	plist*			actions;		/* Action row entries */
 	plist*			gotos;			/* Goto row entries */
 
-	pgproduction*	def_prod;		/* Default production */
+	pgprod*	def_prod;		/* Default production */
 
 	pboolean		done;			/* Done flag */
 	pboolean		closed;			/* Closed flag */
@@ -36,5 +36,5 @@ typedef struct
 	pgsymbol*		symbol;			/* Symbol */
 
 	pglrstate*		shift;			/* Shift to state */
-	pgproduction*	reduce;			/* Reduce by production */
+	pgprod*	reduce;			/* Reduce by production */
 } pglrcolumn;

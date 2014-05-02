@@ -18,7 +18,7 @@ typedef struct
 	pgastnode*		node;
 	int				offset;
 
-	pgproduction*	left;		/* Marker for a left-recursive production */
+	pgprod*	left;		/* Marker for a left-recursive production */
 } pgllse;
 
 static pgtoken* lookahead( pgparser* parser )
@@ -43,7 +43,7 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 	pgllse*			se;
 	pgtoken*		la;
 	plist*			trans;
-	pgproduction*	p;
+	pgprod*	p;
 	pgastnode*		root		= (pgastnode*)NULL;
 	pgastnode*		prev;
 
@@ -84,7 +84,7 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 				fprintf( stderr, "%02d: %d %s%s\n",
 					i,
 					se->offset,
-					pg_symbol_is_terminal( se->symbol ) ? "@" : "",
+					pg_symbol_is_term( se->symbol ) ? "@" : "",
 					pg_symbol_get_name( se->symbol ) );
 			else
 				fprintf( stderr, "%02d: %d (node) %p\n",
@@ -133,7 +133,7 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 			pstack_pop( stack );
 		}
 		/* Terminal */
-		else if( pg_symbol_is_terminal( tos->symbol ) )
+		else if( pg_symbol_is_term( tos->symbol ) )
 		{
 			fprintf( stderr, "tos is terminal\n" );
 
@@ -172,7 +172,7 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 			if( !( ( trans = (plist*)plist_access(
 									plist_get_by_key( parser->states,
 										(char*)tos->symbol ) ) )
-					&& ( p = (pgproduction*)plist_access(
+					&& ( p = (pgprod*)plist_access(
 									plist_get_by_key( trans,
 										(char*)pg_token_get_symbol( la ) ) ) )
 				) )
@@ -188,10 +188,10 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 
 				e = plist_get_by_key( trans, (char*)pg_token_get_symbol( la ) );
 
-				while( ( p = (pgproduction*)plist_access( e ) ) )
+				while( ( p = (pgprod*)plist_access( e ) ) )
 				{
 					fprintf( stderr, "handle >%s<\n",
-						pg_production_to_string( p ) );
+						pg_prod_to_string( p ) );
 
 					e = plist_hashnext( e );
 					if( plist_key( e ) != (char*)pg_token_get_symbol( la ) )
@@ -204,9 +204,9 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 			*/
 
 			/* if there is node for the production, push this first */
-			if( ast && pg_nonterminal_get_emit( pg_production_get_lhs( p ) ) )
+			if( ast && pg_nonterm_get_emit( pg_prod_get_lhs( p ) ) )
 			{
-				tos->node = pg_astnode_create( pg_production_get_lhs( p ) );
+				tos->node = pg_astnode_create( pg_prod_get_lhs( p ) );
 				tos->symbol = (pgsymbol*)NULL;
 				tos->offset = -1;
 			}
@@ -214,8 +214,8 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 				pstack_pop( stack );
 
 			/* push symbols in reverse order */
-			for( i = pg_production_get_rhs_length( p ) - 1;
-					i >= 0 && ( sym = pg_production_get_rhs( p, i ) ); i-- )
+			for( i = pg_prod_get_rhs_length( p ) - 1;
+					i >= 0 && ( sym = pg_prod_get_rhs( p, i ) ); i-- )
 			{
 				tos = (pgllse*)pstack_push( stack, (void*)NULL );
 
