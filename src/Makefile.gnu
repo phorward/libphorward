@@ -14,13 +14,13 @@ SRC = \
 	base/list.c \
 	base/memory.c \
 	base/stack.c \
-	regex/ccl.c \
+	ccl/ccl.c \
 	regex/dfa.c \
 	regex/direct.c \
 	regex/misc.c \
 	regex/nfa.c \
 	regex/pattern.c \
-	regex/pregex.c \
+	regex/regex.c \
 	regex/range.c \
 	regex/ref.c \
 	string/convert.c \
@@ -60,7 +60,7 @@ HSRC = \
 	lexer/lexer.h \
 	parser/parser.h \
 	phorward.tpl.h \
-	regex/pregex.h \
+	regex/regex.h \
 	value/value.h \
 	xml/xml.h \
 	$(PROTOFILE)

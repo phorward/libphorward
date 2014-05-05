@@ -348,6 +348,33 @@ struct xml
 
 
 
+#define PCCL_MIN			0x0
+#if UNICODE
+#define PCCL_MAX			0xFFFF
+#else
+#define PCCL_MAX			0xFF
+#endif
+
+typedef struct
+{
+	wchar_t			begin;
+	wchar_t			end;
+} pcrange;
+
+typedef struct
+{
+	int				min;
+	int				max;
+
+	plist*			ranges;
+
+	char*			str;
+} pccl;
+
+
+
+
+
 #define PREGEX_ACCEPT_NONE		-1
 
 #define PREGEX_ALLOC_STEP		16
@@ -390,9 +417,6 @@ enum _regex_ptntype
 };
 
 
-typedef struct	_regex_cr		pregex_cr;
-typedef struct	_regex_ccl		pregex_ccl;
-
 typedef struct	_regex_accept	pregex_accept;
 
 typedef struct	_regex_nfa_st	pregex_nfa_st;
@@ -415,31 +439,6 @@ typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
 
-
-#define PREGEX_CCL_MIN			0x0
-#if UNICODE
-#define PREGEX_CCL_MAX			0xFFFF
-#else
-#define PREGEX_CCL_MAX			0xFF
-#endif
-
-struct _regex_cr
-{
-	wchar_t			begin;
-	wchar_t			end;
-};
-
-struct _regex_ccl
-{
-	int				min;
-	int				max;
-
-	plist*			ranges;
-
-	char*			str;
-};
-
-
 struct _regex_accept
 {
 	int				accept;		
@@ -450,7 +449,7 @@ struct _regex_accept
 
 struct _regex_nfa_st
 {
-	pregex_ccl*		ccl;		
+	pccl*			ccl;		
 	pregex_nfa_st*	next;		
 	pregex_nfa_st*	next2;		
 
@@ -472,7 +471,7 @@ struct _regex_nfa
 
 struct _regex_dfa_tr
 {
-	pregex_ccl*		ccl;		
+	pccl*			ccl;		
 	unsigned int	go_to;		
 };
 
@@ -502,7 +501,7 @@ struct _regex_dfa
 struct _regex_ptn
 {
 	pregex_ptntype	type;		
-	pregex_ccl*		ccl;		
+	pccl*			ccl;		
 
 	pregex_ptn*		child[ 2 ];	
 	pregex_ptn*		next;		
@@ -649,7 +648,6 @@ typedef struct _pgproduction		pgprod;
 typedef struct _pgsymbol			pgsymbol;
 typedef struct _pgtoken				pgtoken;
 
-typedef struct _pgasttype			pgasttype;	
 typedef struct _pgastnode			pgastnode;	
 typedef struct _pgast				pgast;
 
@@ -736,9 +734,9 @@ struct _pggrammar
 	plist*			symbols;		
 	plist*			productions;	
 
-	pgnonterm*	goal;			
-	pgterm*		eoi;			
-	pgterm*		error;			
+	pgnonterm*		goal;			
+	pgterm*			eoi;			
+	pgterm*			error;			
 
 	pregex_ptn*		whitespace;		
 };
@@ -913,29 +911,29 @@ void* pstack_bottom( pstack* stack );
 int pstack_count( pstack* stack );
 
 
-pregex_ccl* pregex_ccl_create( int min, int max, char* ccldef );
-pboolean pregex_ccl_compat( pregex_ccl* l, pregex_ccl* r );
-int pregex_ccl_size( pregex_ccl* ccl );
-int pregex_ccl_count( pregex_ccl* ccl );
-pregex_ccl* pregex_ccl_dup( pregex_ccl* ccl );
-pboolean pregex_ccl_testrange( pregex_ccl* ccl, wchar_t begin, wchar_t end );
-pboolean pregex_ccl_test( pregex_ccl* ccl, wchar_t ch );
-pboolean pregex_ccl_instest( pregex_ccl* ccl, wchar_t ch );
-pboolean pregex_ccl_addrange( pregex_ccl* ccl, wchar_t begin, wchar_t end );
-pboolean pregex_ccl_add( pregex_ccl* ccl, wchar_t ch );
-pboolean pregex_ccl_delrange( pregex_ccl* ccl, wchar_t begin, wchar_t end );
-pboolean pregex_ccl_del( pregex_ccl* ccl, wchar_t ch );
-pboolean pregex_ccl_negate( pregex_ccl* ccl );
-pregex_ccl* pregex_ccl_union( pregex_ccl* ccl, pregex_ccl* add );
-pregex_ccl* pregex_ccl_diff( pregex_ccl* ccl, pregex_ccl* rem );
-int pregex_ccl_compare( pregex_ccl* left, pregex_ccl* right );
-pregex_ccl* pregex_ccl_intersect( pregex_ccl* ccl, pregex_ccl* within );
-pboolean pregex_ccl_get( wchar_t* from, wchar_t* to, pregex_ccl* ccl, int offset );
-pboolean pregex_ccl_parse( pregex_ccl* ccl, char* ccldef, pboolean extend );
-pboolean pregex_ccl_erase( pregex_ccl* ccl );
-pregex_ccl* pregex_ccl_free( pregex_ccl* ccl );
-char* pregex_ccl_to_str( pregex_ccl* ccl, pboolean escape );
-void pregex_ccl_print( FILE* stream, pregex_ccl* ccl, int break_after );
+pccl* p_ccl_create( int min, int max, char* ccldef );
+pboolean p_ccl_compat( pccl* l, pccl* r );
+int p_ccl_size( pccl* ccl );
+int p_ccl_count( pccl* ccl );
+pccl* p_ccl_dup( pccl* ccl );
+pboolean p_ccl_testrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_test( pccl* ccl, wchar_t ch );
+pboolean p_ccl_instest( pccl* ccl, wchar_t ch );
+pboolean p_ccl_addrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_add( pccl* ccl, wchar_t ch );
+pboolean p_ccl_delrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_del( pccl* ccl, wchar_t ch );
+pboolean p_ccl_negate( pccl* ccl );
+pccl* p_ccl_union( pccl* ccl, pccl* add );
+pccl* p_ccl_diff( pccl* ccl, pccl* rem );
+int p_ccl_compare( pccl* left, pccl* right );
+pccl* p_ccl_intersect( pccl* ccl, pccl* within );
+pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
+pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend );
+pboolean p_ccl_erase( pccl* ccl );
+pccl* p_ccl_free( pccl* ccl );
+char* p_ccl_to_str( pccl* ccl, pboolean escape );
+void p_ccl_print( FILE* stream, pccl* ccl, int break_after );
 
 
 void pregex_dfa_print( pregex_dfa* dfa );
@@ -968,7 +966,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors, pre
 int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
 
-pregex_ptn* pregex_ptn_create_char( pregex_ccl* ccl );
+pregex_ptn* pregex_ptn_create_char( pccl* ccl );
 pregex_ptn* pregex_ptn_create_string( char* str, int flags );
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... );

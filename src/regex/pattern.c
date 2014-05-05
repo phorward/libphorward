@@ -40,7 +40,7 @@ and will be directly assigned to the object.
 Returns a pregex_ptn-node which can be child of another pattern construct or
 part of a sequence.
 */
-pregex_ptn* pregex_ptn_create_char( pregex_ccl* ccl )
+pregex_ptn* pregex_ptn_create_char( pccl* ccl )
 {
 	pregex_ptn*		pattern;
 
@@ -70,7 +70,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 	wchar_t		ch;
 	pregex_ptn*	chr;
 	pregex_ptn*	seq		= (pregex_ptn*)NULL;
-	pregex_ccl*	ccl;
+	pccl*		ccl;
 
 	PROC( "pregex_ptn_create_string" );
 	PARMS( "str", "%s", str );
@@ -98,11 +98,11 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 
 		VARS( "ch", "%d", ch );
 
-		ccl = pregex_ccl_create( -1, -1, (char*)NULL );
+		ccl = p_ccl_create( -1, -1, (char*)NULL );
 
-		if( !( ccl && pregex_ccl_add( ccl, ch ) ) )
+		if( !( ccl && p_ccl_add( ccl, ch ) ) )
 		{
-			pregex_ccl_free( ccl );
+			p_ccl_free( ccl );
 			RETURN( (pregex_ptn*)NULL );
 		}
 
@@ -126,16 +126,16 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 			MSG( "Case-insensity set, new character evaluated is:" );
 			VARS( "ch", "%d", ch );
 
-			if( !pregex_ccl_add( ccl, ch ) )
+			if( !p_ccl_add( ccl, ch ) )
 			{
-				pregex_ccl_free( ccl );
+				p_ccl_free( ccl );
 				RETURN( (pregex_ptn*)NULL );
 			}
 		}
 
 		if( !( chr = pregex_ptn_create_char( ccl ) ) )
 		{
-			pregex_ccl_free( ccl );
+			p_ccl_free( ccl );
 			RETURN( (pregex_ptn*)NULL );
 		}
 
@@ -342,7 +342,7 @@ pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 	do
 	{
 		if( ptn->type == PREGEX_PTN_CHAR )
-			pregex_ccl_free( ptn->ccl );
+			p_ccl_free( ptn->ccl );
 
 		if( ptn->child[0] )
 			pregex_ptn_free( ptn->child[0] );
@@ -388,7 +388,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 		fprintf( stderr, "%s%s", gap, types[ ptn->type ] );
 
 		if( ptn->type == PREGEX_PTN_CHAR )
-			fprintf( stderr, " %s", pregex_ccl_to_str( ptn->ccl, FALSE ) );
+			fprintf( stderr, " %s", p_ccl_to_str( ptn->ccl, FALSE ) );
 
 		fprintf( stderr, "\n" );
 
@@ -424,20 +424,20 @@ static void pregex_char_to_REGEX( char* str, int size,
 }
 
 /* Internal function for pregex_ptn_to_regex() */
-static void pregex_ccl_to_REGEX( char** str, pregex_ccl* ccl )
+static void p_ccl_to_REGEX( char** str, pccl* ccl )
 {
 	int				i;
-	pregex_cr*		cr;
+	pcrange*		cr;
 	char			from	[ 40 + 1 ];
 	char			to		[ 20 + 1 ];
 	pboolean		range	= FALSE;
 	pboolean		neg		= FALSE;
 
 	/*
-	 * If this caracter class contains PREGEX_CCL_MAX characters, then simply
+	 * If this caracter class contains PCCL_MAX characters, then simply
 	 * print a dot.
 	 */
-	if( pregex_ccl_count( ccl ) == PREGEX_CCL_MAX )
+	if( p_ccl_count( ccl ) == PCCL_MAX )
 	{
 		*str = pstrcatchar( *str, '.' );
 		return;
@@ -447,15 +447,15 @@ static void pregex_ccl_to_REGEX( char** str, pregex_ccl* ccl )
 	 * Always duplicate character-class,
 	 * we sometimes will modify it
 	 */
-	ccl = pregex_ccl_dup( ccl );
+	ccl = p_ccl_dup( ccl );
 
-	if( pregex_ccl_count( ccl ) > 128 )
+	if( p_ccl_count( ccl ) > 128 )
 	{
 		neg = TRUE;
-		pregex_ccl_negate( ccl );
+		p_ccl_negate( ccl );
 	}
 
-	if( neg || pregex_ccl_count( ccl ) > 1 )
+	if( neg || p_ccl_count( ccl ) > 1 )
 	{
 		range = TRUE;
 		*str = pstrcatchar( *str, '[' );
@@ -467,15 +467,15 @@ static void pregex_ccl_to_REGEX( char** str, pregex_ccl* ccl )
 	 * If ccl contains a dash,
 	 * this must be printed first!
 	 */
-	if( pregex_ccl_test( ccl, '-' ) )
+	if( p_ccl_test( ccl, '-' ) )
 	{
 		*str = pstrcatchar( *str, '-' );
-		pregex_ccl_del( ccl, '-' );
+		p_ccl_del( ccl, '-' );
 	}
 
 	/* Go trough ccl... */
 
-	for( i = 0; !( cr = (pregex_cr*)plist_get( ccl->ranges, i ) ); i++ )
+	for( i = 0; !( cr = (pcrange*)plist_get( ccl->ranges, i ) ); i++ )
 	{
 		pregex_char_to_REGEX( from, (int)sizeof( from ),
 									cr->begin, TRUE, range );
@@ -493,7 +493,7 @@ static void pregex_ccl_to_REGEX( char** str, pregex_ccl* ccl )
 	if( range )
 		*str = pstrcatchar( *str, ']' );
 
-	pregex_ccl_free( ccl );
+	p_ccl_free( ccl );
 }
 
 /* Internal function for pregex_ptn_to_regex() */
@@ -515,7 +515,7 @@ static int pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 				return ERR_OK;
 
 			case PREGEX_PTN_CHAR:
-				pregex_ccl_to_REGEX( regex, ptn->ccl );
+				p_ccl_to_REGEX( regex, ptn->ccl );
 				break;
 
 			case PREGEX_PTN_SUB:
@@ -628,7 +628,7 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_end = pregex_nfa_create_state( nfa,
 							(char*)NULL, PREGEX_MOD_NONE );
 
-				n_start->ccl = pregex_ccl_dup( pattern->ccl );
+				n_start->ccl = p_ccl_dup( pattern->ccl );
 				n_start->next = n_end;
 				break;
 
@@ -944,7 +944,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 static int parse_char( pregex_ptn** ptn, char** pstr,
 		pregex_accept* accept, int flags )
 {
-	pregex_ccl*	ccl;
+	pccl*	ccl;
 	int			ret;
 	pregex_ptn*	alter;
 	wchar_t		single;
@@ -978,18 +978,18 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 			if( accept )
 				accept->greedy = FALSE;
 
-			ccl = pregex_ccl_create( -1, -1, (char*)NULL );
+			ccl = p_ccl_create( -1, -1, (char*)NULL );
 
-			if( !( ccl && pregex_ccl_addrange( ccl,
-								PREGEX_CCL_MIN, PREGEX_CCL_MAX ) ) )
+			if( !( ccl && p_ccl_addrange( ccl,
+								PCCL_MIN, PCCL_MAX ) ) )
 			{
-				pregex_ccl_free( ccl );
+				p_ccl_free( ccl );
 				return ERR_MEM;
 			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 			{
-				pregex_ccl_free( ccl );
+				p_ccl_free( ccl );
 				return ERR_MEM;
 			}
 
@@ -1008,15 +1008,15 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 					(*pstr)++;
 				}
 
-				if( !( ccl = pregex_ccl_create( -1, -1, (*pstr) + 1 ) ) )
+				if( !( ccl = p_ccl_create( -1, -1, (*pstr) + 1 ) ) )
 					return ERR_MEM;
 
 				if( neg )
-					pregex_ccl_negate( ccl );
+					p_ccl_negate( ccl );
 
 				if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 				{
-					pregex_ccl_free( ccl );
+					p_ccl_free( ccl );
 					return ERR_MEM;
 				}
 
@@ -1029,17 +1029,17 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 		default:
 			*pstr += pstrparsechar( &single, *pstr, TRUE );
 
-			ccl = pregex_ccl_create( -1, -1, (char*)NULL );
+			ccl = p_ccl_create( -1, -1, (char*)NULL );
 
-			if( !( ccl && pregex_ccl_add( ccl, single ) ) )
+			if( !( ccl && p_ccl_add( ccl, single ) ) )
 			{
-				pregex_ccl_free( ccl );
+				p_ccl_free( ccl );
 				return ERR_MEM;
 			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 			{
-				pregex_ccl_free( ccl );
+				p_ccl_free( ccl );
 				return ERR_MEM;
 			}
 

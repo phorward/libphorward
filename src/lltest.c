@@ -19,7 +19,6 @@ int main()
 	pgnonterm*	factor;
 
 	pgprod*	prod;
-	pgasttype*		at;
 
 	pgtoken*		tok;
 	pgast*			ast;

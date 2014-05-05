@@ -29,7 +29,7 @@ static void pregex_dfa_print_state(
 	{
 		tr = (pregex_dfa_tr*)plist_access( e );
 		fprintf( stderr, " %s => %d",
-			pregex_ccl_to_str( tr->ccl, TRUE ), tr->go_to );
+			p_ccl_to_str( tr->ccl, TRUE ), tr->go_to );
 	}
 
 	fprintf( stderr, "\n" );
@@ -63,7 +63,7 @@ void pregex_dfa_print( pregex_dfa* dfa )
 		{
 			t = (pregex_dfa_tr*)plist_access( f );
 
-			pregex_ccl_print( stderr, t->ccl, 0 );
+			p_ccl_print( stderr, t->ccl, 0 );
 			fprintf( stderr, "-> %d\n", t->go_to );
 		}
 
@@ -95,7 +95,7 @@ static void pregex_dfa_delete_state( pregex_dfa_st* st )
 	plist_for( st->trans, e )
 	{
 		tr = (pregex_dfa_tr*)plist_access( e );
-		pregex_ccl_free( tr->ccl );
+		p_ccl_free( tr->ccl );
 	}
 
 	st->trans = plist_free( st->trans );
@@ -214,7 +214,7 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 		{
 			tr = (pregex_dfa_tr*)plist_access( f );
 
-			if( max < ( cnt = pregex_ccl_count( tr->ccl ) ) )
+			if( max < ( cnt = p_ccl_count( tr->ccl ) ) )
 			{
 				max = cnt;
 				st->def_trans = tr;
@@ -223,7 +223,7 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 			all += cnt;
 		}
 
-		if( all != PREGEX_CCL_MAX )
+		if( all != PCCL_MAX )
 			st->def_trans = (pregex_dfa_tr*)NULL;
 	}
 
@@ -328,10 +328,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	int				i;
 	wchar_t			begin;
 	wchar_t			end;
-	pregex_ccl*		ccl;
-	pregex_ccl*		test;
-	pregex_ccl*		del;
-	pregex_ccl*		subset;
+	pccl*			ccl;
+	pccl*			test;
+	pccl*			del;
+	pccl*			subset;
 
 	PROC( "pregex_dfa_from_nfa" );
 	PARMS( "dfa", "%p", dfa );
@@ -389,9 +389,9 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 			if( nfa_st->ccl )
 			{
 				VARS( "nfa_st->ccl", "%s",
-						pregex_ccl_to_str( nfa_st->ccl, TRUE ) );
+						p_ccl_to_str( nfa_st->ccl, TRUE ) );
 				MSG( "Adding character class to list" );
-				if( !( ccl = pregex_ccl_dup( nfa_st->ccl ) ) )
+				if( !( ccl = p_ccl_dup( nfa_st->ccl ) ) )
 					RETURN( ERR_MEM );
 
 				if( !plist_push( classes, ccl ) )
@@ -410,25 +410,25 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 			plist_for( classes, e )
 			{
-				ccl = (pregex_ccl*)plist_access( e );
+				ccl = (pccl*)plist_access( e );
 
 				plist_for( classes, f )
 				{
 					if( e == f )
 						continue;
 
-					test = (pregex_ccl*)plist_access( f );
+					test = (pccl*)plist_access( f );
 
-					if( pregex_ccl_count( ccl ) > pregex_ccl_count( test ) )
+					if( p_ccl_count( ccl ) > p_ccl_count( test ) )
 						continue;
 
-					if( ( subset = pregex_ccl_intersect( ccl, test ) ) )
+					if( ( subset = p_ccl_intersect( ccl, test ) ) )
 					{
-						test = pregex_ccl_diff( test, subset );
-						pregex_ccl_free( subset );
+						test = p_ccl_diff( test, subset );
+						p_ccl_free( subset );
 
-						del = (pregex_ccl*)plist_access( f );
-						pregex_ccl_free( del );
+						del = (pccl*)plist_access( f );
+						p_ccl_free( del );
 
 						plist_remove( classes, f );
 						plist_push( classes, test );
@@ -446,10 +446,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		/* Make transitions on constructed alphabet */
 		plist_for( classes, e )
 		{
-			ccl = (pregex_ccl*)plist_access( e );
+			ccl = (pccl*)plist_access( e );
 
 			MSG( "Check char class" );
-			for( i = 0; pregex_ccl_get( &begin, &end, ccl, i ); i++ )
+			for( i = 0; p_ccl_get( &begin, &end, ccl, i ); i++ )
 			{
 				VARS( "begin", "%d", begin );
 				VARS( "end", "%d", end );
@@ -478,7 +478,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					/* There is no move on this character! */
 					MSG( "transition set is empty, will continue" );
 
-					pregex_ccl_free( ccl );
+					p_ccl_free( ccl );
 					continue;
 				}
 				else if( ( state_next = pregex_dfa_same_transitions(
@@ -523,16 +523,16 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 					/* Set the transition into the transition state matrix... */
 					trans = plist_malloc( current->trans );
-					trans->ccl = pregex_ccl_create( -1, -1, (char*)NULL );
+					trans->ccl = p_ccl_create( -1, -1, (char*)NULL );
 					trans->go_to = state_next;
 				}
 
 				/* Append current range */
-				if( !pregex_ccl_addrange( trans->ccl, begin, end ) )
+				if( !p_ccl_addrange( trans->ccl, begin, end ) )
 					RETURN( ERR_MEM );
 			}
 
-			pregex_ccl_free( ccl );
+			p_ccl_free( ccl );
 		}
 	}
 
@@ -591,7 +591,7 @@ static pboolean pregex_dfa_equal_states(
 		tr[1] = (pregex_dfa_tr*)plist_access( f );
 
 		/* Equal Character class selection? */
-		if( pregex_ccl_compare( tr[0]->ccl, tr[1]->ccl ) )
+		if( p_ccl_compare( tr[0]->ccl, tr[1]->ccl ) )
 		{
 			MSG( "Character classes are not equal" );
 			RETURN( FALSE );
@@ -943,7 +943,7 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		{
 			ent = (pregex_dfa_tr*)plist_access( e );
 
-			if( pregex_ccl_test( ent->ccl, ch ) )
+			if( p_ccl_test( ent->ccl, ch ) )
 			{
 				MSG( "Having a character match!" );
 				next_dfa_st = (pregex_dfa_st*)plist_access(
@@ -1071,7 +1071,7 @@ int pregex_dfa_to_matrix( wchar_t*** matrix, pregex_dfa* dfa )
 		for( cnt = 3, f = plist_first( st->trans ); f; f = plist_next( f ) )
 		{
 			tr = (pregex_dfa_tr*)plist_access( f );
-			cnt += ( pregex_ccl_size( tr->ccl ) * 3 );
+			cnt += ( p_ccl_size( tr->ccl ) * 3 );
 		}
 
 		VARS( "required( cnt )", "%d", cnt );
@@ -1087,7 +1087,7 @@ int pregex_dfa_to_matrix( wchar_t*** matrix, pregex_dfa* dfa )
 		{
 			tr = (pregex_dfa_tr*)plist_access( f );
 
-			for( k = 0; pregex_ccl_get( &from, &to, tr->ccl, k ); k++ )
+			for( k = 0; p_ccl_get( &from, &to, tr->ccl, k ); k++ )
 			{
 				trans[i][j++] = from;
 				trans[i][j++] = to;
