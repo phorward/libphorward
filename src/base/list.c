@@ -14,15 +14,20 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 The plist-object implements
 
 - a double linked-list
-- hash-table
+- hashable entries
 - dynamic stack functionalities
+- data object collections
+- set functions
 
-into one tool.
-It serves as the replacement for the old libphorward data structrues
-LIST (llist), HASHTAB and STACK, which had been used and provided in the
-past.
+into one handy library. It can be used for many powerfull tasks, including
+symbol tables, functions relating to set theories or as associative arrays.
 
-The object pstack can be used for better runtime performance.
+It serves as the replacement for the older libphorward data structrues
+LIST (llist), HASHTAB and STACK, which had been widely used and provided in the
+past. All usages of them had been substituted by plist now.
+
+The object pstack can be used for real stacks for a better runtime performance,
+because they allocate arrays of memory instead of unfixed, linked elements.
 */
 
 /* Local prototypes */
