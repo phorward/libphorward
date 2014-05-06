@@ -55,8 +55,8 @@ pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name )
 
 pgsymbol* pg_symbol_free( pgsymbol* symbol )
 {
-	plistel*		se;
-	plistel*		nse;
+	plistel*	se;
+	plistel*	nse;
 	pgsymbol*	move;
 
 	if( !( symbol ) )

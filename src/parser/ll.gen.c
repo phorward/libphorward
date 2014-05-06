@@ -16,7 +16,7 @@ static void print_tab( pgparser* parser )
 	plistel*		e;
 	plistel*		f;
 	plist*			trans;
-	pgprod*	p;
+	pgprod*			p;
 
 	plist_for( parser->states, e )
 	{
@@ -37,9 +37,9 @@ static void print_tab( pgparser* parser )
 pboolean pg_parser_ll_closure( pgparser* parser )
 {
 	int				i;
-	pgprod*	p;
-	pgnonterm*	lhs;
-	pgterm*		term;
+	pgprod*			p;
+	pgnonterm*		lhs;
+	pgterm*			term;
 	plistel*		e;
 	plist*			trans;
 

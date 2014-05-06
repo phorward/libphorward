@@ -5,7 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	grammar.c
-Usage:
+Usage:	
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -47,11 +47,11 @@ pggrammar* pg_grammar_free( pggrammar* g )
 
 void pg_grammar_print( pggrammar* g )
 {
-	plistel*		ep;
-	plistel*		es;
-	pgprod*	p;
-	pgsymbol*		s;
-	int				i;
+	plistel*	ep;
+	plistel*	es;
+	pgprod*		p;
+	pgsymbol*	s;
+	int			i;
 
 	printf( "--- Productions ---\n" );
 	plist_for( g->productions, ep )
@@ -104,15 +104,15 @@ void pg_grammar_print( pggrammar* g )
 
 BOOLEAN pg_grammar_compute_first( pggrammar* g )
 {
-	int				i;
-	int				j;
-	int				k;
-	pgsymbol*		cs;						/* Current symbol */
-	pgprod*	p;						/* Production */
-	pgsymbol*		s;						/* RHS symbol */
-	pboolean		nullable;				/* Nullable flag */
-	int				f			= 0;		/* Current FIRST count */
-	int				pf;						/* Previous FIRST count */
+	int			i;
+	int			j;
+	int			k;
+	pgsymbol*	cs;					/* Current symbol */
+	pgprod*		p;					/* Production */
+	pgsymbol*	s;					/* RHS symbol */
+	pboolean	nullable;			/* Nullable flag */
+	int			f			= 0;	/* Current FIRST count */
+	int			pf;					/* Previous FIRST count */
 
 	PROC( "pg_grammar_compute_first" );
 	PARMS( "g", "%p", g );
@@ -207,17 +207,17 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 
 BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 {
-	int				i;
-	int				j;
-	int				k;
-	int				l;
-	pgsymbol*		ns;						/* Nonterminal symbol */
-	pgprod*	p;						/* Production */
-	pgsymbol*		s;						/* RHS symbol */
-	pgsymbol*		fs;						/* Following symbol */
-	pboolean		nullable;				/* Nullable flag */
-	int				f			= 0;		/* Current FIRST count */
-	int				pf;						/* Previous FIRST count */
+	int			i;
+	int			j;
+	int			k;
+	int			l;
+	pgsymbol*	ns;					/* Nonterminal symbol */
+	pgprod*		p;					/* Production */
+	pgsymbol*	s;					/* RHS symbol */
+	pgsymbol*	fs;					/* Following symbol */
+	pboolean	nullable;			/* Nullable flag */
+	int			f			= 0;	/* Current FIRST count */
+	int			pf;					/* Previous FIRST count */
 
 	/* Check parameter validity and bounding */
 	if( !( g ) )
@@ -293,10 +293,10 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 
 BOOLEAN pg_grammar_compute_select( pggrammar* g )
 {
-	int				i;
-	int				j;
-	pgprod*	p;
-	pgsymbol*		s;
+	int			i;
+	int			j;
+	pgprod*		p;
+	pgsymbol*	s;
 
 	/* Check parameter validity and bounding */
 	if( !( g ) )

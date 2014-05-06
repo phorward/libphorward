@@ -12,12 +12,12 @@ Usage:	LL parsing related
 typedef struct
 {
 	pgnonterm*	nonterminal;
-	plist*			trans;
+	plist*		trans;
 } pgllstate;
 
 typedef struct
 {
 	pgterm*		terminal;
-	pgprod*	production;
+	pgprod*		production;
 } pglltrans;
 */

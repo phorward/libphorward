@@ -36,7 +36,7 @@ typedef struct
 
 	/* State */
 	pglrstate*		shift;	/* Shift to state */
-	pgprod*	reduce;	/* Reduce by production */
+	pgprod*			reduce;	/* Reduce by production */
 	pgsymbol*		lhs;	/* Default left-hand side */
 }
 pglrpcb;

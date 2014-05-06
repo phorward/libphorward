@@ -18,7 +18,7 @@ typedef struct
 	pgastnode*		node;
 	int				offset;
 
-	pgprod*	left;		/* Marker for a left-recursive production */
+	pgprod*			left;	/* Marker for a left-recursive production */
 } pgllse;
 
 static pgtoken* lookahead( pgparser* parser )
@@ -43,7 +43,7 @@ pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast )
 	pgllse*			se;
 	pgtoken*		la;
 	plist*			trans;
-	pgprod*	p;
+	pgprod*			p;
 	pgastnode*		root		= (pgastnode*)NULL;
 	pgastnode*		prev;
 

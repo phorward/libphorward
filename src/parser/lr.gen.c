@@ -232,7 +232,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 	pglritem*		cit;
 	pgsymbol*		sym;
 	pgsymbol*		lhs;
-	pgprod*	prod;
+	pgprod*			prod;
 	pglrcolumn*		col;
 	plist*			closure;
 	plist*			part;
@@ -584,7 +584,8 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 			col = (pglrcolumn*)plist_access( f );
 
 			if( col->shift && col->reduce )
-				fprintf( stderr, "\t<- Goto/Reduce by production '%s' in '%s'\n",
+				fprintf( stderr, "\t<- Goto/Reduce by production "
+										"'%s' in '%s'\n",
 							pg_prod_to_string( col->reduce ),
 								pg_symbol_get_name( col->symbol ) );
 			else if( col->shift )

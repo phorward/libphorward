@@ -350,7 +350,7 @@ pgnonterm* pg_nonterm_get( pggrammar* g, int offset );
 pboolean pg_nonterm_get_emit( pgnonterm* nt );
 pboolean pg_nonterm_set_emit( pgnonterm* nt, pboolean emit );
 
-/* grammar/production.c */
+/* grammar/prod.c */
 pgprod* pg_prod_create( pgnonterm* lhs, ... );
 pgprod* pg_prod_drop( pgprod* p );
 char* pg_prod_to_string( pgprod* p );
@@ -380,7 +380,7 @@ pgsymtype pg_symbol_get_type( pgsymbol* s );
 pggrammar* pg_symbol_get_grammar( pgsymbol* s );
 char* pg_symbol_get_name( pgsymbol* s );
 
-/* grammar/terminal.c */
+/* grammar/term.c */
 pgterm* pg_term_create( pggrammar* grammar, char* name, char* pattern );
 pgterm* pg_term_drop( pgterm* terminal );
 pgterm* pg_term_get( pggrammar* g, int offset );

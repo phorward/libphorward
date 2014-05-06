@@ -39,9 +39,9 @@ SRC = \
 	grammar/error.c \
 	grammar/grammar.c \
 	grammar/nonterm.c \
-	grammar/production.c \
+	grammar/prod.c \
 	grammar/symbol.c \
-	grammar/terminal.c \
+	grammar/term.c \
 	grammar/token.c \
 	\
 	lexer/lexer.c \
