@@ -55,6 +55,7 @@ struct _pgsymbol
 	char*			name;			/* Symbol name */
 
 	pboolean		nullable;		/* Nullable-flag (FIRST-set computation) */
+	pboolean		lrec;			/* Left-recursive */
 
 	plist*			first;			/* FIRST-set */
 	plist*			follow;			/* FOLLOW-set */
@@ -87,7 +88,8 @@ struct _pgproduction
 	plist*			rhs;			/* Right-hand side */
 
 	int				prec;			/* Precedence level */
-	pgassoc			assoc;			/* Associativity */
+	pgassoc			assoc;			/* Associativity */ 
+	pboolean		lrec;			/* Left-recursion in production */
 
 	plist*			select;			/* SELECT-set */
 
@@ -100,6 +102,17 @@ struct _pggrammar
 {
 	plist*			symbols;		/* Symbol table */
 	plist*			productions;	/* Production table */
+
+	int				status;			/* Current grammar status */
+
+#define PGGRAMMAR_STAT_NONE			0	/* Sake of completeness */
+#define PGGRAMMAR_STAT_LOCKED		1	/* Grammar is locked */
+#define PGGRAMMAR_STAT_FIRSTDONE	2	/* FIRST-set computation performed */
+#define PGGRAMMAR_STAT_FOLLOWDONE	4	/* FOLLOW-set computation performed */
+#define PGGRAMMAR_STAT_SELECTDONE	8	/* SELECT-set computation performed
+											(only for table-driven LL) */
+#define PGGRAMMAR_STAT_LRECDONE		16	/* Left-recursion detection performed
+											(only for table-driven LL) */
 
 	pgnonterm*		goal;			/* Goal non-terminal symbol */
 	pgterm*			eoi;			/* End of input terminal symbol */

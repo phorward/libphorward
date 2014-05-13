@@ -96,8 +96,8 @@ END				{
 
 						for( i = 1; i <= nonterminals[ n ]; i++ )
 						{
-							printf "%s%s_%d = pg_prod_create( %s%s", \
-								var[ "p" ], to_cname( n ), i, \
+							printf "%s%s_%d = pg_prod_create( %s, %s%s", \
+								var[ "p" ], to_cname( n ), i, grammar, \
 									var[ "n" ], to_cname( n )
 
 							for( j = 1; productions[ n ][ i ][ j ] != ""; j++ )

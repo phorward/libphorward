@@ -635,7 +635,18 @@ pboolean plist_pop( plist* list, void* dest )
 	}
 
 	if( !list->last )
+	{
+		if( dest )
+		{
+			/* Zero dest if there is no more item */
+			if( list->flags & PLIST_MOD_PTR )
+				*( (void**)dest ) = (void*)NULL;
+			else
+				memset( dest, 0, list->size );
+		}
+
 		return FALSE;
+	}
 
 	if( dest )
 	{

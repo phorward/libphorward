@@ -43,6 +43,94 @@ pggrammar* pg_grammar_free( pggrammar* g )
 	return (pggrammar*)NULL;
 }
 
+/* Reset */
+
+pboolean pg_grammar_reset( pggrammar* grammar )
+{
+	int			i;
+	pgsymbol*	s;
+	pgprod*		p;
+
+	PROC( "pg_grammar_reset" );
+
+	if( !( grammar ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	MSG( "Reset all symbols" );
+	for( i = 0; ( s = pg_symbol_get( grammar, i ) ); i++ )
+	{
+		if( pg_symbol_is_term( s ) )
+		{
+			MSG( "Terminal" );
+			/* Terminal symbols are their own FIRST set - this must be set only
+				once in the entire symbol's lifetime. */
+			if( !plist_count( s->first ) )
+				plist_push( s->first, s );
+		}
+		else
+		{
+			MSG( "Nonterminal" );
+
+			/* Nonterminal symbols must be reset */
+			plist_clear( s->first );
+		}
+
+		plist_clear( s->follow );
+
+		s->nullable = FALSE;
+	}
+
+	MSG( "Reset all productions" );
+	for( i = 0; ( p = pg_prod_get( grammar, i ) ); i++ )
+	{
+		if( p->select )
+			plist_clear( p->select );
+
+		p->lrec = FALSE;
+	}
+
+	/* Remove statues */
+	grammar->status &= ~( PGGRAMMAR_STAT_FIRSTDONE
+							| PGGRAMMAR_STAT_FOLLOWDONE
+								| PGGRAMMAR_STAT_SELECTDONE
+									| PGGRAMMAR_STAT_LRECDONE );
+
+	RETURN( TRUE );
+}
+
+/* Locking */
+
+pboolean pg_grammar_lock( pggrammar* grammar )
+{
+	if( !( grammar ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	grammar->status |= PGGRAMMAR_STAT_LOCKED;
+	return TRUE;
+}
+
+/* Unlocking */
+
+pboolean pg_grammar_unlock( pggrammar* grammar )
+{
+	if( !( grammar ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	pg_grammar_reset( grammar );
+	grammar->status &= ~PGGRAMMAR_STAT_LOCKED;
+
+	return TRUE;
+}
+
 /* Debug */
 
 void pg_grammar_print( pggrammar* g )
@@ -60,15 +148,18 @@ void pg_grammar_print( pggrammar* g )
 		printf( "%02d %s\n", pg_prod_get_id( p ),
 								pg_prod_to_string( p ) );
 
+		if( p->lrec )
+			printf( "   # LEFT-RECURSIVE\n" );
+
 		if( plist_count( p->select ) )
 		{
-			printf( "    SELECT => " );
+			printf( "   => SELECT( " );
 
 			plist_for( p->select, es )
 				printf( "%s ", pg_symbol_get_name(
 									(pgsymbol*)plist_access( es ) ) );
 
-			printf( "\n" );
+			printf( ")\n" );
 		}
 	}
 
@@ -79,23 +170,23 @@ void pg_grammar_print( pggrammar* g )
 
 		if( plist_count( s->first ) )
 		{
-			printf( "    FIRST  => " );
+			printf( "   => FIRST( " );
 
 			plist_for( s->first, es )
 				printf( "%s ", pg_symbol_get_name(
 									(pgsymbol*)plist_access( es ) ) );
 
-			printf( "\n" );
+			printf( ")\n" );
 		}
 
 		if( plist_count( s->follow ) )
 		{
-			printf( "    FOLLOW => " );
+			printf( "   => FOLLOW( " );
 			plist_for( s->follow, es )
 				printf( "%s ", pg_symbol_get_name(
 								(pgsymbol*)plist_access( es ) ) );
 
-			printf( "\n" );
+			printf( ")\n" );
 		}
 	}
 }
@@ -123,6 +214,12 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 		RETURN( FALSE );
 	}
 
+	if( g->status & PGGRAMMAR_STAT_FIRSTDONE )
+	{
+		MSG( "FIRST set computation already performed" );
+		RETURN( TRUE );
+	}
+
 	MSG( "Required dependencies" );
 	if( !( pg_grammar_get_goal( g ) && pg_grammar_get_eoi( g ) ) )
 	{
@@ -132,27 +229,8 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 		RETURN( FALSE );
 	}
 
-	MSG( "Reset all symbols" );
-	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
-	{
-		if( pg_symbol_is_term( s ) )
-		{
-			MSG( "Terminal" );
-			/* Terminal symbols are their own FIRST set - this must be set only
-				once in the entire symbol's lifetime. */
-			if( !plist_count( s->first ) )
-				plist_push( s->first, s );
-		}
-		else
-		{
-			MSG( "Nonterminal" );
-
-			/* Nonterminal symbols must be reset */
-			plist_clear( s->first );
-		}
-
-		s->nullable = FALSE;
-	}
+	/* Lock grammar */
+	pg_grammar_lock( g );
 
 	MSG( "Loop until no more changes appear" );
 	do
@@ -200,6 +278,8 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 	}
 	while( pf != f );
 
+	g->status |= PGGRAMMAR_STAT_FIRSTDONE;
+
 	RETURN( TRUE );
 }
 
@@ -219,36 +299,24 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 	int			f			= 0;	/* Current FIRST count */
 	int			pf;					/* Previous FIRST count */
 
+	PROC( "pg_grammar_compute_follow" );
+
 	/* Check parameter validity and bounding */
 	if( !( g ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
+	}
+
+	if( g->status & PGGRAMMAR_STAT_FOLLOWDONE )
+	{
+		MSG( "FOLLOW set computation already performed" );
+		RETURN( TRUE );
 	}
 
 	/* Required dependencies */
-	if( !( ( fs = pg_grammar_get_goal( g ) ) && pg_grammar_get_eoi( g ) ) )
-	{
-		PGERR( g, __FILE__, __LINE__,
-				"grammar must provide a goal symbol and end-of-file" );
-
-		return FALSE;
-	}
-
-	/* Reset all symbols */
-	for( i = 0; ( s = pg_symbol_get( g, i ) ); i++ )
-	{
-		/* First set computation must be done first */
-		if( !plist_count( s->first ) )
-		{
-			PGERR( g, __FILE__, __LINE__,
-				"FIRST-sets must be computed first" );
-
-			return FALSE;
-		}
-
-		plist_clear( s->follow );
-	}
+	if( !pg_grammar_compute_first( g ) )
+		RETURN( FALSE );
 
 	/* Goal symbol has end-of-input in its follow set */
 	plist_push( fs->follow, pg_grammar_get_eoi( g ) );
@@ -286,7 +354,9 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 	}
 	while( pf != f );
 
-	return TRUE;
+	g->status |= PGGRAMMAR_STAT_FOLLOWDONE;
+
+	RETURN( TRUE );
 }
 
 /* Finding SELECT sets */
@@ -298,24 +368,32 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 	pgprod*		p;
 	pgsymbol*	s;
 
+	PROC( "pg_grammar_compute_follow" );
+
 	/* Check parameter validity and bounding */
 	if( !( g ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
 	}
 
+	/* Required dependencies */
 	if( !pg_prod_get( g, 0 ) )
 	{
 		PGERR( g, __FILE__, __LINE__,
-			"Grammar must contain at least one production" );
-		return FALSE;
+					"Grammar must contain at least one production" );
+
+		RETURN( FALSE );
 	}
 
+	if( !pg_grammar_compute_follow( g ) )
+		RETURN( FALSE );
+
+	/* Perform SELECT-set generation */
 	for( i = 0; ( p = pg_prod_get( g, i ) ); i++ )
 	{
-		plist_free( p->select );
-		p->select = plist_create( 0, PLIST_MOD_PTR );
+		if( !p->select )
+			p->select = plist_create( 0, PLIST_MOD_PTR );
 
 		for( j = 0; ( s = pg_prod_get_rhs( p, j ) ); j++ )
 		{
@@ -333,7 +411,83 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 		}
 	}
 
-	return TRUE;
+	g->status |= PGGRAMMAR_STAT_SELECTDONE;
+
+	RETURN( TRUE );
+}
+
+/* Finding left-recursions */
+
+BOOLEAN pg_grammar_find_lrec( pggrammar* g )
+{
+	int			i;
+	int			j;
+	int			k;
+	pgprod*		p;
+	pgprod*		cp;
+	pgprod*		wp;
+	pgsymbol*	s;
+	plist*		closure;
+	plist*		done;
+
+	PROC( "pg_grammar_find_lrec" );
+
+	/* Check parameter validity and bounding */
+	if( !( g ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	/* Dependencies */
+	if( !pg_prod_get( g, 0 ) )
+	{
+		PGERR( g, __FILE__, __LINE__,
+			"Grammar must contain at least one production" );
+		RETURN( FALSE );
+	}
+
+	if( !pg_grammar_compute_first( g ) )
+		RETURN( FALSE );
+
+
+	/* Find left-recursions by closing all productions */
+	closure = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+	done = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+
+	for( i = 0; ( p = wp = pg_prod_get( g, i ) ); i++ )
+	{
+		while( p )
+		{
+			for( j = 0; ( s = pg_prod_get_rhs( p, j ) ); j++ )
+			{
+				if( pg_symbol_is_nonterm( s ) )
+				{
+					for( k = 0; ( cp = pg_prod_get_by_lhs( s, k ) ); k++ )
+					{
+						if( pg_prod_get_rhs_length( cp ) == 0 )
+							continue;
+
+						if( cp == wp )
+							wp->lrec = TRUE;
+						else if( !plist_get_by_ptr( done, cp ) )
+							plist_push( closure, cp );
+					}
+				}
+
+				if( !( s->nullable ) )
+					break;
+			}
+
+			if( plist_pop( closure, &p ) )
+				plist_push( done, p );
+		}
+	}
+
+	plist_free( done );
+	plist_free( closure );
+
+	RETURN( TRUE );
 }
 
 /* Attribute: goal */
@@ -442,3 +596,17 @@ pregex_ptn* pg_grammar_get_whitespace( pggrammar* grammar )
 
 	return grammar->whitespace;
 }
+
+/* Attribute: lock */
+
+pboolean pg_grammar_locked( pggrammar* grammar )
+{
+	if( !grammar )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+	
+	return TRUEBOOLEAN( grammar->status & PGGRAMMAR_STAT_LOCKED );
+}
+

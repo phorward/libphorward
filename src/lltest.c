@@ -43,22 +43,22 @@ int main()
 	factor = pg_nonterm_create( g, "factor" );
 
 	/* start */
-	pg_prod_create( start, expr, (pgsymbol*)NULL );
-	pg_prod_create( start, (pgsymbol*)NULL );
+	pg_prod_create( g, start, expr, (pgsymbol*)NULL );
+	pg_prod_create( g, start, (pgsymbol*)NULL );
 
 	/* expr and expr' */
-	pg_prod_create( expr, term, exprl, (pgsymbol*)NULL );
-	pg_prod_create( exprl, op_a, term, exprl, (pgsymbol*)NULL );
-	pg_prod_create( exprl, (pgsymbol*)NULL );
+	pg_prod_create( g, expr, term, exprl, (pgsymbol*)NULL );
+	pg_prod_create( g, exprl, op_a, term, exprl, (pgsymbol*)NULL );
+	pg_prod_create( g, exprl, (pgsymbol*)NULL );
 
 	/* term and term' */
-	pg_prod_create( term, factor, terml, (pgsymbol*)NULL );
-	pg_prod_create( terml, op_m, factor, terml, (pgsymbol*)NULL );
-	pg_prod_create( terml, (pgsymbol*)NULL );
+	pg_prod_create( g, term, factor, terml, (pgsymbol*)NULL );
+	pg_prod_create( g, terml, op_m, factor, terml, (pgsymbol*)NULL );
+	pg_prod_create( g, terml, (pgsymbol*)NULL );
 
 	/* factor */
-	pg_prod_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
-	pg_prod_create( factor, i, (pgsymbol*)NULL );
+	pg_prod_create( g, factor, br_op, expr, br_cl, (pgsymbol*)NULL );
+	pg_prod_create( g, factor, i, (pgsymbol*)NULL );
 
 	pg_grammar_print( g );
 

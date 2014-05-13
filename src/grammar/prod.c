@@ -12,19 +12,19 @@ Usage:
 
 /* Constructor */
 
-pgprod* pg_prod_create( pgnonterm* lhs, ... )
+pgprod* pg_prod_create( pggrammar* g, pgnonterm* lhs, ... )
 {
 	pgprod*	p;
 	pgsymbol*		sym;
 	va_list			args;
 
-	if( !( lhs && pg_symbol_get_type( lhs ) == PGSYMTYPE_NONTERMINAL ) )
+	if( !( g ) )
 	{
 		WRONGPARAM;
 		return (pgprod*)NULL;
 	}
 
-	p = (pgprod*)plist_malloc( lhs->grammar->productions );
+	p = (pgprod*)plist_malloc( g->productions );
 
 	p->rhs = plist_create( 0, PLIST_MOD_PTR |
 								PLIST_MOD_UNIQUE |
@@ -33,11 +33,11 @@ pgprod* pg_prod_create( pgnonterm* lhs, ... )
 	p->select = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
 	/* Connect with grammar */
-	p->grammar = pg_symbol_get_grammar( lhs );
+	p->grammar = g;
 
 	/* Connect with left-hand side */
-	p->lhs = lhs;
-	plist_push( lhs->productions, p );
+	if( ( p->lhs = lhs ) )
+		plist_push( lhs->productions, p );
 
 	/* Fill in right-hand side symbols */
 	va_start( args, lhs );
@@ -58,7 +58,6 @@ pgprod* pg_prod_drop( pgprod* p )
 		return (pgprod*)NULL;
 
 	pfree( p->strval );
-
 	p->select = plist_free( p->select );
 
 	return (pgprod*)NULL;
@@ -79,7 +78,9 @@ char* pg_prod_to_string( pgprod* p )
 
 	p->strval = (char*)pfree( p->strval );
 
-	p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
+	if( p->lhs )
+		p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
+
 	p->strval = pstrcatstr( p->strval, " : ", FALSE );
 
 	plist_for( p->rhs, e )
@@ -112,7 +113,9 @@ void pg_prod_print( pgprod* p, FILE* f )
 	if( !f )
 		f = stderr;
 
-	pg_symbol_print( p->lhs, f );
+	if( p->lhs )
+		pg_symbol_print( p->lhs, f );
+
 	fprintf( f, " : " );
 
 	for( i = 0; ( sym = pg_prod_get_rhs( p, i ) ); i++ )

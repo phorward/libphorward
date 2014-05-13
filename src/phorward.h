@@ -690,6 +690,7 @@ struct _pgsymbol
 	char*			name;			
 
 	pboolean		nullable;		
+	pboolean		lrec;			
 
 	plist*			first;			
 	plist*			follow;			
@@ -721,7 +722,8 @@ struct _pgproduction
 	plist*			rhs;			
 
 	int				prec;			
-	pgassoc			assoc;			
+	pgassoc			assoc;			 
+	pboolean		lrec;			
 
 	plist*			select;			
 
@@ -733,6 +735,15 @@ struct _pggrammar
 {
 	plist*			symbols;		
 	plist*			productions;	
+
+	int				status;			
+
+#define PGGRAMMAR_STAT_NONE			0	
+#define PGGRAMMAR_STAT_LOCKED		1	
+#define PGGRAMMAR_STAT_FIRSTDONE	2	
+#define PGGRAMMAR_STAT_FOLLOWDONE	4	
+#define PGGRAMMAR_STAT_SELECTDONE	8	
+#define PGGRAMMAR_STAT_LRECDONE		16	
 
 	pgnonterm*		goal;			
 	pgterm*			eoi;			
@@ -1184,10 +1195,14 @@ void PGERR( pggrammar* g, char* file, int line, char* fmt, ... );
 
 pggrammar* pg_grammar_create( void );
 pggrammar* pg_grammar_free( pggrammar* g );
+pboolean pg_grammar_reset( pggrammar* grammar );
+pboolean pg_grammar_lock( pggrammar* grammar );
+pboolean pg_grammar_unlock( pggrammar* grammar );
 void pg_grammar_print( pggrammar* g );
 BOOLEAN pg_grammar_compute_first( pggrammar* g );
 BOOLEAN pg_grammar_compute_follow( pggrammar* g );
 BOOLEAN pg_grammar_compute_select( pggrammar* g );
+BOOLEAN pg_grammar_find_lrec( pggrammar* g );
 pgterm* pg_grammar_get_goal( pggrammar* g );
 BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterm* goal );
 pgterm* pg_grammar_get_eoi( pggrammar* g );
@@ -1195,6 +1210,7 @@ BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterm* eoi );
 BOOLEAN pg_grammar_parse_whitespace( pggrammar* grammar, char* str );
 BOOLEAN pg_grammar_set_whitespace( pggrammar* grammar, pregex_ptn* whitespace );
 pregex_ptn* pg_grammar_get_whitespace( pggrammar* grammar );
+pboolean pg_grammar_locked( pggrammar* grammar );
 
 
 pgnonterm* pg_nonterm_create( pggrammar* grammar, char* name );
@@ -1204,7 +1220,7 @@ pboolean pg_nonterm_get_emit( pgnonterm* nt );
 pboolean pg_nonterm_set_emit( pgnonterm* nt, pboolean emit );
 
 
-pgprod* pg_prod_create( pgnonterm* lhs, ... );
+pgprod* pg_prod_create( pggrammar* g, pgnonterm* lhs, ... );
 pgprod* pg_prod_drop( pgprod* p );
 char* pg_prod_to_string( pgprod* p );
 void pg_prod_print( pgprod* p, FILE* f );

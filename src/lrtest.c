@@ -46,8 +46,10 @@ int main()
 	pgtoken*		tok;
 	pgast*			ast;
 
+	/*
 	pg_grammar_from_bnf();
 	return 0;
+	*/
 
 	g = pg_grammar_create();
 
@@ -65,35 +67,37 @@ int main()
 	factor = pg_nonterm_create( g, "factor" );
 
 	/*
-	pg_prod_create( start, expr, (pgsymbol*)NULL );
-	pg_prod_create( expr, expr, op_a, term, (pgsymbol*)NULL );
-	pg_prod_create( expr, expr, op_s, term, (pgsymbol*)NULL );
-	pg_prod_create( expr, term, (pgsymbol*)NULL );
-	pg_prod_create( term, term, op_m, factor, (pgsymbol*)NULL );
-	pg_prod_create( term, term, op_d, factor, (pgsymbol*)NULL );
-	pg_prod_create( term, factor, (pgsymbol*)NULL );
-	pg_prod_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
-	pg_prod_create( factor, i, (pgsymbol*)NULL );
+	pg_prod_create( g, start, expr, (pgsymbol*)NULL );
+	pg_prod_create( g, expr, expr, op_a, term, (pgsymbol*)NULL );
+	pg_prod_create( g, expr, expr, op_s, term, (pgsymbol*)NULL );
+	pg_prod_create( g, expr, term, (pgsymbol*)NULL );
+	pg_prod_create( g, term, term, op_m, factor, (pgsymbol*)NULL );
+	pg_prod_create( g, term, term, op_d, factor, (pgsymbol*)NULL );
+	pg_prod_create( g, term, factor, (pgsymbol*)NULL );
+	pg_prod_create( g, factor, br_op, expr, br_cl, (pgsymbol*)NULL );
+	pg_prod_create( g, factor, i, (pgsymbol*)NULL );
 	*/
 
 	/* start */
-	prod = pg_prod_create( start, expr, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, start, expr, (pgsymbol*)NULL );
 
 	/* --- expr --- */
-	prod = pg_prod_create( expr, expr, op_a, term, (pgsymbol*)NULL );
-	prod = pg_prod_create( expr, expr, op_s, term, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, expr, expr, op_a, term, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, expr, expr, op_s, term, (pgsymbol*)NULL );
 
-	prod = pg_prod_create( expr, term, (pgsymbol*)NULL );
-	prod = pg_prod_create( term, term, op_m, factor, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, expr, term, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, term, term, op_m, factor, (pgsymbol*)NULL );
 
-	prod = pg_prod_create( term, term, op_d, factor, (pgsymbol*)NULL );
-	prod = pg_prod_create( term, factor, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, term, term, op_d, factor, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, term, factor, (pgsymbol*)NULL );
 
 	/* --- factor --- */
-	prod = pg_prod_create( factor, br_op, expr, br_cl, (pgsymbol*)NULL );
-	prod = pg_prod_create( factor, i, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, factor, br_op, expr, br_cl, (pgsymbol*)NULL );
+	prod = pg_prod_create( g, factor, i, (pgsymbol*)NULL );
 
+	pg_grammar_find_lrec( g );
 	pg_grammar_print( g );
+	return 0;
 
 	/*
 	pgterm*		test;
