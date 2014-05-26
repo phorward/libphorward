@@ -897,12 +897,12 @@ again:
 
 			if( base->lrec && ( !handle->end || end > handle->end ) )
 			{
-				printf( "%saccepting >%.*s<, lrec-loop\n",
-							gap, *stop - start, start );
-
 				*stop = handle->end = end;
 				ptn = base;
 				end = start;
+
+				printf( "%saccepting >%.*s<, lrec-loop\n",
+							gap, *stop - start, start );
 
 				count++;
 				goto again;
