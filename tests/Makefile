@@ -17,11 +17,11 @@ clean:
 	-rm -f gexpr rd lrrd
 
 gexpr: gexpr.c
-	cc -o $@ $?
+	cc -g -o $@ $?
 
 rd: rd.c
-	cc -o $@ -I $(INCPHORWARD) $? $(LIBPHORWARD)
+	cc -g -o $@ -I $(INCPHORWARD) $? $(LIBPHORWARD)
 
 lrrd: lrrd.c
-	cc -o $@ $?
+	cc -g -o $@ $?
 

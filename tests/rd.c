@@ -35,6 +35,7 @@ struct _pgptn
 	char*		name;
 	pboolean	used;
 	pboolean	defined;
+	pboolean	emit;
 
 	char		mod;
 #define MOD_NONE		'\0'
@@ -67,6 +68,12 @@ typedef struct
 
 typedef struct
 {
+	enum
+	{
+		PGMATCH_BEGIN,
+		PGMATCH_END
+	} 			type;
+
 	pgptn*		ptn;
 
 	char*		start;
@@ -768,7 +775,33 @@ static pgmatch* find_match( plist* cache, pgptn* ptn, char* start )
 	return (pgmatch*)NULL;
 }
 
-static pboolean pg_par_exec( pgptn* ptn, plist* cache,
+static void pg_print_ast( plist* ast )
+{
+	plistel*	e;
+	pgmatch*	match;
+	char		gap		[ 80 + 1 ];
+
+	*gap = '\0';
+
+	plist_for( ast, e )
+	{
+		match = (pgmatch*)plist_access( e );
+
+		if( match->type == PGMATCH_END )
+			gap[ strlen( gap ) - 1 ] = '\0';
+
+		printf( "%s%-5s %-10s >%.*s<\n",
+			gap,
+			( match->type == PGMATCH_BEGIN ? "BEGIN" : "END" ),
+			pg_ptn_get_name( match->ptn ),
+			match->end - match->start, match->start );
+
+		if( match->type == PGMATCH_BEGIN )
+			strcat( gap, " " );
+	}
+}
+
+static pboolean pg_par_exec( pgptn* ptn, plist* cache, plist* ast,
 								char* start, char** stop )
 {
 	static int	lev		= -1;
@@ -780,7 +813,14 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache,
 	char*		end		= start;
 	char		gap		[ 80 + 1 ];
 	pgmatch*	handle	= (pgmatch*)NULL;
+	plistel*	pbegin	= (plistel*)NULL;
+	plistel*	ploop	= (plistel*)NULL;
+	pgmatch*	mbegin	= (pgmatch*)NULL;
+	pgmatch*	mloop;
+	pgmatch*	mend;
 	int			count	= 0;
+	plistel*	e;
+	plistel*	ne;
 
 	sprintf( gap, "%-10s", pg_ptn_get_name( base ) );
 
@@ -811,10 +851,20 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache,
 
 		handle = (pgmatch*)plist_malloc( cache );
 		handle->ptn = base;
-		handle->start = start;
+		handle->start = end;
 		handle->end = (char*)NULL;
 
 		printf( "%sopening handle for %s\n", gap, base->name );
+	}
+
+	if( base->name )
+	{
+		pbegin = plist_insert( ast, (plistel*)NULL, (char*)NULL, (void*)NULL );
+		mbegin = (pgmatch*)plist_access( pbegin );
+
+		mbegin->type = PGMATCH_BEGIN;
+		mbegin->ptn = base;
+		mbegin->start = start;
 	}
 
 again:
@@ -828,8 +878,15 @@ again:
 			loop = FALSE;
 			ok = FALSE;
 
-			printf( "%s%s %s >%s<\n", gap, types[ ptn->type ],
-										pg_ptn_get_name( ptn ), end );
+			if( ptn->type == PGPTNTYPE_CHAR )
+				printf( "%s%s %s >%s< %c-%c\n", gap, types[ ptn->type ],
+											pg_ptn_get_name( ptn ), end,
+												ptn->att.range.from,
+												ptn->att.range.to );
+			else
+				printf( "%s%s %s >%s<\n", gap, types[ ptn->type ],
+											pg_ptn_get_name( ptn ), end );
+
 
 			switch( ptn->type )
 			{
@@ -844,11 +901,11 @@ again:
 					break;
 
 				case PGPTNTYPE_RULE:
-					ok = pg_par_exec( ptn->att.ptn, cache, end, &end );
+					ok = pg_par_exec( ptn->att.ptn, cache, ast, end, &end );
 					break;
 
 				case PGPTNTYPE_REF:
-					ok = pg_par_exec( ptn->att.ptn, cache, end, &end );
+					ok = pg_par_exec( ptn->att.ptn, cache, ast, end, &end );
 					break;
 
 				case PGPTNTYPE_ALT:
@@ -860,7 +917,7 @@ again:
 						printf( "%strying alt %s at >%s< count %d\n",
 							gap, pg_ptn_get_name( alt ), end, count );
 
-						ok = pg_par_exec( alt->att.ptn, cache, end, &end );
+						ok = pg_par_exec( alt->att.ptn, cache, ast, end, &end );
 					}
 
 					break;
@@ -904,6 +961,27 @@ again:
 				printf( "%saccepting >%.*s<, lrec-loop\n",
 							gap, *stop - start, start );
 
+				if( pbegin )
+				{
+					if( !ploop )
+						ploop = pbegin;
+
+					ploop = plist_insert( ast, pbegin,
+								(char*)NULL, (void*)NULL );
+					mloop = (pgmatch*)plist_access( ploop );
+
+					mloop->type = PGMATCH_BEGIN;
+					mloop->ptn = base;
+					mloop->start = start;
+					mloop->end = *stop;
+
+					mend = (pgmatch*)plist_malloc( ast );
+					mend->type = PGMATCH_END;
+					mend->ptn = base;
+					mend->start = start;
+					mend->end = *stop;
+				}
+
 				count++;
 				goto again;
 			}
@@ -919,8 +997,36 @@ again:
 			*stop = end;
 		}
 	}
-	else if( count > 0 )
+
+	if( count > 0 )
+	{
+		plist_remove( ast, pbegin );
+		mbegin = (pgmatch*)NULL;
+
 		accept = TRUE;
+	}
+
+	if( !accept && pbegin )
+	{
+		for( e = pbegin; e; e = ne )
+		{
+			ne = plist_next( e );
+			plist_remove( ast, e );
+		}
+
+		mbegin = (pgmatch*)NULL;
+	}
+
+	if( accept && mbegin )
+	{
+		mbegin->end = *stop;
+
+		mend = (pgmatch*)plist_malloc( ast );
+		mend->type = PGMATCH_END;
+		mend->ptn = base;
+		mend->start = start;
+		mend->end = *stop;
+	}
 
 	lev--;
 
@@ -929,14 +1035,18 @@ again:
 
 size_t pg_par_run( pgpar* par, char* src )
 {
-	char*	end;
-	plist*	cache;
+	char*		end;
+	plist*		cache;
+	plist*		ast;
 
 	cache = plist_create( sizeof( pgmatch ), PLIST_MOD_RECYCLE );
+	ast = plist_create( sizeof( pgmatch ), PLIST_MOD_RECYCLE );
 
-	if( pg_par_exec( par->start, cache, src, &end ) )
+	if( pg_par_exec( par->start, cache, ast, src, &end ) )
 	{
 		printf( "Parsed >%.*s<\n", end - src, src );
+
+		pg_print_ast( ast );
 		return end - src;
 	}
 
@@ -1006,7 +1116,6 @@ int main( int argc, char** argv )
 
 	/* pg_par_to_c( par ); */
 
-	//pg_par_run( par, "123+456*3+699" );
 	if( argc > 1 )
 		pg_par_run( par, argv[1] );
 
