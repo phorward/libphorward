@@ -44,6 +44,7 @@ struct _pgptn
 #define MOD_POSITIVE	'+'
 
 	pboolean	lrec;
+	pgptn*		lrec_on;
 	pboolean	nullable;
 
 	union
@@ -395,6 +396,7 @@ void pg_ptn_find_lrec( pgpar* par )
 {
 	pgptn*		wp;
 	pgptn*		p;
+	pgptn*		fp;
 	pgptn*		child;
 	plist*		closure;
 	plist*		done;
@@ -403,11 +405,11 @@ void pg_ptn_find_lrec( pgpar* par )
 	closure = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 	done = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
-	for( i = 0; ( p = wp = (pgptn*)plist_access(
-								plist_get( par->ptns, i ) ) ); i++ )
+	for( i = 0;
+			( p = wp = (pgptn*)plist_access( plist_get( par->ptns, i ) ) );
+				i++ )
 	{
 		/* printf( "\n--- %s ---\n\n", pg_ptn_get_name( wp ) ); */
-
 		while( p )
 		{
 			/* printf( "while( %s )\n", pg_ptn_get_name( p ) ); */
@@ -822,9 +824,10 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache, plist* ast,
 	plistel*	e;
 	plistel*	ne;
 
-	sprintf( gap, "%-10s", pg_ptn_get_name( base ) );
-
 	lev++;
+
+	sprintf( gap, "%2d %-7s", lev, pg_ptn_get_name( base ) );
+
 	for( i = 10; i < 10 + lev; i++ )
 		gap[ i ] = ' ';
 	gap[ i ] = '\0';
@@ -835,8 +838,8 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache, plist* ast,
 		{
 			if( !handle->end )
 			{
-				printf( "%shandle on %s unfinished\n",
-							gap, base->name );
+				printf( "%shandle on %s unfinished >%s<\n",
+							gap, base->name, handle->start );
 				lev--;
 				return FALSE;
 			}
@@ -854,7 +857,8 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache, plist* ast,
 		handle->start = end;
 		handle->end = (char*)NULL;
 
-		printf( "%sopening handle for %s\n", gap, base->name );
+		printf( "%sopening handle for %s on >%s<\n",
+			gap, base->name, handle->start );
 	}
 
 	if( base->name )
@@ -894,7 +898,7 @@ again:
 					if( *end >= ptn->att.range.from
 						&& *end <= ptn->att.range.to )
 					{
-						printf( "%sread %c\n", gap, *end );
+						printf( "%sREAD --- >%c< ---\n", gap, *end );
 						ok = TRUE;
 						end++;
 					}
@@ -918,6 +922,8 @@ again:
 							gap, pg_ptn_get_name( alt ), end, count );
 
 						ok = pg_par_exec( alt->att.ptn, cache, ast, end, &end );
+						printf( "%salt %s is %s\n",
+							gap, pg_ptn_get_name( alt ), BOOLEAN_STR( ok ) );
 					}
 
 					break;
@@ -1000,8 +1006,11 @@ again:
 
 	if( count > 0 )
 	{
-		plist_remove( ast, pbegin );
-		mbegin = (pgmatch*)NULL;
+		if( pbegin )
+		{
+			plist_remove( ast, pbegin );
+			mbegin = (pgmatch*)NULL;
+		}
 
 		accept = TRUE;
 	}
@@ -1105,7 +1114,7 @@ int main( int argc, char** argv )
 		"factor: 0-9+ | '(' @expr ')' ;" );
 #else
 	par = pg_par_create(
-		"expr : @expr '+' @term | @expr '-' @term | @term;"
+		"expr : a? @expr '+' @term | @expr '-' @term | @term;"
 		"term : @term '*' @factor | @term '/' @factor | @factor;"
 		"factor: 0-9+ | '(' @expr ')' ;" );
 #endif

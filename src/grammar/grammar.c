@@ -5,7 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	grammar.c
-Usage:	
+Usage:
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -232,6 +232,9 @@ BOOLEAN pg_grammar_compute_first( pggrammar* g )
 	/* Lock grammar */
 	pg_grammar_lock( g );
 
+	/* Reset grammar */
+	pg_grammar_reset( g );
+
 	MSG( "Loop until no more changes appear" );
 	do
 	{
@@ -318,6 +321,12 @@ BOOLEAN pg_grammar_compute_follow( pggrammar* g )
 	if( !pg_grammar_compute_first( g ) )
 		RETURN( FALSE );
 
+	if( !( fs = pg_grammar_get_goal( g ) ) )
+	{
+		MSG( "FOLLOW set computation requires goal symbol" );
+		RETURN( FALSE );
+	}
+
 	/* Goal symbol has end-of-input in its follow set */
 	plist_push( fs->follow, pg_grammar_get_eoi( g ) );
 
@@ -368,7 +377,7 @@ BOOLEAN pg_grammar_compute_select( pggrammar* g )
 	pgprod*		p;
 	pgsymbol*	s;
 
-	PROC( "pg_grammar_compute_follow" );
+	PROC( "pg_grammar_compute_select" );
 
 	/* Check parameter validity and bounding */
 	if( !( g ) )
@@ -606,7 +615,7 @@ pboolean pg_grammar_locked( pggrammar* grammar )
 		WRONGPARAM;
 		return FALSE;
 	}
-	
+
 	return TRUEBOOLEAN( grammar->status & PGGRAMMAR_STAT_LOCKED );
 }
 

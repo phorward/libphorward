@@ -97,7 +97,6 @@ int main()
 
 	pg_grammar_find_lrec( g );
 	pg_grammar_print( g );
-	return 0;
 
 	/*
 	pgterm*		test;

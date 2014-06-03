@@ -43,8 +43,8 @@ struct _pglexer
 	/* RUNTIME INFORMATION & BUFFERING */
 	int				chsize;
 
-	wchar_t*			bufbeg;			/* Begin of buffer */
-	wchar_t*			bufend;			/* End of buffer */
+	wchar_t*		bufbeg;			/* Begin of buffer */
+	wchar_t*		bufend;			/* End of buffer */
 	size_t			bufsiz;			/* Actual buffer size */
 
 	char*			lexem;			/* Lexem value */

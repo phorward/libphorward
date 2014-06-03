@@ -16,6 +16,7 @@ pboolean plist_preallocate( plist* list, int n, int chunk );
 #endif
 pboolean plist_remove( plist* list, plistel* e );
 pboolean plist_pop( plist* list, void* dest );
+pboolean plist_take( plist* list, void* dest );
 plistel* plist_get( plist* list, int n );
 plistel* plist_get_by_key( plist* list, char* key );
 plistel* plist_get_by_ptr( plist* list, void* ptr );

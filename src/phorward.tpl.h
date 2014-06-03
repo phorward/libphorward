@@ -94,7 +94,7 @@ typedef char 					pboolean;	/* Phorward Boolean */
 
 #define MISSINGCASE				fprintf( stderr, \
 									"%s, %d: Missing case enganged, " \
-									"please check for correctness.", \
+									"please check for correctness.\n", \
 									__FILE__, __LINE__ )
 
 #define TODO					fprintf( stderr, \

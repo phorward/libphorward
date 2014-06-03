@@ -660,6 +660,47 @@ pboolean plist_pop( plist* list, void* dest )
 	return TRUE;
 }
 
+/** Take first element to //dest// from the list //list//.
+
+Like //list// would be a queue, the first element of the list is taken and
+its content is written to //dest//.
+
+//dest// can be omitted and given as (void*)NULL, so the first element will
+be taken from the list and discards. */
+pboolean plist_take( plist* list, void* dest )
+{
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !list->first )
+	{
+		if( dest )
+		{
+			/* Zero dest if there is no more item */
+			if( list->flags & PLIST_MOD_PTR )
+				*( (void**)dest ) = (void*)NULL;
+			else
+				memset( dest, 0, list->size );
+		}
+
+		return FALSE;
+	}
+
+	if( dest )
+	{
+		if( list->flags & PLIST_MOD_PTR )
+			*( (void**)dest ) = plist_access( list->first );
+		else
+			memcpy( dest, plist_access( list->first ), list->size );
+	}
+
+	plist_remove( list, list->first );
+	return TRUE;
+}
+
 /** Retrieve list element by its index from the begin.
 
 The function returns the //n//th element of the list //list//. */

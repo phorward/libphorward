@@ -61,17 +61,11 @@ pboolean pg_parser_ll_closure( pgparser* parser )
 
 	pg_parser_ll_reset( parser );
 
-	MSG( "Performing FIRST set computation" );
-	if( !pg_grammar_compute_first( pg_parser_get_grammar( parser ) ) )
-		RETURN( FALSE );
-
-	MSG( "Performing FOLLOW set computation" );
-	if( !pg_grammar_compute_follow( pg_parser_get_grammar( parser ) ) )
-		RETURN( FALSE );
-
 	MSG( "Performing SELECT set computation" );
 	if( !pg_grammar_compute_select( pg_parser_get_grammar( parser ) ) )
 		RETURN( FALSE );
+
+	pg_grammar_print( pg_parser_get_grammar( parser ) );
 
 	MSG( "Building the LL parse tables" );
 	for( i = 0; ( p = pg_prod_get( pg_parser_get_grammar( parser ), i ) );
