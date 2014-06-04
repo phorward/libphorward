@@ -27,7 +27,7 @@ pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm )
 	parser->grammar = grammar;
 	parser->paradigm = paradigm;
 
-	parser->optimize = FALSE;
+	parser->optimize = TRUE;
 
 	if( !pg_parser_generate( parser ) )
 		return parser;

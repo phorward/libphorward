@@ -589,7 +589,7 @@ BOOLEAN pg_parser_lr_closure( pgparser* parser )
 		}
 	}
 
-	fprintf( stderr, "\n--== FINAL STATES ==--n\n" );
+	fprintf( stderr, "\n--== FINAL STATES ==--\n\n" );
 
 	plist_for( parser->states, e )
 	{
