@@ -27,7 +27,7 @@ pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm )
 	parser->grammar = grammar;
 	parser->paradigm = paradigm;
 
-	parser->optimize = TRUE;
+	parser->optimize = FALSE;
 
 	if( !pg_parser_generate( parser ) )
 		return parser;
@@ -104,12 +104,8 @@ pgast* pg_parser_parse_to_ast( pgparser* p )
 		return ast;
 	else if( pg_parser_is_ll( p ) && pg_parser_ll_parse( p, ast ) )
 		return ast;
-	else
-		MISSINGCASE;
 
-	ast = pg_ast_free( ast );
-
-	return ast;
+	return pg_ast_free( ast );
 }
 
 /* Check */

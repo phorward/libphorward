@@ -20,6 +20,7 @@ typedef struct
 typedef struct
 {
 	plist*			kernel;			/* Kernel items */
+	plist*			epsilon;		/* Empty items */
 
 	plist*			actions;		/* Action row entries */
 	plist*			gotos;			/* Goto row entries */
