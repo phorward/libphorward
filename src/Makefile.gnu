@@ -81,7 +81,8 @@ $(LIBPHORWARD): $(LIBHEADER) $(OBJ)
 clean:
 	-rm -f $(OBJ)
 	-rm -f $(LIBPHORWARD)
-	-rm -f ptest ptest.o
+	-rm -f lrtest lrtest.o
+	-rm -f lltest lltest.o
 
 clean_all: clean
 	-rm value/value.get.c

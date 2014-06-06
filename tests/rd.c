@@ -1113,10 +1113,17 @@ int main( int argc, char** argv )
 		"term : @factor ( '*' @factor | '/' @factor )* ;"
 		"factor: 0-9+ | '(' @expr ')' ;" );
 #else
+	/*
 	par = pg_par_create(
 		"expr : a? @expr '+' @term | @expr '-' @term | @term;"
 		"term : @term '*' @factor | @term '/' @factor | @factor;"
 		"factor: 0-9+ | '(' @expr ')' ;" );
+	*/
+	par = pg_par_create(
+		"e : @e '+' @t | @t;"
+		"t : @t '*' @f | @f;"
+		"f: 0-9+ | '(' @e ')' ;" );
+
 #endif
 
 	pg_ptn_find_lrec( par );
