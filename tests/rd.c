@@ -6,11 +6,10 @@ All rights reserved. See LICENSE for more information.
 
 File:	rd.c
 Usage:	Recursive Descent Parser Generator Test
-		This is a test source for some better understanding.
+		This is a test implementation for research and better understanding.
 
 		Compile from here with
 		cc -g -o rd -I ../src/ rd.c ../src/libphorward.a
-
 ---------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -31,6 +30,7 @@ typedef struct _pgptn	pgptn;
 
 struct _pgptn
 {
+	pgptn*		parent;			/* Link to named parent */
 	pgptntype	type;
 
 	int			id;
@@ -46,7 +46,6 @@ struct _pgptn
 #define MOD_POSITIVE	'+'
 
 	pboolean	lrec;
-	pgptn*		lrec_on;
 	pboolean	nullable;
 
 	union
@@ -87,18 +86,35 @@ typedef struct
 
 static pgptn* pg_ptn_create( pgpar* par, pgptntype type, char* name )
 {
-	pgptn*	ptn;
+	pgptn*		ptn;
+	plistel*	e;
+	pgptn*		parent;
 
 	if( *pgetstr( name ) )
 		ptn = (pgptn*)plist_access(
 						plist_insert( par->ptns, (plistel*)NULL,
 										name, (void*)NULL ) );
 	else
+	{
 		ptn = (pgptn*)plist_malloc( par->ptns );
+
+		for( e = plist_last( par->ptns ); e; e = plist_prev( e ) )
+		{
+			parent = (pgptn*)plist_access( e );
+
+			if( parent->name )
+			{
+				ptn->parent = parent;
+				break;
+			}
+		}
+	}
 
 	ptn->id = plist_count( par->ptns ) - 1;
 	ptn->type = type;
 	ptn->name = name;
+
+
 
 	return ptn;
 }
@@ -157,7 +173,7 @@ char* pg_ptn_get_name( pgptn* ptn )
 	if( ptn->name )
 		return ptn->name;
 
-	sprintf( idname, "r%02d", ptn->id );
+	sprintf( idname, "rule_%02d", ptn->id );
 	return idname;
 }
 
@@ -248,36 +264,61 @@ static void pg_ptn_printbnf( pgptn* start )
 static void pg_ptn_printc( pgptn* start )
 {
 	pgptn*		ptn;
+	char*		namedrule	= start->name;
 
 	if( start->type == PGPTNTYPE_CHAR
 			|| start->type == PGPTNTYPE_REF )
 		return;
 
-	printf( "BOOL %s%s( char* start, char** stop )\n",
+	printf( "BOOLEAN %s%s( char* start, char** stop )\n",
 				PARSEFUNC, pg_ptn_get_name( start ) );
 	printf( "{\n" );
 
-	while( !start->att.ptn->next && 
-			( start->att.ptn->type == PGPTNTYPE_RULE 
-				|| start->att.ptn->type == PGPTNTYPE_ALT ) )
+	while( !start->att.ptn->next
+			&& ( start->att.ptn->type == PGPTNTYPE_RULE
+					|| start->att.ptn->type == PGPTNTYPE_ALT )
+						&& !start->mod)
 		start = start->att.ptn;
 
+	/* Alternation */
 	if( start->type == PGPTNTYPE_ALT )
 	{
+		printf( "	BOOLEAN	ok = FALSE;\n\n" );
+
+		if( namedrule )
+			printf( "	open_rule( \"%s\", start );\n\n", namedrule );
+
 		for( ptn = start->att.ptn; ptn; ptn = ptn->next )
 		{
 			printf( "	%sif( %s%s( start, stop ) )\n",
 							ptn != start->att.ptn ? "else " : "",
 							PARSEFUNC,
 							pg_ptn_get_name( ptn ) );
-			printf( "		return TRUE;\n" );
+
+			printf( "		ok = TRUE;\n" );
 		}
 
-		printf( "	return FALSE;\n" );
+		if( namedrule )
+		{
+			printf( "\n"
+					"	if( ok )\n"
+					"		close_rule( \"%s\", start, *stop );\n"
+					"	else\n"
+					"		drop_rule( \"%s\", start );\n",
+						namedrule, namedrule );
+		}
+
+		printf( "\n"
+				"	return ok;\n" );
 	}
+	/* Sequence */
 	else
 	{
 		printf( "	char*	end		= start;\n" );
+		printf( "	BOOLEAN	ok		= TRUE;\n" );
+
+		if( namedrule )
+			printf( "	open_rule( \"%s\", start );\n", namedrule );
 
 		/* Render sequence */
 		for( ptn = start->att.ptn; ptn; ptn = ptn->next )
@@ -290,17 +331,17 @@ static void pg_ptn_printc( pgptn* start )
 							|| ptn->mod == MOD_OPTIONAL )
 				{
 					if( ptn->att.range.from == ptn->att.range.to )
-						printf( "	if( *end == '%c' )\n"
+						printf( "	if( ok && *end == '%c' )\n"
 								"		end++;\n", ptn->att.range.from );
 					else
-						printf( "	if( *end >= '%c' && *end <= '%c' )\n"
+						printf( "	if( ok && *end >= '%c' && *end <= '%c' )\n"
 								"		end++;\n",
 											ptn->att.range.from,
 											ptn->att.range.to );
 
 					if( ptn->mod != MOD_OPTIONAL )
 						printf( "	else\n"
-								"		return FALSE;\n" );
+								"		ok = FALSE;\n" );
 
 					if( ptn->mod == MOD_POSITIVE )
 						printf( "\n" );
@@ -309,11 +350,12 @@ static void pg_ptn_printc( pgptn* start )
 				if( ptn->mod == MOD_KLEENE || ptn->mod == MOD_POSITIVE )
 				{
 					if( ptn->att.range.from == ptn->att.range.to )
-						printf( "	while( *end == '%c' )\n"
+						printf( "	while( ok && *end == '%c' )\n"
 								"		end++;\n",
 											ptn->att.range.from );
 					else
-						printf( "	while( *end >= '%c' && *end <= '%c' )\n"
+						printf( "	while( ok && *end >= '%c' "
+											"&& *end <= '%c' )\n"
 								"		end++;\n",
 											ptn->att.range.from,
 											ptn->att.range.to );
@@ -335,13 +377,13 @@ static void pg_ptn_printc( pgptn* start )
 				else if( !ptn->mod || ptn->mod == MOD_POSITIVE )
 				{
 					if( ptn->type == PGPTNTYPE_REF )
-						printf( "	if( !%s%s( end, &end ) )\n"
-								"		return FALSE;\n",
+						printf( "	if( ok && !%s%s( end, &end ) )\n"
+								"		ok = FALSE;\n",
 											PARSEFUNC,
 											pg_ptn_get_name( ptn->att.ptn ) );
 					else
-						printf( "	if( !%s%s( end, &end ) )\n"
-								"		return FALSE;\n",
+						printf( "	if( ok && !%s%s( end, &end ) )\n"
+								"		ok = FALSE;\n",
 											PARSEFUNC,
 											pg_ptn_get_name( ptn ) );
 				}
@@ -349,13 +391,13 @@ static void pg_ptn_printc( pgptn* start )
 				if( ptn->mod == MOD_KLEENE || ptn->mod == MOD_POSITIVE )
 				{
 					if( ptn->type == PGPTNTYPE_REF )
-						printf( "	while( %s%s( end, &end ) )\n"
+						printf( "	while( ok && %s%s( end, &end ) )\n"
 								"		;\n",
 											PARSEFUNC,
 											pg_ptn_get_name( ptn->att.ptn ) );
 					else
-						printf( "	while( %s%s( end, &end ) )\n"
-								"		;\n"
+						printf( "	while( ok && %s%s( end, &end ) )\n"
+								"		;\n",
 											PARSEFUNC,
 											pg_ptn_get_name( ptn ) );
 				}
@@ -363,9 +405,25 @@ static void pg_ptn_printc( pgptn* start )
 		}
 
 		printf( "\n"
-				"	*stop = end;\n"
-				"	printf( \"%s matching >%%.*s<\\n\", end - start, start );\n"
-				"	return TRUE;\n", pg_ptn_get_name( start ) );
+				"	if( ok )\n"
+				"	{"
+				"		*stop = end;\n"
+				"		printf( \"%s matching >%%.*s<\\n\", "
+							"end - start, start );\n\n",
+								namedrule ? namedrule :
+												pg_ptn_get_name( start ) );
+
+		if( namedrule )
+			printf( "		close_rule( \"%s\", start, end );\n"
+					"	}\n"
+					"	else\n"
+					"		drop_rule( \"%s\", start );\n",
+						namedrule, namedrule );
+		else
+			printf( "	}\n" );
+
+		printf( "\n"
+				"	return ok;\n" );
 	}
 
 	printf( "}\n\n" );
@@ -383,13 +441,14 @@ static void pg_ptn_printcproto( pgptn* start )
 			|| start->type == PGPTNTYPE_REF )
 		return;
 
-	printf( "BOOL %s%s( char* start, char** stop );\n",
+	printf( "BOOLEAN %s%s( char* start, char** stop );\n",
 				PARSEFUNC,
 				pg_ptn_get_name( start ) );
 
-	while( !start->att.ptn->next && 
-			( start->att.ptn->type == PGPTNTYPE_RULE 
-				|| start->att.ptn->type == PGPTNTYPE_ALT ) )
+	while( !start->att.ptn->next
+			&& ( start->att.ptn->type == PGPTNTYPE_RULE
+					|| start->att.ptn->type == PGPTNTYPE_ALT )
+						&& !start->mod)
 		start = start->att.ptn;
 
 	/* Print subsequent rules */
@@ -1095,12 +1154,8 @@ pboolean pg_par_to_c( pgpar* par )
 	}
 
 	printf(
-		"#include <stdlib.h>\n"
-		"#include <stdio.h>\n\n"
-
-		"#define BOOL short\n"
-		"#define TRUE 1\n"
-		"#define FALSE 0\n\n" );
+		"#include \"rdrun.h\"\n\n"
+		 );
 
 	pg_ptn_print( par, pg_ptn_printcproto );
 	pg_ptn_print( par, pg_ptn_printc );
@@ -1114,7 +1169,11 @@ pboolean pg_par_to_c( pgpar* par )
 		"		return 1;\n\n"
 		"	s = argv[1];\n"
 		"	if( %s%s( s, &e ) )\n"
-		"		printf( \">%%.*s<\\n\", e - s, s );\n\n"
+		"	{\n"
+		"		printf( \">%%.*s<\\n\", e - s, s );\n"
+		"		print_ast();\n"
+		"	}\n"
+		"\n"
 		"	return 0;\n"
 		"}\n\n",
 			PARSEFUNC,
@@ -1150,6 +1209,7 @@ int main( int argc, char** argv )
 #endif
 
 	pg_ptn_find_lrec( par );
+
 	/*
 	pg_ptn_print( par, pg_ptn_printhier );
 	pg_ptn_print( par, pg_ptn_printbnf );
