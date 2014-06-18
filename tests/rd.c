@@ -7,9 +7,6 @@ All rights reserved. See LICENSE for more information.
 File:	rd.c
 Usage:	Recursive Descent Parser Generator Test
 		This is a test implementation for research and better understanding.
-
-		Compile from here with
-		cc -g -o rd -I ../src/ rd.c ../src/libphorward.a
 ---------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -19,12 +16,13 @@ Usage:	Recursive Descent Parser Generator Test
 typedef enum
 {
 	PGPTNTYPE_RULE,
-	PGPTNTYPE_CHAR,
+	PGPTNTYPE_CCL,
+	PGPTNTYPE_STRING,
 	PGPTNTYPE_REF,
 	PGPTNTYPE_ALT
 } pgptntype;
 
-static char	types[][4+1]	= { "rule", "char", "ref ", "alt " };
+static char	types[][6+1]	= { "rule ", "char ", "string", "ref  ", "alt  " };
 
 typedef struct _pgptn	pgptn;
 
@@ -50,12 +48,8 @@ struct _pgptn
 
 	union
 	{
-		struct
-		{
-			wchar_t	from;
-			wchar_t	to;
-		} range;
-
+		pccl*		ccl;
+		char*		str;
 		pgptn*		ptn;
 	}			att;
 
@@ -114,27 +108,48 @@ static pgptn* pg_ptn_create( pgpar* par, pgptntype type, char* name )
 	ptn->type = type;
 	ptn->name = name;
 
-
-
 	return ptn;
 }
 
-static pgptn* pg_ptn_create_char( pgpar* par, wchar_t from, wchar_t to )
+static pgptn* pg_ptn_create_char( pgpar* par, char* str )
 {
 	pgptn*	ptn;
 
-	if( to > from )
+	if( !( str && *str ) )
 	{
 		WRONGPARAM;
 		return (pgptn*)NULL;
 	}
 
-	ptn = pg_ptn_create( par, PGPTNTYPE_CHAR, (char*)NULL );
-	ptn->att.range.from = from;
-	ptn->att.range.to = to;
+	ptn = pg_ptn_create( par, PGPTNTYPE_CCL, (char*)NULL );
+
+	if( *str == '^' )
+	{
+		ptn->att.ccl = p_ccl_create( 0, 255, str + 1 );
+		p_ccl_negate( ptn->att.ccl );
+	}
+	else
+		ptn->att.ccl = p_ccl_create( 0, 255, str );
 
 	return ptn;
 }
+
+static pgptn* pg_ptn_create_string( pgpar* par, char* str )
+{
+	pgptn*	ptn;
+
+	if( !( str && *str ) )
+	{
+		WRONGPARAM;
+		return (pgptn*)NULL;
+	}
+
+	ptn = pg_ptn_create( par, PGPTNTYPE_STRING, (char*)NULL );
+	ptn->att.str = str;
+
+	return ptn;
+}
+
 
 static pgptn* pg_ptn_create_rule( pgpar* par, char* name, pgptn* ptn )
 {
@@ -194,18 +209,12 @@ static void pg_ptn_printhier( pgptn* ptn )
 								ptn->mod ? ptn->mod : ' ',
 									pg_ptn_get_name( ptn ) );
 
-		if( ptn->type == PGPTNTYPE_CHAR )
+		if( ptn->type == PGPTNTYPE_CCL )
 		{
-			if( ptn->att.range.from == ptn->att.range.to )
-				printf( " >%c<(%d)\n", ptn->att.range.from,
-										ptn->att.range.from );
-			else
-				printf( " >%c<(%d) - >%c<(%d)\n",
-									ptn->att.range.from,
-										ptn->att.range.from,
-											ptn->att.range.to,
-												ptn->att.range.to );
+			printf( " \'%s\'\n", p_ccl_to_str( ptn->att.ccl, TRUE ) );
 		}
+		else if( ptn->type == PGPTNTYPE_STRING )
+			printf( " \"%s\"\n", ptn->att.str );
 		else if( ptn->type == PGPTNTYPE_REF )
 			printf( " %s\n", ptn->att.ptn->name );
 		else
@@ -225,8 +234,9 @@ static void pg_ptn_printbnf( pgptn* start )
 {
 	pgptn*		ptn;
 
-	if( start->type == PGPTNTYPE_CHAR
-			|| start->type == PGPTNTYPE_REF )
+	if( start->type == PGPTNTYPE_CCL
+			|| start->type == PGPTNTYPE_STRING
+				|| start->type == PGPTNTYPE_REF )
 		return;
 
 	printf( "(%s) %s :", types[ start->type ], pg_ptn_get_name( start ) );
@@ -234,17 +244,24 @@ static void pg_ptn_printbnf( pgptn* start )
 	/* Print sequence */
 	for( ptn = start->att.ptn; ptn; ptn = ptn->next )
 	{
-		if( ptn->type == PGPTNTYPE_CHAR )
+		switch( ptn->type )
 		{
-			if( ptn->att.range.from == ptn->att.range.to )
-				printf( " '%c'", ptn->att.range.from );
-			else
-				printf( " %c-%c", ptn->att.range.from, ptn->att.range.to );
+			case PGPTNTYPE_CCL:
+				printf( " '%c'", p_ccl_to_str( ptn->att.ccl, TRUE ) );
+				break;
+
+			case PGPTNTYPE_STRING:
+				printf( " \"%s\"", ptn->att.str );
+				break;
+
+			case PGPTNTYPE_REF:
+				printf( " %s", pg_ptn_get_name( ptn->att.ptn ) );
+				break;
+
+			default:
+				printf( " %s", pg_ptn_get_name( ptn ) );
+				break;
 		}
-		else if( ptn->type == PGPTNTYPE_REF )
-			printf( " %s", pg_ptn_get_name( ptn->att.ptn ) );
-		else
-			printf( " %s", pg_ptn_get_name( ptn ) );
 
 		if( ptn->mod )
 			printf( "%c", ptn->mod );
@@ -259,201 +276,6 @@ static void pg_ptn_printbnf( pgptn* start )
 	/* Print subsequent rules */
 	for( ptn = start->att.ptn; ptn; ptn = ptn->next )
 		pg_ptn_printbnf( ptn );
-}
-
-static void pg_ptn_printc( pgptn* start )
-{
-	pgptn*		ptn;
-	char*		namedrule	= start->name;
-
-	if( start->type == PGPTNTYPE_CHAR
-			|| start->type == PGPTNTYPE_REF )
-		return;
-
-	printf( "BOOLEAN %s%s( char* start, char** stop )\n",
-				PARSEFUNC, pg_ptn_get_name( start ) );
-	printf( "{\n" );
-
-	while( !start->att.ptn->next
-			&& ( start->att.ptn->type == PGPTNTYPE_RULE
-					|| start->att.ptn->type == PGPTNTYPE_ALT )
-						&& !start->mod)
-		start = start->att.ptn;
-
-	/* Alternation */
-	if( start->type == PGPTNTYPE_ALT )
-	{
-		printf( "	BOOLEAN	ok = FALSE;\n\n" );
-
-		if( namedrule )
-			printf( "	open_rule( \"%s\", start );\n\n", namedrule );
-
-		for( ptn = start->att.ptn; ptn; ptn = ptn->next )
-		{
-			printf( "	%sif( %s%s( start, stop ) )\n",
-							ptn != start->att.ptn ? "else " : "",
-							PARSEFUNC,
-							pg_ptn_get_name( ptn ) );
-
-			printf( "		ok = TRUE;\n" );
-		}
-
-		if( namedrule )
-		{
-			printf( "\n"
-					"	if( ok )\n"
-					"		close_rule( \"%s\", start, *stop );\n"
-					"	else\n"
-					"		drop_rule( \"%s\", start );\n",
-						namedrule, namedrule );
-		}
-
-		printf( "\n"
-				"	return ok;\n" );
-	}
-	/* Sequence */
-	else
-	{
-		printf( "	char*	end		= start;\n" );
-		printf( "	BOOLEAN	ok		= TRUE;\n" );
-
-		if( namedrule )
-			printf( "	open_rule( \"%s\", start );\n", namedrule );
-
-		/* Render sequence */
-		for( ptn = start->att.ptn; ptn; ptn = ptn->next )
-		{
-			printf( "\n" );
-			if( ptn->type == PGPTNTYPE_CHAR )
-			{
-				if( !ptn->mod
-						|| ptn->mod == MOD_POSITIVE
-							|| ptn->mod == MOD_OPTIONAL )
-				{
-					if( ptn->att.range.from == ptn->att.range.to )
-						printf( "	if( ok && *end == '%c' )\n"
-								"		end++;\n", ptn->att.range.from );
-					else
-						printf( "	if( ok && *end >= '%c' && *end <= '%c' )\n"
-								"		end++;\n",
-											ptn->att.range.from,
-											ptn->att.range.to );
-
-					if( ptn->mod != MOD_OPTIONAL )
-						printf( "	else\n"
-								"		ok = FALSE;\n" );
-
-					if( ptn->mod == MOD_POSITIVE )
-						printf( "\n" );
-				}
-
-				if( ptn->mod == MOD_KLEENE || ptn->mod == MOD_POSITIVE )
-				{
-					if( ptn->att.range.from == ptn->att.range.to )
-						printf( "	while( ok && *end == '%c' )\n"
-								"		end++;\n",
-											ptn->att.range.from );
-					else
-						printf( "	while( ok && *end >= '%c' "
-											"&& *end <= '%c' )\n"
-								"		end++;\n",
-											ptn->att.range.from,
-											ptn->att.range.to );
-				}
-			}
-			else
-			{
-				if( ptn->mod == MOD_OPTIONAL )
-				{
-					if( ptn->type == PGPTNTYPE_REF )
-						printf( "	%s%s( end, &end );\n",
-									PARSEFUNC,
-									pg_ptn_get_name( ptn->att.ptn ) );
-					else
-						printf( "	%s%s( end, &end );\n",
-									PARSEFUNC,
-									pg_ptn_get_name( ptn ) );
-				}
-				else if( !ptn->mod || ptn->mod == MOD_POSITIVE )
-				{
-					if( ptn->type == PGPTNTYPE_REF )
-						printf( "	if( ok && !%s%s( end, &end ) )\n"
-								"		ok = FALSE;\n",
-											PARSEFUNC,
-											pg_ptn_get_name( ptn->att.ptn ) );
-					else
-						printf( "	if( ok && !%s%s( end, &end ) )\n"
-								"		ok = FALSE;\n",
-											PARSEFUNC,
-											pg_ptn_get_name( ptn ) );
-				}
-
-				if( ptn->mod == MOD_KLEENE || ptn->mod == MOD_POSITIVE )
-				{
-					if( ptn->type == PGPTNTYPE_REF )
-						printf( "	while( ok && %s%s( end, &end ) )\n"
-								"		;\n",
-											PARSEFUNC,
-											pg_ptn_get_name( ptn->att.ptn ) );
-					else
-						printf( "	while( ok && %s%s( end, &end ) )\n"
-								"		;\n",
-											PARSEFUNC,
-											pg_ptn_get_name( ptn ) );
-				}
-			}
-		}
-
-		printf( "\n"
-				"	if( ok )\n"
-				"	{"
-				"		*stop = end;\n"
-				"		printf( \"%s matching >%%.*s<\\n\", "
-							"end - start, start );\n\n",
-								namedrule ? namedrule :
-												pg_ptn_get_name( start ) );
-
-		if( namedrule )
-			printf( "		close_rule( \"%s\", start, end );\n"
-					"	}\n"
-					"	else\n"
-					"		drop_rule( \"%s\", start );\n",
-						namedrule, namedrule );
-		else
-			printf( "	}\n" );
-
-		printf( "\n"
-				"	return ok;\n" );
-	}
-
-	printf( "}\n\n" );
-
-	/* Print subsequent rules */
-	for( ptn = start->att.ptn; ptn; ptn = ptn->next )
-		pg_ptn_printc( ptn );
-}
-
-static void pg_ptn_printcproto( pgptn* start )
-{
-	pgptn*		ptn;
-
-	if( start->type == PGPTNTYPE_CHAR
-			|| start->type == PGPTNTYPE_REF )
-		return;
-
-	printf( "BOOLEAN %s%s( char* start, char** stop );\n",
-				PARSEFUNC,
-				pg_ptn_get_name( start ) );
-
-	while( !start->att.ptn->next
-			&& ( start->att.ptn->type == PGPTNTYPE_RULE
-					|| start->att.ptn->type == PGPTNTYPE_ALT )
-						&& !start->mod)
-		start = start->att.ptn;
-
-	/* Print subsequent rules */
-	for( ptn = start->att.ptn; ptn; ptn = ptn->next )
-		pg_ptn_printcproto( ptn );
 }
 
 void pg_ptn_print( pgpar* par, void (*fn)( pgptn* ) )
@@ -496,7 +318,8 @@ void pg_ptn_find_lrec( pgpar* par )
 
 			switch( p->type )
 			{
-				case PGPTNTYPE_CHAR:
+				case PGPTNTYPE_CCL:
+				case PGPTNTYPE_STRING:
 					break;
 
 				case PGPTNTYPE_ALT:
@@ -593,9 +416,9 @@ static pgptn* parse_factor( pgpar* par, char** def )
 
 	SKIPWHITE();
 
-	if( **def == '@' && isalpha( *( (*def) + 1 ) ) )
+	if( isalpha( **def ) )
 	{
-		start = end = ++(*def);
+		start = end = *def;
 
 		while( isalnum( *end ) || *end == '_' )
 			end++;
@@ -626,51 +449,37 @@ static pgptn* parse_factor( pgpar* par, char** def )
 			return (pgptn*)NULL;
 		}
 	}
-	else if( **def == '\'' || **def == '\"' )
+	else if( **def == '\"' )
 	{
-		stopch = *( (*def)++ );
+		start = end = ++(*def);
 
-		while( **def != stopch )
+		while( *end != '\"' )
 		{
-			if( **def == '\\' )
-				(*def)++;
+			if( *end == '\\' )
+				end++;
 
-			factor = pg_ptn_create_char( par, **def, **def );
-			(*def)++;
-
-			if( !first )
-				first = factor;
-			else
-				prev->next = factor;
-
-			prev = factor;
+			end++;
 		}
 
-		(*def)++;
+		*def = end + 1;
 
-		if( first->next )
-			factor = pg_ptn_create_rule( par, (char*)NULL, first );
+		factor = pg_ptn_create_string( par, pstrndup( start, end - start ) );
 	}
-	else if( isalnum( **def ) )
+	else if( **def == '\'' )
 	{
-		factor = pg_ptn_create_char( par, **def, **def );
-		(*def)++;
+		start = end = ++(*def);
 
-		/* is range? */
-		if( **def == '-' && isalnum( *( *def + 1 ) ) )
+		while( *end != '\'' )
 		{
-			(*def)++;
-			factor->att.range.to = **def;
-			(*def)++;
+			if( *end == '\\' )
+				end++;
+
+			end++;
 		}
 
-		/* Switch if wrong order */
-		if( factor->att.range.to < factor->att.range.from )
-		{
-			stopch = factor->att.range.to;
-			factor->att.range.to = factor->att.range.from;
-			factor->att.range.from = stopch;
-		}
+		*def = end + 1;
+
+		factor = pg_ptn_create_char( par, pstrndup( start, end - start ) );
 	}
 	else
 	{
@@ -857,11 +666,24 @@ static pgmatch* find_match( plist* cache, pgptn* ptn, char* start )
 	return (pgmatch*)NULL;
 }
 
+static pboolean is_lexem( pgptn* ptn )
+{
+	if( !ptn->name )
+		return FALSE;
+
+	if( strcmp( ptn->name, "ident" ) == 0
+		|| strcmp( ptn->name, "constant" ) == 0
+		|| strcmp( ptn->name, "string" ) == 0 )
+		return TRUE;
+
+	return FALSE;
+}
+
 static void pg_print_ast( plist* ast )
 {
 	plistel*	e;
 	pgmatch*	match;
-	char		gap		[ 80 + 1 ];
+	char		gap		[ 2048 + 1 ];
 
 	*gap = '\0';
 
@@ -872,11 +694,15 @@ static void pg_print_ast( plist* ast )
 		if( match->type == PGMATCH_END )
 			gap[ strlen( gap ) - 1 ] = '\0';
 
-		printf( "%s%-5s %-10s >%.*s<\n",
-			gap,
-			( match->type == PGMATCH_BEGIN ? "BEGIN" : "END" ),
-			pg_ptn_get_name( match->ptn ),
-			match->end - match->start, match->start );
+		printf( "%s%-5s %-10s",
+				gap,
+				( match->type == PGMATCH_BEGIN ? "BEGIN" : "END" ),
+				pg_ptn_get_name( match->ptn ) );
+
+		if( is_lexem( match->ptn ) )
+			printf( " >%.*s<\n", match->end - match->start, match->start );
+		else
+			printf( "\n" );
 
 		if( match->type == PGMATCH_BEGIN )
 			strcat( gap, " " );
@@ -893,7 +719,7 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache, plist* ast,
 	pboolean	accept	= TRUE;
 	pboolean	loop;
 	char*		end		= start;
-	char		gap		[ 80 + 1 ];
+	char		gap		[ 2048 + 1 ];
 	pgmatch*	handle	= (pgmatch*)NULL;
 	plistel*	pbegin	= (plistel*)NULL;
 	plistel*	ploop	= (plistel*)NULL;
@@ -906,11 +732,19 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache, plist* ast,
 
 	lev++;
 
+	if( !base )
+		return TRUE;
+
+#if 0
 	sprintf( gap, "%2d %-7s", lev, pg_ptn_get_name( base ) );
 
 	for( i = 10; i < 10 + lev; i++ )
 		gap[ i ] = ' ';
 	gap[ i ] = '\0';
+#endif
+	gap[ 0 ] = '\0';
+
+	printf( "BEGIN >%.30s<\n", end );
 
 	if( base->name )
 	{
@@ -918,8 +752,8 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache, plist* ast,
 		{
 			if( !handle->end )
 			{
-				printf( "%shandle on %s unfinished >%s<\n",
-							gap, base->name, handle->start );
+				printf( "%shandle on %s unfinished\n",
+							gap, base->name );
 				lev--;
 				return FALSE;
 			}
@@ -937,8 +771,8 @@ static pboolean pg_par_exec( pgptn* ptn, plist* cache, plist* ast,
 		handle->start = end;
 		handle->end = (char*)NULL;
 
-		printf( "%sopening handle for %s on >%s<\n",
-			gap, base->name, handle->start );
+		printf( "%sopening handle for %s\n",
+			gap, base->name );
 	}
 
 	if( base->name )
@@ -962,25 +796,35 @@ again:
 			loop = FALSE;
 			ok = FALSE;
 
-			if( ptn->type == PGPTNTYPE_CHAR )
-				printf( "%s%s %s >%s< %c-%c\n", gap, types[ ptn->type ],
-											pg_ptn_get_name( ptn ), end,
-												ptn->att.range.from,
-												ptn->att.range.to );
+			if( ptn->type == PGPTNTYPE_CCL )
+				printf( "%s%s %s '%s' >%.3s<\n",
+					gap, types[ ptn->type ], pg_ptn_get_name( ptn ),
+						p_ccl_to_str( ptn->att.ccl, TRUE ), end );
+			else if( ptn->type == PGPTNTYPE_STRING )
+				printf( "%s%s %s \"%s\" >%.*s<\n",
+					gap, types[ ptn->type ], pg_ptn_get_name( ptn ),
+						ptn->att.str, strlen( ptn->att.str ), end );
 			else
-				printf( "%s%s %s >%s<\n", gap, types[ ptn->type ],
-											pg_ptn_get_name( ptn ), end );
+				printf( "%s%s %s >%.3s<\n",
+					gap, types[ ptn->type ], pg_ptn_get_name( ptn ), end );
 
 
 			switch( ptn->type )
 			{
-				case PGPTNTYPE_CHAR:
-					if( *end >= ptn->att.range.from
-						&& *end <= ptn->att.range.to )
+				case PGPTNTYPE_CCL:
+					if( p_ccl_test( ptn->att.ccl, *end ) )
 					{
 						printf( "%sREAD --- >%c< ---\n", gap, *end );
 						ok = TRUE;
 						end++;
+					}
+					break;
+
+				case PGPTNTYPE_STRING:
+					if( !strncmp( ptn->att.str, end, strlen( ptn->att.str ) ) )
+					{
+						ok = TRUE;
+						end += strlen( ptn->att.str );
 					}
 					break;
 
@@ -989,6 +833,9 @@ again:
 					break;
 
 				case PGPTNTYPE_REF:
+					while( isspace( *end ) )
+						end++;
+
 					ok = pg_par_exec( ptn->att.ptn, cache, ast, end, &end );
 					break;
 
@@ -998,8 +845,8 @@ again:
 
 					for( alt = ptn->att.ptn; !ok && alt; alt = alt->next )
 					{
-						printf( "%strying alt %s at >%s< count %d\n",
-							gap, pg_ptn_get_name( alt ), end, count );
+						printf( "%strying alt %s\n",
+							gap, pg_ptn_get_name( alt ) );
 
 						ok = pg_par_exec( alt->att.ptn, cache, ast, end, &end );
 						printf( "%salt %s is %s\n",
@@ -1143,47 +990,46 @@ size_t pg_par_run( pgpar* par, char* src )
 	return 0;
 }
 
-/* Emit a C program for parser */
-
-pboolean pg_par_to_c( pgpar* par )
+/* Main */
+int main( int argc, char** argv )
 {
-	if( !par )
+	int		l;
+	pgpar*	par;
+	char*	grammar;
+	char*	input;
+
+	if( argc < 2 )
 	{
-		WRONGPARAM;
-		return FALSE;
+		printf( "usage: %s GRAMMAR INPUT\n", *argv );
+		return 1;
 	}
 
-	printf(
-		"#include \"rdrun.h\"\n\n"
-		 );
+	if( map_file( &grammar, argv[ 1 ] ) != ERR_OK )
+	{
+		fprintf( stderr, "Can't read '%s'\n", argv[ 1 ] );
+		return 1;
+	}
 
-	pg_ptn_print( par, pg_ptn_printcproto );
-	pg_ptn_print( par, pg_ptn_printc );
+	par = pg_par_create( grammar );
+	pg_ptn_find_lrec( par );
 
-	printf(
-		"int main( int argc, char** argv )\n"
-		"{\n"
-		"	char*	s;\n"
-		"	char*	e;\n\n"
-		"	if( argc < 2 )\n"
-		"		return 1;\n\n"
-		"	s = argv[1];\n"
-		"	if( %s%s( s, &e ) )\n"
-		"	{\n"
-		"		printf( \">%%.*s<\\n\", e - s, s );\n"
-		"		print_ast();\n"
-		"	}\n"
-		"\n"
-		"	return 0;\n"
-		"}\n\n",
-			PARSEFUNC,
-			pg_ptn_get_name( par->start ));
+	pg_ptn_print( par, pg_ptn_printhier );
+	/*
+	pg_ptn_print( par, pg_ptn_printbnf );
+	pg_par_to_c( par );
+	*/
 
-	return TRUE;
+	if( map_file( &input, argv[ 2 ] ) != ERR_OK )
+	{
+		fprintf( stderr, "Can't read '%s'\n", argv[ 2 ] );
+		return 1;
+	}
+
+	pg_par_run( par, input );
+	return 0;
 }
 
-/* Main */
-
+#if 0
 int main( int argc, char** argv )
 {
 	int		l;
@@ -1191,35 +1037,28 @@ int main( int argc, char** argv )
 
 #if 0
 	par = pg_par_create(
-		"expr : @term ( '+' @term | '-' @term )* ;"
-		"term : @factor ( '*' @factor | '/' @factor )* ;"
-		"factor: 0-9+ | '(' @expr ')' ;" );
+		"expr : term ( '+' term | '-' term )* ;"
+		"term : factor ( '*' factor | '/' factor )* ;"
+		"factor: '0-9'+ | '(' expr ')' ;" );
 #else
 	/*
 	par = pg_par_create(
-		"expr : a? @expr '+' @term | @expr '-' @term | @term;"
-		"term : @term '*' @factor | @term '/' @factor | @factor;"
-		"factor: 0-9+ | '(' @expr ')' ;" );
+		"expr : a? expr '+' term | expr '-' term | term;"
+		"term : term '*' factor | term '/' factor | factor;"
+		"factor: '0-9'+ | '(' @expr ')' ;" );
 	*/
 	par = pg_par_create(
-		"e : @e '+' @t | @t;"
-		"t : @t '*' @f | @f;"
-		"f: 0-9+ | '(' @e ')' ;" );
+		"e : e '+' t | t;"
+		"t : t '*' f | f;"
+		"f: '0-9'+ | '(' e ')' ;" );
 
 #endif
 
 	pg_ptn_find_lrec( par );
-
-	/*
-	pg_ptn_print( par, pg_ptn_printhier );
-	pg_ptn_print( par, pg_ptn_printbnf );
-	*/
-
-	pg_par_to_c( par );
 
 	if( argc > 1 )
 		pg_par_run( par, argv[1] );
 
 	return 0;
 }
-
+#endif
