@@ -650,6 +650,7 @@ pgpar* pg_par_create( char* def )
 }
 
 /* Run */
+
 static pgmatch* find_match( plist* cache, pgptn* ptn, char* start )
 {
 	plistel*	e;
@@ -694,9 +695,9 @@ static void pg_print_ast( plist* ast )
 		if( match->type == PGMATCH_END )
 			gap[ strlen( gap ) - 1 ] = '\0';
 
-		printf( "%s%-5s %-10s",
+		printf( "%s%s %-10s",
 				gap,
-				( match->type == PGMATCH_BEGIN ? "BEGIN" : "END" ),
+				( match->type == PGMATCH_BEGIN ? "[" : "]" ),
 				pg_ptn_get_name( match->ptn ) );
 
 		if( is_lexem( match->ptn ) )
@@ -991,6 +992,7 @@ size_t pg_par_run( pgpar* par, char* src )
 }
 
 /* Main */
+#if 0
 int main( int argc, char** argv )
 {
 	int		l;
@@ -1028,8 +1030,9 @@ int main( int argc, char** argv )
 	pg_par_run( par, input );
 	return 0;
 }
+#endif
 
-#if 0
+#if 1
 int main( int argc, char** argv )
 {
 	int		l;
