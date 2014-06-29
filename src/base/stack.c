@@ -168,6 +168,30 @@ void* pstack_push( pstack* stack, void* item )
 	RETURN( (char*)stack->stack + stack->top++ * stack->size );
 }
 
+/** Pushes and "allocates" an empty element on the stack.
+
+This function is just a shortcut to ```pstack_push( stack, (void*)NULL )```.
+The memory of the pushed element is initialized to zero. */
+void* pstack_malloc( pstack* stack )
+{
+	void*	ptr;
+
+	PROC( "pstack_malloc" );
+	PARMS( "stack", "%p", stack );
+
+	if( !( stack ) )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	if( !( ptr = pstack_push( stack, (void*)NULL ) ) )
+		return ptr;
+
+	memset( ptr, 0, stack->size );
+	return ptr;
+}
+
 /** Pops an element off the stack.
 
 The function returns a pointer to the popped item. Because dynamic stacks only

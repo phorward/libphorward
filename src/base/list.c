@@ -371,7 +371,7 @@ plist* plist_free( plist* list )
 	return (plist*)NULL;
 }
 
-/** Insert //src// as element to the list //list// at positon //pos//.
+/** Insert //src// as element to the list //list// __before__ positon //pos//.
 
 If //pos// is NULL, the new element will be attached to the end of the
 list. If //key// is not NULL, the element will be additionally engaged
@@ -435,24 +435,29 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 
 	if( !pos )
 	{
-		MSG( "pos unset, will get last element in list" );
-		pos = plist_last( list );
-	}
+		MSG( "pos unset, will chain at end of list" );
+		if( !( pos = plist_last( list ) ) )
+			list->first = e;
+		else
+		{
+			pos->next = e;
+			e->prev = pos;
+		}
 
-	VARS( "pos", "%p", pos );
-
-	if( ( e->prev = pos ) )
-	{
-		if( ( e->next = pos->next ) )
-			e->next->prev = e;
-
-		pos->next = e;
+		list->last = e;
 	}
 	else
-		list->first = e;
+	{
+		if( ( e->prev = pos->prev ) )
+			e->prev->next = e;
+		else
+			list->first = e;
 
-	if( !e->next )
-		list->last = e;
+		e->next = pos;
+		pos->prev = e;
+	}
+
+	list->count++;
 
 	if( key )
 	{
@@ -469,15 +474,14 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 
 		if( !plist_hash_insert( list, e ) )
 		{
-			MSG( "This should not happen..." );
-			TODO;
+			MSG( "This item collides!" );
+			plist_remove( list, e );
+			RETURN( (plistel*)NULL );
 		}
 	}
 
 	if( list->flags & PLIST_MOD_AUTOSORT )
 		plist_sort( list );
-
-	list->count++;
 
 	VARS( "list->count", "%d", list->count );
 	RETURN( e );

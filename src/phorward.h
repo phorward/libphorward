@@ -915,6 +915,7 @@ pstack* pstack_create( size_t size, size_t step );
 pboolean pstack_erase( pstack* stack );
 pstack* pstack_free( pstack* stack );
 void* pstack_push( pstack* stack, void* item );
+void* pstack_malloc( pstack* stack );
 void* pstack_pop( pstack* stack );
 void* pstack_access( pstack* stack, size_t offset );
 void* pstack_raccess( pstack* stack, size_t offset );
