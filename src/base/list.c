@@ -241,12 +241,19 @@ bitwise or (|).
 
 Possible flags are:
 - **PLIST_MOD_NONE** for no special flagging.
-- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
-- **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later.
-- **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
-- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
+- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each \
+plistel-element cointains only a pointer to an object in the memory and returns\
+this, instead of copying from or into pointers.
+- **PLIST_MOD_RECYCLE** to configure that elements that are removed during list\
+usage will be reused later.
+- **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key\
+values are stored elsewhere, so the plist-module only uses the original\
+pointers instead of copying them.
+- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with\
+a key that already exist in the object will be rejected.
 - **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
-- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
+- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value\
+provided as key directly.
 -
 
 Use plist_free() to erase and release the returned list object. */
