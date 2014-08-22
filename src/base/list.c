@@ -287,6 +287,9 @@ plist* plist_dup( plist* list )
 	}
 
 	dup = plist_create( list->size, list->flags );
+	dup->comparefn = list->comparefn;
+	dup->sortfn = list->sortfn;
+	dup->printfn = list->printfn;
 
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		plist_insert( dup, (plistel*)NULL, e->key, plist_access( e ) );
@@ -986,6 +989,8 @@ The default sort function sorts the list by they contents, internally by using
 the memcmp() standard function. */
 pboolean plist_sort( plist* list )
 {
+	pboolean	ret;
+
 	if( !( list ) )
 	{
 		WRONGPARAM;
@@ -995,7 +1000,15 @@ pboolean plist_sort( plist* list )
 	if( !plist_first( list ) )
 		return TRUE;
 
-	return plist_subsort( list, plist_first( list ), plist_last( list ) );
+	if( list->printfn )
+		(*list->printfn)( list );
+
+	ret = plist_subsort( list, plist_first( list ), plist_last( list ) );
+
+	if( list->printfn )
+		(*list->printfn)( list );
+
+	return ret;
 }
 
 /** Set compare function */
@@ -1034,6 +1047,24 @@ pboolean plist_set_sortfn( plist* list,
 
 	if( !( list->sortfn = sortfn ) )
 		list->sortfn = plist_compare;
+
+	RETURN( TRUE );
+}
+
+/** Set sort function */
+pboolean plist_set_printfn( plist* list, void (*printfn)( plist* ) )
+{
+	PROC( "plist_set_printfn" );
+	PARMS( "list", "%p", list );
+	PARMS( "printfn", "%p", printfn );
+
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	list->printfn = printfn;
 
 	RETURN( TRUE );
 }

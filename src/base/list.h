@@ -51,6 +51,7 @@ struct Plist
 
 	int						(*comparefn)( plist*, plistel*, plistel* );
 	int						(*sortfn)( plist*, plistel*, plistel* );
+	void					(*printfn)( plist* );
 
 	plistel*				unused;
 

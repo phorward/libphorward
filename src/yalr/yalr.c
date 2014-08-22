@@ -514,15 +514,32 @@ yagram* ya_gram_free( yagram* g )
 	if( !g )
 		return (yagram*)NULL;
 
+	/* Erase symbols */
 	plist_for( g->symbols, e )
 	{
 		sym = (yasym*)plist_access( e );
+
+		pfree( sym->name );
+
 		plist_free( sym->productions );
+		plist_free( sym->first );
+		p_ccl_free( sym->ccl );
 	}
 
+	plist_free( g->symbols );
+
+	/* Erase productions */
 	plist_for( g->productions, e )
 	{
+		prod = (yaprod*)plist_access( e );
+
+		plist_free( prod->rhs );
+		pfree( prod->strval );
 	}
+
+	plist_free( g->productions );
+
+	pfree( g );
 
 	return (yagram*)NULL;
 }
@@ -729,6 +746,8 @@ void ya_gram_print( yagram* g )
 	}
 }
 
+/* Bottom-up LALR(1) parser */
+
 static void ya_lritem_print( yalritem* it )
 {
 	int			i;
@@ -803,6 +822,38 @@ static void ya_lritems_print( plist* items, char* what )
 	}
 }
 
+/* Priority sort function for the lookahead-sets */
+static int ya_lritem_lookahead_sort( plist* list, plistel* el, plistel* er )
+{
+	yasym*	l	= (yasym*)plist_access( el );
+	yasym*	r	= (yasym*)plist_access( er );
+
+	/* Higher type before lower type, then by definition order */
+	if( ( l->type == r->type && l->id < r->id ) || l->type > r->type )
+		return 1;
+
+	return 0;
+}
+
+/* Debug */
+static void ya_lritem_lookahead_print( plist* list )
+{
+	plistel*	e;
+	yasym*		s;
+
+	printf( "[[" );
+
+	plist_for( list, e )
+	{
+		s = (yasym*)plist_access( e );
+
+		printf( " " );
+		ya_sym_print( s );
+	}
+
+	printf( " ]]\n" );
+}
+
 static yalritem* ya_lritem_create( plist* list, yaprod* prod, int dot )
 {
 	yalritem*	item;
@@ -821,7 +872,10 @@ static yalritem* ya_lritem_create( plist* list, yaprod* prod, int dot )
 	item = (yalritem*)plist_malloc( list );
 	item->prod = prod;
 	item->dot = dot;
+
 	item->lookahead = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_AUTOSORT );
+	plist_set_sortfn( item->lookahead, ya_lritem_lookahead_sort );
+	/* plist_set_printfn( item->lookahead, ya_lritem_lookahead_print ); */
 
 	return item;
 }
@@ -1376,7 +1430,7 @@ BOOLEAN ya_parser_lr_closure( yagram* gram )
 		}
 
 		if( st->def_prod )
-			fprintf( stderr, " <- Reduce default on '%s'\n",
+			fprintf( stderr, " <- Reduce (default) on '%s'\n",
 				ya_prod_to_str( st->def_prod ) );
 
 		plist_for( st->gotos, f )
@@ -1401,6 +1455,8 @@ BOOLEAN ya_parser_lr_closure( yagram* gram )
 	MSG( "Finished" );
 	RETURN( TRUE );
 }
+
+
 
 /* Top-down parser supporting left-recursion */
 

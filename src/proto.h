@@ -26,6 +26,7 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to );
 pboolean plist_sort( plist* list );
 pboolean plist_set_comparefn( plist* list, int (*comparefn)( plist*, plistel*, plistel* ) );
 pboolean plist_set_sortfn( plist* list, int (*sortfn)( plist*, plistel*, plistel* ) );
+pboolean plist_set_printfn( plist* list, void (*printfn)( plist* ) );
 void* plist_access( plistel* e );
 char* plist_key( plistel* e );
 plistel* plist_next( plistel* u );
