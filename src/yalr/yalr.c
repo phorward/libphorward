@@ -105,6 +105,13 @@ typedef struct
 	yaprod*			reduce;			/* Reduce by production */
 } yalrcolumn;
 
+/* LR-Stackitem */
+typedef struct
+{
+	yasym*			symbol;	/* Symbol */
+	yalrstate*		state;	/* State */
+} pglrse;
+
 #define YALR_SHIFT	1
 #define YALR_REDUCE	2
 
@@ -932,6 +939,222 @@ static yalrstate* ya_lrstate_create( plist* states, plist* kernel )
 	return state;
 }
 
+static plist* ya_lrstates_free( plist* states )
+{
+	yalrstate*	st;
+	plistel*	e;
+	plistel*	f;
+
+	plist_for( states, e )
+	{
+		st = (yalrstate*)plist_access( e );
+
+		/* Parse tables */
+		plist_free( st->actions );
+		plist_free( st->gotos );
+
+		/* Kernel */
+		plist_for( st->kernel, f )
+			ya_lritem_free( (yalritem*)plist_access( f ) );
+
+		/* Epsilons */
+		plist_for( st->epsilon, f )
+			ya_lritem_free( (yalritem*)plist_access( f ) );
+	}
+
+	return plist_free( states );
+}
+
+static ya_lrstates_print( plist* states )
+{
+	plistel*	e;
+	plistel*	f;
+	yalrstate*	st;
+	yalrcolumn*	col;
+
+	plist_for( states, e )
+	{
+		st = (yalrstate*)plist_access( e );
+		fprintf( stderr, "\n-- State %d %p --\n",
+			plist_offset( e ), plist_access( e ) );
+
+		ya_lritems_print( st->kernel, "Kernel" );
+		ya_lritems_print( st->epsilon, "Epsilon" );
+
+		fprintf( stderr, "\n" );
+
+		plist_for( st->actions, f )
+		{
+			col = (yalrcolumn*)plist_access( f );
+
+			if( col->shift && col->reduce )
+				fprintf( stderr, " <- Shift/Reduce on '%s' by "
+									"production '%s'\n",
+							col->symbol->name,
+								ya_prod_to_str( col->reduce ) );
+			else if( col->shift )
+				fprintf( stderr, " -> Shift on '%s', goto state %d\n",
+							col->symbol->name,
+								plist_offset( plist_get_by_ptr(
+									states, col->shift ) ) );
+			else if( col->reduce )
+				fprintf( stderr, " <- Reduce on '%s' by production '%s'\n",
+							col->symbol->name,
+								ya_prod_to_str( col->reduce ) );
+			else
+				fprintf( stderr, " XX Error on '%s'\n", col->symbol->name );
+		}
+
+		if( st->def_prod )
+			fprintf( stderr, " <- Reduce (default) on '%s'\n",
+				ya_prod_to_str( st->def_prod ) );
+
+		plist_for( st->gotos, f )
+		{
+			col = (yalrcolumn*)plist_access( f );
+
+			if( col->shift && col->reduce )
+				fprintf( stderr, " <- Goto/Reduce by production "
+										"'%s' in '%s'\n",
+							ya_prod_to_str( col->reduce ),
+								col->symbol->name );
+			else if( col->shift )
+				fprintf( stderr, " -> Goto state %d on '%s'\n",
+							plist_offset(
+								plist_get_by_ptr( states, col->shift ) ),
+								col->symbol->name );
+			else
+				MISSINGCASE;
+		}
+	}
+}
+
+static int ya_lrstates_to_dfa( int*** act_tab, int*** go_tab, plist* states )
+{
+	yalrstate*	st;
+	yalrcolumn*	col;
+	int			i;
+	int			j;
+	plistel*	e;
+	plistel*	f;
+
+	PROC( "ya_lrstates_to_dfa" );
+	PARMS( "act_tab", "%p", act_tab );
+	PARMS( "go_tab", "%p", go_tab );
+	PARMS( "states", "%p", states );
+
+	if( !states )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+
+	/* Allocate and fill return tables, free states */
+	MSG( "Filling return arrays" );
+
+	if( act_tab )
+		*act_tab = (int**)pmalloc( plist_count( states ) * sizeof( int* ) );
+
+	if( go_tab )
+		*go_tab = (int**)pmalloc( plist_count( states ) * sizeof( int* ) );
+
+	for( i = 0, e = plist_first( states ); e; e = plist_next( e ), i++ )
+	{
+		st = (yalrstate*)plist_access( e );
+		VARS( "State", "%d", i );
+
+		/* Action table */
+		if( act_tab )
+		{
+			(*act_tab)[ i ] = (int*)pmalloc(
+									( ( plist_count( st->actions ) * 3 ) + 2 )
+										* sizeof( int ) );
+
+			(*act_tab)[ i ][ 0 ] = ( plist_count( st->actions ) * 3 ) + 2;
+			(*act_tab)[ i ][ 1 ] = st->def_prod ? st->def_prod->id : -1;
+
+			for( j = 2, f = plist_first( st->actions );
+					f; f = plist_next( f ), j += 3 )
+			{
+				col = (yalrcolumn*)plist_access( f );
+
+				(*act_tab)[ i ][ j ] = col->symbol->id;
+
+				if( col->shift )
+					(*act_tab)[ i ][ j + 1 ] = YALR_SHIFT;
+
+				if( col->reduce )
+				{
+					(*act_tab)[ i ][ j + 1 ] |= YALR_REDUCE;
+					(*act_tab)[ i ][ j + 2 ] = col->reduce->id;
+				}
+				else
+					(*act_tab)[ i ][ j + 2 ] = col->shift->id;
+			}
+		}
+
+		/* Goto table */
+		if( go_tab )
+		{
+			(*go_tab)[ i ] = (int*)pmalloc(
+									( ( plist_count( st->actions ) * 3 ) + 1 )
+										* sizeof( int ) );
+
+			(*go_tab)[ i ][ 0 ] = ( ( plist_count( st->actions ) ) * 3 ) + 1;
+
+			for( j = 2, f = plist_first( st->gotos );
+					f; f = plist_next( f ), j += 3 )
+			{
+				col = (yalrcolumn*)plist_access( f );
+
+				(*go_tab)[ i ][ j ] = col->symbol->id;
+
+				if( col->shift )
+					(*go_tab)[ i ][ j + 1 ] = YALR_SHIFT;
+
+				if( col->reduce )
+				{
+					(*go_tab)[ i ][ j + 1 ] |= YALR_REDUCE;
+					(*go_tab)[ i ][ j + 2 ] = col->reduce->id;
+				}
+				else
+					(*go_tab)[ i ][ j + 2 ] = col->shift->id;
+			}
+		}
+	}
+
+	/* DEBUG */
+	printf( "count = %d\n", plist_count( states ) );
+
+	for( i = 0; i < plist_count( states ); i++ )
+	{
+		printf( "%02d:", i );
+
+		printf( " def:%02d",  *(act_tab)[ i ][ 1 ] );
+
+		for( j = 2; j < *(act_tab)[ i ][ 0 ]; j += 3 )
+			printf( " %02d:%s%s:%02d",
+				*(act_tab)[ i ][ j ],
+				*(act_tab)[ i ][ j + 1 ] & YALR_SHIFT ? "s" : "-",
+				*(act_tab)[ i ][ j + 1 ] & YALR_REDUCE ? "r" : "-",
+				*(act_tab)[ i ][ j + 2 ] );
+
+		printf( "\n          " );
+
+		for( j = 1; j < *(go_tab)[ i ][ 0 ]; j += 3 )
+			printf( " %02d:%s%s:%02d",
+				*(go_tab)[ i ][ j ],
+				*(go_tab)[ i ][ j + 1 ] & YALR_SHIFT ? "g" : "-",
+				*(go_tab)[ i ][ j + 1 ] & YALR_REDUCE ? "r" : "-",
+				*(go_tab)[ i ][ j + 2 ] );
+
+		printf( "\n" );
+	}
+
+	VARS( "states count", "%d", plist_count( states ) );
+	RETURN( plist_count( states ) );
+}
+
 static BOOLEAN ya_parser_lr_compare( plist* set1, plist* set2 )
 {
 	plistel*	e;
@@ -984,7 +1207,7 @@ static yalrstate* ya_parser_lr_get_undone( plist* states )
 	return (yalrstate*)NULL;
 }
 
-int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
+plist* ya_parser_lr_closure( yagram* gram, pboolean optimize )
 {
 	plist*			states;
 	yalrstate*		st;
@@ -1010,17 +1233,19 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 	int*			prodcnt;
 
 	PROC( "ya_parser_lr_closure" );
+	PARMS( "states", "%p", states );
 	PARMS( "gram", "%p", gram );
 
 	if( !( gram ) )
 	{
 		WRONGPARAM;
-		RETURN( -1 );
+		RETURN( (plist*)NULL );
 	}
 
+	MSG( "Initializing states list" );
 	states = plist_create( sizeof( yalrstate ), PLIST_MOD_RECYCLE );
 
-	MSG( "Creating a closure seed" );
+	MSG( "Creating closure seed" );
 	nst = ya_lrstate_create( states, (plist*)NULL );
 	it = ya_lritem_create( nst->kernel,
 				(yaprod*)plist_access(
@@ -1035,9 +1260,12 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 	MSG( "Run the closure loop" );
 	while( ( st = ya_parser_lr_get_undone( states ) ) )
 	{
+		st->done = TRUE;
+
+#if ALGORITHM_TRACE
 		fprintf( stderr, "---\nClosing state %d\n",
 					plist_offset( plist_get_by_ptr( states, st ) ) );
-		st->done = TRUE;
+#endif
 
 		MSG( "Closing state" );
 		VARS( "State", "%d", plist_offset(
@@ -1047,7 +1275,9 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 		cnt = 0;
 		plist_clear( closure );
 
+#if ALGORITHM_TRACE
 		ya_lritems_print( st->kernel, "Kernel" );
+#endif
 
 		/* Duplicate state kernel to closure */
 		MSG( "Duplicate current kernel to closure" );
@@ -1157,7 +1387,9 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 		}
 
 		MSG( "Closure finished!" );
+#if ALGORITHM_TRACE
 		ya_lritems_print( closure, "Closure" );
+#endif
 
 		/* Create new states from the items in the closure having a symbol
 			right to their dot */
@@ -1208,8 +1440,8 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 				terminals and/or nonterminals, or even epsilon, and z is a
 				terminal or nonterminal.
 			*/
-			if( 1 && ( plist_count( part ) == 1
-					&& !ya_prod_getfromrhs( it->prod, it->dot ) ) )
+			if( optimize && ( plist_count( part ) == 1
+								&& !ya_prod_getfromrhs( it->prod, it->dot ) ) )
 			{
 				MSG( "State optimization" );
 
@@ -1217,8 +1449,7 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 					ya_lrcolumn_create( st, sym,
 							(yalrstate*)it->prod, it->prod );
 
-				/* Forget current partition
-					- its not needed anymore... */
+				/* Forget current partition; its not needed anymore... */
 				plist_for( part, e )
 					ya_lritem_free( (yalritem*)plist_access( e ) );
 
@@ -1239,7 +1470,9 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 			if( !e )
 			{
 				MSG( "No such state, creating new state from current config" );
+#if ALGORITHM_TRACE
 				ya_lritems_print( part, "NEW Kernel" );
+#endif
 				nst = ya_lrstate_create( states, part );
 			}
 			else
@@ -1267,7 +1500,9 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 				if( cnt != prev_cnt )
 					nst->done = FALSE;
 
+#if ALGORITHM_TRACE
 				ya_lritems_print( st->kernel, "EXT Kernel" );
+#endif
 			}
 
 			if( sym && !st->closed )
@@ -1347,9 +1582,6 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 	pfree( prodcnt );
 
 	/* Detect and report conflicts */
-
-	fprintf( stderr, "\n--== CONFLICTS ==--\n" );
-
 	cnt = 0;
 	plist_for( states, e )
 	{
@@ -1376,180 +1608,23 @@ int ya_parser_lr_closure( int*** act_tab, int*** go_tab, yagram* gram )
 		}
 	}
 
-	if( !cnt )
-		fprintf( stderr, "\n(No conflicts detected)\n" );
-
-	/* Print final states */
-
-	fprintf( stderr, "\n--== FINAL STATES ==--\n" );
-
-	plist_for( states, e )
-	{
-		st = (yalrstate*)plist_access( e );
-		fprintf( stderr, "\n-- State %d %p --\n",
-			plist_offset( e ), plist_access( e ) );
-
-		ya_lritems_print( st->kernel, "Kernel" );
-		ya_lritems_print( st->epsilon, "Epsilon" );
-
-		fprintf( stderr, "\n" );
-
-		plist_for( st->actions, f )
-		{
-			col = (yalrcolumn*)plist_access( f );
-
-			if( col->shift && col->reduce )
-				fprintf( stderr, " <- Shift/Reduce on '%s' by "
-									"production '%s'\n",
-							col->symbol->name,
-								ya_prod_to_str( col->reduce ) );
-			else if( col->shift )
-				fprintf( stderr, " -> Shift on '%s', goto state %d\n",
-							col->symbol->name,
-								plist_offset( plist_get_by_ptr(
-									states, col->shift ) ) );
-			else if( col->reduce )
-				fprintf( stderr, " <- Reduce on '%s' by production '%s'\n",
-							col->symbol->name,
-								ya_prod_to_str( col->reduce ) );
-			else
-				fprintf( stderr, " XX Error on '%s'\n", col->symbol->name );
-		}
-
-		if( st->def_prod )
-			fprintf( stderr, " <- Reduce (default) on '%s'\n",
-				ya_prod_to_str( st->def_prod ) );
-
-		plist_for( st->gotos, f )
-		{
-			col = (yalrcolumn*)plist_access( f );
-
-			if( col->shift && col->reduce )
-				fprintf( stderr, " <- Goto/Reduce by production "
-										"'%s' in '%s'\n",
-							ya_prod_to_str( col->reduce ),
-								col->symbol->name );
-			else if( col->shift )
-				fprintf( stderr, " -> Goto state %d on '%s'\n",
-							plist_offset(
-								plist_get_by_ptr( states, col->shift ) ),
-								col->symbol->name );
-			else
-				MISSINGCASE;
-		}
-	}
-
-	/* Allocate and fill return tables, free states */
-	MSG( "Filling return arrays" );
-
-	if( act_tab )
-		*act_tab = (int**)pmalloc( plist_count( states ) * sizeof( int* ) );
-
-	if( go_tab )
-		*go_tab = (int**)pmalloc( plist_count( states ) * sizeof( int* ) );
-
-	for( i = 0, e = plist_first( states ); e; e = plist_next( e ), i++ )
-	{
-		st = (yalrstate*)plist_access( e );
-		VARS( "State", "%d", i );
-
-		/* Action table */
-		if( act_tab )
-		{
-			(*act_tab)[ i ] = (int*)pmalloc(
-									( ( plist_count( st->actions ) * 3 ) + 2 )
-										* sizeof( int ) );
-
-			(*act_tab)[ i ][ 0 ] = ( plist_count( st->actions ) * 3 ) + 2;
-			(*act_tab)[ i ][ 1 ] = st->def_prod ? st->def_prod->id : -1;
-
-			for( j = 2, f = plist_first( st->actions );
-					f; f = plist_next( f ), j += 3 )
-			{
-				col = (yalrcolumn*)plist_access( f );
-
-				(*act_tab)[ i ][ j ] = col->symbol->id;
-
-				if( col->shift )
-					(*act_tab)[ i ][ j + 1 ] = YALR_SHIFT;
-
-				if( col->reduce )
-				{
-					(*act_tab)[ i ][ j + 1 ] |= YALR_REDUCE;
-					(*act_tab)[ i ][ j + 2 ] = col->reduce->id;
-				}
-				else
-					(*act_tab)[ i ][ j + 2 ] = col->shift->id;
-			}
-		}
-
-		/* Goto table */
-		if( go_tab )
-		{
-			(*go_tab)[ i ] = (int*)pmalloc(
-									( ( plist_count( st->actions ) * 3 ) + 1 )
-										* sizeof( int ) );
-
-			(*go_tab)[ i ][ 0 ] = ( ( plist_count( st->actions ) ) * 3 ) + 1;
-
-			for( j = 2, f = plist_first( st->gotos );
-					f; f = plist_next( f ), j += 3 )
-			{
-				col = (yalrcolumn*)plist_access( f );
-
-				(*go_tab)[ i ][ j ] = col->symbol->id;
-
-				if( col->shift )
-					(*go_tab)[ i ][ j + 1 ] = YALR_SHIFT;
-
-				if( col->reduce )
-				{
-					(*go_tab)[ i ][ j + 1 ] |= YALR_REDUCE;
-					(*go_tab)[ i ][ j + 2 ] = col->reduce->id;
-				}
-				else
-					(*go_tab)[ i ][ j + 2 ] = col->shift->id;
-			}
-		}
-
-		MSG( "Freeing state" );
-
-		/* Parse tables */
-		plist_free( st->actions );
-		plist_free( st->gotos );
-
-		/* Kernel */
-		plist_for( st->kernel, f )
-			ya_lritem_free( (yalritem*)plist_access( f ) );
-
-		/* Epsilons */
-		plist_for( st->epsilon, f )
-			ya_lritem_free( (yalritem*)plist_access( f ) );
-	}
-
-	plist_free( states );
-
 	MSG( "Finished" );
-	VARS( "States generated", "%d", i );
+	VARS( "States generated", "%d", plist_count( states ) );
 
-	RETURN( i );
+	RETURN( states );
 }
 
-static pboolean ya_lr_PARSE( plist* ast, yagram* grm,
-								char** start, char** end,
-									int nstates, int** act, int** go )
+static pboolean ya_lr_PARSE( plist* ast, yagram* grm, char** start, char** end,
+									plist* states )
 {
+	pstack*		stack;
 
 }
 
 pboolean ya_lr_parse( plist* ast, yagram* grm, char* start, char** end )
 {
 	pboolean	myast		= FALSE;
-	int			cnt;
-	int**		act;
-	int**		go;
-	int			i;
-	int			j;
+	plist*		states;
 
 	if( !( grm && start && end ) )
 	{
@@ -1557,35 +1632,7 @@ pboolean ya_lr_parse( plist* ast, yagram* grm, char* start, char** end )
 		return FALSE;
 	}
 
-	cnt = ya_parser_lr_closure( &act, &go, grm );
-
-	/* DEBUG */
-	printf( "cnt = %d\n", cnt );
-
-	for( i = 0; i < cnt; i++ )
-	{
-		printf( "%02d:", i );
-
-		printf( " def:%02d",  act[ i ][ 1 ] );
-
-		for( j = 2; j < act[ i ][ 0 ]; j += 3 )
-			printf( " %02d:%s%s:%02d",
-				act[ i ][ j ],
-				act[ i ][ j + 1 ] & YALR_SHIFT ? "s" : "-",
-				act[ i ][ j + 1 ] & YALR_REDUCE ? "r" : "-",
-				act[ i ][ j + 2 ] );
-
-		printf( "\n          " );
-
-		for( j = 1; j < go[ i ][ 0 ]; j += 3 )
-			printf( " %02d:%s%s:%02d",
-				go[ i ][ j ],
-				go[ i ][ j + 1 ] & YALR_SHIFT ? "g" : "-",
-				go[ i ][ j + 1 ] & YALR_REDUCE ? "r" : "-",
-				go[ i ][ j + 2 ] );
-
-		printf( "\n" );
-	}
+	states = ya_parser_lr_closure( grm, TRUE );
 
 	/*
 	if( !ast )
