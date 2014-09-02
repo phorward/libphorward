@@ -29,6 +29,10 @@ SRC = \
 	util/system.c \
 	xml/xml.c \
 	\
+	parse/gram.c \
+	parse/ll.c \
+	parse/lr.c \
+	\
 	value/value.c \
 	value/value.conv.c \
 	value/value.get.c \
@@ -58,6 +62,7 @@ HSRC = \
 	base/stack.h \
 	grammar/grammar.h \
 	lexer/lexer.h \
+	parse/parse.h \
 	parser/parser.h \
 	phorward.tpl.h \
 	regex/regex.h \

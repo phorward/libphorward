@@ -125,7 +125,11 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #include "ccl/ccl.h"
 #include "regex/regex.h"
 
+/* Phorward Parsing Library */
+#include "parse/parse.h"
+
 /* Phorward Grammar Extensions */
+/* TTT */
 #include "value/value.h"
 #include "grammar/grammar.h"
 #include "lexer/lexer.h"

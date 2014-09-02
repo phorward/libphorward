@@ -566,6 +566,89 @@ struct _regex
 
 
 
+#define NAMELEN			80
+#define MALLOCSTEP		255
+
+typedef enum
+{
+	PPSYMTYPE_NONTERM,
+	PPSYMTYPE_CCL,
+	PPSYMTYPE_STRING,
+	PPSYMTYPE_SPECIAL
+} ppsymtype;
+
+typedef struct _ppsym	ppsym;
+typedef struct _ppprod	ppprod;
+typedef struct _ppgram	ppgram;
+
+#define PPFLAG_CALLED	1
+#define PPFLAG_DEFINED	2
+#define PPFLAG_NULLABLE	4
+#define PPFLAG_LEFTREC	8
+
+struct _ppprod
+{
+	int				id;
+	ppsym*			lhs;
+	plist*			rhs;
+
+	int				flags;
+
+	char*			strval;
+};
+
+struct _ppsym
+{
+	int				id;
+	ppsymtype		type;
+
+	char*			name;
+	pboolean		emit;
+
+	int				flags;
+
+	plist*			first;
+
+	pccl*			ccl;
+	plist*			productions;
+};
+
+struct _ppgram
+{
+	plist*			symbols;
+	plist*			productions;
+
+	ppsym*			ws;
+	ppsym*			goal;
+	ppsym*			eof;
+};
+
+
+
+typedef struct
+{
+	enum
+	{
+		PPMATCH_BEGIN,
+		PPMATCH_END
+	} 				type;
+
+	ppsym*			sym;
+	ppprod*			prod;
+
+	char*			start;
+	char*			end;
+
+	int				line;
+	int				col;
+} ppmatch;
+
+
+
+
+
+
+
 #ifndef PGVALUETYPE_H
 #define PGVALUETYPE_H
 
@@ -1125,6 +1208,24 @@ XML_T xml_set_flag( XML_T xml, short flag );
 int xml_count( XML_T xml );
 int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
+
+
+ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
+pboolean pp_prod_append( ppprod* p, ppsym* sym );
+ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
+ppsym* pp_prod_getfromrhs( ppprod* p, int off );
+char* pp_prod_to_str( ppprod* p );
+ppgram* pp_gram_free( ppgram* g );
+ppgram* pp_gram_create( char* def );
+void pp_sym_print( ppsym* s );
+void pp_gram_print( ppgram* g );
+
+
+pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end );
+
+
+plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
+pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end );
 
 
 pboolean pg_value_init( pgvalue* val );

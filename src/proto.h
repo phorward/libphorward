@@ -261,6 +261,24 @@ int xml_count( XML_T xml );
 int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
+/* parse/gram.c */
+ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
+pboolean pp_prod_append( ppprod* p, ppsym* sym );
+ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
+ppsym* pp_prod_getfromrhs( ppprod* p, int off );
+char* pp_prod_to_str( ppprod* p );
+ppgram* pp_gram_free( ppgram* g );
+ppgram* pp_gram_create( char* def );
+void pp_sym_print( ppsym* s );
+void pp_gram_print( ppgram* g );
+
+/* parse/ll.c */
+pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end );
+
+/* parse/lr.c */
+plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
+pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end );
+
 /* value/value.c */
 pboolean pg_value_init( pgvalue* val );
 pgvalue* pg_value_create( void );
