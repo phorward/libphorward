@@ -279,6 +279,9 @@ pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end );
 plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end );
 
+/* parse/scan.c */
+pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );
+
 /* value/value.c */
 pboolean pg_value_init( pgvalue* val );
 pgvalue* pg_value_create( void );

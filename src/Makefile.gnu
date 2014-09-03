@@ -32,6 +32,7 @@ SRC = \
 	parse/gram.c \
 	parse/ll.c \
 	parse/lr.c \
+	parse/scan.c \
 	\
 	value/value.c \
 	value/value.conv.c \

@@ -566,9 +566,6 @@ struct _regex
 
 
 
-#define NAMELEN			80
-#define MALLOCSTEP		255
-
 typedef enum
 {
 	PPSYMTYPE_NONTERM,
@@ -622,8 +619,6 @@ struct _ppgram
 	ppsym*			goal;
 	ppsym*			eof;
 };
-
-
 
 typedef struct
 {
@@ -1226,6 +1221,9 @@ pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end );
 
 plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end );
+
+
+pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );
 
 
 pboolean pg_value_init( pgvalue* val );

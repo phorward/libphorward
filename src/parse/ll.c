@@ -41,7 +41,6 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 	int			i;
 	int			j;
 	pboolean	pnext;
-	pboolean	rnext;
 	ppmatch*	match;
 	ppmatch*	smatch;
 	ppmatch*	ematch;
@@ -82,61 +81,39 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 						|| ( loop > 0 && is_direct_lrec( p ) ) ) )
 				continue;
 
-			for( j = 0, ptr = start, rnext = TRUE;
-					rnext && ( rsym = pp_prod_getfromrhs( p, j ) ); j++ )
+			for( j = 0, ptr = start;
+					( rsym = pp_prod_getfromrhs( p, j ) ); j++ )
 			{
 				/*
 				printf( "Testing >%s<\n", ptr );
 				*/
-				switch( rsym->type )
+				if( rsym->type == PPSYMTYPE_NONTERM )
 				{
-					case PPSYMTYPE_CCL:
-						if( p_ccl_test( rsym->ccl, *ptr ) )
-							ptr++;
-						else
-							rnext = FALSE;
-
-						break;
-
-					case PPSYMTYPE_STRING:
-						if( !strncmp( ptr, rsym->name, strlen( rsym->name ) ) )
-							ptr += strlen( rsym->name );
-						else
-							rnext = FALSE;
-
-						break;
-
-					case PPSYMTYPE_NONTERM:
-						for( e = plist_prev( sme ); e; e = plist_prev( e ) )
+					for( e = plist_prev( sme ); e; e = plist_prev( e ) )
+					{
+						match = (ppmatch*)plist_access( e );
+						if( match->start < ptr )
 						{
-							match = (ppmatch*)plist_access( e );
-							if( match->start < ptr )
-							{
-								e = (plistel*)NULL;
-								break;
-							}
-
-							if( match->type == PPMATCH_END
-									&& match->sym == rsym )
-							{
-								ptr = match->end;
-								break;
-							}
+							e = (plistel*)NULL;
+							break;
 						}
 
-						if( !e )
-							rnext = pp_ll_PARSE( ast, grm, ptr, &ptr, rsym );
+						if( match->type == PPMATCH_END
+								&& match->sym == rsym )
+						{
+							ptr = match->end;
+							break;
+						}
+					}
 
-						break;
-
-					default:
-						MISSINGCASE;
-						rnext = FALSE;
+					if( !e && !pp_ll_PARSE( ast, grm, ptr, &ptr, rsym ) )
 						break;
 				}
+				else if( !pp_sym_in_input( rsym, ptr, &ptr ) )
+					break;
 			}
 
-			if( rnext )
+			if( !rsym )
 				break;
 
 			while( plist_next( sme ) )

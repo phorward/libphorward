@@ -9,9 +9,6 @@ Usage:	Phorward Parsing Library
 		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
 ----------------------------------------------------------------------------- */
 
-#define NAMELEN			80
-#define MALLOCSTEP		255
-
 typedef enum
 {
 	PPSYMTYPE_NONTERM,
@@ -65,8 +62,6 @@ struct _ppgram
 	ppsym*			goal;
 	ppsym*			eof;
 };
-
-
 
 typedef struct
 {

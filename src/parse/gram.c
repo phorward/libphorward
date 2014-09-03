@@ -151,6 +151,8 @@ char* pp_prod_to_str( ppprod* p )
 
 /* Parse BNF */
 
+#define NAMELEN			80
+
 #define PARSEERROR( def, expect )  \
 	fprintf( stderr, "Parse error at >%.30s< %s%s%s\n", \
 		*def, ( pstrlen( *def ) > 30 ) ? "..." : "", \

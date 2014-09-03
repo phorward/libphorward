@@ -10,6 +10,7 @@ Usage:	Phorward Parsing Library
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
+#define MALLOCSTEP		255
 
 /* Closure item */
 typedef struct
@@ -49,7 +50,7 @@ typedef struct
 {
 	ppsym*			symbol;	/* Symbol */
 	pplrstate*		state;	/* State */
-} pglrse;
+} pplrse;
 
 #define PPLR_SHIFT	1
 #define PPLR_REDUCE	2
@@ -915,15 +916,159 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 	RETURN( states );
 }
 
-static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char** start, char** end,
+static pplrse* push( pstack* stack, ppsym* symbol, pplrstate* state )
+{
+	pplrse	e;
+
+	memset( &e, 0, sizeof( pplrse ) );
+	e.symbol = symbol;
+	e.state = state;
+
+	pstack_push( stack, &e );
+	return (pplrse*)pstack_top( stack );
+}
+
+static pplrse* pop( pstack* stack, int n )
+{
+	pplrse*	e;
+
+	while( n-- > 0 )
+		e = (pplrse*)pstack_pop( stack );
+
+	return (pplrse*)pstack_top( stack );
+}
+
+static pboolean get_action( pplrstate** shift, ppprod** reduce,
+								pplrse* tos, char** end )
+{
+	plistel*	e;
+	pplrcolumn*	col;
+
+	*shift = (pplrstate*)NULL;
+	*reduce = (ppprod*)NULL;
+
+	plist_for( tos->state->actions, e )
+	{
+		col = (pplrcolumn*)plist_access( e );
+
+		fprintf( stderr, "Testing %s on >%s<\n", col->symbol->name, *end );
+
+		if( pp_sym_in_input( col->symbol, *end, end ) )
+		{
+			*shift = col->shift;
+			*reduce = col->reduce;
+			return TRUE;
+		}
+	}
+
+	if( ( *reduce = tos->state->def_prod ) )
+		return TRUE;
+
+	return FALSE;
+}
+
+static pboolean get_goto( pplrstate** shift, ppprod** reduce,
+								pplrse* tos, ppsym* lhs )
+{
+	plistel*	e;
+	pplrcolumn*	col;
+
+	*shift = (pplrstate*)NULL;
+	*reduce = (ppprod*)NULL;
+
+	plist_for( tos->state->gotos, e )
+	{
+		col = (pplrcolumn*)plist_access( e );
+
+		if( col->symbol == lhs )
+		{
+			*shift = col->shift;
+			*reduce = col->reduce;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 									plist* states )
 {
+	ppsym*		lhs;
 	pstack*		stack;
+	pplrse*		tos;
+	pplrstate*	shift;
+	ppprod*		reduce;
+	pboolean	token;
 
+	stack = pstack_create( sizeof( pplrse ), MALLOCSTEP );
+	tos = push( stack, (ppsym*)NULL,
+			(pplrstate*)plist_access(
+				plist_first( states ) ) );
+
+	*end = start;
+
+	do
+	{
+		fprintf( stderr, "State on Top %d\n",
+					plist_offset( plist_get_by_ptr( states, tos->state ) ) );
+		fprintf( stderr, "BEFORE >%s<\n", *end );
+
+		/* Action table processing */
+		if( !get_action( &shift, &reduce, tos, end ) )
+		{
+			/* Parse Error */
+			/* TODO: Recovery */
+			fprintf( stderr, "PARSE ERROR\n" );
+			return FALSE;
+		}
+
+		fprintf( stderr, "AFTER  >%s<\n", *end );
+
+		/* Shift */
+		if( shift )
+		{
+			if( reduce )
+				fprintf( stderr,
+					"shift/reduce by production %d\n", reduce->id );
+			else
+				fprintf( stderr,
+					"shift to state %d\n",
+						plist_offset( plist_get_by_ptr( states, shift ) ) );
+
+			tos = push( stack, (ppsym*)NULL,
+							reduce ? (pplrstate*)NULL : shift );
+		}
+
+		/* Reduce */
+		while( reduce )
+		{
+			fprintf( stderr,
+				"reduce by production %d\n"
+				"popping %d items off the stack, replacing by '%s'\n",
+				reduce->id,
+				plist_count( reduce->rhs ),
+				reduce->lhs->name );
+
+			tos = pop( stack, plist_count( reduce->rhs ) );
+
+			/* Goal symbol reduced? */
+			if( reduce->lhs == grm->goal && pstack_count( stack ) == 1 )
+				break;
+
+			lhs = reduce->lhs;
+			get_goto( &shift, &reduce, tos, reduce->lhs );
+			tos = push( stack, lhs, shift );
+		}
+	}
+	while( !reduce );
+
+	return TRUE;
 }
 
 pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end )
 {
+	pboolean	ret;
 	pboolean	myast		= FALSE;
 	plist*		states;
 
@@ -934,6 +1079,8 @@ pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end )
 	}
 
 	states = pp_parser_lr_closure( grm, TRUE );
+	pp_lrstates_print( states );
+	ret = pp_lr_PARSE( (plist*)NULL, grm, start, end, states );
 
 	/*
 	if( !ast )
@@ -942,6 +1089,7 @@ pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end )
 		myast = TRUE;
 	}
 	*/
+	pp_lrstates_free( states );
 
-	return TRUE;
+	return ret;
 }
