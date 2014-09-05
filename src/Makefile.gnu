@@ -29,6 +29,7 @@ SRC = \
 	util/system.c \
 	xml/xml.c \
 	\
+	parse/ast.c \
 	parse/gram.c \
 	parse/ll.c \
 	parse/lr.c \

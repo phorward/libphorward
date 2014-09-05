@@ -1205,6 +1205,9 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
+void pp_ast_print( plist* ast );
+
+
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
 pboolean pp_prod_append( ppprod* p, ppsym* sym );
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );

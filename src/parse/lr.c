@@ -48,8 +48,11 @@ typedef struct
 /* LR-Stackitem */
 typedef struct
 {
-	ppsym*			symbol;	/* Symbol */
-	pplrstate*		state;	/* State */
+	ppsym*			symbol;			/* Symbol */
+	pplrstate*		state;			/* State */
+	char*			start;
+	char*			end;
+	plistel*		ebegin;
 } pplrse;
 
 #define PPLR_SHIFT	1
@@ -916,29 +919,61 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 	RETURN( states );
 }
 
-static pplrse* push( pstack* stack, ppsym* symbol, pplrstate* state )
+static pplrse* push( pstack* stack, ppsym* symbol,
+						pplrstate* state, char* start, char* end )
 {
 	pplrse	e;
 
 	memset( &e, 0, sizeof( pplrse ) );
 	e.symbol = symbol;
 	e.state = state;
+	e.start = start;
+	e.end = end;
 
 	pstack_push( stack, &e );
 	return (pplrse*)pstack_top( stack );
 }
 
-static pplrse* pop( pstack* stack, int n )
+static pplrse* pop( pstack* stack, int n, char** start, plistel** ebegin )
 {
 	pplrse*	e;
 
+	*start = (char*)NULL;
+	*ebegin = (plistel*)NULL;
+
 	while( n-- > 0 )
+	{
 		e = (pplrse*)pstack_pop( stack );
+
+		if( !n )
+		{
+			*start = e->start;
+			*ebegin = e->ebegin;
+		}
+	}
 
 	return (pplrse*)pstack_top( stack );
 }
 
-static pboolean get_action( pplrstate** shift, ppprod** reduce,
+static void print_stack( char* title, plist* states, pstack* stack )
+{
+	pplrse*	e;
+	int		i;
+
+	fprintf( stderr, "STACK DUMP %s\n", title );
+
+	for( i = 0; i < pstack_count( stack ); i++ )
+	{
+		e = (pplrse*)pstack_access( stack, i );
+		fprintf( stderr, "%02d: %s %d >%.*s<\n",
+			i, e->symbol ? e->symbol->name : "(null)",
+				e->state ?
+					plist_offset( plist_get_by_ptr( states, e->state ) ) : -1,
+			e->end - e->start, e->start );
+	}
+}
+
+static pboolean get_action( pplrstate** shift, ppprod** reduce, ppsym** on_sym,
 								pplrse* tos, char** end )
 {
 	plistel*	e;
@@ -946,6 +981,7 @@ static pboolean get_action( pplrstate** shift, ppprod** reduce,
 
 	*shift = (pplrstate*)NULL;
 	*reduce = (ppprod*)NULL;
+	*on_sym = (ppsym*)NULL;
 
 	plist_for( tos->state->actions, e )
 	{
@@ -957,6 +993,8 @@ static pboolean get_action( pplrstate** shift, ppprod** reduce,
 		{
 			*shift = col->shift;
 			*reduce = col->reduce;
+
+			*on_sym = col->symbol;
 			return TRUE;
 		}
 	}
@@ -995,27 +1033,33 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 									plist* states )
 {
 	ppsym*		lhs;
+	ppsym*		la;
 	pstack*		stack;
 	pplrse*		tos;
 	pplrstate*	shift;
 	ppprod*		reduce;
 	pboolean	token;
+	plistel*	ebegin;
+	ppmatch*	mbegin;
+	ppmatch*	mend;
 
 	stack = pstack_create( sizeof( pplrse ), MALLOCSTEP );
-	tos = push( stack, (ppsym*)NULL,
-			(pplrstate*)plist_access(
-				plist_first( states ) ) );
+	tos = push( stack, grm->goal,
+					(pplrstate*)plist_access(
+						plist_first( states ) ), start, start );
 
 	*end = start;
 
 	do
 	{
+		start = *end;
+
 		fprintf( stderr, "State on Top %d\n",
 					plist_offset( plist_get_by_ptr( states, tos->state ) ) );
 		fprintf( stderr, "BEFORE >%s<\n", *end );
 
 		/* Action table processing */
-		if( !get_action( &shift, &reduce, tos, end ) )
+		if( !get_action( &shift, &reduce, &la, tos, end ) )
 		{
 			/* Parse Error */
 			/* TODO: Recovery */
@@ -1030,14 +1074,17 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 		{
 			if( reduce )
 				fprintf( stderr,
-					"shift/reduce by production %d\n", reduce->id );
+					"shift on %s and reduce by production %d\n",
+						la->name,
+						reduce->id );
 			else
 				fprintf( stderr,
-					"shift to state %d\n",
+					"shift on %s to state %d\n",
+						la->name,
 						plist_offset( plist_get_by_ptr( states, shift ) ) );
 
-			tos = push( stack, (ppsym*)NULL,
-							reduce ? (pplrstate*)NULL : shift );
+			tos = push( stack, la, reduce ? (pplrstate*)NULL : shift,
+							start, *end );
 		}
 
 		/* Reduce */
@@ -1045,23 +1092,44 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 		{
 			fprintf( stderr,
 				"reduce by production %d\n"
-				"popping %d items off the stack, replacing by '%s'\n",
+				"popping %d items off the stack, replacing by %s\n",
 				reduce->id,
 				plist_count( reduce->rhs ),
 				reduce->lhs->name );
 
-			tos = pop( stack, plist_count( reduce->rhs ) );
+			print_stack( "Before Reduce", states, stack );
+
+			/* Pop elements off the stack */
+			tos = pop( stack, plist_count( reduce->rhs ), &start, &ebegin );
+			lhs = reduce->lhs;
+
+			/* Construction of AST */
+			ebegin = plist_insert( ast, ebegin, (char*)NULL, (void*)NULL );
+			mbegin = (ppmatch*)plist_access( ebegin );
+			mend = (ppmatch*)plist_malloc( ast );
+
+			mbegin->type = PPMATCH_BEGIN;
+			mend->type = PPMATCH_END;
+			mend->start = mbegin->start = start;
+			mend->end = mbegin->end = *end;
+			mend->prod = mbegin->prod = reduce;
+			mend->sym = mbegin->sym = lhs;
 
 			/* Goal symbol reduced? */
-			if( reduce->lhs == grm->goal && pstack_count( stack ) == 1 )
+			if( lhs == grm->goal && pstack_count( stack ) == 1 )
 				break;
 
-			lhs = reduce->lhs;
+			/* Push goto state */
 			get_goto( &shift, &reduce, tos, reduce->lhs );
-			tos = push( stack, lhs, shift );
+			tos = push( stack, lhs, shift, start, *end );
+			tos->ebegin = ebegin;
+
+			print_stack( "Behind Reduce", states, stack );
 		}
 	}
 	while( !reduce );
+
+	print_stack( "FINAL", states, stack );
 
 	return TRUE;
 }
@@ -1080,16 +1148,21 @@ pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end )
 
 	states = pp_parser_lr_closure( grm, TRUE );
 	pp_lrstates_print( states );
-	ret = pp_lr_PARSE( (plist*)NULL, grm, start, end, states );
 
-	/*
 	if( !ast )
 	{
 		ast = plist_create( sizeof( ppmatch ), PLIST_MOD_RECYCLE );
 		myast = TRUE;
 	}
-	*/
+
+	ret = pp_lr_PARSE( ast, grm, start, end, states );
 	pp_lrstates_free( states );
+
+	if( myast )
+	{
+		pp_ast_print( ast );
+		plist_free( ast );
+	}
 
 	return ret;
 }

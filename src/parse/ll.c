@@ -146,8 +146,6 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 
 pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end )
 {
-	plistel*	e;
-	ppmatch*	match;
 	pboolean	myast	= FALSE;
 	pboolean	ret;
 
@@ -167,27 +165,7 @@ pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end )
 
 	if( myast )
 	{
-		char	gap[80+1];
-		*gap = '\0';
-
-		for( e = plist_first( ast ); e; e = plist_next( e ) )
-		{
-			match = (ppmatch*)plist_access( e );
-
-			if( match->type == PPMATCH_END && *gap )
-				gap[ strlen( gap ) - 1 ] = '\0';
-
-			printf( "%s%s %s >%.*s<\n",
-				gap,
-				match->type == PPMATCH_BEGIN ? "{" : "}",
-				match->sym->name,
-				match->end - match->start,
-				match->start );
-
-			if( match->type == PPMATCH_BEGIN )
-				strcat( gap, " " );
-		}
-
+		pp_ast_print( ast );
 		plist_free( ast );
 	}
 

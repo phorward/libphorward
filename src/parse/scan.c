@@ -41,7 +41,9 @@ pboolean pp_sym_in_input( ppsym* sym, char* start, char** end )
 			if( ! **end )
 				return TRUE;
 
+		case PPSYMTYPE_NONTERM:
 		default:
+			/* Not a valid symbol for recognition */
 			break;
 	}
 
