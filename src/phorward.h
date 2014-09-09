@@ -565,85 +565,6 @@ struct _regex
 
 
 
-
-typedef enum
-{
-	PPSYMTYPE_NONTERM,
-	PPSYMTYPE_CCL,
-	PPSYMTYPE_STRING,
-	PPSYMTYPE_SPECIAL
-} ppsymtype;
-
-typedef struct _ppsym	ppsym;
-typedef struct _ppprod	ppprod;
-typedef struct _ppgram	ppgram;
-
-#define PPFLAG_CALLED	1
-#define PPFLAG_DEFINED	2
-#define PPFLAG_NULLABLE	4
-#define PPFLAG_LEFTREC	8
-
-struct _ppprod
-{
-	int				id;
-	ppsym*			lhs;
-	plist*			rhs;
-
-	int				flags;
-
-	char*			strval;
-};
-
-struct _ppsym
-{
-	int				id;
-	ppsymtype		type;
-
-	char*			name;
-	pboolean		emit;
-
-	int				flags;
-
-	plist*			first;
-
-	pccl*			ccl;
-	plist*			productions;
-};
-
-struct _ppgram
-{
-	plist*			symbols;
-	plist*			productions;
-
-	ppsym*			ws;
-	ppsym*			goal;
-	ppsym*			eof;
-};
-
-typedef struct
-{
-	enum
-	{
-		PPMATCH_BEGIN,
-		PPMATCH_END
-	} 				type;
-
-	ppsym*			sym;
-	ppprod*			prod;
-
-	char*			start;
-	char*			end;
-
-	int				line;
-	int				col;
-} ppmatch;
-
-
-
-
-
-
-
 #ifndef PGVALUETYPE_H
 #define PGVALUETYPE_H
 
@@ -722,215 +643,79 @@ typedef struct
 
 
 
-typedef struct _pggrammar			pggrammar;
-typedef struct _pgproduction		pgprod;
-typedef struct _pgsymbol			pgsymbol;
-typedef struct _pgtoken				pgtoken;
 
-typedef struct _pgastnode			pgastnode;	
-typedef struct _pgast				pgast;
 
 typedef enum
 {
-	PGSYMTYPE_UNDEFINED,			
-	PGSYMTYPE_TERMINAL,				
-	PGSYMTYPE_NONTERMINAL			
-} pgsymtype;
+	PPSYMTYPE_NONTERM,
+	PPSYMTYPE_CCL,
+	PPSYMTYPE_STRING,
+	PPSYMTYPE_SPECIAL
+} ppsymtype;
 
-typedef enum
+typedef struct _ppsym	ppsym;
+typedef struct _ppprod	ppprod;
+typedef struct _ppgram	ppgram;
+
+#define PPFLAG_CALLED	1
+#define PPFLAG_DEFINED	2
+#define PPFLAG_NULLABLE	4
+#define PPFLAG_LEFTREC	8
+
+struct _ppprod
 {
-	PGASSOC_NONE,					
-	PGASSOC_LEFT,					
-	PGASSOC_RIGHT,					
-	PGASSOC_NOASSOC					
-} pgassoc;
+	int				id;
+	ppsym*			lhs;
+	plist*			rhs;
 
-typedef enum
-{
-	PGPARADIGM_UNDEFINED,			
-	
-	PGPARADIGM_LR0,					
-	PGPARADIGM_SLR1,				
-	PGPARADIGM_LR1,					
-	PGPARADIGM_LALR1,				
+	int				flags;
 
-	PGPARADIGM_LL1,					
-	
-	PGPARADIGM_EOP					
-} pgparadigm;
-
-
-struct _pgsymbol
-{
-	pggrammar*		grammar;		
-
-	int				id;				
-	pgsymtype		type;			
-	char*			name;			
-
-	pboolean		nullable;		
-	pboolean		lrec;			
-
-	plist*			first;			
-	plist*			follow;			
-
-	
-	pregex_ptn*		ptn;			
-	pregex_accept	accept;			
-
-	int				prec;			
-	pgassoc			assoc;			
-
-	
-	plist*			productions;	
-
-	pboolean		emit;			
+	char*			strval;
 };
 
-typedef pgsymbol	pgterm;		
-typedef pgsymbol	pgnonterm;	
-
-
-struct _pgproduction
+struct _ppsym
 {
-	pggrammar*		grammar;		
+	int				id;
+	ppsymtype		type;
 
-	int				id;				
+	char*			name;
+	pboolean		emit;
 
-	pgsymbol*		lhs;			
-	plist*			rhs;			
+	int				flags;
 
-	int				prec;			
-	pgassoc			assoc;			 
-	pboolean		lrec;			
+	plist*			first;
 
-	plist*			select;			
-
-	char*			strval;			
+	pccl*			ccl;
+	plist*			productions;
 };
 
-
-struct _pggrammar
+struct _ppgram
 {
-	plist*			symbols;		
-	plist*			productions;	
+	plist*			symbols;
+	plist*			productions;
 
-	int				status;			
-
-#define PGGRAMMAR_STAT_NONE			0	
-#define PGGRAMMAR_STAT_LOCKED		1	
-#define PGGRAMMAR_STAT_FIRSTDONE	2	
-#define PGGRAMMAR_STAT_FOLLOWDONE	4	
-#define PGGRAMMAR_STAT_SELECTDONE	8	
-#define PGGRAMMAR_STAT_LRECDONE		16	
-
-	pgnonterm*		goal;			
-	pgterm*			eoi;			
-	pgterm*			error;			
-
-	pregex_ptn*		whitespace;		
+	ppsym*			ws;
+	ppsym*			goal;
+	ppsym*			eof;
 };
 
-
-struct _pgtoken
+typedef struct
 {
-	pgsymbol*		symbol;			
-	int				flags;			
-
-	pgvalue*		lexem;			
-
-	int				row;			
-	int				col;			
-};
-
-
-struct _pgastnode
-{
-	pgsymbol*		symbol;		
-	pgtoken*		token;		
-
-	pgastnode*		parent;		
-	pgastnode*		child;		
-	pgastnode*		prev;		
-	pgastnode*		next;		
-};
-
-
-struct _pgast
-{
-	pggrammar*		grammar;	
-	pgastnode*		root;		
-};
-
-
-
-typedef struct _pglexer			pglexer;
-
-
-struct _pglexer
-{
-	pggrammar*		grammar;		
-	int				flags;			
-
-#define PG_LEXMOD_NONE			0		
-#define PG_LEXMOD_SKIP_UNKNOWN	1		
-#define PG_LEXMOD_UTF8			2		
-#define PG_LEXMOD_WCHAR			4		
-
-	int				states_cnt;		
-	wchar_t**			states;			
-
-	
-	int				source;
-#define PG_LEX_SRCTYPE_FUNC		0		
-#define PG_LEX_SRCTYPE_STRING		1		
-#define	PG_LEX_SRCTYPE_STREAM		2		
-
-	union
+	enum
 	{
-		char*			str;			
-		FILE*			stream;			
-		unsigned int	(*func)();		
-	} src;							
+		PPMATCH_BEGIN,
+		PPMATCH_END
+	} 				type;
 
-	wchar_t			eof;			
-	pboolean		is_eof;			
+	ppsym*			sym;
+	ppprod*			prod;
 
-	
-	int				chsize;
+	char*			start;
+	char*			end;
 
-	wchar_t*		bufbeg;			
-	wchar_t*		bufend;			
-	size_t			bufsiz;			
-
-	char*			lexem;			
-	size_t			len;			
-
-#define PLEX_BUFSTEP	1024
-
-	int				line;			
-	int				column;			
-
-	pgtoken*		token;			
-};
-
-
-
-typedef struct _pgparser		pgparser;
-
-
-struct _pgparser
-{
-	pgparadigm		paradigm;	
-
-	pggrammar*		grammar;	
-	pglexer*		lexer;		
-
-	plist*			states;		
-
-	pboolean		optimize;	
-	char*			source;		
-};
+	int				line;
+	int				col;
+} ppmatch;
 
 
 
@@ -1275,138 +1060,6 @@ char* pg_value_set_string( pgvalue* val, char* s );
 wchar_t* pg_value_set_wcstring( pgvalue* val, wchar_t* ws );
 wchar_t* pg_value_set_wstring( pgvalue* val, wchar_t* ws );
 void* pg_value_set_ptr( pgvalue* val, void* ptr );
-
-
-pgast* pg_ast_create( pggrammar* g );
-pgast* pg_ast_free( pgast* ast );
-void pg_ast_print( pgast* ast );
-pgastnode* pg_ast_get_root( pgast* ast );
-pboolean pg_ast_set_root( pgast* ast, pgastnode* root );
-
-
-pgastnode* pg_astnode_create( pgsymbol* symbol );
-pgastnode* pg_astnode_free( pgastnode* node );
-void pg_astnode_print( pgastnode* node, FILE* stream );
-pgsymbol* pg_astnode_get_symbol( pgastnode* node );
-pboolean pg_astnode_set_symbol( pgastnode* node, pgsymbol* symbol );
-pgtoken* pg_astnode_get_token( pgastnode* node );
-pboolean pg_astnode_set_token( pgastnode* node, pgtoken* token );
-
-
-void pg_grammar_from_bnf( void );
-
-
-void PGERR( pggrammar* g, char* file, int line, char* fmt, ... );
-
-
-pggrammar* pg_grammar_create( void );
-pggrammar* pg_grammar_free( pggrammar* g );
-pboolean pg_grammar_reset( pggrammar* grammar );
-pboolean pg_grammar_lock( pggrammar* grammar );
-pboolean pg_grammar_unlock( pggrammar* grammar );
-void pg_grammar_print( pggrammar* g );
-BOOLEAN pg_grammar_compute_first( pggrammar* g );
-BOOLEAN pg_grammar_compute_follow( pggrammar* g );
-BOOLEAN pg_grammar_compute_select( pggrammar* g );
-BOOLEAN pg_grammar_find_lrec( pggrammar* g );
-pgterm* pg_grammar_get_goal( pggrammar* g );
-BOOLEAN pg_grammar_set_goal( pggrammar* g, pgnonterm* goal );
-pgterm* pg_grammar_get_eoi( pggrammar* g );
-BOOLEAN pg_grammar_set_eoi( pggrammar* g, pgterm* eoi );
-BOOLEAN pg_grammar_parse_whitespace( pggrammar* grammar, char* str );
-BOOLEAN pg_grammar_set_whitespace( pggrammar* grammar, pregex_ptn* whitespace );
-pregex_ptn* pg_grammar_get_whitespace( pggrammar* grammar );
-pboolean pg_grammar_locked( pggrammar* grammar );
-
-
-pgnonterm* pg_nonterm_create( pggrammar* grammar, char* name );
-pgnonterm* pg_nonterm_drop( pgterm* nonterminal );
-pgnonterm* pg_nonterm_get( pggrammar* g, int offset );
-pboolean pg_nonterm_get_emit( pgnonterm* nt );
-pboolean pg_nonterm_set_emit( pgnonterm* nt, pboolean emit );
-
-
-pgprod* pg_prod_create( pggrammar* g, pgnonterm* lhs, ... );
-pgprod* pg_prod_drop( pgprod* p );
-char* pg_prod_to_string( pgprod* p );
-void pg_prod_print( pgprod* p, FILE* f );
-pboolean pg_prod_append( pgprod* p, pgsymbol* sym );
-pboolean pg_prod_append_with_key( pgprod* p, char* key, pgsymbol* sym );
-pgprod* pg_prod_get( pggrammar* grammar, int i );
-pgprod* pg_prod_get_by_lhs( pgnonterm* lhs, int i );
-pgsymbol* pg_prod_get_rhs( pgprod* p, int i );
-pgsymbol* pg_prod_get_rhs_by_key( pgprod* p, char* key );
-int pg_prod_get_id( pgprod* p );
-pggrammar* pg_prod_get_grammar( pgprod* p );
-pgnonterm* pg_prod_get_lhs( pgprod* p );
-int pg_prod_get_rhs_length( pgprod* p );
-
-
-pgsymbol* pg_symbol_create( pggrammar* grammar, pgsymtype type, char* name );
-pgsymbol* pg_symbol_free( pgsymbol* symbol );
-BOOLEAN pg_symbol_reset( pgsymbol* s );
-void pg_symbol_print( pgsymbol* symbol, FILE* f );
-BOOLEAN pg_symbol_is_term( pgsymbol* symbol );
-BOOLEAN pg_symbol_is_nonterm( pgsymbol* symbol );
-pgsymbol* pg_symbol_get( pggrammar* g, int i );
-pgsymbol* pg_symbol_get_by_id( pggrammar* g, int id );
-int pg_symbol_get_id( pgsymbol* s );
-pgsymtype pg_symbol_get_type( pgsymbol* s );
-pggrammar* pg_symbol_get_grammar( pgsymbol* s );
-char* pg_symbol_get_name( pgsymbol* s );
-
-
-pgterm* pg_term_create( pggrammar* grammar, char* name, char* pattern );
-pgterm* pg_term_drop( pgterm* terminal );
-pgterm* pg_term_get( pggrammar* g, int offset );
-BOOLEAN pg_term_parse_pattern( pgterm* terminal, char* pattern );
-BOOLEAN pg_term_set_pattern( pgterm* terminal, pregex_ptn* ptn );
-pregex_ptn* pg_term_get_pattern( pgterm* terminal );
-
-
-pgtoken* pg_token_create( pgsymbol* sym, pgvalue* lexem );
-pboolean pg_token_reset( pgtoken* tok );
-pgtoken* pg_token_free( pgtoken* tok );
-void pg_token_print( pgtoken* tok );
-pboolean pg_token_set_symbol( pgtoken* tok, pgsymbol* symbol );
-pgsymbol* pg_token_get_symbol( pgtoken* tok );
-pboolean pg_token_set_lexem( pgtoken* tok, pgvalue* lexem );
-pgvalue* pg_token_get_lexem( pgtoken* tok );
-
-
-pglexer* pg_lexer_create( pgparser* parser );
-pboolean pg_lexer_reset( pglexer* lex );
-pglexer* pg_lexer_free( pglexer* lex );
-pboolean pg_lexer_set_source( pglexer* lex, int type, void* ptr );
-pgtoken* pg_lexer_fetch( pglexer* lex );
-
-
-pboolean pg_parser_ll_closure( pgparser* parser );
-pboolean pg_parser_ll_reset( pgparser* parser );
-
-
-pboolean pg_parser_ll_parse( pgparser* parser, pgast* ast );
-
-
-BOOLEAN pg_parser_lr_closure( pgparser* parser );
-BOOLEAN pg_parser_lr_reset( pgparser* parser );
-
-
-pboolean pg_parser_lr_parse( pgparser* parser, pgast* ast );
-
-
-pgparser* pg_parser_create( pggrammar* grammar, pgparadigm paradigm );
-pgparser* pg_parser_free( pgparser* parser );
-BOOLEAN pg_parser_generate( pgparser* p );
-BOOLEAN pg_parser_parse( pgparser* p );
-pgast* pg_parser_parse_to_ast( pgparser* p );
-BOOLEAN pg_parser_is_lr( pgparser* p );
-BOOLEAN pg_parser_is_ll( pgparser* p );
-pggrammar* pg_parser_get_grammar( pgparser* p );
-pboolean pg_parser_get_optimize( pgparser* p );
-pboolean pg_parser_set_optimize( pgparser* p, pboolean optimize );
-char* pg_parser_get_source( pgparser* p );
-pboolean pg_parser_set_source( pgparser* p, char* source );
 
 
 #ifdef __cplusplus
