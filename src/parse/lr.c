@@ -1085,6 +1085,22 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 
 			tos = push( stack, la, reduce ? (pplrstate*)NULL : shift,
 							start, *end );
+
+			/* Show symbol in AST
+				(not scheduled, but for a better view experience) */
+			ebegin = plist_insert( ast, (plistel*)NULL,
+									(char*)NULL, (void*)NULL );
+			mbegin = (ppmatch*)plist_access( ebegin );
+			mend = (ppmatch*)plist_malloc( ast );
+
+			mbegin->type = PPMATCH_BEGIN;
+			mend->type = PPMATCH_END;
+			mend->start = mbegin->start = start;
+			mend->end = mbegin->end = *end;
+			mend->prod = mbegin->prod = (ppprod*)NULL;
+			mend->sym = mbegin->sym = la;
+
+			tos->ebegin = ebegin;
 		}
 
 		/* Reduce */
