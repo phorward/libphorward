@@ -335,6 +335,7 @@ static int pp_gram_read( ppgram* g, char** def )
 	char*		start;
 	char*		end;
 	ppsym*		nonterm;
+	plistel*	e;
 	int			defcount	= 0;
 	char		name		[ NAMELEN + 1 ];
 
@@ -364,13 +365,32 @@ static int pp_gram_read( ppgram* g, char** def )
 
 			nonterm->flags |= PPFLAG_DEFINED;
 
-			if( !g->goal )
+			/* Read nonterminal attributation */
+			while( TRUE )
 			{
-				g->goal = nonterm;
-				nonterm->flags |= PPFLAG_CALLED;
+				SKIPWHITE();
+
+				/* Goal symbol defined */
+				if( **def == '$' )
+				{
+					(*def)++;
+					if( g->goal && g->goal != nonterm )
+						/* TODO: error reporting */
+						fprintf( stderr, "Symbol '%s' already defined as goal\n",
+							g->goal->name );
+					else
+						g->goal = nonterm;
+				}
+				/* Nonterminal is a node in the AST? */
+				else if( **def == '#' )
+				{
+					(*def)++;
+					nonterm->flags |= PPFLAG_ASTNODE;
+				}
+				else
+					break;
 			}
 
-			SKIPWHITE();
 			if( !read_char( def, ':' ) )
 				return -1;
 
@@ -388,6 +408,33 @@ static int pp_gram_read( ppgram* g, char** def )
 			return -1;
 		}
 	}
+
+	/* If no goal symbol provided, mark first nontermal as goal */
+	if( !g->goal )
+	{
+		plist_for( g->symbols, e )
+		{
+			nonterm = (ppsym*)plist_access( e );
+
+			if( nonterm->type == PPSYMTYPE_NONTERM )
+			{
+				g->goal = nonterm;
+				break;
+			}
+		}
+
+		if( !g->goal )
+		{
+			/* TODO: error reporting */
+			fprintf( stderr, "Grammar must at least provice one "
+								"nonterminal as goal symbol\n",
+						g->goal->name );
+			return -1;
+		}
+	}
+
+	/* Goal symbol is always "called"! */
+	g->goal->flags |= PPFLAG_CALLED;
 
 	return defcount;
 }

@@ -1,0 +1,12 @@
+
+int# : '0-9'+ ;
+f: '(' e ')' | int ;
+
+mul# : t '*' f ;
+div# : t '/' f ;
+t : mul | div | f ;
+
+add# : e '+' t ;
+sub# : e '-' t ;
+
+e$: add | sub | t ;

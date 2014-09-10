@@ -661,6 +661,7 @@ typedef struct _ppgram	ppgram;
 #define PPFLAG_DEFINED	2
 #define PPFLAG_NULLABLE	4
 #define PPFLAG_LEFTREC	8
+#define PPFLAG_ASTNODE	16
 
 struct _ppprod
 {

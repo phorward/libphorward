@@ -945,11 +945,10 @@ static pplrse* pop( pstack* stack, int n, char** start, plistel** ebegin )
 	{
 		e = (pplrse*)pstack_pop( stack );
 
-		if( !n )
-		{
-			*start = e->start;
+		*start = e->start;
+
+		if( e->ebegin )
 			*ebegin = e->ebegin;
-		}
 	}
 
 	return (pplrse*)pstack_top( stack );
@@ -1062,7 +1061,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 		if( !get_action( &shift, &reduce, &la, tos, end ) )
 		{
 			/* Parse Error */
-			/* TODO: Recovery */
+			/* TODO: Error Recovery */
 			fprintf( stderr, "PARSE ERROR\n" );
 			return FALSE;
 		}
@@ -1086,21 +1085,24 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 			tos = push( stack, la, reduce ? (pplrstate*)NULL : shift,
 							start, *end );
 
-			/* Show symbol in AST
-				(not scheduled, but for a better view experience) */
-			ebegin = plist_insert( ast, (plistel*)NULL,
-									(char*)NULL, (void*)NULL );
-			mbegin = (ppmatch*)plist_access( ebegin );
-			mend = (ppmatch*)plist_malloc( ast );
+			/* Shifted symbol becomes AST node?
+				(not implemented in current grammar parser yet) */
+			if( la->flags & PPFLAG_ASTNODE )
+			{
+				ebegin = plist_insert( ast, (plistel*)NULL,
+										(char*)NULL, (void*)NULL );
+				mbegin = (ppmatch*)plist_access( ebegin );
+				mend = (ppmatch*)plist_malloc( ast );
 
-			mbegin->type = PPMATCH_BEGIN;
-			mend->type = PPMATCH_END;
-			mend->start = mbegin->start = start;
-			mend->end = mbegin->end = *end;
-			mend->prod = mbegin->prod = (ppprod*)NULL;
-			mend->sym = mbegin->sym = la;
+				mbegin->type = PPMATCH_BEGIN;
+				mend->type = PPMATCH_END;
+				mend->start = mbegin->start = start;
+				mend->end = mbegin->end = *end;
+				mend->prod = mbegin->prod = (ppprod*)NULL;
+				mend->sym = mbegin->sym = la;
 
-			tos->ebegin = ebegin;
+				tos->ebegin = ebegin;
+			}
 		}
 
 		/* Reduce */
@@ -1119,17 +1121,21 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 			tos = pop( stack, plist_count( reduce->rhs ), &start, &ebegin );
 			lhs = reduce->lhs;
 
-			/* Construction of AST */
-			ebegin = plist_insert( ast, ebegin, (char*)NULL, (void*)NULL );
-			mbegin = (ppmatch*)plist_access( ebegin );
-			mend = (ppmatch*)plist_malloc( ast );
+			/* Construction of AST node */
+			if( lhs->flags & PPFLAG_ASTNODE )
+			{
+				ebegin = plist_insert( ast, ebegin, (char*)NULL, (void*)NULL );
+				mbegin = (ppmatch*)plist_access( ebegin );
+				mend = (ppmatch*)plist_malloc( ast );
 
-			mbegin->type = PPMATCH_BEGIN;
-			mend->type = PPMATCH_END;
-			mend->start = mbegin->start = start;
-			mend->end = mbegin->end = *end;
-			mend->prod = mbegin->prod = reduce;
-			mend->sym = mbegin->sym = lhs;
+				mbegin->type = PPMATCH_BEGIN;
+				mend->type = PPMATCH_END;
+
+				mend->start = mbegin->start = start;
+				mend->end = mbegin->end = *end;
+				mend->prod = mbegin->prod = reduce;
+				mend->sym = mbegin->sym = lhs;
+			}
 
 			/* Goal symbol reduced? */
 			if( lhs == grm->goal && pstack_count( stack ) == 1 )
@@ -1138,9 +1144,11 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 			/* Push goto state */
 			get_goto( &shift, &reduce, tos, reduce->lhs );
 			tos = push( stack, lhs, shift, start, *end );
+
 			tos->ebegin = ebegin;
 
 			print_stack( "Behind Reduce", states, stack );
+			pp_ast_print( ast );
 		}
 	}
 	while( !reduce );
