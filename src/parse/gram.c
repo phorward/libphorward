@@ -304,7 +304,7 @@ static pboolean parse_sequence( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 	while( ( err = parse_factor( g, lhs, p, def ) ) )
 	{
 		SKIPWHITE();
-		if( **def == ';' || **def == '|' || **def == ')' )
+		if( **def == ';' || **def == '|' || **def == ')' || **def == '%' )
 			break;
 	}
 
@@ -334,10 +334,11 @@ static int pp_gram_read( ppgram* g, char** def )
 {
 	char*		start;
 	char*		end;
-	ppsym*		nonterm;
+	ppsym*		sym;
 	plistel*	e;
 	int			defcount	= 0;
 	char		name		[ NAMELEN + 1 ];
+	int			dflags		= 0;
 
 	while( *def )
 	{
@@ -357,15 +358,15 @@ static int pp_gram_read( ppgram* g, char** def )
 			*def = end;
 			sprintf( name, "%.*s", end - start, start );
 
-			if( !( nonterm = (ppsym*)plist_access(
+			if( !( sym = (ppsym*)plist_access(
 										plist_get_by_key(
 											g->symbols, name ) ) ) )
-				nonterm = pp_sym_create( g, PPSYMTYPE_NONTERM,
+				sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 											name, (char*)NULL );
 
-			nonterm->flags |= PPFLAG_DEFINED;
+			sym->flags |= PPFLAG_DEFINED | dflags;
 
-			/* Read nonterminal attributation */
+			/* Read symbol attributation */
 			while( TRUE )
 			{
 				SKIPWHITE();
@@ -374,18 +375,18 @@ static int pp_gram_read( ppgram* g, char** def )
 				if( **def == '$' )
 				{
 					(*def)++;
-					if( g->goal && g->goal != nonterm )
+					if( g->goal && g->goal != sym )
 						/* TODO: error reporting */
 						fprintf( stderr, "Symbol '%s' already defined as goal\n",
 							g->goal->name );
 					else
-						g->goal = nonterm;
+						g->goal = sym;
 				}
 				/* Nonterminal is a node in the AST? */
 				else if( **def == '#' )
 				{
 					(*def)++;
-					nonterm->flags |= PPFLAG_ASTNODE;
+					sym->flags |= PPFLAG_ASTNODE;
 				}
 				else
 					break;
@@ -394,13 +395,76 @@ static int pp_gram_read( ppgram* g, char** def )
 			if( !read_char( def, ':' ) )
 				return -1;
 
-			if( !parse_alternatives( g, nonterm, def ) )
+			if( !parse_alternatives( g, sym, def ) )
 				return -1;
+
+			/* More descriptive symbol attribution */
+			while( TRUE )
+			{
+				SKIPWHITE();
+
+				/* Goal symbol defined */
+				if( **def == '%' )
+				{
+					(*def)++;
+					SKIPWHITE();
+
+					start = end = *def;
+
+					while( ( isalnum( *end ) || *end == '_' )
+							&& end - start < NAMELEN )
+						end++;
+
+					*def = end;
+
+					if( !strncmp( start, "goal", end - start ) )
+					{
+						if( g->goal && g->goal != sym )
+							/* TODO: error reporting */
+							fprintf( stderr,
+								"Symbol '%s' already defined as goal\n",
+								g->goal->name );
+						else
+							g->goal = sym;
+					}
+					else if( !strncmp( start, "emit", end - start ) )
+						sym->flags |= PPFLAG_ASTNODE;
+					else if( !strncmp( start, "noemit", end - start ) )
+						sym->flags &= ~PPFLAG_ASTNODE;
+					else if( !strncmp( start, "whitespace", end - start ) )
+						sym->flags |= PPFLAG_WHITESPACE;
+				}
+				else
+					break;
+			}
 
 			if( !read_char( def, ';' ) )
 				return -1;
 
 			defcount++;
+		}
+		else if( *start == '%' )
+		{
+			(*def)++;
+			SKIPWHITE();
+
+			end = start;
+			if( isalpha( *start ) || *start == '_' )
+				while( ( isalnum( *end ) || *end == '_' )
+						&& end - start < NAMELEN )
+					end++;
+			else
+			{
+				PARSEERROR( def, "identifier" );
+				return -1;
+			}
+
+			if( !strncmp( start, "emitall", end - start ) )
+				dflags |= PPFLAG_ASTNODE;
+			else if( !strncmp( start, "emitnone", end - start ) )
+				dflags &= ~PPFLAG_ASTNODE;
+
+			*def = end;
 		}
 		else
 		{
@@ -414,11 +478,11 @@ static int pp_gram_read( ppgram* g, char** def )
 	{
 		plist_for( g->symbols, e )
 		{
-			nonterm = (ppsym*)plist_access( e );
+			sym = (ppsym*)plist_access( e );
 
-			if( nonterm->type == PPSYMTYPE_NONTERM )
+			if( sym->type == PPSYMTYPE_NONTERM )
 			{
-				g->goal = nonterm;
+				g->goal = sym;
 				break;
 			}
 		}
@@ -426,7 +490,7 @@ static int pp_gram_read( ppgram* g, char** def )
 		if( !g->goal )
 		{
 			/* TODO: error reporting */
-			fprintf( stderr, "Grammar must at least provice one "
+			fprintf( stderr, "Grammar must at least provide one "
 								"nonterminal as goal symbol\n",
 						g->goal->name );
 			return -1;
@@ -640,10 +704,12 @@ void pp_gram_print( ppgram* g )
 	plist_for( g->productions, e )
 	{
 		p = (ppprod*)plist_access( e );
-		printf( "%s%s%s   %-*s : ",
+		printf( "%s%s%s%s%s %-*s : ",
 			g->goal == p->lhs ? "G" : " ",
 			p->flags & PPFLAG_LEFTREC ? "L" : " ",
 			p->flags & PPFLAG_NULLABLE ? "N" : " ",
+			p->flags & PPFLAG_ASTNODE ? "A" : " ",
+			p->flags & PPFLAG_WHITESPACE ? "W" : " ",
 			maxlhslen, p->lhs->name );
 
 		plist_for( p->rhs, f )

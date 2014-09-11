@@ -1,12 +1,12 @@
 
-int# : '0-9'+ ;
+int : '0-9'+ %emit ;
 f: '(' e ')' | int ;
 
-mul# : t '*' f ;
-div# : t '/' f ;
+mul : t '*' f %emit;
+div : t '/' f %emit;
 t : mul | div | f ;
 
-add# : e '+' t ;
-sub# : e '-' t ;
+add : e '+' t %emit;
+sub : e '-' t %emit;
 
-e$: add | sub | t ;
+e: add | sub | t %goal;

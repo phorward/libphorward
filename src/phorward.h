@@ -653,51 +653,50 @@ typedef enum
 	PPSYMTYPE_SPECIAL
 } ppsymtype;
 
-typedef struct _ppsym	ppsym;
-typedef struct _ppprod	ppprod;
-typedef struct _ppgram	ppgram;
+typedef struct _ppsym		ppsym;
+typedef struct _ppprod		ppprod;
+typedef struct _ppgram		ppgram;
 
-#define PPFLAG_CALLED	1
-#define PPFLAG_DEFINED	2
-#define PPFLAG_NULLABLE	4
-#define PPFLAG_LEFTREC	8
-#define PPFLAG_ASTNODE	16
+#define PPFLAG_CALLED		1
+#define PPFLAG_DEFINED		2
+#define PPFLAG_NULLABLE		4
+#define PPFLAG_LEFTREC		8
+#define PPFLAG_ASTNODE		16
+#define PPFLAG_WHITESPACE	32
 
 struct _ppprod
 {
-	int				id;
-	ppsym*			lhs;
-	plist*			rhs;
+	int						id;
+	ppsym*					lhs;
+	plist*					rhs;
 
-	int				flags;
+	int						flags;
 
-	char*			strval;
+	char*					strval;
 };
 
 struct _ppsym
 {
-	int				id;
-	ppsymtype		type;
+	int						id;
+	ppsymtype				type;
 
-	char*			name;
-	pboolean		emit;
+	char*					name;
+	int						flags;
 
-	int				flags;
+	plist*					first;
 
-	plist*			first;
-
-	pccl*			ccl;
-	plist*			productions;
+	pccl*					ccl;
+	plist*					productions;
 };
 
 struct _ppgram
 {
-	plist*			symbols;
-	plist*			productions;
+	plist*					symbols;
+	plist*					productions;
 
-	ppsym*			ws;
-	ppsym*			goal;
-	ppsym*			eof;
+	ppsym*					ws;
+	ppsym*					goal;
+	ppsym*					eof;
 };
 
 typedef struct
@@ -706,16 +705,16 @@ typedef struct
 	{
 		PPMATCH_BEGIN,
 		PPMATCH_END
-	} 				type;
+	} 						type;
 
-	ppsym*			sym;
-	ppprod*			prod;
+	ppsym*					sym;
+	ppprod*					prod;
 
-	char*			start;
-	char*			end;
+	char*					start;
+	char*					end;
 
-	int				line;
-	int				col;
+	int						line;
+	int						col;
 } ppmatch;
 
 
