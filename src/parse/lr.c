@@ -72,8 +72,7 @@ static void pp_lritem_print( pplritem* it )
 		return;
 	}
 
-	pp_sym_print( it->prod->lhs );
-	printf( " : " );
+	printf( "%s : ", pp_sym_to_str( it->prod->lhs ) );
 
 	for( i = 0; i < plist_count( it->prod->rhs ); i++ )
 	{
@@ -85,7 +84,7 @@ static void pp_lritem_print( pplritem* it )
 		if( i == it->dot )
 			printf( ". " );
 
-		pp_sym_print( sym );
+		printf( "%s", pp_sym_to_str( sym ) );
 	}
 
 	if( i == it->dot )
@@ -101,8 +100,7 @@ static void pp_lritem_print( pplritem* it )
 				if( e != plist_first( it->lookahead ) )
 					printf( " " );
 
-				/* printf( "(%s)", ((ppsym*)plist_access( e ))->name ); */
-				pp_sym_print( (ppsym*)plist_access( e ) );
+				printf( "%s", pp_sym_to_str( ( (ppsym*)plist_access( e ) ) ) );
 			}
 
 			printf( " }" );
@@ -156,12 +154,7 @@ static void pp_lritem_lookahead_print( plist* list )
 	printf( "[[" );
 
 	plist_for( list, e )
-	{
-		s = (ppsym*)plist_access( e );
-
-		printf( " " );
-		pp_sym_print( s );
-	}
+		printf( " %s", pp_sym_to_str( (ppsym*)plist_access( e ) ) );
 
 	printf( " ]]\n" );
 }
@@ -554,7 +547,7 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 	nst = pp_lrstate_create( states, (plist*)NULL );
 	it = pp_lritem_create( nst->kernel,
 				(ppprod*)plist_access(
-					plist_first( gram->goal->productions ) ), 0 );
+					plist_first( gram->goal->prods ) ), 0 );
 
 	plist_push( it->lookahead, gram->eof );
 
@@ -615,10 +608,10 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 						|| !( lhs->type == PPSYMTYPE_NONTERM ) )
 					continue;
 
-				/* Add all productions of the nonterminal to the closure,
+				/* Add all prods of the nonterminal to the closure,
 					if not already in */
 				for( i = 0; ( prod = (ppprod*)plist_access(
-										plist_get( lhs->productions, i ) ) );
+										plist_get( lhs->prods, i ) ) );
 						i++ )
 				{
 					plist_for( closure, f )
@@ -636,7 +629,7 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 					/*
 						Find out all lookahead symbols by merging the
 						FIRST-sets of all nullable and the first
-						non-nullable items on the productions right-hand
+						non-nullable items on the prods right-hand
 						side.
 					*/
 					for( j = it->dot + 1;
@@ -824,7 +817,7 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 
 	MSG( "Performing reductions" );
 
-	prodcnt = (int*)pmalloc( plist_count( gram->productions ) * sizeof( int ) );
+	prodcnt = (int*)pmalloc( plist_count( gram->prods ) * sizeof( int ) );
 
 	plist_for( states, e )
 	{
@@ -850,8 +843,8 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 			}
 		}
 
-		/* Detect default productions */
-		memset( prodcnt, 0, plist_count( gram->productions ) * sizeof( int ) );
+		/* Detect default prods */
+		memset( prodcnt, 0, plist_count( gram->prods ) * sizeof( int ) );
 		cnt = 0;
 
 		plist_for( st->actions, f )

@@ -27,6 +27,11 @@ typedef struct _ppgram		ppgram;
 #define PPFLAG_LEFTREC		8
 #define PPFLAG_ASTNODE		16
 #define PPFLAG_WHITESPACE	32
+#define PPFLAG_MULTIPLE		64
+
+#define PPMOD_OPTIONAL		'?'
+#define PPMOD_POSITIVE		'+'
+#define PPMOD_KLEENE		'*'
 
 struct _ppprod
 {
@@ -36,6 +41,7 @@ struct _ppprod
 
 	int						flags;
 
+	/* Debug */
 	char*					strval;
 };
 
@@ -47,16 +53,21 @@ struct _ppsym
 	char*					name;
 	int						flags;
 
+	/* Nonterminal specific */
 	plist*					first;
+	plist*					prods;
 
+	/* Terminal specific */
 	pccl*					ccl;
-	plist*					productions;
+
+	/* Debug */
+	char*					strval;
 };
 
 struct _ppgram
 {
 	plist*					symbols;
-	plist*					productions;
+	plist*					prods;
 
 	ppsym*					ws;
 	ppsym*					goal;

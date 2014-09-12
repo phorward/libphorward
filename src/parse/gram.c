@@ -11,6 +11,13 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
+/** Creates a new symbol of the type //type// in the grammar //g//.
+
+	//name// is the name for nonterminal symbols, for terminal symbols it
+	can be left empty.
+	//def// contains the definition of the symbol in case of a terminal type.
+	It will be ignored else.
+*/
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 {
 	ppsym*	sym;
@@ -36,7 +43,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	switch( ( sym->type = type ) )
 	{
 		case PPSYMTYPE_NONTERM:
-			sym->productions = plist_create( 0, PLIST_MOD_PTR  );
+			sym->prods = plist_create( 0, PLIST_MOD_PTR  );
 			break;
 
 		case PPSYMTYPE_CCL:
@@ -52,7 +59,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 			break;
 	}
 
-	sym->id = plist_count( g->symbols ) - 1;
+	sym->id = -1;
 	sym->name = name;
 	sym->first = plist_create( 0, PLIST_MOD_PTR );
 
@@ -62,6 +69,53 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	return sym;
 }
 
+/** Returns the string representation of symbol //p//.
+
+	Nonterminals are not expanded, they are just returned as their name.
+	The returned pointer is part of //sym// and can be referenced multiple
+	times. It may not be freed by the caller. */
+char* pp_sym_to_str( ppsym* sym )
+{
+	if( !sym )
+	{
+		WRONGPARAM;
+		return "";
+	}
+
+	if( !sym->strval )
+	{
+		sym->strval = (char*)pmalloc(
+						( strlen( sym->name ) + 2 + 1 + 1 )
+							* sizeof( char ) );
+
+		switch( sym->type )
+		{
+			case PPSYMTYPE_NONTERM:
+				strcpy( sym->strval, sym->name );
+				break;
+
+			case PPSYMTYPE_CCL:
+				sprintf( sym->strval, "'%s'", sym->name );
+				break;
+
+			case PPSYMTYPE_STRING:
+				sprintf( sym->strval, "\"%s\"", sym->name );
+				break;
+
+			case PPSYMTYPE_SPECIAL:
+				sprintf( sym->strval, "@%s", sym->name );
+				break;
+
+			default:
+				MISSINGCASE;
+				break;
+		}
+	}
+
+	return sym->strval;
+}
+
+/** Appends the symbol //sym// to the right-hand-side of production //p//. */
 pboolean pp_prod_append( ppprod* p, ppsym* sym )
 {
 	if( !( p && sym ) )
@@ -71,9 +125,13 @@ pboolean pp_prod_append( ppprod* p, ppsym* sym )
 	}
 
 	plist_push( p->rhs, sym );
+	pfree( p->strval );
+
 	return TRUE;
 }
 
+/** Creates a new production on left-hand-side //lhs//
+	within the grammar //g//. */
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 {
 	ppprod*	prod;
@@ -86,13 +144,13 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 		return (ppprod*)NULL;
 	}
 
-	prod = (ppprod*)plist_malloc( g->productions );
+	prod = (ppprod*)plist_malloc( g->prods );
 
-	prod->id = plist_count( g->productions ) - 1;
+	prod->id = -1;
 	prod->lhs = lhs;
 	prod->rhs = plist_create( 0, PLIST_MOD_PTR );
 
-	plist_push( lhs->productions, prod );
+	plist_push( lhs->prods, prod );
 
 	va_start( varg, lhs );
 
@@ -104,6 +162,9 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 	return prod;
 }
 
+/** Returns the //off//s element from the right-hand-side of
+	production //p//. Returns (ppsym*)NULL if the requested element does
+	not exist. */
 ppsym* pp_prod_getfromrhs( ppprod* p, int off )
 {
 	if( !( p ) )
@@ -115,6 +176,10 @@ ppsym* pp_prod_getfromrhs( ppprod* p, int off )
 	return (ppsym*)plist_access( plist_get( p->rhs, off ) );
 }
 
+/** Returns the string representation of production //p//.
+
+	The returned pointer is part of //p// and can be referenced multiple times.
+	It may not be freed by the caller. */
 char* pp_prod_to_str( ppprod* p )
 {
 	plistel*	e;
@@ -126,24 +191,25 @@ char* pp_prod_to_str( ppprod* p )
 		return "";
 	}
 
-	p->strval = (char*)pfree( p->strval );
-
-	if( p->lhs )
-		p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
-
-	p->strval = pstrcatstr( p->strval, " : ", FALSE );
-
-	plist_for( p->rhs, e )
+	if( !p->strval )
 	{
-		sym = (ppsym*)plist_access( e );
+		if( p->lhs )
+			p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
 
-		if( e != plist_first( p->rhs ) )
-			p->strval = pstrcatstr( p->strval, " ", FALSE );
+		p->strval = pstrcatstr( p->strval, " : ", FALSE );
 
-		if( sym->type != PPSYMTYPE_NONTERM )
-			p->strval = pstrcatstr( p->strval, "@", FALSE );
+		plist_for( p->rhs, e )
+		{
+			sym = (ppsym*)plist_access( e );
 
-		p->strval = pstrcatstr( p->strval, sym->name, FALSE );
+			if( e != plist_first( p->rhs ) )
+				p->strval = pstrcatstr( p->strval, " ", FALSE );
+
+			if( sym->type != PPSYMTYPE_NONTERM )
+				p->strval = pstrcatstr( p->strval, "@", FALSE );
+
+			p->strval = pstrcatstr( p->strval, sym->name, FALSE );
+		}
 	}
 
 	return p->strval;
@@ -205,6 +271,7 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 	char*		end;
 	char		name	[ NAMELEN + 1 ];
 	char		stopch;
+	char		op;
 	int			i;
 
 	SKIPWHITE();
@@ -266,9 +333,15 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 	}
 
 	SKIPWHITE();
-	if( **def == '*' || **def == '+' || **def == '?' )
+
+	/* Replication modifiers */
+	if( **def == PPMOD_KLEENE
+			|| **def == PPMOD_POSITIVE
+				|| **def == PPMOD_OPTIONAL )
 	{
-		if( **def == '*' || **def == '+' )
+		op = *( (*def)++ );
+
+		if( op == PPMOD_KLEENE || op == PPMOD_POSITIVE )
 		{
 			mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
 						derive_name( g, lhs->name ), (char*)NULL );
@@ -279,7 +352,7 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 			sym = mod;
 		}
 
-		if( **def == '?' || **def == '*' )
+		if( op == PPMOD_OPTIONAL || op == PPMOD_KLEENE )
 		{
 			mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
 						derive_name( g, lhs->name ), (char*)NULL );
@@ -289,8 +362,6 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 
 			sym = mod;
 		}
-
-		(*def)++;
 	}
 
 	plist_push( p->rhs, sym );
@@ -377,7 +448,8 @@ static int pp_gram_read( ppgram* g, char** def )
 					(*def)++;
 					if( g->goal && g->goal != sym )
 						/* TODO: error reporting */
-						fprintf( stderr, "Symbol '%s' already defined as goal\n",
+						fprintf( stderr,
+							"Symbol '%s' already defined as goal\n",
 							g->goal->name );
 					else
 						g->goal = sym;
@@ -519,15 +591,15 @@ ppgram* pp_gram_free( ppgram* g )
 
 		pfree( sym->name );
 
-		plist_free( sym->productions );
+		plist_free( sym->prods );
 		plist_free( sym->first );
 		p_ccl_free( sym->ccl );
 	}
 
 	plist_free( g->symbols );
 
-	/* Erase productions */
-	plist_for( g->productions, e )
+	/* Erase prods */
+	plist_for( g->prods, e )
 	{
 		prod = (ppprod*)plist_access( e );
 
@@ -535,7 +607,7 @@ ppgram* pp_gram_free( ppgram* g )
 		pfree( prod->strval );
 	}
 
-	plist_free( g->productions );
+	plist_free( g->prods );
 
 	pfree( g );
 
@@ -553,23 +625,29 @@ ppgram* pp_gram_create( char* def )
 	pboolean	nullable;
 	plist*		call;
 	plist*		done;
-	int			cnt			= 0;
+	int			cnt;
 	int			pcnt;
 	ppgram*		g;
 
+	/* Setup grammar description */
 	g = (ppgram*)pmalloc( sizeof( ppgram ) );
 
 	g->symbols = plist_create( sizeof( ppsym ),
-					PLIST_MOD_EXTKEYS | PLIST_MOD_UNIQUE );
-	g->productions = plist_create( sizeof( ppprod ), PLIST_MOD_NONE );
+					PLIST_MOD_RECYCLE
+						| PLIST_MOD_EXTKEYS
+							| PLIST_MOD_UNIQUE );
+
+	g->prods = plist_create( sizeof( ppprod ),
+					PLIST_MOD_RECYCLE );
 
 	g->eof = pp_sym_create( g, PPSYMTYPE_SPECIAL, "eof", (char*)NULL );
 
+	/* Parse grammar into description */
 	if( def && *def && pp_gram_read( g, &def ) <= 0 )
 		return pp_gram_free( g );
 
 	/* Look for unique goal sequence */
-	if( plist_count( g->goal->productions ) > 1 )
+	if( plist_count( g->goal->prods ) > 1 )
 	{
 		s = pp_sym_create( g, PPSYMTYPE_NONTERM,
 						derive_name( g, g->goal->name ), (char*)NULL );
@@ -578,7 +656,21 @@ ppgram* pp_gram_create( char* def )
 		g->goal = s;
 	}
 
+	/* Set ID values for symbols and productions */
+	for( cnt = 0, e = plist_first( g->symbols ); e; e = plist_next( e ), cnt++ )
+	{
+		s = (ppsym*)plist_access( e );
+		s->id = cnt;
+	}
+
+	for( cnt = 0, e = plist_first( g->prods ); e; e = plist_next( e ), cnt++ )
+	{
+		p = (ppprod*)plist_access( e );
+		p->id = cnt;
+	}
+
 	/* Compute FIRST sets and mark left-recursions */
+	cnt = 0;
 	call = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 	done = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
@@ -587,7 +679,7 @@ ppgram* pp_gram_create( char* def )
 		pcnt = cnt;
 		cnt = 0;
 
-		plist_for( g->productions, e )
+		plist_for( g->prods, e )
 		{
 			cp = (ppprod*)plist_access( e );
 			plist_push( call, cp );
@@ -607,8 +699,8 @@ ppgram* pp_gram_create( char* def )
 						/* Union first set */
 						plist_union( cp->lhs->first, s->first );
 
-						/* Put productions on stack */
-						plist_for( s->productions, ep )
+						/* Put prods on stack */
+						plist_for( s->prods, ep )
 						{
 							p = (ppprod*)plist_access( ep );
 
@@ -656,35 +748,6 @@ ppgram* pp_gram_create( char* def )
 	return g;
 }
 
-void pp_sym_print( ppsym* s )
-{
-	if( !s )
-		return;
-
-	switch( s->type )
-	{
-		case PPSYMTYPE_NONTERM:
-			printf( "%s", s->name );
-			break;
-
-		case PPSYMTYPE_CCL:
-			printf( "'%s'", s->name );
-			break;
-
-		case PPSYMTYPE_STRING:
-			printf( "\"%s\"", s->name );
-			break;
-
-		case PPSYMTYPE_SPECIAL:
-			printf( "@%s", s->name );
-			break;
-
-		default:
-			MISSINGCASE;
-			break;
-	}
-}
-
 void pp_gram_print( ppgram* g )
 {
 	plistel*	e;
@@ -701,15 +764,15 @@ void pp_gram_print( ppgram* g )
 			maxlhslen = pstrlen( s->name );
 	}
 
-	plist_for( g->productions, e )
+	plist_for( g->prods, e )
 	{
 		p = (ppprod*)plist_access( e );
 		printf( "%s%s%s%s%s %-*s : ",
 			g->goal == p->lhs ? "G" : " ",
 			p->flags & PPFLAG_LEFTREC ? "L" : " ",
 			p->flags & PPFLAG_NULLABLE ? "N" : " ",
-			p->flags & PPFLAG_ASTNODE ? "A" : " ",
-			p->flags & PPFLAG_WHITESPACE ? "W" : " ",
+			p->lhs->flags & PPFLAG_ASTNODE ? "A" : " ",
+			p->lhs->flags & PPFLAG_WHITESPACE ? "W" : " ",
 			maxlhslen, p->lhs->name );
 
 		plist_for( p->rhs, f )
@@ -719,7 +782,7 @@ void pp_gram_print( ppgram* g )
 			if( f != plist_first( p->rhs ) )
 				printf( " " );
 
-			pp_sym_print( s );
+			printf( "%s", pp_sym_to_str( s ) );
 		}
 
 		printf( "\n" );
@@ -738,7 +801,7 @@ void pp_gram_print( ppgram* g )
 		{
 			s = (ppsym*)plist_access( f );
 			printf( " " );
-			pp_sym_print( s );
+			printf( "%s", pp_sym_to_str( s ) );
 		}
 
 		printf( " }\n" );

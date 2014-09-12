@@ -71,7 +71,7 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 
 		for( i = 0, pnext = TRUE;
 				pnext && ( p = (ppprod*)plist_access(
-									plist_get( sym->productions, i ) ) ); i++ )
+									plist_get( sym->prods, i ) ) ); i++ )
 		{
 			/*
 			printf( "Trying %s\n", pp_prod_to_str( p ) );
