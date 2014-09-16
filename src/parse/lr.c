@@ -1024,8 +1024,10 @@ static pboolean get_goto( pplrstate** shift, ppprod** reduce,
 static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 									plist* states )
 {
+	char*		lend;
 	ppsym*		lhs;
-	ppsym*		la;
+	ppsym*		sym;
+	plistel*	e;
 	pstack*		stack;
 	pplrse*		tos;
 	pplrstate*	shift;
@@ -1034,6 +1036,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 	plistel*	ebegin;
 	ppmatch*	mbegin;
 	ppmatch*	mend;
+	char*		wend;
 
 	stack = pstack_create( sizeof( pplrse ), MALLOCSTEP );
 	tos = push( stack, grm->goal,
@@ -1044,14 +1047,32 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 
 	do
 	{
+		/* Skip over whitespace */
+		printf( "Whitespace >%s<\n", *end );
+		lend = *end;
+
+		do
+		{
+			plist_for( grm->ws, e )
+			{
+				sym = (ppsym*)plist_access( e );
+				printf( "Testing '%s' on >%s<\n", pp_sym_to_str( sym ), *end );
+
+				if( pp_sym_in_input( sym, *end, end ) )
+					break;
+			}
+		}
+		while( e );
+
 		start = *end;
 
+		/* Parse */
 		fprintf( stderr, "State on Top %d\n",
 					plist_offset( plist_get_by_ptr( states, tos->state ) ) );
 		fprintf( stderr, "BEFORE >%s<\n", *end );
 
 		/* Action table processing */
-		if( !get_action( &shift, &reduce, &la, tos, end ) )
+		if( !get_action( &shift, &reduce, &sym, tos, end ) )
 		{
 			/* Parse Error */
 			/* TODO: Error Recovery */
@@ -1067,20 +1088,20 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 			if( reduce )
 				fprintf( stderr,
 					"shift on %s and reduce by production %d\n",
-						la->name,
+						sym->name,
 						reduce->id );
 			else
 				fprintf( stderr,
 					"shift on %s to state %d\n",
-						la->name,
+						sym->name,
 						plist_offset( plist_get_by_ptr( states, shift ) ) );
 
-			tos = push( stack, la, reduce ? (pplrstate*)NULL : shift,
+			tos = push( stack, sym, reduce ? (pplrstate*)NULL : shift,
 							start, *end );
 
 			/* Shifted symbol becomes AST node?
 				(not implemented in current grammar parser yet) */
-			if( la->flags & PPFLAG_ASTNODE )
+			if( sym->flags & PPFLAG_EMIT )
 			{
 				ebegin = plist_insert( ast, (plistel*)NULL,
 										(char*)NULL, (void*)NULL );
@@ -1092,7 +1113,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 				mend->start = mbegin->start = start;
 				mend->end = mbegin->end = *end;
 				mend->prod = mbegin->prod = (ppprod*)NULL;
-				mend->sym = mbegin->sym = la;
+				mend->sym = mbegin->sym = sym;
 
 				tos->ebegin = ebegin;
 			}
@@ -1115,7 +1136,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
-			if( lhs->flags & PPFLAG_ASTNODE )
+			if( lhs->flags & PPFLAG_EMIT )
 			{
 				ebegin = plist_insert( ast, ebegin, (char*)NULL, (void*)NULL );
 				mbegin = (ppmatch*)plist_access( ebegin );
@@ -1125,7 +1146,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 				mend->type = PPMATCH_END;
 
 				mend->start = mbegin->start = start;
-				mend->end = mbegin->end = *end;
+				mend->end = mbegin->end = lend;
 				mend->prod = mbegin->prod = reduce;
 				mend->sym = mbegin->sym = lhs;
 			}

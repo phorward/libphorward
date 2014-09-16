@@ -28,7 +28,6 @@ pboolean pp_sym_in_input( ppsym* sym, char* start, char** end )
 	switch( sym->type )
 	{
 		case PPSYMTYPE_CCL:
-		printf( ">%s<\n", start );
 			if( p_ccl_test( sym->ccl, *start ) )
 			{
 				*end = start + 1;

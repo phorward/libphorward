@@ -1,0 +1,14 @@
+%whitespace ' ' 
+
+int : '0-9'+ %emit ;
+f: '(' e ')' | int ;
+
+mul : t '*' f %emit;
+div : t '/' f %emit;
+t : mul | div | f ;
+
+add : e '+' t %emit;
+sub : e '-' t %emit;
+
+e: add | sub | t %goal;
+

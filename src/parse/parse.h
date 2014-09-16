@@ -14,6 +14,7 @@ typedef enum
 	PPSYMTYPE_NONTERM,
 	PPSYMTYPE_CCL,
 	PPSYMTYPE_STRING,
+	PPSYMTYPE_REGEX,
 	PPSYMTYPE_SPECIAL
 } ppsymtype;
 
@@ -25,9 +26,8 @@ typedef struct _ppgram		ppgram;
 #define PPFLAG_DEFINED		2
 #define PPFLAG_NULLABLE		4
 #define PPFLAG_LEFTREC		8
-#define PPFLAG_ASTNODE		16
+#define PPFLAG_EMIT			16
 #define PPFLAG_WHITESPACE	32
-#define PPFLAG_MULTIPLE		64
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -69,7 +69,7 @@ struct _ppgram
 	plist*					symbols;
 	plist*					prods;
 
-	ppsym*					ws;
+	plist*					ws;
 	ppsym*					goal;
 	ppsym*					eof;
 };
