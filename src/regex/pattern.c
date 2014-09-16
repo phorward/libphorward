@@ -763,8 +763,6 @@ the pattern. This machine will be extended to the pattern if it already contains
 states.
 //pattern// is the pattern structure that will be converted and extended into
 the NFA state machine.
-//accept// is the accept structure that will be assigned to the last NFA node.
-This structure is optional, and can be left-out as (pregex_accept*)NULL.
 
 Returns a standard error define on failure, and ERR_OK on success.
 */
