@@ -942,7 +942,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 static int parse_char( pregex_ptn** ptn, char** pstr,
 		pregex_accept* accept, int flags )
 {
-	pccl*	ccl;
+	pccl*		ccl;
 	int			ret;
 	pregex_ptn*	alter;
 	wchar_t		single;
@@ -1050,7 +1050,7 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 static int parse_factor( pregex_ptn** ptn, char** pstr,
 		pregex_accept* accept, int flags )
 {
-	int				ret;
+	int			ret;
 
 	if( ( ret = parse_char( ptn, pstr, accept, flags ) ) != ERR_OK )
 		return ret;
