@@ -695,6 +695,9 @@ struct _ppsym
 
 	
 	pccl*					ccl;
+	char*					str;
+	pregex_ptn*				ptn;
+	pregex_nfa*				nfa;
 
 	
 	char*					strval;

@@ -30,15 +30,20 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 
 	name = pstrdup( name );
 
+	/* Insert into symbol table */
 	if( !( sym = (ppsym*)plist_access(
 							plist_insert(
 								g->symbols, (plistel*)NULL,
 									name, (void*)NULL ) ) ) )
 	{
 		fprintf( stderr, "Symbol '%s' already exists\n", name );
+
 		pfree( name );
 		return (ppsym*)NULL;
 	}
+
+	sym->id = -1;
+	sym->name = name;
 
 	switch( ( sym->type = type ) )
 	{
@@ -48,19 +53,44 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 
 		case PPSYMTYPE_CCL:
 			sym->ccl = p_ccl_create( 0, 255, def );
-			name = pstrdup( p_ccl_to_str( sym->ccl, TRUE ) );
+
+			if( !sym->name )
+				sym->name = pstrdup( p_ccl_to_str( sym->ccl, TRUE ) );
+
 			break;
 
 		case PPSYMTYPE_STRING:
-			name = pstrdup( def );
+			sym->str = pstrdup( def );
+
+			if( !sym->name )
+				sym->name = pstrdup( def );
+
+			break;
+
+		case PPSYMTYPE_REGEX:
+		printf( "MK REGEX >%s<\n", def );
+			switch( pregex_ptn_parse( &sym->ptn, def, PREGEX_MOD_NONE ) )
+			{
+				case 1:
+					fprintf( stderr, "Parse error in regex >%s<\n", def );
+					break;
+
+				case ERR_OK:
+				default:
+					sym->ptn->accept->accept = 0;
+					break;
+			}
+
+			if( !sym->name )
+				pregex_ptn_to_regex( &sym->name, sym->ptn );
+
 			break;
 
 		default:
 			break;
 	}
 
-	sym->id = -1;
-	sym->name = name;
+	/* FIRST */
 	sym->first = plist_create( 0, PLIST_MOD_PTR );
 
 	if( sym->type != PPSYMTYPE_NONTERM )
@@ -100,6 +130,10 @@ char* pp_sym_to_str( ppsym* sym )
 
 			case PPSYMTYPE_STRING:
 				sprintf( sym->strval, "\"%s\"", sym->name );
+				break;
+
+			case PPSYMTYPE_REGEX:
+				sprintf( sym->strval, "/%s/", sym->name );
 				break;
 
 			case PPSYMTYPE_SPECIAL:
@@ -451,6 +485,7 @@ static int pp_gram_read( ppgram* g, char** def )
 	ppprod*		p;
 	int			defcount	= 0;
 	char		name		[ NAMELEN + 1 ];
+	char		symdef		[ NAMELEN + 1 ];
 	int			dflags		= 0;
 
 	while( *def )
@@ -485,7 +520,6 @@ static int pp_gram_read( ppgram* g, char** def )
 				{
 					SKIPWHITE();
 
-					/* Goal symbol defined */
 					if( **def == '%' )
 					{
 						(*def)++;
@@ -511,11 +545,6 @@ static int pp_gram_read( ppgram* g, char** def )
 							sym->flags |= PPFLAG_EMIT;
 						else if( !strcmp( name, "noemit" ) )
 							sym->flags &= ~PPFLAG_EMIT;
-						else if( !strcmp( name, "whitespace" ) )
-						{
-							sym->flags |= PPFLAG_WHITESPACE | PPFLAG_CALLED;
-							plist_push( g->ws, sym );
-						}
 					}
 					else
 						break;
@@ -527,8 +556,41 @@ static int pp_gram_read( ppgram* g, char** def )
 				(*def)++;
 				SKIPWHITE();
 
-				if( !parse_terminal( name, def ) )
+				if( !( type = parse_terminal( symdef, def ) ) )
 					PARSEERROR( def, "terminal definition" );
+
+				sym = pp_sym_create( g, type, name, symdef );
+				sym->flags |= dflags;
+
+				/* More descriptive symbol attribution */
+				while( TRUE )
+				{
+					SKIPWHITE();
+
+					if( **def == '%' )
+					{
+						(*def)++;
+						SKIPWHITE();
+
+						if( !parse_ident( name, def ) )
+						{
+							PARSEERROR( def, "identifier" );
+							return -1;
+						}
+
+						if( !strcmp( name, "emit") )
+							sym->flags |= PPFLAG_EMIT;
+						else if( !strcmp( name, "noemit" ) )
+							sym->flags &= ~PPFLAG_EMIT;
+						else if( !strcmp( name, "whitespace" ) )
+						{
+							sym->flags |= PPFLAG_WHITESPACE | PPFLAG_CALLED;
+							plist_push( g->ws, sym );
+						}
+					}
+					else
+						break;
+				}
 			}
 			else
 			{
@@ -536,6 +598,8 @@ static int pp_gram_read( ppgram* g, char** def )
 									" or named terminal definition" );
 				return -1;
 			}
+
+			SKIPWHITE();
 
 			if( !read_char( def, ';' ) )
 				return -1;
@@ -560,8 +624,6 @@ static int pp_gram_read( ppgram* g, char** def )
 			else if( !strcmp( name, "whitespace" ) )
 			{
 				SKIPWHITE();
-
-				printf( ">%s<\n", *def );
 
 				/* on the fly */
 				if( ( type = parse_terminal( name, def ) ) > 0 )
@@ -635,7 +697,11 @@ ppgram* pp_gram_free( ppgram* g )
 		s = (ppsym*)plist_access( e );
 
 		pfree( s->name );
+
+		pfree( s->str );
 		p_ccl_free( s->ccl );
+		pregex_ptn_free( s->ptn );
+
 		plist_free( s->prods );
 		plist_free( s->first );
 	}

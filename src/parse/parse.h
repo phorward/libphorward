@@ -59,6 +59,9 @@ struct _ppsym
 
 	/* Terminal specific */
 	pccl*					ccl;
+	char*					str;
+	pregex_ptn*				ptn;
+	pregex_nfa*				nfa;
 
 	/* Debug */
 	char*					strval;

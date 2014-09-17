@@ -1036,7 +1036,6 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 	plistel*	ebegin;
 	ppmatch*	mbegin;
 	ppmatch*	mend;
-	char*		wend;
 
 	stack = pstack_create( sizeof( pplrse ), MALLOCSTEP );
 	tos = push( stack, grm->goal,
@@ -1047,10 +1046,9 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 
 	do
 	{
-		/* Skip over whitespace */
-		printf( "Whitespace >%s<\n", *end );
 		lend = *end;
 
+		/* Skip over whitespace */
 		do
 		{
 			plist_for( grm->ws, e )
@@ -1117,6 +1115,8 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 
 				tos->ebegin = ebegin;
 			}
+
+			lend = *end;
 		}
 
 		/* Reduce */
