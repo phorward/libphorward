@@ -700,6 +700,9 @@ struct _ppsym
 	pregex_nfa*				nfa;
 
 	
+	int						emit_id;
+
+	
 	char*					strval;
 };
 
@@ -721,6 +724,7 @@ typedef struct
 		PPMATCH_END
 	} 						type;
 
+	int						emit_id;
 	ppsym*					sym;
 	ppprod*					prod;
 

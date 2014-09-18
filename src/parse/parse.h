@@ -63,6 +63,9 @@ struct _ppsym
 	pregex_ptn*				ptn;
 	pregex_nfa*				nfa;
 
+	/* AST construction */
+	int						emit_id;
+
 	/* Debug */
 	char*					strval;
 };
@@ -85,6 +88,7 @@ typedef struct
 		PPMATCH_END
 	} 						type;
 
+	int						emit_id;
 	ppsym*					sym;
 	ppprod*					prod;
 

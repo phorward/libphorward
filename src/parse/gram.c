@@ -43,6 +43,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	}
 
 	sym->id = -1;
+	sym->emit_id = -1;
 	sym->name = name;
 
 	switch( ( sym->type = type ) )
@@ -303,6 +304,8 @@ static ppsymtype parse_terminal( char* name, char** def )
 	char*		start;
 	char*		end;
 
+	SKIPWHITE();
+
 	if( **def == '\"' || **def == '\'' )
 	{
 		stopch = **def;
@@ -351,6 +354,8 @@ static pboolean parse_ident( char* name, char** def )
 	char*		start;
 	char*		end;
 
+	SKIPWHITE();
+
 	if( isalpha( **def ) )
 	{
 		start = end = *def;
@@ -362,6 +367,28 @@ static pboolean parse_ident( char* name, char** def )
 		sprintf( name, "%.*s", end - start, start );
 		*def = end;
 
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static pboolean parse_integer( int* val, char** def )
+{
+	char*		start;
+	char*		end;
+
+	SKIPWHITE();
+
+	if( isdigit( **def ) )
+	{
+		start = end = *def;
+
+		while( isdigit( *end ) )
+			end++;
+
+		*def = end;
+		*val = atoi( start );
 		return TRUE;
 	}
 
@@ -514,41 +541,6 @@ static int pp_gram_read( ppgram* g, char** def )
 
 				if( !parse_alternatives( g, sym, def ) )
 					return -1;
-
-				/* More descriptive symbol attribution */
-				while( TRUE )
-				{
-					SKIPWHITE();
-
-					if( **def == '%' )
-					{
-						(*def)++;
-						SKIPWHITE();
-
-						if( !parse_ident( name, def ) )
-						{
-							PARSEERROR( def, "identifier" );
-							return -1;
-						}
-
-						if( !strcmp( name, "goal" ) )
-						{
-							if( g->goal && g->goal != sym )
-								/* TODO: error reporting */
-								fprintf( stderr,
-									"Symbol '%s' already defined as goal\n",
-									g->goal->name );
-							else
-								g->goal = sym;
-						}
-						else if( !strcmp( name, "emit") )
-							sym->flags |= PPFLAG_EMIT;
-						else if( !strcmp( name, "noemit" ) )
-							sym->flags &= ~PPFLAG_EMIT;
-					}
-					else
-						break;
-				}
 			}
 			/* Or is named terminal definition? */
 			else if( **def == '=' )
@@ -561,42 +553,72 @@ static int pp_gram_read( ppgram* g, char** def )
 
 				sym = pp_sym_create( g, type, name, symdef );
 				sym->flags |= dflags;
-
-				/* More descriptive symbol attribution */
-				while( TRUE )
-				{
-					SKIPWHITE();
-
-					if( **def == '%' )
-					{
-						(*def)++;
-						SKIPWHITE();
-
-						if( !parse_ident( name, def ) )
-						{
-							PARSEERROR( def, "identifier" );
-							return -1;
-						}
-
-						if( !strcmp( name, "emit") )
-							sym->flags |= PPFLAG_EMIT;
-						else if( !strcmp( name, "noemit" ) )
-							sym->flags &= ~PPFLAG_EMIT;
-						else if( !strcmp( name, "whitespace" ) )
-						{
-							sym->flags |= PPFLAG_WHITESPACE | PPFLAG_CALLED;
-							plist_push( g->ws, sym );
-						}
-					}
-					else
-						break;
-				}
 			}
 			else
 			{
 				PARSEERROR( def, "':' or '=' for nonterminal"
 									" or named terminal definition" );
 				return -1;
+			}
+
+			/* More descriptive symbol attribution */
+			while( TRUE )
+			{
+				SKIPWHITE();
+
+				if( **def == '%' )
+				{
+					(*def)++;
+					SKIPWHITE();
+
+					if( !parse_ident( name, def ) )
+					{
+						PARSEERROR( def, "identifier" );
+						return -1;
+					}
+
+					if( !strcmp( name, "goal" ) )
+					{
+						if( sym->type > PPSYMTYPE_NONTERM )
+							/* TODO: error reporting */
+							fprintf( stderr,
+								"Goal symbol must be a nonterminal.\n" );
+						else if( g->goal && g->goal != sym )
+							/* TODO: error reporting */
+							fprintf( stderr,
+								"Symbol '%s' already defined as goal\n",
+								g->goal->name );
+						else
+							g->goal = sym;
+					}
+					else if( !strcmp( name, "emit") )
+						sym->flags |= PPFLAG_EMIT;
+					else if( !strcmp( name, "noemit" ) )
+						sym->flags &= ~PPFLAG_EMIT;
+					else if( !strcmp( name, "whitespace" ) )
+					{
+						if( sym->type == PPSYMTYPE_NONTERM )
+							printf( "%whitespace currently only allowed for "
+									"terminal symbols in this implementation" );
+						else
+						{
+							sym->flags |= PPFLAG_WHITESPACE | PPFLAG_CALLED;
+							plist_push( g->ws, sym );
+						}
+					}
+					else if( !strcmp( name, "id") )
+					{
+						sym->flags |= PPFLAG_EMIT;
+
+						if( !parse_integer( &sym->emit_id, def ) )
+						{
+							PARSEERROR( def, "integer" );
+							return -1;
+						}
+					}
+				}
+				else
+					break;
 			}
 
 			SKIPWHITE();

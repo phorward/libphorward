@@ -32,10 +32,11 @@ void pp_ast_print( plist* ast )
 		if( match->type == PPMATCH_END && *gap )
 			gap[ strlen( gap ) - 1 ] = '\0';
 
-		printf( "%s%s %s >%.*s<\n",
+		printf( "%s%s %s (%d) >%.*s<\n",
 			gap,
 			match->type == PPMATCH_BEGIN ? "{" : "}",
 			match->sym->name,
+			match->emit_id,
 			match->end - match->start,
 			match->start );
 

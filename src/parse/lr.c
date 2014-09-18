@@ -1112,6 +1112,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 				mend->end = mbegin->end = *end;
 				mend->prod = mbegin->prod = (ppprod*)NULL;
 				mend->sym = mbegin->sym = sym;
+				mend->emit_id = mbegin->emit_id = sym->emit_id;
 
 				tos->ebegin = ebegin;
 			}
@@ -1149,6 +1150,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 				mend->end = mbegin->end = lend;
 				mend->prod = mbegin->prod = reduce;
 				mend->sym = mbegin->sym = lhs;
+				mend->emit_id = mbegin->emit_id = lhs->emit_id;
 			}
 
 			/* Goal symbol reduced? */
