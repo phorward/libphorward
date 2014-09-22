@@ -19,7 +19,7 @@ The plist-object implements
 - data object collections
 - set functions
 
-into one handy library. It can be used for many powerfull tasks, including
+into one handy library. It can be used for many powerful tasks, including
 symbol tables, functions relating to set theories or as associative arrays.
 
 It serves as the replacement for the older libphorward data structrues

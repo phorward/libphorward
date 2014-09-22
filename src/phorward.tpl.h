@@ -118,8 +118,8 @@ typedef char 					pboolean;	/* Phorward Boolean */
  */
 
 #include "base/dbg.h"
+#include "base/array.h"
 #include "base/list.h"
-#include "base/stack.h"
 #include "xml/xml.h"
 
 #include "ccl/ccl.h"

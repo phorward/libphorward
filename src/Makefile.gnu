@@ -10,10 +10,10 @@ LIBHEADER = phorward.h
 PATHEXT = PATH="../run:$(PATH)"
 
 SRC = \
+	base/array.c \
 	base/dbg.c \
 	base/list.c \
 	base/memory.c \
-	base/stack.c \
 	ccl/ccl.c \
 	regex/dfa.c \
 	regex/direct.c \
@@ -41,9 +41,9 @@ SRC = \
 	value/value.set.c
 
 HSRC = \
+	base/array.h \
 	base/dbg.h \
 	base/list.h \
-	base/stack.h \
 	parse/parse.h \
 	phorward.tpl.h \
 	regex/regex.h \

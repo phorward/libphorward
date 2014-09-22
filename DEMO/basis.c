@@ -315,36 +315,36 @@ void plist_demo2( void )
 	mylist = plist_free( mylist );
 }
 
-void pstack_demo( void )
+void parray_demo( void )
 {
 	person 	x;
 	person*	p;
-	pstack*	st;
+	parray*	st;
 
-	DEMO( "pstack_demo" );
+	DEMO( "parray_demo" );
 
-	st = pstack_create( sizeof( person ), 3 );
+	st = parray_create( sizeof( person ), 3 );
 
 	strcpy( x.last_name, "Zufall" );
 	strcpy( x.first_name, "Reiner" );
-	pstack_push( st, (void*)&x );
+	parray_push( st, (void*)&x );
 
 	strcpy( x.last_name, "Pfahl" );
 	strcpy( x.first_name, "Martha" );
-	pstack_push( st, (void*)&x );
+	parray_push( st, (void*)&x );
 
 	strcpy( x.last_name, "Racho" );
 	strcpy( x.first_name, "Volker" );
-	pstack_push( st, (void*)&x );
+	parray_push( st, (void*)&x );
 
 	strcpy( x.last_name, "Pete" );
 	strcpy( x.first_name, "Dieter" );
-	pstack_push( st, (void*)&x );
+	parray_push( st, (void*)&x );
 
-	while( ( p = (person*)pstack_pop( st ) ) )
+	while( ( p = (person*)parray_pop( st ) ) )
 		printf( "%s %s\n", p->first_name, p->last_name );
 
-	st = pstack_free( st );
+	st = parray_free( st );
 }
 
 int faculty( int x )
@@ -489,7 +489,7 @@ int main( int argc, char** argv )
 	utf8_demo();
 	plist_demo2();
 	plist_demo();
-	pstack_demo();
+	parray_demo();
 	dbg_demo();
 	xml_demo();
 	value_demo();

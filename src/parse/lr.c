@@ -912,7 +912,7 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 	RETURN( states );
 }
 
-static pplrse* push( pstack* stack, ppsym* symbol,
+static pplrse* push( parray* stack, ppsym* symbol,
 						pplrstate* state, char* start, char* end )
 {
 	pplrse	e;
@@ -923,11 +923,11 @@ static pplrse* push( pstack* stack, ppsym* symbol,
 	e.start = start;
 	e.end = end;
 
-	pstack_push( stack, &e );
-	return (pplrse*)pstack_top( stack );
+	parray_push( stack, &e );
+	return (pplrse*)parray_top( stack );
 }
 
-static pplrse* pop( pstack* stack, int n, char** start, plistel** ebegin )
+static pplrse* pop( parray* stack, int n, char** start, plistel** ebegin )
 {
 	pplrse*	e;
 
@@ -936,7 +936,7 @@ static pplrse* pop( pstack* stack, int n, char** start, plistel** ebegin )
 
 	while( n-- > 0 )
 	{
-		e = (pplrse*)pstack_pop( stack );
+		e = (pplrse*)parray_pop( stack );
 
 		*start = e->start;
 
@@ -944,19 +944,19 @@ static pplrse* pop( pstack* stack, int n, char** start, plistel** ebegin )
 			*ebegin = e->ebegin;
 	}
 
-	return (pplrse*)pstack_top( stack );
+	return (pplrse*)parray_top( stack );
 }
 
-static void print_stack( char* title, plist* states, pstack* stack )
+static void print_stack( char* title, plist* states, parray* stack )
 {
 	pplrse*	e;
 	int		i;
 
 	fprintf( stderr, "STACK DUMP %s\n", title );
 
-	for( i = 0; i < pstack_count( stack ); i++ )
+	for( i = 0; i < parray_count( stack ); i++ )
 	{
-		e = (pplrse*)pstack_access( stack, i );
+		e = (pplrse*)parray_access( stack, i );
 		fprintf( stderr, "%02d: %s %d >%.*s<\n",
 			i, e->symbol ? e->symbol->name : "(null)",
 				e->state ?
@@ -1028,7 +1028,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 	ppsym*		lhs;
 	ppsym*		sym;
 	plistel*	e;
-	pstack*		stack;
+	parray*		stack;
 	pplrse*		tos;
 	pplrstate*	shift;
 	ppprod*		reduce;
@@ -1037,7 +1037,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 	ppmatch*	mbegin;
 	ppmatch*	mend;
 
-	stack = pstack_create( sizeof( pplrse ), MALLOCSTEP );
+	stack = parray_create( sizeof( pplrse ), MALLOCSTEP );
 	tos = push( stack, grm->goal,
 					(pplrstate*)plist_access(
 						plist_first( states ) ), start, start );
@@ -1154,7 +1154,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 			}
 
 			/* Goal symbol reduced? */
-			if( lhs == grm->goal && pstack_count( stack ) == 1 )
+			if( lhs == grm->goal && parray_count( stack ) == 1 )
 				break;
 
 			/* Push goto state */

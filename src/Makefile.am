@@ -15,10 +15,10 @@ PATHEXT = PATH="../run:$(PATH)"
 lib_LTLIBRARIES = libphorward.la
 
 libphorward_la_SOURCES = \
+	base/array.c \
 	base/dbg.c \
 	base/list.c \
 	base/memory.c \
-	base/stack.c \
 	regex/ccl.c \
 	regex/dfa.c \
 	regex/direct.c \
@@ -39,9 +39,9 @@ libphorward_la_SOURCES = \
 	xml/xml.c
 
 noinst_HEADERS = \
+	base/array.h \
 	base/dbg.h \
 	base/list.h \
-	base/stack.h \
 	phorward.tpl.h \
 	regex/pregex.h \
 	value/value.h \

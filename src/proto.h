@@ -1,3 +1,17 @@
+/* base/array.c */
+pboolean parray_init( parray* array, size_t size, size_t step );
+parray* parray_create( size_t size, size_t step );
+pboolean parray_erase( parray* array );
+parray* parray_free( parray* array );
+void* parray_push( parray* array, void* item );
+void* parray_malloc( parray* array );
+void* parray_pop( parray* array );
+void* parray_access( parray* array, size_t offset );
+void* parray_raccess( parray* array, size_t offset );
+void* parray_top( parray* array );
+void* parray_bottom( parray* array );
+int parray_count( parray* array );
+
 /* base/dbg.c */
 void _dbg_trace( char* file, int line, char* type, char* format, ... );
 
@@ -45,20 +59,6 @@ void* pmalloc( size_t size );
 void* prealloc( void* oldptr, size_t size );
 void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
-
-/* base/stack.c */
-pboolean pstack_init( pstack* stack, size_t size, size_t step );
-pstack* pstack_create( size_t size, size_t step );
-pboolean pstack_erase( pstack* stack );
-pstack* pstack_free( pstack* stack );
-void* pstack_push( pstack* stack, void* item );
-void* pstack_malloc( pstack* stack );
-void* pstack_pop( pstack* stack );
-void* pstack_access( pstack* stack, size_t offset );
-void* pstack_raccess( pstack* stack, size_t offset );
-void* pstack_top( pstack* stack );
-void* pstack_bottom( pstack* stack );
-int pstack_count( pstack* stack );
 
 /* ccl/ccl.c */
 pccl* p_ccl_create( int min, int max, char* ccldef );
