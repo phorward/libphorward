@@ -6,10 +6,12 @@ parray* parray_free( parray* array );
 void* parray_push( parray* array, void* item );
 void* parray_malloc( parray* array );
 void* parray_pop( parray* array );
+void* parray_unshift( parray* array, void* item );
+void* parray_shift( parray* array );
 void* parray_access( parray* array, size_t offset );
 void* parray_raccess( parray* array, size_t offset );
-void* parray_top( parray* array );
-void* parray_bottom( parray* array );
+void* parray_last( parray* array );
+void* parray_first( parray* array );
 int parray_count( parray* array );
 
 /* base/dbg.c */

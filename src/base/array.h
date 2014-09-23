@@ -15,10 +15,11 @@ Usage:	Universal, dynamic array management functions
 typedef struct
 {
 	void*	array;
+	size_t	first;
+	size_t	last;
+	size_t	count;
 
 	size_t	size;
-	size_t	top;
-	size_t	count;
 	size_t	step;
 } parray;
 

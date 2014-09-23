@@ -82,8 +82,7 @@ pboolean parray_erase( parray* array )
 	}
 
 	array->array = pfree( array->array );
-	array->top = 0;
-	array->count = 0;
+	array->count = array->first = array->last = 0;
 
 	RETURN( TRUE );
 }
@@ -102,7 +101,7 @@ parray* parray_free( parray* array )
 	return (parray*)NULL;
 }
 
-/** Pushes an element to the end of the array.
+/** Appends an element to the end of the array.
 
 The element's memory is copied during the push. The item must be of the same
 memory size as used at array initialization.
@@ -118,6 +117,8 @@ the item could not be pushed.
 */
 void* parray_push( parray* array, void* item )
 {
+	void*	ptr;
+
 	PROC( "parray_push" );
 	PARMS( "array", "%p", array );
 	PARMS( "item", "%p", item );
@@ -128,38 +129,23 @@ void* parray_push( parray* array, void* item )
 		RETURN( (void*)NULL );
 	}
 
-	/* Is memory (re-)allocation required? */
-	VARS( "array->count", "%d", array->count );
-	if( array->count == 0 )
+	/* Is reallocation required? */
+	if( !array->count || array->last == array->count )
 	{
-		MSG( "Performing first allocation" );
-		VARS( "Allocating bytes", "%d", array->step * array->size );
-		if( !( array->array = (void*)pmalloc( array->step * array->size ) ) )
-			RETURN( (void*)NULL );
-
-		array->count = array->step;
-		array->top = 0;
-	}
-	else if( array->top + 1 == array->count )
-	{
-		MSG( "A array expansion is required" );
-
 		array->count += array->step;
 
-		VARS( "Re-allocating bytes", "%d", array->step * array->size );
-		if( !( array->array = (void*)prealloc( (void*)array->array,
-					array->count * array->size ) ) )
+		if( !( array->array = (void*)prealloc(
+				(void*)array->array, array->count * array->size ) ) )
 			RETURN( (void*)NULL );
 	}
 
-	/* Copy item into top of array */
-	if( item )
-	{
-		memcpy( (char*)array->array + array->top * array->size,
-					item, array->size );
-	}
+	ptr = (char*)array->array + ( ( array->last++ ) * array->size );
 
-	RETURN( (char*)array->array + array->top++ * array->size );
+	/* Copy item into last of array */
+	if( item )
+		memcpy( ptr, item, array->size );
+
+	RETURN( ptr );
 }
 
 /** Pushes and "allocates" an empty element on the array.
@@ -186,10 +172,10 @@ void* parray_malloc( parray* array )
 	return ptr;
 }
 
-/** Pops an element off the array.
+/** Removes an element from the end of an array.
 
-The function returns a pointer to the popped item. Because dynamic arrays only
-grows and no memory is freed, the returned data pointer is still valid, and will
+The function returns the pointer of the popped item. Because dynamic arrays only
+grow and no memory is freed, the returned data pointer is still valid, and will
 only be overwritten with the next push operation.
 
 //array// is the pointer to array where to pop an item off.
@@ -208,25 +194,112 @@ void* parray_pop( parray* array )
 		RETURN( (void*)NULL );
 	}
 
-	if( array->top == 0 )
+	if( array->last == array->first )
 	{
-		MSG( "top is zero, no items on the array." );
+		MSG( "last is zero, no items on the array." );
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( (char*)array->array + ( --array->top * array->size ) );
+	RETURN( (char*)array->array + ( --array->last ) * array->size );
 }
 
-/** Access an element from the array via its offset position from the left.
+/** Appends an element to the begin of the array.
+
+The elements memory is copied during the unshift. The item must be of the same
+memory size as used at array initialization.
+
+//array// is the pointer to array where to push an item to the beginning.
+
+//item// is the pointer to the memory of the item that should be pushed onto the
+array. The caller should cast his type into void, or wrap the push-operation
+with a macro. It can be left (void*)NULL, so no memory will be copied.
+
+The function returns the address of the newly unhshifted item, and (void*)NULL
+if the item could not be unshifted.
+*/
+void* parray_unshift( parray* array, void* item )
+{
+	void*	ptr;
+
+	PROC( "parray_unshift" );
+	PARMS( "array", "%p", array );
+	PARMS( "item", "%p", item );
+
+	if( !( array ) )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	/* Is reallocation required? */
+	if( !array->count || array->first == 0 )
+	{
+		array->count += array->step;
+
+		if( !( array->array = (void*)prealloc(
+				(void*)array->array, array->count * array->size ) ) )
+			RETURN( (void*)NULL );
+
+		array->first = array->step;
+
+		if( array->last > 0 )
+			memmove( (char*)array->array + array->first * array->size,
+						array->array, array->last * array->size );
+
+		array->last += array->first;
+	}
+
+	ptr = (char*)array->array + ( --array->first * array->size );
+
+	/* Copy item into last of array */
+	if( item )
+		memcpy( ptr, item, array->size );
+
+	RETURN( ptr );
+}
+
+/** Removes an element from the beginning of an array.
+
+The function returns the pointer of the shifted item.
+Because dynamic arrays only grow and no memory is freed, the returned data
+pointer is still valid, and will only be overwritten with the next unshift
+operation.
+
+//array// is the pointer to array where to pop an item off.
+
+The function returns the address of the shifted item, and (void*)NULL if the
+item could not be popped (e.g. array is empty).
+*/
+void* parray_shift( parray* array )
+{
+	PROC( "parray_shift" );
+	PARMS( "array", "%p", array );
+
+	if( !array )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	if( array->last == array->first )
+	{
+		MSG( "last is zero, no items on the array." );
+		RETURN( (void*)NULL );
+	}
+
+	RETURN( (char*)array->array + array->first++ * array->size );
+}
+
+/** Access an element from the array by its offset position from the left.
 
 //array// is the pointer to array where to access the element from.
 //offset// is the offset of the element to be accessed from the array's
 base address.
 
 Returns the address of the accessed item, and (void*)NULL if the item could not
-be accessed (e.g. if the array is empty or offset is beyond the top of array).
+be accessed (e.g. if the array is empty or offset is beyond the last of array).
 
-Use parray_raccess() for access items from the top.
+Use parray_raccess() for access items from the last.
 */
 void* parray_access( parray* array, size_t offset )
 {
@@ -240,13 +313,14 @@ void* parray_access( parray* array, size_t offset )
 		RETURN( (void*)NULL );
 	}
 
-	if( array->top == 0 || offset >= array->top )
+	if( array->last == array->first
+			|| offset >= ( array->last - array->first ) )
 	{
-		MSG( "offset defines an item that is out of bounds within array" );
+		MSG( "offset defines an item that is out of bounds of the array" );
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( (char*)array->array + offset * array->size );
+	RETURN( (char*)array->array + ( array->first + offset ) * array->size );
 }
 
 /** Access an element from the array via its offset position from the right.
@@ -273,17 +347,17 @@ void* parray_raccess( parray* array, size_t offset )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( parray_access( array, array->top - 1 - offset ) );
+	RETURN( parray_access( array, array->last - 1 - offset ) );
 }
 
-/** Access top element of the array.
+/** Access last element of the array.
 
 Returns the address of the accessed item, and (void*)NULL if nothing is on
 the array.
 */
-void* parray_top( parray* array )
+void* parray_last( parray* array )
 {
-	PROC( "parray_top" );
+	PROC( "parray_last" );
 	PARMS( "array", "%p", array );
 
 	if( !array )
@@ -292,18 +366,18 @@ void* parray_top( parray* array )
 		RETURN( (void*)NULL );
 	}
 
-	if( array->count == 0 )
+	if( array->first == array->last )
 		RETURN( (void*)NULL );
 
-	RETURN( parray_access( array, array->top - 1 ) );
+	RETURN( parray_access( array, array->last - 1 ) );
 }
 
-/** Access bottom element of the array.
+/** Access first element of the array.
 
 Returns the address of the accessed item, and (void*)NULL if nothing is on
 the array.
 */
-void* parray_bottom( parray* array )
+void* parray_first( parray* array )
 {
 	PROC( "parray_bottom" );
 	PARMS( "array", "%p", array );
@@ -314,10 +388,10 @@ void* parray_bottom( parray* array )
 		RETURN( (void*)NULL );
 	}
 
-	if( array->count == 0 )
+	if( array->first == array->last )
 		RETURN( (void*)NULL );
 
-	RETURN( (char*)array->array );
+	RETURN( (char*)array->array + array->first );
 }
 
 
@@ -327,5 +401,5 @@ int parray_count( parray* array )
 	if( !array )
 		return 0;
 
-	return array->top;
+	return array->last - array->first;
 }

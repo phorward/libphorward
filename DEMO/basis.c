@@ -315,36 +315,61 @@ void plist_demo2( void )
 	mylist = plist_free( mylist );
 }
 
+static void array_print( parray* a )
+{
+	int		i;
+	person*	p;
+
+	printf( "first = %ld last = %ld count = %ld size = %ld\n",
+				a->first, a->last, a->count, a->size );
+
+	printf( "-- %d Elements --\n", parray_count( a ) );
+
+	for( i = 0; ( p = (person*)parray_access( a, i ) ); i++ )
+		printf( "%s %s\n", p->first_name, p->last_name );
+
+	printf( "-- %d Elements --\n", parray_count( a ) );
+}
+
 void parray_demo( void )
 {
 	person 	x;
 	person*	p;
-	parray*	st;
+	parray*	a;
 
 	DEMO( "parray_demo" );
 
-	st = parray_create( sizeof( person ), 3 );
+	a = parray_create( sizeof( person ), 2 );
 
 	strcpy( x.last_name, "Zufall" );
 	strcpy( x.first_name, "Reiner" );
-	parray_push( st, (void*)&x );
+	parray_push( a, (void*)&x );
+
+	array_print( a );
 
 	strcpy( x.last_name, "Pfahl" );
 	strcpy( x.first_name, "Martha" );
-	parray_push( st, (void*)&x );
+	parray_push( a, (void*)&x );
+
+	array_print( a );
 
 	strcpy( x.last_name, "Racho" );
 	strcpy( x.first_name, "Volker" );
-	parray_push( st, (void*)&x );
+	parray_unshift( a, (void*)&x );
+
+	array_print( a );
+	parray_shift( a );
 
 	strcpy( x.last_name, "Pete" );
 	strcpy( x.first_name, "Dieter" );
-	parray_push( st, (void*)&x );
+	parray_unshift( a, (void*)&x );
 
-	while( ( p = (person*)parray_pop( st ) ) )
+	array_print( a );
+
+	while( ( p = (person*)parray_pop( a ) ) )
 		printf( "%s %s\n", p->first_name, p->last_name );
 
-	st = parray_free( st );
+	a = parray_free( a );
 }
 
 int faculty( int x )

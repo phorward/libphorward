@@ -924,7 +924,7 @@ static pplrse* push( parray* stack, ppsym* symbol,
 	e.end = end;
 
 	parray_push( stack, &e );
-	return (pplrse*)parray_top( stack );
+	return (pplrse*)parray_last( stack );
 }
 
 static pplrse* pop( parray* stack, int n, char** start, plistel** ebegin )
@@ -944,7 +944,7 @@ static pplrse* pop( parray* stack, int n, char** start, plistel** ebegin )
 			*ebegin = e->ebegin;
 	}
 
-	return (pplrse*)parray_top( stack );
+	return (pplrse*)parray_last( stack );
 }
 
 static void print_stack( char* title, plist* states, parray* stack )
