@@ -11,6 +11,8 @@ Usage:	Universal, dynamic array management functions.
 
 #include "phorward.h"
 
+#define STD_STEP			128		/* Default step size */
+
 /** Performs an array initialization.
 
 //array// is the pointer to the array to be initialized.
@@ -37,7 +39,7 @@ pboolean parray_init( parray* array, size_t size, size_t step )
 	}
 
 	if( step <= 0 )
-		step = 1;
+		step = STD_STEP;
 
 	memset( array, 0, sizeof( parray ) );
 	array->size = size;
@@ -172,6 +174,106 @@ void* parray_malloc( parray* array )
 	return ptr;
 }
 
+/** Insert item //item// at //offset// into array //array//.
+Items right to //offset// will move up.
+
+Gap space between the offset is filled with zero elements;
+Handle with care! */
+void* parray_insert( parray* array, size_t offset, void* item )
+{
+	void*	slot;
+
+	PROC( "parray_insert" );
+	PARMS( "array", "%p", array );
+	PARMS( "offset", "%ld", offset );
+	PARMS( "item", "%p", item );
+
+	if( !array )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	/* Within current bounds? */
+	if( array->first + offset < array->last )
+	{
+		MSG( "offset within bounds, inserting" );
+
+		/* Allocate one item for moving up */
+		parray_malloc( array );
+
+		slot = (char*)array->array + ( array->first + offset ) * array->size;
+
+		/* Move up existing items right of offset */
+		memmove( slot + array->size, slot,
+					( array->last - ( array->first + offset ) ) * array->size );
+
+		/* Put new element */
+		if( item )
+			memcpy( slot, item, array->size );
+		else
+			memset( slot, 0, array->size );
+
+		RETURN( slot );
+	}
+
+	while( array->first + offset >= array->last )
+	{
+		if( !( slot = parray_malloc( array ) ) )
+		{
+			MSG( "Out of mem?" );
+			RETURN( slot );
+		}
+	}
+
+	if( item )
+		memcpy( slot, item, array->size );
+
+	RETURN( slot );
+}
+
+/** Remove item on //offset// from array //array//.
+
+The removed item will be copied into //item//, if //item// is not NULL.
+The function returns the memory of the removed item (will contain . */
+void* parray_remove( parray* array, size_t offset, void** item )
+{
+	void*	slot;
+
+	PROC( "parray_remove" );
+	PARMS( "array", "%p", array );
+	PARMS( "offset", "%ld", offset );
+	PARMS( "item", "%p", item );
+
+	if( !array )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	/* Within current bounds? */
+	if( array->first + offset >= array->last )
+	{
+		MSG( "Index out of bounds." );
+		RETURN( (void*)NULL );
+	}
+
+	slot = (char*)array->array + ( array->first + offset ) * array->size;
+
+	if( item )
+		memcpy( *item, slot, ( array->first + offset ) * array->size );
+
+	/* Move existing items to the left */
+	if( array->first + offset + 1 < array->last )
+		memmove( slot, slot + array->size,
+				( array->last - ( array->first + offset + 1 ) )
+					* array->size );
+
+	array->last--;
+
+	RETURN( slot );
+}
+
 /** Removes an element from the end of an array.
 
 The function returns the pointer of the popped item. Because dynamic arrays only
@@ -258,7 +360,7 @@ void* parray_unshift( parray* array, void* item )
 	RETURN( ptr );
 }
 
-/** Removes an element from the beginning of an array.
+/** Removes an element from the begin of an array.
 
 The function returns the pointer of the shifted item.
 Because dynamic arrays only grow and no memory is freed, the returned data
@@ -299,11 +401,11 @@ base address.
 Returns the address of the accessed item, and (void*)NULL if the item could not
 be accessed (e.g. if the array is empty or offset is beyond the last of array).
 
-Use parray_raccess() for access items from the last.
+Use parray_rget() for access items from the end.
 */
-void* parray_access( parray* array, size_t offset )
+void* parray_get( parray* array, size_t offset )
 {
-	PROC( "parray_access" );
+	PROC( "parray_get" );
 	PARMS( "array", "%p", array );
 	PARMS( "offset", "%d", offset );
 
@@ -323,7 +425,50 @@ void* parray_access( parray* array, size_t offset )
 	RETURN( (char*)array->array + ( array->first + offset ) * array->size );
 }
 
-/** Access an element from the array via its offset position from the right.
+/** Put an element //item// at position //offset// of array //array//.
+
+//array// is the pointer to array where to put the element to.
+//offset// is the offset of the element to be set.
+//item// is a pointer to the memory that will be copied into the
+position at //offset//. If this is NULL, the position at //offset// will be
+set to zero.
+
+Returns the address of the item in the array, or NULL if the desired offset
+is out of the array bounds.
+*/
+void* parray_put( parray* array, size_t offset, void* item )
+{
+	void*	slot;
+
+	PROC( "parray_put" );
+	PARMS( "array", "%p", array );
+	PARMS( "offset", "%d", offset );
+	PARMS( "item", "%p", item );
+
+	if( !array )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	if( array->last == array->first
+			|| offset >= ( array->last - array->first ) )
+	{
+		MSG( "Index out of bounds" );
+		RETURN( (void*)NULL );
+	}
+
+	slot = (char*)array->array + ( array->first + offset ) * array->size;
+
+	if( item )
+		memcpy( slot, item, array->size );
+	else
+		memset( slot, 0, array->size );
+
+	RETURN( slot );
+}
+
+/** Access an element from the array by its offset position from the right.
 
 //array// is the pointer to array where to access the element from.
 //offset// is the offset of the element to be accessed from the array's
@@ -333,11 +478,11 @@ Returns the address of the accessed item, and (void*)NULL if the item could not
 be accessed (e.g. if the array is empty or offset is beyond the bottom of
 the array).
 
-Use parray_access() for access items from the bottom.
+Use parray_get() for access items from the begin.
 */
-void* parray_raccess( parray* array, size_t offset )
+void* parray_rget( parray* array, size_t offset )
 {
-	PROC( "parray_raccess" );
+	PROC( "parray_rget" );
 	PARMS( "array", "%p", array );
 	PARMS( "offset", "%d", offset );
 
@@ -347,7 +492,35 @@ void* parray_raccess( parray* array, size_t offset )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( parray_access( array, array->last - 1 - offset ) );
+	RETURN( parray_get( array, array->last - 1 - offset ) );
+}
+
+/** Put an element //item// at position //offset// from the right of
+array //array//.
+
+//array// is the pointer to array where to put the element to.
+//offset// is the offset of the element to be set.
+//item// is a pointer to the memory that will be copied into the
+position at //offset//. If this is NULL, the position at //offset// will be
+set to zero.
+
+Returns the address of the item in the array, or NULL if the desired offset
+is out of the array bounds.
+*/
+void* parray_rput( parray* array, size_t offset, void* item )
+{
+	PROC( "parray_rput" );
+	PARMS( "array", "%p", array );
+	PARMS( "offset", "%d", offset );
+	PARMS( "item", "%p", item );
+
+	if( !array )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	RETURN( parray_put( array, array->last - 1 - offset, item ) );
 }
 
 /** Access last element of the array.
@@ -369,7 +542,7 @@ void* parray_last( parray* array )
 	if( array->first == array->last )
 		RETURN( (void*)NULL );
 
-	RETURN( parray_access( array, array->last - 1 ) );
+	RETURN( parray_get( array, array->last - 1 ) );
 }
 
 /** Access first element of the array.

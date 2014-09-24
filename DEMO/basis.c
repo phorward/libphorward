@@ -325,8 +325,8 @@ static void array_print( parray* a )
 
 	printf( "-- %d Elements --\n", parray_count( a ) );
 
-	for( i = 0; ( p = (person*)parray_access( a, i ) ); i++ )
-		printf( "%s %s\n", p->first_name, p->last_name );
+	for( i = 0; ( p = (person*)parray_get( a, i ) ); i++ )
+		printf( "%02d) %s %s\n", i, p->first_name, p->last_name );
 
 	printf( "-- %d Elements --\n", parray_count( a ) );
 }
@@ -339,7 +339,7 @@ void parray_demo( void )
 
 	DEMO( "parray_demo" );
 
-	a = parray_create( sizeof( person ), 2 );
+	a = parray_create( sizeof( person ), 0 );
 
 	strcpy( x.last_name, "Zufall" );
 	strcpy( x.first_name, "Reiner" );
@@ -349,16 +349,16 @@ void parray_demo( void )
 
 	strcpy( x.last_name, "Pfahl" );
 	strcpy( x.first_name, "Martha" );
-	parray_push( a, (void*)&x );
+	parray_insert( a, 5, (void*)&x );
 
 	array_print( a );
+	getchar();
 
 	strcpy( x.last_name, "Racho" );
 	strcpy( x.first_name, "Volker" );
 	parray_unshift( a, (void*)&x );
 
 	array_print( a );
-	parray_shift( a );
 
 	strcpy( x.last_name, "Pete" );
 	strcpy( x.first_name, "Dieter" );
@@ -366,8 +366,9 @@ void parray_demo( void )
 
 	array_print( a );
 
-	while( ( p = (person*)parray_pop( a ) ) )
-		printf( "%s %s\n", p->first_name, p->last_name );
+	parray_remove( a, 1, (void**)NULL );
+
+	array_print( a );
 
 	a = parray_free( a );
 }
@@ -508,6 +509,9 @@ void value_demo( void )
 int main( int argc, char** argv )
 {
 	setlocale( LC_ALL, "" );
+
+	parray_demo();
+	return 0;
 
 	string_demo();
 	unicode_demo();

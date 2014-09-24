@@ -956,7 +956,7 @@ static void print_stack( char* title, plist* states, parray* stack )
 
 	for( i = 0; i < parray_count( stack ); i++ )
 	{
-		e = (pplrse*)parray_access( stack, i );
+		e = (pplrse*)parray_get( stack, i );
 		fprintf( stderr, "%02d: %s %d >%.*s<\n",
 			i, e->symbol ? e->symbol->name : "(null)",
 				e->state ?
