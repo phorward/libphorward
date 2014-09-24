@@ -753,6 +753,7 @@ pboolean parray_erase( parray* array );
 parray* parray_free( parray* array );
 void* parray_push( parray* array, void* item );
 void* parray_malloc( parray* array );
+void* parray_rmalloc( parray* array );
 void* parray_insert( parray* array, size_t offset, void* item );
 void* parray_remove( parray* array, size_t offset, void** item );
 void* parray_pop( parray* array );
@@ -1016,7 +1017,7 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
-void pp_ast_print( plist* ast );
+void pp_ast_print( parray* ast );
 
 
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
@@ -1030,11 +1031,11 @@ ppgram* pp_gram_create( char* def );
 void pp_gram_print( ppgram* g );
 
 
-pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end );
+pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end );
 
 
 plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
-pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end );
+pboolean pp_lr_parse( parray* ast, ppgram* grm, char* start, char** end );
 
 
 pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );

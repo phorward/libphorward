@@ -28,7 +28,8 @@ int main( int argc, char** argv )
 		if( argc > 2 )
 		{
 			s = e = argv[2];
-			if( pp_lr_parse( (plist*)NULL, g, s, &e ) )
+			/* if( pp_lr_parse( (parray*)NULL, g, s, &e ) ) */
+			if( pp_ll_parse( (parray*)NULL, g, s, &e ) )
 				printf( ">%.*s<\n", e - s, s );
 			else
 				printf( "FAIL\n" );

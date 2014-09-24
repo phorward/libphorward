@@ -52,7 +52,7 @@ typedef struct
 	pplrstate*		state;			/* State */
 	char*			start;
 	char*			end;
-	plistel*		ebegin;
+	long			begin;
 } pplrse;
 
 #define PPLR_SHIFT	1
@@ -927,12 +927,12 @@ static pplrse* push( parray* stack, ppsym* symbol,
 	return (pplrse*)parray_last( stack );
 }
 
-static pplrse* pop( parray* stack, int n, char** start, plistel** ebegin )
+static pplrse* pop( parray* stack, int n, char** start, long* begin )
 {
 	pplrse*	e;
 
 	*start = (char*)NULL;
-	*ebegin = (plistel*)NULL;
+	*begin = -1L;
 
 	while( n-- > 0 )
 	{
@@ -940,8 +940,8 @@ static pplrse* pop( parray* stack, int n, char** start, plistel** ebegin )
 
 		*start = e->start;
 
-		if( e->ebegin )
-			*ebegin = e->ebegin;
+		if( e->begin >= 0L )
+			*begin = e->begin;
 	}
 
 	return (pplrse*)parray_last( stack );
@@ -1021,7 +1021,7 @@ static pboolean get_goto( pplrstate** shift, ppprod** reduce,
 	return FALSE;
 }
 
-static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
+static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 									plist* states )
 {
 	char*		lend;
@@ -1033,7 +1033,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 	pplrstate*	shift;
 	ppprod*		reduce;
 	pboolean	token;
-	plistel*	ebegin;
+	long		begin;
 	ppmatch*	mbegin;
 	ppmatch*	mend;
 
@@ -1101,10 +1101,9 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 				(not implemented in current grammar parser yet) */
 			if( sym->flags & PPFLAG_EMIT )
 			{
-				ebegin = plist_insert( ast, (plistel*)NULL,
-										(char*)NULL, (void*)NULL );
-				mbegin = (ppmatch*)plist_access( ebegin );
-				mend = (ppmatch*)plist_malloc( ast );
+				begin = parray_count( ast );
+				mbegin = (ppmatch*)parray_malloc( ast );
+				mend = (ppmatch*)parray_malloc( ast );
 
 				mbegin->type = PPMATCH_BEGIN;
 				mend->type = PPMATCH_END;
@@ -1114,7 +1113,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 				mend->sym = mbegin->sym = sym;
 				mend->emit_id = mbegin->emit_id = sym->emit_id;
 
-				tos->ebegin = ebegin;
+				tos->begin = begin;
 			}
 
 			lend = *end;
@@ -1133,15 +1132,14 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 			print_stack( "Before Reduce", states, stack );
 
 			/* Pop elements off the stack */
-			tos = pop( stack, plist_count( reduce->rhs ), &start, &ebegin );
+			tos = pop( stack, plist_count( reduce->rhs ), &start, &begin );
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
 			if( lhs->flags & PPFLAG_EMIT )
 			{
-				ebegin = plist_insert( ast, ebegin, (char*)NULL, (void*)NULL );
-				mbegin = (ppmatch*)plist_access( ebegin );
-				mend = (ppmatch*)plist_malloc( ast );
+				mbegin = (ppmatch*)parray_insert( ast, begin, (void*)NULL );
+				mend = (ppmatch*)parray_malloc( ast );
 
 				mbegin->type = PPMATCH_BEGIN;
 				mend->type = PPMATCH_END;
@@ -1161,7 +1159,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 			get_goto( &shift, &reduce, tos, reduce->lhs );
 			tos = push( stack, lhs, shift, start, *end );
 
-			tos->ebegin = ebegin;
+			tos->begin = begin;
 
 			print_stack( "Behind Reduce", states, stack );
 			pp_ast_print( ast );
@@ -1174,7 +1172,7 @@ static pboolean pp_lr_PARSE( plist* ast, ppgram* grm, char* start, char** end,
 	return TRUE;
 }
 
-pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end )
+pboolean pp_lr_parse( parray* ast, ppgram* grm, char* start, char** end )
 {
 	pboolean	ret;
 	pboolean	myast		= FALSE;
@@ -1191,7 +1189,7 @@ pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end )
 
 	if( !ast )
 	{
-		ast = plist_create( sizeof( ppmatch ), PLIST_MOD_RECYCLE );
+		ast = parray_create( sizeof( ppmatch ), 0 );
 		myast = TRUE;
 	}
 
@@ -1201,7 +1199,7 @@ pboolean pp_lr_parse( plist* ast, ppgram* grm, char* start, char** end )
 	if( myast )
 	{
 		pp_ast_print( ast );
-		plist_free( ast );
+		parray_free( ast );
 	}
 
 	return ret;

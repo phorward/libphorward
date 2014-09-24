@@ -11,9 +11,9 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
-void pp_ast_print( plist* ast )
+void pp_ast_print( parray* ast )
 {
-	plistel*	e;
+	int			i;
 	ppmatch*	match;
 	char		gap		[ 80 + 1 ];
 
@@ -25,10 +25,8 @@ void pp_ast_print( plist* ast )
 
 	*gap = '\0';
 
-	for( e = plist_first( ast ); e; e = plist_next( e ) )
+	for( i = 0; ( match = (ppmatch*)parray_get( ast, i ) ); i++ )
 	{
-		match = (ppmatch*)plist_access( e );
-
 		if( match->type == PPMATCH_END && *gap )
 			gap[ strlen( gap ) - 1 ] = '\0';
 

@@ -174,6 +174,30 @@ void* parray_malloc( parray* array )
 	return ptr;
 }
 
+/** Unshifts and "allocates" an empty element on the array.
+
+This function is just a shortcut to ```parray_unshift( array, (void*)NULL )```,
+and the memory of the unshifted element is initialized to zero. */
+void* parray_rmalloc( parray* array )
+{
+	void*	ptr;
+
+	PROC( "parray_rmalloc" );
+	PARMS( "array", "%p", array );
+
+	if( !( array ) )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	if( !( ptr = parray_unshift( array, (void*)NULL ) ) )
+		return ptr;
+
+	memset( ptr, 0, array->size );
+	return ptr;
+}
+
 /** Insert item //item// at //offset// into array //array//.
 Items right to //offset// will move up.
 

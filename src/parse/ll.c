@@ -30,7 +30,7 @@ static pboolean is_direct_lrec( ppprod* p )
 	return FALSE;
 }
 
-static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
+static pboolean pp_ll_PARSE( parray* ast, ppgram* grm,
 								char* start, char** end, ppsym* sym )
 {
 	pboolean	myast	= FALSE;
@@ -44,8 +44,8 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 	ppmatch*	match;
 	ppmatch*	smatch;
 	ppmatch*	ematch;
-	plistel*	sme;
-	plistel*	e;
+	long		smatch_off;
+	long		off;
 
 	if( !( grm && start && end && sym ) )
 	{
@@ -55,27 +55,24 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 
 	if( !ast )
 	{
-		ast = plist_create( sizeof( ppmatch ), PLIST_MOD_RECYCLE );
+		ast = parray_create( sizeof( ppmatch ), 0 );
 		myast = TRUE;
 	}
 
 	do
 	{
-		/*
 		printf( "loop = %d\n", loop );
-		*/
 
-		smatch = (ppmatch*)plist_malloc( ast );
+		smatch = (ppmatch*)parray_malloc( ast );
 		smatch->type = PPMATCH_BEGIN;
-		sme = plist_last( ast );
+		smatch_off = parray_count( ast ) - 1;
 
 		for( i = 0, pnext = TRUE;
 				pnext && ( p = (ppprod*)plist_access(
 									plist_get( sym->prods, i ) ) ); i++ )
 		{
-			/*
+
 			printf( "Trying %s\n", pp_prod_to_str( p ) );
-			*/
 
 			if( !( ( loop == 0 && !is_direct_lrec( p ) )
 						|| ( loop > 0 && is_direct_lrec( p ) ) ) )
@@ -84,17 +81,18 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 			for( j = 0, ptr = start;
 					( rsym = pp_prod_getfromrhs( p, j ) ); j++ )
 			{
-				/*
 				printf( "Testing >%s<\n", ptr );
-				*/
+
 				if( rsym->type == PPSYMTYPE_NONTERM )
 				{
-					for( e = plist_prev( sme ); e; e = plist_prev( e ) )
+					for( off = smatch_off - 1;
+							( match = (ppmatch*)parray_get( ast, off ) );
+								off-- )
 					{
-						match = (ppmatch*)plist_access( e );
+						printf( "in loop off = %ld\n", off );
 						if( match->start < ptr )
 						{
-							e = (plistel*)NULL;
+							off = -1L;
 							break;
 						}
 
@@ -106,7 +104,9 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 						}
 					}
 
-					if( !e && !pp_ll_PARSE( ast, grm, ptr, &ptr, rsym ) )
+					printf( "off = %ld", off );
+
+					if( off < 0L && !pp_ll_PARSE( ast, grm, ptr, &ptr, rsym ) )
 						break;
 				}
 				else if( !pp_sym_in_input( rsym, ptr, &ptr ) )
@@ -116,17 +116,17 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 			if( !rsym )
 				break;
 
-			while( plist_next( sme ) )
-				plist_remove( ast, plist_next( sme ) );
+			while( smatch_off + 1 < parray_count( ast ) )
+				parray_pop( ast );
 		}
 
 		if( !( pnext && p ) )
 		{
-			plist_remove( ast, sme );
+			parray_remove( ast, smatch_off, (void**)NULL );
 			break;
 		}
 
-		ematch = (ppmatch*)plist_malloc( ast );
+		ematch = (ppmatch*)parray_malloc( ast );
 		ematch->type = PPMATCH_END;
 		smatch->start = ematch->start = start;
 		smatch->end = ematch->end = ptr;
@@ -139,12 +139,12 @@ static pboolean pp_ll_PARSE( plist* ast, ppgram* grm,
 	while( sym->flags & PPFLAG_LEFTREC );
 
 	if( myast )
-		plist_free( ast );
+		parray_free( ast );
 
 	return loop ? TRUE : FALSE;
 }
 
-pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end )
+pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end )
 {
 	pboolean	myast	= FALSE;
 	pboolean	ret;
@@ -157,7 +157,7 @@ pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end )
 
 	if( !ast )
 	{
-		ast = plist_create( sizeof( ppmatch ), PLIST_MOD_RECYCLE );
+		ast = parray_create( sizeof( ppmatch ), 0 );
 		myast = TRUE;
 	}
 
@@ -166,8 +166,9 @@ pboolean pp_ll_parse( plist* ast, ppgram* grm, char* start, char** end )
 	if( myast )
 	{
 		pp_ast_print( ast );
-		plist_free( ast );
+		parray_free( ast );
 	}
 
 	return ret;
 }
+
