@@ -230,7 +230,8 @@ void* parray_insert( parray* array, size_t offset, void* item )
 
 		/* Move up existing items right of offset */
 		memmove( slot + array->size, slot,
-					( array->last - ( array->first + offset ) ) * array->size );
+					( array->last - 1 -
+						( array->first + offset ) ) * array->size );
 
 		/* Put new element */
 		if( item )
@@ -591,6 +592,31 @@ void* parray_first( parray* array )
 	RETURN( (char*)array->array + array->first );
 }
 
+/** Swap two elements of an array. */
+void* parray_swap( parray* array, size_t pos1, size_t pos2 )
+{
+	void*	ptr1;
+	void*	ptr2;
+
+	if( !( array ) )
+	{
+		WRONGPARAM;
+		return (void*)NULL;
+	}
+
+	if( !( ( ptr1 = parray_get( array, pos1 ) )
+			&& ( ptr2 = parray_get( array, pos2 ) ) ) )
+		return (void*)NULL;
+
+	if( ptr1 == ptr2 )
+		return ptr1;
+
+	parray_push( array, ptr1 );
+	parray_put( array, pos1, ptr2 );
+	parray_put( array, pos2, parray_pop( array ) );
+
+	return ptr1;
+}
 
 /** Returns the number of elements in a array. */
 int parray_count( parray* array )

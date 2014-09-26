@@ -89,7 +89,6 @@ static pboolean pp_ll_PARSE( parray* ast, ppgram* grm,
 							( match = (ppmatch*)parray_get( ast, off ) );
 								off-- )
 					{
-						printf( "in loop off = %ld\n", off );
 						if( match->start < ptr )
 						{
 							off = -1L;
@@ -103,8 +102,6 @@ static pboolean pp_ll_PARSE( parray* ast, ppgram* grm,
 							break;
 						}
 					}
-
-					printf( "off = %ld", off );
 
 					if( off < 0L && !pp_ll_PARSE( ast, grm, ptr, &ptr, rsym ) )
 						break;
@@ -144,6 +141,53 @@ static pboolean pp_ll_PARSE( parray* ast, ppgram* grm,
 	return loop ? TRUE : FALSE;
 }
 
+static void pp_ll_normalize_leftrec( parray* ast )
+{
+	size_t		i;
+	size_t		j;
+	int			cnt;
+	ppmatch*	match;
+	ppmatch*	pmatch;
+
+	for( i = 0; ( match = (ppmatch*)parray_get( ast, i ) ); i++ )
+	{
+		if( match->sym->flags & PPFLAG_LEFTREC
+				&& match->type == PPMATCH_BEGIN )
+		{
+			pmatch = (ppmatch*)parray_get( ast, i - 1 );
+
+			if( !( pmatch && pmatch->type == PPMATCH_END
+					&& pmatch->start == match->start
+						&& pmatch->end < match->end ) )
+				continue;
+
+			for( j = i - 1, cnt = 0; j >= 0; j-- )
+			{
+				pmatch = (ppmatch*)parray_get( ast, j );
+
+				if( !pmatch )
+					continue;
+
+				if( pmatch->type == PPMATCH_BEGIN )
+					cnt++;
+
+				if( pmatch->type == PPMATCH_END )
+					cnt--;
+
+				if( !cnt )
+					break;
+			}
+
+			if( !pmatch )
+				continue;
+
+			parray_insert( ast, j, (void*)NULL );
+			parray_put( ast, j, parray_get( ast, i + 1 ) );
+			parray_remove( ast, i + 1, (void**)NULL );
+		}
+	}
+}
+
 pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end )
 {
 	pboolean	myast	= FALSE;
@@ -162,6 +206,9 @@ pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end )
 	}
 
 	ret = pp_ll_PARSE( ast, grm, start, end, grm->goal );
+
+	if( ast )
+		pp_ll_normalize_leftrec( ast );
 
 	if( myast )
 	{
