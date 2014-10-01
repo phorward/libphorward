@@ -18,7 +18,9 @@ void* parray_rput( parray* array, size_t offset, void* item );
 void* parray_last( parray* array );
 void* parray_first( parray* array );
 void* parray_swap( parray* array, size_t pos1, size_t pos2 );
-int parray_count( parray* array );
+size_t parray_count( parray* array );
+pboolean parray_partof( parray* array, void* ptr );
+size_t parray_offset( parray* array, void* ptr );
 
 /* base/dbg.c */
 void _dbg_trace( char* file, int line, char* type, char* format, ... );

@@ -349,10 +349,10 @@ void parray_demo( void )
 
 	strcpy( x.last_name, "Pfahl" );
 	strcpy( x.first_name, "Martha" );
-	parray_insert( a, 5, (void*)&x );
+	p = (person*)parray_insert( a, 5, (void*)&x );
 
 	array_print( a );
-	getchar();
+	printf( "%ld\n", parray_offset( a, p - 10 ) );
 
 	strcpy( x.last_name, "Racho" );
 	strcpy( x.first_name, "Volker" );
@@ -509,9 +509,6 @@ void value_demo( void )
 int main( int argc, char** argv )
 {
 	setlocale( LC_ALL, "" );
-
-	parray_demo();
-	return 0;
 
 	string_demo();
 	unicode_demo();

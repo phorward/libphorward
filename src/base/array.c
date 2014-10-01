@@ -589,7 +589,7 @@ void* parray_first( parray* array )
 	if( array->first == array->last )
 		RETURN( (void*)NULL );
 
-	RETURN( (char*)array->array + array->first );
+	RETURN( (char*)array->array + ( array->first * array->size ) );
 }
 
 /** Swap two elements of an array. */
@@ -619,10 +619,47 @@ void* parray_swap( parray* array, size_t pos1, size_t pos2 )
 }
 
 /** Returns the number of elements in a array. */
-int parray_count( parray* array )
+size_t parray_count( parray* array )
 {
 	if( !array )
 		return 0;
 
 	return array->last - array->first;
+}
+
+/** Returns TRUE, if //ptr// is an element of array //array//. */
+pboolean parray_partof( parray* array, void* ptr )
+{
+	if( !( array && ptr ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( ptr >= parray_first( array ) && ptr <= parray_last( array ) )
+		return TRUE;
+
+	return FALSE;
+}
+
+/** Return offset of element //ptr// in array //array//.
+Returns the offset of //ptr// in //array//.
+The function returns the size of the array (which is an invalid offset)
+if //ptr// is not part of //array//.
+
+To check if a pointer belongs to an array, call parray_partof(). */
+size_t parray_offset( parray* array, void* ptr )
+{
+	if( !( array && ptr ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	if( !parray_partof( array, ptr ) )
+		return parray_count( array );
+
+	return ( (char*)ptr - ( (char*)array->array
+								+ ( array->first * array->size ) ) )
+				/ array->size;
 }
