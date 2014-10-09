@@ -27,18 +27,56 @@ void pp_ast_print( parray* ast )
 
 	for( i = 0; ( match = (ppmatch*)parray_get( ast, i ) ); i++ )
 	{
-		if( match->type == PPMATCH_END && *gap )
-			gap[ strlen( gap ) - 1 ] = '\0';
+		if( match->type & PPMATCH_BEGIN )
+		{
+			printf( "%s{ %s (%d) >%.*s<\n",
+				gap,
+				match->sym->name,
+				match->emit_id,
+				match->end - match->start,
+				match->start );
 
-		printf( "%s%s %s (%d) >%.*s<\n",
-			gap,
-			match->type == PPMATCH_BEGIN ? "{" : "}",
-			match->sym->name,
-			match->emit_id,
-			match->end - match->start,
-			match->start );
-
-		if( match->type == PPMATCH_BEGIN )
 			strcat( gap, " " );
+		}
+
+		if( match->type & PPMATCH_END )
+		{
+			if( *gap )
+				gap[ strlen( gap ) - 1 ] = '\0';
+
+			printf( "%s} %s (%d) >%.*s<\n",
+				gap,
+				match->sym->name,
+				match->emit_id,
+				match->end - match->start,
+				match->start );
+		}
 	}
+}
+
+void pp_ast_tree2svg( parray* ast )
+{
+	int			i;
+	ppmatch*	match;
+
+	if( !ast )
+	{
+		WRONGPARAM;
+		return;
+	}
+
+	for( i = 0; ( match = (ppmatch*)parray_get( ast, i ) ); i++ )
+	{
+		if( match->type & PPMATCH_BEGIN )
+			printf( "'%s' [ ",
+				match->sym->name );
+
+		if( match->sym->type > PPSYMTYPE_NONTERM )
+			printf( "'%.*s' ", match->end - match->start, match->start );
+
+		if( match->type & PPMATCH_END )
+			printf( "] " );
+	}
+
+	printf( "\n" );
 }

@@ -1102,16 +1102,15 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			if( sym->flags & PPFLAG_EMIT )
 			{
 				begin = parray_count( ast );
-				mbegin = (ppmatch*)parray_malloc( ast );
 				mend = (ppmatch*)parray_malloc( ast );
 
-				mbegin->type = PPMATCH_BEGIN;
-				mend->type = PPMATCH_END;
-				mend->start = mbegin->start = start;
-				mend->end = mbegin->end = *end;
-				mend->prod = mbegin->prod = (ppprod*)NULL;
-				mend->sym = mbegin->sym = sym;
-				mend->emit_id = mbegin->emit_id = sym->emit_id;
+				mend->type = PPMATCH_BEGIN | PPMATCH_END;
+				mend->prod = (ppprod*)NULL;
+				mend->sym = sym;
+				mend->emit_id = sym->emit_id;
+
+				mend->start = start;
+				mend->end = *end;
 
 				tos->begin = begin;
 			}
@@ -1138,17 +1137,28 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			/* Construction of AST node */
 			if( lhs->flags & PPFLAG_EMIT )
 			{
-				mbegin = (ppmatch*)parray_insert( ast, begin, (void*)NULL );
-				mend = (ppmatch*)parray_malloc( ast );
+				if( begin != parray_count( ast ) )
+				{
+					mbegin = (ppmatch*)parray_insert( ast, begin, (void*)NULL );
+					memset( mbegin, 0, sizeof( ppmatch ) );
+					mbegin->type = PPMATCH_BEGIN;
 
-				mbegin->type = PPMATCH_BEGIN;
-				mend->type = PPMATCH_END;
+					mend = (ppmatch*)parray_malloc( ast );
+					mend->type = PPMATCH_END;
+				}
+				else
+				{
+					mend = (ppmatch*)parray_malloc( ast );
+					mend->type = PPMATCH_BEGIN | PPMATCH_END;
+					mbegin = mend;
+				}
 
-				mend->start = mbegin->start = start;
-				mend->end = mbegin->end = lend;
 				mend->prod = mbegin->prod = reduce;
 				mend->sym = mbegin->sym = lhs;
 				mend->emit_id = mbegin->emit_id = lhs->emit_id;
+
+				mend->start = mbegin->start = start;
+				mend->end = mbegin->end = lend;
 			}
 
 			/* Goal symbol reduced? */

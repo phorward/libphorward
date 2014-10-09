@@ -11,6 +11,8 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
+#define DERIVCHAR	'#'
+
 /** Creates a new symbol of the type //type// in the grammar //g//.
 
 	//name// is the name for nonterminal symbols, for terminal symbols it
@@ -285,14 +287,14 @@ static char* derive_name( ppgram* g, char* base )
 	static
 	char	deriv	[ ( NAMELEN * 2 ) + 1 ];
 
-	sprintf( deriv, "%s'", base );
+	sprintf( deriv, "%s%c", base, DERIVCHAR );
 
 	for( i = 0; strlen( deriv ) < ( NAMELEN * 2 ); i++ )
 	{
 		if( !plist_get_by_key( g->symbols, deriv ) )
 			return deriv;
 
-		strcat( deriv, "'" );
+		sprintf( deriv + strlen( deriv ), "%c", DERIVCHAR );
 	}
 
 	return (char*)NULL;

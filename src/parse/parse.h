@@ -82,11 +82,9 @@ struct _ppgram
 
 typedef struct
 {
-	enum
-	{
-		PPMATCH_BEGIN,
-		PPMATCH_END
-	} 						type;
+	#define PPMATCH_BEGIN	1
+	#define PPMATCH_END		2
+	int						type;
 
 	int						emit_id;
 	ppsym*					sym;

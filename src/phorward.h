@@ -720,11 +720,9 @@ struct _ppgram
 
 typedef struct
 {
-	enum
-	{
-		PPMATCH_BEGIN,
-		PPMATCH_END
-	} 						type;
+	#define PPMATCH_BEGIN	1
+	#define PPMATCH_END		2
+	int						type;
 
 	int						emit_id;
 	ppsym*					sym;
@@ -1021,6 +1019,7 @@ XML_T xml_cut( XML_T xml );
 
 
 void pp_ast_print( parray* ast );
+void pp_ast_tree2svg( parray* ast );
 
 
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );

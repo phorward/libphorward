@@ -273,6 +273,7 @@ XML_T xml_cut( XML_T xml );
 
 /* parse/ast.c */
 void pp_ast_print( parray* ast );
+void pp_ast_tree2svg( parray* ast );
 
 /* parse/gram.c */
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );

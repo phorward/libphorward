@@ -39,14 +39,14 @@ static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
 
 		if( sym->flags & PPFLAG_EMIT )
 		{
-			mstart = (ppmatch*)parray_malloc( ast );
 			mend = (ppmatch*)parray_malloc( ast );
 
-			mstart->type = PPMATCH_BEGIN;
-			mend->type = PPMATCH_END;
-			mstart->sym = mend->sym = sym;
-			mstart->start = mend->start = start;
-			mstart->end = mend->end = *end = ptr;
+			mend->type = PPMATCH_BEGIN | PPMATCH_END;
+			mend->sym = sym;
+			mend->emit_id = sym->emit_id;
+
+			mend->start = start;
+			mend->end = *end;
 		}
 
 		return TRUE;
@@ -92,15 +92,26 @@ static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
 
 	if( sym->flags & PPFLAG_EMIT )
 	{
-		mstart = (ppmatch*)parray_insert( ast, istart, (void*)NULL );
-		memset( mstart, 0, sizeof( ppmatch ) );
+		if( istart != parray_count( ast ) )
+		{
+			mstart = (ppmatch*)parray_insert( ast, istart, (void*)NULL );
+			memset( mstart, 0, sizeof( ppmatch ) );
+			mstart->type = PPMATCH_BEGIN;
 
-		mend = (ppmatch*)parray_malloc( ast );
+			mend = (ppmatch*)parray_malloc( ast );
+			mend->type = PPMATCH_END;
+		}
+		else
+		{
+			mend = (ppmatch*)parray_malloc( ast );
+			mend->type = PPMATCH_BEGIN | PPMATCH_END;
+			mstart = mend;
+		}
 
-		mstart->type = PPMATCH_BEGIN;
-		mend->type = PPMATCH_END;
 		mstart->sym = mend->sym = sym;
 		mstart->prod = mend->prod = p;
+		mstart->emit_id = mend->emit_id = sym->emit_id;
+
 		mstart->start = mend->start = start;
 		mstart->end = mend->end = *end;
 	}
