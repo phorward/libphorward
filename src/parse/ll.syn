@@ -1,0 +1,9 @@
+%emitall
+
+start : e %goal;
+
+e : t '+' e | t '-' e | t ;
+
+t : f '*' t | f '/' t | f ;
+
+f : /[0-9]+/ | '(' e ')' ;
