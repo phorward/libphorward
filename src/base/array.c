@@ -260,7 +260,8 @@ void* parray_insert( parray* array, size_t offset, void* item )
 /** Remove item on //offset// from array //array//.
 
 The removed item will be copied into //item//, if //item// is not NULL.
-The function returns the memory of the removed item (will contain . */
+The function returns the memory of the removed item (it will contain the
+moved up data part or invalid memory, if on the end). */
 void* parray_remove( parray* array, size_t offset, void** item )
 {
 	void*	slot;
