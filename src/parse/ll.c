@@ -11,136 +11,104 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
-/* LL parser with left-recursion support */
+/* Simple recursive-descent LL parser */
 
-static pboolean is_direct_lrec( ppprod* p )
+static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
+								char* start, char** end )
 {
-	int		i;
-	ppsym*	s;
-
-	for( i = 0; ( s = pp_prod_getfromrhs( p, i ) ); i++ )
-	{
-		if( s == p->lhs )
-			return TRUE;
-
-		if( !( s->flags & PPFLAG_NULLABLE ) )
-			break;
-	}
-
-	return FALSE;
-}
-
-static pboolean pp_ll_PARSE( parray* ast, ppgram* grm,
-								char* start, char** end, ppsym* sym )
-{
-	pboolean	myast	= FALSE;
-	ppsym*		rsym;
+	plistel*	ep;
+	plistel*	es;
 	ppprod*		p;
+	ppsym*		s;
+	size_t		istart;
+	ppmatch*	mstart;
+	ppmatch*	mend;
 	char*		ptr;
-	int			loop	= 0;
-	int			i;
-	int			j;
-	pboolean	pnext;
-	ppmatch*	match;
-	ppmatch*	smatch;
-	ppmatch*	ematch;
-	long		smatch_off;
-	long		off;
 
-	if( !( grm && start && end && sym ) )
+	if( !( sym && ast && grm && start && end ) )
 	{
 		WRONGPARAM;
 		return FALSE;
 	}
 
-	if( !ast )
+	/* Terminal input? */
+	if( sym->type != PPSYMTYPE_NONTERM )
 	{
-		ast = parray_create( sizeof( ppmatch ), 0 );
-		myast = TRUE;
+		if( !pp_sym_in_input( sym, start, end ) )
+			return FALSE;
+
+		if( sym->flags & PPFLAG_EMIT )
+		{
+			mstart = (ppmatch*)parray_malloc( ast );
+			mend = (ppmatch*)parray_malloc( ast );
+
+			mstart->type = PPMATCH_BEGIN;
+			mend->type = PPMATCH_END;
+			mstart->sym = mend->sym = sym;
+			mstart->start = mend->start = start;
+			mstart->end = mend->end = *end = ptr;
+		}
+
+		return TRUE;
 	}
 
-	do
+	istart = parray_count( ast );
+
+	/* Loop trough the productions */
+	for( ep = plist_first( sym->prods ); ep; ep = plist_next( ep ) )
 	{
-		printf( "loop = %d\n", loop );
+		p = (ppprod*)plist_access( ep );
+		ptr = start;
 
-		smatch = (ppmatch*)parray_malloc( ast );
-		smatch->type = PPMATCH_BEGIN;
-		smatch_off = parray_count( ast ) - 1;
-
-		for( i = 0, pnext = TRUE;
-				pnext && ( p = (ppprod*)plist_access(
-									plist_get( sym->prods, i ) ) ); i++ )
+		if( p->flags & PPFLAG_LEFTREC )
 		{
+			TODO;
+			fprintf( stderr,
+				"Left-recursion is not implemented for LL, skipping\n" );
+			continue;
+		}
 
-			printf( "Trying %s\n", pp_prod_to_str( p ) );
+		/* Run the sequence */
+		for( es = plist_first( p->rhs ); es; es = plist_next( es ) )
+		{
+			s = (ppsym*)plist_access( es );
 
-			if( !( ( loop == 0 && !is_direct_lrec( p ) )
-						|| ( loop > 0 && is_direct_lrec( p ) ) ) )
-				continue;
-
-			for( j = 0, ptr = start;
-					( rsym = pp_prod_getfromrhs( p, j ) ); j++ )
-			{
-				printf( "Testing >%s<\n", ptr );
-
-				if( rsym->type == PPSYMTYPE_NONTERM )
-				{
-					for( off = smatch_off - 1;
-							( match = (ppmatch*)parray_get( ast, off ) );
-								off-- )
-					{
-						if( match->start < ptr )
-						{
-							off = -1L;
-							break;
-						}
-
-						if( match->type == PPMATCH_END
-								&& match->sym == rsym )
-						{
-							ptr = match->end;
-							break;
-						}
-					}
-
-					if( off < 0L && !pp_ll_PARSE( ast, grm, ptr, &ptr, rsym ) )
-						break;
-				}
-				else if( !pp_sym_in_input( rsym, ptr, &ptr ) )
-					break;
-			}
-
-			if( !rsym )
+			if( !pp_ll_PARSE( s, ast, grm, ptr, &ptr ) )
 				break;
-
-			while( smatch_off + 1 < parray_count( ast ) )
-				parray_pop( ast );
 		}
 
-		if( !( pnext && p ) )
-		{
-			parray_remove( ast, smatch_off, (void**)NULL );
+		if( !es )
 			break;
-		}
 
-		ematch = (ppmatch*)parray_malloc( ast );
-		ematch->type = PPMATCH_END;
-		smatch->start = ematch->start = start;
-		smatch->end = ematch->end = ptr;
-		smatch->sym = ematch->sym = sym;
-		smatch->prod = ematch->prod = p;
-
-		*end = ptr;
-		loop++;
+		/* Clear partly parsed AST */
+		while( parray_count( ast ) > istart )
+			parray_pop( ast );
 	}
-	while( sym->flags & PPFLAG_LEFTREC );
 
-	if( myast )
-		parray_free( ast );
+	if( !ep )
+		return FALSE;
 
-	return loop ? TRUE : FALSE;
+	*end = ptr;
+
+	if( sym->flags & PPFLAG_EMIT )
+	{
+		mstart = (ppmatch*)parray_insert( ast, istart, (void*)NULL );
+		memset( mstart, 0, sizeof( ppmatch ) );
+
+		mend = (ppmatch*)parray_malloc( ast );
+
+		mstart->type = PPMATCH_BEGIN;
+		mend->type = PPMATCH_END;
+		mstart->sym = mend->sym = sym;
+		mstart->prod = mend->prod = p;
+		mstart->start = mend->start = start;
+		mstart->end = mend->end = *end;
+	}
+
+	return TRUE;
 }
 
+/*
 static void pp_ll_normalize_leftrec( parray* ast )
 {
 	size_t		i;
@@ -187,6 +155,7 @@ static void pp_ll_normalize_leftrec( parray* ast )
 		}
 	}
 }
+*/
 
 pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end )
 {
@@ -205,10 +174,12 @@ pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end )
 		myast = TRUE;
 	}
 
-	ret = pp_ll_PARSE( ast, grm, start, end, grm->goal );
+	ret = pp_ll_PARSE( grm->goal, ast, grm, start, end );
 
+	/*
 	if( ast )
 		pp_ll_normalize_leftrec( ast );
+	*/
 
 	if( myast )
 	{
