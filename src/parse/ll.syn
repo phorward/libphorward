@@ -1,9 +1,15 @@
-%emitall
+%whitespace ' ' 
+int = /[0-9]+/	%emit ;
 
 start : e %goal;
 
-e : t '+' e | t '-' e | t ;
+e : add | sub | t ;
+add: t '+' e 	%emit;
+sub: t '-' e 	%emit;
 
-t : f '*' t | f '/' t | f ;
+t : mul | div | f ;
+mul: f '*' t 	%emit;
+div: f '/' t	%emit;
 
-f : /[0-9]+/ | '(' e ')' ;
+f : int | '(' e ')' ;
+

@@ -77,3 +77,31 @@ pboolean pp_sym_in_input( ppsym* sym, char* start, char** end )
 
 	return FALSE;
 }
+
+/* Skip over whitespace */
+pboolean pp_white_in_input( ppgram* grm, char* start, char** end )
+{
+	plistel*	e;
+	ppsym*		sym;
+
+	if( !( grm && start && end ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	do
+	{
+		plist_for( grm->ws, e )
+		{
+			sym = (ppsym*)plist_access( e );
+			if( pp_sym_in_input( sym, start, end ) )
+				break;
+		}
+
+		start = *end;
+	}
+	while( e );
+
+	return TRUE;
+}

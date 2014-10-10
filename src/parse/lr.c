@@ -1049,18 +1049,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 		lend = *end;
 
 		/* Skip over whitespace */
-		do
-		{
-			plist_for( grm->ws, e )
-			{
-				sym = (ppsym*)plist_access( e );
-				printf( "Testing '%s' on >%s<\n", pp_sym_to_str( sym ), *end );
-
-				if( pp_sym_in_input( sym, *end, end ) )
-					break;
-			}
-		}
-		while( e );
+		pp_white_in_input( grm, *end, end );
 
 		start = *end;
 

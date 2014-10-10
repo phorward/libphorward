@@ -15,24 +15,63 @@ Usage:	Phorward Parsing Library
 
 int main( int argc, char** argv )
 {
-	ppgram*	g;
-	char*	s;
-	char*	e;
+	pboolean	lr		= TRUE;
+	pboolean	as		= FALSE;
+	parray*		a;
+	ppgram*		g;
+	char*		gstr	= (char*)NULL;
+	char*		s		= (char*)NULL;
+	char*		e;
+	int			i;
+	int			rc;
+	int			next;
+	char		opt		[ 20 + 1 ];
+	char*		param;
 
-	if( argc > 1 )
+	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
+						"e:m:r:",
+						"exec: mode: renderer:", i ) ) == ERR_OK; i++ )
 	{
-		g = pp_gram_create( argv[ 1 ] );
+		if( !strcmp( opt, "exec" ) || *opt == 'e' )
+			s = param;
+		else if( !strcmp( opt, "mode" ) || *opt == 'm' )
+		{
+			if( pstrcasecmp( param, "ll" ) == 0 )
+				lr = FALSE;
+		}
+		else if( !strcmp( opt, "renderer" ) || *opt == 'r' )
+			if( pstrcasecmp( param, "tree2svg" ) == 0 )
+				as = TRUE;
 
+	}
+
+	if( rc == 1 )
+		gstr = param;
+
+	if( gstr )
+	{
+		g = pp_gram_create( gstr );
 		pp_gram_print( g );
 
-		if( argc > 2 )
+		if( s )
 		{
-			s = e = argv[2];
-			if( pp_lr_parse( (parray*)NULL, g, s, &e ) )
-			/* if( pp_ll_parse( (parray*)NULL, g, s, &e ) ) */
-				printf( ">%.*s<\n", e - s, s );
+			e = s;
+			a = parray_create( sizeof( ppmatch ), 0 );
+
+			if( ( !lr && pp_ll_parse( a, g, s, &e ) )
+					|| pp_lr_parse( a, g, s, &e ) )
+			{
+				printf( "\n%s SUCCED >%.*s<\n", lr ? "LR" : "LL", e - s, s );
+
+				if( as )
+					pp_ast_tree2svg( a );
+				else
+					pp_ast_print( a );
+			}
 			else
-				printf( "FAIL\n" );
+				printf( "\n%s FAILED\n", lr ? "LR" : "LL" );
+
+			parray_free( a );
 		}
 	}
 

@@ -31,6 +31,10 @@ static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
 		return FALSE;
 	}
 
+	/* Skip over whitespace */
+	if( pp_white_in_input( grm, start, end ) )
+		start = *end;
+
 	/* Terminal input? */
 	if( sym->type != PPSYMTYPE_NONTERM )
 	{
