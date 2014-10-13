@@ -13,6 +13,18 @@ Usage:	Phorward Parsing Library
 
 /* Main */
 
+void help( char** argv )
+{
+	printf( "usage: %s OPTIONS grammar\n\n"
+
+	"   -e  --exec   INPUT      Execute string INPUT on grammar.\n"
+	"   -h  --help              Show this help, and exit.\n"
+	"   -m  --mode   MODE       Use construction mode MODE:\n"
+	"                           lr=bottom-up (default), ll=top-down\n"
+	"   -r  --render RENDERER   Use AST renderer RENDERER:\n"
+	"                           tree (default), tree2svg\n\n", *argv );
+}
+
 int main( int argc, char** argv )
 {
 	pboolean	lr		= TRUE;
@@ -34,6 +46,11 @@ int main( int argc, char** argv )
 	{
 		if( !strcmp( opt, "exec" ) || *opt == 'e' )
 			s = param;
+		if( !strcmp( opt, "help" ) || *opt == 'h' )
+		{
+			help( argv );
+			return 0;
+		}
 		else if( !strcmp( opt, "mode" ) || *opt == 'm' )
 		{
 			if( pstrcasecmp( param, "ll" ) == 0 )
@@ -48,32 +65,36 @@ int main( int argc, char** argv )
 	if( rc == 1 )
 		gstr = param;
 
-	if( gstr )
+	if( !gstr )
 	{
-		g = pp_gram_create( gstr );
-		pp_gram_print( g );
+		help( argv );
+		return 1;
+	}
+	
+	g = pp_gram_create( gstr );
+	pp_gram_print( g );
 
-		if( s )
+	if( s )
+	{
+		e = s;
+		a = parray_create( sizeof( ppmatch ), 0 );
+
+		if( ( !lr && pp_ll_parse( a, g, s, &e ) )
+			|| pp_lr_parse( a, g, s, &e ) )
 		{
-			e = s;
-			a = parray_create( sizeof( ppmatch ), 0 );
+			printf( "\n%s SUCCEED >%.*s<\n", lr ? "LR" : "LL", e - s, s );
 
-			if( ( !lr && pp_ll_parse( a, g, s, &e ) )
-					|| pp_lr_parse( a, g, s, &e ) )
-			{
-				printf( "\n%s SUCCED >%.*s<\n", lr ? "LR" : "LL", e - s, s );
-
-				if( as )
-					pp_ast_tree2svg( a );
-				else
-					pp_ast_print( a );
-			}
+			if( as )
+				pp_ast_tree2svg( a );
 			else
-				printf( "\n%s FAILED\n", lr ? "LR" : "LL" );
-
-			parray_free( a );
+				pp_ast_print( a );
 		}
+		else
+			printf( "\n%s FAILED\n", lr ? "LR" : "LL" );
+
+		parray_free( a );
 	}
 
 	return 0;
 }
+
