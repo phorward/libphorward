@@ -28,6 +28,7 @@ typedef struct _ppgram		ppgram;
 #define PPFLAG_LEFTREC		8
 #define PPFLAG_EMIT			16
 #define PPFLAG_WHITESPACE	32
+#define PPFLAG_PREVENTLREC	64
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -78,6 +79,8 @@ struct _ppgram
 	plist*					ws;
 	ppsym*					goal;
 	ppsym*					eof;
+
+	int						flags;
 };
 
 typedef struct

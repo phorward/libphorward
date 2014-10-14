@@ -438,33 +438,62 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 
 	SKIPWHITE();
 
-	/* Replication modifiers */
-	if( **def == PPMOD_KLEENE
-			|| **def == PPMOD_POSITIVE
-				|| **def == PPMOD_OPTIONAL )
+	/* Replication quantifiers */
+	if( **def == PPMOD_KLEENE /* no or many */
+			|| **def == PPMOD_POSITIVE /* one or many */
+				|| **def == PPMOD_OPTIONAL /* none or one */ )
 	{
 		op = *( (*def)++ );
 
-		if( op == PPMOD_KLEENE || op == PPMOD_POSITIVE )
+		/* Right-recursive quantifiers? */
+		if( g->flags & PPFLAG_PREVENTLREC )
 		{
-			mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
-						derive_name( g, lhs->name ), (char*)NULL );
+			if( op == PPMOD_KLEENE || op == PPMOD_POSITIVE )
+			{
+				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, lhs->name ), (char*)NULL );
 
-			pp_prod_create( g, mod, mod, sym, (ppsym*)NULL );
-			pp_prod_create( g, mod, sym, (ppsym*)NULL );
+				pp_prod_create( g, mod, sym, mod, (ppsym*)NULL );
+				pp_prod_create( g, mod, sym, (ppsym*)NULL );
 
-			sym = mod;
+				sym = mod;
+			}
+
+			if( op == PPMOD_OPTIONAL || op == PPMOD_KLEENE )
+			{
+				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, lhs->name ), (char*)NULL );
+
+				pp_prod_create( g, mod, sym, (ppsym*)NULL );
+				pp_prod_create( g, mod, (ppsym*)NULL );
+
+				sym = mod;
+			}
 		}
-
-		if( op == PPMOD_OPTIONAL || op == PPMOD_KLEENE )
+		/* Left-recursive quantifier */
+		else
 		{
-			mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
-						derive_name( g, lhs->name ), (char*)NULL );
+			if( op == PPMOD_KLEENE || op == PPMOD_POSITIVE )
+			{
+				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, lhs->name ), (char*)NULL );
 
-			pp_prod_create( g, mod, sym, (ppsym*)NULL );
-			pp_prod_create( g, mod, (ppsym*)NULL );
+				pp_prod_create( g, mod, mod, sym, (ppsym*)NULL );
+				pp_prod_create( g, mod, sym, (ppsym*)NULL );
 
-			sym = mod;
+				sym = mod;
+			}
+
+			if( op == PPMOD_OPTIONAL || op == PPMOD_KLEENE )
+			{
+				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, lhs->name ), (char*)NULL );
+
+				pp_prod_create( g, mod, sym, (ppsym*)NULL );
+				pp_prod_create( g, mod, (ppsym*)NULL );
+
+				sym = mod;
+			}
 		}
 	}
 
@@ -643,6 +672,10 @@ static int pp_gram_read( ppgram* g, char** def )
 
 			if( !strcmp( name, "emitall" ) )
 				dflags |= PPFLAG_EMIT;
+			else if( !strcmp( name, "rrec" ) )
+				g->flags |= PPFLAG_PREVENTLREC;
+			else if( !strcmp( name, "lrec" ) )
+				g->flags &= ~PPFLAG_PREVENTLREC;
 			else if( !strcmp( name, "emitnone" ) )
 				dflags &= ~PPFLAG_EMIT;
 			else if( !strcmp( name, "whitespace" ) )

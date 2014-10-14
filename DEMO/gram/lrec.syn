@@ -1,0 +1,8 @@
+
+digit = '0-9' ;
+
+s : a | b | c %goal;
+
+a : digit+ ;
+b : digit* ;
+c : digit? ;
