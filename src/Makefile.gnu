@@ -28,13 +28,11 @@ SRC = \
 	string/utf8.c \
 	util/system.c \
 	xml/xml.c \
-	\
 	parse/ast.c \
 	parse/gram.c \
 	parse/ll.c \
 	parse/lr.c \
 	parse/scan.c \
-	\
 	value/value.c \
 	value/value.conv.c \
 	value/value.get.c \

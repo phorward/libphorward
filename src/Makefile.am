@@ -19,13 +19,18 @@ libphorward_la_SOURCES = \
 	base/dbg.c \
 	base/list.c \
 	base/memory.c \
-	regex/ccl.c \
+	ccl/ccl.c \
+	parse/ast.c \
+	parse/gram.c \
+	parse/ll.c \
+	parse/lr.c \
+	parse/scan.c \
 	regex/dfa.c \
 	regex/direct.c \
 	regex/misc.c \
 	regex/nfa.c \
 	regex/pattern.c \
-	regex/pregex.c \
+	regex/regex.c \
 	regex/range.c \
 	regex/ref.c \
 	string/convert.c \
@@ -42,8 +47,10 @@ noinst_HEADERS = \
 	base/array.h \
 	base/dbg.h \
 	base/list.h \
+	ccl/ccl.h \
+	parse/parse.h \
 	phorward.tpl.h \
-	regex/pregex.h \
+	regex/regex.h \
 	value/value.h \
 	xml/xml.h \
 	$(PROTOFILE)
