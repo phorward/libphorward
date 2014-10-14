@@ -922,6 +922,7 @@ static pplrse* push( parray* stack, ppsym* symbol,
 	e.state = state;
 	e.start = start;
 	e.end = end;
+	e.begin = -1L;
 
 	parray_push( stack, &e );
 	return (pplrse*)parray_last( stack );
@@ -1086,8 +1087,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			tos = push( stack, sym, reduce ? (pplrstate*)NULL : shift,
 							start, *end );
 
-			/* Shifted symbol becomes AST node?
-				(not implemented in current grammar parser yet) */
+			/* Shifted symbol becomes AST node? */
 			if( sym->flags & PPFLAG_EMIT )
 			{
 				begin = parray_count( ast );
@@ -1126,7 +1126,8 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			/* Construction of AST node */
 			if( lhs->flags & PPFLAG_EMIT )
 			{
-				if( begin != parray_count( ast ) )
+				printf( "begin = %ld %ld\n", begin, parray_count( ast ) );
+				if( begin >= 0L && begin != parray_count( ast ) )
 				{
 					mbegin = (ppmatch*)parray_insert( ast, begin, (void*)NULL );
 					memset( mbegin, 0, sizeof( ppmatch ) );
@@ -1137,6 +1138,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 				}
 				else
 				{
+					begin = parray_count( ast );
 					mend = (ppmatch*)parray_malloc( ast );
 					mend->type = PPMATCH_BEGIN | PPMATCH_END;
 					mbegin = mend;
@@ -1148,6 +1150,11 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 				mend->start = mbegin->start = start;
 				mend->end = mbegin->end = lend;
+
+				/*
+				pp_ast_print( ast );
+				getchar();
+				*/
 			}
 
 			/* Goal symbol reduced? */
