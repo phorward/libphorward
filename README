@@ -10,37 +10,41 @@
  DESCRIPTION 
 =============
 
-The Phorward Foundation Toolkit provides a powerful toolchain within an extended functions library (libphorward) to implement more powerful, more useful programs using the C programming language.
+The Phorward Toolkit provides a powerful, extensional set of useful functions for C programmers. It focuses on compiler development-related tasks, but can also be used for general purpose development tasks using the C programming language.
 
-With the use of the Phorward Foundation Toolkit, programmers are enabled to enhance their C and C++ programs with the capabilities of dynamic linked lists, hash tables, stacks, string management functions, full-fledged regular expressions and multi-platform system-functions. The entire library is designed to work with both UTF-8-enabled and wide-character-based Unicode character sets.
+It comes with many useful extensions for universal linked lists, hash-tables, dynamic stacks and arrays, extended string management functions and some platform-independent, system-specific helper functions.
 
-The main intention behind the Phorward Foundation Toolkit is the development of software products that are having their origin at Phorward Software Technologies. Phorward Software Technologies is a software company from Dortmund, Germany, that focuses strongly on the development of high-performance software solutions around the area of compilers, compiler-construction tools, scripting languages and general software development tools. Because almost all of Phorward Softwares newer solutions are open-source-based products, the Phorward Foundation Toolkit forms the general base of all C-based projects.
+Based on top of these general purpose functions, the Phorward Toolkit provides more specializing tools for regular expression handling and parser implementation, focusing on both LL and LR/LALR grammars and parsers. Latter feature is currently under heavy development and will be made available in a consistent, well-tested environment made for implementing high-performance parsers directly in C without the usage of an additional parser generator step.
 
 
 ==========
  FEATURES 
 ==========
 
-The Phorward Foundation Toolkit provides
+The Phorward Toolkit provides
 
-- Extensions for dynamical standard data structures: Linked lists, hash tables, stacks, bitsets
-- Extending string functions for dynamic string management
-- Powerful implementation of regular expressions, including tools for their construction, transformation and analysis
+- Universal data structures for
+  - plist: For linked-lists with build-in hash table support
+  - parray: For dynamic arrays and stacks
+- Extended string management functions
+  - consistent byte- and wide-character (unicode) function support
+  - Unicode support for UTF-8 in byte-character functions
+- Debug und trace facilities
+- A build-in DOM-based XML-parser
 - Universal system-specific functions for platform-independent C software development
-- An XML-parser (DOM) and management tools
-- A universal, extendable variant-styled data type structure to work with arbitrary values within one object
-- Consistent support of Unicode by supporting UTF-8-byte character strings and wide-character strings
-- Object-oriented fashion of some function interfaces (e.g. regular expressions)
+- pregex: Regular expression functions, including tools for their construction, transformation and analysis
+- Parser construction functions for syntax-directed LL/LR/LALR parsers with direct lookahead
+- Object-oriented fashion for all function interfaces (e.g. plist, parray, pregex, pgram, ...)
 - Growing code-base of more and more powerful functions
 
-Please check out http://phorward.phorward-software.com/ from time to time to get the latest news, documentation, updates and support on the Phorward Foundation Toolkit.
+Please check out http://phorward.phorward-software.com/ from time to time to get the latest news, documentation, updates and support on the Phorward Toolkit.
 
 
 ==========
  BUILDING 
 ==========
 
-Building the Phorward Foundation Toolkit is simple as every GNU-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
+Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
 
 Then, run
 
@@ -56,7 +60,7 @@ and
 
 (properly as root), to install the toolkit into your system.
 
-On Windows systems, the usage of http://cygwin.org/ or another Unix shell environment is required. The Phorward Foundation Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
+On Windows systems, the usage of http://cygwin.org/ or another Unix shell environment is required. The Phorward Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
 
 To compile into 32-Bit Windows executables, configure with
 
@@ -67,9 +71,9 @@ To compile into 64-Bit Windows executables, configure with
   ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 
 
-================================
- LOCAL DEVELOPMENT BUILD-SYSTEM 
-================================
+===========================================
+ LOCAL DEVELOPMENT MAKE-BASED BUILD-SYSTEM 
+===========================================
 
 Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
 
@@ -83,7 +87,7 @@ then, a simple run of
 
 can be used to simply build the entire library or parts of it.
 
-Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.  
+Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.
 
 
 ========
