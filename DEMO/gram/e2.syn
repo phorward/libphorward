@@ -1,5 +1,7 @@
+ws = ' ';
+%whitespace ws 
 
-int : '0-9'+ %emit ;
+int : '0-9'+ %emit %lexem;
 f: '(' e ')' | int ;
 
 mul : t '*' f %emit;

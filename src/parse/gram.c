@@ -626,6 +626,8 @@ static int pp_gram_read( ppgram* g, char** def )
 						sym->flags |= PPFLAG_EMIT;
 					else if( !strcmp( name, "noemit" ) )
 						sym->flags &= ~PPFLAG_EMIT;
+					else if( !strcmp( name, "lexem" ) )
+						sym->flags |= PPFLAG_LEXEM;
 					else if( !strcmp( name, "whitespace" ) )
 					{
 						if( sym->type == PPSYMTYPE_NONTERM )
@@ -908,6 +910,44 @@ ppgram* pp_gram_create( char* def )
 	}
 	while( pcnt < cnt );
 
+	plist_clear( call );
+	plist_clear( done );
+
+	/* Pull-trough all lexem symbols */
+	plist_for( g->symbols, e )
+	{
+		s = (ppsym*)plist_access( e );
+
+		if( s->type != PPSYMTYPE_NONTERM 
+				|| !( s->flags & PPFLAG_LEXEM ) )
+			continue;
+
+		plist_push( call, s );
+	}
+
+	while( plist_pop( call, &s ) )
+	{
+		plist_push( done, s );
+
+		plist_for( s->prods, e )
+		{
+			p = (ppprod*)plist_access( e );
+			plist_for( p->rhs, er )
+			{
+				s = (ppsym*)plist_access( er );
+				if( s->type == PPSYMTYPE_NONTERM )
+				{
+					s->flags |= PPFLAG_LEXEM;
+
+					if( !plist_get_by_ptr( done, s ) 
+						&& !plist_get_by_ptr( call, s ) )
+						plist_push( call, s );
+				}
+			}
+		}
+	}
+
+	/* Clear all lists */
 	plist_free( call );
 	plist_free( done );
 
@@ -933,11 +973,12 @@ void pp_gram_print( ppgram* g )
 	plist_for( g->prods, e )
 	{
 		p = (ppprod*)plist_access( e );
-		printf( "%s%s%s%s%s %-*s : ",
+		printf( "%s%s%s%s%s%s %-*s : ",
 			g->goal == p->lhs ? "G" : " ",
 			p->flags & PPFLAG_LEFTREC ? "L" : " ",
 			p->flags & PPFLAG_NULLABLE ? "N" : " ",
 			p->lhs->flags & PPFLAG_EMIT ? "E" : " ",
+			p->lhs->flags & PPFLAG_LEXEM ? "X" : " ",
 			p->lhs->flags & PPFLAG_WHITESPACE ? "W" : " ",
 			maxlhslen, p->lhs->name );
 

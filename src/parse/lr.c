@@ -1045,13 +1045,12 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 	*end = start;
 
+	/* Skip over whitespace */
+	pp_white_in_input( grm, *end, end );
+
 	do
 	{
 		lend = *end;
-
-		/* Skip over whitespace */
-		pp_white_in_input( grm, *end, end );
-
 		start = *end;
 
 		/* Parse */
@@ -1170,6 +1169,10 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			print_stack( "Behind Reduce", states, stack );
 			pp_ast_print( ast );
 		}
+
+		/* Skip over whitespace */
+		if( !( tos->symbol->flags & PPFLAG_LEXEM ) )
+			pp_white_in_input( grm, *end, end );
 	}
 	while( !reduce );
 
