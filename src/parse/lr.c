@@ -1172,7 +1172,10 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 		/* Skip over whitespace */
 		if( !( tos->symbol->flags & PPFLAG_LEXEM ) )
+		{
+			printf( "tos->symbol >%s< is not LEXEM\n", tos->symbol->name );
 			pp_white_in_input( grm, *end, end );
+		}
 	}
 	while( !reduce );
 

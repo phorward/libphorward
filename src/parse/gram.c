@@ -918,7 +918,7 @@ ppgram* pp_gram_create( char* def )
 	{
 		s = (ppsym*)plist_access( e );
 
-		if( s->type != PPSYMTYPE_NONTERM 
+		if( s->type != PPSYMTYPE_NONTERM
 				|| !( s->flags & PPFLAG_LEXEM ) )
 			continue;
 
@@ -935,11 +935,11 @@ ppgram* pp_gram_create( char* def )
 			plist_for( p->rhs, er )
 			{
 				s = (ppsym*)plist_access( er );
+				s->flags |= PPFLAG_LEXEM;
+
 				if( s->type == PPSYMTYPE_NONTERM )
 				{
-					s->flags |= PPFLAG_LEXEM;
-
-					if( !plist_get_by_ptr( done, s ) 
+					if( !plist_get_by_ptr( done, s )
 						&& !plist_get_by_ptr( call, s ) )
 						plist_push( call, s );
 				}

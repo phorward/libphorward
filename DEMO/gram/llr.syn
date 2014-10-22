@@ -1,7 +1,7 @@
 %rrec
 %whitespace ' ' 
 
-int : '0-9'+	%emit ;
+int : '0-9'+	%emit %lexem;
 
 start : e %goal;
 
