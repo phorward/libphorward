@@ -252,7 +252,7 @@ char* pp_prod_to_str( ppprod* p )
 	return p->strval;
 }
 
-/* Parse BNF */
+/* ------------------------------- Parse BNF -------------------------------- */
 
 #define NAMELEN			80
 
@@ -741,46 +741,16 @@ static int pp_gram_read( ppgram* g, char** def )
 	return defcount;
 }
 
-ppgram* pp_gram_free( ppgram* g )
-{
-	plistel*	e;
-	ppsym*		s;
-	ppprod*		p;
+/* Prepares the grammar //g// by computing all necessary stuff required for
+runtime and parser generator.
 
-	if( !g )
-		return (ppgram*)NULL;
-
-	/* Erase symbols */
-	plist_for( g->symbols, e )
-	{
-		s = (ppsym*)plist_access( e );
-
-		pfree( s->name );
-
-		pfree( s->str );
-		p_ccl_free( s->ccl );
-		pregex_ptn_free( s->ptn );
-
-		plist_free( s->prods );
-		plist_free( s->first );
-	}
-
-	/* Erase productions */
-	plist_for( g->prods, e )
-	{
-		p = (ppprod*)plist_access( e );
-		plist_free( p->rhs );
-	}
-
-	plist_free( g->symbols );
-	plist_free( g->prods );
-	plist_free( g->ws );
-	pfree( g );
-
-	return (ppgram*)NULL;
-}
-
-ppgram* pp_gram_create( char* def )
+Includes:
+- Symbol and productiosn IDs
+- FIRST-set computation
+- Mark left-recursions
+- Lexem flag pull-trough
+*/
+static pboolean pp_gram_prepare( ppgram* g )
 {
 	plistel*	e;
 	plistel*	er;
@@ -794,34 +764,11 @@ ppgram* pp_gram_create( char* def )
 	int			id;
 	int			cnt;
 	int			pcnt;
-	ppgram*		g;
 
-	/* Setup grammar description */
-	g = (ppgram*)pmalloc( sizeof( ppgram ) );
-
-	g->symbols = plist_create( sizeof( ppsym ),
-					PLIST_MOD_RECYCLE
-						| PLIST_MOD_EXTKEYS
-							| PLIST_MOD_UNIQUE );
-
-	g->prods = plist_create( sizeof( ppprod ),
-					PLIST_MOD_RECYCLE );
-	g->ws = plist_create( sizeof( ppsym* ), PLIST_MOD_PTR );
-
-	g->eof = pp_sym_create( g, PPSYMTYPE_SPECIAL, "eof", (char*)NULL );
-
-	/* Parse grammar into description */
-	if( def && *def && pp_gram_read( g, &def ) <= 0 )
-		return pp_gram_free( g );
-
-	/* Look for unique goal sequence */
-	if( plist_count( g->goal->prods ) > 1 )
+	if( !g )
 	{
-		s = pp_sym_create( g, PPSYMTYPE_NONTERM,
-						derive_name( g, g->goal->name ), (char*)NULL );
-
-		pp_prod_create( g, s, g->goal, (ppsym*)NULL );
-		g->goal = s;
+		WRONGPARAM;
+		return FALSE;
 	}
 
 	/* Set ID values for symbols and productions */
@@ -951,6 +898,46 @@ ppgram* pp_gram_create( char* def )
 	plist_free( call );
 	plist_free( done );
 
+	return TRUE;
+}
+
+
+ppgram* pp_gram_create( char* def )
+{
+	ppsym*		s;
+	ppgram*		g;
+
+	/* Setup grammar description */
+	g = (ppgram*)pmalloc( sizeof( ppgram ) );
+
+	g->symbols = plist_create( sizeof( ppsym ),
+					PLIST_MOD_RECYCLE
+						| PLIST_MOD_EXTKEYS
+							| PLIST_MOD_UNIQUE );
+
+	g->prods = plist_create( sizeof( ppprod ),
+					PLIST_MOD_RECYCLE );
+	g->ws = plist_create( sizeof( ppsym* ), PLIST_MOD_PTR );
+
+	g->eof = pp_sym_create( g, PPSYMTYPE_SPECIAL, "eof", (char*)NULL );
+
+	/* Parse grammar into description */
+	if( def && *def && pp_gram_read( g, &def ) <= 0 )
+		return pp_gram_free( g );
+
+	/* Look for unique goal sequence */
+	if( plist_count( g->goal->prods ) > 1 )
+	{
+		s = pp_sym_create( g, PPSYMTYPE_NONTERM,
+						derive_name( g, g->goal->name ), (char*)NULL );
+
+		pp_prod_create( g, s, g->goal, (ppsym*)NULL );
+		g->goal = s;
+	}
+
+	/* Prepare grammar */
+	pp_gram_prepare( g );
+
 	return g;
 }
 
@@ -1015,3 +1002,42 @@ void pp_gram_print( ppgram* g )
 	}
 }
 
+/** Free grammar //g// and all its related memory. */
+ppgram* pp_gram_free( ppgram* g )
+{
+	plistel*	e;
+	ppsym*		s;
+	ppprod*		p;
+
+	if( !g )
+		return (ppgram*)NULL;
+
+	/* Erase symbols */
+	plist_for( g->symbols, e )
+	{
+		s = (ppsym*)plist_access( e );
+
+		pfree( s->name );
+
+		pfree( s->str );
+		p_ccl_free( s->ccl );
+		pregex_ptn_free( s->ptn );
+
+		plist_free( s->prods );
+		plist_free( s->first );
+	}
+
+	/* Erase productions */
+	plist_for( g->prods, e )
+	{
+		p = (ppprod*)plist_access( e );
+		plist_free( p->rhs );
+	}
+
+	plist_free( g->symbols );
+	plist_free( g->prods );
+	plist_free( g->ws );
+	pfree( g );
+
+	return (ppgram*)NULL;
+}
