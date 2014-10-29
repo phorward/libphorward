@@ -411,9 +411,8 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
 	/* Initialize */
 	pregex_accept_init( &accept );
 
-	if( ( rc = pregex_ref_init( ref, ref_count, nfa->ref_count, flags ) )
-			!= ERR_OK )
-		RETURN( rc );
+	if( !pregex_ref_init( ref, ref_count, nfa->ref_count, flags ) )
+		RETURN( -1 );
 
 	*len = 0;
 	if( anchors )
@@ -543,9 +542,9 @@ converted into a state machine that exactly matches the desired string.
 //flags// are flags for regular expresson processing.
 //acc// is the acceping identifier that is returned on pattern match.
 
-Returns ERR_OK on success, ERR... error code else
+Returns TRUE on success.
 */
-int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
+pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 {
 	pregex_nfa_st*	nfa_st;
 	pregex_nfa_st*	append_to;
@@ -561,13 +560,16 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	PARMS( "acc", "%d", acc );
 
 	if( !( nfa && str ) )
-		RETURN( ERR_PARMS );
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
 
 	/* For wide-character execution, copy string content */
 	if( flags & PREGEX_MOD_WCHAR )
 	{
 		if( !( str = pwcs_to_str( (wchar_t*)str, FALSE ) ) )
-			RETURN( ERR_MEM );
+			RETURN( FALSE );
 	}
 
 	/* Find node to integrate into existing machine */
@@ -581,7 +583,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	/* Create first state - this is an epsilon node */
 	if( !( first_nfa_st = prev_nfa_st =
 			pregex_nfa_create_state( nfa, (char*)NULL, flags ) ) )
-		RETURN( ERR_MEM );
+		RETURN( FALSE );
 
 	for( pstr = str; *pstr; )
 	{
@@ -590,7 +592,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 		VARS( "pstr", "%s", pstr );
 		if( !( nfa_st = pregex_nfa_create_state(
 				nfa, (char*)NULL, flags ) ) )
-			RETURN( ERR_MEM );
+			RETURN( FALSE );
 
 		ch = u8_parse_char( &pstr );
 		VARS( "ch", "%d", ch );
@@ -598,7 +600,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 		nfa_st->ccl = p_ccl_create( -1, -1, (char*)NULL );
 
 		if( !( nfa_st->ccl && p_ccl_add( nfa_st->ccl, ch ) ) )
-			RETURN( ERR_MEM );
+			RETURN( FALSE );
 
 		/* Is case-insensitive flag set? */
 		if( flags & PREGEX_MOD_INSENSITIVE )
@@ -620,7 +622,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 			MSG( "Case-insensity set, new character evaluated is:" );
 			VARS( "ch", "%d", ch );
 			if( !p_ccl_add( nfa_st->ccl, ch ) )
-				RETURN( ERR_MEM );
+				RETURN( FALSE );
 		}
 
 		prev_nfa_st->next = nfa_st;
@@ -631,7 +633,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	VARS( "acc", "%d", acc );
 	if( !( nfa_st = pregex_nfa_create_state( nfa,
 			(char*)NULL, flags ) ) )
-		RETURN( ERR_MEM );
+		RETURN( FALSE );
 
 	nfa_st->accept.accept = acc;
 	prev_nfa_st->next = nfa_st;
@@ -645,7 +647,7 @@ int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc )
 	if( flags & PREGEX_MOD_WCHAR )
 		pfree( str );
 
-	RETURN( ERR_OK );
+	RETURN( TRUE );
 }
 
 /*COD_ON*/

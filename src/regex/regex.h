@@ -209,8 +209,7 @@ struct _regex
 									at every match */
 
 	/* Ephemerial elements */
-	int				last_err;	/* Last error code (one of the Phorward
-									standard error level defines */
+	pboolean		completed;	/* Flag, if the regex request was completed. */
 	int				match_count;/* Number of total matches since last
 									match function restart */
 	int				last_age;	/* Age of the pregex object at the last

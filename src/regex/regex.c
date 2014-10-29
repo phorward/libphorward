@@ -126,13 +126,10 @@ automata (NFA) within a regex object.
 //accept// is the accepting ID to identify the pattern when it is matched.
 //accept// must be >= 0.
 
-Returns a ERR_OK on success, ERR_FAILURE if the regex is not initialized or
-already turned into a different state. Another adequate ERR-define will be
-returned for other errors.
+Returns TRUE on success, FALSE on error.
 */
-int pregex_compile( pregex* regex, char* pattern, int accept )
+pboolean pregex_compile( pregex* regex, char* pattern, int accept )
 {
-	int			ret;
 	pregex_ptn*	ptn;
 
 	PROC( "pregex_compile" );
@@ -143,13 +140,13 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 	if( !( regex->stat == PREGEX_STAT_NONE
 			|| regex->stat == PREGEX_STAT_NFA ) )
 	{
-		MSG( "The regex is not inizialized or already turned into DFA!" );
-		RETURN( ERR_FAILURE );
+		MSG( "Nothing to do!" );
+		RETURN( TRUE );
 	}
 
 	/* Create a pattern definition */
-	if( ( ret = pregex_ptn_parse( &ptn, pattern, regex->flags ) ) != ERR_OK )
-		RETURN( ret );
+	if( !pregex_ptn_parse( &ptn, pattern, regex->flags ) )
+		RETURN( FALSE );
 
 	ptn->accept->accept = accept;
 
@@ -169,10 +166,10 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 		required now to still keep the regular expressions working without
 		an entire redesign.
 	*/
-	if( ( ret = pregex_ptn_to_nfa( regex->machine.nfa, ptn ) ) != ERR_OK )
+	if( !pregex_ptn_to_nfa( regex->machine.nfa, ptn ) )
 	{
 		pregex_ptn_free( ptn );
-		RETURN( ret );
+		RETURN( FALSE );
 	}
 
 	if( regex->flags & PREGEX_MOD_DEBUG )
@@ -185,13 +182,13 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 	if( !plist_push( regex->patterns, ptn ) )
 	{
 		pregex_ptn_free( ptn );
-		RETURN( ERR_MEM );
+		RETURN( FALSE );
 	}
 
 	/* Increment age */
 	regex->age++;
 
-	RETURN( ret );
+	RETURN(TRUE );
 }
 
 /** Finalizes a pregex-object into a minimized deterministic finite automata
@@ -199,13 +196,11 @@ int pregex_compile( pregex* regex, char* pattern, int accept )
 
 //regex// is the pregex-object to be finalized.
 
-Returns ERR_OK on success, ERR_FAILURE if the regex is not in compiled-state,
-and any other ERR-define else.
+Returns TRUE on success.
 */
-int pregex_finalize( pregex* regex )
+pboolean pregex_finalize( pregex* regex )
 {
 	pregex_dfa*	dfa;
-	int			ret;
 
 	PROC( "pregex_finalize" );
 	PARMS( "regex", "%p", regex );
@@ -213,33 +208,33 @@ int pregex_finalize( pregex* regex )
 	if( !( regex ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( FALSE );
 	}
 
 	if( !( regex->stat == PREGEX_STAT_NFA ) )
 	{
 		MSG( "The regex must be in compiled state." );
-		RETURN( ERR_FAILURE );
+		RETURN( FALSE );
 	}
 
 	dfa = pregex_dfa_create();
 
 	/* Perform subset construction algorithm */
-	if( ( ret = pregex_dfa_from_nfa( dfa, regex->machine.nfa ) ) < ERR_OK )
+	if( !pregex_dfa_from_nfa( dfa, regex->machine.nfa ) )
 	{
 		MSG( "Subset construction failed" );
 		pregex_dfa_free( dfa );
 
-		RETURN( ret );
+		RETURN( FALSE );
 	}
 
 	/* Perform DFA minimization */
-	if( ( ret = pregex_dfa_minimize( dfa ) ) != ERR_OK )
+	if( !pregex_dfa_minimize( dfa ) )
 	{
 		MSG( "DFA minimization failed" );
 		pregex_dfa_free( dfa );
 
-		RETURN( ret );
+		RETURN( FALSE );
 	}
 
 	/* Delete NFA */
@@ -255,7 +250,7 @@ int pregex_finalize( pregex* regex )
 	regex->machine.dfa = dfa;
 	regex->stat = PREGEX_STAT_DFA;
 
-	RETURN( ERR_OK );
+	RETURN( TRUE );
 }
 
 /** The function pregex_match_next() is used to run a regular expression object
@@ -300,14 +295,12 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 
 	if( !( regex ) )
 	{
-		regex->last_err = ERR_MEM;
 		WRONGPARAM;
 		RETURN( (pregex_range*)NULL );
 	}
 
 	if( !IS_EXECUTABLE( regex->stat ) )
 	{
-		regex->last_err = ERR_UNIMPL;
 		MSG( "This regex-object can't be executed." );
 		RETURN( (pregex_range*)NULL );
 	}
@@ -316,15 +309,13 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 	memset( &( regex->range ), 0, sizeof( pregex_range ) );
 	regex->range.accept = PREGEX_ACCEPT_NONE;
 
-	regex->last_err = ERR_OK;
+	regex->completed = FALSE;
 
 	/* Is this an initial or subsequent call? */
 	if( !str )
 	{
 		if( regex->age != regex->last_age )
 		{
-			regex->last_err = ERR_OTHER;
-
 			MSG( "The regular expression object was modified during last call."
 					" It must be reset first." );
 			RETURN( (pregex_range*)NULL );
@@ -430,6 +421,7 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 				/* Update pregex object runtime values */
 				regex->last_pos = pstr;
 				regex->match_count++;
+				regex->completed = TRUE;
 
 				RETURN( &( regex->range ) );
 			}
@@ -448,6 +440,7 @@ pregex_range* pregex_match_next( pregex* regex, char* str )
 		}
 	}
 
+	regex->completed = TRUE;
 	regex->last_pos = (char*)NULL;
 	RETURN( (pregex_range*)NULL  );
 }
@@ -464,8 +457,7 @@ provided.
 will be returned by the function.
 
 The function returns the total number of matches, which is the number of entries
-in the returned array //results//. If the value is negative, it is an error
-code.
+in the returned array //results//. If the value is negative, an error occured.
 */
 int pregex_match( pregex* regex, char* str, pregex_range** results )
 {
@@ -480,7 +472,7 @@ int pregex_match( pregex* regex, char* str, pregex_range** results )
 	if( !( regex && str ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( -1 );
 	}
 
 	if( results )
@@ -500,7 +492,7 @@ int pregex_match( pregex* regex, char* str, pregex_range** results )
 				if( ! *results )
 				{
 					OUTOFMEM;
-					RETURN( ERR_MEM );
+					RETURN( -1 );
 				}
 			}
 
@@ -509,12 +501,13 @@ int pregex_match( pregex* regex, char* str, pregex_range** results )
 		}
 	}
 
-	/* If an error occured, free results array and return error code */
-	if( !range && regex->last_err < ERR_OK )
+	/* If an error occured, free results array and abort. */
+	if( !regex->completed )
 	{
 		if( results );
 			*results = pfree( *results );
-		RETURN( regex->last_err );
+
+		RETURN( -1 );
 	}
 
 	VARS( "matches", "%d", matches );
@@ -566,28 +559,25 @@ pregex_range* pregex_split_next( pregex* regex, char* str )
 
 	if( !( regex ) )
 	{
-		regex->last_err = ERR_PARMS;
 		WRONGPARAM;
 		RETURN( (pregex_range*)NULL );
 	}
 
 	if( !IS_EXECUTABLE( regex->stat ) )
 	{
-		regex->last_err = ERR_UNIMPL;
 		MSG( "This regex-object can't be executed." );
 		RETURN( (pregex_range*)NULL );
 	}
 
 	/* Reset accept structure */
 	memset( &( regex->split ), 0, sizeof( pregex_range ) );
+	regex->completed = FALSE;
 
 	/* Is this an initial or a subsequent call? */
 	if( !str )
 	{
 		if( regex->age != regex->last_age )
 		{
-			regex->last_err = ERR_OTHER;
-
 			MSG( "The regular expression object was modified during last call."
 					" It must be reset first." );
 			RETURN( (pregex_range*)NULL );
@@ -595,9 +585,8 @@ pregex_range* pregex_split_next( pregex* regex, char* str )
 
 		if( !( regex->flags & PREGEX_MOD_GLOBAL ) )
 		{
-			regex->last_err = ERR_FAILURE;
-
 			MSG( "pregex will only match globally" );
+			regex->completed = TRUE;
 			RETURN( (pregex_range*)NULL );
 		}
 	}
@@ -631,6 +620,7 @@ pregex_range* pregex_split_next( pregex* regex, char* str )
 									- (wchar_t*)regex->split.begin;
 		}
 
+		regex->completed = TRUE;
 		RETURN( &( regex->split ) );
 	}
 
@@ -676,6 +666,7 @@ pregex_range* pregex_split_next( pregex* regex, char* str )
 		}
 
 		regex->last_pos = (char*)NULL;
+		regex->completed = TRUE;
 		RETURN( &( regex->split ) );
 	}
 
@@ -695,8 +686,7 @@ pointer is provided.
 will be returned by the function.
 
 The function returns the total number of matches, which is the number of entries
-in the returned array //results//. If the value is negative, it is an error
-code.
+in the returned array //results//. If the value is negative, an error occured.
 */
 int pregex_split( pregex* regex, char* str, pregex_range** results )
 {
@@ -712,7 +702,7 @@ int pregex_split( pregex* regex, char* str, pregex_range** results )
 	if( !( regex && str ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( -1 );
 	}
 
 	if( results )
@@ -732,7 +722,7 @@ int pregex_split( pregex* regex, char* str, pregex_range** results )
 				if( ! *results )
 				{
 					OUTOFMEM;
-					RETURN( ERR_MEM );
+					RETURN( -1 );
 				}
 			}
 
@@ -741,12 +731,13 @@ int pregex_split( pregex* regex, char* str, pregex_range** results )
 		}
 	}
 
-	/* If an error occured, free results array and return error code */
-	if( !range && regex->last_err < ERR_OK )
+	/* If an error occured, free results array and abort. */
+	if( !regex->completed )
 	{
 		if( results );
 			*results = pfree( *results );
-		RETURN( regex->last_err );
+
+		RETURN( -1 );
 	}
 
 	VARS( "matches", "%d", matches );
@@ -803,7 +794,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 
 	if( !( str ) )
 	{
-		regex->last_err = ERR_PARMS;
 		WRONGPARAM;
 		RETURN( (char*)NULL );
 	}
@@ -812,6 +802,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 		charsize = sizeof( wchar_t );
 
 	regex->tmp_str = pfree( regex->tmp_str );
+	regex->completed = FALSE;
 
 	MSG( "Starting loop" );
 
@@ -869,7 +860,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 						(wchar_t*)regex->tmp_str, (wchar_t*)start,
 							( (wchar_t*)end - (wchar_t*)start ) ) ) )
 				{
-					regex->last_err = ERR_MEM;
 					OUTOFMEM;
 					RETURN( (char*)NULL );
 				}
@@ -880,7 +870,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 						regex->tmp_str, start,
 							end - start ) ) )
 				{
-					regex->last_err = ERR_MEM;
 					OUTOFMEM;
 					RETURN( (char*)NULL );
 				}
@@ -933,7 +922,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 									(wchar_t*)replace, (wchar_t*)rprev,
 										(wchar_t*)rbegin - (wchar_t*)rprev ) ) )
 							{
-								regex->last_err = ERR_MEM;
 								OUTOFMEM;
 								RETURN( (char*)NULL );
 							}
@@ -952,7 +940,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 										(wchar_t*)replace, reference->pbegin,
 											reference->len ) ) )
 								{
-									regex->last_err = ERR_MEM;
 									OUTOFMEM;
 									RETURN( (char*)NULL );
 								}
@@ -984,7 +971,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 							if( !( replace = pstrncatstr( replace,
 										rprev, rbegin - rprev ) ) )
 							{
-								regex->last_err = ERR_MEM;
 								OUTOFMEM;
 								RETURN( (char*)NULL );
 							}
@@ -1004,7 +990,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 										replace, reference->begin,
 											reference->len ) ) )
 								{
-									regex->last_err = ERR_MEM;
 									OUTOFMEM;
 									RETURN( (char*)NULL );
 								}
@@ -1041,7 +1026,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 						!( replace = (char*)pwcscatstr(
 								(wchar_t*)replace, (wchar_t*)rprev, FALSE ) ) )
 				{
-					regex->last_err = ERR_MEM;
 					OUTOFMEM;
 					RETURN( (char*)NULL );
 				}
@@ -1051,7 +1035,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 				if( rpstr != rprev && !( replace = pstrcatstr(
 											replace, rprev, FALSE ) ) )
 				{
-					regex->last_err = ERR_MEM;
 					OUTOFMEM;
 					RETURN( (char*)NULL );
 				}
@@ -1072,7 +1055,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 						(wchar_t*)regex->tmp_str, (wchar_t*)replace,
 							pwcslen( (wchar_t*)replace ) ) ) )
 				{
-					regex->last_err = ERR_MEM;
 					OUTOFMEM;
 					RETURN( (char*)NULL );
 				}
@@ -1083,7 +1065,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 						regex->tmp_str, replace,
 							pstrlen( replace ) ) ) )
 				{
-					regex->last_err = ERR_MEM;
 					OUTOFMEM;
 					RETURN( (char*)NULL );
 				}

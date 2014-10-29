@@ -23,11 +23,9 @@ end-addresses of all matches.
 //results// must be released using pfree() after its usage.
 
 Returns the number of matches, which is the amount of result entries in the
-returned array //results//. If the value is negative, an error occured, and
-an ERR_-define can be used to find out the reason.
+returned array //results//. If the value is negative, an error occured.
 */
-int pregex_qmatch( char* regex, char* str,
-					int flags, pregex_range** results )
+int pregex_qmatch( char* regex, char* str, int flags, pregex_range** results )
 {
 	int				matches		= 0;
 	pregex*			re;
@@ -41,7 +39,7 @@ int pregex_qmatch( char* regex, char* str,
 	if( !( regex && str ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( -1 );
 	}
 
 	if( results )
@@ -71,11 +69,9 @@ separator; All strings that where split are returned as //results//-array.
 //results// must be released using pfree() after its usage.
 
 Returns the number of split substrings, which is the amount of result entries in
-the returned array //results//. If the value is negative, an error occured, and
-an ERR_-define can be used to find out the reason.
+the returned array //results//. If the value is negative, an error occured.
 */
-int pregex_qsplit( char* regex, char* str,
-					int flags, pregex_range** results )
+int pregex_qsplit( char* regex, char* str, int flags, pregex_range** results )
 {
 	int				matches	= 0;
 	pregex*			re;
@@ -89,7 +85,7 @@ int pregex_qsplit( char* regex, char* str,
 	if( !( regex && str ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( -1 );
 	}
 
 	re = pregex_create();

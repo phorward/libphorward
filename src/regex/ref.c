@@ -42,10 +42,10 @@ contain (dfa->ref_count or nfa->ref_count).
 //flags// are flags for reference-related options (currently only the flag
 PREGEX_MOD_NO_REF is tested).
 
-Returns ERR_OK on success, or a standard error define else.
+Returns TRUE on success.
 */
-int pregex_ref_init( pregex_range** ref, int* ref_count,
-						int ref_all, int flags )
+pboolean pregex_ref_init( pregex_range** ref, int* ref_count,
+							int ref_all, int flags )
 {
 	PROC( "pregex_ref_init" );
 	PARMS( "ref", "%p", ref );
@@ -63,10 +63,10 @@ int pregex_ref_init( pregex_range** ref, int* ref_count,
 		{
 			MSG( "Allocating reference array" );
 			if( !( *ref = (pregex_range*)pmalloc(
-						ref_all * sizeof( pregex_range ) ) ) )
+								ref_all * sizeof( pregex_range ) ) ) )
 			{
 				MSG( "Can't allocate references array" );
-				RETURN( ERR_MEM );
+				RETURN( FALSE );
 			}
 		}
 
@@ -75,7 +75,7 @@ int pregex_ref_init( pregex_range** ref, int* ref_count,
 		*ref_count = ref_all;
 	}
 
-	RETURN( ERR_OK );
+	RETURN( TRUE );
 }
 
 /** Updates a reference according to provided string pointer and offset
@@ -86,12 +86,18 @@ pregex_ref_init()).
 //strp// is the current string pointer within the currently parsed string.
 //off// is the current offset within the parsed string.
 */
-void pregex_ref_update( pregex_range* ref, char* strp, size_t off )
+pboolean pregex_ref_update( pregex_range* ref, char* strp, size_t off )
 {
 	PROC( "pregex_ref_update" );
 	PARMS( "ref", "%p", ref );
 	PARMS( "strp", "%s", strp );
 	PARMS( "off", "%ld",off );
+
+	if( !ref )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
 
 	VARS( "ref->begin", "%p", ref->begin );
 
@@ -106,7 +112,7 @@ void pregex_ref_update( pregex_range* ref, char* strp, size_t off )
 	ref->pend = (wchar_t*)strp;
 	ref->len = off - ref->pos + 1;
 
-	VOIDRET;
+	RETURN( TRUE );
 }
 
 /*COD_ON*/

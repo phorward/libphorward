@@ -547,7 +547,7 @@ struct _regex
 	pregex_fn		match_fn;	
 
 	
-	int				last_err;	
+	pboolean		completed;	
 	int				match_count;
 	int				last_age;	
 
@@ -873,7 +873,7 @@ pregex_nfa* pregex_nfa_free( pregex_nfa* nfa );
 int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to );
 int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, pregex_accept* accept );
 int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors, pregex_range** ref, int* ref_count, int flags );
-int pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
+pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
 
 pregex_ptn* pregex_ptn_create_char( pccl* ccl );
@@ -886,16 +886,16 @@ pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... );
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn );
 void pregex_ptn_print( pregex_ptn* ptn, int rec );
-int pregex_ptn_to_regex( char** regex, pregex_ptn* ptn );
-int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern );
-int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags );
+pboolean pregex_ptn_to_regex( char** regex, pregex_ptn* ptn );
+pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern );
+pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags );
 
 
 pregex* pregex_create( void );
 pregex* pregex_free( pregex* regex );
 pregex* pregex_reset( pregex* regex );
-int pregex_compile( pregex* regex, char* pattern, int accept );
-int pregex_finalize( pregex* regex );
+pboolean pregex_compile( pregex* regex, char* pattern, int accept );
+pboolean pregex_finalize( pregex* regex );
 pregex_range* pregex_match_next( pregex* regex, char* str );
 int pregex_match( pregex* regex, char* str, pregex_range** results );
 pregex_range* pregex_split_next( pregex* regex, char* str );
@@ -914,8 +914,8 @@ pboolean pregex_set_match_fn( pregex* regex, pregex_fn match_fn );
 char* pregex_range_to_string( pregex_range* range );
 
 
-int pregex_ref_init( pregex_range** ref, int* ref_count, int ref_all, int flags );
-void pregex_ref_update( pregex_range* ref, char* strp, size_t off );
+pboolean pregex_ref_init( pregex_range** ref, int* ref_count, int ref_all, int flags );
+pboolean pregex_ref_update( pregex_range* ref, char* strp, size_t off );
 
 
 char* pwcs_to_str( wchar_t* str, pboolean freestr );

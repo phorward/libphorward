@@ -234,10 +234,8 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 into an dynamically allocated array for later re-use.
 
 //st// is the DFA-state, for which references shall be collected.
-
-Returns ERR_OK on success, and an ERR_-define on error.
 */
-static int pregex_dfa_collect_ref( pregex_dfa_st* st )
+static pboolean pregex_dfa_collect_ref( pregex_dfa_st* st )
 {
 	plistel*		e;
 	pregex_nfa_st*	nfa_st;
@@ -273,14 +271,14 @@ static int pregex_dfa_collect_ref( pregex_dfa_st* st )
 									* sizeof( int ) );
 
 				if( !st->ref )
-					RETURN( ERR_MEM );
+					RETURN( FALSE );
 
 				st->ref[ st->ref_cnt++ ] = nfa_st->ref;
 			}
 		}
 	}
 
-	RETURN( ERR_OK );
+	RETURN( TRUE );
 }
 
 /* Checks for DFA-states with same NFA-epsilon transitions than the specified
@@ -311,7 +309,7 @@ function. The pointer is set to zero before it is used.
 constructed from.
 
 Returns the number of DFA states that where constructed.
-In case of an error, an adequate ERR_-define will be returned.
+In case of an error, -1 is returned.
 */
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 {
@@ -340,7 +338,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	if( !( dfa && nfa ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( -1 );
 	}
 
 	/* Initialize */
@@ -348,12 +346,12 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	transitions = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
 	if( !( current = pregex_dfa_create_state( dfa ) ) )
-		RETURN( ERR_MEM );
+		RETURN( -1 );
 
 	/* Set starting seed */
 	if( !plist_push( current->nfa_set,
 			plist_access( plist_first( nfa->states ) ) ) )
-		RETURN( ERR_MEM );
+		RETURN( -1 );
 
 	pregex_nfa_epsilon_closure( nfa, current->nfa_set, (pregex_accept*)NULL );
 	pregex_dfa_collect_ref( current );
@@ -392,10 +390,10 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 						p_ccl_to_str( nfa_st->ccl, TRUE ) );
 				MSG( "Adding character class to list" );
 				if( !( ccl = p_ccl_dup( nfa_st->ccl ) ) )
-					RETURN( ERR_MEM );
+					RETURN( -1 );
 
 				if( !plist_push( classes, ccl ) )
-					RETURN( ERR_MEM );
+					RETURN( -1 );
 
 				VARS( "plist_count( classes )", "%d", plist_count( classes ) );
 			}
@@ -457,7 +455,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				plist_for( current->nfa_set, f )
 				{
 					if( !plist_push( transitions, plist_access( f ) ) )
-						RETURN( ERR_MEM );
+						RETURN( -1 );
 				}
 
 				if( pregex_nfa_move( nfa, transitions, begin, end ) < 0 )
@@ -494,7 +492,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					MSG( "Creating new DFA state" );
 					/* Create a new DFA as undone with this transition! */
 					if( !( st = pregex_dfa_create_state( dfa ) ) )
-						RETURN( ERR_MEM );
+						RETURN( -1 );
 
 					st->nfa_set = plist_dup( transitions );
 					plist_erase( transitions );
@@ -529,7 +527,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 				/* Append current range */
 				if( !p_ccl_addrange( trans->ccl, begin, end ) )
-					RETURN( ERR_MEM );
+					RETURN( -1 );
 			}
 
 			p_ccl_free( ccl );
@@ -617,6 +615,8 @@ static pboolean pregex_dfa_equal_states(
 	RETURN( TRUE );
 }
 
+/*COD_ON*/
+
 /** Minimizes a DFA to lesser states by grouping equivalent states to new
 states, and transforming transitions to them.
 
@@ -624,7 +624,7 @@ states, and transforming transitions to them.
 //dfa// will be replaced with the reduced machine.
 
 Returns the number of DFA states that where constructed in the minimized version
-of //dfa//. Returns an ERR_-define on error.
+of //dfa//. Returns -1 on error.
 */
 int pregex_dfa_minimize( pregex_dfa* dfa )
 {
@@ -652,7 +652,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	if( !dfa )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( -1 );
 	}
 
 	groups = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
@@ -675,13 +675,13 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 		{
 			group = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 			if( !plist_push( group, dfa_st ) )
-				RETURN( ERR_MEM );
+				RETURN( -1 );
 
 			if( !plist_push( groups, group ) )
-				RETURN( ERR_MEM );
+				RETURN( -1 );
 		}
 		else if( !plist_push( group, dfa_st ) )
-			RETURN( ERR_MEM );
+			RETURN( -1 );
 	}
 
 	MSG( "Perform the algorithm" );
@@ -737,11 +737,11 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 						if( !( newgroup =
 								plist_create( 0,
 									PLIST_MOD_PTR | PLIST_MOD_RECYCLE ) ) )
-							RETURN( ERR_MEM );
+							RETURN( -1 );
 					}
 
 					if( !plist_push( newgroup, grp_dfa_st ) )
-						RETURN( ERR_MEM );
+						RETURN( -1 );
 				}
 			}
 
@@ -750,7 +750,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 			{
 				MSG( "Engaging new group into list of groups" );
 				if( !plist_push( groups, newgroup ) )
-					RETURN( ERR_MEM );
+					RETURN( -1 );
 
 				changes = TRUE;
 			}
@@ -855,16 +855,15 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	if( !( dfa && str && len ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( PREGEX_ACCEPT_NONE );
 	}
 
 	/* Initialize! */
 	if( anchors )
 		*anchors = PREGEX_ANCHOR_NONE;
 
-	if( ( i = pregex_ref_init( ref, ref_count, dfa->ref_count, flags ) )
-			!= ERR_OK )
-		RETURN( i );
+	if( !pregex_ref_init( ref, ref_count, dfa->ref_count, flags ) )
+		RETURN( PREGEX_ACCEPT_NONE );
 
 	*len = 0;
 	dfa_st = (pregex_dfa_st*)plist_access( plist_first( dfa->states ) );
@@ -976,6 +975,7 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	VARS( "last_accept->accept.accept", "%d", ( last_accept ?
 										last_accept->accept.accept :
 											PREGEX_ACCEPT_NONE ) );
+
 	RETURN( ( last_accept ? last_accept->accept.accept : PREGEX_ACCEPT_NONE ) );
 }
 
@@ -1123,5 +1123,3 @@ int pregex_dfa_to_matrix( wchar_t*** matrix, pregex_dfa* dfa )
 
 	RETURN( plist_count( dfa->states ) );
 }
-
-/*COD_ON*/

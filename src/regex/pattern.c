@@ -12,14 +12,14 @@ Usage:	Regular expression pattern construction and conversion functions
 #include "phorward.h"
 
 /* Local prototypes */
-static int parse_char( pregex_ptn** ptn, char** pstr,
-							pregex_accept* accept, int flags );
-static int parse_factor( pregex_ptn** ptn, char** pstr,
-							pregex_accept* accept, int flags );
-static int parse_sequence( pregex_ptn** ptn, char** pstr,
-							pregex_accept* accept, int flags );
-static int parse_alter( pregex_ptn** ptn, char** pstr,
-							pregex_accept* accept, int flags );
+static pboolean parse_char( pregex_ptn** ptn, char** pstr,
+										pregex_accept* accept, int flags );
+static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
+										pregex_accept* accept, int flags );
+static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
+										pregex_accept* accept, int flags );
+static pboolean parse_alter( pregex_ptn** ptn, char** pstr,
+										pregex_accept* accept, int flags );
 
 /* Create a pattern object of type //type//; Internal constructor! */
 static pregex_ptn* pregex_ptn_create( pregex_ptntype type )
@@ -497,14 +497,12 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 }
 
 /* Internal function for pregex_ptn_to_regex() */
-static int pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
+static pboolean pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 {
-	int		ret;
-
 	if( !( regex && ptn ) )
 	{
 		WRONGPARAM;
-		return ERR_PARMS;
+		return FALSE;
 	}
 
 	while( ptn )
@@ -512,7 +510,7 @@ static int pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 		switch( ptn->type )
 		{
 			case PREGEX_PTN_NULL:
-				return ERR_OK;
+				return TRUE;
 
 			case PREGEX_PTN_CHAR:
 				p_ccl_to_REGEX( regex, ptn->ccl );
@@ -521,86 +519,78 @@ static int pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 			case PREGEX_PTN_SUB:
 				*regex = pstrcatchar( *regex, '(' );
 
-				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
-						!= ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
+					return FALSE;
 
 				*regex = pstrcatchar( *regex, ')' );
 				break;
 
 			case PREGEX_PTN_ALT:
-				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
-						!= ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
+					return FALSE;
 
 				*regex = pstrcatchar( *regex, '|' );
 
-				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 1 ] ) )
-						!= ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_REGEX( regex, ptn->child[ 1 ] ) )
+					return FALSE;
 
 				break;
 
 			case PREGEX_PTN_KLE:
 
-				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
-						!= ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
+					return FALSE;
 
 				*regex = pstrcatchar( *regex, '*' );
 				break;
 
 			case PREGEX_PTN_POS:
 
-				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
-						!= ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
+					return FALSE;
 
 				*regex = pstrcatchar( *regex, '+' );
 				break;
 
 			case PREGEX_PTN_OPT:
 
-				if( ( ret = pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
-						!= ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
+					return FALSE;
 
 				*regex = pstrcatchar( *regex, '?' );
 				break;
 
 			default:
-				return ERR_UNIMPL;
+				MISSINGCASE;
+				return FALSE;
 		}
 
 		ptn = ptn->next;
 	}
 
-	return ERR_OK;
+	return TRUE;
 }
 
 /** Turns a regular expression pattern back into a regular expression string.
 
 //regex// is the return pointer for the regular expression string. This must be
-released by the caller with pfree(), if the function returns ERR_OK.
+released by the caller with pfree(), if the function returns TRUE.
 //ptn// is the pattern object to be converted into a regex.
-
-Returns a int Returns a standard error define on failure, and ERR_OK on success.
 */
-int pregex_ptn_to_regex( char** regex, pregex_ptn* ptn )
+pboolean pregex_ptn_to_regex( char** regex, pregex_ptn* ptn )
 {
 	if( !( regex && ptn ) )
 	{
 		WRONGPARAM;
-		return ERR_PARMS;
+		return FALSE;
 	}
 
 	*regex = (char*)NULL;
-
 	return pregex_ptn_to_REGEX( regex, ptn );
 }
 
 /* Internal function for pregex_ptn_to_nfa() */
-static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
+static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 	pregex_nfa_st** start, pregex_nfa_st** end )
 {
 	pregex_nfa_st*	n_start	= (pregex_nfa_st*)NULL;
@@ -610,7 +600,7 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 	if( !( pattern && nfa && start && end ) )
 	{
 		WRONGPARAM;
-		return ERR_PARMS;
+		return FALSE;
 	}
 
 	*end = *start = (pregex_nfa_st*)NULL;
@@ -620,7 +610,7 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 		switch( pattern->type )
 		{
 			case PREGEX_PTN_NULL:
-				return ERR_OK;
+				return TRUE;
 
 			case PREGEX_PTN_CHAR:
 				n_start = pregex_nfa_create_state( nfa,
@@ -636,9 +626,9 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				nfa->ref_cur++;
 				nfa->ref_count++;
 
-				if( ( ret = pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
-						&n_start, &n_end ) ) != ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
+											&n_start, &n_end ) )
+					return FALSE;
 
 				/* Patch the last transition to previous reference */
 				n_end->ref = --nfa->ref_cur;
@@ -654,16 +644,16 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_end = pregex_nfa_create_state( nfa,
 							(char*)NULL, PREGEX_MOD_NONE );
 
-				if( ( ret = pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
-						&a_start, &a_end ) ) != ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
+													&a_start, &a_end ) )
+					return FALSE;
 
 				n_start->next = a_start;
 				a_end->next= n_end;
 
-				if( ( ret = pregex_ptn_to_NFA( nfa, pattern->child[ 1 ],
-						&a_start, &a_end ) ) != ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_NFA( nfa, pattern->child[ 1 ],
+													&a_start, &a_end ) )
+					return FALSE;
 
 				n_start->next2 = a_start;
 				a_end->next= n_end;
@@ -682,9 +672,9 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_end = pregex_nfa_create_state( nfa,
 							(char*)NULL, PREGEX_MOD_NONE );
 
-				if( ( ret = pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
-								&m_start, &m_end ) ) != ERR_OK )
-					return ret;
+				if( !pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
+													&m_start, &m_end ) )
+					return FALSE;
 
 				/* Standard chain linking */
 				n_start->next = m_start;
@@ -731,7 +721,8 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 			}
 
 			default:
-				return ERR_UNIMPL;
+				MISSINGCASE;
+				return FALSE;
 		}
 
 		if( ! *start )
@@ -753,7 +744,7 @@ static int pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 		pattern = pattern->next;
 	}
 
-	return ERR_OK;
+	return TRUE;
 }
 
 /** Converts a pattern-structure into a NFA state machine.
@@ -764,9 +755,9 @@ states.
 //pattern// is the pattern structure that will be converted and extended into
 the NFA state machine.
 
-Returns a standard error define on failure, and ERR_OK on success.
+Returns TRUE on success.
 */
-int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
+pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
 {
 	int				ret;
 	pregex_nfa_st*	start;
@@ -781,7 +772,7 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
 	if( !( nfa && pattern ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( FALSE );
 	}
 
 	/* Find last first node ;) ... */
@@ -795,11 +786,11 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
 	/* Create first epsilon node */
 	if( !( first = pregex_nfa_create_state( nfa,
 			(char*)NULL, PREGEX_MOD_NONE ) ) )
-		RETURN( ERR_MEM );
+		RETURN( FALSE );
 
 	/* Turn pattern into NFA */
-	if( ( ret = pregex_ptn_to_NFA( nfa, pattern, &start, &end ) ) != ERR_OK )
-		RETURN( ret );
+	if( !pregex_ptn_to_NFA( nfa, pattern, &start, &end ) )
+		RETURN( FALSE );
 
 	/* start is next of first */
 	first->next = start;
@@ -824,7 +815,7 @@ int pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
 		memcpy( &( end->accept ), pattern->accept, sizeof( pregex_accept ) );
 	}
 
-	RETURN( ERR_OK );
+	RETURN( TRUE );
 }
 
 /** Parse a regular expression pattern string into a pregex_ptn structure.
@@ -841,9 +832,9 @@ wchar_t-array holding wide-character strings.
 
 //flags// provides compile-time flags.
 
-Returns a standard error define on failure, and ERR_OK on success.
+Returns TRUE on success.
 */
-int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
+pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 {
 	int				ret;
 	char*			ptr;
@@ -857,7 +848,7 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	if( !( ptn && str ) )
 	{
 		WRONGPARAM;
-		RETURN( ERR_PARMS );
+		RETURN( FALSE );
 	}
 
 	/* Set default values into accept structure, except accept member! */
@@ -867,10 +858,10 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	if( flags & PREGEX_MOD_STATIC )
 	{
 		if( !( *ptn = pregex_ptn_create_string( str, flags ) ) )
-			RETURN( ERR_MEM );
+			RETURN( FALSE );
 
 		(*ptn)->accept = pmemdup( &accept, sizeof( pregex_accept ) );
-		RETURN( ERR_OK );
+		RETURN( TRUE );
 	}
 
 	/* Copy input string - this is required,
@@ -878,12 +869,12 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	if( flags & PREGEX_MOD_WCHAR )
 	{
 		if( !( ptr = str = pwcs_to_str( (wchar_t*)str, FALSE ) ) )
-			RETURN( ERR_MEM );
+			RETURN( FALSE );
 	}
 	else
 	{
 		if( !( ptr = str = pstrdup( str ) ) )
-			RETURN( ERR_MEM );
+			RETURN( FALSE );
 	}
 
 	VARS( "ptr", "%s", ptr );
@@ -910,8 +901,8 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	MSG( "Starting the parser" );
 	VARS( "ptr", "%s", ptr );
 
-	if( ( ret = parse_alter( ptn, &ptr, &accept, flags ) ) != ERR_OK )
-		RETURN( ret );
+	if( !parse_alter( ptn, &ptr, &accept, flags ) )
+		RETURN( FALSE );
 
 	VARS( "ptr", "%s", ptr );
 
@@ -932,15 +923,15 @@ int pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	/* Copy accept structure */
 	(*ptn)->accept = pmemdup( &accept, sizeof( pregex_accept ) );
 
-	RETURN( ERR_OK );
+	RETURN( TRUE );
 }
 
 /******************************************************************************
  *      RECURSIVE DESCENT PARSER FOR REGULAR EXPRESSIONS FOLLOWS HERE...      *
  ******************************************************************************/
 
-static int parse_char( pregex_ptn** ptn, char** pstr,
-		pregex_accept* accept, int flags )
+static pboolean parse_char( pregex_ptn** ptn, char** pstr,
+										pregex_accept* accept, int flags )
 {
 	pccl*		ccl;
 	int			ret;
@@ -955,15 +946,15 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 		case '(':
 			(*pstr)++;
 
-			if( ( ret = parse_alter( &alter, pstr, accept, flags ) )
-					!= ERR_OK )
-				return ret;
+			if( !parse_alter( &alter, pstr, accept, flags ) )
+				return FALSE;
 
 			if( !( *ptn = pregex_ptn_create_sub( alter ) ) )
-				return ERR_MEM;
+				return FALSE;
 
 			if( **pstr != ')' && !( flags & PREGEX_MOD_NO_ERRORS ) )
-				return 1;
+				/* Report error? */
+				return FALSE;
 
 			(*pstr)++;
 			break;
@@ -982,13 +973,13 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 								PCCL_MIN, PCCL_MAX ) ) )
 			{
 				p_ccl_free( ccl );
-				return ERR_MEM;
+				return FALSE;
 			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 			{
 				p_ccl_free( ccl );
-				return ERR_MEM;
+				return FALSE;
 			}
 
 			(*pstr)++;
@@ -1007,7 +998,7 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 				}
 
 				if( !( ccl = p_ccl_create( -1, -1, (*pstr) + 1 ) ) )
-					return ERR_MEM;
+					return FALSE;
 
 				if( neg )
 					p_ccl_negate( ccl );
@@ -1015,7 +1006,7 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 				if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 				{
 					p_ccl_free( ccl );
-					return ERR_MEM;
+					return FALSE;
 				}
 
 				*zero = restore;
@@ -1032,28 +1023,26 @@ static int parse_char( pregex_ptn** ptn, char** pstr,
 			if( !( ccl && p_ccl_add( ccl, single ) ) )
 			{
 				p_ccl_free( ccl );
-				return ERR_MEM;
+				return FALSE;
 			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 			{
 				p_ccl_free( ccl );
-				return ERR_MEM;
+				return FALSE;
 			}
 
 			break;
 	}
 
-	return ERR_OK;
+	return TRUE;
 }
 
-static int parse_factor( pregex_ptn** ptn, char** pstr,
-		pregex_accept* accept, int flags )
+static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
+										pregex_accept* accept, int flags )
 {
-	int			ret;
-
-	if( ( ret = parse_char( ptn, pstr, accept, flags ) ) != ERR_OK )
-		return ret;
+	if( !parse_char( ptn, pstr, accept, flags ) )
+		return FALSE;
 
 	switch( **pstr )
 	{
@@ -1078,7 +1067,7 @@ static int parse_factor( pregex_ptn** ptn, char** pstr,
 			}
 
 			if( ! *ptn )
-				return ERR_MEM;
+				return FALSE;
 
 			(*pstr)++;
 			break;
@@ -1087,17 +1076,16 @@ static int parse_factor( pregex_ptn** ptn, char** pstr,
 			break;
 	}
 
-	return ERR_OK;
+	return TRUE;
 }
 
-static int parse_sequence( pregex_ptn** ptn, char** pstr,
-		pregex_accept* accept, int flags )
+static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
+										pregex_accept* accept, int flags )
 {
-	int			ret;
 	pregex_ptn*	next;
 
-	if( ( ret = parse_factor( ptn, pstr, accept, flags ) ) != ERR_OK )
-		return ret;
+	if( !parse_factor( ptn, pstr, accept, flags ) )
+		return FALSE;
 
 	while( !( **pstr == '|' || **pstr == ')' || **pstr == '\0' ) )
 	{
@@ -1107,34 +1095,33 @@ static int parse_sequence( pregex_ptn** ptn, char** pstr,
 				break;
 		}
 
-		if( ( ret = parse_factor( &next, pstr, accept, flags ) ) != ERR_OK )
-			return ret;
+		if( !parse_factor( &next, pstr, accept, flags ) )
+			return FALSE;
 
 		*ptn = pregex_ptn_create_seq( *ptn, next, (pregex_ptn*)NULL );
 	}
 
-	return ERR_OK;
+	return TRUE;
 }
 
-static int parse_alter( pregex_ptn** ptn, char** pstr,
-		pregex_accept* accept, int flags )
+static pboolean parse_alter( pregex_ptn** ptn, char** pstr,
+										pregex_accept* accept, int flags )
 {
-	int			ret;
 	pregex_ptn*	seq;
 
-	if( ( ret = parse_sequence( ptn, pstr, accept, flags ) ) != ERR_OK )
-		return ret;
+	if( !parse_sequence( ptn, pstr, accept, flags ) )
+		return FALSE;
 
 	while( **pstr == '|' )
 	{
 		(*pstr)++;
 
-		if( ( ret = parse_sequence( &seq, pstr, accept, flags ) ) != ERR_OK )
-			return ret;
+		if( !parse_sequence( &seq, pstr, accept, flags ) )
+			return FALSE;
 
 		if( !( *ptn = pregex_ptn_create_alt( *ptn, seq, (pregex_ptn*)NULL ) ) )
-			return ERR_MEM;
+			return FALSE;
 	}
 
-	return ERR_OK;
+	return TRUE;
 }
