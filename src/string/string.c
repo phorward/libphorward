@@ -341,7 +341,7 @@ int psprintf( char* res, char* fmt, ... )
 //fmt// is the the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
-Returns the number of characters written.
+Returns the number of characters written, or -1 in error case.
 */
 int pvasprintf( char** str, char* fmt, va_list ap )
 {
@@ -356,7 +356,7 @@ int pvasprintf( char** str, char* fmt, va_list ap )
 	PARMS( "ap", "%p", ap );
 
 	if( !( istr = (char*)pmalloc( MALLOC_STEP * sizeof( char ) ) ) )
-		RETURN( ERR_MEM );
+		RETURN( -1 );
 
 	va_copy( w_ap, ap );
 
@@ -370,14 +370,14 @@ int pvasprintf( char** str, char* fmt, va_list ap )
 	{
 		MSG( "ret is negative or too big - can't handle this!" );
 		va_end( w_ap );
-		RETURN( ERR_MEM );
+		RETURN( -1 );
 	}
 	else
 	{
 		if( !( istr = prealloc( istr, ( ilen = len + 1 ) * sizeof( char ) ) ) )
 		{
 			va_end( w_ap );
-			RETURN( ERR_MEM );
+			RETURN( -1 );
 		}
 
 		va_end( w_ap );
@@ -392,7 +392,7 @@ int pvasprintf( char** str, char* fmt, va_list ap )
 		else
 		{
 			pfree( istr );
-			RETURN( ERR_MEM );
+			RETURN( -1 );
 		}
 	}
 
@@ -673,10 +673,13 @@ int pstrsplit( char*** tokens, char* str, char* sep, int limit )
 	PARMS( "limit", "%d", limit );
 
 	if( !( tokens && str && sep && *sep ) )
-		RETURN( ERR_PARMS );
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
 
 	if( !( *tokens = (char**)pmalloc( MALLOC_STEP * sizeof( char* ) ) ) )
-		RETURN( ERR_MEM );
+		RETURN( -1 );
 
 	VARS( "cnt", "%d", cnt );
 	VARS( "tok", "%s", tok );
@@ -694,7 +697,7 @@ int pstrsplit( char*** tokens, char* str, char* sep, int limit )
 			MSG( "realloc required!" );
 			if( !( *tokens = (char**)prealloc( (char**)*tokens,
 					( cnt + MALLOC_STEP ) * sizeof( char* ) ) ) )
-				RETURN( ERR_MEM );
+				RETURN( -1 );
 		}
 
 		VARS( "cnt", "%d", cnt );
@@ -997,7 +1000,7 @@ int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 
 	if( !( istr = (wchar_t*)pmalloc( ( ilen = MALLOC_STEP + 1 )
 				* sizeof( wchar_t ) ) ) )
-		RETURN( ERR_MEM );
+		RETURN( -1 );
 
 	do
 	{
@@ -1018,9 +1021,7 @@ int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 		{
 			if( !( istr = prealloc( istr, ( ilen = ilen + MALLOC_STEP + 1 )
 					* sizeof( wchar_t ) ) ) )
-			{
-				RETURN( ERR_MEM );
-			}
+				RETURN( -1 );
 		}
 	}
 	while( len < 0 || len >= ilen );

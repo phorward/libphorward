@@ -42,7 +42,7 @@ int main( int argc, char** argv )
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
 						"e:m:r:",
-						"exec: mode: renderer:", i ) ) == ERR_OK; i++ )
+						"exec: mode: renderer:", i ) ) == 0; i++ )
 	{
 		if( !strcmp( opt, "exec" ) || *opt == 'e' )
 			s = param;
@@ -70,7 +70,7 @@ int main( int argc, char** argv )
 		help( argv );
 		return 1;
 	}
-	
+
 	g = pp_gram_create( gstr );
 	pp_gram_print( g );
 

@@ -111,9 +111,8 @@ pboolean pfileexists( char* filename )
 //cont// is the file content return pointer.
 //filename// is the path to file to be mapped
 
-The function returns ERR_OK on success, a value >0 if the file could not be
-found, or an ERR-define according to its meaning. */
-int map_file( char** cont, char* filename )
+The function returns TRUE on success. */
+pboolean map_file( char** cont, char* filename )
 {
 	FILE*	f;
 	char*	c;
@@ -125,15 +124,15 @@ int map_file( char** cont, char* filename )
 	/* Check parameters */
 	if( !( cont && filename && *filename ) )
 	{
-		MSG( "Incomplete parameters!" );
-		RETURN( ERR_PARMS );
+		WRONGPARAM;
+		RETURN( FALSE );
 	}
 
 	/* Open file */
 	if( !( f = fopen( filename, "rb" ) ) )
 	{
 		MSG( "File could not be opened - wrong path?" );
-		RETURN( 1 );
+		RETURN( FALSE );
 	}
 
 	/* Allocate memory for file */
@@ -144,7 +143,7 @@ int map_file( char** cont, char* filename )
 		MSG( "Unable to allocate required memory" );
 
 		fclose( f );
-		RETURN( ERR_MEM );
+		RETURN( FALSE );
 	}
 
 	/* Read entire file into buffer */
@@ -162,9 +161,7 @@ int map_file( char** cont, char* filename )
 	fclose( f );
 
 	VARS( "Entire file", "%s", *cont );
-	MSG( "All right!" );
-
-	RETURN( ERR_OK );
+	RETURN( TRUE );
 }
 
 /** Implementation of a command-line option interpreter.
@@ -207,12 +204,12 @@ one parameter that is returned to param. This parameter can be (char*)NULL.
 //idx// is the index of the requested option, 0 for the first option behind
 argv[0].
 
-The function returns ERR_OK, if the parameter with the given index was
+The function returns 0, if the parameter with the given index was
 successfully evaluated. It returns 1, if there are sill command-line parameters,
 but not as part of options. The parameter param will receive the given pointer.
-It returns ERR_FAILURE if no more options could be read, or if an option could
+It returns -1 if no more options could be read, or if an option could
 not be evaluated (unknown option). In such case, param will hold a string to the
-option that is now known.
+option that is unknown to pgetopt().
 */
 int pgetopt( char* opt, char** param, int* next,
 				int argc, char** argv, char* optstr,
@@ -240,7 +237,8 @@ int pgetopt( char* opt, char** param, int* next,
 
 	if( !( opt && param && idx >= 0 && ( optstr || loptstr ) ) )
 	{
-		RETURN( ERR_PARMS );
+		WRONGPARAM;
+		RETURN( -1 );
 	}
 
 	*param = (char*)NULL;
@@ -304,7 +302,7 @@ int pgetopt( char* opt, char** param, int* next,
 							if( next )
 								*next = i + 1;
 
-							RETURN( ERR_OK );
+							RETURN( 0 );
 						}
 
 						found = TRUE;
@@ -316,7 +314,7 @@ int pgetopt( char* opt, char** param, int* next,
 				{
 					sprintf( optinfo, "-%c", *str );
 					*param = optinfo;
-					RETURN( ERR_FAILURE );
+					RETURN( -1 );
 				}
 
 				idx--;
@@ -356,7 +354,7 @@ int pgetopt( char* opt, char** param, int* next,
 						if( next )
 							*next = i + 1;
 
-						RETURN( ERR_OK );
+						RETURN( 0 );
 					}
 
 					found = TRUE;
@@ -371,7 +369,7 @@ int pgetopt( char* opt, char** param, int* next,
 				if( next )
 					*next = i + 1;
 
-				RETURN( ERR_FAILURE );
+				RETURN( -1 );
 			}
 
 			idx--;
@@ -383,6 +381,6 @@ int pgetopt( char* opt, char** param, int* next,
 	if( next )
 		*next = i;
 
-	RETURN( ERR_FAILURE );
+	RETURN( -1 );
 }
 

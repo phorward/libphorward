@@ -237,7 +237,7 @@ int u8_is_locale_utf8(char *locale);
 char* pwhich( char* filename, char* directories );
 char* pbasename( char* path );
 pboolean pfileexists( char* filename );
-int map_file( char** cont, char* filename );
+pboolean map_file( char** cont, char* filename );
 int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx );
 
 /* xml/xml.c */

@@ -71,18 +71,13 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 			break;
 
 		case PPSYMTYPE_REGEX:
-		printf( "MK REGEX >%s<\n", def );
-			switch( pregex_ptn_parse( &sym->ptn, def, PREGEX_MOD_NONE ) )
+			if( !pregex_ptn_parse( &sym->ptn, def, PREGEX_MOD_NONE ) )
 			{
-				case 1:
-					fprintf( stderr, "Parse error in regex >%s<\n", def );
-					break;
-
-				case ERR_OK:
-				default:
-					sym->ptn->accept->accept = 0;
+				fprintf( stderr, "Parse error in regex >%s<\n", def );
 					break;
 			}
+
+			sym->ptn->accept->accept = 0;
 
 			if( !sym->name )
 				pregex_ptn_to_regex( &sym->name, sym->ptn );

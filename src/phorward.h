@@ -62,15 +62,6 @@ typedef char 					pboolean;
 #define TRUEBOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
 
 
-#define ERR_OK					0		
-#define ERR_FAILURE				-1		
-#define ERR_PARMS				-2		
-#define ERR_MEM					-3		
-#define ERR_SYSTEM				-4		
-#define ERR_UNIMPL				-5		
-#define ERR_OTHER				-6		
-
-
 #define OUTOFMEM				fprintf( stderr, \
 									"%s, %d: Ran out of memory\n", \
 										__FILE__, __LINE__ ), exit( 1 )
@@ -987,7 +978,7 @@ int u8_is_locale_utf8(char *locale);
 char* pwhich( char* filename, char* directories );
 char* pbasename( char* path );
 pboolean pfileexists( char* filename );
-int map_file( char** cont, char* filename );
+pboolean map_file( char** cont, char* filename );
 int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx );
 
 

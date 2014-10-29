@@ -70,17 +70,6 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #define TRUEBOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
 
 /*
- * Generic error codes
- */
-#define ERR_OK					0		/* OK */
-#define ERR_FAILURE				-1		/* General/Unspecified failure */
-#define ERR_PARMS				-2		/* Wrong parameters */
-#define ERR_MEM					-3		/* Memory allocation error */
-#define ERR_SYSTEM				-4		/* System call error */
-#define ERR_UNIMPL				-5		/* Unimplemented */
-#define ERR_OTHER				-6		/* Any other error */
-
-/*
  * Generic error case macros
  */
 #define OUTOFMEM				fprintf( stderr, \

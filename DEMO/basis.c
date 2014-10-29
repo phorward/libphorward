@@ -382,8 +382,8 @@ int faculty( int x )
 
 	if( x < 0 )
 	{
-		MSG( "Not allowed!" );
-		RETURN( ERR_PARMS );
+		WRONGPARAM;
+		RETURN( -1 );
 	}
 	else if( x == 0 )
 	{
