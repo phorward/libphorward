@@ -6,13 +6,14 @@ All rights reserved. See LICENSE for more information.
 
 File:	nfa.c
 Author:	Jan Max Meyer
-Usage:	NFA creation and executable functions
-		and simple, independent parser for regular expressions
+Usage:	Internal NFA creation and executable functions.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
 
 /*NO_DOC*/
+/* No documentation for the entire module, all here is only interally used. */
+
 /** Creates a new NFA-state within an NFA state machine. The function first
 checks if there are recyclable states in //nfa//. If so, the state is re-used
 and re-configured, else a new state is allocated in memory.
@@ -37,10 +38,6 @@ pregex_nfa_st* pregex_nfa_create_state(
 	/* Get new element */
 	ptr = plist_malloc( nfa->states );
 
-	/* Initialize */
-	pregex_accept_init( &( ptr->accept ) );
-	ptr->ref = nfa->ref_cur;
-
 	/* Define character edge? */
 	if( chardef )
 	{
@@ -56,7 +53,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 		/* Is case-insensitive flag set? */
 		if( flags & PREGEX_MOD_INSENSITIVE )
 		{
-			pccl*	iccl;
+			pccl*		iccl;
 			int			i;
 			wchar_t		ch;
 			wchar_t		cch;
@@ -105,9 +102,10 @@ void pregex_nfa_print( pregex_nfa* nfa )
 {
 	plistel*		e;
 	pregex_nfa_st*	s;
+	int				i;
 
-	fprintf( stderr, " no next next2 accept ref anchor\n" );
-	fprintf( stderr, "--------------------------------\n" );
+	fprintf( stderr, " no next next2 accept flags refs\n" );
+	fprintf( stderr, "----------------------------------------------------\n" );
 
 	plist_for( nfa->states, e )
 	{
@@ -115,12 +113,18 @@ void pregex_nfa_print( pregex_nfa* nfa )
 
 #define GETOFF( l, s ) 	(s) ? plist_offset( plist_get_by_ptr( l, s ) ) : -1
 
-		fprintf( stderr, "#% 2d % 4d % 5d  % 6d  % 3d % 6d\n",
+		fprintf( stderr, "#%2d %4d %5d %6d %5d",
 			GETOFF( nfa->states, s ),
 			GETOFF( nfa->states, s->next ),
 			GETOFF( nfa->states, s->next2 ),
-			s->accept.accept, s->ref, s->accept.anchors );
+			s->accept.accept,
+			s->accept.flags );
 
+		for( i = 0; i < PREGEX_MAXREF; i++ )
+			if( s->refs & ( 1 << i ) )
+				fprintf( stderr, " %d", i );
+
+		fprintf( stderr, "\n" );
 #undef GETOFF
 
 		if( s->ccl )
@@ -129,8 +133,25 @@ void pregex_nfa_print( pregex_nfa* nfa )
 		fprintf( stderr, "\n\n" );
 	}
 
-	fprintf( stderr, "-----------------------------------\n" );
+	fprintf( stderr, "----------------------------------------------------\n" );
 }
+
+/* Function for deep debugging, not used now. */
+static void print_nfa_state_list( char* info, pregex_nfa* nfa, plist* list )
+{
+	plistel*		e;
+	pregex_nfa_st*	st;
+
+	plist_for( list, e )
+	{
+		st = (pregex_nfa_st*)plist_access( e );
+		fprintf( stderr, "%s: #%d %s\n",
+			info,
+			plist_offset( plist_get_by_ptr( nfa->states, st ) ),
+			st->ccl ? p_ccl_to_str( st->ccl, TRUE ) : "EPSILON" );
+	}
+}
+
 
 /** Allocates an initializes a new pregex_nfa-object for a nondeterministic
 finite state automata that can be used for pattern matching or to construct
@@ -167,9 +188,7 @@ pboolean pregex_nfa_reset( pregex_nfa* nfa )
 	while( plist_first( nfa->states ) )
 	{
 		st = (pregex_nfa_st*)plist_access( plist_first( nfa->states ) );
-
-		if( st->ccl )
-			p_ccl_free( st->ccl );
+		p_ccl_free( st->ccl );
 
 		plist_remove( nfa->states, plist_first( nfa->states ) );
 	}
@@ -299,16 +318,16 @@ int pregex_nfa_epsilon_closure(
 	}
 
 	if( accept )
-		pregex_accept_init( accept );
+		memset( accept, 0, sizeof( pregex_accept ) );
 
 	stack = plist_dup( closure );
 
 	/* Loop trough the items */
 	while( plist_pop( stack, &top ) )
 	{
-		if( accept && top->accept.accept != PREGEX_ACCEPT_NONE
-			&& ( !last_accept
-					|| last_accept->accept.accept > top->accept.accept ) )
+		if( accept && top->accept.accept
+				&& ( !last_accept || last_accept->accept.accept
+											> top->accept.accept ) )
 			last_accept = top;
 
 		if( !top->ccl )
@@ -340,24 +359,24 @@ int pregex_nfa_epsilon_closure(
 		accept->accept = last_accept->accept.accept;
 		VARS( "accept->accept", "%d", accept->accept );
 
-		accept->greedy = last_accept->accept.greedy;
-		VARS( "accept->greedy", "%s", BOOLEAN_STR( accept->greedy ) );
-
-		accept->anchors = last_accept->accept.anchors;
-		VARS( "accept->anchors", "%d", accept->anchors );
+		accept->flags = last_accept->accept.flags;
+		VARS( "accept->flags", "%d", accept->flags );
 	}
 
+	VARS( "Closed states", "%d", plist_count( closure ) );
 	RETURN( plist_count( closure ) );
 }
 
+/* !!!OBSOLETE!!! */
 /** Tries to match a pattern using a NFA state machine.
 
 //nfa// is the NFA state machine to be executed.
 //str// is a test string where the NFA should work on.
 //len// receives the length of the match, -1 on error or no match.
 
-//anchors// receives the anchor configuration of the matching state, if it
-provides anchors. If this is (int*)NULL, anchors will be ignored.
+//mflags// receives the match flags configuration of the matching state, if it
+provides flags. If this is (int*)NULL, any match state configurations will
+be ignored.
 
 //ref// receives a return array of references; If this pointer is not NULL, the
 function will allocate memory for a reference array. This array is only
@@ -372,10 +391,10 @@ in //ref//, so the array can be re-used in multiple calls.
 
 //flags// are the flags to modify the NFA state machine matching behavior.
 
-Returns PREGEX_ACCEPT_NONE, if no match was found, else the number of the match
-that was found relating to a pattern in //nfa//.
+Returns 0, if no match was found, else the number of the match that was found
+relating to a pattern in //nfa//.
 */
-int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
+int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 		pregex_range** ref, int* ref_count, int flags )
 {
 	plist*			res;
@@ -383,7 +402,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
 	pregex_nfa_st*	st;
 	char*			pstr		= str;
 	size_t			plen		= 0;
-	int				last_accept = PREGEX_ACCEPT_NONE;
+	int				last_accept = 0;
 	int				rc;
 	wchar_t			ch;
 	pregex_accept	accept;
@@ -397,7 +416,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
 		PARMS( "str", "%s", str );
 
 	PARMS( "len", "%p", len );
-	PARMS( "anchors", "%p", anchors );
+	PARMS( "mflags", "%p", mflags );
 	PARMS( "ref", "%p", ref );
 	PARMS( "ref_count", "%p", ref_count );
 	PARMS( "flags", "%d", flags );
@@ -409,14 +428,16 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
 	}
 
 	/* Initialize */
-	pregex_accept_init( &accept );
+	memset( &accept, 0, sizeof( pregex_accept ) );
 
+	/*
 	if( !pregex_ref_init( ref, ref_count, nfa->ref_count, flags ) )
 		RETURN( -1 );
+	*/
 
 	*len = 0;
-	if( anchors )
-		*anchors = PREGEX_ANCHOR_NONE;
+	if( mflags )
+		*mflags = PREGEX_FLAG_NONE;
 
 	res = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 	plist_push( res, plist_access( plist_first( nfa->states ) ) );
@@ -432,6 +453,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
 		}
 
 		MSG( "Handling References" );
+		/*
 		if( ref && nfa->ref_count )
 		{
 			plist_for( res, e )
@@ -449,9 +471,10 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
 				}
 			}
 		}
+		*/
 
 		VARS( "accept.accept", "%d", accept.accept );
-		if( accept.accept > PREGEX_ACCEPT_NONE )
+		if( accept.accept )
 		{
 			if( flags & PREGEX_MOD_DEBUG )
 			{
@@ -467,16 +490,16 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors,
 			last_accept = accept.accept;
 			*len = plen;
 
-			if( anchors )
-				*anchors = accept.anchors;
+			if( mflags )
+				*mflags = accept.flags;
 
 			VARS( "last_accept", "%d", last_accept );
 			VARS( "*len", "%d", *len );
 
 			if( !( flags & PREGEX_MOD_GREEDY ) )
 			{
-				VARS( "accept.greedy", "%s", BOOLEAN_STR( accept.greedy ) );
-				if(	!accept.greedy || ( flags & PREGEX_MOD_NONGREEDY ) )
+				if(	( accept.flags & PREGEX_FLAG_NONGREEDY )
+						|| ( flags & PREGEX_MOD_NONGREEDY ) )
 				{
 					if( flags & PREGEX_MOD_DEBUG )
 						fprintf( stderr, "greedy set, match terminates\n" );
@@ -576,9 +599,6 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 	for( append_to = (pregex_nfa_st*)plist_access( plist_first( nfa->states ) );
 		append_to && append_to->next2; append_to = append_to->next2 )
 			; /* Find last first node ;) ... */
-
-	/* References */
-	nfa->ref_cur = nfa->ref_count++;
 
 	/* Create first state - this is an epsilon node */
 	if( !( first_nfa_st = prev_nfa_st =

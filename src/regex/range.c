@@ -11,6 +11,9 @@ Usage:	Functions for handling pregex_range-structures.
 
 #include "phorward.h"
 
+/*NO_DOC*/
+/* No documentation for the entire module, all here is only interally used. */
+
 /** Extracts a string match described by a pregex_range-structure.
 
 This function is used to quickly extract a substring by duplicating the
@@ -53,3 +56,4 @@ char* pregex_range_to_string( pregex_range* range )
 	RETURN( str );
 }
 
+/*COD_ON*/

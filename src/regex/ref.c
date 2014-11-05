@@ -6,19 +6,13 @@ All rights reserved. See LICENSE for more information.
 
 File:	ref.c
 Author:	Jan Max Meyer
-Usage:	Utility functions for reference handling in both NFA and DFA state
-		machines
+Usage:	Internal reference handling in both NFA and DFA state machines.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
 
-/*
-	The functions in here are internally handled,
-	and should not be covered when the documentation
-	is generated.
-*/
-
 /*NO_DOC*/
+/* No documentation for the entire module, all here is only interally used. */
 
 /** Initializes a reference pointer array, according to the maximum count of
 reference pointers and flags.
@@ -32,7 +26,7 @@ allocated if the following dependencies are met:
 # //ref// points to a pregex_range*-pointer receiving the address
 #
 
-//ref_count// is retrieves the number of references. This value MUST be zero,
+//ref_count// retrieves the number of references. This value MUST be zero,
 if the function should allocate refs. A positive value indicates the number of
 elements in ref, so the array can be re-used in multiple calls.
 
@@ -102,18 +96,11 @@ pboolean pregex_ref_update( pregex_range* ref, char* strp, size_t off )
 	VARS( "ref->begin", "%p", ref->begin );
 
 	if( !ref->begin )
-	{
 		ref->begin = strp;
-		ref->pbegin = (wchar_t*)strp;
-		ref->pos = off;
-	}
 
 	ref->end = strp;
-	ref->pend = (wchar_t*)strp;
-	ref->len = off - ref->pos + 1;
 
 	RETURN( TRUE );
 }
 
 /*COD_ON*/
-

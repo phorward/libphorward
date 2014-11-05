@@ -6,38 +6,14 @@ All rights reserved. See LICENSE for more information.
 
 File:	misc.c
 Author:	Jan Max Meyer
-Usage:	Utility and miscelleanous functions for additional usage that
+Usage:	Internal utility and miscelleanous functions for additional usage that
 		belong to the regex library.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
 
 /*NO_DOC*/
-
-/** Initializes a structure of the type pregex_accept.
-The member accept will be set to PREGEX_ACCEPT_NONE, which is -1, and
-greedyness defaults to TRUE.
-
-//accept// is the accepting information pointer to be initialized.
-
-The function returns //accept//.
-*/
-pregex_accept* pregex_accept_init( pregex_accept* accept )
-{
-	if( !accept )
-	{
-		WRONGPARAM;
-		return (pregex_accept*)NULL;
-	}
-
-	memset( accept, 0, sizeof( pregex_accept ) );
-
-	accept->accept = PREGEX_ACCEPT_NONE;
-	accept->anchors = PREGEX_ANCHOR_NONE;
-	accept->greedy = TRUE;
-
-	return accept;
-}
+/* No documentation for the entire module, all here is only interally used. */
 
 /** Performs an anchor checking within a string. It is used by the internal
 matching functions for NFA and DFA state machines.
@@ -74,7 +50,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 	PARMS( "flags", "%d", flags );
 
 	/* Perform anchor checkings? */
-	if( flags & PREGEX_MOD_NO_ANCHORS || anchors == PREGEX_ANCHOR_NONE )
+	if( flags & PREGEX_MOD_NO_ANCHORS || anchors == PREGEX_FLAG_NONE )
 	{
 		MSG( "Anchor checking is disabled trough flags, or not required" );
 		RETURN( TRUE );
@@ -94,7 +70,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 		charsize = sizeof( wchar_t );
 
 	/* Begin of line anchor */
-	if( anchors & PREGEX_ANCHOR_BOL )
+	if( anchors & PREGEX_FLAG_BOL )
 	{
 		MSG( "Begin of line anchor is set" );
 		if( all < str )
@@ -117,7 +93,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 	}
 
 	/* End of Line anchor */
-	if( anchors & PREGEX_ANCHOR_EOL )
+	if( anchors & PREGEX_FLAG_EOL )
 	{
 		MSG( "End of line anchor is set" );
 		if( ( ch = *( str + ( len * charsize ) ) ) )
@@ -129,7 +105,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 	}
 
 	/* Begin of word anchor */
-	if( anchors & PREGEX_ANCHOR_BOW )
+	if( anchors & PREGEX_FLAG_BOW )
 	{
 		MSG( "Begin of word anchor is set" );
 		if( all < str )
@@ -152,7 +128,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 	}
 
 	/* End of word anchor */
-	if( anchors & PREGEX_ANCHOR_EOW )
+	if( anchors & PREGEX_FLAG_EOW )
 	{
 		MSG( "End of word anchor is set" );
 		if( ( ch = *( str + ( len * charsize ) ) ) )

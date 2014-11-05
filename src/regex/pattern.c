@@ -6,10 +6,14 @@ All rights reserved. See LICENSE for more information.
 
 File:	pattern.c
 Author:	Jan Max Meyer
-Usage:	Regular expression pattern construction and conversion functions
+Usage:	Internal regular expression pattern
+		construction and conversion functions
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
+
+/*NO_DOC*/
+/* No documentation for the entire module, all here is only interally used. */
 
 /* Local prototypes */
 static pboolean parse_char( pregex_ptn** ptn, char** pstr,
@@ -591,11 +595,12 @@ pboolean pregex_ptn_to_regex( char** regex, pregex_ptn* ptn )
 
 /* Internal function for pregex_ptn_to_nfa() */
 static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
-	pregex_nfa_st** start, pregex_nfa_st** end )
+	pregex_nfa_st** start, pregex_nfa_st** end, int* ref_count )
 {
 	pregex_nfa_st*	n_start	= (pregex_nfa_st*)NULL;
 	pregex_nfa_st*	n_end	= (pregex_nfa_st*)NULL;
-	int				ret;
+	int				ref;
+	int				i;
 
 	if( !( pattern && nfa && start && end ) )
 	{
@@ -623,15 +628,19 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				break;
 
 			case PREGEX_PTN_SUB:
-				nfa->ref_cur++;
-				nfa->ref_count++;
+				if( ( ref = ++(*ref_count) ) > PREGEX_MAXREF )
+					ref = 0;
 
-				if( !pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
-											&n_start, &n_end ) )
+				if( !pregex_ptn_to_NFA( nfa,
+						pattern->child[ 0 ], &n_start, &n_end, ref_count ) )
 					return FALSE;
 
-				/* Patch the last transition to previous reference */
-				n_end->ref = --nfa->ref_cur;
+				if( ref )
+				{
+					n_start->refs |= 1 << ref;
+					n_end->refs |= 1 << ref;
+				}
+
 				break;
 
 			case PREGEX_PTN_ALT:
@@ -644,15 +653,15 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_end = pregex_nfa_create_state( nfa,
 							(char*)NULL, PREGEX_MOD_NONE );
 
-				if( !pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
-													&a_start, &a_end ) )
+				if( !pregex_ptn_to_NFA( nfa,
+						pattern->child[ 0 ], &a_start, &a_end, ref_count ) )
 					return FALSE;
 
 				n_start->next = a_start;
 				a_end->next= n_end;
 
-				if( !pregex_ptn_to_NFA( nfa, pattern->child[ 1 ],
-													&a_start, &a_end ) )
+				if( !pregex_ptn_to_NFA( nfa,
+						pattern->child[ 1 ], &a_start, &a_end, ref_count ) )
 					return FALSE;
 
 				n_start->next2 = a_start;
@@ -672,8 +681,8 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_end = pregex_nfa_create_state( nfa,
 							(char*)NULL, PREGEX_MOD_NONE );
 
-				if( !pregex_ptn_to_NFA( nfa, pattern->child[ 0 ],
-													&m_start, &m_end ) )
+				if( !pregex_ptn_to_NFA( nfa,
+						pattern->child[ 0 ], &m_start, &m_end, ref_count ) )
 					return FALSE;
 
 				/* Standard chain linking */
@@ -732,11 +741,24 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 		}
 		else
 		{
-			memcpy( *end, n_start, sizeof( pregex_nfa_st ) );
-			memset( n_start, 0, sizeof( pregex_nfa_st ) );
+			/*
+				In sequences, when start has already been assigned,
+				end will always be the pointer to an epsilon node.
+				So the previous end can be replaced by the current
+				start, to minimize the usage of states.
 
-			plist_remove( nfa->states,
-				plist_get_by_ptr( nfa->states, n_start ) );
+				This only if the state does not contain any additional
+				informations (e.g. references).
+			*/
+			if( !( (*end)->refs ) )
+			{
+				memcpy( *end, n_start, sizeof( pregex_nfa_st ) );
+
+				plist_remove( nfa->states,
+					plist_get_by_ptr( nfa->states, n_start ) );
+			}
+			else
+				(*end)->next = n_start;
 
 			*end = n_end;
 		}
@@ -751,25 +773,27 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 
 //nfa// is the NFA state machine structure that receives the compiled result of
 the pattern. This machine will be extended to the pattern if it already contains
-states.
-//pattern// is the pattern structure that will be converted and extended into
+states. //nfa// must be initialized!
+
+//ptn// is the pattern structure that will be converted and extended into
 the NFA state machine.
 
 Returns TRUE on success.
 */
-pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
+pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
 {
 	int				ret;
 	pregex_nfa_st*	start;
 	pregex_nfa_st*	end;
 	pregex_nfa_st*	first;
 	pregex_nfa_st*	n_first;
+	int				ref_count	= 0;
 
 	PROC( "pregex_ptn_to_nfa" );
 	PARMS( "nfa", "%p", nfa );
-	PARMS( "pattern", "%p", pattern );
+	PARMS( "ptn", "%p", ptn );
 
-	if( !( nfa && pattern ) )
+	if( !( nfa && ptn ) )
 	{
 		WRONGPARAM;
 		RETURN( FALSE );
@@ -780,16 +804,13 @@ pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
 		n_first && n_first->next2; n_first = n_first->next2 )
 			;
 
-	/* Reference counter */
-	nfa->ref_cur = nfa->ref_count++;
-
 	/* Create first epsilon node */
 	if( !( first = pregex_nfa_create_state( nfa,
 			(char*)NULL, PREGEX_MOD_NONE ) ) )
 		RETURN( FALSE );
 
 	/* Turn pattern into NFA */
-	if( !pregex_ptn_to_NFA( nfa, pattern, &start, &end ) )
+	if( !pregex_ptn_to_NFA( nfa, ptn, &start, &end, &ref_count ) )
 		RETURN( FALSE );
 
 	/* start is next of first */
@@ -800,37 +821,122 @@ pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern )
 		n_first->next2 = first;
 
 	/* end becomes the accepting state */
-	if( pattern->accept )
+	if( ptn->accept )
 	{
 		MSG( "Accepting information available" );
 
-		VARS( "anchors", "%d",
-				pattern->accept ? pattern->accept->anchors : -999 );
-		VARS( "accept", "%d",
-				pattern->accept ? pattern->accept->accept : -999 );
-		VARS( "greedy", "%s",
-				BOOLEAN_STR( pattern->accept ?
-								pattern->accept->greedy : FALSE ) );
+		VARS( "flags", "%d", ptn->accept->flags );
+		VARS( "accept", "%d", ptn->accept->accept );
 
-		memcpy( &( end->accept ), pattern->accept, sizeof( pregex_accept ) );
+		memcpy( &( end->accept ), ptn->accept, sizeof( pregex_accept ) );
 	}
 
 	RETURN( TRUE );
+}
+
+/** Converts a pattern-structure into a DFA state machine.
+
+//dfa// is the DFA state machine structure that receives the compiled result of
+the pattern. //dfa// must be initialized!
+//ptn// is the pattern structure that will be converted and extended into
+the DFA state machine.
+
+Returns TRUE on success.
+*/
+pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
+{
+	pregex_nfa*	nfa;
+
+	PROC( "pregex_ptn_to_dfa" );
+	PARMS( "dfa", "%p", dfa );
+	PARMS( "ptn", "%p", ptn );
+
+	if( !( dfa && ptn ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	pregex_dfa_reset( dfa );
+
+	nfa = pregex_nfa_create();
+
+	if( !pregex_ptn_to_nfa( nfa, ptn ) )
+	{
+		pregex_nfa_free( nfa );
+		RETURN( FALSE );
+	}
+
+	if( pregex_dfa_from_nfa( dfa, nfa ) < 0 )
+	{
+		pregex_nfa_free( nfa );
+		RETURN( FALSE );
+	}
+
+	pregex_nfa_free( nfa );
+
+	if( pregex_dfa_minimize( dfa ) < 0 )
+	{
+		pregex_dfa_free( dfa );
+		RETURN( FALSE );
+	}
+
+	RETURN( TRUE );
+}
+
+/** Converts a pattern-structure into a DFA state machine dfatab.
+
+//dfatab// receives the allocated dfa content. Its made-up the same way
+as described in the documentation of the function pregex_dfa_to_dfatab().
+//ptn// is the pattern structure that will be converted into a DFA state
+machine.
+
+Returns the number of rows in //dfatab//, or a negative value in error case.
+*/
+int pregex_ptn_to_dfatab( wchar_t*** dfatab, pregex_ptn* ptn )
+{
+	pregex_dfa*	dfa;
+	int			states;
+
+	PROC( "pregex_ptn_to_dfatab" );
+	PARMS( "dfatab", "%p", dfatab );
+	PARMS( "ptn", "%p", ptn );
+
+	if( !( ptn ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	dfa = pregex_dfa_create();
+
+	if( !pregex_ptn_to_dfa( dfa, ptn ) )
+	{
+		pregex_dfa_free( dfa );
+		RETURN( FALSE );
+	}
+
+	if( ( states = pregex_dfa_to_dfatab( dfatab, dfa ) ) < 0 )
+	{
+		pregex_dfa_free( dfa );
+		RETURN( FALSE );
+	}
+
+	pregex_dfa_free( dfa );
+
+	VARS( "states", "%d", states );
+	RETURN( states );
 }
 
 /** Parse a regular expression pattern string into a pregex_ptn structure.
 
 //ptn// is the return pointer receiving the root node of the generated pattern.
 
-//accept// is the pointer to a pregex_accept structure that receives the members
-//greedy// and //anchors//. The //accept// member must be changed by the caller.
-This parameter is optional, and can be left-out as (pregex_accept*)NULL.
-
 //str// is the pointer to the string which contains the pattern to be parsed. If
 PREGEX_MOD_WCHAR is assigned in //flags//, this pointer must be set to a
-wchar_t-array holding wide-character strings.
+wchar_t-array holding a wide-character string.
 
-//flags// provides compile-time flags.
+//flags// provides compile-time modifier flags (PREGEX_MOD_...).
 
 Returns TRUE on success.
 */
@@ -852,7 +958,7 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	}
 
 	/* Set default values into accept structure, except accept member! */
-	pregex_accept_init( &accept );
+	memset( &accept, 0, sizeof( pregex_accept ) );
 
 	/* If PREGEX_MOD_STATIC is set, parsing is not required! */
 	if( flags & PREGEX_MOD_STATIC )
@@ -886,13 +992,13 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 
 		if( *ptr == '^' )
 		{
-			accept.anchors |= PREGEX_ANCHOR_BOL;
+			accept.flags |= PREGEX_FLAG_BOL;
 			ptr++;
 		}
 		else if( !strncmp( ptr, "\\<", 2 ) )
 			/* This is a GNU-like extension */
 		{
-			accept.anchors |= PREGEX_ANCHOR_BOW;
+			accept.flags |= PREGEX_FLAG_BOW;
 			ptr += 2;
 		}
 	}
@@ -911,10 +1017,10 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	{
 		MSG( "Anchors at end" );
 		if( !strcmp( ptr, "$" ) )
-			accept.anchors |= PREGEX_ANCHOR_EOL;
+			accept.flags |= PREGEX_FLAG_EOL;
 		else if( !strcmp( ptr, "\\>" ) )
 			/* This is a GNU-style extension */
-			accept.anchors |= PREGEX_ANCHOR_EOW;
+			accept.flags |= PREGEX_FLAG_EOW;
 	}
 
 	/* Free duplicated string */
@@ -965,7 +1071,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 				non-greedy by default
 			*/
 			if( accept )
-				accept->greedy = FALSE;
+				accept->flags |= PREGEX_FLAG_NONGREEDY;
 
 			ccl = p_ccl_create( -1, -1, (char*)NULL );
 
@@ -1125,3 +1231,5 @@ static pboolean parse_alter( pregex_ptn** ptn, char** pstr,
 
 	return TRUE;
 }
+
+/*COD_ON*/

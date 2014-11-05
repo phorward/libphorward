@@ -369,9 +369,8 @@ typedef struct
 
 
 
-#define PREGEX_ACCEPT_NONE		-1
-
 #define PREGEX_ALLOC_STEP		16
+#define PREGEX_MAXREF			32
 
 
 #define PREGEX_STAT_NONE		0
@@ -392,11 +391,14 @@ typedef struct
 #define PREGEX_MOD_DEBUG		1024 	
 
 
-#define PREGEX_ANCHOR_NONE		0	
-#define PREGEX_ANCHOR_BOL		1	
-#define PREGEX_ANCHOR_EOL		2	
-#define PREGEX_ANCHOR_BOW		4	
-#define PREGEX_ANCHOR_EOW		8	
+
+#define PREGEX_FLAG_NONE		0		
+#define PREGEX_FLAG_BOL			1		
+#define PREGEX_FLAG_EOL			2		
+#define PREGEX_FLAG_BOW			4		
+#define PREGEX_FLAG_EOW			8		
+#define PREGEX_FLAG_GREEDY		16		
+#define PREGEX_FLAG_NONGREEDY	32		
 
 
 enum _regex_ptntype
@@ -426,18 +428,17 @@ typedef struct	_regex_ptn		pregex_ptn;
 typedef struct	_regex			pregex;
 typedef	struct	_regex_range	pregex_range;
 
-typedef struct 	_regex_in		pregex_in;
-
 
 typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
 #define PREGEX_FN_NULL			( (pregex_fn)NULL )
 
 
+
+
 struct _regex_accept
 {
 	int				accept;		
-	pboolean		greedy;		
-	int				anchors;	
+	int				flags;		
 };
 
 
@@ -447,9 +448,8 @@ struct _regex_nfa_st
 	pregex_nfa_st*	next;		
 	pregex_nfa_st*	next2;		
 
-	int				ref;		
-
 	pregex_accept	accept;		
+	int				refs;		
 };
 
 
@@ -457,9 +457,6 @@ struct _regex_nfa
 {
 	plist*			states;		
 	int				modifiers;	
-
-	int				ref_count;	
-	int				ref_cur;	
 };
 
 
@@ -474,10 +471,9 @@ struct _regex_dfa_st
 {
 	plist*			trans;		
 	pregex_dfa_tr*	def_trans;	
-	int*			ref;		
-	int				ref_cnt;	
 
 	pregex_accept	accept;		
+	int				refs;		
 
 	pboolean		done;		
 	plist*			nfa_set;	
@@ -487,7 +483,6 @@ struct _regex_dfa_st
 struct _regex_dfa
 {
 	plist*			states;		
-	int				ref_count;	
 };
 
 
@@ -516,7 +511,22 @@ struct _regex_range
 };
 
 
+
+
 struct _regex
+{
+	int				flags;		
+	pregex_ptn*		ptn;		
+
+	int				trans_cnt;	
+	wchar_t**		trans;		
+
+	pregex_range	ref			[ PREGEX_MAXREF ];
+};
+
+
+
+struct _lex
 {
 	
 
@@ -843,16 +853,17 @@ pboolean pregex_dfa_reset( pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
 int pregex_dfa_minimize( pregex_dfa* dfa );
-int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* anchors, pregex_range** ref, int* ref_count, int flags );
-int pregex_dfa_to_matrix( wchar_t*** matrix, pregex_dfa* dfa );
+int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* mflags, pregex_range** ref, int* ref_count, int flags );
+int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa );
 
 
+#if 0
 int pregex_qmatch( char* regex, char* str, int flags, pregex_range** results );
 int pregex_qsplit( char* regex, char* str, int flags, pregex_range** results );
 char* pregex_qreplace( char* regex, char* str, char* replace, int flags );
+#endif
 
 
-pregex_accept* pregex_accept_init( pregex_accept* accept );
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );
 
 
@@ -863,7 +874,7 @@ pboolean pregex_nfa_reset( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa );
 int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to );
 int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, pregex_accept* accept );
-int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* anchors, pregex_range** ref, int* ref_count, int flags );
+int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, pregex_range** ref, int* ref_count, int flags );
 pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
 
@@ -878,28 +889,15 @@ pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... );
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn );
 void pregex_ptn_print( pregex_ptn* ptn, int rec );
 pboolean pregex_ptn_to_regex( char** regex, pregex_ptn* ptn );
-pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* pattern );
+pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn );
+pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn );
+int pregex_ptn_to_dfatab( wchar_t*** dfatab, pregex_ptn* ptn );
 pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags );
 
 
-pregex* pregex_create( void );
+pregex* pregex_create( char* pat, int flags );
 pregex* pregex_free( pregex* regex );
-pregex* pregex_reset( pregex* regex );
-pboolean pregex_compile( pregex* regex, char* pattern, int accept );
-pboolean pregex_finalize( pregex* regex );
-pregex_range* pregex_match_next( pregex* regex, char* str );
-int pregex_match( pregex* regex, char* str, pregex_range** results );
-pregex_range* pregex_split_next( pregex* regex, char* str );
-int pregex_split( pregex* regex, char* str, pregex_range** results );
-char* pregex_replace( pregex* regex, char* str, char* replacement );
-pregex_range* pregex_get_range( pregex* regex );
-pregex_range* pregex_get_split( pregex* regex );
-pregex_range* pregex_get_ref( pregex* regex, int offset );
-int pregex_get_match_count( pregex* regex );
-int pregex_get_flags( pregex* regex );
-pboolean pregex_set_flags( pregex* regex, int flags );
-pregex_fn pregex_get_match_fn( pregex* regex );
-pboolean pregex_set_match_fn( pregex* regex, pregex_fn match_fn );
+pboolean pregex_match( pregex* regex, char* start, char** end );
 
 
 char* pregex_range_to_string( pregex_range* range );

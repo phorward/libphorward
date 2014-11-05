@@ -12,6 +12,9 @@ Usage:	Direct regular expression access functions running an internal pregex
 
 #include "phorward.h"
 
+/* REWORK REQUIRED! */
+#if 0
+
 /** Performs a regular expression match on a string, and returns an array of
 matches via a pregex_range-structure, which holds pointers to the begin- and
 end-addresses of all matches.
@@ -158,3 +161,4 @@ char* pregex_qreplace( char* regex, char* str, char* replace, int flags )
 	RETURN( ret );
 }
 
+#endif
