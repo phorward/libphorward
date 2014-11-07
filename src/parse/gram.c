@@ -55,7 +55,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 			break;
 
 		case PPSYMTYPE_CCL:
-			sym->ccl = p_ccl_create( 0, 255, def );
+			sym->ccl = p_ccl_create( 0, 255, def ); /* TODO */
 
 			if( !sym->name )
 				sym->name = pstrdup( p_ccl_to_str( sym->ccl, TRUE ) );
@@ -71,17 +71,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 			break;
 
 		case PPSYMTYPE_REGEX:
-			if( !pregex_ptn_parse( &sym->ptn, def, PREGEX_MOD_NONE ) )
-			{
-				fprintf( stderr, "Parse error in regex >%s<\n", def );
-					break;
-			}
-
-			sym->ptn->accept->accept = 0;
-
-			if( !sym->name )
-				pregex_ptn_to_regex( &sym->name, sym->ptn );
-
+			sym->re = pregex_create( def, 0 );
 			break;
 
 		default:
@@ -1016,7 +1006,7 @@ ppgram* pp_gram_free( ppgram* g )
 
 		pfree( s->str );
 		p_ccl_free( s->ccl );
-		pregex_ptn_free( s->ptn );
+		pregex_free( s->re );
 
 		plist_free( s->prods );
 		plist_free( s->first );

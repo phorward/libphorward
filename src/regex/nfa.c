@@ -51,7 +51,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 		}
 
 		/* Is case-insensitive flag set? */
-		if( flags & PREGEX_MOD_INSENSITIVE )
+		if( flags & PREGEX_COMP_INSENSITIVE )
 		{
 			pccl*		iccl;
 			int			i;
@@ -60,7 +60,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 
 			iccl = p_ccl_dup( ptr->ccl );
 
-			MSG( "PREGEX_MOD_INSENSITIVE set" );
+			MSG( "PREGEX_COMP_INSENSITIVE set" );
 			for( i = 0; p_ccl_get( &ch, (wchar_t*)NULL, ptr->ccl, i ); i++ )
 			{
 				VARS( "ch", "%d", ch );
@@ -410,7 +410,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 	PROC( "pregex_nfa_match" );
 	PARMS( "nfa", "%p", nfa );
 
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_RUN_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
@@ -476,9 +476,9 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 		VARS( "accept.accept", "%d", accept.accept );
 		if( accept.accept )
 		{
-			if( flags & PREGEX_MOD_DEBUG )
+			if( flags & PREGEX_RUN_DEBUG )
 			{
-				if( flags & PREGEX_MOD_WCHAR )
+				if( flags & PREGEX_RUN_WCHAR )
 					fprintf( stderr, "accept %d, len %d >%.*ls<\n",
 						accept.accept, plen, plen, (wchar_t*)str );
 				else
@@ -496,12 +496,12 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 			VARS( "last_accept", "%d", last_accept );
 			VARS( "*len", "%d", *len );
 
-			if( !( flags & PREGEX_MOD_GREEDY ) )
+			if( !( flags & PREGEX_RUN_GREEDY ) )
 			{
 				if(	( accept.flags & PREGEX_FLAG_NONGREEDY )
-						|| ( flags & PREGEX_MOD_NONGREEDY ) )
+						|| ( flags & PREGEX_RUN_NONGREEDY ) )
 				{
-					if( flags & PREGEX_MOD_DEBUG )
+					if( flags & PREGEX_RUN_DEBUG )
 						fprintf( stderr, "greedy set, match terminates\n" );
 
 					MSG( "Greedy is set, will stop recognition with "
@@ -511,7 +511,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 			}
 		}
 
-		if( flags & PREGEX_MOD_WCHAR )
+		if( flags & PREGEX_RUN_WCHAR )
 		{
 			MSG( "using wchar_t" );
 			VARS( "pstr", "%ls", (wchar_t*)pstr );
@@ -519,7 +519,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 			ch = *((wchar_t*)pstr);
 			pstr += sizeof( wchar_t );
 
-			if( flags & PREGEX_MOD_DEBUG )
+			if( flags & PREGEX_RUN_DEBUG )
 				fprintf( stderr, "reading wchar_t >%lc< %d\n", ch, ch );
 		}
 		else
@@ -533,7 +533,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 			ch = *pstr++;
 #endif
 
-			if( flags & PREGEX_MOD_DEBUG )
+			if( flags & PREGEX_RUN_DEBUG )
 				fprintf( stderr, "reading char >%c< %d\n", ch, ch );
 		}
 
@@ -589,7 +589,7 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 	}
 
 	/* For wide-character execution, copy string content */
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_COMP_WCHAR )
 	{
 		if( !( str = pwcs_to_str( (wchar_t*)str, FALSE ) ) )
 			RETURN( FALSE );
@@ -623,7 +623,7 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 			RETURN( FALSE );
 
 		/* Is case-insensitive flag set? */
-		if( flags & PREGEX_MOD_INSENSITIVE )
+		if( flags & PREGEX_COMP_INSENSITIVE )
 		{
 #ifdef UTF8
 			MSG( "UTF-8 mode, trying to convert" );
@@ -664,7 +664,7 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 		append_to->next2 = first_nfa_st;
 
 	/* Free copied string, in wide character mode */
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_COMP_WCHAR )
 		pfree( str );
 
 	RETURN( TRUE );

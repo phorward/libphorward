@@ -31,8 +31,6 @@ libphorward_la_SOURCES = \
 	regex/nfa.c \
 	regex/pattern.c \
 	regex/regex.c \
-	regex/range.c \
-	regex/ref.c \
 	string/convert.c \
 	string/string.c \
 	string/utf8.c \

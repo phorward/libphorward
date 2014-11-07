@@ -36,7 +36,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 	int		charsize = sizeof( char );
 
 	PROC( "pregex_check_anchors" );
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_RUN_WCHAR )
 	{
 		PARMS( "all", "%ls", all );
 		PARMS( "str", "%ls", str );
@@ -50,7 +50,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 	PARMS( "flags", "%d", flags );
 
 	/* Perform anchor checkings? */
-	if( flags & PREGEX_MOD_NO_ANCHORS || anchors == PREGEX_FLAG_NONE )
+	if( flags & PREGEX_RUN_NOANCHORS )
 	{
 		MSG( "Anchor checking is disabled trough flags, or not required" );
 		RETURN( TRUE );
@@ -66,7 +66,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 	if( !all )
 		all = str;
 
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_RUN_WCHAR )
 		charsize = sizeof( wchar_t );
 
 	/* Begin of line anchor */
@@ -75,7 +75,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 		MSG( "Begin of line anchor is set" );
 		if( all < str )
 		{
-			if( flags & PREGEX_MOD_WCHAR )
+			if( flags & PREGEX_RUN_WCHAR )
 			{
 				VARS( "str-1", "%ls", (wchar_t*)( str - 1 ) );
 				ch = *( (wchar_t*)( str - 1 ) );
@@ -110,7 +110,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 		MSG( "Begin of word anchor is set" );
 		if( all < str )
 		{
-			if( flags & PREGEX_MOD_WCHAR )
+			if( flags & PREGEX_RUN_WCHAR )
 			{
 				VARS( "str-1", "%ls", (wchar_t*)( str - 1 ) );
 				ch = *( (wchar_t*)( str - 1 ) );

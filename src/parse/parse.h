@@ -62,8 +62,7 @@ struct _ppsym
 	/* Terminal specific */
 	pccl*					ccl;
 	char*					str;
-	pregex_ptn*				ptn;
-	pregex_nfa*				nfa;
+	pregex*					re;
 
 	/* AST construction */
 	int						emit_id;

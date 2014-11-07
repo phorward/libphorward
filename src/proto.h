@@ -147,13 +147,7 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags );
 pregex* pregex_create( char* pat, int flags );
 pregex* pregex_free( pregex* regex );
 pboolean pregex_match( pregex* regex, char* start, char** end );
-
-/* regex/range.c */
-char* pregex_range_to_string( pregex_range* range );
-
-/* regex/ref.c */
-pboolean pregex_ref_init( pregex_range** ref, int* ref_count, int ref_all, int flags );
-pboolean pregex_ref_update( pregex_range* ref, char* strp, size_t off );
+pboolean pregex_find( pregex* regex, char** start, char** end );
 
 /* string/convert.c */
 char* pwcs_to_str( wchar_t* str, pboolean freestr );

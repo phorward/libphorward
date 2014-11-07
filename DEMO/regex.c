@@ -97,6 +97,7 @@
 
 #include <phorward.h>
 
+#if 0
 /* =============================================================================
 	QUICK REGULAR EXPRESSION USAGE
 ============================================================================= */
@@ -336,9 +337,12 @@ void compiled_regex_demo( void )
 
 	pregex_free( rx );
 }
+#endif
 
 int main( int argc, char** argv )
 {
+	printf( "Sorry, this test program needs a revision\n" );
+/*
 	pregex* 		rx;
 	pregex_range* 	range;
 
@@ -346,6 +350,7 @@ int main( int argc, char** argv )
 
 	direct_regex_demo();
 	compiled_regex_demo();
+*/
 
 /*
 	rx = pregex_create();

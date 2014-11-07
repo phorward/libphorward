@@ -88,7 +88,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 	}
 
 	/* Convert string to UTF-8, if in wide-character mode */
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_COMP_WCHAR )
 	{
 		if( !( str = pwcs_to_str( (wchar_t*)str, FALSE ) ) )
 			RETURN( (pregex_ptn*)NULL );
@@ -111,7 +111,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 		}
 
 		/* Is case-insensitive flag set? */
-		if( flags & PREGEX_MOD_INSENSITIVE )
+		if( flags & PREGEX_COMP_INSENSITIVE )
 		{
 #ifdef UTF8
 			MSG( "UTF-8 mode, trying to convert" );
@@ -150,7 +150,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 	}
 
 	/* Free duplicated string */
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_COMP_WCHAR )
 		pfree( str );
 
 	RETURN( seq );
@@ -618,10 +618,8 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				return TRUE;
 
 			case PREGEX_PTN_CHAR:
-				n_start = pregex_nfa_create_state( nfa,
-							(char*)NULL, PREGEX_MOD_NONE );
-				n_end = pregex_nfa_create_state( nfa,
-							(char*)NULL, PREGEX_MOD_NONE );
+				n_start = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
+				n_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
 
 				n_start->ccl = p_ccl_dup( pattern->ccl );
 				n_start->next = n_end;
@@ -648,10 +646,8 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				pregex_nfa_st*	a_start;
 				pregex_nfa_st*	a_end;
 
-				n_start = pregex_nfa_create_state( nfa,
-							(char*)NULL, PREGEX_MOD_NONE );
-				n_end = pregex_nfa_create_state( nfa,
-							(char*)NULL, PREGEX_MOD_NONE );
+				n_start = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
+				n_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
 
 				if( !pregex_ptn_to_NFA( nfa,
 						pattern->child[ 0 ], &a_start, &a_end, ref_count ) )
@@ -676,10 +672,8 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				pregex_nfa_st*	m_start;
 				pregex_nfa_st*	m_end;
 
-				n_start = pregex_nfa_create_state( nfa,
-							(char*)NULL, PREGEX_MOD_NONE );
-				n_end = pregex_nfa_create_state( nfa,
-							(char*)NULL, PREGEX_MOD_NONE );
+				n_start = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
+				n_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
 
 				if( !pregex_ptn_to_NFA( nfa,
 						pattern->child[ 0 ], &m_start, &m_end, ref_count ) )
@@ -805,8 +799,7 @@ pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
 			;
 
 	/* Create first epsilon node */
-	if( !( first = pregex_nfa_create_state( nfa,
-			(char*)NULL, PREGEX_MOD_NONE ) ) )
+	if( !( first = pregex_nfa_create_state( nfa, (char*)NULL, 0 ) ) )
 		RETURN( FALSE );
 
 	/* Turn pattern into NFA */
@@ -933,10 +926,10 @@ int pregex_ptn_to_dfatab( wchar_t*** dfatab, pregex_ptn* ptn )
 //ptn// is the return pointer receiving the root node of the generated pattern.
 
 //str// is the pointer to the string which contains the pattern to be parsed. If
-PREGEX_MOD_WCHAR is assigned in //flags//, this pointer must be set to a
+PREGEX_COMP_WCHAR is assigned in //flags//, this pointer must be set to a
 wchar_t-array holding a wide-character string.
 
-//flags// provides compile-time modifier flags (PREGEX_MOD_...).
+//flags// provides compile-time modifier flags (PREGEX_COMP_...).
 
 Returns TRUE on success.
 */
@@ -960,8 +953,8 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	/* Set default values into accept structure, except accept member! */
 	memset( &accept, 0, sizeof( pregex_accept ) );
 
-	/* If PREGEX_MOD_STATIC is set, parsing is not required! */
-	if( flags & PREGEX_MOD_STATIC )
+	/* If PREGEX_COMP_STATIC is set, parsing is not required! */
+	if( flags & PREGEX_COMP_STATIC )
 	{
 		if( !( *ptn = pregex_ptn_create_string( str, flags ) ) )
 			RETURN( FALSE );
@@ -972,7 +965,7 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 
 	/* Copy input string - this is required,
 		because of memory modification during the parse */
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_COMP_WCHAR )
 	{
 		if( !( ptr = str = pwcs_to_str( (wchar_t*)str, FALSE ) ) )
 			RETURN( FALSE );
@@ -986,7 +979,7 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	VARS( "ptr", "%s", ptr );
 
 	/* Parse anchor at begin of regular expression */
-	if( !( flags & PREGEX_MOD_NO_ANCHORS ) )
+	if( !( flags & PREGEX_COMP_NOANCHORS ) )
 	{
 		MSG( "Anchors at begin" );
 
@@ -1013,7 +1006,7 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	VARS( "ptr", "%s", ptr );
 
 	/* Parse anchor at end of regular expression */
-	if( !( flags & PREGEX_MOD_NO_ANCHORS ) )
+	if( !( flags & PREGEX_COMP_NOANCHORS ) )
 	{
 		MSG( "Anchors at end" );
 		if( !strcmp( ptr, "$" ) )
@@ -1058,7 +1051,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			if( !( *ptn = pregex_ptn_create_sub( alter ) ) )
 				return FALSE;
 
-			if( **pstr != ')' && !( flags & PREGEX_MOD_NO_ERRORS ) )
+			if( **pstr != ')' && !( flags & PREGEX_COMP_NOERRORS ) )
 				/* Report error? */
 				return FALSE;
 
@@ -1195,7 +1188,7 @@ static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
 
 	while( !( **pstr == '|' || **pstr == ')' || **pstr == '\0' ) )
 	{
-		if( !( flags & PREGEX_MOD_NO_ANCHORS ) )
+		if( !( flags & PREGEX_COMP_NOANCHORS ) )
 		{
 			if( !strcmp( *pstr, "$" ) || !strcmp( *pstr, "\\>" ) )
 				break;

@@ -373,32 +373,30 @@ typedef struct
 #define PREGEX_MAXREF			32
 
 
-#define PREGEX_STAT_NONE		0
-#define PREGEX_STAT_NFA			1
-#define PREGEX_STAT_DFA			2
 
 
-#define PREGEX_MOD_NONE			0		
-#define PREGEX_MOD_WCHAR		1		
-#define PREGEX_MOD_INSENSITIVE	2		
-#define PREGEX_MOD_GLOBAL		4		
-#define PREGEX_MOD_STATIC		8		
-#define PREGEX_MOD_NO_REF		16		
-#define PREGEX_MOD_NO_ERRORS	32		
-#define PREGEX_MOD_NO_ANCHORS	64		
-#define PREGEX_MOD_GREEDY		128		
-#define PREGEX_MOD_NONGREEDY	256		
-#define PREGEX_MOD_DEBUG		1024 	
+#define PREGEX_COMP_WCHAR		0x01	
+#define PREGEX_COMP_NOERRORS	0x02	
+#define PREGEX_COMP_NOANCHORS	0x04	
+#define PREGEX_COMP_INSENSITIVE	0x08	
+#define PREGEX_COMP_STATIC		0x10	
 
 
+#define PREGEX_RUN_WCHAR		0x100	
+#define PREGEX_RUN_NOANCHORS	0x200	
+#define PREGEX_RUN_NOREF		0x400	
+#define PREGEX_RUN_GREEDY		0x800		
+#define PREGEX_RUN_NONGREEDY	0x1000	
+#define PREGEX_RUN_DEBUG		0x2000 	
 
-#define PREGEX_FLAG_NONE		0		
-#define PREGEX_FLAG_BOL			1		
-#define PREGEX_FLAG_EOL			2		
-#define PREGEX_FLAG_BOW			4		
-#define PREGEX_FLAG_EOW			8		
-#define PREGEX_FLAG_GREEDY		16		
-#define PREGEX_FLAG_NONGREEDY	32		
+
+#define PREGEX_FLAG_NONE		0x00	
+#define PREGEX_FLAG_BOL			0x01	
+#define PREGEX_FLAG_EOL			0x02	
+#define PREGEX_FLAG_BOW			0x04	
+#define PREGEX_FLAG_EOW			0x08	
+#define PREGEX_FLAG_GREEDY		0x10	
+#define PREGEX_FLAG_NONGREEDY	0x20	
 
 
 enum _regex_ptntype
@@ -501,13 +499,7 @@ struct _regex_ptn
 struct _regex_range
 {
 	char*			begin;		
-	wchar_t*		pbegin;		
 	char*			end;		
-	wchar_t*		pend;		
-	size_t			pos;		
-	size_t			len;		
-	int				accept;		
-	void*			user;		
 };
 
 
@@ -528,40 +520,12 @@ struct _regex
 
 struct _lex
 {
-	
+	plist*			ptns;		
 
-	short			stat;		
-	int				flags;		
+	int				trans_cnt;	
+	wchar_t**		trans;		
 
-	plist*			patterns;	
-
-	union
-	{
-		pregex_nfa*	nfa;		
-		pregex_dfa*	dfa;		
-	} machine;
-
-	
-
-	int				age;		
-
-	pregex_fn		match_fn;	
-
-	
-	pboolean		completed;	
-	int				match_count;
-	int				last_age;	
-
-	char*			last_str;	
-	char*			last_pos;	
-
-	pregex_range	range;		
-	pregex_range	split;		
-
-	pregex_range*	refs;		
-	int				refs_cnt;	
-
-	char*			tmp_str;	
+	pregex_range	ref			[ PREGEX_MAXREF ];
 };
 
 
@@ -701,8 +665,7 @@ struct _ppsym
 	
 	pccl*					ccl;
 	char*					str;
-	pregex_ptn*				ptn;
-	pregex_nfa*				nfa;
+	pregex*					re;
 
 	
 	int						emit_id;
@@ -898,13 +861,7 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags );
 pregex* pregex_create( char* pat, int flags );
 pregex* pregex_free( pregex* regex );
 pboolean pregex_match( pregex* regex, char* start, char** end );
-
-
-char* pregex_range_to_string( pregex_range* range );
-
-
-pboolean pregex_ref_init( pregex_range** ref, int* ref_count, int ref_all, int flags );
-pboolean pregex_ref_update( pregex_range* ref, char* strp, size_t off );
+pboolean pregex_find( pregex* regex, char** start, char** end );
 
 
 char* pwcs_to_str( wchar_t* str, pboolean freestr );

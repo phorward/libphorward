@@ -45,22 +45,8 @@ pboolean pp_sym_in_input( ppsym* sym, char* start, char** end )
 			break;
 
 		case PPSYMTYPE_REGEX:
-			if( !sym->nfa )
-			{
-				if( !sym->ptn )
-					return FALSE;
-
-				sym->nfa = pregex_nfa_create();
-				pregex_ptn_to_nfa( sym->nfa, sym->ptn );
-			}
-
-			if( !pregex_nfa_match( sym->nfa, start, &len,
-					(int*)NULL, (pregex_range**)NULL, (int*)NULL,
-						PREGEX_MOD_NONE ) )
-			{
-				*end = start + len;
+			if( pregex_match( sym->re, start, end ) )
 				return TRUE;
-			}
 
 			break;
 

@@ -840,7 +840,7 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	PROC( "pregex_dfa_match" );
 	PARMS( "dfa", "%p", dfa );
 
-	if( flags & PREGEX_MOD_WCHAR )
+	if( flags & PREGEX_RUN_WCHAR )
 		PARMS( "str", "%ls", str );
 	else
 		PARMS( "str", "%s", str );
@@ -880,10 +880,10 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 			last_accept = dfa_st;
 			*len = plen;
 
-			if( !( flags & PREGEX_MOD_GREEDY ) )
+			if( !( flags & PREGEX_RUN_GREEDY ) )
 			{
 				if(	( last_accept->accept.flags & PREGEX_FLAG_NONGREEDY )
-						|| ( flags & PREGEX_MOD_NONGREEDY ) )
+						|| ( flags & PREGEX_RUN_NONGREEDY ) )
 				{
 					MSG( "This match is not greedy, "
 							"so matching will stop now" );
@@ -913,13 +913,13 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		*/
 
 		/* Get next character */
-		if( flags & PREGEX_MOD_WCHAR )
+		if( flags & PREGEX_RUN_WCHAR )
 		{
 			VARS( "pstr", "%ls", (wchar_t*)pstr );
 			ch = *((wchar_t*)pstr);
 			pstr += sizeof( wchar_t );
 
-			if( flags & PREGEX_MOD_DEBUG )
+			if( flags & PREGEX_RUN_DEBUG )
 				fprintf( stderr, "reading wchar_t >%lc< %d\n", ch, ch );
 		}
 		else
@@ -932,7 +932,7 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 			ch = *pstr++;
 #endif
 
-			if( flags & PREGEX_MOD_DEBUG )
+			if( flags & PREGEX_RUN_DEBUG )
 				fprintf( stderr, "reading char >%c< %d\n", ch, ch );
 		}
 

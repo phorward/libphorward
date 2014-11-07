@@ -13,48 +13,41 @@ Usage:	Header for the pregex object and functions.
 #define PREGEX_ALLOC_STEP		16
 #define PREGEX_MAXREF			32
 
-/* Regular expression compile states */
-#define PREGEX_STAT_NONE		0
-#define PREGEX_STAT_NFA			1
-#define PREGEX_STAT_DFA			2
+/* Regex flags */
 
-/* Regex Modifiers */
-#define PREGEX_MOD_NONE			0		/* 	No modification (for the sake
-											of completeness) */
-#define PREGEX_MOD_WCHAR		1		/* 	Regular expression and/or
-											search string for direct
-											pattern executions are
-											of type wchar_t (wide character,
-											if UNICODE is flagged!) */
-#define PREGEX_MOD_INSENSITIVE	2		/* 	Regular expression is case
+/* ---> Part I: Compile-time Flags */
+#define PREGEX_COMP_WCHAR		0x01	/* 	Regular expression is provided
+											in wchar_t. */
+#define PREGEX_COMP_NOERRORS	0x02	/*	Don't report errors, and try to
+											compile as much as possible */
+#define PREGEX_COMP_NOANCHORS	0x04	/* 	Ignore anchor tokens, handle them
+											as normal characters */
+#define PREGEX_COMP_INSENSITIVE	0x08	/* 	Regular expression is case
 											insensitive */
-#define PREGEX_MOD_GLOBAL		4		/* 	Regular expression is run
-											globally, not only for the first
-											match */
-#define PREGEX_MOD_STATIC		8		/*	The regular expression passed
+#define PREGEX_COMP_STATIC		0x10	/*	The regular expression passed
 											to the compiler should be converted
 											1:1 as it where a string-constant.
 											Any regex-specific symbols will
 											be ignored. */
-#define PREGEX_MOD_NO_REF		16		/*	Don't create references */
-#define PREGEX_MOD_NO_ERRORS	32		/*	Don't report errors, and try to
-											compile as much as possible */
-#define PREGEX_MOD_NO_ANCHORS	64		/* 	Ignore anchor tokens, handle them
-											as normal characters */
-#define PREGEX_MOD_GREEDY		128		/*	Run regular expression greedy */
-#define PREGEX_MOD_NONGREEDY	256		/*	Run regular expression nongreedy */
-#define PREGEX_MOD_DEBUG		1024 	/*	Debug mode; output some debug to
+
+/* ---> Part II: Runtime flags */
+#define PREGEX_RUN_WCHAR		0x100	/*	Run regular expression with
+											wchar_t as input */
+#define PREGEX_RUN_NOANCHORS	0x200	/* 	Ignore anchors while processing */
+#define PREGEX_RUN_NOREF		0x400	/*	Don't create references */
+#define PREGEX_RUN_GREEDY		0x800		/*	Run regular expression greedy */
+#define PREGEX_RUN_NONGREEDY	0x1000	/*	Run regular expression nongreedy */
+#define PREGEX_RUN_DEBUG		0x2000 	/*	Debug mode; output some debug to
 											stderr */
 
 /* Matching flags */
-
-#define PREGEX_FLAG_NONE		0		/* No flags defined */
-#define PREGEX_FLAG_BOL			1		/* Match at begin of line only */
-#define PREGEX_FLAG_EOL			2		/* Match at end of line only */
-#define PREGEX_FLAG_BOW			4		/* Match at begin of word only */
-#define PREGEX_FLAG_EOW			8		/* Match at end of word only */
-#define PREGEX_FLAG_GREEDY		16		/* Greedy match, overwrite mode. */
-#define PREGEX_FLAG_NONGREEDY	32		/* Nongreedy match, overwrite mode. */
+#define PREGEX_FLAG_NONE		0x00	/* No flags defined */
+#define PREGEX_FLAG_BOL			0x01	/* Match at begin of line only */
+#define PREGEX_FLAG_EOL			0x02	/* Match at end of line only */
+#define PREGEX_FLAG_BOW			0x04	/* Match at begin of word only */
+#define PREGEX_FLAG_EOW			0x08	/* Match at end of word only */
+#define PREGEX_FLAG_GREEDY		0x10	/* Greedy match, overwrite mode. */
+#define PREGEX_FLAG_NONGREEDY	0x20	/* Nongreedy match, overwrite mode. */
 
 /* Regular Expression pattern types */
 enum _regex_ptntype
@@ -165,18 +158,7 @@ struct _regex_ptn
 struct _regex_range
 {
 	char*			begin;		/* Begin pointer */
-	wchar_t*		pbegin;		/* Wide-character begin pointer */
 	char*			end;		/* End pointer */
-	wchar_t*		pend;		/* Wide-character end pointer */
-	size_t			pos;		/* Position from string begin in bytes */
-	size_t			len;		/* Length of result in bytes */
-	int				accept;		/* The ID of the accepting state;
-									This is only filled in a pattern match */
-	void*			user;		/* User data pointer; This can be set from
-									within callback-functions and is copied
-									into elements of result-descriptors;
-									It is also used in replace-function-call-
-									backs to point to a replacement string! */
 };
 
 /*
@@ -187,7 +169,7 @@ struct _regex_range
 struct _regex
 {
 	int				flags;		/* Flags */
-	pregex_ptn*		ptn;		/* Regex pattern */
+	pregex_ptn*		ptn;		/* Pattern */
 
 	int				trans_cnt;	/* Counts of DFA states */
 	wchar_t**		trans;		/* DFA transitions */
@@ -195,56 +177,14 @@ struct _regex
 	pregex_range	ref			[ PREGEX_MAXREF ];
 };
 
-
 /* The pregex object structure */
 struct _lex
 {
-	/* Definition elements */
+	plist*			ptns;		/* Patterns */
 
-	short			stat;		/* Current regex status */
-	int				flags;		/* Compile- and runtime flags */
+	int				trans_cnt;	/* Counts of DFA states */
+	wchar_t**		trans;		/* DFA transitions */
 
-	plist*			patterns;	/* List of pattern definitions
-									holding the patterns */
-
-	union
-	{
-		pregex_nfa*	nfa;		/* NFA state machine */
-		pregex_dfa*	dfa;		/* DFA state machine */
-	} machine;
-
-	/* Runtime elements */
-
-	int				age;		/* The objects age; This value is incremented
-									each time a change to the object that
-									affects its runtime validity. */
-
-	pregex_fn		match_fn;	/* A match function to be invoked
-									at every match */
-
-	/* Ephemerial elements */
-	pboolean		completed;	/* Flag, if the regex request was completed. */
-	int				match_count;/* Number of total matches since last
-									match function restart */
-	int				last_age;	/* Age of the pregex object at the last
-									match function restart */
-
-	char*			last_str;	/* Begin pointer of last string that was
-									analyzed */
-	char*			last_pos;	/* Holds last string position within
-									multiple matches */
-
-	pregex_range	range;		/* Holds the last pattern match range */
-	pregex_range	split;		/* Holds the last pattern split range,
-									if the split function has been invoked */
-
-	pregex_range*	refs;		/* Holds all references within the last
-									pattern match range */
-	int				refs_cnt;	/* The number of references; This remains
-									constant, unless other expressions are
-									added to the pregex-object */
-
-	char*			tmp_str;	/* Temporary string pointer that is bound
-									to the object */
+	pregex_range	ref			[ PREGEX_MAXREF ];
 };
 
