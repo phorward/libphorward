@@ -74,12 +74,10 @@ typedef struct	_regex_dfa		pregex_dfa;
 typedef enum 	_regex_ptntype	pregex_ptntype;
 typedef struct	_regex_ptn		pregex_ptn;
 
-typedef struct	_regex			pregex;
 typedef	struct	_regex_range	pregex_range;
 
-/* Callback function */
-typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
-#define PREGEX_FN_NULL			( (pregex_fn)NULL )
+typedef struct	_regex			pregex;
+typedef struct	_lex			plex;
 
 /*
  * Internal Structures
@@ -157,6 +155,7 @@ struct _regex_ptn
 
 struct _regex_range
 {
+	int				id;			/* Match ID */
 	char*			begin;		/* Begin pointer */
 	char*			end;		/* End pointer */
 };
@@ -178,8 +177,10 @@ struct _regex
 };
 
 /* The pregex object structure */
+
 struct _lex
 {
+	int				flags;		/* Flags */
 	plist*			ptns;		/* Patterns */
 
 	int				trans_cnt;	/* Counts of DFA states */

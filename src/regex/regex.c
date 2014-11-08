@@ -15,7 +15,7 @@ Usage:	Interface for pregex-objects serving regular expressions.
 
 //pat// is a string providing a regular expression pattern.
 
-//flags// can be a combination of runtiem
+//flags// can be a combination of compile- and runtime-flags.
 
 */
 pregex* pregex_create( char* pat, int flags )
@@ -292,6 +292,7 @@ int pregex_findall( pregex* regex, char* start, parray** matches )
 				*matches = parray_create( sizeof( pregex_range ), 0 );
 
 			r = (pregex_range*)parray_malloc( *matches );
+			r->id = 1;
 			r->begin = start;
 			r->end = end;
 		}

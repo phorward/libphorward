@@ -27,6 +27,7 @@ libphorward_la_SOURCES = \
 	parse/scan.c \
 	regex/dfa.c \
 	regex/direct.c \
+	regex/lex.c \
 	regex/misc.c \
 	regex/nfa.c \
 	regex/pattern.c \

@@ -112,6 +112,16 @@ int pregex_qsplit( char* regex, char* str, int flags, parray** matches );
 char* pregex_qreplace( char* regex, char* str, char* replace, int flags );
 #endif
 
+/* regex/lex.c */
+plex* plex_create( int flags );
+plex* plex_free( plex* lex );
+pboolean plex_reset( plex* lex );
+pboolean plex_prepare( plex* lex );
+pboolean plex_add( plex* lex, char* pat, int match_id, int flags );
+int plex_match( plex* lex, char* start, char** end );
+char* plex_find( plex* lex, char* start, int* id, char** end );
+int plex_findall( plex* lex, char* start, parray** matches );
+
 /* regex/misc.c */
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );
 

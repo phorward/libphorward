@@ -423,12 +423,10 @@ typedef struct	_regex_dfa		pregex_dfa;
 typedef enum 	_regex_ptntype	pregex_ptntype;
 typedef struct	_regex_ptn		pregex_ptn;
 
-typedef struct	_regex			pregex;
 typedef	struct	_regex_range	pregex_range;
 
-
-typedef	int 					(*pregex_fn)( pregex*, pregex_range* );
-#define PREGEX_FN_NULL			( (pregex_fn)NULL )
+typedef struct	_regex			pregex;
+typedef struct	_lex			plex;
 
 
 
@@ -498,6 +496,7 @@ struct _regex_ptn
 
 struct _regex_range
 {
+	int				id;			
 	char*			begin;		
 	char*			end;		
 };
@@ -517,8 +516,10 @@ struct _regex
 };
 
 
+
 struct _lex
 {
+	int				flags;		
 	plist*			ptns;		
 
 	int				trans_cnt;	
@@ -824,6 +825,16 @@ int pregex_qsplit( char* regex, char* str, int flags, parray** matches );
 #if 0
 char* pregex_qreplace( char* regex, char* str, char* replace, int flags );
 #endif
+
+
+plex* plex_create( int flags );
+plex* plex_free( plex* lex );
+pboolean plex_reset( plex* lex );
+pboolean plex_prepare( plex* lex );
+pboolean plex_add( plex* lex, char* pat, int match_id, int flags );
+int plex_match( plex* lex, char* start, char** end );
+char* plex_find( plex* lex, char* start, int* id, char** end );
+int plex_findall( plex* lex, char* start, parray** matches );
 
 
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );

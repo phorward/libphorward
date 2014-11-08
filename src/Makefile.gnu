@@ -17,6 +17,7 @@ SRC = \
 	ccl/ccl.c \
 	regex/dfa.c \
 	regex/direct.c \
+	regex/lex.c \
 	regex/misc.c \
 	regex/nfa.c \
 	regex/pattern.c \
