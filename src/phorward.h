@@ -517,7 +517,6 @@ struct _regex
 };
 
 
-
 struct _lex
 {
 	plist*			ptns;		
@@ -820,9 +819,9 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* mflags, preg
 int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa );
 
 
+int pregex_qmatch( char* regex, char* str, int flags, parray** matches );
+int pregex_qsplit( char* regex, char* str, int flags, parray** matches );
 #if 0
-int pregex_qmatch( char* regex, char* str, int flags, pregex_range** results );
-int pregex_qsplit( char* regex, char* str, int flags, pregex_range** results );
 char* pregex_qreplace( char* regex, char* str, char* replace, int flags );
 #endif
 
@@ -861,7 +860,10 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags );
 pregex* pregex_create( char* pat, int flags );
 pregex* pregex_free( pregex* regex );
 pboolean pregex_match( pregex* regex, char* start, char** end );
-pboolean pregex_find( pregex* regex, char** start, char** end );
+char* pregex_find( pregex* regex, char* start, char** end );
+int pregex_findall( pregex* regex, char* start, parray** matches );
+char* pregex_split( pregex* regex, char* start, char** end, char** next );
+int pregex_splitall( pregex* regex, char* start, parray** matches );
 
 
 char* pwcs_to_str( wchar_t* str, pboolean freestr );

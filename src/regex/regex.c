@@ -189,15 +189,23 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 	RETURN( FALSE );
 }
 
-/** Tries to find and match the regular expression //regex// from begin of
-pointer //start//.
+/** Find a match for the regular expression //regex// from begin of pointer
+//start//.
 
-If the expression can be matched, the function returns TRUE and //start// and
-//end// receive the pointers to the matched string. */
-pboolean pregex_find( pregex* regex, char** start, char** end )
+//start// has to be a zero-terminated string or wide-character string (according
+to the configuration of the pregex-object).
+
+If the expression can be matched, the function returns the pointer to the
+position where the match begins. //end// receives the end pointer of the match,
+when provided.
+
+The function returns (char*)NULL in case that there is no match.
+*/
+char* pregex_find( pregex* regex, char* start, char** end )
 {
 	wchar_t		ch;
-	char*		ptr;
+	char*		ptr 	= start;
+	char*		lptr;
 	int			i;
 
 	PROC( "pregex_find" );
@@ -205,16 +213,16 @@ pboolean pregex_find( pregex* regex, char** start, char** end )
 	PARMS( "start", "%s", start );
 	PARMS( "end", "%p", end );
 
-	if( !( regex && start && *start ) )
+	if( !( regex && start ) )
 	{
 		WRONGPARAM;
-		RETURN( FALSE );
+		RETURN( (char*)NULL );
 	}
-
-	ptr = *start;
 
 	do
 	{
+		lptr = ptr;
+
 		/* Get next character */
 		if( regex->flags & PREGEX_RUN_WCHAR )
 		{
@@ -231,22 +239,186 @@ pboolean pregex_find( pregex* regex, char** start, char** end )
 #endif
 		}
 
+		if( !ch )
+			break;
+
 		/* Find a transition according to current character */
 		for( i = 5; i < regex->trans[ 0 ][ 0 ]; i += 3 )
-		{
 			if( regex->trans[ 0 ][ i ] <= ch
-				&& regex->trans[ 0 ][ i + 1 ] >= ch )
-			{
-				if( pregex_match( regex, ptr, end ) )
-				{
-					*start = ptr;
-					RETURN( TRUE );
-				}
-			}
-		}
+				&& regex->trans[ 0 ][ i + 1 ] >= ch
+					&& pregex_match( regex, lptr, end ) )
+						RETURN( lptr );
 	}
 	while( ch );
 
-	RETURN( FALSE );
+	RETURN( (char*)NULL );
 }
 
+/** Find all matches for the regular expression //regex// from begin of pointer
+//start//, and optionally return matches as an array.
+
+//start// has to be a zero-terminated string or wide-character string (according
+to the configuration of the pregex-object).
+
+The function fills the array //matches//, if provided, with items of size
+pregex_range. It returns the total number of matches.
+*/
+int pregex_findall( pregex* regex, char* start, parray** matches )
+{
+	char*			end;
+	int				count	= 0;
+	pregex_range*	r;
+
+	PROC( "pregex_findall" );
+	PARMS( "regex", "%p", regex );
+	PARMS( "start", "%s", start );
+	PARMS( "matches", "%p", matches );
+
+	if( !( regex && start ) )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+
+	if( matches )
+		*matches = (parray*)NULL;
+
+	while( ( start = pregex_find( regex, start, &end ) ) )
+	{
+		printf( "FIND: >%.*s<\n", end - start, start );
+		if( matches )
+		{
+			if( ! *matches )
+				*matches = parray_create( sizeof( pregex_range ), 0 );
+
+			r = (pregex_range*)parray_malloc( *matches );
+			r->begin = start;
+			r->end = end;
+		}
+
+		start = end;
+		count++;
+	}
+
+	RETURN( count );
+}
+
+/** Returns the range between string //start// and the next match of //regex//.
+
+This function can be seen as a "negative match", so the substrings that are
+not part of the match will be returned.
+
+//start// has to be a zero-terminated string or wide-character string (according
+to the configuration of the pregex-object).
+//end// receives the last position of the string before the regex.
+//next// receives the pointer of the next split element behind the matched
+substring, so //next// should become the next //start// when pregex_split() is
+called in a loop.
+
+The function returns (char*)NULL in case that there is no more string to split,
+else it returns //start//.
+*/
+char* pregex_split( pregex* regex, char* start, char** end, char** next )
+{
+	wchar_t		ch;
+	char*		ptr 	= start;
+	char*		lptr;
+	int			i;
+
+	PROC( "pregex_split" );
+	PARMS( "regex", "%p", regex );
+	PARMS( "start", "%s", start );
+	PARMS( "end", "%p", end );
+
+	if( !( regex && start ) )
+	{
+		WRONGPARAM;
+		RETURN( (char*)NULL );
+	}
+
+	if( next )
+		*next = (char*)NULL;
+
+	do
+	{
+		lptr = ptr;
+
+		/* Get next character */
+		if( regex->flags & PREGEX_RUN_WCHAR )
+		{
+			ch = *( (wchar_t*)ptr );
+			ptr += sizeof( wchar_t );
+		}
+		else
+		{
+#ifdef UTF8
+			ch = u8_char( ptr );
+			ptr += u8_seqlen( ptr );
+#else
+			ch = *ptr++;
+#endif
+		}
+
+		if( !ch )
+			break;
+
+		/* Find a transition according to current character */
+		for( i = 5; i < regex->trans[ 0 ][ 0 ]; i += 3 )
+			if( regex->trans[ 0 ][ i ] <= ch
+				&& regex->trans[ 0 ][ i + 1 ] >= ch
+					&& pregex_match( regex, lptr, next ) )
+						ch = 0;
+	}
+	while( ch );
+
+	if( lptr > start )
+	{
+		if( end )
+			*end = lptr;
+
+		RETURN( start );
+	}
+
+	RETURN( (char*)NULL );
+}
+
+/** Split all matches. Blah. */
+int pregex_splitall( pregex* regex, char* start, parray** matches )
+{
+	char*			end;
+	char*			next;
+	int				count	= 0;
+	pregex_range*	r;
+
+	PROC( "pregex_splitall" );
+	PARMS( "regex", "%p", regex );
+	PARMS( "start", "%s", start );
+	PARMS( "matches", "%p", matches );
+
+	if( !( regex && start ) )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+
+	if( matches )
+		*matches = (parray*)NULL;
+
+	while( pregex_split( regex, start, &end, &next ) )
+	{
+		if( matches )
+		{
+			if( ! *matches )
+				*matches = parray_create( sizeof( pregex_range ), 0 );
+
+			r = (pregex_range*)parray_malloc( *matches );
+			r->begin = start;
+			r->end = end;
+		}
+
+		count++;
+		start = next;
+	}
+
+	RETURN( count );
+}

@@ -1,7 +1,19 @@
 #include "phorward.h"
 
+void printanddrop( parray* a )
+{
+	int				i;
+	pregex_range*	r;
+
+	for( i = 0; ( r = (pregex_range*)parray_get( a, i ) ); i++ )
+		printf( "%2d: >%.*s<\n", i, r->end - r->begin, r->begin );
+
+	parray_free( a );
+}
+
 int main( int argc, char** argv )
 {
+	/*
 	char*	pat		= argv[1];
 	char*	start	= argv[2];
 	char*	end;
@@ -24,4 +36,19 @@ int main( int argc, char** argv )
 	printf( "Unfortunatelly not!\n" );
 
 	return 1;
+	*/
+
+	static char*	str	= 	"hello 1234 this is 634 my7world1337a";
+	pregex*	re;
+	parray*	a;
+
+	re = pregex_create( "[0-9]+", 0 );
+
+	printf( "str = >%s<\n", str );
+	printf( "matches = %d\n", pregex_findall( re, str, &a ) );
+	printanddrop( a );
+	printf( "splits = %d\n", pregex_splitall( re, str, &a ) );
+	printanddrop( a );
+
+	return 0;
 }

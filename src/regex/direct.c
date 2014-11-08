@@ -12,32 +12,31 @@ Usage:	Direct regular expression access functions running an internal pregex
 
 #include "phorward.h"
 
-/* REWORK REQUIRED! */
-#if 0
-
 /** Performs a regular expression match on a string, and returns an array of
-matches via a pregex_range-structure, which holds pointers to the begin- and
+matches via pregex_range-structures, which holds pointers to the begin- and
 end-addresses of all matches.
 
 //regex// is the regular expression pattern to be processed.
 //str// is the string on which the pattern will be executed on.
-//flags// are the flags for regular expression mode switching.
-//results// is the array of results to the matched substrings within //str//.
-//results// must be released using pfree() after its usage.
+//flags// are the flags for regular expression compile- and runtime-mode
+switching. Several of them can be used with the bitwise op-operator.
+//matches// is the array of results to the matched substrings within //str//,
+provided as parray-object existing of one pregex_range-object for every match.
+It is optional. //matches// must be released with parray_free() after its usage.
 
 Returns the number of matches, which is the amount of result entries in the
 returned array //results//. If the value is negative, an error occured.
 */
-int pregex_qmatch( char* regex, char* str, int flags, pregex_range** results )
+int pregex_qmatch( char* regex, char* str, int flags, parray** matches )
 {
-	int				matches		= 0;
-	pregex*			re;
+	int			count;
+	pregex*		re;
 
 	PROC( "pregex_qmatch" );
 	PARMS( "regex", "%s", pgetstr( regex ) );
 	PARMS( "str", "%s", pgetstr( str ) );
 	PARMS( "flags", "%d", flags );
-	PARMS( "results", "%p", results );
+	PARMS( "matches", "%p", matches );
 
 	if( !( regex && str ) )
 	{
@@ -45,45 +44,39 @@ int pregex_qmatch( char* regex, char* str, int flags, pregex_range** results )
 		RETURN( -1 );
 	}
 
-	if( results )
-		*results = (pregex_range*)NULL;
+	if( !( re = pregex_create( regex, flags ) ) )
+		RETURN( -1 );
 
-	re = pregex_create();
-	pregex_set_flags( re, flags );
+	count = pregex_findall( re, str, matches );
+	pregex_free( re );
 
-	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
-		RETURN( matches );
-
-	matches = pregex_match( re, str, results );
-
-	re = pregex_free( re );
-
-	VARS( "matches", "%d", matches );
-	RETURN( matches );
+	VARS( "count", "%d", count );
+	RETURN( count );
 }
 
 /** Performs a regular expression search on a string and uses the expression as
-separator; All strings that where split are returned as //results//-array.
+separator; All strings that where split are returned as //matches//-array.
 
 //regex// is the regular expression pattern to be processed.
 //str// is the string on which the pattern will be executed on.
 //flags// are the flags for regular expression mode switching.
-//results// is the array of results to the matched substrings within //str//.
-//results// must be released using pfree() after its usage.
+//matches// is the array of results to the matched substrings within //str//,
+provided as parray-object existing of one pregex_range-object for every match.
+It is optional. //matches// must be released with parray_free() after its usage.
 
 Returns the number of split substrings, which is the amount of result entries in
-the returned array //results//. If the value is negative, an error occured.
+the returned array //matches//. If the value is negative, an error occured.
 */
-int pregex_qsplit( char* regex, char* str, int flags, pregex_range** results )
+int pregex_qsplit( char* regex, char* str, int flags, parray** matches )
 {
-	int				matches	= 0;
-	pregex*			re;
+	int			count;
+	pregex*		re;
 
 	PROC( "pregex_qsplit" );
 	PARMS( "regex", "%s", pgetstr( regex ) );
 	PARMS( "str", "%s", pgetstr( str ) );
 	PARMS( "flags", "%d", flags );
-	PARMS( "results", "%p", results );
+	PARMS( "matches", "%p", matches );
 
 	if( !( regex && str ) )
 	{
@@ -91,23 +84,19 @@ int pregex_qsplit( char* regex, char* str, int flags, pregex_range** results )
 		RETURN( -1 );
 	}
 
-	re = pregex_create();
-	pregex_set_flags( re, flags );
+	if( !( re = pregex_create( regex, flags ) ) )
+		RETURN( -1 );
 
-	if( results )
-		*results = (pregex_range*)NULL;
-
-	if( ( matches = pregex_compile( re, regex, 0 ) ) < 0 )
-		RETURN( matches );
-
-	matches = pregex_split( re, str, results );
-
+	count = pregex_splitall( re, str, matches );
 	pregex_free( re );
 
-	VARS( "matches", "%d", matches );
-	RETURN( matches );
+	VARS( "count", "%d", count );
+	RETURN( count );
 }
 
+/* REWORK REQUIRED! */
+
+#if 0
 /** Replaces all matches of a regular expression pattern within a string with
 the replacement. Backreferences can be used with $x for each opening bracket
 within the regular expression.
