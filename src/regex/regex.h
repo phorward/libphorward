@@ -18,13 +18,16 @@ Usage:	Header for the pregex object and functions.
 /* ---> Part I: Compile-time Flags */
 #define PREGEX_COMP_WCHAR		0x01	/* 	Regular expression is provided
 											in wchar_t. */
-#define PREGEX_COMP_NOERRORS	0x02	/*	Don't report errors, and try to
-											compile as much as possible */
-#define PREGEX_COMP_NOANCHORS	0x04	/* 	Ignore anchor tokens, handle them
+#define PREGEX_COMP_NOANCHORS	0x02	/* 	Ignore anchor tokens, handle them
 											as normal characters */
-#define PREGEX_COMP_INSENSITIVE	0x08	/* 	Regular expression is case
+#define PREGEX_COMP_NOREF		0x04	/* 	Don't compile references. */
+#define PREGEX_COMP_GREEDY		0x08	/* 	Compile regex to be greedy */
+#define PREGEX_COMP_NONGREEDY	0x10	/* 	Compile regex to be nongreedy */
+#define PREGEX_COMP_NOERRORS	0x20	/*	Don't report errors, and try to
+											compile as much as possible */
+#define PREGEX_COMP_INSENSITIVE	0x40	/* 	Regular expression is case
 											insensitive */
-#define PREGEX_COMP_STATIC		0x10	/*	The regular expression passed
+#define PREGEX_COMP_STATIC		0x80	/*	The regular expression passed
 											to the compiler should be converted
 											1:1 as it where a string-constant.
 											Any regex-specific symbols will
@@ -55,6 +58,7 @@ enum _regex_ptntype
 	PREGEX_PTN_NULL,
 	PREGEX_PTN_CHAR,
 	PREGEX_PTN_SUB,
+	PREGEX_PTN_REFSUB,
 	PREGEX_PTN_ALT,
 	PREGEX_PTN_KLE,
 	PREGEX_PTN_POS,

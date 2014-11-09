@@ -1,5 +1,7 @@
 #include "phorward.h"
 
+char*	str	= 	"hello 1234 this is 634 my7world1337a";
+
 void printanddrop( parray* a )
 {
 	int				i;
@@ -9,6 +11,39 @@ void printanddrop( parray* a )
 		printf( "%2d: %2d @ >%.*s<\n", i, r->id, r->end - r->begin, r->begin );
 
 	parray_free( a );
+}
+
+void test_regex()
+{
+	pregex*	re;
+	parray*	a;
+	char*	r;
+
+	re = pregex_create( "[0-9]+", 0 );
+
+	printf( "str = >%s<\n", str );
+	printf( "matches = %d\n", pregex_findall( re, str, &a ) );
+	printanddrop( a );
+	printf( "splits = %d\n", pregex_splitall( re, str, &a ) );
+	printanddrop( a );
+
+	r = pregex_replace( re, str, "int" );
+	printf( "r = >%s<\n", r );
+	free( r );
+}
+
+void test_lex()
+{
+	plex*	l;
+	parray*	a;
+
+	l = plex_create( 0 );
+	plex_define( l, "[0-9]+", 1, 0 );
+	plex_define( l, "[a-z]+", 2, 0 );
+
+	printf( "str = >%s<\n", str );
+	printf( "matches = %d\n", plex_findall( l, str, &a ) );
+	printanddrop( a );
 }
 
 int main( int argc, char** argv )
@@ -38,31 +73,8 @@ int main( int argc, char** argv )
 	return 1;
 	*/
 
-	/*
-	static char*	str	= 	"hello 1234 this is 634 my7world1337a";
-	pregex*	re;
-	parray*	a;
-
-	re = pregex_create( "[0-9]+", 0 );
-
-	printf( "str = >%s<\n", str );
-	printf( "matches = %d\n", pregex_findall( re, str, &a ) );
-	printanddrop( a );
-	printf( "splits = %d\n", pregex_splitall( re, str, &a ) );
-	printanddrop( a );
-	*/
-
-	static char*	str	= 	"hello 1234 this is 634 my7world1337a";
-	plex*	l;
-	parray*	a;
-
-	l = plex_create( 0 );
-	plex_add( l, "[0-9]+", 1, 0 );
-	plex_add( l, "[a-z]+", 2, 0 );
-
-	printf( "str = >%s<\n", str );
-	printf( "matches = %d\n", plex_findall( l, str, &a ) );
-	printanddrop( a );
+	test_regex();
+	test_lex();
 
 	return 0;
 }

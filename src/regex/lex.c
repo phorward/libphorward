@@ -14,6 +14,30 @@ Usage:	Writing lexical analyzers.
 
 //flags// can be a combination of compile- and runtime-flags and are merged
 with special compile-time flags provided for each pattern.
+
+|| Flag | Usage |
+| PREGEX_COMP_WCHAR	| The regular expressions are provided as wchar_t. |
+| PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
+characters |
+| PREGEX_COMP_NOREF | Don't compile references. |
+| PREGEX_COMP_GREEDY | Compile all patterns to be forced greedy. |
+| PREGEX_COMP_NONGREEDY | Compile all patterns to be forced nongreedy. |
+| PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as \
+possible |
+| PREGEX_COMP_INSENSITIVE | Parse regular expressions as case insensitive. |
+| PREGEX_COMP_STATIC | The regular expressions passed should be converted 1:1 \
+as it where a string-constant. Any regex-specific symbols will be ignored and \
+taken as they where escaped. |
+| PREGEX_RUN_WCHAR | Run regular expressions with wchar_t as input. |
+| PREGEX_RUN_NOANCHORS | Ignore anchors while processing the lexer. |
+| PREGEX_RUN_NOREF | Don't create references. |
+| PREGEX_RUN_GREEDY	| Force run lexer greedy. |
+| PREGEX_RUN_NONGREEDY | Force run lexer nongreedy. |
+| PREGEX_RUN_DEBUG | Debug mode; output some debug to stderr. |
+
+
+On success, the function returns the allocated pointer to a plex-object.
+This must be freed later using plex_free().
 */
 plex* plex_create( int flags )
 {
@@ -139,20 +163,37 @@ pboolean plex_prepare( plex* lex )
 	RETURN( TRUE );
 }
 
-/** Parses a regular expression pattern into the plex-object
+/** Defines and parses a regular expression pattern into the plex-object.
 
 //pat// is the regular expression string.
+
 //match_id// must be a token match ID, a value > 0. The lower the match ID is,
 the higher precedence takes the appended expression when there are multiple
 matches.
+
 //flags// may ONLY contain compile-time flags, and is combined with the
-compile-time flags of the plex-object.
+compile-time flags of the plex-object provided at plex_create().
+
+|| Flag | Usage |
+| PREGEX_COMP_WCHAR	| The regular expressions are provided as wchar_t. |
+| PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
+characters |
+| PREGEX_COMP_NOREF | Don't compile references. |
+| PREGEX_COMP_GREEDY | Compile all patterns to be forced greedy. |
+| PREGEX_COMP_NONGREEDY | Compile all patterns to be forced nongreedy. |
+| PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as \
+possible |
+| PREGEX_COMP_INSENSITIVE | Parse regular expressions as case insensitive. |
+| PREGEX_COMP_STATIC | The regular expressions passed should be converted 1:1 \
+as it where a string-constant. Any regex-specific symbols will be ignored and \
+taken as they where escaped. |
+
 */
-pboolean plex_add( plex* lex, char* pat, int match_id, int flags )
+pboolean plex_define( plex* lex, char* pat, int match_id, int flags )
 {
 	pregex_ptn*	ptn;
 
-	PROC( "plex_add" );
+	PROC( "plex_define" );
 	PARMS( "lex", "%p", lex );
 
 	if( !( lex && pat && match_id > 0 ) )

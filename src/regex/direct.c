@@ -94,9 +94,6 @@ int pregex_qsplit( char* regex, char* str, int flags, parray** matches )
 	RETURN( count );
 }
 
-/* REWORK REQUIRED! */
-
-#if 0
 /** Replaces all matches of a regular expression pattern within a string with
 the replacement. Backreferences can be used with $x for each opening bracket
 within the regular expression.
@@ -128,10 +125,7 @@ char* pregex_qreplace( char* regex, char* str, char* replace, int flags )
 		RETURN( (char*)NULL );
 	}
 
-	re = pregex_create();
-	pregex_set_flags( re, flags );
-
-	if( pregex_compile( re, regex, 0 ) < 0 )
+	if( !( re = pregex_create( regex, flags ) ) )
 	{
 		pregex_free( re );
 		RETURN( (char*)NULL );
@@ -143,11 +137,8 @@ char* pregex_qreplace( char* regex, char* str, char* replace, int flags )
 		RETURN( (char*)NULL );
 	}
 
-	re->tmp_str = (char*)NULL;
 	pregex_free( re );
 
 	VARS( "ret", "%s", ret );
 	RETURN( ret );
 }
-
-#endif

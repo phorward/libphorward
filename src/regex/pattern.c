@@ -179,6 +179,29 @@ pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
 	return pattern;
 }
 
+/** Constructs a sub-pattern as backreference (like with parantheses).
+
+//ptn// is the pattern that becomes the sub-ordered pattern.
+
+Returns a pregex_ptn-node which can be child of another pattern construct
+or part of a sequence.
+*/
+pregex_ptn* pregex_ptn_create_refsub( pregex_ptn* ptn )
+{
+	pregex_ptn*		pattern;
+
+	if( !ptn )
+	{
+		WRONGPARAM;
+		return (pregex_ptn*)NULL;
+	}
+
+	pattern = pregex_ptn_create( PREGEX_PTN_REFSUB );
+	pattern->child[0] = ptn;
+
+	return pattern;
+}
+
 /** Constructs alternations of multiple patterns.
 
 //left// is the first pattern of the alternation.
@@ -378,9 +401,10 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 	char		gap		[ 100+1 ];
 	char*		ptr;
 	static char	types[][20]	= { "PREGEX_PTN_NULL", "PREGEX_PTN_CHAR",
-								"PREGEX_PTN_SUB", "PREGEX_PTN_ALT",
+								"PREGEX_PTN_SUB", "PREGEX_PTN_REFSUB",
+								"PREGEX_PTN_ALT",
 								"PREGEX_PTN_KLE", "PREGEX_PTN_POS",
-								"PREGEX_PTN_OPT"
+									"PREGEX_PTN_OPT"
 							};
 
 	for( i = 0; i < rec; i++ )
@@ -521,6 +545,7 @@ static pboolean pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 				break;
 
 			case PREGEX_PTN_SUB:
+			case PREGEX_PTN_REFSUB:
 				*regex = pstrcatchar( *regex, '(' );
 
 				if( !pregex_ptn_to_REGEX( regex, ptn->child[ 0 ] ) )
@@ -599,7 +624,7 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 {
 	pregex_nfa_st*	n_start	= (pregex_nfa_st*)NULL;
 	pregex_nfa_st*	n_end	= (pregex_nfa_st*)NULL;
-	int				ref;
+	int				ref		= 0;
 	int				i;
 
 	if( !( pattern && nfa && start && end ) )
@@ -625,10 +650,12 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_start->next = n_end;
 				break;
 
-			case PREGEX_PTN_SUB:
-				if( ( ref = ++(*ref_count) ) > PREGEX_MAXREF )
+			case PREGEX_PTN_REFSUB:
+				if( !ref_count || ( ref = ++(*ref_count) ) > PREGEX_MAXREF )
 					ref = 0;
+				/* NO break! */
 
+			case PREGEX_PTN_SUB:
 				if( !pregex_ptn_to_NFA( nfa,
 						pattern->child[ 0 ], &n_start, &n_end, ref_count ) )
 					return FALSE;
@@ -771,6 +798,8 @@ states. //nfa// must be initialized!
 
 //ptn// is the pattern structure that will be converted and extended into
 the NFA state machine.
+
+//flags// are compile-time flags.
 
 Returns TRUE on success.
 */
@@ -1019,6 +1048,12 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	/* Free duplicated string */
 	pfree( str );
 
+	/* Forcing (non-)greedyness */
+	if( flags & PREGEX_COMP_GREEDY )
+		accept.flags |= PREGEX_FLAG_GREEDY;
+	else if( flags & PREGEX_COMP_NONGREEDY )
+		accept.flags |= PREGEX_COMP_NONGREEDY;
+
 	/* Copy accept structure */
 	(*ptn)->accept = pmemdup( &accept, sizeof( pregex_accept ) );
 
@@ -1048,12 +1083,18 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			if( !parse_alter( &alter, pstr, accept, flags ) )
 				return FALSE;
 
-			if( !( *ptn = pregex_ptn_create_sub( alter ) ) )
+			if( flags & PREGEX_COMP_NOREF &&
+					!( *ptn = pregex_ptn_create_sub( alter ) ) )
+				return FALSE;
+			else if( !( *ptn = pregex_ptn_create_sub( alter ) ) )
 				return FALSE;
 
+			/* Report error? */
 			if( **pstr != ')' && !( flags & PREGEX_COMP_NOERRORS ) )
-				/* Report error? */
+			{
+				fprintf( stderr, "Missing closing bracket in regex\n" );
 				return FALSE;
+			}
 
 			(*pstr)++;
 			break;

@@ -14,9 +14,31 @@ Usage:	Interface for pregex-objects serving regular expressions.
 /** Constructor function to create a new pregex object.
 
 //pat// is a string providing a regular expression pattern.
-
 //flags// can be a combination of compile- and runtime-flags.
 
+|| Flag | Usage |
+| PREGEX_COMP_WCHAR	| The regular expression //pat// is provided as wchar_t. |
+| PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
+characters |
+| PREGEX_COMP_NOREF | Don't compile references. |
+| PREGEX_COMP_GREEDY | Compile regex to be forced greedy. |
+| PREGEX_COMP_NONGREEDY | Compile regex to be forced nongreedy. |
+| PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as \
+possible |
+| PREGEX_COMP_INSENSITIVE | Parse regular expression as case insensitive. |
+| PREGEX_COMP_STATIC | The regular expression passed should be converted 1:1 as\
+it where a string-constant. Any regex-specific symbols will be ignored and \
+taken as they where escaped. |
+| PREGEX_RUN_WCHAR | Run regular expression with wchar_t as input. |
+| PREGEX_RUN_NOANCHORS | Ignore anchors while processing the regex. |
+| PREGEX_RUN_NOREF | Don't create references. |
+| PREGEX_RUN_GREEDY	| Force run regular expression greedy. |
+| PREGEX_RUN_NONGREEDY | Force run regular expression nongreedy. |
+| PREGEX_RUN_DEBUG | Debug mode; output some debug to stderr. |
+
+
+On success, the function returns the allocated pointer to a pregex-object.
+This must be freed later using pregex_free().
 */
 pregex* pregex_create( char* pat, int flags )
 {
@@ -285,7 +307,6 @@ int pregex_findall( pregex* regex, char* start, parray** matches )
 
 	while( ( start = pregex_find( regex, start, &end ) ) )
 	{
-		printf( "FIND: >%.*s<\n", end - start, start );
 		if( matches )
 		{
 			if( ! *matches )
@@ -383,7 +404,16 @@ char* pregex_split( pregex* regex, char* start, char** end, char** next )
 	RETURN( (char*)NULL );
 }
 
-/** Split all matches. Blah. */
+/** Split a string at all matches of the regular expression //regex// from
+begin of pointer //start//, and optionally return the splitted matches as an
+array.
+
+//start// has to be a zero-terminated string or wide-character string (according
+to the configuration of the pregex-object).
+
+The function fills the array //matches//, if provided, with items of size
+pregex_range. It returns the total number of matches.
+*/
 int pregex_splitall( pregex* regex, char* start, parray** matches )
 {
 	char*			end;
@@ -418,8 +448,317 @@ int pregex_splitall( pregex* regex, char* start, parray** matches )
 		}
 
 		count++;
-		start = next;
+
+		if( !( start = next ) )
+			break;
 	}
 
 	RETURN( count );
+}
+
+/** Replaces all matches of a regular expression object within a string //str//
+with //replacement//. Backreferences in //replacement// can be used with //$x//
+for each opening bracket within the regular expression.
+
+//regex// is the pregex-object used for pattern matching.
+//str// is the string on which //regex// will be executed.
+//replacement// is the string that will be inserted as the replacement for each
+match of a pattern described in //regex//. The notation //$x// can be used for
+backreferences, where x is the offset of opening brackets in the pattern,
+beginning at 1.
+
+The function returns the string with the replaced elements, or (char*)NULL
+in error case.
+*/
+char* pregex_replace( pregex* regex, char* str, char* replacement )
+{
+	pregex_range*	refer;
+	char*			ret			= (char*)NULL;
+	char*			sstart		= str;
+	char*			start;
+	char*			end;
+	char*			replace;
+	char*			rprev;
+	char*			rpstr;
+	char*			rbegin;
+	char*			rend;
+	int				ref;
+
+	PROC( "pregex_replace" );
+	PARMS( "regex", "%p", regex );
+
+	if( !( regex && str ) )
+	{
+		WRONGPARAM;
+		RETURN( (char*)NULL );
+	}
+
+#ifdef DEBUG
+	if( regex && regex->flags & PREGEX_RUN_WCHAR )
+	{
+		PARMS( "str", "%ls", pgetstr( str ) );
+		PARMS( "replacement", "%ls", pgetstr( replacement ) );
+	}
+	else
+	{
+		PARMS( "str", "%s", pgetstr( str ) );
+		PARMS( "replacement", "%s", pgetstr( replacement ) );
+	}
+#endif
+
+	MSG( "Starting loop" );
+
+	while( TRUE )
+	{
+		if( !( start = pregex_find( regex, sstart, &end ) ) )
+		{
+			if( regex->flags & PREGEX_RUN_WCHAR )
+				start = (char*)( (wchar_t*)sstart +
+									wcslen( (wchar_t*)sstart ) );
+			else
+				start = sstart + strlen( sstart );
+
+			end = (char*)NULL;
+		}
+
+		if( start > sstart )
+		{
+			MSG( "Extending string" );
+			if( regex->flags & PREGEX_RUN_WCHAR )
+			{
+				if( !( ret = (char*)pwcsncatstr(
+								(wchar_t*)ret, (wchar_t*)sstart,
+									( (wchar_t*)start - (wchar_t*)sstart ) ) ) )
+				{
+					OUTOFMEM;
+					RETURN( (char*)NULL );
+				}
+			}
+			else
+			{
+				if( !( ret = pstrncatstr( ret, sstart, start - sstart ) ) )
+				{
+					OUTOFMEM;
+					RETURN( (char*)NULL );
+				}
+			}
+		}
+
+		if( !end )
+			break;
+
+		MSG( "Constructing a replacement" );
+		if( !( regex->flags & PREGEX_RUN_NOREF ) )
+		{
+			rprev = rpstr = replacement;
+			replace = (char*)NULL;
+
+			while( *rpstr )
+			{
+				VARS( "*rpstr", "%c", *rpstr );
+				if( *rpstr == '$' )
+				{
+					rbegin = rpstr;
+
+					if( regex->flags & PREGEX_RUN_WCHAR )
+					{
+						wchar_t*		_end;
+						wchar_t*		_rpstr = (wchar_t*)rpstr;
+
+						MSG( "Switching to wide-character mode" );
+
+						if( iswdigit( *( ++_rpstr ) ) )
+						{
+							ref = wcstol( _rpstr, &_end, 0 );
+
+							VARS( "ref", "%d", ref );
+							VARS( "end", "%ls", _end );
+
+							/* Skip length of the number */
+							_rpstr = _end;
+
+							/* Extend first from prev of replacement */
+							if( !( replace = (char*)pwcsncatstr(
+									(wchar_t*)replace, (wchar_t*)rprev,
+										(wchar_t*)rbegin - (wchar_t*)rprev ) ) )
+							{
+								OUTOFMEM;
+								RETURN( (char*)NULL );
+							}
+
+							VARS( "replace", "%ls", replace );
+							VARS( "ref", "%d", ref );
+
+							if( ref > 0 && ref < PREGEX_MAXREF )
+								refer = &( regex->ref[ ref ] );
+							/* TODO: Ref $0 */
+							else
+								refer = (pregex_range*)NULL;
+
+							if( refer )
+							{
+								MSG( "There is a reference!" );
+								VARS( "refer->begin", "%ls",
+										(wchar_t*)refer->begin );
+								VARS( "refer->end", "%ls",
+										(wchar_t*)refer->begin );
+
+								if( !( replace = (char*)pwcsncatstr(
+										(wchar_t*)replace,
+											(wchar_t*)refer->begin,
+												(wchar_t*)refer->end -
+													(wchar_t*)refer->begin ) ) )
+								{
+									OUTOFMEM;
+									RETURN( (char*)NULL );
+								}
+							}
+
+							VARS( "replace", "%ls", (wchar_t*)replace );
+							rprev = rpstr = (char*)_rpstr;
+						}
+						else
+							rpstr = (char*)_rpstr;
+					}
+					else
+					{
+						char*		_end;
+
+						MSG( "Byte-character mode (Standard)" );
+
+						if( isdigit( *( ++rpstr ) ) )
+						{
+							ref = strtol( rpstr, &_end, 0 );
+
+							VARS( "ref", "%d", ref );
+							VARS( "end", "%s", _end );
+
+							/* Skip length of the number */
+							rpstr = _end;
+
+							/* Extend first from prev of replacement */
+							if( !( replace = pstrncatstr( replace,
+										rprev, rbegin - rprev ) ) )
+							{
+								OUTOFMEM;
+								RETURN( (char*)NULL );
+							}
+
+							VARS( "replace", "%s", replace );
+							VARS( "ref", "%d", ref );
+
+							if( ref > 0 && ref < PREGEX_MAXREF )
+								refer = &( regex->ref[ ref ] );
+							/* TODO: Ref $0 */
+							else
+								refer = (pregex_range*)NULL;
+
+							if( refer )
+							{
+								MSG( "There is a reference!" );
+								VARS( "refer->begin", "%ls",
+										(wchar_t*)refer->begin );
+								VARS( "refer->end", "%ls",
+										(wchar_t*)refer->begin );
+
+								if( !( replace = (char*)pstrncatstr(
+											replace, refer->begin,
+												refer->end - refer->begin ) ) )
+								{
+									OUTOFMEM;
+									RETURN( (char*)NULL );
+								}
+							}
+
+							VARS( "replace", "%s", replace );
+							rprev = rpstr;
+						}
+					}
+				}
+				else
+					rpstr += ( regex->flags & PREGEX_RUN_WCHAR )
+								? sizeof( wchar_t ) : 1;
+			}
+
+			VARS( "rpstr", "%p", rpstr );
+			VARS( "rprev", "%p", rprev );
+
+#ifdef DEBUG
+			if( regex->flags & PREGEX_RUN_WCHAR )
+			{
+				VARS( "rpstr", "%ls", (wchar_t*)replace );
+				VARS( "rprev", "%ls", (wchar_t*)rprev );
+			}
+			else
+			{
+				VARS( "rpstr", "%s", replace );
+				VARS( "rprev", "%s", rprev );
+			}
+#endif
+
+			if( regex->flags & PREGEX_RUN_WCHAR )
+			{
+				if( rpstr != rprev &&
+						!( replace = (char*)pwcscatstr(
+								(wchar_t*)replace, (wchar_t*)rprev, FALSE ) ) )
+				{
+					OUTOFMEM;
+					RETURN( (char*)NULL );
+				}
+			}
+			else
+			{
+				if( rpstr != rprev && !( replace = pstrcatstr(
+											replace, rprev, FALSE ) ) )
+				{
+					OUTOFMEM;
+					RETURN( (char*)NULL );
+				}
+			}
+		}
+		else
+			replace = replacement;
+
+		if( replace )
+		{
+#ifdef DEBUG
+			if( regex->flags & PREGEX_RUN_WCHAR )
+				VARS( "replace", "%ls", (wchar_t*)replace );
+			else
+				VARS( "replace", "%s", replace );
+#endif
+			if( regex->flags & PREGEX_RUN_WCHAR )
+			{
+				if( !( ret = (char*)pwcsncatstr(
+						(wchar_t*)ret, (wchar_t*)replace,
+							pwcslen( (wchar_t*)replace ) ) ) )
+				{
+					OUTOFMEM;
+					RETURN( (char*)NULL );
+				}
+			}
+			else
+			{
+				if( !( ret = pstrncatstr( ret, replace, pstrlen( replace ) ) ) )
+				{
+					OUTOFMEM;
+					RETURN( (char*)NULL );
+				}
+			}
+
+			if( !( regex->flags & PREGEX_RUN_NOREF ) )
+				pfree( replace );
+		}
+
+		sstart = end;
+	}
+
+#ifdef DEBUG
+	if( regex->flags & PREGEX_RUN_WCHAR )
+		VARS( "ret", "%ls", (wchar_t*)ret );
+	else
+		VARS( "ret", "%s", ret );
+#endif
+
+	RETURN( ret );
 }

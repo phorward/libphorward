@@ -376,10 +376,13 @@ typedef struct
 
 
 #define PREGEX_COMP_WCHAR		0x01	
-#define PREGEX_COMP_NOERRORS	0x02	
-#define PREGEX_COMP_NOANCHORS	0x04	
-#define PREGEX_COMP_INSENSITIVE	0x08	
-#define PREGEX_COMP_STATIC		0x10	
+#define PREGEX_COMP_NOANCHORS	0x02	
+#define PREGEX_COMP_NOREF		0x04	
+#define PREGEX_COMP_GREEDY		0x08	
+#define PREGEX_COMP_NONGREEDY	0x10	
+#define PREGEX_COMP_NOERRORS	0x20	
+#define PREGEX_COMP_INSENSITIVE	0x40	
+#define PREGEX_COMP_STATIC		0x80	
 
 
 #define PREGEX_RUN_WCHAR		0x100	
@@ -404,6 +407,7 @@ enum _regex_ptntype
 	PREGEX_PTN_NULL,
 	PREGEX_PTN_CHAR,
 	PREGEX_PTN_SUB,
+	PREGEX_PTN_REFSUB,
 	PREGEX_PTN_ALT,
 	PREGEX_PTN_KLE,
 	PREGEX_PTN_POS,
@@ -822,16 +826,14 @@ int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa );
 
 int pregex_qmatch( char* regex, char* str, int flags, parray** matches );
 int pregex_qsplit( char* regex, char* str, int flags, parray** matches );
-#if 0
 char* pregex_qreplace( char* regex, char* str, char* replace, int flags );
-#endif
 
 
 plex* plex_create( int flags );
 plex* plex_free( plex* lex );
 pboolean plex_reset( plex* lex );
 pboolean plex_prepare( plex* lex );
-pboolean plex_add( plex* lex, char* pat, int match_id, int flags );
+pboolean plex_define( plex* lex, char* pat, int match_id, int flags );
 int plex_match( plex* lex, char* start, char** end );
 char* plex_find( plex* lex, char* start, int* id, char** end );
 int plex_findall( plex* lex, char* start, parray** matches );
@@ -854,6 +856,7 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 pregex_ptn* pregex_ptn_create_char( pccl* ccl );
 pregex_ptn* pregex_ptn_create_string( char* str, int flags );
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn );
+pregex_ptn* pregex_ptn_create_refsub( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... );
 pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn );
@@ -875,6 +878,7 @@ char* pregex_find( pregex* regex, char* start, char** end );
 int pregex_findall( pregex* regex, char* start, parray** matches );
 char* pregex_split( pregex* regex, char* start, char** end, char** next );
 int pregex_splitall( pregex* regex, char* start, parray** matches );
+char* pregex_replace( pregex* regex, char* str, char* replacement );
 
 
 char* pwcs_to_str( wchar_t* str, pboolean freestr );
