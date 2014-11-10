@@ -223,9 +223,13 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 	{
 		st = (pregex_dfa_st*)plist_access( e );
 
+		if( st->trans )
+			continue;
+
 		/* Sort transitions */
 		plist_sort( st->trans );
 
+		/* Find default transition */
 		max = all = 0;
 		plist_for( st->trans, f )
 		{

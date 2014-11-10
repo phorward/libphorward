@@ -252,8 +252,10 @@ int plex_match( plex* lex, char* start, char** end )
 			match = ptr;
 			id = lex->trans[ state ][ 1 ];
 
-			if( !( lex->flags & PREGEX_RUN_GREEDY )
+			if( ( !( lex->flags & PREGEX_RUN_GREEDY )
 					&& lex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY )
+					|| ( ( lex->flags & PREGEX_RUN_NONGREEDY )
+					&& !( lex->trans[ state ][ 2 ] & PREGEX_FLAG_GREEDY ) ) )
 				break;
 		}
 

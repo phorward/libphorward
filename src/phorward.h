@@ -995,6 +995,8 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
 pboolean pp_prod_append( ppprod* p, ppsym* sym );
 ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
+pboolean pp_gram_prepare( ppgram* g );
+void pp_gram4gram( ppgram* g );
 ppgram* pp_gram_create( char* def );
 void pp_gram_print( ppgram* g );
 ppgram* pp_gram_free( ppgram* g );

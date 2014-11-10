@@ -1,6 +1,6 @@
 #include "phorward.h"
 
-char*	str	= 	"hello 1234 this is 634 my7world1337a";
+char*	str	= 	"hello 1234 /aa\\/this/ is 634 /abc/ my7world1337a";
 
 void printanddrop( parray* a )
 {
@@ -19,7 +19,7 @@ void test_regex()
 	parray*	a;
 	char*	r;
 
-	re = pregex_create( "[0-9]+", 0 );
+	re = pregex_create( "/(\\\\.|[^\\\\/])*/", PREGEX_COMP_NONGREEDY );
 
 	printf( "str = >%s<\n", str );
 	printf( "matches = %d\n", pregex_findall( re, str, &a ) );

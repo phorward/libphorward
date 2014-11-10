@@ -1,0 +1,19 @@
+ident		= /[A-Za-z_][A-Za-z0-9_]*/ ;
+ccl 		= /'.*'/ ;
+string 		= /".*"/ ;
+regex 		= /\/(\\.|[^\\\/])*\// ;
+
+symbol 		: ident | ccl | string | regex ;
+sequence	: sequence symbol | symbol ;
+alternative : sequence | ;
+alternation	: alternation '|' alternative | alternative ;
+
+nontermdef	: ident ':' alternation ';' ;
+termdef		: ident '=' ccl ';'
+			| ident '=' string ';'
+			| ident '=' regex ';'
+			;
+
+definition	: nontermdef | termdef ;
+definitions	: definitions definition | definition ;
+grammar		: definitions ;

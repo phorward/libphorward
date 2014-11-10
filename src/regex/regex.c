@@ -59,6 +59,7 @@ pregex* pregex_create( char* pat, int flags )
 	regex->flags = flags;
 
 	/* Generate a dfatab */
+	pregex_ptn_to_dfatab( (wchar_t***)NULL, ptn );
 	if( ( regex->trans_cnt = pregex_ptn_to_dfatab( &regex->trans, ptn ) ) < 0 )
 		RETURN( pregex_free( regex ) );
 
@@ -128,8 +129,10 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 			MSG( "This state accepts the input" );
 			match = ptr;
 
-			if( !( regex->flags & PREGEX_RUN_GREEDY )
+			if( ( !( regex->flags & PREGEX_RUN_GREEDY )
 					&& regex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY )
+				|| ( ( regex->flags & PREGEX_RUN_NONGREEDY )
+					&& !( regex->trans[ state ][ 2 ] & PREGEX_FLAG_GREEDY ) ) )
 				break;
 		}
 
@@ -171,6 +174,9 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 			if( regex->flags & PREGEX_RUN_DEBUG )
 				fprintf( stderr, "reading char %d (>%c<)\n", ch, ch );
 		}
+
+		if( !ch )
+			break;
 
 		/* Initialize default transition */
 		next_state = regex->trans[ state ][ 4 ];

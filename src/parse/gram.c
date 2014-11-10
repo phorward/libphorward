@@ -735,7 +735,7 @@ Includes:
 - Mark left-recursions
 - Lexem flag pull-trough
 */
-static pboolean pp_gram_prepare( ppgram* g )
+pboolean pp_gram_prepare( ppgram* g )
 {
 	plistel*	e;
 	plistel*	er;
@@ -753,6 +753,12 @@ static pboolean pp_gram_prepare( ppgram* g )
 	if( !g )
 	{
 		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !g->goal )
+	{
+		/* No such goal! */
 		return FALSE;
 	}
 
@@ -887,6 +893,129 @@ static pboolean pp_gram_prepare( ppgram* g )
 }
 
 
+/* Define a gramar for your own :) */
+
+void pp_gram4gram( ppgram* g )
+{
+	ppsym* 		ident;
+	ppsym*		ccl;
+	ppsym*		string;
+	ppsym*		regex;
+	ppsym*		semicolon;
+	ppsym*		colon;
+	ppsym*		pipe;
+	ppsym*		equal;
+
+	ppsym*		symbol;
+	ppsym*		sequence;
+	ppsym*		alternative;
+	ppsym*		alternation;
+	ppsym*		nontermdef;
+	ppsym*		termdef;
+	ppsym*		definition;
+	ppsym*		definitions;
+	ppsym*		grammar;
+
+	ppsym*		ws;
+
+	/*
+	ident		= /[A-Za-z_][A-Za-z0-9_]* /
+	ccl 		= /'.*'/ ;
+	string 		= /".*"/ ;
+	regex 		= /\/.*\// ;
+
+	symbol 		: ident | ccl | string | regex ;
+	sequence	: sequence symbol | symbol ;
+	alternative : sequence | ;
+	alternation	: alternation '|' alternative | alternative ;
+
+	nontermdef	: ident ':' alternation ';'
+	termdef		: ident '=' ccl ';'
+				| ident '=' string ';'
+				| ident '=' regex ';'
+				;
+
+	definition	: nontermdef | termdef ;
+	definitions	: definitions definition | definition ;
+	grammar		: definitions ;
+	*/
+
+	/* Terminals */
+	semicolon = pp_sym_create( g, PPSYMTYPE_CCL, "semicolon", ";" );
+	colon = pp_sym_create( g, PPSYMTYPE_CCL, "colon", ":" );
+	pipe = pp_sym_create( g, PPSYMTYPE_CCL, "pipe", "|" );
+	equal = pp_sym_create( g, PPSYMTYPE_CCL, "equal", "=" );
+
+	ident = pp_sym_create( g, PPSYMTYPE_REGEX,
+				"ident", "[A-Za-z_][A-Za-z0-9_]*" );
+	ident->flags = PPFLAG_EMIT;
+
+	ccl = pp_sym_create( g, PPSYMTYPE_REGEX, "ccl", "'.*'" );
+	ccl->flags = PPFLAG_EMIT;
+
+	string = pp_sym_create( g, PPSYMTYPE_REGEX, "string", "\".*\"" );
+	string->flags = PPFLAG_EMIT;
+
+	regex = pp_sym_create( g, PPSYMTYPE_REGEX, "regex", "/(\\\\.|[^\\\\/])*/" );
+	regex->flags = PPFLAG_EMIT;
+
+	/* Nonterminals */
+	symbol = pp_sym_create( g, PPSYMTYPE_NONTERM, "symbol", (char*)NULL );
+	pp_prod_create( g, symbol, ident, (ppsym*)NULL );
+	pp_prod_create( g, symbol, ccl, (ppsym*)NULL );
+	pp_prod_create( g, symbol, string, (ppsym*)NULL );
+	pp_prod_create( g, symbol, regex, (ppsym*)NULL );
+
+	sequence = pp_sym_create( g, PPSYMTYPE_NONTERM, "sequence", (char*)NULL );
+	pp_prod_create( g, sequence, sequence, symbol, (ppsym*)NULL );
+	pp_prod_create( g, sequence, symbol, (ppsym*)NULL );
+
+	alternative = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"alternative", (char*)NULL );
+	alternative->flags = PPFLAG_EMIT;
+	pp_prod_create( g, alternative, sequence, (ppsym*)NULL );
+	pp_prod_create( g, alternative, (ppsym*)NULL );
+
+	alternation = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"alternation", (char*)NULL );
+	pp_prod_create( g, alternation, alternation,
+					pipe, alternative, (ppsym*)NULL );
+	pp_prod_create( g, alternation, alternative, (ppsym*)NULL );
+
+	nontermdef = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"nontermdef", (char*)NULL );
+	nontermdef->flags = PPFLAG_EMIT;
+	pp_prod_create( g, nontermdef, ident, colon, alternation,
+						semicolon, (ppsym*)NULL );
+
+	termdef = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
+	termdef->flags = PPFLAG_EMIT;
+	pp_prod_create( g, termdef, ident, equal, ccl, semicolon, (ppsym*)NULL );
+	pp_prod_create( g, termdef, ident, equal, string, semicolon, (ppsym*)NULL );
+	pp_prod_create( g, termdef, ident, equal, regex, semicolon, (ppsym*)NULL );
+
+	definition = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"definition", (char*)NULL );
+	pp_prod_create( g, definition, termdef, (ppsym*)NULL );
+	pp_prod_create( g, definition, nontermdef, (ppsym*)NULL );
+
+	definitions = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"definitions", (char*)NULL );
+	pp_prod_create( g, definitions, definitions, definition, (ppsym*)NULL );
+	pp_prod_create( g, definitions, definition, (ppsym*)NULL );
+
+	grammar = pp_sym_create( g, PPSYMTYPE_NONTERM, "grammar", (char*)NULL );
+	pp_prod_create( g, grammar, definitions, (ppsym*)NULL );
+
+	/* That other skirmish... */
+	g->goal = grammar;
+
+	ws = pp_sym_create( g, PPSYMTYPE_REGEX, "whitespace", "[ \\t\\r\\n]+" );
+	ws->flags = PPFLAG_WHITESPACE;
+
+	plist_push( g->ws, ws );
+}
+
 ppgram* pp_gram_create( char* def )
 {
 	ppsym*		s;
@@ -907,21 +1036,24 @@ ppgram* pp_gram_create( char* def )
 	g->eof = pp_sym_create( g, PPSYMTYPE_SPECIAL, "eof", (char*)NULL );
 
 	/* Parse grammar into description */
-	if( def && *def && pp_gram_read( g, &def ) <= 0 )
-		return pp_gram_free( g );
-
-	/* Look for unique goal sequence */
-	if( plist_count( g->goal->prods ) > 1 )
+	if( def && *def )
 	{
-		s = pp_sym_create( g, PPSYMTYPE_NONTERM,
-						derive_name( g, g->goal->name ), (char*)NULL );
+		if( pp_gram_read( g, &def ) <= 0 )
+			return pp_gram_free( g );
 
-		pp_prod_create( g, s, g->goal, (ppsym*)NULL );
-		g->goal = s;
+		/* Look for unique goal sequence */
+		if( plist_count( g->goal->prods ) > 1 )
+		{
+			s = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, g->goal->name ), (char*)NULL );
+
+			pp_prod_create( g, s, g->goal, (ppsym*)NULL );
+			g->goal = s;
+		}
+
+		/* Prepare grammar */
+		pp_gram_prepare( g );
 	}
-
-	/* Prepare grammar */
-	pp_gram_prepare( g );
 
 	return g;
 }
