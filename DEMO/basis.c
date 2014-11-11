@@ -1,6 +1,6 @@
 /*
 	This program is a short demostration of the functions
-	provided by the Phorward Basis Libray. It covers not all
+	provided by the Phorward Base Libray. It covers not all
 	available functions, but the really useful ones! ;)
 */
 

@@ -133,8 +133,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_libphorward_la_OBJECTS = base/array.lo base/dbg.lo base/list.lo \
 	base/memory.lo ccl/ccl.lo parse/ast.lo parse/gram.lo \
 	parse/ll.lo parse/lr.lo parse/scan.lo regex/dfa.lo \
-	regex/direct.lo regex/misc.lo regex/nfa.lo regex/pattern.lo \
-	regex/regex.lo regex/range.lo regex/ref.lo string/convert.lo \
+	regex/direct.lo regex/lex.lo regex/misc.lo regex/nfa.lo \
+	regex/pattern.lo regex/regex.lo string/convert.lo \
 	string/string.lo string/utf8.lo util/system.lo value/value.lo \
 	value/value.conv.lo value/value.get.lo value/value.set.lo \
 	xml/xml.lo
@@ -340,12 +340,11 @@ libphorward_la_SOURCES = \
 	parse/scan.c \
 	regex/dfa.c \
 	regex/direct.c \
+	regex/lex.c \
 	regex/misc.c \
 	regex/nfa.c \
 	regex/pattern.c \
 	regex/regex.c \
-	regex/range.c \
-	regex/ref.c \
 	string/convert.c \
 	string/string.c \
 	string/utf8.c \
@@ -480,13 +479,12 @@ regex/$(DEPDIR)/$(am__dirstamp):
 	@: > regex/$(DEPDIR)/$(am__dirstamp)
 regex/dfa.lo: regex/$(am__dirstamp) regex/$(DEPDIR)/$(am__dirstamp)
 regex/direct.lo: regex/$(am__dirstamp) regex/$(DEPDIR)/$(am__dirstamp)
+regex/lex.lo: regex/$(am__dirstamp) regex/$(DEPDIR)/$(am__dirstamp)
 regex/misc.lo: regex/$(am__dirstamp) regex/$(DEPDIR)/$(am__dirstamp)
 regex/nfa.lo: regex/$(am__dirstamp) regex/$(DEPDIR)/$(am__dirstamp)
 regex/pattern.lo: regex/$(am__dirstamp) \
 	regex/$(DEPDIR)/$(am__dirstamp)
 regex/regex.lo: regex/$(am__dirstamp) regex/$(DEPDIR)/$(am__dirstamp)
-regex/range.lo: regex/$(am__dirstamp) regex/$(DEPDIR)/$(am__dirstamp)
-regex/ref.lo: regex/$(am__dirstamp) regex/$(DEPDIR)/$(am__dirstamp)
 string/$(am__dirstamp):
 	@$(MKDIR_P) string
 	@: > string/$(am__dirstamp)
@@ -564,11 +562,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/dfa.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/direct.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/lex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/misc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/nfa.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/pattern.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/range.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/ref.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/regex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@string/$(DEPDIR)/convert.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@string/$(DEPDIR)/string.Plo@am__quote@

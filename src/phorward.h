@@ -1002,11 +1002,11 @@ void pp_gram_print( ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
 
 
-pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end );
+pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
 
 
 plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
-pboolean pp_lr_parse( parray* ast, ppgram* grm, char* start, char** end );
+pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
 
 
 pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );

@@ -77,10 +77,9 @@ int main( int argc, char** argv )
 	if( s )
 	{
 		e = s;
-		a = parray_create( sizeof( ppmatch ), 0 );
 
-		if( ( !lr && pp_ll_parse( a, g, s, &e ) )
-			|| pp_lr_parse( a, g, s, &e ) )
+		if( ( !lr && pp_ll_parse( &a, g, s, &e ) )
+					|| pp_lr_parse( &a, g, s, &e ) )
 		{
 			printf( "\n%s SUCCEED >%.*s<\n", lr ? "LR" : "LL", e - s, s );
 

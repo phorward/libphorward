@@ -172,9 +172,17 @@ static void pp_ll_normalize_leftrec( parray* ast )
 }
 */
 
-pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end )
+/** Parses the string //str// using the grammar //grm// using a LL(1) parser.
+Parsing stops at least when reading the zero terminator of //str//.
+
+//ast// receives an allocated parray-object with items of //ppmatch//
+that describe the prooduced abstract syntax tree.
+
+//end// receives the position of the last character matched.
+The function returns TRUE if no parse error orccured.
+*/
+pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end )
 {
-	pboolean	myast	= FALSE;
 	pboolean	ret;
 
 	if( !( grm && start && end ) )
@@ -184,23 +192,9 @@ pboolean pp_ll_parse( parray* ast, ppgram* grm, char* start, char** end )
 	}
 
 	if( !ast )
-	{
-		ast = parray_create( sizeof( ppmatch ), 0 );
-		myast = TRUE;
-	}
+		*ast = parray_create( sizeof( ppmatch ), 0 );
 
-	ret = pp_ll_PARSE( grm->goal, ast, grm, start, end );
-
-	/*
-	if( ast )
-		pp_ll_normalize_leftrec( ast );
-	*/
-
-	if( myast )
-	{
-		pp_ast_print( ast );
-		parray_free( ast );
-	}
+	ret = pp_ll_PARSE( grm->goal, ast ? *ast : (parray*)NULL, grm, start, end );
 
 	return ret;
 }

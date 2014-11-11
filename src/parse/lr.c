@@ -10,7 +10,10 @@ Usage:	Phorward Parsing Library
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
-#define MALLOCSTEP		255
+
+/* Defines */
+#define PPLR_SHIFT	1
+#define PPLR_REDUCE	2
 
 /* Closure item */
 typedef struct
@@ -55,11 +58,9 @@ typedef struct
 	long			begin;
 } pplrse;
 
-#define PPLR_SHIFT	1
-#define PPLR_REDUCE	2
-
 /* LR/LALR parser */
 
+/* Debug for one lritem */
 static void pp_lritem_print( pplritem* it )
 {
 	int			i;
@@ -110,6 +111,7 @@ static void pp_lritem_print( pplritem* it )
 	printf( "\n" );
 }
 
+/* Debug for an item set consisting of lritems */
 static void pp_lritems_print( plist* items, char* what )
 {
 	plistel*	e;
@@ -132,20 +134,7 @@ static void pp_lritems_print( plist* items, char* what )
 	}
 }
 
-/* Priority sort function for the lookahead-sets */
-static int pp_lritem_lookahead_sort( plist* list, plistel* el, plistel* er )
-{
-	ppsym*	l	= (ppsym*)plist_access( el );
-	ppsym*	r	= (ppsym*)plist_access( er );
-
-	/* Higher type before lower type, then by definition order */
-	if( ( l->type == r->type && l->id < r->id ) || l->type > r->type )
-		return 1;
-
-	return 0;
-}
-
-/* Debug */
+/* Debug for lookahead */
 static void pp_lritem_lookahead_print( plist* list )
 {
 	plistel*	e;
@@ -157,6 +146,19 @@ static void pp_lritem_lookahead_print( plist* list )
 		printf( " %s", pp_sym_to_str( (ppsym*)plist_access( e ) ) );
 
 	printf( " ]]\n" );
+}
+
+/* Priority sort function for the lookahead-sets */
+static int pp_lritem_lookahead_sort( plist* list, plistel* el, plistel* er )
+{
+	ppsym*	l	= (ppsym*)plist_access( el );
+	ppsym*	r	= (ppsym*)plist_access( er );
+
+	/* Higher type before lower type, then by definition order */
+	if( ( l->type == r->type && l->id < r->id ) || l->type > r->type )
+		return 1;
+
+	return 0;
 }
 
 static pplritem* pp_lritem_create( plist* list, ppprod* prod, int dot )
@@ -180,7 +182,6 @@ static pplritem* pp_lritem_create( plist* list, ppprod* prod, int dot )
 
 	item->lookahead = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_AUTOSORT );
 	plist_set_sortfn( item->lookahead, pp_lritem_lookahead_sort );
-	/* plist_set_printfn( item->lookahead, pp_lritem_lookahead_print ); */
 
 	return item;
 }
@@ -473,10 +474,8 @@ static BOOLEAN pp_parser_lr_compare( plist* set1, plist* set2 )
 
 				if( it1->prod == it2->prod && it1->dot == it2->dot )
 				{
-					/*
-					if( para != PGPARADIGM_LR1
-							|| !plist_diff( it1->lookahead, it2->lookahead ) )
-					*/
+					/* To become LR(1), uncomment this: */
+					/* if( !plist_diff( it1->lookahead, it2->lookahead ) ) */
 					same++;
 				}
 			}
@@ -948,24 +947,6 @@ static pplrse* pop( parray* stack, int n, char** start, long* begin )
 	return (pplrse*)parray_last( stack );
 }
 
-static void print_stack( char* title, plist* states, parray* stack )
-{
-	pplrse*	e;
-	int		i;
-
-	fprintf( stderr, "STACK DUMP %s\n", title );
-
-	for( i = 0; i < parray_count( stack ); i++ )
-	{
-		e = (pplrse*)parray_get( stack, i );
-		fprintf( stderr, "%02d: %s %d >%.*s<\n",
-			i, e->symbol ? e->symbol->name : "(null)",
-				e->state ?
-					plist_offset( plist_get_by_ptr( states, e->state ) ) : -1,
-			e->end - e->start, e->start );
-	}
-}
-
 static pboolean get_action( pplrstate** shift, ppprod** reduce, ppsym** on_sym,
 								pplrse* tos, char** end )
 {
@@ -980,8 +961,9 @@ static pboolean get_action( pplrstate** shift, ppprod** reduce, ppsym** on_sym,
 	{
 		col = (pplrcolumn*)plist_access( e );
 
+		#if DEBUGLEVEL > 1
 		fprintf( stderr, "Testing %s on >%s<\n", col->symbol->name, *end );
-
+		#endif
 		if( pp_sym_in_input( col->symbol, *end, end ) )
 		{
 			*shift = col->shift;
@@ -1022,6 +1004,27 @@ static pboolean get_goto( pplrstate** shift, ppprod** reduce,
 	return FALSE;
 }
 
+#if DEBUGLEVEL > 2
+/* Function to dump the parse stack content */
+static void print_stack( char* title, plist* states, parray* stack )
+{
+	pplrse*	e;
+	int		i;
+
+	fprintf( stderr, "STACK DUMP %s\n", title );
+
+	for( i = 0; i < parray_count( stack ); i++ )
+	{
+		e = (pplrse*)parray_get( stack, i );
+		fprintf( stderr, "%02d: %s %d >%.*s<\n",
+			i, e->symbol ? e->symbol->name : "(null)",
+				e->state ?
+					plist_offset( plist_get_by_ptr( states, e->state ) ) : -1,
+			e->end - e->start, e->start );
+	}
+}
+#endif
+
 static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 									plist* states )
 {
@@ -1038,7 +1041,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 	ppmatch*	mbegin;
 	ppmatch*	mend;
 
-	stack = parray_create( sizeof( pplrse ), MALLOCSTEP );
+	stack = parray_create( sizeof( pplrse ), 0 );
 	tos = push( stack, grm->goal,
 					(pplrstate*)plist_access(
 						plist_first( states ) ), start, start );
@@ -1054,9 +1057,13 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 		start = *end;
 
 		/* Parse */
+		#if DEBUGLEVEL > 1
 		fprintf( stderr, "State on Top %d\n",
 					plist_offset( plist_get_by_ptr( states, tos->state ) ) );
+		#endif
+		#if DEBUGLEVEL > 2
 		fprintf( stderr, "BEFORE >%s<\n", *end );
+		#endif
 
 		/* Action table processing */
 		if( !get_action( &shift, &reduce, &sym, tos, end ) )
@@ -1067,11 +1074,14 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			return FALSE;
 		}
 
+		#if DEBUGLEVEL > 2
 		fprintf( stderr, "AFTER  >%s<\n", *end );
+		#endif
 
 		/* Shift */
 		if( shift )
 		{
+			#if DEBUGLEVEL > 1
 			if( reduce )
 				fprintf( stderr,
 					"shift on %s and reduce by production %d\n",
@@ -1082,12 +1092,13 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 					"shift on %s to state %d\n",
 						sym->name,
 						plist_offset( plist_get_by_ptr( states, shift ) ) );
+			#endif
 
 			tos = push( stack, sym, reduce ? (pplrstate*)NULL : shift,
 							start, *end );
 
 			/* Shifted symbol becomes AST node? */
-			if( sym->flags & PPFLAG_EMIT )
+			if( ast && sym->flags & PPFLAG_EMIT )
 			{
 				begin = parray_count( ast );
 				mend = (ppmatch*)parray_malloc( ast );
@@ -1109,23 +1120,26 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 		/* Reduce */
 		while( reduce )
 		{
+			#if DEBUGLEVEL > 1
 			fprintf( stderr,
 				"reduce by production %d\n"
 				"popping %d items off the stack, replacing by %s\n",
 				reduce->id,
 				plist_count( reduce->rhs ),
 				reduce->lhs->name );
+			#endif
 
+			#if DEBUGLEVEL > 2
 			print_stack( "Before Reduce", states, stack );
+			#endif
 
 			/* Pop elements off the stack */
 			tos = pop( stack, plist_count( reduce->rhs ), &start, &begin );
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
-			if( lhs->flags & PPFLAG_EMIT )
+			if( ast && lhs->flags & PPFLAG_EMIT )
 			{
-				printf( "begin = %ld %ld\n", begin, parray_count( ast ) );
 				if( begin >= 0L && begin != parray_count( ast ) )
 				{
 					mbegin = (ppmatch*)parray_insert( ast, begin, (void*)NULL );
@@ -1149,11 +1163,6 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 				mend->start = mbegin->start = start;
 				mend->end = mbegin->end = lend;
-
-				/*
-				pp_ast_print( ast );
-				getchar();
-				*/
 			}
 
 			/* Goal symbol reduced? */
@@ -1166,28 +1175,43 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 			tos->begin = begin;
 
+			#if DEBUGLEVEL > 2
 			print_stack( "Behind Reduce", states, stack );
 			pp_ast_print( ast );
+			#endif
 		}
 
 		/* Skip over whitespace */
 		if( !( tos->symbol->flags & PPFLAG_LEXEM ) )
 		{
-			printf( "tos->symbol >%s< is not LEXEM\n", tos->symbol->name );
+			#if DEBUGLEVEL > 1
+			fprintf( stderr, "tos->symbol >%s< is not LEXEM\n",
+						tos->symbol->name );
+			#endif
 			pp_white_in_input( grm, *end, end );
 		}
 	}
 	while( !reduce );
 
+	#if DEBUGLEVEL > 2
 	print_stack( "FINAL", states, stack );
+	#endif
 
 	return TRUE;
 }
 
-pboolean pp_lr_parse( parray* ast, ppgram* grm, char* start, char** end )
+/** Parses the string //str// using the grammar //grm// using a LALR(1) parser.
+Parsing stops at least when reading the zero terminator of //str//.
+
+//ast// receives an allocated parray-object with items of //ppmatch//
+that describe the prooduced abstract syntax tree.
+
+//end// receives the position of the last character matched.
+The function returns TRUE if no parse error orccured.
+*/
+pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end )
 {
 	pboolean	ret;
-	pboolean	myast		= FALSE;
 	plist*		states;
 
 	if( !( grm && start && end ) )
@@ -1197,22 +1221,16 @@ pboolean pp_lr_parse( parray* ast, ppgram* grm, char* start, char** end )
 	}
 
 	states = pp_parser_lr_closure( grm, TRUE );
+
+	#if DEBUGLEVEL > 0
 	pp_lrstates_print( states );
+	#endif
 
-	if( !ast )
-	{
-		ast = parray_create( sizeof( ppmatch ), 0 );
-		myast = TRUE;
-	}
+	if( ast )
+		*ast = parray_create( sizeof( ppmatch ), 0 );
 
-	ret = pp_lr_PARSE( ast, grm, start, end, states );
+	ret = pp_lr_PARSE( ast ? *ast : (parray*)NULL, grm, start, end, states );
 	pp_lrstates_free( states );
-
-	if( myast )
-	{
-		pp_ast_print( ast );
-		parray_free( ast );
-	}
 
 	return ret;
 }

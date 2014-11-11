@@ -50,9 +50,8 @@ int main( int argc, char** argv )
 	if( argc > 1 )
 	{
 		e = s = argv[ 1 ];
-		a = parray_create( sizeof( ppmatch ), 0 );
 
-		if( pp_lr_parse( a, g, s, &e ) )
+		if( pp_lr_parse( &a, g, s, &e ) )
 		{
 			printf( "\nSUCCEED >%.*s<\n", e - s, s );
 			ast_walker( a );
