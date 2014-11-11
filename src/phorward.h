@@ -81,6 +81,12 @@ typedef char 					pboolean;
 									"a module that is not finished yet!\n", \
 											__FILE__, __LINE__ )
 
+#define CORE					{ 	int* x = NULL; \
+									fprintf( stderr, \
+									"%s, %d: !CORE!\n", __FILE__, __LINE__ ); \
+									*x = 123; \
+								}
+
 
 #ifndef _WIN32
 #define PDIRSEP					':'

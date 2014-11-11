@@ -223,7 +223,7 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 	{
 		st = (pregex_dfa_st*)plist_access( e );
 
-		if( st->trans )
+		if( !st->trans )
 			continue;
 
 		/* Sort transitions */
@@ -794,6 +794,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 		/* Delete all states except the first one in the group */
 		for( f = plist_next( plist_first( group ) ); f; f = plist_next( f ) )
 		{
+			dfa_st = (pregex_dfa_st*)plist_access( f );
 			grp_dfa_st->refs |= dfa_st->refs;
 			pregex_dfa_delete_state( dfa_st );
 		}
