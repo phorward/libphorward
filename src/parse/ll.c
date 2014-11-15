@@ -25,7 +25,7 @@ static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
 	ppmatch*	mend;
 	char*		ptr;
 
-	if( !( sym && ast && grm && start && end ) )
+	if( !( sym && grm && start && end ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -37,13 +37,13 @@ static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
 		if( !pp_sym_in_input( sym, start, end ) )
 			return FALSE;
 
-		if( sym->flags & PPFLAG_EMIT )
+		if( ast && sym->emit )
 		{
 			mend = (ppmatch*)parray_malloc( ast );
 
 			mend->type = PPMATCH_BEGIN | PPMATCH_END;
 			mend->sym = sym;
-			mend->emit_id = sym->emit_id;
+			mend->emit = sym->emit;
 
 			mend->start = start;
 			mend->end = *end;
@@ -94,7 +94,7 @@ static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
 
 	*end = ptr;
 
-	if( sym->flags & PPFLAG_EMIT )
+	if( ast && sym->emit )
 	{
 		if( istart != parray_count( ast ) )
 		{
@@ -114,7 +114,7 @@ static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
 
 		mstart->sym = mend->sym = sym;
 		mstart->prod = mend->prod = p;
-		mstart->emit_id = mend->emit_id = sym->emit_id;
+		mstart->emit = mend->emit = sym->emit;
 
 		mstart->start = mend->start = start;
 		mstart->end = mend->end = *end;
@@ -191,7 +191,7 @@ pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end )
 		return FALSE;
 	}
 
-	if( !ast )
+	if( ast )
 		*ast = parray_create( sizeof( ppmatch ), 0 );
 
 	ret = pp_ll_PARSE( grm->goal, ast ? *ast : (parray*)NULL, grm, start, end );

@@ -1098,7 +1098,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 							start, *end );
 
 			/* Shifted symbol becomes AST node? */
-			if( ast && sym->flags & PPFLAG_EMIT )
+			if( ast && sym->emit )
 			{
 				begin = parray_count( ast );
 				mend = (ppmatch*)parray_malloc( ast );
@@ -1106,7 +1106,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 				mend->type = PPMATCH_BEGIN | PPMATCH_END;
 				mend->prod = (ppprod*)NULL;
 				mend->sym = sym;
-				mend->emit_id = sym->emit_id;
+				mend->emit = sym->emit;
 
 				mend->start = start;
 				mend->end = *end;
@@ -1138,7 +1138,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
-			if( ast && lhs->flags & PPFLAG_EMIT )
+			if( ast && lhs->emit )
 			{
 				if( begin >= 0L && begin != parray_count( ast ) )
 				{
@@ -1159,7 +1159,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 				mend->prod = mbegin->prod = reduce;
 				mend->sym = mbegin->sym = lhs;
-				mend->emit_id = mbegin->emit_id = lhs->emit_id;
+				mend->emit = mbegin->emit = lhs->emit;
 
 				mend->start = mbegin->start = start;
 				mend->end = mbegin->end = lend;

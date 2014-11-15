@@ -32,7 +32,7 @@ void pp_ast_print( parray* ast )
 			printf( "%s{ %s (%d) >%.*s<\n",
 				gap,
 				match->sym->name,
-				match->emit_id,
+				match->emit,
 				match->end - match->start,
 				match->start );
 
@@ -47,7 +47,7 @@ void pp_ast_print( parray* ast )
 			printf( "%s} %s (%d) >%.*s<\n",
 				gap,
 				match->sym->name,
-				match->emit_id,
+				match->emit,
 				match->end - match->start,
 				match->start );
 		}

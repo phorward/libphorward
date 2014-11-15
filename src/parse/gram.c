@@ -45,7 +45,6 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	}
 
 	sym->id = -1;
-	sym->emit_id = -1;
 	sym->name = name;
 
 	switch( ( sym->type = type ) )
@@ -530,6 +529,10 @@ static int pp_gram_read( ppgram* g, char** def )
 	char		name		[ NAMELEN + 1 ];
 	char		symdef		[ NAMELEN + 1 ];
 	int			dflags		= 0;
+	int			emit_max	= 0;
+	pboolean	doemit;
+	pboolean	emitall		= FALSE;
+	int			emit;
 
 	while( *def )
 	{
@@ -541,6 +544,8 @@ static int pp_gram_read( ppgram* g, char** def )
 		if( parse_ident( name, def ) )
 		{
 			SKIPWHITE();
+			doemit = emitall;
+			emit = 0;
 
 			/* Is nonterminal definition? */
 			if( **def == ':' )
@@ -608,9 +613,13 @@ static int pp_gram_read( ppgram* g, char** def )
 							g->goal = sym;
 					}
 					else if( !strcmp( name, "emit") )
-						sym->flags |= PPFLAG_EMIT;
+					{
+						doemit = TRUE;
+
+						parse_integer( &emit, def );
+					}
 					else if( !strcmp( name, "noemit" ) )
-						sym->flags &= ~PPFLAG_EMIT;
+						doemit = FALSE;
 					else if( !strcmp( name, "lexem" ) )
 						sym->flags |= PPFLAG_LEXEM;
 					else if( !strcmp( name, "whitespace" ) )
@@ -624,19 +633,23 @@ static int pp_gram_read( ppgram* g, char** def )
 							plist_push( g->ws, sym );
 						}
 					}
-					else if( !strcmp( name, "id") )
-					{
-						sym->flags |= PPFLAG_EMIT;
-
-						if( !parse_integer( &sym->emit_id, def ) )
-						{
-							PARSEERROR( def, "integer" );
-							return -1;
-						}
-					}
 				}
 				else
 					break;
+			}
+
+			/* Set emit ID if configured */
+			if( doemit )
+			{
+				if( emit )
+				{
+					sym->emit = emit;
+
+					if( emit > emit_max )
+						emit_max = emit;
+				}
+				else
+					sym->emit = ++emit_max;
 			}
 
 			SKIPWHITE();
@@ -658,13 +671,13 @@ static int pp_gram_read( ppgram* g, char** def )
 			}
 
 			if( !strcmp( name, "emitall" ) )
-				dflags |= PPFLAG_EMIT;
+				emitall = TRUE;
+			else if( !strcmp( name, "emitnone" ) )
+				emitall = FALSE;
 			else if( !strcmp( name, "rrec" ) )
 				g->flags |= PPFLAG_PREVENTLREC;
 			else if( !strcmp( name, "lrec" ) )
 				g->flags &= ~PPFLAG_PREVENTLREC;
-			else if( !strcmp( name, "emitnone" ) )
-				dflags &= ~PPFLAG_EMIT;
 			else if( !strcmp( name, "whitespace" ) )
 			{
 				SKIPWHITE();
@@ -917,6 +930,7 @@ void pp_gram4gram( ppgram* g )
 	ppsym*		grammar;
 
 	ppsym*		ws;
+	int			emit	= 0;
 
 	/*
 	ident		= /[A-Za-z_][A-Za-z0-9_]* /
@@ -948,16 +962,16 @@ void pp_gram4gram( ppgram* g )
 
 	ident = pp_sym_create( g, PPSYMTYPE_REGEX,
 				"ident", "[A-Za-z_][A-Za-z0-9_]*" );
-	ident->flags = PPFLAG_EMIT;
+	ident->emit = ++emit;
 
 	ccl = pp_sym_create( g, PPSYMTYPE_REGEX, "ccl", "'.*'" );
-	ccl->flags = PPFLAG_EMIT;
+	ccl->emit = ++emit;
 
 	string = pp_sym_create( g, PPSYMTYPE_REGEX, "string", "\".*\"" );
-	string->flags = PPFLAG_EMIT;
+	string->emit = ++emit;
 
 	regex = pp_sym_create( g, PPSYMTYPE_REGEX, "regex", "/(\\\\.|[^\\\\/])*/" );
-	regex->flags = PPFLAG_EMIT;
+	regex->emit = ++emit;
 
 	/* Nonterminals */
 	symbol = pp_sym_create( g, PPSYMTYPE_NONTERM, "symbol", (char*)NULL );
@@ -972,7 +986,7 @@ void pp_gram4gram( ppgram* g )
 
 	alternative = pp_sym_create( g, PPSYMTYPE_NONTERM,
 					"alternative", (char*)NULL );
-	alternative->flags = PPFLAG_EMIT;
+	alternative->emit = ++emit;
 	pp_prod_create( g, alternative, sequence, (ppsym*)NULL );
 	pp_prod_create( g, alternative, (ppsym*)NULL );
 
@@ -984,12 +998,12 @@ void pp_gram4gram( ppgram* g )
 
 	nontermdef = pp_sym_create( g, PPSYMTYPE_NONTERM,
 					"nontermdef", (char*)NULL );
-	nontermdef->flags = PPFLAG_EMIT;
+	nontermdef->emit = ++emit;
 	pp_prod_create( g, nontermdef, ident, colon, alternation,
 						semicolon, (ppsym*)NULL );
 
 	termdef = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
-	termdef->flags = PPFLAG_EMIT;
+	termdef->emit = ++emit;
 	pp_prod_create( g, termdef, ident, equal, ccl, semicolon, (ppsym*)NULL );
 	pp_prod_create( g, termdef, ident, equal, string, semicolon, (ppsym*)NULL );
 	pp_prod_create( g, termdef, ident, equal, regex, semicolon, (ppsym*)NULL );
@@ -1077,11 +1091,11 @@ void pp_gram_print( ppgram* g )
 	plist_for( g->prods, e )
 	{
 		p = (ppprod*)plist_access( e );
-		printf( "%s%s%s%s%s%s %-*s : ",
+		printf( "%2d %s%s%s%s%s %-*s : ",
+			p->lhs->emit,
 			g->goal == p->lhs ? "G" : " ",
 			p->flags & PPFLAG_LEFTREC ? "L" : " ",
 			p->flags & PPFLAG_NULLABLE ? "N" : " ",
-			p->lhs->flags & PPFLAG_EMIT ? "E" : " ",
 			p->lhs->flags & PPFLAG_LEXEM ? "X" : " ",
 			p->lhs->flags & PPFLAG_WHITESPACE ? "W" : " ",
 			maxlhslen, p->lhs->name );

@@ -639,10 +639,9 @@ typedef struct _ppgram		ppgram;
 #define PPFLAG_DEFINED		2
 #define PPFLAG_NULLABLE		4
 #define PPFLAG_LEFTREC		8
-#define PPFLAG_EMIT			16
-#define PPFLAG_LEXEM		32
-#define PPFLAG_WHITESPACE	64
-#define PPFLAG_PREVENTLREC	128
+#define PPFLAG_LEXEM		16
+#define PPFLAG_WHITESPACE	32
+#define PPFLAG_PREVENTLREC	64
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -678,7 +677,7 @@ struct _ppsym
 	pregex*					re;
 
 	
-	int						emit_id;
+	int						emit;
 
 	
 	char*					strval;
@@ -702,7 +701,7 @@ typedef struct
 	#define PPMATCH_END		2
 	int						type;
 
-	int						emit_id;
+	int						emit;
 	ppsym*					sym;
 	ppprod*					prod;
 

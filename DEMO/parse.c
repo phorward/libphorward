@@ -29,7 +29,7 @@ int main( int argc, char** argv )
 {
 	pboolean	lr		= TRUE;
 	pboolean	as		= FALSE;
-	parray*		a;
+	parray*		a		= (parray*)NULL;
 	ppgram*		g;
 	char*		gstr	= (char*)NULL;
 	char*		s		= (char*)NULL;
@@ -59,7 +59,6 @@ int main( int argc, char** argv )
 		else if( !strcmp( opt, "renderer" ) || *opt == 'r' )
 			if( pstrcasecmp( param, "tree2svg" ) == 0 )
 				as = TRUE;
-
 	}
 
 	if( rc == 1 )
