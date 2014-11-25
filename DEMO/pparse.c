@@ -1,39 +1,5 @@
 #include "phorward.h"
 
-void ast_walker( parray* ast )
-{
-	int			i;
-	ppmatch*	match;
-	char		gap		[ 80 + 1 ];
-
-	if( !ast )
-	{
-		WRONGPARAM;
-		return;
-	}
-
-	*gap = '\0';
-
-	for( i = 0; ( match = (ppmatch*)parray_get( ast, i ) ); i++ )
-	{
-		if( match->type & PPMATCH_BEGIN )
-		{
-			printf( "%s%s",
-				gap,
-				match->sym->name
-				);
-
-			if( match->sym->type != PPSYMTYPE_NONTERM )
-				printf( " >%.*s<", match->end - match->start, match->start );
-
-			printf( "\n" );
-			strcat( gap, " " );
-		}
-
-		if( match->type & PPMATCH_END && *gap )
-			gap[ strlen( gap ) - 1 ] = '\0';
-	}
-}
 
 int main( int argc, char** argv )
 {
@@ -41,9 +7,10 @@ int main( int argc, char** argv )
 	char*	s;
 	parray*	a;
 	ppgram*	g;
+	ppgram*	g2;
 
 	g = pp_gram_create( (char*)NULL );
-	pp_gram4gram( g );
+	pp_gram2gram( g );
 	pp_gram_prepare( g );
 	pp_gram_print( g );
 
@@ -54,7 +21,11 @@ int main( int argc, char** argv )
 		if( pp_lr_parse( &a, g, s, &e ) )
 		{
 			printf( "\nSUCCEED >%.*s<\n", e - s, s );
-			ast_walker( a );
+
+			pp_ast_simplify( a );
+
+			g2 = pp_ast2gram( a );
+			pp_gram_print( g2 );
 		}
 		else
 			printf( "\nFAILED\n" );

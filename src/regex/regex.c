@@ -59,7 +59,7 @@ pregex* pregex_create( char* pat, int flags )
 	regex->flags = flags;
 
 	/* Generate a dfatab */
-	pregex_ptn_to_dfatab( (wchar_t***)NULL, ptn );
+	/* pregex_ptn_to_dfatab( (wchar_t***)NULL, ptn ); */
 	if( ( regex->trans_cnt = pregex_ptn_to_dfatab( &regex->trans, ptn ) ) < 0 )
 		RETURN( pregex_free( regex ) );
 

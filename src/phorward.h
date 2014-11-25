@@ -990,7 +990,11 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
+ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset );
+ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth );
+ppmatch* pp_ast_pendant( parray* ast, ppmatch* match );
 void pp_ast_print( parray* ast );
+void pp_ast_simplify( parray* ast );
 void pp_ast_tree2svg( parray* ast );
 
 
@@ -1001,10 +1005,11 @@ pboolean pp_prod_append( ppprod* p, ppsym* sym );
 ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
 pboolean pp_gram_prepare( ppgram* g );
-void pp_gram4gram( ppgram* g );
 ppgram* pp_gram_create( char* def );
 void pp_gram_print( ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
+ppgram* pp_ast2gram( parray* ast );
+void pp_gram2gram( ppgram* g );
 
 
 pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
