@@ -25,6 +25,7 @@ int main( int argc, char** argv )
 			pp_ast_simplify( a );
 
 			g2 = pp_ast2gram( a );
+			printf( "\n--- final ---\n" );
 			pp_gram_print( g2 );
 		}
 		else

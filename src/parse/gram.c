@@ -414,7 +414,10 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 			return FALSE;
 	}
 	else if( ( type = parse_terminal( name, def ) ) > 0 )
+	{
 		sym = pp_sym_create( g, type, (char*)NULL, name );
+		sym->flags |= PPFLAG_CALLED | PPFLAG_DEFINED;
+	}
 	else
 	{
 		return TRUE;
@@ -1063,13 +1066,10 @@ ppgram* pp_gram_free( ppgram* g )
 ppgram* pp_ast2gram( parray* ast )
 {
 	int			i;
+	int			j;
 	ppmatch*	entry;
-	ppmatch*	id;
-	ppmatch*	def;
 	ppgram*		g;
 	ppsym*		sym;
-	char		sid		[ 512 + 1 ];
-	char		sdef	[ 512 + 1 ];
 
 	if( !ast )
 	{
@@ -1081,40 +1081,130 @@ ppgram* pp_ast2gram( parray* ast )
 
 	for( i = 0; ( entry = pp_ast_get( ast, (ppmatch*)NULL, i ) ); i++ )
 	{
-		if( entry->type & PPMATCH_BEGIN )
+		if( !( entry->type & PPMATCH_BEGIN ) )
+			continue;
+
+		switch( entry->emit )
 		{
-			switch( entry->emit )
+			/* Terminal definition */
+			case T_TERMDEF:
 			{
-				case T_TERMDEF:
-					id = pp_ast_query( ast, entry, 0, -1, -1 );
-					sprintf( sid, "%.*s", id->end - id->start, id->start );
+				ppmatch*	id;
+				ppmatch*	def;
+				char		sid		[ 512 + 1 ];
+				char		sdef	[ 512 + 1 ];
 
-					def = pp_ast_query( ast, entry, 1, -1, -1 );
-					sprintf( sdef, "%.*s", def->end - def->start - 2,
-									def->start + 1 );
+				id = pp_ast_query( ast, entry, 0, -1, -1 );
+				sprintf( sid, "%.*s", id->end - id->start, id->start );
 
-					switch( def->emit )
+				def = pp_ast_query( ast, entry, 1, -1, -1 );
+				sprintf( sdef, "%.*s", def->end - def->start - 2,
+								def->start + 1 );
+
+				switch( def->emit )
+				{
+					case T_CCL:
+						sym = pp_sym_create( g, PPSYMTYPE_CCL, sid, sdef );
+						break;
+
+					case T_STRING:
+						sym = pp_sym_create( g, PPSYMTYPE_STRING, sid, sdef );
+						break;
+
+					case T_REGEX:
+						sym = pp_sym_create( g, PPSYMTYPE_REGEX, sid, sdef );
+						break;
+
+					default:
+						MISSINGCASE;
+						continue;
+				}
+
+				sym->flags |= PPFLAG_DEFINED;
+
+				/* TODO: flags */
+				break;
+			}
+
+			/* Nonterminal definition */
+			case T_NONTERMDEF:
+			{
+				int			j, k;
+				ppmatch*	id;
+				ppmatch*	alt;
+				ppmatch*	item;
+				char		sid		[ 512 + 1 ];
+				char		sitem	[ 512 + 1 ];
+				ppsym*		rsym;
+				ppprod*		prod;
+
+				id = pp_ast_query( ast, entry, 0, -1, -1 );
+				sprintf( sid, "%.*s", id->end - id->start, id->start );
+
+				if( !( sym = (ppsym*)plist_access(
+								plist_get_by_key( g->symbols, sid ) ) ) )
+					sym = pp_sym_create(
+							g, PPSYMTYPE_NONTERM, sid, (char*)NULL );
+
+				sym->flags |= PPFLAG_DEFINED;
+
+				for( j = 0; ( alt = pp_ast_query(
+								ast, entry, j, T_ALTERNATIVE, -1 ) ); j++ )
+				{
+					prod = pp_prod_create( g, sym, (ppsym*)NULL );
+
+					for( k = 0; ( item = pp_ast_query( ast, alt, k, -1, -1 ) );
+							k++ )
 					{
-						case T_CCL:
-							printf( "ccl %s >%s<\n", sid, sdef );
-							sym = pp_sym_create( g, PPSYMTYPE_CCL, sid, sdef );
-							break;
+						if( item->emit != T_IDENT )
+							sprintf( sitem, "%.*s",
+										item->end - item->start - 2,
+											item->start + 1 );
 
-						case T_STRING:
-							printf( "string %s >%s<\n", sid, sdef );
-							sym = pp_sym_create(
-									g, PPSYMTYPE_STRING, sid, sdef );
-							break;
+						switch( item->emit )
+						{
+							case T_IDENT:
+								sprintf( sitem, "%.*s",
+									item->end - item->start, item->start );
 
-						case T_REGEX:
-							printf( "regex %s >%s<\n", sid, sdef );
-							sym = pp_sym_create(
-									g, PPSYMTYPE_REGEX, sid, sdef );
-							break;
+								if( !( rsym =
+										(ppsym*)plist_access(
+												plist_get_by_key(
+													g->symbols, sitem ) ) ) )
+									rsym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+														sitem, (char*)NULL );
+								break;
+
+							case T_CCL:
+								rsym = pp_sym_create(
+										g, PPSYMTYPE_CCL,
+											(char*)NULL, sitem );
+								rsym->flags |= PPFLAG_DEFINED;
+								break;
+
+							case T_STRING:
+								rsym = pp_sym_create(
+										g, PPSYMTYPE_STRING,
+											(char*)NULL, sitem );
+								rsym->flags |= PPFLAG_DEFINED;
+								break;
+
+							case T_REGEX:
+								rsym = pp_sym_create(
+										g, PPSYMTYPE_REGEX,
+											(char*)NULL, sitem );
+								rsym->flags |= PPFLAG_DEFINED;
+								break;
+
+							default:
+								MISSINGCASE;
+								continue;
+						}
+
+						rsym->flags |= PPFLAG_CALLED;
+						pp_prod_append( prod, rsym );
 					}
-
-					/* TODO: flags */
-					break;
+				}
 			}
 		}
 	}
