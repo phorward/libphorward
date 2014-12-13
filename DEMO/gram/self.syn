@@ -4,7 +4,13 @@ string 		= /".*"/ ;
 regex 		= /\/(\\.|[^\\\/])*\// ;
 
 symbol 		: ident | ccl | string | regex ;
-sequence	: sequence symbol | symbol ;
+
+mod_kleene	: symbol '*';
+mod_positive: symbol '+' ;
+mod_optional: symbol '?';
+modifier	: mod_kleene | mod_positive | mod_optional | symbol ;
+
+sequence	: sequence modifier | modifier ;
 alternative : sequence | ;
 alternation	: alternation '|' alternative | alternative ;
 

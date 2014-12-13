@@ -1055,160 +1055,156 @@ ppgram* pp_gram_free( ppgram* g )
 
 /* Parser for yourself. */
 
-#define T_IDENT			1
-#define T_CCL			2
-#define T_STRING		3
-#define T_REGEX			4
-#define T_ALTERNATIVE	5
-#define T_NONTERMDEF	6
-#define T_TERMDEF		7
+#define T_CCL			PPSYMTYPE_CCL
+#define T_STRING		PPSYMTYPE_STRING
+#define T_REGEX			PPSYMTYPE_REGEX
+#define T_IDENT			10
+
+#define T_SYMBOL		20
+#define T_KLEENE		21
+#define T_POSITIVE		22
+#define T_OPTIONAL		23
+#define T_ALTERNATIVE	24
+#define T_NONTERMDEF	25
+
+#define T_TERMDEF		30
+
 
 ppgram* pp_ast2gram( parray* ast )
 {
-	int			i;
-	int			j;
-	ppmatch*	entry;
-	ppgram*		g;
-	ppsym*		sym;
-
-	if( !ast )
+	typedef struct
 	{
-		WRONGPARAM;
-		return;
-	}
+		int			emit;
+		char*		buf;
+		ppsym*		sym;
+		parray*		seq;
+	} ATT;
+
+	ATT			att;
+	ATT*		attp;
+	parray*		st;
+	ppmatch*	e;
+	ppgram*		g;
+	ppsym*		scope		= (ppsym*)NULL;
+	ppprod*		p;
+	int			i;
 
 	g = pp_gram_create( (char*)NULL );
+	st = parray_create( sizeof( ATT ), 0 );
 
-	for( i = 0; ( entry = pp_ast_get( ast, (ppmatch*)NULL, i ) ); i++ )
+	for( e = (ppmatch*)parray_first( ast );
+			e <= (ppmatch*)parray_last( ast ); e++ )
 	{
-		if( !( entry->type & PPMATCH_BEGIN ) )
-			continue;
-
-		switch( entry->emit )
+		if( e->type & PPMATCH_BEGIN && !( e->type & PPMATCH_END ) )
 		{
-			/* Terminal definition */
-			case T_TERMDEF:
+			if( e->emit == T_NONTERMDEF )
 			{
-				ppmatch*	id;
-				ppmatch*	def;
-				char		sid		[ 512 + 1 ];
-				char		sdef	[ 512 + 1 ];
+				e++;
 
-				id = pp_ast_query( ast, entry, 0, -1, -1 );
-				sprintf( sid, "%.*s", id->end - id->start, id->start );
-
-				def = pp_ast_query( ast, entry, 1, -1, -1 );
-				sprintf( sdef, "%.*s", def->end - def->start - 2,
-								def->start + 1 );
-
-				switch( def->emit )
-				{
-					case T_CCL:
-						sym = pp_sym_create( g, PPSYMTYPE_CCL, sid, sdef );
-						break;
-
-					case T_STRING:
-						sym = pp_sym_create( g, PPSYMTYPE_STRING, sid, sdef );
-						break;
-
-					case T_REGEX:
-						sym = pp_sym_create( g, PPSYMTYPE_REGEX, sid, sdef );
-						break;
-
-					default:
-						MISSINGCASE;
-						continue;
-				}
-
-				sym->flags |= PPFLAG_DEFINED;
-
-				/* TODO: flags */
-				break;
+				att.buf = pstrndup( e->start, e->end - e->start );
+				scope = pp_sym_create( g, PPSYMTYPE_NONTERM,
+											att.buf, (char*)NULL );
+				pfree( att.buf );
 			}
 
-			/* Nonterminal definition */
-			case T_NONTERMDEF:
-			{
-				int			j, k;
-				ppmatch*	id;
-				ppmatch*	alt;
-				ppmatch*	item;
-				char		sid		[ 512 + 1 ];
-				char		sitem	[ 512 + 1 ];
-				ppsym*		rsym;
-				ppprod*		prod;
+			continue;
+		}
 
-				id = pp_ast_query( ast, entry, 0, -1, -1 );
-				sprintf( sid, "%.*s", id->end - id->start, id->start );
+		memset( &att, 0, sizeof( ATT ) );
+		switch( ( att.emit = e->emit ) )
+		{
+			case T_IDENT:
+				att.buf = pstrndup( e->start, e->end - e->start );
+				break;
 
-				if( !( sym = (ppsym*)plist_access(
-								plist_get_by_key( g->symbols, sid ) ) ) )
-					sym = pp_sym_create(
-							g, PPSYMTYPE_NONTERM, sid, (char*)NULL );
+			case T_CCL:
+			case T_STRING:
+			case T_REGEX:
+				att.buf = pstrndup( e->start + 1, e->end - e->start - 2 );
 
-				sym->flags |= PPFLAG_DEFINED;
-
-				for( j = 0; ( alt = pp_ast_query(
-								ast, entry, j, T_ALTERNATIVE, -1 ) ); j++ )
+				if( e->emit == T_REGEX )
 				{
-					prod = pp_prod_create( g, sym, (ppsym*)NULL );
+					char*	s;
+					char*	p;
 
-					for( k = 0; ( item = pp_ast_query( ast, alt, k, -1, -1 ) );
-							k++ )
+					for( p = s = att.buf; *p = *s; p++, s++ )
+						if( *s == '\\' && *( s + 1) )
+							*p = *( ++s );
+				}
+				break;
+
+			case T_SYMBOL:
+				attp = parray_pop( st );
+
+				if( !( att.sym = (ppsym*)plist_access(
+										plist_get_by_key(
+											g->symbols, attp->buf ) ) ) )
+				{
+					if( attp->emit == T_IDENT )
+						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+										attp->buf, (char*)NULL );
+					else
 					{
-						if( item->emit != T_IDENT )
-							sprintf( sitem, "%.*s",
-										item->end - item->start - 2,
-											item->start + 1 );
-
-						switch( item->emit )
-						{
-							case T_IDENT:
-								sprintf( sitem, "%.*s",
-									item->end - item->start, item->start );
-
-								if( !( rsym =
-										(ppsym*)plist_access(
-												plist_get_by_key(
-													g->symbols, sitem ) ) ) )
-									rsym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-														sitem, (char*)NULL );
-								break;
-
-							case T_CCL:
-								rsym = pp_sym_create(
-										g, PPSYMTYPE_CCL,
-											(char*)NULL, sitem );
-								rsym->flags |= PPFLAG_DEFINED;
-								break;
-
-							case T_STRING:
-								rsym = pp_sym_create(
-										g, PPSYMTYPE_STRING,
-											(char*)NULL, sitem );
-								rsym->flags |= PPFLAG_DEFINED;
-								break;
-
-							case T_REGEX:
-								rsym = pp_sym_create(
-										g, PPSYMTYPE_REGEX,
-											(char*)NULL, sitem );
-								rsym->flags |= PPFLAG_DEFINED;
-								break;
-
-							default:
-								MISSINGCASE;
-								continue;
-						}
-
-						rsym->flags |= PPFLAG_CALLED;
-						pp_prod_append( prod, rsym );
+						att.sym = pp_sym_create( g, attp->emit,
+										(char*)NULL, attp->buf );
+						att.sym->flags |= PPFLAG_DEFINED;
 					}
 				}
-			}
+
+				att.sym->flags |= PPFLAG_CALLED;
+				pfree( attp->buf );
+				break;
+
+			case T_ALTERNATIVE:
+				att.seq = parray_create( sizeof( ppsym* ), 16 );
+
+				while( ( attp = parray_last( st ) ) && attp->emit == T_SYMBOL )
+				{
+					parray_pop( st );
+					parray_push( att.seq, &attp->sym );
+				}
+				break;
+
+			case T_NONTERMDEF:
+				while( ( attp = parray_last( st ) )
+							&& attp->emit == T_ALTERNATIVE )
+				{
+					parray_pop( st );
+					p = pp_prod_create( g, scope, (ppsym*)NULL );
+
+					while( parray_count( attp->seq ) )
+						pp_prod_append( p,
+							*( (ppsym**)parray_pop( attp->seq ) ) );
+
+					parray_free( attp->seq );
+				}
+
+				scope->flags |= PPFLAG_DEFINED;
+				break;
+
+			case T_TERMDEF:
+				attp = parray_pop( st ); 	/* Definition */
+				attp = parray_pop( st );	/* Identifier */
+
+				att.sym = pp_sym_create( g, ( attp + 1 )->emit,
+										attp->buf, ( attp + 1 )->buf );
+				att.sym->flags |= PPFLAG_DEFINED;
+
+				pfree( ( attp + 1 )->buf );
+				pfree( attp->buf );
+				break;
 		}
+
+		if( att.emit != T_NONTERMDEF
+				&& att.emit != T_TERMDEF )
+			parray_push( st, &att );
 	}
 
+	if( parray_count( st ) )
+		fprintf( stderr, "%s, %d: Still %d elements on stack\n",
+			__FILE__, __LINE__, parray_count( st ) );
+
+	parray_free( st );
 	return g;
 }
 
@@ -1222,8 +1218,15 @@ void pp_gram2gram( ppgram* g )
 	ppsym*		colon;
 	ppsym*		pipe;
 	ppsym*		equal;
+	ppsym*		star;
+	ppsym*		plus;
+	ppsym*		quest;
 
 	ppsym*		symbol;
+	ppsym*		mod_kleene;
+	ppsym*		mod_positive;
+	ppsym*		mod_optional;
+	ppsym*		modifier;
 	ppsym*		sequence;
 	ppsym*		alternative;
 	ppsym*		alternation;
@@ -1236,23 +1239,136 @@ void pp_gram2gram( ppgram* g )
 	ppsym*		ws;
 
 	/*
-	ident		= /[A-Za-z_][A-Za-z0-9_]* /
-	ccl 		= /'.*'/ ;
-	string 		= /".*"/ ;
-	regex 		= /\/.*\// ;
 
-	symbol 		: ident | ccl | string | regex ;
-	sequence	: sequence symbol | symbol ;
+	ident		= /[A-Za-z_][A-Za-z0-9_]* /
+				%emit <T_IDENT>
+				;
+
+	int			= /[0-9]+/
+				%emit <T_INT>
+				;
+
+	ccl 		= /'.*'/
+				%emit <T_CCL>
+				;
+
+	string 		= /".*"/
+				%emit <T_STRING>
+				;
+
+	regex 		= /\/(\.|[^\/])*\//
+				%emit <T_REGEX>
+				;
+
+	// Nonterminals ------------------------------------------------------------
+
+	symbol 		: ident | ccl | string | regex
+				%emit <T_SYMBOL>
+				;
+
+	mod_kleene	: symbol '*'
+				%emit <T_KLEENE>
+				;
+
+	mod_positive: symbol '+'
+				%emit <T_POSITIVE>
+				;
+
+	mod_optional: symbol '?'
+				%emit <T_OPTIONAL>
+				;
+
+	modifier	: mod_kleene
+				| mod_positive
+				| mod_optional
+				| symbol
+				;
+
+	sequence	: sequence modifier | modifier ;
 	alternative : sequence | ;
 	alternation	: alternation '|' alternative | alternative ;
 
-	nontermdef	: ident ':' alternation ';'
-	termdef		: ident '=' ccl ';'
-				| ident '=' string ';'
-				| ident '=' regex ';'
+	flagemit	: '%' "emit" int?
+				%emit <T_EMIT>
+				;
+	flagnoemit	: '%' "noemit" int?
+				%emit <T_NOEMIT>
+				;
+	flaggoal	: '%' "goal"
+				%emit <T_GOAL>
 				;
 
-	definition	: nontermdef | termdef ;
+	ntflag		: flagemit
+				| flagnoemit
+				| flaggoal
+				;
+
+	ntflags		: ntflags ntflag | ntflag
+				;
+
+	opt_ntflags	: ntflags |
+				;
+
+	nontermdef	: ident ':' alternation opt_ntflags ';'
+				%emit <T_NONTERMDEF>
+				;
+
+	// Terminals ---------------------------------------------------------------
+
+	flagwhite	: '%' "whitespace"
+				%emit <T_WHITESPACE>
+				;
+
+	tflag		: flagemit
+				| flagnoemit
+				| flagwhite
+				;
+
+	tflags		: tflags tflag | tflag
+				;
+
+	opt_tflags	: tflags | ;
+
+	termdef		: ident '=' ccl opt_tflags ';'
+				| ident '=' string opt_tflags ';'
+				| ident '=' regex opt_tflags ';'
+
+				%emit <T_TERMDEF>
+				;
+
+	// Grammar -----------------------------------------------------------------
+
+	flagemitall : '%' "emitall"
+				%emit <T_EMITALL>
+				;
+
+	flagemitnone: '%' "emitnone"
+				%emit <T_EMITNONE>
+				;
+
+	flaglrec	: '%' "lrec"
+				%emit <T_LREC>
+				;
+	flagrrec	: '%' "rrec"
+				%emit <T_RREC>
+				;
+
+	gflagwhite	: '%' whitespace symbol
+				%emit <T_WHITESPACE>
+
+
+	gflag		: flagemitall
+				| flagemitnone
+				| flaglrec
+				| flagrrec
+				| gflagwhite
+				;
+
+	gflags		: gflags gflag | gflag
+				;
+
+	definition	: nontermdef | termdef | gflags ;
+
 	definitions	: definitions definition | definition ;
 	grammar		: definitions ;
 	*/
@@ -1262,6 +1378,10 @@ void pp_gram2gram( ppgram* g )
 	colon = pp_sym_create( g, PPSYMTYPE_CCL, "colon", ":" );
 	pipe = pp_sym_create( g, PPSYMTYPE_CCL, "pipe", "|" );
 	equal = pp_sym_create( g, PPSYMTYPE_CCL, "equal", "=" );
+	star = pp_sym_create( g, PPSYMTYPE_CCL, "star", "*" );
+	plus = pp_sym_create( g, PPSYMTYPE_CCL, "plus", "+" );
+	quest = pp_sym_create( g, PPSYMTYPE_CCL, "quest", "?" );
+	/* percent = pp_sym_create( g, PPSYMTYPE_CCL, "percent", "%" ); */
 
 	ident = pp_sym_create( g, PPSYMTYPE_REGEX,
 				"ident", "[A-Za-z_][A-Za-z0-9_]*" );
@@ -1278,14 +1398,36 @@ void pp_gram2gram( ppgram* g )
 
 	/* Nonterminals */
 	symbol = pp_sym_create( g, PPSYMTYPE_NONTERM, "symbol", (char*)NULL );
+	symbol->emit = T_SYMBOL;
 	pp_prod_create( g, symbol, ident, (ppsym*)NULL );
 	pp_prod_create( g, symbol, ccl, (ppsym*)NULL );
 	pp_prod_create( g, symbol, string, (ppsym*)NULL );
 	pp_prod_create( g, symbol, regex, (ppsym*)NULL );
 
+	mod_kleene = pp_sym_create( g, PPSYMTYPE_NONTERM,
+									"mod_kleene", (char*)NULL );
+	mod_kleene->emit = T_KLEENE;
+	pp_prod_create( g, mod_kleene, symbol, star, (ppsym*)NULL );
+
+	mod_positive = pp_sym_create( g, PPSYMTYPE_NONTERM,
+									"mod_positive", (char*)NULL );
+	mod_positive->emit = T_POSITIVE;
+	pp_prod_create( g, mod_positive, symbol, plus, (ppsym*)NULL );
+
+	mod_optional = pp_sym_create( g, PPSYMTYPE_NONTERM,
+									"mod_optional", (char*)NULL );
+	mod_optional->emit = T_OPTIONAL;
+	pp_prod_create( g, mod_optional, symbol, quest, (ppsym*)NULL );
+
+	modifier = pp_sym_create( g, PPSYMTYPE_NONTERM, "modifier", (char*)NULL );
+	pp_prod_create( g, modifier, mod_kleene, (ppsym*)NULL );
+	pp_prod_create( g, modifier, mod_positive, (ppsym*)NULL );
+	pp_prod_create( g, modifier, mod_optional, (ppsym*)NULL );
+	pp_prod_create( g, modifier, symbol, (ppsym*)NULL );
+
 	sequence = pp_sym_create( g, PPSYMTYPE_NONTERM, "sequence", (char*)NULL );
-	pp_prod_create( g, sequence, sequence, symbol, (ppsym*)NULL );
-	pp_prod_create( g, sequence, symbol, (ppsym*)NULL );
+	pp_prod_create( g, sequence, sequence, modifier, (ppsym*)NULL );
+	pp_prod_create( g, sequence, modifier, (ppsym*)NULL );
 
 	alternative = pp_sym_create( g, PPSYMTYPE_NONTERM,
 					"alternative", (char*)NULL );

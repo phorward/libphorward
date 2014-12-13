@@ -578,7 +578,7 @@ the array.
 */
 void* parray_first( parray* array )
 {
-	PROC( "parray_bottom" );
+	PROC( "parray_first" );
 	PARMS( "array", "%p", array );
 
 	if( !array )
