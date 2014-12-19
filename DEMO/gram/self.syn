@@ -1,9 +1,11 @@
-ident		= /[A-Za-z_][A-Za-z0-9_]*/ ;
-ccl 		= /'.*'/ ;
-string 		= /".*"/ ;
-regex 		= /\/(\\.|[^\\\/])*\// ;
+%emitall rrec
 
-symbol 		: ident | ccl | string | regex ;
+ident		= /[A-Za-z_][A-Za-z0-9_]*/ %emit 30;
+ccl 		= /'.*'/ %emit 1;
+string 		= /".*"/ %emit 2;
+regex 		= /\/(\\.|[^\\\/])*\// %emit 3;
+
+symbol 		: ident | ccl | string | regex %emit 4;
 
 mod_kleene	: symbol '*';
 mod_positive: symbol '+' ;
@@ -18,8 +20,8 @@ nontermdef	: ident ':' alternation ';' ;
 termdef		: ident '=' ccl ';'
 			| ident '=' string ';'
 			| ident '=' regex ';'
+			%emit
 			;
 
 definition	: nontermdef | termdef ;
-definitions	: definitions definition | definition ;
-grammar		: definitions ;
+grammar		: definition+ %goal;

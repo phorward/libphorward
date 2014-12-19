@@ -37,9 +37,9 @@ pboolean pp_sym_in_input( ppsym* sym, char* start, char** end )
 			break;
 
 		case PPSYMTYPE_STRING:
-			if( !strncmp( sym->name, start, strlen( sym->name ) ) )
+			if( !strncmp( sym->str, start, strlen( sym->str ) ) )
 			{
-				*end = start + strlen( sym->name );
+				*end = start + strlen( sym->str );
 				return TRUE;
 			}
 			break;

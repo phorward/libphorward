@@ -1070,7 +1070,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 		{
 			/* Parse Error */
 			/* TODO: Error Recovery */
-			fprintf( stderr, "PARSE ERROR\n" );
+			fprintf( stderr, "PARSE ERROR >%s<\n", *end );
 			return FALSE;
 		}
 

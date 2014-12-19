@@ -11,7 +11,7 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
-#define DERIVCHAR	'#'
+#define DERIVCHAR	'\''
 
 /** Creates a new symbol of the type //type// in the grammar //g//.
 
@@ -432,55 +432,30 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 	{
 		op = *( (*def)++ );
 
-		/* Right-recursive quantifiers? */
-		if( g->flags & PPFLAG_PREVENTLREC )
+		if( op == PPMOD_KLEENE || op == PPMOD_POSITIVE )
 		{
-			if( op == PPMOD_KLEENE || op == PPMOD_POSITIVE )
-			{
-				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
-							derive_name( g, lhs->name ), (char*)NULL );
+			mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
+						derive_name( g, lhs->name ), (char*)NULL );
 
+			if( g->flags & PPFLAG_PREVENTLREC )
 				pp_prod_create( g, mod, sym, mod, (ppsym*)NULL );
-				pp_prod_create( g, mod, sym, (ppsym*)NULL );
-
-				sym = mod;
-			}
-
-			if( op == PPMOD_OPTIONAL || op == PPMOD_KLEENE )
-			{
-				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
-							derive_name( g, lhs->name ), (char*)NULL );
-
-				pp_prod_create( g, mod, sym, (ppsym*)NULL );
-				pp_prod_create( g, mod, (ppsym*)NULL );
-
-				sym = mod;
-			}
-		}
-		/* Left-recursive quantifier */
-		else
-		{
-			if( op == PPMOD_KLEENE || op == PPMOD_POSITIVE )
-			{
-				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
-							derive_name( g, lhs->name ), (char*)NULL );
-
+			else
 				pp_prod_create( g, mod, mod, sym, (ppsym*)NULL );
-				pp_prod_create( g, mod, sym, (ppsym*)NULL );
 
-				sym = mod;
-			}
+			pp_prod_create( g, mod, sym, (ppsym*)NULL );
 
-			if( op == PPMOD_OPTIONAL || op == PPMOD_KLEENE )
-			{
-				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
-							derive_name( g, lhs->name ), (char*)NULL );
+			sym = mod;
+		}
 
-				pp_prod_create( g, mod, sym, (ppsym*)NULL );
-				pp_prod_create( g, mod, (ppsym*)NULL );
+		if( op == PPMOD_OPTIONAL || op == PPMOD_KLEENE )
+		{
+			mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
+						derive_name( g, lhs->name ), (char*)NULL );
 
-				sym = mod;
-			}
+			pp_prod_create( g, mod, sym, (ppsym*)NULL );
+			pp_prod_create( g, mod, (ppsym*)NULL );
+
+			sym = mod;
 		}
 	}
 
@@ -1059,6 +1034,7 @@ ppgram* pp_gram_free( ppgram* g )
 #define T_STRING		PPSYMTYPE_STRING
 #define T_REGEX			PPSYMTYPE_REGEX
 #define T_IDENT			10
+#define T_INT			11
 
 #define T_SYMBOL		20
 #define T_KLEENE		21
@@ -1069,6 +1045,9 @@ ppgram* pp_gram_free( ppgram* g )
 
 #define T_TERMDEF		30
 
+#define T_FLAG			40
+#define T_GFLAG			41
+#define T_EMIT			42
 
 ppgram* pp_ast2gram( parray* ast )
 {
@@ -1078,6 +1057,7 @@ ppgram* pp_ast2gram( parray* ast )
 		char*		buf;
 		ppsym*		sym;
 		parray*		seq;
+		int			i;
 	} ATT;
 
 	ATT			att;
@@ -1088,6 +1068,10 @@ ppgram* pp_ast2gram( parray* ast )
 	ppsym*		scope		= (ppsym*)NULL;
 	ppprod*		p;
 	int			i;
+	pboolean	doemit;
+	pboolean	emitall		= FALSE;
+	int			emit;
+	int			emit_max	= 0;
 
 	g = pp_gram_create( (char*)NULL );
 	st = parray_create( sizeof( ATT ), 0 );
@@ -1115,6 +1099,10 @@ ppgram* pp_ast2gram( parray* ast )
 		{
 			case T_IDENT:
 				att.buf = pstrndup( e->start, e->end - e->start );
+				break;
+
+			case T_INT:
+				att.i = atoi( e->start );
 				break;
 
 			case T_CCL:
@@ -1155,18 +1143,124 @@ ppgram* pp_ast2gram( parray* ast )
 				pfree( attp->buf );
 				break;
 
+			case T_KLEENE:
+			case T_POSITIVE:
+			case T_OPTIONAL:
+				attp = parray_pop( st );
+
+				if( e->emit == T_KLEENE || e->emit == T_POSITIVE )
+				{
+					att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+										derive_name( g, scope->name ),
+											(char*)NULL );
+
+					if( g->flags & PPFLAG_PREVENTLREC )
+						pp_prod_create( g, att.sym,
+							attp->sym, att.sym, (ppsym*)NULL );
+					else
+						pp_prod_create( g, att.sym,
+							att.sym, attp->sym, (ppsym*)NULL );
+
+					pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
+
+					attp->sym = att.sym;
+				}
+
+				if( e->emit == T_OPTIONAL || e->emit == T_KLEENE )
+				{
+					att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+										derive_name( g, scope->name ),
+											(char*)NULL );
+
+					pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
+					pp_prod_create( g, att.sym, (ppsym*)NULL );
+				}
+
+				att.emit = T_SYMBOL;
+				break;
+
 			case T_ALTERNATIVE:
 				att.seq = parray_create( sizeof( ppsym* ), 16 );
 
-				while( ( attp = parray_last( st ) ) && attp->emit == T_SYMBOL )
+				while( ( attp = (ATT*)parray_last( st ) )
+							&& attp->emit == T_SYMBOL )
 				{
 					parray_pop( st );
 					parray_push( att.seq, &attp->sym );
 				}
 				break;
 
+			case T_FLAG:
+				att.buf = pstrndup( e->start, e->end - e->start );
+				break;
+
+			case T_GFLAG:
+				if( !strncmp( e->start, "emitall", e->end - e->start ) )
+					emitall = TRUE;
+				else if( !strncmp( e->start, "emitnone", e->end - e->start ) )
+					emitall = FALSE;
+				else if( !strncmp( e->start, "lrec", e->end - e->start ) )
+					g->flags &= ~PPFLAG_PREVENTLREC;
+				else if( !strncmp( e->start, "rrec", e->end - e->start ) )
+					g->flags |= PPFLAG_PREVENTLREC;
+
+				att.emit = 0;
+				break;
+
+			case T_EMIT:
+				if( ( attp = (ATT*)parray_last( st ) ) && attp->emit == T_INT )
+				{
+					parray_pop( st );
+					att.i = attp->i;
+				}
+				break;
+
 			case T_NONTERMDEF:
-				while( ( attp = parray_last( st ) )
+			case T_TERMDEF:
+				doemit = emitall;
+				emit = 0;
+
+				while( ( attp = (ATT*)parray_last( st ) )
+							&& ( attp->emit == T_FLAG
+									|| attp->emit == T_EMIT ) )
+				{
+					parray_pop( st );
+
+					if( attp->emit == T_EMIT )
+					{
+						doemit = TRUE;
+						emit = attp->i;
+						continue;
+					}
+					else if( strcmp( attp->buf, "goal" ) == 0 )
+					{
+						if( scope && !g->goal ) /* fixme */
+						{
+							g->goal = scope;
+							scope->flags |= PPFLAG_CALLED;
+						}
+					}
+					else if( strcmp( attp->buf, "noemit" ) == 0 )
+						doemit = FALSE;
+
+					pfree( attp->buf );
+				}
+
+				if( e->emit == T_TERMDEF )
+				{
+					attp = parray_pop( st ); 	/* Definition */
+					attp = parray_pop( st );	/* Identifier */
+
+					scope = pp_sym_create( g, ( attp + 1 )->emit,
+										attp->buf, ( attp + 1 )->buf );
+					scope->flags |= PPFLAG_DEFINED;
+
+					pfree( ( attp + 1 )->buf );
+					pfree( attp->buf );
+				}
+
+				while( e->emit == T_NONTERMDEF
+						&& ( attp = (ATT*)parray_last( st ) )
 							&& attp->emit == T_ALTERNATIVE )
 				{
 					parray_pop( st );
@@ -1180,29 +1274,37 @@ ppgram* pp_ast2gram( parray* ast )
 				}
 
 				scope->flags |= PPFLAG_DEFINED;
-				break;
 
-			case T_TERMDEF:
-				attp = parray_pop( st ); 	/* Definition */
-				attp = parray_pop( st );	/* Identifier */
+				/* Set emit ID if configured */
+				if( doemit )
+				{
+					if( emit )
+					{
+						scope->emit = emit;
 
-				att.sym = pp_sym_create( g, ( attp + 1 )->emit,
-										attp->buf, ( attp + 1 )->buf );
-				att.sym->flags |= PPFLAG_DEFINED;
+						if( emit > emit_max )
+							emit_max = emit;
+					}
+					else
+						scope->emit = ++emit_max;
+				}
 
-				pfree( ( attp + 1 )->buf );
-				pfree( attp->buf );
+				att.emit = 0;
 				break;
 		}
 
-		if( att.emit != T_NONTERMDEF
-				&& att.emit != T_TERMDEF )
+		if( att.emit > 0 )
 			parray_push( st, &att );
 	}
 
 	if( parray_count( st ) )
+	{
 		fprintf( stderr, "%s, %d: Still %d elements on stack\n",
 			__FILE__, __LINE__, parray_count( st ) );
+
+		while( attp = parray_pop( st ) )
+			printf( "%d\n", attp->emit );
+	}
 
 	parray_free( st );
 	return g;
@@ -1211,9 +1313,11 @@ ppgram* pp_ast2gram( parray* ast )
 void pp_gram2gram( ppgram* g )
 {
 	ppsym* 		ident;
+	ppsym*		integer;
 	ppsym*		ccl;
 	ppsym*		string;
 	ppsym*		regex;
+
 	ppsym*		semicolon;
 	ppsym*		colon;
 	ppsym*		pipe;
@@ -1221,6 +1325,15 @@ void pp_gram2gram( ppgram* g )
 	ppsym*		star;
 	ppsym*		plus;
 	ppsym*		quest;
+	ppsym*		percent;
+
+	ppsym*		opt_int;
+	ppsym*		emit;
+	ppsym*		flagemit;
+	ppsym*		flag;
+	ppsym*		flags;
+	ppsym*		flagslist;
+	ppsym*		optflagslist;
 
 	ppsym*		symbol;
 	ppsym*		mod_kleene;
@@ -1232,9 +1345,21 @@ void pp_gram2gram( ppgram* g )
 	ppsym*		alternation;
 	ppsym*		nontermdef;
 	ppsym*		termdef;
+	ppsym*		gflag;
+	ppsym*		gflags;
+	ppsym*		gflagslist;
 	ppsym*		definition;
 	ppsym*		definitions;
 	ppsym*		grammar;
+
+	ppsym*		s_emit;
+	ppsym*		s_noemit;
+	ppsym*		s_goal;
+	ppsym*		s_whitespace;
+	ppsym*		s_emitall;
+	ppsym*		s_emitnone;
+	ppsym*		s_lrec;
+	ppsym*		s_rrec;
 
 	ppsym*		ws;
 
@@ -1258,6 +1383,37 @@ void pp_gram2gram( ppgram* g )
 
 	regex 		= /\/(\.|[^\/])*\//
 				%emit <T_REGEX>
+				;
+
+	// Flags -------------------------------------------------------------------
+
+	opt_int		: int
+				|
+				;
+
+
+	emit		: "emit" opt_int
+
+				%emit <T_EMIT>
+				;
+
+	flag		: "noemit"
+				| "goal"
+
+				%emit <T_FLAG>
+				;
+
+	flagemit	: flag | emit
+				;
+
+	flags		: flags flagemit | flagemit
+				;
+
+	flagslist	: flaglist '%' flags | '%' flags
+				;
+
+	optflagslist: flagslist
+				|
 				;
 
 	// Nonterminals ------------------------------------------------------------
@@ -1288,88 +1444,40 @@ void pp_gram2gram( ppgram* g )
 	alternative : sequence | ;
 	alternation	: alternation '|' alternative | alternative ;
 
-	flagemit	: '%' "emit" int?
-				%emit <T_EMIT>
-				;
-	flagnoemit	: '%' "noemit" int?
-				%emit <T_NOEMIT>
-				;
-	flaggoal	: '%' "goal"
-				%emit <T_GOAL>
-				;
+	nontermdef	: ident ':' alternation optflagslist ';'
 
-	ntflag		: flagemit
-				| flagnoemit
-				| flaggoal
-				;
-
-	ntflags		: ntflags ntflag | ntflag
-				;
-
-	opt_ntflags	: ntflags |
-				;
-
-	nontermdef	: ident ':' alternation opt_ntflags ';'
 				%emit <T_NONTERMDEF>
 				;
 
 	// Terminals ---------------------------------------------------------------
 
-	flagwhite	: '%' "whitespace"
-				%emit <T_WHITESPACE>
-				;
-
-	tflag		: flagemit
-				| flagnoemit
-				| flagwhite
-				;
-
-	tflags		: tflags tflag | tflag
-				;
-
-	opt_tflags	: tflags | ;
-
-	termdef		: ident '=' ccl opt_tflags ';'
-				| ident '=' string opt_tflags ';'
-				| ident '=' regex opt_tflags ';'
+	termdef		: ident '=' ccl optflagslist ';'
+				| ident '=' string  optflagslist ';'
+				| ident '=' regex optflagslist ';'
 
 				%emit <T_TERMDEF>
 				;
 
 	// Grammar -----------------------------------------------------------------
 
-	flagemitall : '%' "emitall"
-				%emit <T_EMITALL>
-				;
+	gflag		: "emitall"
+				| "emitnone"
+				| "lrec"
+				| "rrec"
 
-	flagemitnone: '%' "emitnone"
-				%emit <T_EMITNONE>
-				;
-
-	flaglrec	: '%' "lrec"
-				%emit <T_LREC>
-				;
-	flagrrec	: '%' "rrec"
-				%emit <T_RREC>
-				;
-
-	gflagwhite	: '%' whitespace symbol
-				%emit <T_WHITESPACE>
-
-
-	gflag		: flagemitall
-				| flagemitnone
-				| flaglrec
-				| flagrrec
-				| gflagwhite
+				%emit <T_FLAG>
 				;
 
 	gflags		: gflags gflag | gflag
 				;
 
-	definition	: nontermdef | termdef | gflags ;
+	gflagslist	: gflagslist '%' gflags | '%' gflags
+				;
+
+	definition	: nontermdef | termdef | gflagslist ;
 
 	definitions	: definitions definition | definition ;
+
 	grammar		: definitions ;
 	*/
 
@@ -1381,11 +1489,24 @@ void pp_gram2gram( ppgram* g )
 	star = pp_sym_create( g, PPSYMTYPE_CCL, "star", "*" );
 	plus = pp_sym_create( g, PPSYMTYPE_CCL, "plus", "+" );
 	quest = pp_sym_create( g, PPSYMTYPE_CCL, "quest", "?" );
-	/* percent = pp_sym_create( g, PPSYMTYPE_CCL, "percent", "%" ); */
+	percent = pp_sym_create( g, PPSYMTYPE_CCL, "percent", "%" );
+
+	s_emitall = pp_sym_create( g, PPSYMTYPE_STRING, "s_emitall", "emitall" );
+	s_emitnone = pp_sym_create( g, PPSYMTYPE_STRING, "s_emitnone", "emitnone" );
+	s_emit = pp_sym_create( g, PPSYMTYPE_STRING, "s_emit", "emit" );
+	s_noemit = pp_sym_create( g, PPSYMTYPE_STRING, "s_noemit", "noemit" );
+	s_goal = pp_sym_create( g, PPSYMTYPE_STRING, "s_goal", "goal" );
+	s_whitespace = pp_sym_create( g, PPSYMTYPE_STRING,
+									"s_whitespace", "whitespace" );
+	s_lrec = pp_sym_create( g, PPSYMTYPE_STRING, "s_lrec", "lrec" );
+	s_rrec = pp_sym_create( g, PPSYMTYPE_STRING, "s_rrec", "rrec" );
 
 	ident = pp_sym_create( g, PPSYMTYPE_REGEX,
 				"ident", "[A-Za-z_][A-Za-z0-9_]*" );
 	ident->emit = T_IDENT;
+
+	integer = pp_sym_create( g, PPSYMTYPE_REGEX, "int", "[0-9]+" );
+	integer->emit = T_INT;
 
 	ccl = pp_sym_create( g, PPSYMTYPE_REGEX, "ccl", "'.*'" );
 	ccl->emit = T_CCL;
@@ -1397,6 +1518,36 @@ void pp_gram2gram( ppgram* g )
 	regex->emit = T_REGEX;
 
 	/* Nonterminals */
+	opt_int = pp_sym_create( g, PPSYMTYPE_NONTERM, "opt_int", (char*)NULL );
+	pp_prod_create( g, opt_int, integer, (ppsym*)NULL );
+	pp_prod_create( g, opt_int, (ppsym*)NULL );
+
+	emit = pp_sym_create( g, PPSYMTYPE_NONTERM, "emit", (char*)NULL );
+	emit->emit = T_EMIT;
+	pp_prod_create( g, emit, s_emit, opt_int, (ppsym*)NULL );
+
+	flag = pp_sym_create( g, PPSYMTYPE_NONTERM, "flag", (char*)NULL );
+	flag->emit = T_FLAG;
+	pp_prod_create( g, flag, s_noemit, (ppsym*)NULL );
+	pp_prod_create( g, flag, s_goal, (ppsym*)NULL );
+
+	flagemit = pp_sym_create( g, PPSYMTYPE_NONTERM, "emitflag", (char*)NULL );
+	pp_prod_create( g, flagemit, emit, (ppsym*)NULL );
+	pp_prod_create( g, flagemit, flag, (ppsym*)NULL );
+
+	flags = pp_sym_create( g, PPSYMTYPE_NONTERM, "flags", (char*)NULL );
+	pp_prod_create( g, flags, flags, flagemit, (ppsym*)NULL );
+	pp_prod_create( g, flags, flagemit, (ppsym*)NULL );
+
+	flagslist = pp_sym_create( g, PPSYMTYPE_NONTERM, "flagslist", (char*)NULL );
+	pp_prod_create( g, flagslist, flagslist, percent, flags, (ppsym*)NULL );
+	pp_prod_create( g, flagslist, percent, flags, (ppsym*)NULL );
+
+	optflagslist = pp_sym_create( g, PPSYMTYPE_NONTERM,
+										"optflagslist", (char*)NULL );
+	pp_prod_create( g, optflagslist, flagslist, (ppsym*)NULL );
+	pp_prod_create( g, optflagslist, (ppsym*)NULL );
+
 	symbol = pp_sym_create( g, PPSYMTYPE_NONTERM, "symbol", (char*)NULL );
 	symbol->emit = T_SYMBOL;
 	pp_prod_create( g, symbol, ident, (ppsym*)NULL );
@@ -1444,19 +1595,39 @@ void pp_gram2gram( ppgram* g )
 	nontermdef = pp_sym_create( g, PPSYMTYPE_NONTERM,
 					"nontermdef", (char*)NULL );
 	nontermdef->emit = T_NONTERMDEF;
-	pp_prod_create( g, nontermdef, ident, colon, alternation,
+	pp_prod_create( g, nontermdef, ident, colon, alternation, optflagslist,
 						semicolon, (ppsym*)NULL );
 
 	termdef = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
 	termdef->emit = T_TERMDEF;
-	pp_prod_create( g, termdef, ident, equal, ccl, semicolon, (ppsym*)NULL );
-	pp_prod_create( g, termdef, ident, equal, string, semicolon, (ppsym*)NULL );
-	pp_prod_create( g, termdef, ident, equal, regex, semicolon, (ppsym*)NULL );
+	pp_prod_create( g, termdef, ident, equal, ccl,
+						optflagslist, semicolon, (ppsym*)NULL );
+	pp_prod_create( g, termdef, ident, equal, string,
+						optflagslist, semicolon, (ppsym*)NULL );
+	pp_prod_create( g, termdef, ident, equal, regex,
+						optflagslist, semicolon, (ppsym*)NULL );
+
+	gflag = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflag", (char*)NULL );
+	gflag->emit = T_GFLAG;
+	pp_prod_create( g, gflag, s_emitall, (ppsym*)NULL );
+	pp_prod_create( g, gflag, s_emitnone, (ppsym*)NULL );
+	pp_prod_create( g, gflag, s_lrec, (ppsym*)NULL );
+	pp_prod_create( g, gflag, s_rrec, (ppsym*)NULL );
+
+	gflags = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflags", (char*)NULL );
+	pp_prod_create( g, gflags, gflags, gflag, (ppsym*)NULL );
+	pp_prod_create( g, gflags, gflag, (ppsym*)NULL );
+
+	gflagslist = pp_sym_create( g, PPSYMTYPE_NONTERM,
+									"gflagslist", (char*)NULL );
+	pp_prod_create( g, gflagslist, gflagslist, percent, gflags, (ppsym*)NULL );
+	pp_prod_create( g, gflagslist, percent, gflags, (ppsym*)NULL );
 
 	definition = pp_sym_create( g, PPSYMTYPE_NONTERM,
 					"definition", (char*)NULL );
 	pp_prod_create( g, definition, termdef, (ppsym*)NULL );
 	pp_prod_create( g, definition, nontermdef, (ppsym*)NULL );
+	pp_prod_create( g, definition, gflagslist, (ppsym*)NULL );
 
 	definitions = pp_sym_create( g, PPSYMTYPE_NONTERM,
 					"definitions", (char*)NULL );
