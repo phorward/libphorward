@@ -1028,7 +1028,10 @@ static void print_stack( char* title, plist* states, parray* stack )
 static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 									plist* states )
 {
+	int			row		= 1;
+	int			col		= 1;
 	char*		lend;
+	char*		lstart;
 	ppsym*		lhs;
 	ppsym*		sym;
 	plistel*	e;
@@ -1049,7 +1052,8 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 	*end = start;
 
 	/* Skip over whitespace */
-	pp_white_in_input( grm, *end, end );
+	if( pp_white_in_input( grm, *end, end ) )
+		pp_pos_in_input( &row, &col, start, *end );
 
 	do
 	{
@@ -1070,9 +1074,11 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 		{
 			/* Parse Error */
 			/* TODO: Error Recovery */
-			fprintf( stderr, "PARSE ERROR >%s<\n", *end );
+			fprintf( stderr, "PARSE ERROR %d,%d >%s<\n", row, col, *end );
 			return FALSE;
 		}
+
+		pp_pos_in_input( &row, &col, start, *end );
 
 		#if DEBUGLEVEL > 2
 		fprintf( stderr, "AFTER  >%s<\n", *end );
@@ -1188,7 +1194,9 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			fprintf( stderr, "tos->symbol >%s< is not LEXEM\n",
 						tos->symbol->name );
 			#endif
-			pp_white_in_input( grm, *end, end );
+
+			if( pp_white_in_input( grm, ( lstart = *end ), end ) )
+				pp_pos_in_input( &row, &col, lstart, *end );
 		}
 	}
 	while( !reduce );
@@ -1200,10 +1208,10 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 	return TRUE;
 }
 
-/** Parses the string //str// using the grammar //grm// using a LALR(1) parser.
+/** Parses the string //str// using the grammar //grm// with a LALR(1) parser.
 Parsing stops at least when reading the zero terminator of //str//.
 
-//ast// receives an allocated parray-object with items of //ppmatch//
+//ast// receives an allocated parray-object with items of //ppmatch// elements
 that describe the prooduced abstract syntax tree.
 
 //end// receives the position of the last character matched.

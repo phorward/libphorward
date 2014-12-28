@@ -91,3 +91,33 @@ pboolean pp_white_in_input( ppgram* grm, char* start, char** end )
 
 	return TRUE;
 }
+
+/* Count rows and columns. Returns bytes read. */
+size_t pp_pos_in_input( int* row, int* col, char* start, char* end )
+{
+	char*	ptr	= start;
+
+	if( !( row && col && start && end && start <= end ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	while( ptr < end )
+	{
+		if( *ptr == '\n' )
+		{
+			ptr++;
+
+			(*row)++;
+			*col = 1;
+		}
+		else
+		{
+			ptr += u8_seqlen( ptr );
+			(*col)++;
+		}
+	}
+
+	return end - start;
+}

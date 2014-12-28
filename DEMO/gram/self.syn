@@ -1,27 +1,26 @@
-%emitall rrec
 
-ident		= /[A-Za-z_][A-Za-z0-9_]*/ %emit 30;
-ccl 		= /'.*'/ %emit 1;
-string 		= /".*"/ %emit 2;
-regex 		= /\/(\\.|[^\\\/])*\// %emit 3;
+ccl 		= /'.*'/ 												%emit 1;
+string 		= /".*"/ 												%emit 2;
+regex 		= /\/(\\.|[^\\\/])*\// 									%emit 3;
+ident		= /[A-Za-z_][A-Za-z0-9_]*/ 								%emit 10;
+int			= /[0-9]+/ 												%emit 11;
 
-symbol 		: ident | ccl | string | regex %emit 4;
+symbol 		: ident | ccl | string | regex							%emit 20;
 
-mod_kleene	: symbol '*';
-mod_positive: symbol '+' ;
-mod_optional: symbol '?';
+mod_kleene	: symbol '*'											%emit 21;
+mod_positive: symbol '+' 											%emit 22;
+mod_optional: symbol '?'											%emit 23;
 modifier	: mod_kleene | mod_positive | mod_optional | symbol ;
 
 sequence	: sequence modifier | modifier ;
-alternative : sequence | ;
+alternative : sequence | 											%emit 24;
 alternation	: alternation '|' alternative | alternative ;
 
-nontermdef	: ident ':' alternation ';' ;
+nontermdef	: ident ':' alternation ';' 							%emit 25;
 termdef		: ident '=' ccl ';'
 			| ident '=' string ';'
 			| ident '=' regex ';'
-			%emit
-			;
+																	%emit 30;
 
 definition	: nontermdef | termdef ;
-grammar		: definition+ %goal;
+grammar		: definition+ 											%goal;

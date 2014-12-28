@@ -1299,6 +1299,7 @@ ppgram* pp_ast2gram( parray* ast )
 
 	if( parray_count( st ) )
 	{
+		fprintf( stderr, "CHECK YOU CODE:\n" );
 		fprintf( stderr, "%s, %d: Still %d elements on stack\n",
 			__FILE__, __LINE__, parray_count( st ) );
 
@@ -1365,7 +1366,7 @@ void pp_gram2gram( ppgram* g )
 
 	/*
 
-	ident		= /[A-Za-z_][A-Za-z0-9_]* /
+	ident		= /[A-Za-z_][A-Za-z0-9_]*°/
 				%emit <T_IDENT>
 				;
 
