@@ -53,9 +53,14 @@ typedef struct
 {
 	ppsym*			symbol;			/* Symbol */
 	pplrstate*		state;			/* State */
+
 	char*			start;
 	char*			end;
+
 	long			begin;
+
+	int				row;
+	int				col;
 } pplrse;
 
 /* LR/LALR parser */
@@ -927,21 +932,27 @@ static pplrse* push( parray* stack, ppsym* symbol,
 	return (pplrse*)parray_last( stack );
 }
 
-static pplrse* pop( parray* stack, int n, char** start, long* begin )
+static pplrse* pop( parray* stack, int n, char** s, long* b, int* r, int* c )
 {
 	pplrse*	e;
 
-	*start = (char*)NULL;
-	*begin = -1L;
+	*s = (char*)NULL;
+	*b = -1L;
+	*r = 1;
+	*c = 1;
 
 	while( n-- > 0 )
 	{
 		e = (pplrse*)parray_pop( stack );
 
-		*start = e->start;
+		*s = e->start;
 
 		if( e->begin >= 0L )
-			*begin = e->begin;
+		{
+			*b = e->begin;
+			*r = e->row;
+			*c = e->col;
+		}
 	}
 
 	return (pplrse*)parray_last( stack );
@@ -1030,6 +1041,8 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 {
 	int			row		= 1;
 	int			col		= 1;
+	int			lrow;
+	int			lcol;
 	char*		lend;
 	char*		lstart;
 	ppsym*		lhs;
@@ -1078,8 +1091,6 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			return FALSE;
 		}
 
-		pp_pos_in_input( &row, &col, start, *end );
-
 		#if DEBUGLEVEL > 2
 		fprintf( stderr, "AFTER  >%s<\n", *end );
 		#endif
@@ -1102,6 +1113,8 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 			tos = push( stack, sym, reduce ? (pplrstate*)NULL : shift,
 							start, *end );
+			tos->row = row;
+			tos->col = col;
 
 			/* Shifted symbol becomes AST node? */
 			if( ast && sym->emit )
@@ -1113,6 +1126,8 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 				mend->prod = (ppprod*)NULL;
 				mend->sym = sym;
 				mend->emit = sym->emit;
+				mend->row = row;
+				mend->col = col;
 
 				mend->start = start;
 				mend->end = *end;
@@ -1122,6 +1137,9 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 			lend = *end;
 		}
+
+		/* Update current position */
+		pp_pos_in_input( &row, &col, start, *end );
 
 		/* Reduce */
 		while( reduce )
@@ -1140,7 +1158,8 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			#endif
 
 			/* Pop elements off the stack */
-			tos = pop( stack, plist_count( reduce->rhs ), &start, &begin );
+			tos = pop( stack, plist_count( reduce->rhs ),
+							&start, &begin, &lrow, &lcol );
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
@@ -1154,6 +1173,9 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 					mend = (ppmatch*)parray_malloc( ast );
 					mend->type = PPMATCH_END;
+
+					mbegin->row = lrow;
+					mbegin->col = lcol;
 				}
 				else
 				{
@@ -1169,6 +1191,9 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 				mend->start = mbegin->start = start;
 				mend->end = mbegin->end = lend;
+
+				mend->row = row;
+				mend->col = col;
 			}
 
 			/* Goal symbol reduced? */
@@ -1177,9 +1202,11 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 			/* Push goto state */
 			get_goto( &shift, &reduce, tos, reduce->lhs );
-			tos = push( stack, lhs, shift, start, *end );
 
+			tos = push( stack, lhs, shift, start, *end );
 			tos->begin = begin;
+			tos->row = lrow;
+			tos->col = lcol;
 
 			#if DEBUGLEVEL > 2
 			print_stack( "Behind Reduce", states, stack );

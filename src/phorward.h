@@ -708,7 +708,7 @@ typedef struct
 	char*					start;
 	char*					end;
 
-	int						line;
+	int						row;
 	int						col;
 } ppmatch;
 

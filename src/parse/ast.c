@@ -171,12 +171,14 @@ void pp_ast_print( parray* ast )
 	{
 		if( match->type & PPMATCH_BEGIN )
 		{
-			printf( "%s{ %s (%d) >%.*s<\n",
+			printf( "%s{ %s (%d) >%.*s< @%03d:%03d\n",
 				gap,
 				match->sym->name,
 				match->emit,
 				match->end - match->start,
-				match->start );
+				match->start,
+				match->row,
+				match->col );
 
 			strcat( gap, " " );
 		}
@@ -186,12 +188,14 @@ void pp_ast_print( parray* ast )
 			if( *gap )
 				gap[ strlen( gap ) - 1 ] = '\0';
 
-			printf( "%s} %s (%d) >%.*s<\n",
+			printf( "%s} %s (%d) >%.*s< @%03d:%03d\n",
 				gap,
 				match->sym->name,
 				match->emit,
 				match->end - match->start,
-				match->start );
+				match->start,
+				match->row,
+				match->col );
 		}
 	}
 }
