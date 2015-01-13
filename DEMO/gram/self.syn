@@ -1,7 +1,17 @@
+kw_emit		= "emit" ;
+kw_noemit	= "noemit" ;
+kw_goal		= "goal" ;
+kw_ws		= "whitespace" ;
+kw_emitall	= "emitall" ;
+kw_emitnone	= "emitnone" ;
+kw_lrec		= "lrec";
+kw_rrec		= "rrec";
+
+ws			= /[ \\t\\r\\n]+/										%whitespace;
 
 ccl 		= /'.*'/ 												%emit 1;
 string 		= /".*"/ 												%emit 2;
-regex 		= /\/(\\.|[^\\\/])*\// 									%emit 3;
+regex 		= /\/(\\\\.|[^\\\\\/])*\//								%emit 3;
 ident		= /[A-Za-z_][A-Za-z0-9_]*/ 								%emit 10;
 int			= /[0-9]+/ 												%emit 11;
 
@@ -16,11 +26,25 @@ sequence	: sequence modifier | modifier ;
 alternative : sequence | 											%emit 24;
 alternation	: alternation '|' alternative | alternative ;
 
-nontermdef	: ident ':' alternation ';' 							%emit 25;
-termdef		: ident '=' ccl ';'
-			| ident '=' string ';'
-			| ident '=' regex ';'
+emit		: kw_emit int?											%emit 42;
+flag		: kw_noemit | kw_goal | kw_ws							%emit 40;
+emitflag	: emit | flag ;
+
+flags    	: flags '%' emitflag+
+			| '%' emitflag+
+			;
+
+nontermdef	: ident ':' alternation flags? ';'						%emit 25;
+
+termdef		: ident '=' ccl flags? ';'
+			| ident '=' string flags? ';'
+			| ident '=' regex flags? ';'
 																	%emit 30;
 
-definition	: nontermdef | termdef ;
+gflag       : kw_emitall | kw_emitnone | kw_lrec | kw_rrec			%emit 41;
+gflags		: gflags '%' gflag+ | '%' gflag+ ;
+
+definition	: nontermdef | termdef | gflags ;
+
 grammar		: definition+ 											%goal;
+

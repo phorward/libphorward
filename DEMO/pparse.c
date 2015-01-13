@@ -7,7 +7,9 @@ int main( int argc, char** argv )
 	char*	s;
 	parray*	a;
 	ppgram*	g;
-	ppgram*	g2;
+	ppgram*	g2	= (ppgram*)NULL;
+	int		i	= 0;
+	char*	str;
 
 	g = pp_gram_create( (char*)NULL );
 	pp_gram2gram( g );
@@ -16,22 +18,44 @@ int main( int argc, char** argv )
 
 	if( argc > 1 )
 	{
-		e = s = argv[ 1 ];
-
-		if( pp_lr_parse( &a, g, s, &e ) )
+		str = argv[ 1 ];
+		while( i < 5 )
 		{
-			printf( "\nSUCCEED >%.*s<\n", e - s, s );
+			e = s = str;
 
-			pp_ast_simplify( a );
+			if( pp_lr_parse( &a, g, s, &e ) )
+			{
+				printf( "\nSUCCEED >%.*s<\n", e - s, s );
 
-			g2 = pp_ast2gram( a );
-			printf( "\n--- final ---\n" );
-			pp_gram_print( g2 );
+				pp_ast_simplify( a );
+
+				g2 = pp_ast2gram( a );
+				printf( "\n--- final ---\n" );
+				pp_gram_print( g2 );
+
+				g = g2;
+
+				i++;
+
+				printf( "BOOTSTRAP %d OK\n", i );
+				if( argc > 2 )
+				{
+					str = argv[ 2 ];
+					printf( "EXEC >%s<\n", str );
+				}
+
+				getchar();
+			}
+			else
+			{
+				printf( "\nFAILED\n" );
+				break;
+			}
+
+			parray_free( a );
 		}
-		else
-			printf( "\nFAILED\n" );
 
-		parray_free( a );
+		printf( "i = %d\n", i );
 	}
 
 	return 0;

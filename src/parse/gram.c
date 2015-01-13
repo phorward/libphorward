@@ -70,6 +70,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 			break;
 
 		case PPSYMTYPE_REGEX:
+			printf( "NEW REGX >%s<\n", def );
 			sym->re = pregex_create( def, 0 );
 			break;
 
@@ -84,6 +85,18 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 		plist_push( sym->first, sym );
 
 	return sym;
+}
+
+/** Get a symbol from grammar //g// by its //name//. */
+ppsym* pp_sym_get( ppgram* g, char* name )
+{
+	if( !( g && name && *name ) )
+	{
+		WRONGPARAM;
+		return (ppsym*)NULL;
+	}
+
+	return (ppsym*)plist_access( plist_get_by_key( g->symbols, name ) );
 }
 
 /** Returns the string representation of symbol //p//.
@@ -275,7 +288,7 @@ static char* derive_name( ppgram* g, char* base )
 
 	for( i = 0; strlen( deriv ) < ( NAMELEN * 2 ); i++ )
 	{
-		if( !plist_get_by_key( g->symbols, deriv ) )
+		if( !pp_sym_get( g, deriv ) )
 			return deriv;
 
 		sprintf( deriv + strlen( deriv ), "%c", DERIVCHAR );
@@ -394,8 +407,7 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 
 	if( parse_ident( name, def ) )
 	{
-		if( !( sym = (ppsym*)plist_access(
-								plist_get_by_key( g->symbols, name ) ) ) )
+		if( !( sym = pp_sym_get( g, name ) ) )
 			sym = pp_sym_create( g, PPSYMTYPE_NONTERM, name, (char*)NULL );
 
 		sym->flags |= PPFLAG_CALLED;
@@ -530,11 +542,10 @@ static int pp_gram_read( ppgram* g, char** def )
 			{
 				(*def)++;
 
-				if( !( sym = (ppsym*)plist_access(
-											plist_get_by_key(
-												g->symbols, name ) ) ) )
-					sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-												name, (char*)NULL );
+				if( !( sym = pp_sym_get( g, name ) ) )
+					sym = pp_sym_create(
+							g, PPSYMTYPE_NONTERM,
+								name, (char*)NULL );
 
 				sym->flags |= PPFLAG_DEFINED | dflags;
 
@@ -665,8 +676,7 @@ static int pp_gram_read( ppgram* g, char** def )
 					sym = pp_sym_create( g, type, (char*)NULL, name );
 				/* or named? */
 				else if( parse_ident( name, def ) )
-					sym = (ppsym*)plist_access(
-							plist_get_by_key( g->symbols, name ) );
+					sym = pp_sym_get( g, name );
 				else
 					sym = (ppsym*)NULL;
 
@@ -1068,10 +1078,12 @@ ppgram* pp_ast2gram( parray* ast )
 	ppsym*		scope		= (ppsym*)NULL;
 	ppprod*		p;
 	int			i;
+	pboolean	whitespace;
 	pboolean	doemit;
 	pboolean	emitall		= FALSE;
 	int			emit;
 	int			emit_max	= 0;
+	char		name		[ NAMELEN * 2 + 1 ];
 
 	g = pp_gram_create( (char*)NULL );
 	st = parray_create( sizeof( ATT ), 0 );
@@ -1124,9 +1136,7 @@ ppgram* pp_ast2gram( parray* ast )
 			case T_SYMBOL:
 				attp = parray_pop( st );
 
-				if( !( att.sym = (ppsym*)plist_access(
-										plist_get_by_key(
-											g->symbols, attp->buf ) ) ) )
+				if( !( att.sym = pp_sym_get( g, attp->buf ) ) )
 				{
 					if( attp->emit == T_IDENT )
 						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
@@ -1134,7 +1144,7 @@ ppgram* pp_ast2gram( parray* ast )
 					else
 					{
 						att.sym = pp_sym_create( g, attp->emit,
-										(char*)NULL, attp->buf );
+										attp->buf, attp->buf );
 						att.sym->flags |= PPFLAG_DEFINED;
 					}
 				}
@@ -1150,30 +1160,39 @@ ppgram* pp_ast2gram( parray* ast )
 
 				if( e->emit == T_KLEENE || e->emit == T_POSITIVE )
 				{
-					att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-										derive_name( g, scope->name ),
-											(char*)NULL );
+					sprintf( name, "%s%c", attp->sym->name,
+										e->emit == T_KLEENE ? '*' : '+' );
 
-					if( g->flags & PPFLAG_PREVENTLREC )
-						pp_prod_create( g, att.sym,
-							attp->sym, att.sym, (ppsym*)NULL );
-					else
-						pp_prod_create( g, att.sym,
-							att.sym, attp->sym, (ppsym*)NULL );
+					if( !( att.sym = pp_sym_get( g, name ) ) )
+					{
+						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+														name, (char*)NULL );
 
-					pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
+						if( g->flags & PPFLAG_PREVENTLREC )
+							pp_prod_create( g, att.sym,
+								attp->sym, att.sym, (ppsym*)NULL );
+						else
+							pp_prod_create( g, att.sym,
+								att.sym, attp->sym, (ppsym*)NULL );
+
+						pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
+					}
 
 					attp->sym = att.sym;
 				}
 
 				if( e->emit == T_OPTIONAL || e->emit == T_KLEENE )
 				{
-					att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-										derive_name( g, scope->name ),
-											(char*)NULL );
+					sprintf( name, "%s?", attp->sym->name );
 
-					pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
-					pp_prod_create( g, att.sym, (ppsym*)NULL );
+					if( !( att.sym = pp_sym_get( g, name ) ) )
+					{
+						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+														name, (char*)NULL );
+
+						pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
+						pp_prod_create( g, att.sym, (ppsym*)NULL );
+					}
 				}
 
 				att.emit = T_SYMBOL;
@@ -1219,6 +1238,7 @@ ppgram* pp_ast2gram( parray* ast )
 			case T_TERMDEF:
 				doemit = emitall;
 				emit = 0;
+				whitespace = FALSE;
 
 				while( ( attp = (ATT*)parray_last( st ) )
 							&& ( attp->emit == T_FLAG
@@ -1242,6 +1262,8 @@ ppgram* pp_ast2gram( parray* ast )
 					}
 					else if( strcmp( attp->buf, "noemit" ) == 0 )
 						doemit = FALSE;
+					else if( strcmp( attp->buf, "whitespace" ) == 0 )
+						whitespace = TRUE;
 
 					pfree( attp->buf );
 				}
@@ -1257,6 +1279,13 @@ ppgram* pp_ast2gram( parray* ast )
 
 					pfree( ( attp + 1 )->buf );
 					pfree( attp->buf );
+
+					/* Whitespace now only for terminals */
+					if( whitespace )
+					{
+						scope->flags |= PPFLAG_WHITESPACE;
+						plist_push( g->ws, scope );
+					}
 				}
 
 				while( e->emit == T_NONTERMDEF
@@ -1308,6 +1337,10 @@ ppgram* pp_ast2gram( parray* ast )
 	}
 
 	parray_free( st );
+
+	/* Prepare grammar */
+	pp_gram_prepare( g );
+
 	return g;
 }
 
@@ -1531,6 +1564,7 @@ void pp_gram2gram( ppgram* g )
 	flag->emit = T_FLAG;
 	pp_prod_create( g, flag, s_noemit, (ppsym*)NULL );
 	pp_prod_create( g, flag, s_goal, (ppsym*)NULL );
+	pp_prod_create( g, flag, s_whitespace, (ppsym*)NULL );
 
 	flagemit = pp_sym_create( g, PPSYMTYPE_NONTERM, "emitflag", (char*)NULL );
 	pp_prod_create( g, flagemit, emit, (ppsym*)NULL );

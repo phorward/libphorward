@@ -81,6 +81,7 @@ pboolean pp_white_in_input( ppgram* grm, char* start, char** end )
 		plist_for( grm->ws, e )
 		{
 			sym = (ppsym*)plist_access( e );
+
 			if( pp_sym_in_input( sym, start, end ) )
 				break;
 		}

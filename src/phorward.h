@@ -727,6 +727,7 @@ parray* parray_create( size_t size, size_t step );
 pboolean parray_erase( parray* array );
 parray* parray_free( parray* array );
 void* parray_push( parray* array, void* item );
+pboolean parray_reserve( parray* array, size_t n );
 void* parray_malloc( parray* array );
 void* parray_rmalloc( parray* array );
 void* parray_insert( parray* array, size_t offset, void* item );
@@ -999,6 +1000,7 @@ void pp_ast_tree2svg( parray* ast );
 
 
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
+ppsym* pp_sym_get( ppgram* g, char* name );
 char* pp_sym_to_str( ppsym* sym );
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
 pboolean pp_prod_append( ppprod* p, ppsym* sym );

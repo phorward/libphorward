@@ -1167,11 +1167,13 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			{
 				if( begin >= 0L && begin != parray_count( ast ) )
 				{
+					parray_reserve( ast, 2 );
+
 					mbegin = (ppmatch*)parray_insert( ast, begin, (void*)NULL );
+					mend = (ppmatch*)parray_malloc( ast );
+
 					memset( mbegin, 0, sizeof( ppmatch ) );
 					mbegin->type = PPMATCH_BEGIN;
-
-					mend = (ppmatch*)parray_malloc( ast );
 					mend->type = PPMATCH_END;
 
 					mbegin->row = lrow;

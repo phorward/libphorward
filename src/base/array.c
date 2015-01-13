@@ -150,6 +150,34 @@ void* parray_push( parray* array, void* item )
 	RETURN( ptr );
 }
 
+/** Reserves memory for //n// items in //array//.
+
+This function is only used to assume that no memory reallocation is done when
+the next //n// items are inserted/malloced. */
+pboolean parray_reserve( parray* array, size_t n )
+{
+	PROC( "parray_reserve" );
+	PARMS( "array", "%p", array );
+	PARMS( "n", "%ld", n );
+
+	if( !( array && n > 0 ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( array->last + n < array->count )
+		RETURN( TRUE );
+
+	array->count += n + ( n % array->step );
+
+	if( !( array->array = (void*)prealloc(
+			(void*)array->array, array->count * array->size ) ) )
+		RETURN( FALSE );
+
+	RETURN( TRUE );
+}
+
 /** Pushes and "allocates" an empty element on the array.
 
 This function is just a shortcut to ```parray_push( array, (void*)NULL )```,
