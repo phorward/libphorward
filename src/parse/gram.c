@@ -70,7 +70,6 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 			break;
 
 		case PPSYMTYPE_REGEX:
-			printf( "NEW REGX >%s<\n", def );
 			sym->re = pregex_create( def, 0 );
 			break;
 
@@ -1047,13 +1046,16 @@ ppgram* pp_gram_free( ppgram* g )
 #define T_INT			11
 
 #define T_SYMBOL		20
-#define T_KLEENE		21
-#define T_POSITIVE		22
-#define T_OPTIONAL		23
-#define T_ALTERNATIVE	24
-#define T_NONTERMDEF	25
 
-#define T_TERMDEF		30
+#define T_KLEENE		25
+#define T_POSITIVE		26
+#define T_OPTIONAL		27
+
+#define T_PRODUCTION	30
+#define T_NONTERMDEF	31
+#define T_INLINE		32
+
+#define T_TERMDEF		35
 
 #define T_FLAG			40
 #define T_GFLAG			41
@@ -1091,6 +1093,8 @@ ppgram* pp_ast2gram( parray* ast )
 	for( e = (ppmatch*)parray_first( ast );
 			e <= (ppmatch*)parray_last( ast ); e++ )
 	{
+		memset( &att, 0, sizeof( ATT ) );
+
 		if( e->type & PPMATCH_BEGIN && !( e->type & PPMATCH_END ) )
 		{
 			if( e->emit == T_NONTERMDEF )
@@ -1098,15 +1102,20 @@ ppgram* pp_ast2gram( parray* ast )
 				e++;
 
 				att.buf = pstrndup( e->start, e->end - e->start );
-				scope = pp_sym_create( g, PPSYMTYPE_NONTERM,
-											att.buf, (char*)NULL );
+
+				if( !( scope = pp_sym_get( g, att.buf ) ) )
+					scope = pp_sym_create( g, PPSYMTYPE_NONTERM,
+								att.buf, (char*)NULL );
+
 				pfree( att.buf );
 			}
+			else if( e->emit == T_PRODUCTION )
+				/* Push an empty sequence delimiter */
+				parray_push( st, &att );
 
 			continue;
 		}
 
-		memset( &att, 0, sizeof( ATT ) );
 		switch( ( att.emit = e->emit ) )
 		{
 			case T_IDENT:
@@ -1133,10 +1142,33 @@ ppgram* pp_ast2gram( parray* ast )
 				}
 				break;
 
+			case T_INLINE:
+				/* Inline nonterminal */
+				att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, scope->name ), (char*)NULL );
+				att.sym->flags |= PPFLAG_DEFINED;
+
+				while( ( attp = (ATT*)parray_last( st ) )
+							&& attp->emit == T_PRODUCTION )
+				{
+					parray_pop( st );
+					p = pp_prod_create( g, att.sym, (ppsym*)NULL );
+
+					while( parray_count( attp->seq ) )
+						pp_prod_append( p,
+							*( (ppsym**)parray_pop( attp->seq ) ) );
+
+					parray_free( attp->seq );
+				}
+				break;
+
 			case T_SYMBOL:
+				/* Symbol */
 				attp = parray_pop( st );
 
-				if( !( att.sym = pp_sym_get( g, attp->buf ) ) )
+				if( attp->emit == T_INLINE )
+					att.sym = attp->sym;
+				else if( !( att.sym = pp_sym_get( g, attp->buf ) ) )
 				{
 					if( attp->emit == T_IDENT )
 						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
@@ -1147,10 +1179,11 @@ ppgram* pp_ast2gram( parray* ast )
 										attp->buf, attp->buf );
 						att.sym->flags |= PPFLAG_DEFINED;
 					}
+
+					pfree( attp->buf );
 				}
 
 				att.sym->flags |= PPFLAG_CALLED;
-				pfree( attp->buf );
 				break;
 
 			case T_KLEENE:
@@ -1198,7 +1231,7 @@ ppgram* pp_ast2gram( parray* ast )
 				att.emit = T_SYMBOL;
 				break;
 
-			case T_ALTERNATIVE:
+			case T_PRODUCTION:
 				att.seq = parray_create( sizeof( ppsym* ), 16 );
 
 				while( ( attp = (ATT*)parray_last( st ) )
@@ -1207,6 +1240,10 @@ ppgram* pp_ast2gram( parray* ast )
 					parray_pop( st );
 					parray_push( att.seq, &attp->sym );
 				}
+
+				if( !attp->emit )
+					parray_pop( st ); /* Pop seqence delimiter */
+
 				break;
 
 			case T_FLAG:
@@ -1290,7 +1327,7 @@ ppgram* pp_ast2gram( parray* ast )
 
 				while( e->emit == T_NONTERMDEF
 						&& ( attp = (ATT*)parray_last( st ) )
-							&& attp->emit == T_ALTERNATIVE )
+							&& attp->emit == T_PRODUCTION )
 				{
 					parray_pop( st );
 					p = pp_prod_create( g, scope, (ppsym*)NULL );
@@ -1360,6 +1397,8 @@ void pp_gram2gram( ppgram* g )
 	ppsym*		plus;
 	ppsym*		quest;
 	ppsym*		percent;
+	ppsym*		lpar;
+	ppsym*		rpar;
 
 	ppsym*		opt_int;
 	ppsym*		emit;
@@ -1369,6 +1408,7 @@ void pp_gram2gram( ppgram* g )
 	ppsym*		flagslist;
 	ppsym*		optflagslist;
 
+	ppsym*		inlin;
 	ppsym*		symbol;
 	ppsym*		mod_kleene;
 	ppsym*		mod_positive;
@@ -1452,7 +1492,10 @@ void pp_gram2gram( ppgram* g )
 
 	// Nonterminals ------------------------------------------------------------
 
-	symbol 		: ident | ccl | string | regex
+	inline		: '(' alternation ')'
+				%emit <T_INLINE>
+
+	symbol 		: ident | ccl | string | regex | inline
 				%emit <T_SYMBOL>
 				;
 
@@ -1524,6 +1567,8 @@ void pp_gram2gram( ppgram* g )
 	plus = pp_sym_create( g, PPSYMTYPE_CCL, "plus", "+" );
 	quest = pp_sym_create( g, PPSYMTYPE_CCL, "quest", "?" );
 	percent = pp_sym_create( g, PPSYMTYPE_CCL, "percent", "%" );
+	lpar = pp_sym_create( g, PPSYMTYPE_CCL, "lpar", "(" );
+	rpar = pp_sym_create( g, PPSYMTYPE_CCL, "rpar", ")" );
 
 	s_emitall = pp_sym_create( g, PPSYMTYPE_STRING, "s_emitall", "emitall" );
 	s_emitnone = pp_sym_create( g, PPSYMTYPE_STRING, "s_emitnone", "emitnone" );
@@ -1553,88 +1598,122 @@ void pp_gram2gram( ppgram* g )
 
 	/* Nonterminals */
 	opt_int = pp_sym_create( g, PPSYMTYPE_NONTERM, "opt_int", (char*)NULL );
-	pp_prod_create( g, opt_int, integer, (ppsym*)NULL );
-	pp_prod_create( g, opt_int, (ppsym*)NULL );
 
 	emit = pp_sym_create( g, PPSYMTYPE_NONTERM, "emit", (char*)NULL );
 	emit->emit = T_EMIT;
-	pp_prod_create( g, emit, s_emit, opt_int, (ppsym*)NULL );
 
 	flag = pp_sym_create( g, PPSYMTYPE_NONTERM, "flag", (char*)NULL );
 	flag->emit = T_FLAG;
-	pp_prod_create( g, flag, s_noemit, (ppsym*)NULL );
-	pp_prod_create( g, flag, s_goal, (ppsym*)NULL );
-	pp_prod_create( g, flag, s_whitespace, (ppsym*)NULL );
 
 	flagemit = pp_sym_create( g, PPSYMTYPE_NONTERM, "emitflag", (char*)NULL );
-	pp_prod_create( g, flagemit, emit, (ppsym*)NULL );
-	pp_prod_create( g, flagemit, flag, (ppsym*)NULL );
-
 	flags = pp_sym_create( g, PPSYMTYPE_NONTERM, "flags", (char*)NULL );
-	pp_prod_create( g, flags, flags, flagemit, (ppsym*)NULL );
-	pp_prod_create( g, flags, flagemit, (ppsym*)NULL );
-
 	flagslist = pp_sym_create( g, PPSYMTYPE_NONTERM, "flagslist", (char*)NULL );
-	pp_prod_create( g, flagslist, flagslist, percent, flags, (ppsym*)NULL );
-	pp_prod_create( g, flagslist, percent, flags, (ppsym*)NULL );
 
 	optflagslist = pp_sym_create( g, PPSYMTYPE_NONTERM,
 										"optflagslist", (char*)NULL );
-	pp_prod_create( g, optflagslist, flagslist, (ppsym*)NULL );
-	pp_prod_create( g, optflagslist, (ppsym*)NULL );
+
+	inlin = pp_sym_create( g, PPSYMTYPE_NONTERM, "inline", (char*)NULL );
+	inlin->emit = T_INLINE;
 
 	symbol = pp_sym_create( g, PPSYMTYPE_NONTERM, "symbol", (char*)NULL );
 	symbol->emit = T_SYMBOL;
-	pp_prod_create( g, symbol, ident, (ppsym*)NULL );
-	pp_prod_create( g, symbol, ccl, (ppsym*)NULL );
-	pp_prod_create( g, symbol, string, (ppsym*)NULL );
-	pp_prod_create( g, symbol, regex, (ppsym*)NULL );
 
 	mod_kleene = pp_sym_create( g, PPSYMTYPE_NONTERM,
 									"mod_kleene", (char*)NULL );
 	mod_kleene->emit = T_KLEENE;
-	pp_prod_create( g, mod_kleene, symbol, star, (ppsym*)NULL );
 
 	mod_positive = pp_sym_create( g, PPSYMTYPE_NONTERM,
 									"mod_positive", (char*)NULL );
 	mod_positive->emit = T_POSITIVE;
-	pp_prod_create( g, mod_positive, symbol, plus, (ppsym*)NULL );
 
 	mod_optional = pp_sym_create( g, PPSYMTYPE_NONTERM,
 									"mod_optional", (char*)NULL );
 	mod_optional->emit = T_OPTIONAL;
-	pp_prod_create( g, mod_optional, symbol, quest, (ppsym*)NULL );
 
 	modifier = pp_sym_create( g, PPSYMTYPE_NONTERM, "modifier", (char*)NULL );
+	sequence = pp_sym_create( g, PPSYMTYPE_NONTERM, "sequence", (char*)NULL );
+
+	alternative = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"alternative", (char*)NULL );
+	alternative->emit = T_PRODUCTION;
+
+	alternation = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"alternation", (char*)NULL );
+
+	nontermdef = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"nontermdef", (char*)NULL );
+	nontermdef->emit = T_NONTERMDEF;
+
+	termdef = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
+	termdef->emit = T_TERMDEF;
+
+	gflag = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflag", (char*)NULL );
+	gflag->emit = T_GFLAG;
+
+	gflags = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflags", (char*)NULL );
+	gflagslist = pp_sym_create( g, PPSYMTYPE_NONTERM,
+									"gflagslist", (char*)NULL );
+	definition = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"definition", (char*)NULL );
+	definitions = pp_sym_create( g, PPSYMTYPE_NONTERM,
+					"definitions", (char*)NULL );
+
+	grammar = pp_sym_create( g, PPSYMTYPE_NONTERM, "grammar", (char*)NULL );
+
+	/* Productions */
+	pp_prod_create( g, opt_int, integer, (ppsym*)NULL );
+	pp_prod_create( g, opt_int, (ppsym*)NULL );
+
+	pp_prod_create( g, emit, s_emit, opt_int, (ppsym*)NULL );
+
+	pp_prod_create( g, flag, s_noemit, (ppsym*)NULL );
+	pp_prod_create( g, flag, s_goal, (ppsym*)NULL );
+	pp_prod_create( g, flag, s_whitespace, (ppsym*)NULL );
+
+	pp_prod_create( g, flagemit, emit, (ppsym*)NULL );
+	pp_prod_create( g, flagemit, flag, (ppsym*)NULL );
+
+	pp_prod_create( g, flags, flags, flagemit, (ppsym*)NULL );
+	pp_prod_create( g, flags, flagemit, (ppsym*)NULL );
+
+	pp_prod_create( g, flagslist, flagslist, percent, flags, (ppsym*)NULL );
+	pp_prod_create( g, flagslist, percent, flags, (ppsym*)NULL );
+
+	pp_prod_create( g, optflagslist, flagslist, (ppsym*)NULL );
+	pp_prod_create( g, optflagslist, (ppsym*)NULL );
+
+	pp_prod_create( g, inlin, lpar, alternation, rpar, (ppsym*)NULL );
+
+	pp_prod_create( g, symbol, ident, (ppsym*)NULL );
+	pp_prod_create( g, symbol, ccl, (ppsym*)NULL );
+	pp_prod_create( g, symbol, string, (ppsym*)NULL );
+	pp_prod_create( g, symbol, regex, (ppsym*)NULL );
+	pp_prod_create( g, symbol, inlin, (ppsym*)NULL );
+
+	pp_prod_create( g, mod_kleene, symbol, star, (ppsym*)NULL );
+
+	pp_prod_create( g, mod_positive, symbol, plus, (ppsym*)NULL );
+
+	pp_prod_create( g, mod_optional, symbol, quest, (ppsym*)NULL );
+
 	pp_prod_create( g, modifier, mod_kleene, (ppsym*)NULL );
 	pp_prod_create( g, modifier, mod_positive, (ppsym*)NULL );
 	pp_prod_create( g, modifier, mod_optional, (ppsym*)NULL );
 	pp_prod_create( g, modifier, symbol, (ppsym*)NULL );
 
-	sequence = pp_sym_create( g, PPSYMTYPE_NONTERM, "sequence", (char*)NULL );
 	pp_prod_create( g, sequence, sequence, modifier, (ppsym*)NULL );
 	pp_prod_create( g, sequence, modifier, (ppsym*)NULL );
 
-	alternative = pp_sym_create( g, PPSYMTYPE_NONTERM,
-					"alternative", (char*)NULL );
-	alternative->emit = T_ALTERNATIVE;
 	pp_prod_create( g, alternative, sequence, (ppsym*)NULL );
 	pp_prod_create( g, alternative, (ppsym*)NULL );
 
-	alternation = pp_sym_create( g, PPSYMTYPE_NONTERM,
-					"alternation", (char*)NULL );
 	pp_prod_create( g, alternation, alternation,
 					pipe, alternative, (ppsym*)NULL );
 	pp_prod_create( g, alternation, alternative, (ppsym*)NULL );
 
-	nontermdef = pp_sym_create( g, PPSYMTYPE_NONTERM,
-					"nontermdef", (char*)NULL );
-	nontermdef->emit = T_NONTERMDEF;
 	pp_prod_create( g, nontermdef, ident, colon, alternation, optflagslist,
 						semicolon, (ppsym*)NULL );
 
-	termdef = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
-	termdef->emit = T_TERMDEF;
 	pp_prod_create( g, termdef, ident, equal, ccl,
 						optflagslist, semicolon, (ppsym*)NULL );
 	pp_prod_create( g, termdef, ident, equal, string,
@@ -1642,34 +1721,24 @@ void pp_gram2gram( ppgram* g )
 	pp_prod_create( g, termdef, ident, equal, regex,
 						optflagslist, semicolon, (ppsym*)NULL );
 
-	gflag = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflag", (char*)NULL );
-	gflag->emit = T_GFLAG;
 	pp_prod_create( g, gflag, s_emitall, (ppsym*)NULL );
 	pp_prod_create( g, gflag, s_emitnone, (ppsym*)NULL );
 	pp_prod_create( g, gflag, s_lrec, (ppsym*)NULL );
 	pp_prod_create( g, gflag, s_rrec, (ppsym*)NULL );
 
-	gflags = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflags", (char*)NULL );
 	pp_prod_create( g, gflags, gflags, gflag, (ppsym*)NULL );
 	pp_prod_create( g, gflags, gflag, (ppsym*)NULL );
 
-	gflagslist = pp_sym_create( g, PPSYMTYPE_NONTERM,
-									"gflagslist", (char*)NULL );
 	pp_prod_create( g, gflagslist, gflagslist, percent, gflags, (ppsym*)NULL );
 	pp_prod_create( g, gflagslist, percent, gflags, (ppsym*)NULL );
 
-	definition = pp_sym_create( g, PPSYMTYPE_NONTERM,
-					"definition", (char*)NULL );
 	pp_prod_create( g, definition, termdef, (ppsym*)NULL );
 	pp_prod_create( g, definition, nontermdef, (ppsym*)NULL );
 	pp_prod_create( g, definition, gflagslist, (ppsym*)NULL );
 
-	definitions = pp_sym_create( g, PPSYMTYPE_NONTERM,
-					"definitions", (char*)NULL );
 	pp_prod_create( g, definitions, definitions, definition, (ppsym*)NULL );
 	pp_prod_create( g, definitions, definition, (ppsym*)NULL );
 
-	grammar = pp_sym_create( g, PPSYMTYPE_NONTERM, "grammar", (char*)NULL );
 	pp_prod_create( g, grammar, definitions, (ppsym*)NULL );
 
 	/* That other skirmish... */

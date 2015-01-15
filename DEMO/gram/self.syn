@@ -15,15 +15,15 @@ regex 		= /\/(\\\\.|[^\\\\\/])*\//								%emit 3;
 ident		= /[A-Za-z_][A-Za-z0-9_]*/ 								%emit 10;
 int			= /[0-9]+/ 												%emit 11;
 
-symbol 		: ident | ccl | string | regex							%emit 20;
+symbol 		: ident | ccl | string | regex | inline					%emit 20;
 
-mod_kleene	: symbol '*'											%emit 21;
-mod_positive: symbol '+' 											%emit 22;
-mod_optional: symbol '?'											%emit 23;
+mod_kleene	: symbol '*'											%emit 25;
+mod_positive: symbol '+' 											%emit 26;
+mod_optional: symbol '?'											%emit 27;
 modifier	: mod_kleene | mod_positive | mod_optional | symbol ;
 
 sequence	: sequence modifier | modifier ;
-alternative : sequence | 											%emit 24;
+alternative : sequence | 											%emit 30;
 alternation	: alternation '|' alternative | alternative ;
 
 emit		: kw_emit int?											%emit 42;
@@ -34,12 +34,13 @@ flags    	: flags '%' emitflag+
 			| '%' emitflag+
 			;
 
-nontermdef	: ident ':' alternation flags? ';'						%emit 25;
+nontermdef	: ident ':' alternation flags? ';'						%emit 31;
+inline		: '(' alternation ')'									%emit 32;
 
 termdef		: ident '=' ccl flags? ';'
 			| ident '=' string flags? ';'
 			| ident '=' regex flags? ';'
-																	%emit 30;
+																	%emit 35;
 
 gflag       : kw_emitall | kw_emitnone | kw_lrec | kw_rrec			%emit 41;
 gflags		: gflags '%' gflag+ | '%' gflag+ ;

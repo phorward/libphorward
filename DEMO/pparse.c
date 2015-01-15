@@ -3,13 +3,13 @@
 
 int main( int argc, char** argv )
 {
-	char*	e;
-	char*	s;
-	parray*	a;
-	ppgram*	g;
-	ppgram*	g2	= (ppgram*)NULL;
-	int		i	= 0;
-	char*	str;
+	char*		e;
+	char*		s;
+	parray*		a;
+	ppgram*		g;
+	ppgram*		g2		= (ppgram*)NULL;
+	int			i		= 0;
+	char*		str;
 
 	g = pp_gram_create( (char*)NULL );
 	pp_gram2gram( g );
@@ -19,7 +19,7 @@ int main( int argc, char** argv )
 	if( argc > 1 )
 	{
 		str = argv[ 1 ];
-		while( i < 5 )
+		while( TRUE )
 		{
 			e = s = str;
 
@@ -29,18 +29,23 @@ int main( int argc, char** argv )
 
 				pp_ast_simplify( a );
 
-				g2 = pp_ast2gram( a );
-				printf( "\n--- final ---\n" );
-				pp_gram_print( g2 );
+				if( parray_count( a ) )
+				{
+					g2 = pp_ast2gram( a );
+					printf( "\n--- final ---\n" );
+					pp_gram_print( g2 );
 
-				g = g2;
+					g = g2;
+				}
 
 				i++;
 
 				printf( "BOOTSTRAP %d OK\n", i );
-				if( argc > 2 )
+				if( argc > i + 1 )
 				{
-					str = argv[ 2 ];
+					if( *argv[ i + 1 ] )
+						str = argv[ i + 1 ];
+
 					printf( "EXEC >%s<\n", str );
 				}
 
