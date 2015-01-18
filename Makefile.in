@@ -14,6 +14,16 @@
 
 @SET_MAKE@
 
+# -MAKEFILE---------------------------------------------------------------------
+# Phorward Foundation Toolkit
+# Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See LICENSE for more information.
+#
+# File:		Makefile.am
+# Usage:	Automake makefile.
+# ------------------------------------------------------------------------------
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \

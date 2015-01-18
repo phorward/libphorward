@@ -14,11 +14,14 @@
 
 @SET_MAKE@
 
-# -MAKE-------------------------------------------------------------------------
-# Phorward Foundation Libraries :: pbasis
-# Copyright (C) 2006-2012 by Phorward Software Technologies, Jan Max Meyer
+# -MAKEFILE---------------------------------------------------------------------
+# Phorward Foundation Toolkit
+# Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-# All rights reserved. See $PHOME/LICENSE for more information.
+# All rights reserved. See LICENSE for more information.
+#
+# File:		Makefile.am
+# Usage:	Automake input file
 # ------------------------------------------------------------------------------
 
 
@@ -902,7 +905,9 @@ $(PROTOFILE): $(libphorward_la_SOURCES)
 
 # Library Header
 $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)
-	$(PATHEXT) pinclude phorward.tpl.h >$@
+	$(PATHEXT) filehead phorward.h "Phorward Foundation Toolkit Global Header" \
+		>$@
+	$(PATHEXT) pinclude phorward.tpl.h >>$@
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 

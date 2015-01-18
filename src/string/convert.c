@@ -1,18 +1,12 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	convert.c
 Author:	Jan Max Meyer
 Usage:	String conversion functions.
-
-		All functions within this module reserve memory for their returned
-		data, so there is not always a pendant-function right in here for
-		every conversion function. For example, long_to_char() converts a
-		long-value into an allocated char-string, but the C standard library
-		wrapper strtol() is the pendant to convert a string into a long value.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
