@@ -27,15 +27,15 @@ SRC = \
 	string/utf8.c \
 	util/system.c \
 	xml/xml.c \
+	value/value.c \
+	value/value.conv.c \
+	value/value.get.c \
+	value/value.set.c \
 	parse/ast.c \
 	parse/gram.c \
 	parse/ll.c \
 	parse/lr.c \
-	parse/scan.c \
-	value/value.c \
-	value/value.conv.c \
-	value/value.get.c \
-	value/value.set.c
+	parse/scan.c
 
 HSRC = \
 	base/array.h \
@@ -70,7 +70,9 @@ $(PROTOFILE): $(SRC)
 
 # Library Header
 $(LIBHEADER): $(HSRC)
-	$(PATHEXT) pinclude phorward.tpl.h >$@
+	$(PATHEXT) filehead phorward.h "Phorward Foundation Toolkit Global Header" \
+		>$@
+	$(PATHEXT) pinclude phorward.tpl.h >>$@
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 value/value.get.c: value/value.h value/value.gen.awk

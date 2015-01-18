@@ -6,15 +6,15 @@
 #include "phorward.h"
 
 /** Sets the char data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //c// is the char value to be assigned to //val//.
 
 The function always returns the value //c//.
 */
-char pg_value_set_char( pgvalue* val, char c )
+char pvalue_set_char( pvalue* val, char c )
 {
-	PROC( "pg_value_set_char" );
+	PROC( "pvalue_set_char" );
 	PARMS( "val", "%p", val );
 	PARMS( "c", "%c", c );
 
@@ -24,7 +24,7 @@ char pg_value_set_char( pgvalue* val, char c )
 		RETURN( (char)0 );
 	}
 
-	pg_value_reset( val );
+	pvalue_reset( val );
 	val->type = PGVALUETYPE_CHAR;
 	val->val.c = c;
 
@@ -32,15 +32,15 @@ char pg_value_set_char( pgvalue* val, char c )
 }
 
 /** Sets the int data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //i// is the int value to be assigned to //val//.
 
 The function always returns the value //i//.
 */
-int pg_value_set_int( pgvalue* val, int i )
+int pvalue_set_int( pvalue* val, int i )
 {
-	PROC( "pg_value_set_int" );
+	PROC( "pvalue_set_int" );
 	PARMS( "val", "%p", val );
 	PARMS( "i", "%d", i );
 
@@ -50,7 +50,7 @@ int pg_value_set_int( pgvalue* val, int i )
 		RETURN( (int)0 );
 	}
 
-	pg_value_reset( val );
+	pvalue_reset( val );
 	val->type = PGVALUETYPE_INT;
 	val->val.i = i;
 
@@ -58,15 +58,15 @@ int pg_value_set_int( pgvalue* val, int i )
 }
 
 /** Sets the long data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //l// is the long value to be assigned to //val//.
 
 The function always returns the value //l//.
 */
-long pg_value_set_long( pgvalue* val, long l )
+long pvalue_set_long( pvalue* val, long l )
 {
-	PROC( "pg_value_set_long" );
+	PROC( "pvalue_set_long" );
 	PARMS( "val", "%p", val );
 	PARMS( "l", "%ld", l );
 
@@ -76,7 +76,7 @@ long pg_value_set_long( pgvalue* val, long l )
 		RETURN( (long)0 );
 	}
 
-	pg_value_reset( val );
+	pvalue_reset( val );
 	val->type = PGVALUETYPE_LONG;
 	val->val.l = l;
 
@@ -84,15 +84,15 @@ long pg_value_set_long( pgvalue* val, long l )
 }
 
 /** Sets the ulong data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //ul// is the ulong value to be assigned to //val//.
 
 The function always returns the value //ul//.
 */
-ulong pg_value_set_ulong( pgvalue* val, ulong ul )
+ulong pvalue_set_ulong( pvalue* val, ulong ul )
 {
-	PROC( "pg_value_set_ulong" );
+	PROC( "pvalue_set_ulong" );
 	PARMS( "val", "%p", val );
 	PARMS( "ul", "%ld", ul );
 
@@ -102,7 +102,7 @@ ulong pg_value_set_ulong( pgvalue* val, ulong ul )
 		RETURN( (ulong)0 );
 	}
 
-	pg_value_reset( val );
+	pvalue_reset( val );
 	val->type = PGVALUETYPE_ULONG;
 	val->val.ul = ul;
 
@@ -110,15 +110,15 @@ ulong pg_value_set_ulong( pgvalue* val, ulong ul )
 }
 
 /** Sets the float data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //f// is the float value to be assigned to //val//.
 
 The function always returns the value //f//.
 */
-float pg_value_set_float( pgvalue* val, float f )
+float pvalue_set_float( pvalue* val, float f )
 {
-	PROC( "pg_value_set_float" );
+	PROC( "pvalue_set_float" );
 	PARMS( "val", "%p", val );
 	PARMS( "f", "%f", f );
 
@@ -128,7 +128,7 @@ float pg_value_set_float( pgvalue* val, float f )
 		RETURN( (float)0.0 );
 	}
 
-	pg_value_reset( val );
+	pvalue_reset( val );
 	val->type = PGVALUETYPE_FLOAT;
 	val->val.f = f;
 
@@ -136,15 +136,15 @@ float pg_value_set_float( pgvalue* val, float f )
 }
 
 /** Sets the double data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //d// is the double value to be assigned to //val//.
 
 The function always returns the value //d//.
 */
-double pg_value_set_double( pgvalue* val, double d )
+double pvalue_set_double( pvalue* val, double d )
 {
-	PROC( "pg_value_set_double" );
+	PROC( "pvalue_set_double" );
 	PARMS( "val", "%p", val );
 	PARMS( "d", "%lf", d );
 
@@ -154,7 +154,7 @@ double pg_value_set_double( pgvalue* val, double d )
 		RETURN( (double)0.0 );
 	}
 
-	pg_value_reset( val );
+	pvalue_reset( val );
 	val->type = PGVALUETYPE_DOUBLE;
 	val->val.d = d;
 
@@ -162,15 +162,15 @@ double pg_value_set_double( pgvalue* val, double d )
 }
 
 /** Sets the char* data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //s// is the char* value to be assigned to //val//.
 
 The function always returns the value //s//.
 */
-char* pg_value_set_cstring( pgvalue* val, char* s )
+char* pvalue_set_cstr( pvalue* val, char* s )
 {
-	PROC( "pg_value_set_cstring" );
+	PROC( "pvalue_set_cstr" );
 	PARMS( "val", "%p", val );
 	PARMS( "s", "%s", s );
 
@@ -180,24 +180,24 @@ char* pg_value_set_cstring( pgvalue* val, char* s )
 		RETURN( (char*)NULL );
 	}
 
-	pg_value_reset( val );
-	val->type = PGVALUETYPE_STRING;
+	pvalue_reset( val );
+	val->type = PGVALUETYPE_STR;
 	val->val.s = s;
-	pg_value_set_constant( val, TRUE );
+	pvalue_set_constant( val, TRUE );
 
 	RETURN( val->val.s );
 }
 
 /** Sets the char* data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //s// is the char* value to be assigned to //val//.
 
 The function always returns the value //s//.
 */
-char* pg_value_set_string( pgvalue* val, char* s )
+char* pvalue_set_str( pvalue* val, char* s )
 {
-	PROC( "pg_value_set_string" );
+	PROC( "pvalue_set_str" );
 	PARMS( "val", "%p", val );
 	PARMS( "s", "%s", s );
 
@@ -207,23 +207,23 @@ char* pg_value_set_string( pgvalue* val, char* s )
 		RETURN( (char*)NULL );
 	}
 
-	pg_value_reset( val );
-	val->type = PGVALUETYPE_STRING;
+	pvalue_reset( val );
+	val->type = PGVALUETYPE_STR;
 	val->val.s = s;
 
 	RETURN( val->val.s );
 }
 
 /** Sets the wchar_t* data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //ws// is the wchar_t* value to be assigned to //val//.
 
 The function always returns the value //ws//.
 */
-wchar_t* pg_value_set_wcstring( pgvalue* val, wchar_t* ws )
+wchar_t* pvalue_set_cwcs( pvalue* val, wchar_t* ws )
 {
-	PROC( "pg_value_set_wcstring" );
+	PROC( "pvalue_set_cwcs" );
 	PARMS( "val", "%p", val );
 	PARMS( "ws", "%ls", ws );
 
@@ -233,24 +233,24 @@ wchar_t* pg_value_set_wcstring( pgvalue* val, wchar_t* ws )
 		RETURN( (wchar_t*)NULL );
 	}
 
-	pg_value_reset( val );
-	val->type = PGVALUETYPE_WSTRING;
+	pvalue_reset( val );
+	val->type = PGVALUETYPE_WCS;
 	val->val.ws = ws;
-	pg_value_set_constant( val, TRUE );
+	pvalue_set_constant( val, TRUE );
 
 	RETURN( val->val.ws );
 }
 
 /** Sets the wchar_t* data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //ws// is the wchar_t* value to be assigned to //val//.
 
 The function always returns the value //ws//.
 */
-wchar_t* pg_value_set_wstring( pgvalue* val, wchar_t* ws )
+wchar_t* pvalue_set_wcs( pvalue* val, wchar_t* ws )
 {
-	PROC( "pg_value_set_wstring" );
+	PROC( "pvalue_set_wcs" );
 	PARMS( "val", "%p", val );
 	PARMS( "ws", "%ls", ws );
 
@@ -260,23 +260,23 @@ wchar_t* pg_value_set_wstring( pgvalue* val, wchar_t* ws )
 		RETURN( (wchar_t*)NULL );
 	}
 
-	pg_value_reset( val );
-	val->type = PGVALUETYPE_WSTRING;
+	pvalue_reset( val );
+	val->type = PGVALUETYPE_WCS;
 	val->val.ws = ws;
 
 	RETURN( val->val.ws );
 }
 
 /** Sets the void* data value and type.
-//val// is the pgvalue-object to be set.
+//val// is the pvalue-object to be set.
 
 //ptr// is the void* value to be assigned to //val//.
 
 The function always returns the value //ptr//.
 */
-void* pg_value_set_ptr( pgvalue* val, void* ptr )
+void* pvalue_set_ptr( pvalue* val, void* ptr )
 {
-	PROC( "pg_value_set_ptr" );
+	PROC( "pvalue_set_ptr" );
 	PARMS( "val", "%p", val );
 	PARMS( "ptr", "%p", ptr );
 
@@ -286,7 +286,7 @@ void* pg_value_set_ptr( pgvalue* val, void* ptr )
 		RETURN( (void*)NULL );
 	}
 
-	pg_value_reset( val );
+	pvalue_reset( val );
 	val->type = PGVALUETYPE_PTR;
 	val->val.ptr = ptr;
 

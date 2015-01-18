@@ -456,69 +456,117 @@ void xml_demo( void )
 void value_demo( void )
 {
 	/*
-	 * This is a demonstration of the pgvalue object, which implements
+	 * This is a demonstration of the pvalue object, which implements
 	 * a union data type storage. A union type is a variable which is capable to
 	 * store different values, by using a type flag, but only one memory store.
 	 *
-	 * The pgvalue-data type and its support functions of libphorward allows to
+	 * The pvalue-data type and its support functions of libphorward allows to
 	 * store byte, char, int, long, unsigned long (ulong), float, double,
 	 * string (char*) and wide-character string (wchar_t*) and their conversion
 	 * among each other.
 	 *
-	 * String memory is always hold with the pgvalue-object, until the
+	 * String memory is always hold with the pvalue-object, until the
 	 * structure is converted into another type or freed.
 	 */
-	pgvalue*	utest;
+	pvalue*	val;
 
 	DEMO( "value_demo" );
 
 	/* Get new union object */
-	utest = pg_value_create();
+	val = pvalue_create();
 
 	/* Set a string, duplicate its memory (*_d) */
-	pg_value_set_string_d( utest, "123 Hello World" );
+	pvalue_set_strdup( val, "123 Hello World" );
 
 	/* Get the string */
-	printf( "utest(str) = %s\n", pg_value_get_string( utest ) );
+	printf( "val(str) = %s\n", pvalue_get_str( val ) );
 
 	/* Get the string as wide-character value */
-	printf( "utest(wstr) = %ls\n", pg_value_get_wstring( utest ) );
+	printf( "val(wcs) = %ls\n", pvalue_get_wcs( val ) );
 
 	/*
-	 * Well, this is not possible, because the pgvalue object is
+	 * Well, this is not possible, because the pvalue object is
 	 * configured to be not convertible by default. Let's enable this.
 	 */
-	pg_value_set_autoconvert( utest, TRUE );
+	pvalue_set_autoconvert( val, TRUE );
 
 	/* Get the string as wide-character value, again. */
-	printf( "utest(wstr) = %ls\n", pg_value_get_wstring( utest ) );
+	printf( "val(wcs) = %ls\n", pvalue_get_wcs( val ) );
 
 	/* The the string as integer value - only 123 will be returned! */
-	printf( "utest(int) = %d\n", pg_value_get_int( utest ) );
+	printf( "val(int) = %d\n", pvalue_get_int( val ) );
 
 	/* Reset the value by a floating point number */
-	pg_value_set_double( utest, 123.456 );
+	pvalue_set_double( val, 123.456 );
 
-	printf( "utest(double) = %lf\n", pg_value_get_double( utest ) );
-	printf( "utest(str) = %s\n", pg_value_get_string( utest ) );
+	printf( "val(double) = %lf\n", pvalue_get_double( val ) );
+	printf( "val(str) = %s\n", pvalue_get_str( val ) );
 
 	/* Free the object */
-	utest = pg_value_free( utest );
+	val = pvalue_free( val );
+}
+
+void help( char** argv )
+{
+	printf( "usage: %s OPTIONS\n\n"
+
+	"   -s  --stepwise        Execute demo step-by-step.\n"
+	"   -h  --help            Show this help, and exit.\n\n", *argv );
 }
 
 int main( int argc, char** argv )
 {
-	setlocale( LC_ALL, "" );
+	int			i;
+	int			rc;
+	int			next;
+	char		opt				[ 20 + 1 ];
+	pboolean	stepwise		= FALSE;
+	void		(*func[])(void)	= {
+		&string_demo,
+		&unicode_demo,
+		&utf8_demo,
+		&plist_demo2,
+		&plist_demo,
+		&parray_demo,
+		&dbg_demo,
+		&xml_demo,
+		&value_demo
+	};
+	char*		param;
 
-	string_demo();
-	unicode_demo();
-	utf8_demo();
-	plist_demo2();
-	plist_demo();
-	parray_demo();
-	dbg_demo();
-	xml_demo();
-	value_demo();
+	setlocale( LC_ALL, "" ); /* for unicode environment */
+
+	/* Parse command line parameters */
+	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
+						"sh",
+						"stepwise help", i ) ) == 0; i++ )
+	{
+		if( !strcmp( opt, "help" ) || *opt == 'h' )
+		{
+			help( argv );
+			return 0;
+		}
+		else if( !strcmp( opt, "stepwise" ) || *opt == 's' )
+			stepwise = TRUE;
+	}
+
+	if( rc < 0 && param )
+	{
+		printf( "Unknown option: '%s'\n\n", param );
+		help( argv );
+		return 1;
+	}
+
+	for( i = 0; i < sizeof( func ) / sizeof( *func ); i++ )
+	{
+		(*func[i])();
+
+		if( stepwise )
+		{
+			printf( "\n--- Press ENTER for next demo ---\n" );
+			getchar();
+		}
+	}
 
 	return EXIT_SUCCESS;
 }

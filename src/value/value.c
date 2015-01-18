@@ -1,12 +1,12 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.n.
 
 File:	value.c
 Author:	Jan Max Meyer
-Usage:	pgvalue implements a universal data type object, which can hold any of
+Usage:	pvalue implements a universal data type object, which can hold any of
 		generic C type.
 
 		The functions in value.conv.c, value.get.c and value.set.c are generated
@@ -17,13 +17,13 @@ Usage:	pgvalue implements a universal data type object, which can hold any of
 
 #include "phorward.h"
 
-/** Initializes a pgvalue-element.
+/** Initializes a pvalue-element.
 
-//val// is the pointer to the pgvalue-structure to be initialized.
+//val// is the pointer to the pvalue-structure to be initialized.
 */
-pboolean pg_value_init( pgvalue* val )
+pboolean pvalue_init( pvalue* val )
 {
-	PROC( "pg_value_init" );
+	PROC( "pvalue_init" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -32,34 +32,34 @@ pboolean pg_value_init( pgvalue* val )
 		RETURN( FALSE );
 	}
 
-	memset( val, 0, sizeof( pgvalue ) );
+	memset( val, 0, sizeof( pvalue ) );
 	val->type = PGVALUETYPE_NULL;
 
 	RETURN( TRUE );
 }
 
-/** Creates a new pgvalue-object.
+/** Creates a new pvalue-object.
 
-This object must be released after usage using pgvalue_free(). */
-pgvalue* pg_value_create( void )
+This object must be released after usage using pvalue_free(). */
+pvalue* pvalue_create( void )
 {
-	pgvalue*		val;
+	pvalue*		val;
 
-	val = (pgvalue*)pmalloc( sizeof( pgvalue ) );
-	pg_value_init( val );
+	val = (pvalue*)pmalloc( sizeof( pvalue ) );
+	pvalue_init( val );
 
 	return val;
 }
 
-/** Frees all memory used by a pgvalue-element.
+/** Frees all memory used by a pvalue-element.
 
 All memory used by the element is freed, and the union's structure is reset
 to be of type PGVALUETYPE_NULL.
 
-//val// is the pointer to pgvalue structure. */
-pboolean pg_value_reset( pgvalue* val )
+//val// is the pointer to pvalue structure. */
+pboolean pvalue_reset( pvalue* val )
 {
-	PROC( "pg_value_reset" );
+	PROC( "pvalue_reset" );
 	PARMS( "val", "%p", val );
 
 	if( !( val ) )
@@ -70,11 +70,11 @@ pboolean pg_value_reset( pgvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			pfree( val->val.s );
 			break;
 
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			pfree( val->val.ws );
 			break;
 
@@ -88,23 +88,23 @@ pboolean pg_value_reset( pgvalue* val )
 	RETURN( TRUE );
 }
 
-/** Frees an allocated pgvalue object and all its used memory.
+/** Frees an allocated pvalue object and all its used memory.
 
-The function always returns (pgvalue*)NULL. */
-pgvalue* pg_value_free( pgvalue* val )
+The function always returns (pvalue*)NULL. */
+pvalue* pvalue_free( pvalue* val )
 {
 	if( !val )
-		return (pgvalue*)NULL;
+		return (pvalue*)NULL;
 
-	pg_value_reset( val );
+	pvalue_reset( val );
 	pfree( val );
 
-	return (pgvalue*)NULL;
+	return (pvalue*)NULL;
 }
 
 /* Parse value or accept only preferred type */
 /*
-pboolean pg_value_parse( pgvalue* val, char* str, pgvaluetype prefer )
+pboolean pvalue_parse( pvalue* val, char* str, pvaluetype prefer )
 {
 	if( !( val && str && *str ) )
 	{
@@ -128,7 +128,7 @@ pboolean pg_value_parse( pgvalue* val, char* str, pgvaluetype prefer )
 
 /* Attribute: constant */
 
-pboolean pg_value_set_constant( pgvalue* val, pboolean constant )
+pboolean pvalue_set_constant( pvalue* val, pboolean constant )
 {
 	if( !val )
 	{
@@ -144,7 +144,7 @@ pboolean pg_value_set_constant( pgvalue* val, pboolean constant )
 	return TRUE;
 }
 
-pboolean pg_value_get_constant( pgvalue* val )
+pboolean pvalue_get_constant( pvalue* val )
 {
 	if( !val )
 	{
@@ -157,7 +157,7 @@ pboolean pg_value_get_constant( pgvalue* val )
 
 /* Attribute: autoconvert */
 
-pboolean pg_value_set_autoconvert( pgvalue* val, pboolean autoconvert )
+pboolean pvalue_set_autoconvert( pvalue* val, pboolean autoconvert )
 {
 	if( !val )
 	{
@@ -173,7 +173,7 @@ pboolean pg_value_set_autoconvert( pgvalue* val, pboolean autoconvert )
 	return TRUE;
 }
 
-pboolean pg_value_get_autoconvert( pgvalue* val )
+pboolean pvalue_get_autoconvert( pvalue* val )
 {
 	if( !val )
 	{

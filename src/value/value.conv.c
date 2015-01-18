@@ -7,13 +7,13 @@
 
 /** Converts the current value of //val// into a char value.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the char-value of //val//.
 */
-char pg_value_to_char( pgvalue* val )
+char pvalue_to_char( pvalue* val )
 {
-	PROC( "pg_value_to_char" );
+	PROC( "pvalue_to_char" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -36,9 +36,9 @@ char pg_value_to_char( pgvalue* val )
 			RETURN( (char)val->val.f );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( (char)val->val.d );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( (char)strtol( val->val.s, (char**)NULL, 0 ) );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( (char)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (char)0 );
@@ -50,13 +50,13 @@ char pg_value_to_char( pgvalue* val )
 
 /** Converts the current value of //val// into a int value.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the int-value of //val//.
 */
-int pg_value_to_int( pgvalue* val )
+int pvalue_to_int( pvalue* val )
 {
-	PROC( "pg_value_to_int" );
+	PROC( "pvalue_to_int" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -79,9 +79,9 @@ int pg_value_to_int( pgvalue* val )
 			RETURN( (int)val->val.f );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( (int)val->val.d );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( (int)strtol( val->val.s, (char**)NULL, 0 ) );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( (int)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (int)0 );
@@ -93,13 +93,13 @@ int pg_value_to_int( pgvalue* val )
 
 /** Converts the current value of //val// into a long value.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the long-value of //val//.
 */
-long pg_value_to_long( pgvalue* val )
+long pvalue_to_long( pvalue* val )
 {
-	PROC( "pg_value_to_long" );
+	PROC( "pvalue_to_long" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -122,9 +122,9 @@ long pg_value_to_long( pgvalue* val )
 			RETURN( (long)val->val.f );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( (long)val->val.d );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( (long)strtol( val->val.s, (char**)NULL, 0 ) );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( (long)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (long)val->val.ptr );
@@ -136,13 +136,13 @@ long pg_value_to_long( pgvalue* val )
 
 /** Converts the current value of //val// into a ulong value.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the ulong-value of //val//.
 */
-ulong pg_value_to_ulong( pgvalue* val )
+ulong pvalue_to_ulong( pvalue* val )
 {
-	PROC( "pg_value_to_ulong" );
+	PROC( "pvalue_to_ulong" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -165,9 +165,9 @@ ulong pg_value_to_ulong( pgvalue* val )
 			RETURN( (ulong)val->val.f );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( (ulong)val->val.d );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( (ulong)strtol( val->val.s, (char**)NULL, 0 ) );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( (ulong)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (ulong)val->val.ptr );
@@ -179,13 +179,13 @@ ulong pg_value_to_ulong( pgvalue* val )
 
 /** Converts the current value of //val// into a float value.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the float-value of //val//.
 */
-float pg_value_to_float( pgvalue* val )
+float pvalue_to_float( pvalue* val )
 {
-	PROC( "pg_value_to_float" );
+	PROC( "pvalue_to_float" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -208,9 +208,9 @@ float pg_value_to_float( pgvalue* val )
 			RETURN( val->val.f );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( (float)val->val.d );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( (float)strtod( val->val.s, (char**)NULL ) );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( (float)wcstod( val->val.ws, (wchar_t**)NULL ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (float)0.0 );
@@ -222,13 +222,13 @@ float pg_value_to_float( pgvalue* val )
 
 /** Converts the current value of //val// into a double value.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the double-value of //val//.
 */
-double pg_value_to_double( pgvalue* val )
+double pvalue_to_double( pvalue* val )
 {
-	PROC( "pg_value_to_double" );
+	PROC( "pvalue_to_double" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -251,9 +251,9 @@ double pg_value_to_double( pgvalue* val )
 			RETURN( (double)val->val.f );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( val->val.d );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( (double)strtod( val->val.s, (char**)NULL ) );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( (double)wcstod( val->val.ws, (wchar_t**)NULL ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (double)0.0 );
@@ -264,16 +264,14 @@ double pg_value_to_double( pgvalue* val )
 }
 
 /** Converts the current value of //val// into a char* value.
-The returned memory is allocated, and must be freed by the caller.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the char*-value of //val//.
-This pointer must be manually freed by the caller.
 */
-char* pg_value_to_string( pgvalue* val )
+char* pvalue_to_str( pvalue* val )
 {
-	PROC( "pg_value_to_string" );
+	PROC( "pvalue_to_str" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -296,9 +294,9 @@ char* pg_value_to_string( pgvalue* val )
 			RETURN( (char*)pdbl_to_str( (double)val->val.f ) );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( (char*)pdbl_to_str( val->val.d ) );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( val->val.s );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( (char*)pwcs_to_str( val->val.ws, FALSE ) );
 		case PGVALUETYPE_PTR:
 			RETURN( (char*)pasprintf( "%p", val->val.ptr ) );
@@ -309,16 +307,14 @@ char* pg_value_to_string( pgvalue* val )
 }
 
 /** Converts the current value of //val// into a wchar_t* value.
-The returned memory is allocated, and must be freed by the caller.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the wchar_t*-value of //val//.
-This pointer must be manually freed by the caller.
 */
-wchar_t* pg_value_to_wstring( pgvalue* val )
+wchar_t* pvalue_to_wcs( pvalue* val )
 {
-	PROC( "pg_value_to_wstring" );
+	PROC( "pvalue_to_wcs" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -341,9 +337,9 @@ wchar_t* pg_value_to_wstring( pgvalue* val )
 			RETURN( (wchar_t*)pdbl_to_wcs( (double)val->val.f ) );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( (wchar_t*)pdbl_to_wcs( val->val.d ) );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( (wchar_t*)pstr_to_wcs( val->val.s, FALSE ) );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( val->val.ws );
 		case PGVALUETYPE_PTR:
 			RETURN( (wchar_t*)pawcsprintf( L"%p", val->val.ptr ) );
@@ -355,13 +351,13 @@ wchar_t* pg_value_to_wstring( pgvalue* val )
 
 /** Converts the current value of //val// into a void* value.
 
-//val// is the pgvalue-object to convert from.
+//val// is the pvalue-object to convert from.
 
 The function returns the void*-value of //val//.
 */
-void* pg_value_to_ptr( pgvalue* val )
+void* pvalue_to_ptr( pvalue* val )
 {
-	PROC( "pg_value_to_ptr" );
+	PROC( "pvalue_to_ptr" );
 	PARMS( "val", "%p", val );
 
 	if( !val )
@@ -384,9 +380,9 @@ void* pg_value_to_ptr( pgvalue* val )
 			RETURN( (void*)NULL );
 		case PGVALUETYPE_DOUBLE:
 			RETURN( (void*)NULL );
-		case PGVALUETYPE_STRING:
+		case PGVALUETYPE_STR:
 			RETURN( (void*)val->val.s );
-		case PGVALUETYPE_WSTRING:
+		case PGVALUETYPE_WCS:
 			RETURN( (void*)val->val.ws );
 		case PGVALUETYPE_PTR:
 			RETURN( val->val.ptr );
@@ -396,16 +392,16 @@ void* pg_value_to_ptr( pgvalue* val )
 	RETURN( (void*)NULL );
 }
 
-/** Converts a pgvalue-structure to any supported type.
+/** Converts a pvalue-structure to any supported type.
 
-//val// is the pgvalue-object to be converted.
+//val// is the pvalue-object to be converted.
 //type// is the type define to which //val// should be converted to.
 
 The function returns TRUE on success, FALSE else.
 */
-pboolean pg_value_convert( pgvalue* val, pgvaluetype type )
+pboolean pvalue_convert( pvalue* val, pvaluetype type )
 {
-	PROC( "pgvalue_convert" );
+	PROC( "pvalue_convert" );
 	PARMS( "val", "%p", val );
 	PARMS( "type", "%d", type );
 
@@ -421,39 +417,39 @@ pboolean pg_value_convert( pgvalue* val, pgvaluetype type )
 	switch( type )
 	{
 		case PGVALUETYPE_CHAR:
-			pg_value_set_char( val, pg_value_to_char( val ) );
+			pvalue_set_char( val, pvalue_to_char( val ) );
 			RETURN( TRUE );
 
 		case PGVALUETYPE_INT:
-			pg_value_set_int( val, pg_value_to_int( val ) );
+			pvalue_set_int( val, pvalue_to_int( val ) );
 			RETURN( TRUE );
 
 		case PGVALUETYPE_LONG:
-			pg_value_set_long( val, pg_value_to_long( val ) );
+			pvalue_set_long( val, pvalue_to_long( val ) );
 			RETURN( TRUE );
 
 		case PGVALUETYPE_ULONG:
-			pg_value_set_ulong( val, pg_value_to_ulong( val ) );
+			pvalue_set_ulong( val, pvalue_to_ulong( val ) );
 			RETURN( TRUE );
 
 		case PGVALUETYPE_FLOAT:
-			pg_value_set_float( val, pg_value_to_float( val ) );
+			pvalue_set_float( val, pvalue_to_float( val ) );
 			RETURN( TRUE );
 
 		case PGVALUETYPE_DOUBLE:
-			pg_value_set_double( val, pg_value_to_double( val ) );
+			pvalue_set_double( val, pvalue_to_double( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_STRING:
-			pg_value_set_string( val, pg_value_to_string( val ) );
+		case PGVALUETYPE_STR:
+			pvalue_set_str( val, pvalue_to_str( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_WSTRING:
-			pg_value_set_wstring( val, pg_value_to_wstring( val ) );
+		case PGVALUETYPE_WCS:
+			pvalue_set_wcs( val, pvalue_to_wcs( val ) );
 			RETURN( TRUE );
 
 		case PGVALUETYPE_PTR:
-			pg_value_set_ptr( val, pg_value_to_ptr( val ) );
+			pvalue_set_ptr( val, pvalue_to_ptr( val ) );
 			RETURN( TRUE );
 
 	}

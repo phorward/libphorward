@@ -1,22 +1,19 @@
 /* -HEADER----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	value.h
 Author:	Jan Max Meyer
-Usage:	Structures and definitions for a variant-style data storage type pgvalue.
-		The only hand-written modules of the pgvalue variant data type exists in
-		union.h and union.c. The files union.get.c, union.set.c and union.conv.c
+Usage:	Structures and definitions for a variant-style data storage type pvalue.
+		The only hand-written modules of the pvalue variant data type exists in
+		value.h and value.c. The files value.get.c, value.set.c and value.conv.c
 		are automatically generated from the definitions below, using
-		union.gen.awk. Due this automatic generation of the get/set/conversion
-		functions, the pgvalue data type can easily be changed and extended to
+		value.gen.awk. Due this automatic generation of the get/set/conversion
+		functions, the pvalue data type can easily be changed and extended to
 		new data types without huger code changes.
 ----------------------------------------------------------------------------- */
-
-#ifndef PGVALUETYPE_H
-#define PGVALUETYPE_H
 
 /* Defines */
 typedef enum
@@ -32,12 +29,12 @@ typedef enum
 	PGVALUETYPE_DOUBLE,
 
 	/* String */
-	PGVALUETYPE_STRING,
-	PGVALUETYPE_WSTRING,
+	PGVALUETYPE_STR,
+	PGVALUETYPE_WCS,
 
 	/* Special */
 	PGVALUETYPE_PTR
-} pgvaluetype;
+} pvaluetype;
 
 
 #define PGVALUEFLAG_CONSTANT	16	/* Const-value flag for strings, so no automatic
@@ -48,7 +45,7 @@ typedef enum
 /* Typedefs */
 typedef struct
 {
-	pgvaluetype	type;				/* Data type */
+	pvaluetype	type;				/* Data type */
 	short		flags;				/* Flags */
 
 	union
@@ -60,7 +57,7 @@ typedef struct
 			to void*: NULL
 		*/
 
-		int	i;
+		int		i;
 		/*vargen:int:%d::0
 			to char*: pasprintf( "%d", val->val.i )
 			to wchar_t*: pawcsprintf( L"%d", val->val.i )
@@ -96,10 +93,10 @@ typedef struct
 		*/
 
 		char*	s;
-		/*vargen:cstring:%s:PGVALUETYPE_STRING:NULL
-			set: pg_value_set_constant( val, TRUE );
+		/*vargen:cstr:%s:PGVALUETYPE_STR:NULL
+			set: pvalue_set_constant( val, TRUE );
 		*/
-		/*vargen:string:%s::NULL
+		/*vargen:str:%s::NULL
 			to char: strtol( val->val.s, (char**)NULL, 0 )
 			to int: (same)
 			to long: (same)
@@ -111,10 +108,10 @@ typedef struct
 		*/
 
 		wchar_t*	ws;
-		/*vargen:wcstring:%ls:PGVALUETYPE_WSTRING:NULL
-			set: pg_value_set_constant( val, TRUE );
+		/*vargen:cwcs:%ls:PGVALUETYPE_WCS:NULL
+			set: pvalue_set_constant( val, TRUE );
 		*/
-		/*vargen:wstring:%ls::NULL
+		/*vargen:wcs:%ls::NULL
 			to char: wcstol( val->val.ws, (wchar_t**)NULL, 0 )
 			to int: (same)
 			to long: (same)
@@ -137,13 +134,11 @@ typedef struct
 			to wchar_t*: pawcsprintf( L"%p", val->val.ptr )
 		*/
 	} val;
-} pgvalue;
+} pvalue;
 
 /* Macros */
-#define pg_value_set_string_d( val, str ) \
-			pg_value_set_string( val, pstrdup( str ) )
-#define pg_value_set_wstring_d( val, str ) \
-			pg_value_set_wstring( val, pwcsdup( str ) )
-
-#endif
+#define pvalue_set_strdup( val, str ) \
+			pvalue_set_str( val, pstrdup( str ) )
+#define pvalue_set_wcsdup( val, str ) \
+			pvalue_set_wcs( val, pwcsdup( str ) )
 

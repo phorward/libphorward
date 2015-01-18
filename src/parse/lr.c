@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -1241,10 +1241,10 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 Parsing stops at least when reading the zero terminator of //str//.
 
 //ast// receives an allocated parray-object with items of //ppmatch// elements
-that describe the prooduced abstract syntax tree.
+that describe the produced abstract syntax tree.
 
 //end// receives the position of the last character matched.
-The function returns TRUE if no parse error orccured.
+The function returns TRUE if no parse error occured.
 */
 pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end )
 {

@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2014 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -87,7 +87,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 }
 
 /** Get a symbol from grammar //g// by its //name//. */
-ppsym* pp_sym_get( ppgram* g, char* name )
+ppsym* pp_sym_get_by_name( ppgram* g, char* name )
 {
 	if( !( g && name && *name ) )
 	{
@@ -287,7 +287,7 @@ static char* derive_name( ppgram* g, char* base )
 
 	for( i = 0; strlen( deriv ) < ( NAMELEN * 2 ); i++ )
 	{
-		if( !pp_sym_get( g, deriv ) )
+		if( !pp_sym_get_by_name( g, deriv ) )
 			return deriv;
 
 		sprintf( deriv + strlen( deriv ), "%c", DERIVCHAR );
@@ -398,7 +398,7 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 	ppsymtype	type;
 	ppsym*		sym		= (ppsym*)NULL;
 	ppsym*		mod;
-	char		name	[ NAMELEN + 1 ];
+	char		name	[ NAMELEN * 2 + 1 ];
 	char		op;
 	int			i;
 
@@ -406,7 +406,7 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 
 	if( parse_ident( name, def ) )
 	{
-		if( !( sym = pp_sym_get( g, name ) ) )
+		if( !( sym = pp_sym_get_by_name( g, name ) ) )
 			sym = pp_sym_create( g, PPSYMTYPE_NONTERM, name, (char*)NULL );
 
 		sym->flags |= PPFLAG_CALLED;
@@ -445,26 +445,36 @@ static pboolean parse_factor( ppgram* g, ppsym* lhs, ppprod* p, char** def )
 
 		if( op == PPMOD_KLEENE || op == PPMOD_POSITIVE )
 		{
-			mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
+			sprintf( name, "%s%c", lhs->name, PPMOD_POSITIVE );
+
+			if( !( mod = pp_sym_get_by_name( g, name ) ) )
+			{
+				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
 						derive_name( g, lhs->name ), (char*)NULL );
 
-			if( g->flags & PPFLAG_PREVENTLREC )
-				pp_prod_create( g, mod, sym, mod, (ppsym*)NULL );
-			else
-				pp_prod_create( g, mod, mod, sym, (ppsym*)NULL );
+				if( g->flags & PPFLAG_PREVENTLREC )
+					pp_prod_create( g, mod, sym, mod, (ppsym*)NULL );
+				else
+					pp_prod_create( g, mod, mod, sym, (ppsym*)NULL );
 
-			pp_prod_create( g, mod, sym, (ppsym*)NULL );
+				pp_prod_create( g, mod, sym, (ppsym*)NULL );
+			}
 
 			sym = mod;
 		}
 
 		if( op == PPMOD_OPTIONAL || op == PPMOD_KLEENE )
 		{
-			mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
-						derive_name( g, lhs->name ), (char*)NULL );
+			sprintf( name, "%s%c", sym->name, PPMOD_OPTIONAL );
 
-			pp_prod_create( g, mod, sym, (ppsym*)NULL );
-			pp_prod_create( g, mod, (ppsym*)NULL );
+			if( !( mod = pp_sym_get_by_name( g, name ) ) )
+			{
+				mod = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, lhs->name ), (char*)NULL );
+
+				pp_prod_create( g, mod, sym, (ppsym*)NULL );
+				pp_prod_create( g, mod, (ppsym*)NULL );
+			}
 
 			sym = mod;
 		}
@@ -541,7 +551,7 @@ static int pp_gram_read( ppgram* g, char** def )
 			{
 				(*def)++;
 
-				if( !( sym = pp_sym_get( g, name ) ) )
+				if( !( sym = pp_sym_get_by_name( g, name ) ) )
 					sym = pp_sym_create(
 							g, PPSYMTYPE_NONTERM,
 								name, (char*)NULL );
@@ -675,7 +685,7 @@ static int pp_gram_read( ppgram* g, char** def )
 					sym = pp_sym_create( g, type, (char*)NULL, name );
 				/* or named? */
 				else if( parse_ident( name, def ) )
-					sym = pp_sym_get( g, name );
+					sym = pp_sym_get_by_name( g, name );
 				else
 					sym = (ppsym*)NULL;
 
@@ -1103,7 +1113,7 @@ ppgram* pp_ast2gram( parray* ast )
 
 				att.buf = pstrndup( e->start, e->end - e->start );
 
-				if( !( scope = pp_sym_get( g, att.buf ) ) )
+				if( !( scope = pp_sym_get_by_name( g, att.buf ) ) )
 					scope = pp_sym_create( g, PPSYMTYPE_NONTERM,
 								att.buf, (char*)NULL );
 
@@ -1166,9 +1176,10 @@ ppgram* pp_ast2gram( parray* ast )
 				/* Symbol */
 				attp = parray_pop( st );
 
-				if( attp->emit == T_INLINE )
+				if( attp->sym )
 					att.sym = attp->sym;
-				else if( !( att.sym = pp_sym_get( g, attp->buf ) ) )
+				else if( attp->buf &&
+							!( att.sym = pp_sym_get_by_name( g, attp->buf ) ) )
 				{
 					if( attp->emit == T_IDENT )
 						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
@@ -1182,6 +1193,12 @@ ppgram* pp_ast2gram( parray* ast )
 
 					pfree( attp->buf );
 				}
+				else
+				{
+					fprintf( stderr, "CHECK YOUR CODE:\n" );
+					fprintf( stderr, "%s, %d: Can't find symbol.\n",
+										__FILE__, __LINE__ );
+				}
 
 				att.sym->flags |= PPFLAG_CALLED;
 				break;
@@ -1193,10 +1210,9 @@ ppgram* pp_ast2gram( parray* ast )
 
 				if( e->emit == T_KLEENE || e->emit == T_POSITIVE )
 				{
-					sprintf( name, "%s%c", attp->sym->name,
-										e->emit == T_KLEENE ? '*' : '+' );
+					sprintf( name, "%s%c", attp->sym->name, PPMOD_POSITIVE );
 
-					if( !( att.sym = pp_sym_get( g, name ) ) )
+					if( !( att.sym = pp_sym_get_by_name( g, name ) ) )
 					{
 						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 														name, (char*)NULL );
@@ -1216,9 +1232,9 @@ ppgram* pp_ast2gram( parray* ast )
 
 				if( e->emit == T_OPTIONAL || e->emit == T_KLEENE )
 				{
-					sprintf( name, "%s?", attp->sym->name );
+					sprintf( name, "%s%c", attp->sym->name, PPMOD_OPTIONAL );
 
-					if( !( att.sym = pp_sym_get( g, name ) ) )
+					if( !( att.sym = pp_sym_get_by_name( g, name ) ) )
 					{
 						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 														name, (char*)NULL );
@@ -1365,7 +1381,7 @@ ppgram* pp_ast2gram( parray* ast )
 
 	if( parray_count( st ) )
 	{
-		fprintf( stderr, "CHECK YOU CODE:\n" );
+		fprintf( stderr, "CHECK YOUR CODE:\n" );
 		fprintf( stderr, "%s, %d: Still %d elements on stack\n",
 			__FILE__, __LINE__, parray_count( st ) );
 
@@ -1438,6 +1454,9 @@ void pp_gram2gram( ppgram* g )
 	ppsym*		ws;
 
 	/*
+	============================================================================
+	                This is the incomplete grammar draft
+	============================================================================
 
 	ident		= /[A-Za-z_][A-Za-z0-9_]*°/
 				%emit <T_IDENT>

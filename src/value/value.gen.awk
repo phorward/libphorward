@@ -1,9 +1,19 @@
 #!/bin/awk -f
-#This is a utility script to generate get-/set and conversion-functions for the
-#union data type pgvalue implemented in union.h
+# -SCRIPT-----------------------------------------------------------------------
+# Phorward Foundation Toolkit
+# Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
+# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# All rights reserved. See LICENSE for more information.
 #
-#I was lazy, had not the wish to write every of this functions by hand... so
-#I'm sorry for yet another generator script...
+# File:		value.gen.awk
+# Usage:	Generator for pvalue type conversion functions.
+#
+# This is a utility script to generate get-/set and conversion-functions for the
+# union data type pvalue implemented in union.h
+#
+# I was lazy, had not the wish to write every of this functions by hand... so
+# I'm sorry for yet another generator script...
+# ------------------------------------------------------------------------------
 
 BEGIN								{
 										FS = "[ \t;:]+"
@@ -150,7 +160,7 @@ function setfunc()
 {
 	# Comment
 	print "/** Sets the " datatype " data value and type."
-	print "//val// is the pgvalue-object to be set."
+	print "//val// is the pvalue-object to be set."
 	print ""
 	print "//" member "// is the " datatype " value to be assigned to //val//."
 	print ""
@@ -158,10 +168,10 @@ function setfunc()
 	print "*/"
 
 	# Code
-	print datatype " pg_value_set_" var_type "( pgvalue* val, " \
+	print datatype " pvalue_set_" var_type "( pvalue* val, " \
 				datatype " " member " )"
 	print "{"
-	print "	PROC( \"pg_value_set_" var_type "\" );"
+	print "	PROC( \"pvalue_set_" var_type "\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print "	PARMS( \"" member "\", \"" var_format "\", " member " );"
 	print ""
@@ -171,7 +181,7 @@ function setfunc()
 	print "		RETURN( (" datatype ")" var_emptyval " );"
 	print "	}"
 	print ""
-	print "	pg_value_reset( val );"
+	print "	pvalue_reset( val );"
 	print "	val->type = " var_define ";"
 	print "	val->val." member " = " member ";"
 
@@ -188,19 +198,19 @@ function getfunc()
 	# Comment
 	print "/** Returns the " datatype " data value if //val//."
 	print ""
-	print "If the pgvalue contains another data type, it will be converted,"
+	print "If the pvalue contains another data type, it will be converted,"
 	print "so use it carefully if data loss is not wanted."
 	print ""
-	print "//val// is the pointer to the pgvalue structure."
+	print "//val// is the pointer to the pvalue structure."
 	print ""
 	print "The function returns the value assigned to //val// as " datatype "."
 	print "This value could be converted from the original value."
 	print "*/"
 
 	# Code
-	print datatype " pg_value_get_" var_type "( pgvalue* val )"
+	print datatype " pvalue_get_" var_type "( pvalue* val )"
 	print "{"
-	print "	PROC( \"pg_value_get_" var_type "\" );"
+	print "	PROC( \"pvalue_get_" var_type "\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print ""
 	print "	if( !val )"
@@ -211,10 +221,10 @@ function getfunc()
 	print ""
 	print "	if( val->type != " var_define ")"
 	print "	{"
-	print "		if( pg_value_get_autoconvert( val ) )"
+	print "		if( pvalue_get_autoconvert( val ) )"
 	print "		{"
 	print "			MSG( \"Conversion allowed and required\" );"
-	print "			if( !pg_value_convert( val, " var_define " ) )"
+	print "			if( !pvalue_convert( val, " var_define " ) )"
 	print "				RETURN( (" datatype ")" var_emptyval " );"
 	print "		}"
 	print "		else"
@@ -243,7 +253,7 @@ function convfunc( type )
 			"and must be freed by the caller."
 
 	print ""
-	print "//val// is the pgvalue-object to convert from."
+	print "//val// is the pvalue-object to convert from."
 	print ""
 	print "The function returns the " type "-value of //val//."
 
@@ -252,9 +262,9 @@ function convfunc( type )
 	print "*/"
 
 	# Code
-	print type " pg_value_to_" var_type "( pgvalue* val )"
+	print type " pvalue_to_" var_type "( pvalue* val )"
 	print "{"
-	print "	PROC( \"pg_value_to_" var_type "\" );"
+	print "	PROC( \"pvalue_to_" var_type "\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print ""
 	print "	if( !val )"
@@ -298,18 +308,18 @@ function allconv_func()
 		okdone[ ok ] = 0
 
 	# Comment
-	print "/** Converts a pgvalue-structure to any supported type."
+	print "/** Converts a pvalue-structure to any supported type."
 	print ""
-	print "//val// is the pgvalue-object to be converted."
+	print "//val// is the pvalue-object to be converted."
 	print "//type// is the type define to which //val// should be converted to."
 	print ""
 	print "The function returns TRUE on success, FALSE else."
 	print "*/"
 
 	#Code
-	print "pboolean pg_value_convert( pgvalue* val, pgvaluetype type )"
+	print "pboolean pvalue_convert( pvalue* val, pvaluetype type )"
 	print "{"
-	print "	PROC( \"pgvalue_convert\" );"
+	print "	PROC( \"pvalue_convert\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print "	PARMS( \"type\", \"%d\", type );"
 	print ""
@@ -333,8 +343,8 @@ function allconv_func()
 		okdone[ variants[i] ] = 1
 
 		print "		case " members[ variants[i] SUBSEP "var_define" ] ":"
-		print "			pg_value_set_" members[ variants[i] SUBSEP "var_type" ]\
-			  "( val, pg_value_to_" members[ variants[i] SUBSEP "var_type" ]\
+		print "			pvalue_set_" members[ variants[i] SUBSEP "var_type" ]\
+			  "( val, pvalue_to_" members[ variants[i] SUBSEP "var_type" ]\
 			  "( val ) );"
 		print "			RETURN( TRUE );\n"
 	}

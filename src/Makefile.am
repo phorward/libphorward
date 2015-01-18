@@ -79,7 +79,9 @@ $(PROTOFILE): $(libphorward_la_SOURCES)
 
 # Library Header
 $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)
-	$(PATHEXT) pinclude phorward.tpl.h >$@
+	$(PATHEXT) filehead phorward.h "Phorward Foundation Toolkit Global Header" \
+		>$@
+	$(PATHEXT) pinclude phorward.tpl.h >>$@
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 
