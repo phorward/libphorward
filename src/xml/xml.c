@@ -1003,7 +1003,7 @@ XML_T xml_parse_file( char* file )
 	xml_root_t	root;
 	char*		s;
 
-	if( !map_file( &s, file ) )
+	if( !pfiletostr( &s, file ) )
 		return (XML_T)NULL;
 
 	root = (xml_root_t)xml_parse_str( s, pstrlen( s ) );

@@ -112,12 +112,12 @@ pboolean pfileexists( char* filename )
 //filename// is the path to file to be mapped
 
 The function returns TRUE on success. */
-pboolean map_file( char** cont, char* filename )
+pboolean pfiletostr( char** cont, char* filename )
 {
 	FILE*	f;
 	char*	c;
 
-	PROC( "map_file" );
+	PROC( "pfiletostr" );
 	PARMS( "cont", "%p", cont );
 	PARMS( "filename", "%s", filename );
 

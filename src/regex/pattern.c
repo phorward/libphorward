@@ -457,7 +457,9 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 	int				i;
 	pcrange*		cr;
 	char			from	[ 40 + 1 ];
+	wchar_t			cfrom;
 	char			to		[ 20 + 1 ];
+	wchar_t			cto;
 	pboolean		range	= FALSE;
 	pboolean		neg		= FALSE;
 
@@ -465,7 +467,7 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 	 * If this caracter class contains PCCL_MAX characters, then simply
 	 * print a dot.
 	 */
-	if( p_ccl_count( ccl ) == PCCL_MAX )
+	if( p_ccl_count( ccl ) > PCCL_MAX )
 	{
 		*str = pstrcatchar( *str, '.' );
 		return;
@@ -473,7 +475,7 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 
 	/*
 	 * Always duplicate character-class,
-	 * we sometimes will modify it
+	 * we sometimes need to modify it
 	 */
 	ccl = p_ccl_dup( ccl );
 
@@ -502,17 +504,15 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 	}
 
 	/* Go trough ccl... */
-
-	for( i = 0; !( cr = (pcrange*)plist_get( ccl->ranges, i ) ); i++ )
+	for( i = 0; p_ccl_get( &cfrom, &cto, ccl, i ); i++ )
 	{
-		pregex_char_to_REGEX( from, (int)sizeof( from ),
-									cr->begin, TRUE, range );
+		pregex_char_to_REGEX( from, (int)sizeof( from ), cfrom, TRUE, range );
 
-		if( cr->begin != cr->end )
+		if( cfrom < cto )
 		{
-			pregex_char_to_REGEX( to, (int)sizeof( to ),
-										cr->end, TRUE, range );
-			psprintf( from + strlen( from ), "-%s", to );
+			pregex_char_to_REGEX( to, (int)sizeof( to ), cto, TRUE, range );
+			psprintf( from + strlen( from ), "%s%s",
+				cfrom + 1 < cto ? "-" : "", to );
 		}
 
 		*str = pstrcatstr( *str, from, FALSE );

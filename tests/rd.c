@@ -1006,7 +1006,7 @@ int main( int argc, char** argv )
 		return 1;
 	}
 
-	if( map_file( &grammar, argv[ 1 ] ) != ERR_OK )
+	if( pfiletostr( &grammar, argv[ 1 ] ) != ERR_OK )
 	{
 		fprintf( stderr, "Can't read '%s'\n", argv[ 1 ] );
 		return 1;
@@ -1021,7 +1021,7 @@ int main( int argc, char** argv )
 	pg_par_to_c( par );
 	*/
 
-	if( map_file( &input, argv[ 2 ] ) != ERR_OK )
+	if( pfiletostr( &input, argv[ 2 ] ) != ERR_OK )
 	{
 		fprintf( stderr, "Can't read '%s'\n", argv[ 2 ] );
 		return 1;
