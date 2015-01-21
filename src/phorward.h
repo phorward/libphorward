@@ -511,6 +511,7 @@ struct _regex_ptn
 	pregex_ptn*		next;		
 
 	pregex_accept*	accept;		
+	char*			str;		
 };
 
 struct _regex_range
@@ -874,7 +875,7 @@ pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... );
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn );
 void pregex_ptn_print( pregex_ptn* ptn, int rec );
-pboolean pregex_ptn_to_regex( char** regex, pregex_ptn* ptn );
+char* pregex_ptn_to_regex( pregex_ptn* ptn );
 pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn );
 pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn );
 int pregex_ptn_to_dfatab( wchar_t*** dfatab, pregex_ptn* ptn );

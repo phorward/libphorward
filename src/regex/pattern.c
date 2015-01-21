@@ -377,8 +377,8 @@ pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 		if( ptn->child[1] )
 			pregex_ptn_free( ptn->child[1] );
 
-		if( ptn->accept )
-			pfree( ptn->accept );
+		pfree( ptn->accept );
+		pfree( ptn->str );
 
 		next = ptn->next;
 		pfree( ptn );
@@ -421,9 +421,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 		fprintf( stderr, "\n" );
 
 		if( ptn->child[0] )
-		{
 			pregex_ptn_print( ptn->child[0], rec + 1 );
-		}
 
 		if( ptn->child[1] )
 		{
@@ -456,12 +454,13 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 {
 	int				i;
 	pcrange*		cr;
-	char			from	[ 40 + 1 ];
 	wchar_t			cfrom;
-	char			to		[ 20 + 1 ];
+	char			from	[ 40 + 1 ];
 	wchar_t			cto;
+	char			to		[ 20 + 1 ];
 	pboolean		range	= FALSE;
 	pboolean		neg		= FALSE;
+	pboolean		is_dup	= FALSE;
 
 	/*
 	 * If this caracter class contains PCCL_MAX characters, then simply
@@ -473,18 +472,17 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 		return;
 	}
 
-	/*
-	 * Always duplicate character-class,
-	 * we sometimes need to modify it
-	 */
-	ccl = p_ccl_dup( ccl );
-
+	/* Better negate if more than 128 chars */
 	if( p_ccl_count( ccl ) > 128 )
 	{
+		ccl = p_ccl_dup( ccl );
+		is_dup = TRUE;
+
 		neg = TRUE;
 		p_ccl_negate( ccl );
 	}
 
+	/* Char-class or single char? */
 	if( neg || p_ccl_count( ccl ) > 1 )
 	{
 		range = TRUE;
@@ -499,6 +497,12 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 	 */
 	if( p_ccl_test( ccl, '-' ) )
 	{
+		if( !is_dup )
+		{
+			ccl = p_ccl_dup( ccl );
+			is_dup = TRUE;
+		}
+
 		*str = pstrcatchar( *str, '-' );
 		p_ccl_del( ccl, '-' );
 	}
@@ -521,7 +525,8 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 	if( range )
 		*str = pstrcatchar( *str, ']' );
 
-	p_ccl_free( ccl );
+	if( is_dup )
+		p_ccl_free( ccl );
 }
 
 /* Internal function for pregex_ptn_to_regex() */
@@ -602,20 +607,29 @@ static pboolean pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 
 /** Turns a regular expression pattern back into a regular expression string.
 
-//regex// is the return pointer for the regular expression string. This must be
-released by the caller with pfree(), if the function returns TRUE.
 //ptn// is the pattern object to be converted into a regex.
+
+The returned pointer is dynamically allocated but part of //ptn//, so it should
+not be freed by the caller. It is automatically freed when the pattern object
+is released.
 */
-pboolean pregex_ptn_to_regex( char** regex, pregex_ptn* ptn )
+char* pregex_ptn_to_regex( pregex_ptn* ptn )
 {
-	if( !( regex && ptn ) )
+	if( !( ptn ) )
 	{
 		WRONGPARAM;
 		return FALSE;
 	}
 
-	*regex = (char*)NULL;
-	return pregex_ptn_to_REGEX( regex, ptn );
+	ptn->str = pfree( ptn->str );
+
+	if( !pregex_ptn_to_REGEX( &ptn->str, ptn ) )
+	{
+		ptn->str = pfree( ptn->str );
+		return (char*)NULL;
+	}
+
+	return ptn->str;
 }
 
 /* Internal function for pregex_ptn_to_nfa() */
