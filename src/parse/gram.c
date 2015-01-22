@@ -86,6 +86,19 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	return sym;
 }
 
+/** Get the //n//th symbol from grammar //g//.
+Returns (ppsym*)NULL if no symbol was found. */
+ppsym* pp_sym_get( ppgram* g, int n )
+{
+	if( !( g && n >= 0 ) )
+	{
+		WRONGPARAM;
+		return (ppsym*)NULL;
+	}
+
+	return (ppsym*)plist_access( plist_get( g->symbols, n ) );
+}
+
 /** Get a symbol from grammar //g// by its //name//. */
 ppsym* pp_sym_get_by_name( ppgram* g, char* name )
 {
@@ -178,6 +191,19 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 	va_end( varg );
 
 	return prod;
+}
+
+/** Get the //n//th production from grammar //g//.
+Returns (ppprod*)NULL if no symbol was found. */
+ppprod* pp_prod_get( ppgram* g, int n )
+{
+	if( !( g && n >= 0 ) )
+	{
+		WRONGPARAM;
+		return (ppprod*)NULL;
+	}
+
+	return (ppprod*)plist_access( plist_get( g->prods, n ) );
 }
 
 /** Appends the symbol //sym// to the right-hand-side of production //p//. */
@@ -626,10 +652,7 @@ static int pp_gram_read( ppgram* g, char** def )
 							printf( "%whitespace currently only allowed for "
 									"terminal symbols in this implementation" );
 						else
-						{
 							sym->flags |= PPFLAG_WHITESPACE | PPFLAG_CALLED;
-							plist_push( g->ws, sym );
-						}
 					}
 				}
 				else
@@ -695,8 +718,7 @@ static int pp_gram_read( ppgram* g, char** def )
 					return -1;
 				}
 
-				sym->flags |=  PPFLAG_CALLED | PPFLAG_WHITESPACE;
-				plist_push( g->ws, sym );
+				sym->flags |= PPFLAG_CALLED | PPFLAG_WHITESPACE;
 			}
 		}
 		else
@@ -772,11 +794,17 @@ pboolean pp_gram_prepare( ppgram* g )
 		return FALSE;
 	}
 
+	/* Redefine list of whitespace symbols */
+	plist_erase( g->ws );
+
 	/* Set ID values for symbols and productions */
 	for( id = 0, e = plist_first( g->symbols ); e; e = plist_next( e ), id++ )
 	{
 		s = (ppsym*)plist_access( e );
 		s->id = id;
+
+		if( s->flags & PPFLAG_WHITESPACE )
+			plist_push( g->ws, s );
 	}
 
 	for( id = 0, e = plist_first( g->prods ); e; e = plist_next( e ), id++ )
@@ -1765,7 +1793,4 @@ void pp_gram2gram( ppgram* g )
 
 	ws = pp_sym_create( g, PPSYMTYPE_REGEX, "whitespace", "[ \\t\\r\\n]+" );
 	ws->flags = PPFLAG_WHITESPACE;
-
-	plist_push( g->ws, ws );
 }
-
