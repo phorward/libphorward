@@ -59,6 +59,7 @@ pregex* pregex_create( char* pat, int flags )
 	regex->flags = flags;
 
 	/* Generate a dfatab */
+
 	/* pregex_ptn_to_dfatab( (wchar_t***)NULL, ptn ); */
 	if( ( regex->trans_cnt = pregex_ptn_to_dfatab( &regex->trans, ptn ) ) < 0 )
 		RETURN( pregex_free( regex ) );
@@ -665,7 +666,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 								VARS( "refer->begin", "%ls",
 										(wchar_t*)refer->begin );
 								VARS( "refer->end", "%ls",
-										(wchar_t*)refer->begin );
+										(wchar_t*)refer->end );
 
 								if( !( replace = (char*)pstrncatstr(
 											replace, refer->begin,

@@ -911,11 +911,13 @@ pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
 
 	pregex_nfa_free( nfa );
 
+	/*
 	if( pregex_dfa_minimize( dfa ) < 0 )
 	{
 		pregex_dfa_free( dfa );
 		RETURN( FALSE );
 	}
+	*/
 
 	RETURN( TRUE );
 }
@@ -1100,7 +1102,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			if( flags & PREGEX_COMP_NOREF &&
 					!( *ptn = pregex_ptn_create_sub( alter ) ) )
 				return FALSE;
-			else if( !( *ptn = pregex_ptn_create_sub( alter ) ) )
+			else if( !( *ptn = pregex_ptn_create_refsub( alter ) ) )
 				return FALSE;
 
 			/* Report error? */
