@@ -952,8 +952,13 @@ ppgram* pp_gram_create( char* def )
 	/* Parse grammar into description */
 	if( def && *def )
 	{
+		#ifdef PPGRAM_SELF_CONTAIN
+		fprintf( stderr, "WARNING: USING SELF COINTAINED PARSER!!\n" );
+		pp_gram4myself( g );
+		#else
 		if( pp_gram_read( g, &def ) <= 0 )
 			return pp_gram_free( g );
+		#endif
 
 		/* Look for unique goal sequence */
 		if( plist_count( g->goal->prods ) > 1 )

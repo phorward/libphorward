@@ -179,6 +179,7 @@ typedef char 					pboolean;
 
 
 
+
 #ifndef PARRAY_H
 #define PARRAY_H
 
@@ -194,6 +195,7 @@ typedef struct
 } parray;
 
 #endif
+
 
 
 
@@ -254,6 +256,7 @@ struct Plist
 	for( (e) = plist_first( l ); (e); (e) = plist_next( e ) )
 
 #endif 
+
 
 
 
@@ -357,6 +360,7 @@ struct xml
 
 
 
+
 #define PCCL_MIN			0x0
 #if UNICODE
 #define PCCL_MAX			0xFFFF
@@ -379,6 +383,7 @@ typedef struct
 
 	char*			str;
 } pccl;
+
 
 
 
@@ -553,6 +558,7 @@ struct _lex
 
 
 
+
 typedef enum
 {
 	PGVALUETYPE_NULL,
@@ -621,6 +627,7 @@ typedef struct
 			pvalue_set_str( val, pstrdup( str ) )
 #define pvalue_set_wcsdup( val, str ) \
 			pvalue_set_wcs( val, pwcsdup( str ) )
+
 
 
 
@@ -716,6 +723,7 @@ typedef struct
 	int						row;
 	int						col;
 } ppmatch;
+
 
 
 
@@ -1076,9 +1084,13 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
 
 
+void pp_gram4myself( ppgram* g );
+
+
 pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );
 pboolean pp_white_in_input( ppgram* grm, char* start, char** end );
 size_t pp_pos_in_input( int* row, int* col, char* start, char* end );
+
 
 
 #ifdef __cplusplus

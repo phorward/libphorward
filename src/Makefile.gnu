@@ -35,6 +35,7 @@ SRC = \
 	parse/gram.c \
 	parse/ll.c \
 	parse/lr.c \
+	parse/mygram.c \
 	parse/scan.c
 
 HSRC = \
@@ -74,7 +75,7 @@ $(LIBHEADER): $(HSRC)
 		>$@
 	$(PATHEXT) pinclude phorward.tpl.h >>$@
 
-# Variant Data Type Modules (generated from definitions in var.h comments)
+# pvalue object functions (generated from definitions in pvalue.h comments)
 value/value.get.c: value/value.h value/value.gen.awk
 	$(AWK) -f value/value.gen.awk -vwith_get=1 value/value.h >$@
 

@@ -27,17 +27,26 @@ do
 
 BEGIN				{	FS = "[ \t\"]+"		}
 
-/#include[ \t]+\"/	{
+/##include[ \t]+\"/	{
 						if( !system( "test -f " $2 ) )
 						{
-							print "/* include $2 */"
+							print "/* BEGIN $2 */"
 							system( "cat " $2 )
+							print "/* END $2 */"
 						}
 						else
 						{
 							print "pinclude: File not found: " $2
 							exit 1
 						}
+						next
+					}
+
+/##call/			{
+						gsub( /##call/, "" )
+						print "/* BEGIN " $0 " */"
+						system( $0 )
+						print "/* END " $0 " */"
 						next
 					}
 

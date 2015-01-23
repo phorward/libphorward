@@ -1,11 +1,11 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Foundation Toolkit :: General Header
+Phorward Foundation Toolkit
 Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	phorward.h
-Usage:	Main include file for phorward library
+Usage:	Template for the general include file for phorward library
 ----------------------------------------------------------------------------- */
 
 #ifndef _PHORWARD_H
@@ -112,18 +112,18 @@ typedef char 					pboolean;	/* Phorward Boolean */
  * Including the different library modules
  */
 
-#include "base/dbg.h"
-#include "base/array.h"
-#include "base/list.h"
-#include "xml/xml.h"
+##include "base/dbg.h"
+##include "base/array.h"
+##include "base/list.h"
+##include "xml/xml.h"
 
-#include "ccl/ccl.h"
-#include "regex/regex.h"
+##include "ccl/ccl.h"
+##include "regex/regex.h"
 
-#include "value/value.h"
+##include "value/value.h"
 
 /* Phorward Parsing Library */
-#include "parse/parse.h"
+##include "parse/parse.h"
 
 /*
  * Function Prototypes
@@ -134,7 +134,7 @@ extern "C"
 {
 #endif
 
-#include "proto.h"
+##include "proto.h"
 
 #ifdef __cplusplus
 }

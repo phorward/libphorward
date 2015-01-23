@@ -347,6 +347,9 @@ pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
 plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
 
+/* parse/mygram.c */
+void pp_gram4myself( ppgram* g );
+
 /* parse/scan.c */
 pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );
 pboolean pp_white_in_input( ppgram* grm, char* start, char** end );
