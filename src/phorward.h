@@ -654,6 +654,7 @@ typedef struct _ppgram		ppgram;
 #define PPFLAG_LEXEM		16
 #define PPFLAG_WHITESPACE	32
 #define PPFLAG_PREVENTLREC	64
+#define PPFLAG_NAMELESS		128
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'

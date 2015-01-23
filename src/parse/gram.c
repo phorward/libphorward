@@ -55,18 +55,10 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 
 		case PPSYMTYPE_CCL:
 			sym->ccl = p_ccl_create( 0, 255, def ); /* TODO */
-
-			if( !sym->name )
-				sym->name = pstrdup( p_ccl_to_str( sym->ccl, TRUE ) );
-
 			break;
 
 		case PPSYMTYPE_STRING:
 			sym->str = pstrdup( def );
-
-			if( !sym->name )
-				sym->name = pstrdup( def );
-
 			break;
 
 		case PPSYMTYPE_REGEX:
@@ -81,7 +73,19 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	sym->first = plist_create( 0, PLIST_MOD_PTR );
 
 	if( sym->type != PPSYMTYPE_NONTERM )
+	{
+		/* Terminals reference only themself as FIRST set. */
 		plist_push( sym->first, sym );
+
+		/* Define symbol with no name as nameless, use def as name.
+			The name is used by several debug functions, so this
+			flagging prevents from NULL-pointer bugs. */
+		if( !sym->name )
+		{
+			sym->name = pstrdup( def );
+			sym->flags |= PPFLAG_NAMELESS;
+		}
+	}
 
 	return sym;
 }
@@ -1211,16 +1215,17 @@ ppgram* pp_ast2gram( parray* ast )
 
 				if( attp->sym )
 					att.sym = attp->sym;
-				else if( attp->buf &&
-							!( att.sym = pp_sym_get_by_name( g, attp->buf ) ) )
+				else if( attp->buf )
 				{
-					if( attp->emit == T_IDENT )
+					if( attp->emit == T_IDENT
+							&& !( att.sym = pp_sym_get_by_name(
+												g, attp->buf ) ) )
 						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 										attp->buf, (char*)NULL );
 					else
 					{
 						att.sym = pp_sym_create( g, attp->emit,
-										attp->buf, attp->buf );
+													(char*)NULL, attp->buf );
 						att.sym->flags |= PPFLAG_DEFINED;
 					}
 

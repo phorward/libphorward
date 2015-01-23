@@ -81,7 +81,7 @@ void gen_sym( FILE* f, ppgram* g )
 				break;
 		}
 
-		if( sym->name )
+		if( ( name = sym->name ) )
 			name = pregex_qreplace( "([\\\\\"])", sym->name, "\\$1", 0 );
 
 		if( def )
@@ -93,9 +93,9 @@ void gen_sym( FILE* f, ppgram* g )
 			symname, sym->id,
 			gname, symtypes[ sym->type ],
 
-			sym->name ? "\"" : "",
-			sym->name ? name : "(char*)NULL",
-			sym->name ? "\"" : "",
+			name && !( sym->flags & PPFLAG_NAMELESS ) ? "\"" : "",
+			name && !( sym->flags & PPFLAG_NAMELESS ) ? name : "(char*)NULL",
+			name && !( sym->flags & PPFLAG_NAMELESS ) ? "\"" : "",
 
 			def ? "\"" : "",
 			def ? def : "(char*)NULL",

@@ -66,17 +66,17 @@ void pp_gram4myself( ppgram* g )
 	sym[ 17 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "mod_kleene", (char*)NULL );
 	sym[ 17 ]->emit = 25;
 
-	sym[ 18 ] = pp_sym_create( g, PPSYMTYPE_CCL, "*", "*" );
+	sym[ 18 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "*" );
 
 	sym[ 19 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "mod_positive", (char*)NULL );
 	sym[ 19 ]->emit = 26;
 
-	sym[ 20 ] = pp_sym_create( g, PPSYMTYPE_CCL, "+", "+" );
+	sym[ 20 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "+" );
 
 	sym[ 21 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "mod_optional", (char*)NULL );
 	sym[ 21 ]->emit = 27;
 
-	sym[ 22 ] = pp_sym_create( g, PPSYMTYPE_CCL, "?", "?" );
+	sym[ 22 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "?" );
 
 	sym[ 23 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "modifier", (char*)NULL );
 
@@ -87,7 +87,7 @@ void pp_gram4myself( ppgram* g )
 
 	sym[ 26 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "alternation", (char*)NULL );
 
-	sym[ 27 ] = pp_sym_create( g, PPSYMTYPE_CCL, "|", "|" );
+	sym[ 27 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "|" );
 
 	sym[ 28 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "emit", (char*)NULL );
 	sym[ 28 ]->emit = 42;
@@ -101,58 +101,58 @@ void pp_gram4myself( ppgram* g )
 
 	sym[ 32 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "flags", (char*)NULL );
 
-	sym[ 33 ] = pp_sym_create( g, PPSYMTYPE_CCL, "%", "%" );
+	sym[ 33 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "%" );
 
 	sym[ 34 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "flags'", (char*)NULL );
 
-	sym[ 35 ] = pp_sym_create( g, PPSYMTYPE_CCL, "%", "%" );
+	sym[ 35 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "%" );
 
 	sym[ 36 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "flags''", (char*)NULL );
 
 	sym[ 37 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef", (char*)NULL );
 	sym[ 37 ]->emit = 31;
 
-	sym[ 38 ] = pp_sym_create( g, PPSYMTYPE_CCL, ":", ":" );
+	sym[ 38 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ":" );
 
 	sym[ 39 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef'", (char*)NULL );
 
-	sym[ 40 ] = pp_sym_create( g, PPSYMTYPE_CCL, ";", ";" );
+	sym[ 40 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ";" );
 
-	sym[ 41 ] = pp_sym_create( g, PPSYMTYPE_CCL, "(", "(" );
+	sym[ 41 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "(" );
 
-	sym[ 42 ] = pp_sym_create( g, PPSYMTYPE_CCL, ")", ")" );
+	sym[ 42 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ")" );
 
 	sym[ 43 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
 	sym[ 43 ]->emit = 35;
 
-	sym[ 44 ] = pp_sym_create( g, PPSYMTYPE_CCL, "=", "=" );
+	sym[ 44 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "=" );
 
 	sym[ 45 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef'", (char*)NULL );
 
-	sym[ 46 ] = pp_sym_create( g, PPSYMTYPE_CCL, ";", ";" );
+	sym[ 46 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ";" );
 
-	sym[ 47 ] = pp_sym_create( g, PPSYMTYPE_CCL, "=", "=" );
+	sym[ 47 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "=" );
 
 	sym[ 48 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef''", (char*)NULL );
 
-	sym[ 49 ] = pp_sym_create( g, PPSYMTYPE_CCL, ";", ";" );
+	sym[ 49 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ";" );
 
-	sym[ 50 ] = pp_sym_create( g, PPSYMTYPE_CCL, "=", "=" );
+	sym[ 50 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "=" );
 
 	sym[ 51 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef'''", (char*)NULL );
 
-	sym[ 52 ] = pp_sym_create( g, PPSYMTYPE_CCL, ";", ";" );
+	sym[ 52 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ";" );
 
 	sym[ 53 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflag", (char*)NULL );
 	sym[ 53 ]->emit = 41;
 
 	sym[ 54 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflags", (char*)NULL );
 
-	sym[ 55 ] = pp_sym_create( g, PPSYMTYPE_CCL, "%", "%" );
+	sym[ 55 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "%" );
 
 	sym[ 56 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflags'", (char*)NULL );
 
-	sym[ 57 ] = pp_sym_create( g, PPSYMTYPE_CCL, "%", "%" );
+	sym[ 57 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "%" );
 
 	sym[ 58 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "gflags''", (char*)NULL );
 
