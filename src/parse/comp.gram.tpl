@@ -4,13 +4,13 @@ Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	mygram.c
+File:	comp.gram.tpl
 Usage:
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
 
-void pp_gram4myself( ppgram* g )
+void pp_bnf_define( ppgram* g )
 {
-##call ppgram2c --indent 1 gram.syn
+##call ppgram2c --indent 1 bnf.syn
 }

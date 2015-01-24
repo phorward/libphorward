@@ -11,9 +11,13 @@ ws			= /[ \t\r\n]+/											%whitespace;
 
 ccl 		= /'.*'/ 												%emit 1;
 string 		= /".*"/ 												%emit 2;
-regex 		= /\/(\.|[^\/])*\//										%emit 3;
+regex 		= /\/(\\.|[^\\\/])*\//								%emit 3;
 ident		= /[A-Za-z_][A-Za-z0-9_]*/ 								%emit 10;
 int			= /[0-9]+/ 												%emit 11;
+
+equal		= '=' ;
+percent		= '%' ;
+semicolon	= ';' ;
 
 symbol 		: ident | ccl | string | regex | inline					%emit 20;
 
@@ -30,20 +34,20 @@ emit		: kw_emit int?											%emit 42;
 flag		: kw_noemit | kw_goal | kw_ws							%emit 40;
 emitflag	: emit | flag ;
 
-flags    	: flags '%' emitflag+
-			| '%' emitflag+
+flags    	: flags percent emitflag+
+			| percent emitflag+
 			;
 
-nontermdef	: ident ':' alternation flags? ';'						%emit 31;
+nontermdef	: ident ':' alternation flags? semicolon				%emit 31;
 inline		: '(' alternation ')'									%emit 32;
 
-termdef		: ident '=' ccl flags? ';'
-			| ident '=' string flags? ';'
-			| ident '=' regex flags? ';'
+termdef		: ident equal ccl flags? semicolon
+			| ident equal string flags? semicolon
+			| ident equal regex flags? semicolon
 																	%emit 35;
 
 gflag       : kw_emitall | kw_emitnone | kw_lrec | kw_rrec			%emit 41;
-gflags		: gflags '%' gflag+ | '%' gflag+ ;
+gflags		: gflags percent gflag+ | percent gflag+ ;
 
 definition	: nontermdef | termdef | gflags ;
 

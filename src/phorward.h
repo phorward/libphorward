@@ -1061,6 +1061,13 @@ void pp_ast_simplify( parray* ast );
 void pp_ast_tree2svg( parray* ast );
 
 
+char* pp_derive_name( ppgram* g, char* base );
+pboolean pp_bnf_to_gram( ppgram* g, char* bnf );
+
+
+void pp_bnf_define( ppgram* g );
+
+
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
 ppsym* pp_sym_get( ppgram* g, int n );
 ppsym* pp_sym_get_by_name( ppgram* g, char* name );
@@ -1071,11 +1078,9 @@ pboolean pp_prod_append( ppprod* p, ppsym* sym );
 ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
 pboolean pp_gram_prepare( ppgram* g );
-ppgram* pp_gram_create( char* def );
+ppgram* pp_gram_create( char* bnf );
 void pp_gram_print( ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
-ppgram* pp_ast2gram( parray* ast );
-void pp_gram2gram( ppgram* g );
 
 
 pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
@@ -1083,9 +1088,6 @@ pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
 
 plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
-
-
-void pp_gram4myself( ppgram* g );
 
 
 pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );

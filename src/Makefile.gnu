@@ -32,10 +32,11 @@ SRC = \
 	value/value.get.c \
 	value/value.set.c \
 	parse/ast.c \
+	parse/comp.c \
+	parse/comp.gram.c \
 	parse/gram.c \
 	parse/ll.c \
 	parse/lr.c \
-	parse/mygram.c \
 	parse/scan.c
 
 HSRC = \
