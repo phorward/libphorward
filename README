@@ -1,14 +1,6 @@
-:: Phorward Foundation Toolkit
-:: Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
-:: All rights reserved. See LICENSE for more informations.
-::
-:: README FILE
---------------------------------------------------------------------------------
 
-
-=============
- DESCRIPTION 
-=============
+DESCRIPTION
+===========
 
 The Phorward Toolkit provides a powerful, extensional set of useful functions for C programmers. It focuses on compiler development-related tasks, but can also be used for general purpose development tasks using the C programming language.
 
@@ -17,9 +9,8 @@ It comes with many useful extensions for universal linked lists, hash-tables, dy
 Based on top of these general purpose functions, the Phorward Toolkit provides more specializing tools for regular expression handling and parser implementation, focusing on both LL and LR/LALR grammars and parsers. Latter feature is currently under heavy development and will be made available in a consistent, well-tested environment made for implementing high-performance parsers directly in C without the usage of an additional parser generator step.
 
 
-==========
- FEATURES 
-==========
+FEATURES
+========
 
 The Phorward Toolkit provides
 
@@ -40,9 +31,8 @@ The Phorward Toolkit provides
 Please check out http://phorward.phorward-software.com/ from time to time to get the latest news, documentation, updates and support on the Phorward Toolkit.
 
 
-==========
- BUILDING 
-==========
+BUILDING
+========
 
 Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
 
@@ -71,9 +61,8 @@ To compile into 64-Bit Windows executables, configure with
   ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 
 
-===========================================
- LOCAL DEVELOPMENT MAKE-BASED BUILD-SYSTEM 
-===========================================
+LOCAL DEVELOPMENT MAKE-BASED BUILD-SYSTEM
+=========================================
 
 Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
 
@@ -90,18 +79,16 @@ can be used to simply build the entire library or parts of it.
 Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.
 
 
-========
- AUTHOR 
-========
+AUTHOR
+======
 
 The Phorward Foundation Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
 Help of any kind to extend and improve this product is always appreciated.
 
 
-===========
- COPYRIGHT 
-===========
+COPYRIGHT
+=========
 
 Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer.
 
