@@ -29,7 +29,7 @@ void pp_bnf_define( ppgram* g )
 
 	sym[ 3 ] = pp_sym_create( g, PPSYMTYPE_STRING, "kw_goal", "goal" );
 
-	sym[ 4 ] = pp_sym_create( g, PPSYMTYPE_STRING, "kw_ws", "whitespace" );
+	sym[ 4 ] = pp_sym_create( g, PPSYMTYPE_STRING, "kw_ignore", "ignore" );
 
 	sym[ 5 ] = pp_sym_create( g, PPSYMTYPE_STRING, "kw_emitall", "emitall" );
 

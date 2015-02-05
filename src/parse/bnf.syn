@@ -1,17 +1,17 @@
 kw_emit		= "emit" ;
 kw_noemit	= "noemit" ;
 kw_goal		= "goal" ;
-kw_ws		= "whitespace" ;
+kw_ignore	= "ignore" ;
 kw_emitall	= "emitall" ;
 kw_emitnone	= "emitnone" ;
 kw_lrec		= "lrec";
 kw_rrec		= "rrec";
 
-ws			= /[ \t\r\n]+/											%whitespace;
+ws			= /[ \t\r\n]+/											%ignore;
 
 ccl 		= /'.*'/ 												%emit 1;
 string 		= /".*"/ 												%emit 2;
-regex 		= /\/(\\.|[^\\\/])*\//								%emit 3;
+regex 		= /\/(\\.|[^\\\/])*\//									%emit 3;
 ident		= /[A-Za-z_][A-Za-z0-9_]*/ 								%emit 10;
 int			= /[0-9]+/ 												%emit 11;
 
@@ -31,7 +31,7 @@ alternative : sequence | 											%emit 30;
 alternation	: alternation '|' alternative | alternative ;
 
 emit		: kw_emit int?											%emit 42;
-flag		: kw_noemit | kw_goal | kw_ws							%emit 40;
+flag		: kw_noemit | kw_goal | kw_ignore						%emit 40;
 emitflag	: emit | flag ;
 
 flags    	: flags percent emitflag+

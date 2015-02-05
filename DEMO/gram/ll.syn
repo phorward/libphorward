@@ -1,4 +1,4 @@
-%whitespace ' ' 
+ws = ' '  %ignore ;
 int = /[0-9]+/	%emit ;
 
 start : e %goal;

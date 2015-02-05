@@ -74,7 +74,7 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 	ppsym*		scope		= (ppsym*)NULL;
 	ppprod*		p;
 	int			i;
-	pboolean	whitespace;
+	pboolean	ignore;
 	pboolean	doemit;
 	pboolean	emitall		= FALSE;
 	int			emit;
@@ -266,7 +266,7 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 			case T_TERMDEF:
 				doemit = emitall;
 				emit = 0;
-				whitespace = FALSE;
+				ignore = FALSE;
 
 				while( ( attp = (ATT*)parray_last( st ) )
 							&& ( attp->emit == T_FLAG
@@ -290,8 +290,8 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 					}
 					else if( strcmp( attp->buf, "noemit" ) == 0 )
 						doemit = FALSE;
-					else if( strcmp( attp->buf, "whitespace" ) == 0 )
-						whitespace = TRUE;
+					else if( strcmp( attp->buf, "ignore" ) == 0 )
+						ignore = TRUE;
 
 					pfree( attp->buf );
 				}
@@ -309,7 +309,7 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 					pfree( attp->buf );
 
 					/* Whitespace now only for terminals */
-					if( whitespace )
+					if( ignore )
 					{
 						scope->flags |= PPFLAG_WHITESPACE;
 						plist_push( g->ws, scope );

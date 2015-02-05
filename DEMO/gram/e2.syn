@@ -1,5 +1,4 @@
-ws = ' ';
-%whitespace ws 
+ws = ' ' %ignore;
 
 int : '0-9'+ %emit %lexem;
 f: '(' e ')' | int ;
