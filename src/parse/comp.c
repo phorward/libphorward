@@ -301,14 +301,24 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 				if( e->emit == T_TERMDEF )
 				{
 					attp = parray_pop( st ); 	/* Definition */
-					attp = parray_pop( st );	/* Identifier */
 
-					scope = pp_sym_create( g, ( attp + 1 )->emit,
-										attp->buf, ( attp + 1 )->buf );
-					scope->flags |= PPFLAG_DEFINED;
+					if( parray_last( st )
+						&& ( (ATT*)parray_last( st ) )->emit == T_IDENT )
+					{
+						attp = parray_pop( st );	/* Identifier */
 
-					pfree( ( attp + 1 )->buf );
+						scope = pp_sym_create( g, ( attp + 1 )->emit,
+											attp->buf, ( attp + 1 )->buf );
+
+						pfree( ( attp + 1 )->buf );
+					}
+					else
+						scope = pp_sym_create( g, attp->emit,
+													(char*)NULL, attp->buf );
+
 					pfree( attp->buf );
+
+					scope->flags |= PPFLAG_DEFINED;
 
 					/* Whitespace now only for terminals */
 					if( ignore )

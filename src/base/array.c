@@ -356,7 +356,7 @@ void* parray_pop( parray* array )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( (char*)array->array + ( --array->last ) * array->size );
+	RETURN( (char*)array->array + ( ( --array->last ) * array->size ) );
 }
 
 /** Appends an element to the begin of the array.
