@@ -1,23 +1,23 @@
-kw_emit		= "emit" ;
-kw_noemit	= "noemit" ;
-kw_goal		= "goal" ;
-kw_ignore	= "ignore" ;
-kw_emitall	= "emitall" ;
-kw_emitnone	= "emitnone" ;
-kw_lrec		= "lrec";
-kw_rrec		= "rrec";
+$kw_emit	"emit" ;
+$kw_noemit	"noemit" ;
+$kw_goal	"goal" ;
+$kw_ignore	"ignore" ;
+$kw_lexem	"lexem" ;
+$kw_emitall	"emitall" ;
+$kw_emitnone "emitnone" ;
+$kw_lrec	"lrec";
+$kw_rrec	"rrec";
 
-ws			= /[ \t\r\n]+/											%ignore;
+$ws			/[ \t\r\n]+/											%ignore;
 
-ccl 		= /'.*'/ 												%emit 1;
-string 		= /".*"/ 												%emit 2;
-regex 		= /\/(\\.|[^\\\/])*\//									%emit 3;
-ident		= /[A-Za-z_][A-Za-z0-9_]*/ 								%emit 10;
-int			= /[0-9]+/ 												%emit 11;
+$ccl 		/'.*'/ 													%emit 1;
+$string 	/".*"/ 													%emit 2;
+$regex 		/\/(\\.|[^\\\/])*\//									%emit 3;
+$ident		/[A-Za-z_][A-Za-z0-9_]*/ 								%emit 10;
+$int		/[0-9]+/ 												%emit 11;
 
-equal		= '=' ;
-percent		= '%' ;
-semicolon	= ';' ;
+$percent	'%' ;
+$semicolon	';' ;
 
 symbol 		: ident | ccl | string | regex | inline					%emit 20;
 
@@ -31,7 +31,7 @@ alternative : sequence | 											%emit 30;
 alternation	: alternation '|' alternative | alternative ;
 
 emit		: kw_emit int?											%emit 42;
-flag		: kw_noemit | kw_goal | kw_ignore						%emit 40;
+flag		: kw_noemit | kw_goal | kw_ignore | kw_lexem			%emit 40;
 emitflag	: emit | flag ;
 
 flags    	: flags percent emitflag+
@@ -41,10 +41,7 @@ flags    	: flags percent emitflag+
 nontermdef	: ident ':' alternation flags? semicolon				%emit 31;
 inline		: '(' alternation ')'									%emit 32;
 
-termdef		: ident equal ccl flags? semicolon
-			| ident equal string flags? semicolon
-			| ident equal regex flags? semicolon
-																	%emit 35;
+termdef		: '$' ident ( ccl | string | regex ) flags? semicolon	%emit 35;
 
 gflag       : kw_emitall | kw_emitnone | kw_lrec | kw_rrec			%emit 41;
 gflags		: gflags percent gflag+ | percent gflag+ ;

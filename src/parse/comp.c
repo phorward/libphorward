@@ -292,6 +292,8 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 						doemit = FALSE;
 					else if( strcmp( attp->buf, "ignore" ) == 0 )
 						ignore = TRUE;
+					else if( strcmp( attp->buf, "lexem" ) == 0 )
+						scope->flags |= PPFLAG_LEXEM;
 
 					pfree( attp->buf );
 				}

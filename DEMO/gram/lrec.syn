@@ -1,5 +1,5 @@
 
-digit = '0-9' ;
+$digit '0-9' ;
 
 s : a | b | c %goal;
 

@@ -1,6 +1,6 @@
-bla = ' ' %ignore;
+$bla ' ' %ignore;
 
-int = /[0-9]+/ %emit;
+$int /[0-9]+/ %emit;
 
 f: '(' e ')' | int ;
 
