@@ -34,7 +34,7 @@ make_uninstall:
 
 README: doc/readme.t2t
 	-rm -f $@
-	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' >$@
+	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@
 
 phorward.man: doc/readme.t2t
 	txt2tags -o $@ -t man $?

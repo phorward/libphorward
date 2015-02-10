@@ -15,11 +15,11 @@ FEATURES
 The Phorward Toolkit provides
 
 - Universal data structures for
-  - plist: For linked-lists with build-in hash table support
-  - parray: For dynamic arrays and stacks
+    - plist: For linked-lists with build-in hash table support
+    - parray: For dynamic arrays and stacks
 - Extended string management functions
-  - consistent byte- and wide-character (unicode) function support
-  - Unicode support for UTF-8 in byte-character functions
+    - consistent byte- and wide-character (unicode) function support
+    - Unicode support for UTF-8 in byte-character functions
 - Debug und trace facilities
 - A build-in DOM-based XML-parser
 - Universal system-specific functions for platform-independent C software development
@@ -38,15 +38,15 @@ Building the Phorward Toolkit is simple as every GNU-style open source program. 
 
 Then, run
 
-  ./configure
+    ./configure
 
 to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
 
-  make
+    make
 
 and
 
-  make install
+    make install
 
 (properly as root), to install the toolkit into your system.
 
@@ -54,11 +54,11 @@ On Windows systems, the usage of http://cygwin.org/ or another Unix shell enviro
 
 To compile into 32-Bit Windows executables, configure with
 
-  ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
+    ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
 
 To compile into 64-Bit Windows executables, configure with
 
-  ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
+    ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 
 
 LOCAL DEVELOPMENT MAKE-BASED BUILD-SYSTEM
@@ -68,11 +68,11 @@ Alternatively to the autotools build system used for installation, there is also
 
 Once, type
 
-  make -f Makefile.gnu make_install
+    make -f Makefile.gnu make_install
 
 then, a simple run of
 
-  make
+    make
 
 can be used to simply build the entire library or parts of it.
 
