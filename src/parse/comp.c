@@ -159,7 +159,8 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 							att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 										attp->buf, (char*)NULL );
 					}
-					else
+					else if( !( att.sym = pp_sym_get_nameless_term_by_def(
+												g, attp->buf ) ) )
 					{
 						att.sym = pp_sym_create( g, attp->emit,
 													(char*)NULL, attp->buf );

@@ -113,6 +113,31 @@ ppsym* pp_sym_get_by_name( ppgram* g, char* name )
 	return (ppsym*)plist_access( plist_get_by_key( g->symbols, name ) );
 }
 
+/** Find a nameless terminal symbol by its pattern. */
+ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name )
+{
+	int		i;
+	ppsym*	sym;
+
+	if( !( g && name && *name ) )
+	{
+		WRONGPARAM;
+		return (ppsym*)NULL;
+	}
+
+	for( i = 0; ( sym = pp_sym_get( g, i ) ); i++ )
+	{
+		if( sym->type == PPSYMTYPE_NONTERM
+				|| !( sym->flags & PPFLAG_NAMELESS ) )
+			continue;
+
+		if( strcmp( sym->name, name ) == 0 )
+			return sym;
+	}
+
+	return (ppsym*)NULL;
+}
+
 /** Returns the string representation of symbol //p//.
 
 	Nonterminals are not expanded, they are just returned as their name.

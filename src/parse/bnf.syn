@@ -6,9 +6,6 @@ $regex 		/\/(\\.|[^\\\/])*\//									%emit 3;
 $ident		/[A-Za-z_][A-Za-z0-9_]*/ 								%emit 10;
 $int		/[0-9]+/ 												%emit 11;
 
-$percent	'%' ;
-$semicolon	';' ;
-
 symbol 		: ident | ccl | string | regex | inline					%emit 20;
 
 mod_kleene	: symbol '*'											%emit 25;
@@ -24,17 +21,17 @@ emit		: "emit" int?											%emit 42;
 flag		: "noemit" | "goal" | "ignore" | "lexem"				%emit 40;
 emitflag	: emit | flag ;
 
-flags    	: flags percent emitflag+
-			| percent emitflag+
+flags    	: flags '%' emitflag+
+			| '%' emitflag+
 			;
 
-nontermdef	: ident ':' alternation flags? semicolon				%emit 31;
+nontermdef	: ident ':' alternation flags? ';'						%emit 31;
 inline		: '(' alternation ')'									%emit 32;
 
-termdef		: '$' ident? ( ccl | string | regex ) flags? semicolon	%emit 35;
+termdef		: '$' ident? ( ccl | string | regex ) flags? ';'		%emit 35;
 
 gflag       : "emitall" | "emitnone" | "lrec" | "rrec"				%emit 41;
-gflags		: gflags percent gflag+ | percent gflag+ ;
+gflags		: gflags '%' gflag+ | '%' gflag+ ;
 
 definition	: nontermdef | termdef | gflags ;
 

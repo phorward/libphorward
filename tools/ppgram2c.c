@@ -199,11 +199,7 @@ void gen_prods( FILE* f, ppgram* g )
 			pfree( def );
 		}
 
-		if( plist_count( prod->rhs ) )
-			fprintf( f, "\n%s\t", indent );
-		else
-			fprintf( f, " " );
-
+		fprintf( f, "\n%s\t", indent );
 		fprintf( f, "(ppsym*)NULL );\n\n" );
 	}
 

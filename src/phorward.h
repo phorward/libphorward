@@ -1071,6 +1071,7 @@ void pp_bnf_define( ppgram* g );
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
 ppsym* pp_sym_get( ppgram* g, int n );
 ppsym* pp_sym_get_by_name( ppgram* g, char* name );
+ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
 char* pp_sym_to_str( ppsym* sym );
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
 ppprod* pp_prod_get( ppgram* g, int n );
