@@ -1,30 +1,45 @@
 Phorward Toolkit
 libphorward 0.18
-Oct 2014
+Feb 2015
 
 = DESCRIPTION =
 
-The Phorward Toolkit provides a powerful, extensional set of useful functions for C programmers. It focuses on compiler development-related tasks, but can also be used for general purpose development tasks using the C programming language.
+The Phorward Toolkit provides a powerful set of useful functions for C programmers, which heavily focus on the topic of compiler-frontend development, meaning parsing and lexical analysis. The project can be seen as a dynamic generator and executor for lexers and parsers which can be defined and executed immediatelly within the program's sourcecode, making an extra step of generating parse tables or a recursive-descent parser unnecessary.
 
-It comes with many useful extensions for universal linked lists, hash-tables, dynamic stacks and arrays, extended string management functions and some platform-independent, system-specific helper functions.
+The following example defines a simple grammar, runs a parser and prints the generated abstract syntax tree:
 
-Based on top of these general purpose functions, the Phorward Toolkit provides more specializing tools for regular expression handling and parser implementation, focusing on both LL and LR/LALR grammars and parsers. Latter feature is currently under heavy development and will be made available in a consistent, well-tested environment made for implementing high-performance parsers directly in C without the usage of an additional parser generator step.
+%!include: ``example.c``
+
+Additionally, the toolkit also provides useful general-purpose extensions for dynamic data structures (linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
 
 = FEATURES =
 
 The Phorward Toolkit provides
 
-- Universal data structures for
-  - //plist//: For linked-lists with build-in hash table support
-  - //parray//: For dynamic arrays and stacks
+- Parser development tools
+  - BNF-based grammar definition
+  - generators and executors for LR, LALR and LL grammars
+  - a uniform AST (abstract syntax tree) representation
+  - tools for AST traversal (coming soon!)
+  - tools for parser deployment (coming soon!)
+- Lexer development tools
+  - regular expressions and pattern definition interface
+  - //plex// for lexical analyzers
+  - //pregex// for regular expressions
+  - tools for regex and lexer deployment
+  - string functions for regular expression matching, splitting and replacement
+- Dynamic data structures
+  - //plist// for linked-lists with build-in hash table support,
+  - //parray// for arrays and stacks.
 - Extended string management functions
+  - concat, extend, tokenize, shorthand allocation of strings and wide-character strings
   - consistent byte- and wide-character (unicode) function support
-  - Unicode support for UTF-8 in byte-character functions
+  - unicode support for UTF-8 in byte-character functions
 - Debug und trace facilities
 - A build-in DOM-based XML-parser
 - Universal system-specific functions for platform-independent C software development
-- //pregex//: Regular expression functions, including tools for their construction, transformation and analysis
-- Parser construction functions for syntax-directed LL/LR/LALR parsers with direct lookahead
+  - Unix-style command-line parser
+  - Mapping files to strings
 - Object-oriented fashion for all function interfaces (e.g. plist, parray, pregex, pgram, ...)
 - Growing code-base of more and more powerful functions
 -
@@ -77,7 +92,7 @@ Note, that changes to the build system then must be done in the local Makefile, 
 
 = AUTHOR =
 
-The Phorward Foundation Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
+The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
 Help of any kind to extend and improve this product is always appreciated.
 

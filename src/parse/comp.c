@@ -72,6 +72,7 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 	parray*		st;
 	ppmatch*	e;
 	ppsym*		scope		= (ppsym*)NULL;
+	ppsym*		nonterm;
 	ppprod*		p;
 	int			i;
 	pboolean	ignore;
@@ -98,8 +99,9 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 
 				if( !( scope = pp_sym_get_by_name( g, att.buf ) ) )
 					scope = pp_sym_create( g, PPSYMTYPE_NONTERM,
-								att.buf, (char*)NULL );
+											att.buf, (char*)NULL );
 
+				nonterm = scope;
 				pfree( att.buf );
 			}
 			else if( e->emit == T_PRODUCTION )
@@ -165,6 +167,9 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 						att.sym = pp_sym_create( g, attp->emit,
 													(char*)NULL, attp->buf );
 						att.sym->flags |= PPFLAG_DEFINED;
+
+						if( emitall )
+							att.sym->emit = ++emit_max;
 					}
 
 					pfree( attp->buf );
@@ -381,6 +386,10 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 	}
 
 	parray_free( st );
+
+	/* If there is no goal, then the last defined nonterm becomes goal symbol */
+	if( !g->goal )
+		g->goal = nonterm;
 
 	return TRUE;
 }

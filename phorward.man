@@ -1,16 +1,41 @@
-.TH "Phorward Toolkit" 1 "Oct 2014" "libphorward 0.18"
+.TH "Phorward Toolkit" 1 "Feb 2015" "libphorward 0.18"
 
 
 .SH DESCRIPTION
 
 .P
-The Phorward Toolkit provides a powerful, extensional set of useful functions for C programmers. It focuses on compiler development\-related tasks, but can also be used for general purpose development tasks using the C programming language.
+The Phorward Toolkit provides a powerful set of useful functions for C programmers, which heavily focus on the topic of compiler\-frontend development, meaning parsing and lexical analysis. The project can be seen as a dynamic generator and executor for lexers and parsers which can be defined and executed immediatelly within the program's sourcecode, making an extra step of generating parse tables or a recursive\-descent parser unnecessary.
 
 .P
-It comes with many useful extensions for universal linked lists, hash\-tables, dynamic stacks and arrays, extended string management functions and some platform\-independent, system\-specific helper functions.
+The following example defines a simple grammar, runs a parser and prints the generated abstract syntax tree:
+
+.nf
+#include <phorward.h>
+
+int main()
+{
+    ppgram* g;
+    char*   s = "1+2*(3+4)+5";
+    char*   e;
+    parray* a;
+
+    g = pp_gram_create(
+        "%emitall"
+        "f: /[0-9]+/ | '(' e ')';"
+        "t: t '*' f | f ;"
+        "e: e '+' t | t ;" );
+
+    if( !pp_lr_parse( &a, g, s, &e ) )
+        return 1; /* parse error */
+
+    pp_ast_simplify( a );
+    return 0;
+}
+.fi
+
 
 .P
-Based on top of these general purpose functions, the Phorward Toolkit provides more specializing tools for regular expression handling and parser implementation, focusing on both LL and LR/LALR grammars and parsers. Latter feature is currently under heavy development and will be made available in a consistent, well\-tested environment made for implementing high\-performance parsers directly in C without the usage of an additional parser generator step.
+Additionally, the toolkit also provides useful general\-purpose extensions for dynamic data structures (linked lists, hash\-tables, stacks and arrays), extended string management functions and some platform\-independent, system\-specific helper functions.
 
 .SH FEATURES
 
@@ -19,20 +44,50 @@ The Phorward Toolkit provides
 
 .RS
 .IP \(bu 3
-Universal data structures for
+Parser development tools
 .RS
 .IP \(bu 3
-\fIplist\fR: For linked\-lists with build\-in hash table support
+BNF\-based grammar definition
 .IP \(bu 3
-\fIparray\fR: For dynamic arrays and stacks
+generators and executors for LR, LALR and LL grammars
+.IP \(bu 3
+a uniform AST (abstract syntax tree) representation
+.IP \(bu 3
+tools for AST traversal (coming soon!)
+.IP \(bu 3
+tools for parser deployment (coming soon!)
+.RE
+.IP \(bu 3
+Lexer development tools
+.RS
+.IP \(bu 3
+regular expressions and pattern definition interface
+.IP \(bu 3
+\fIplex\fR for lexical analyzers
+.IP \(bu 3
+\fIpregex\fR for regular expressions
+.IP \(bu 3
+tools for regex and lexer deployment
+.IP \(bu 3
+string functions for regular expression matching, splitting and replacement
+.RE
+.IP \(bu 3
+Dynamic data structures
+.RS
+.IP \(bu 3
+\fIplist\fR for linked\-lists with build\-in hash table support,
+.IP \(bu 3
+\fIparray\fR for arrays and stacks.
 .RE
 .IP \(bu 3
 Extended string management functions
 .RS
 .IP \(bu 3
+concat, extend, tokenize, shorthand allocation of strings and wide\-character strings
+.IP \(bu 3
 consistent byte\- and wide\-character (unicode) function support
 .IP \(bu 3
-Unicode support for UTF\-8 in byte\-character functions
+unicode support for UTF\-8 in byte\-character functions
 .RE
 .IP \(bu 3
 Debug und trace facilities
@@ -40,10 +95,12 @@ Debug und trace facilities
 A build\-in DOM\-based XML\-parser
 .IP \(bu 3
 Universal system\-specific functions for platform\-independent C software development
+.RS
 .IP \(bu 3
-\fIpregex\fR: Regular expression functions, including tools for their construction, transformation and analysis
+Unix\-style command\-line parser
 .IP \(bu 3
-Parser construction functions for syntax\-directed LL/LR/LALR parsers with direct lookahead
+Mapping files to strings
+.RE
 .IP \(bu 3
 Object\-oriented fashion for all function interfaces (e.g. plist, parray, pregex, pgram, ...)
 .IP \(bu 3
@@ -134,7 +191,7 @@ Note, that changes to the build system then must be done in the local Makefile, 
 .SH AUTHOR
 
 .P
-The Phorward Foundation Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
+The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
 .P
 Help of any kind to extend and improve this product is always appreciated.
