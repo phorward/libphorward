@@ -24,10 +24,13 @@ libphorward_la_SOURCES = \
 	base/memory.c \
 	ccl/ccl.c \
 	parse/ast.c \
+	parse/bnf.c \
 	parse/gram.c \
 	parse/ll.c \
 	parse/lr.c \
+	parse/prod.c \
 	parse/scan.c \
+	parse/sym.c \
 	regex/dfa.c \
 	regex/direct.c \
 	regex/lex.c \

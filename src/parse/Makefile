@@ -1,6 +1,6 @@
 PATHEXT = PATH="../../run:$(PATH)"
 GRAMBNF = bnf.syn
-GRAMSRC = comp.gram.c
+GRAMSRC = bnf.c
 
 # generating parser for ppgram
 $(GRAMSRC): $(GRAMBNF)

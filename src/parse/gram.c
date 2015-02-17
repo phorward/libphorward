@@ -5,300 +5,434 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	gram.c
-Usage:	Phorward Parsing Library
+Usage:	Grammar-specific stuff.
 		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
 
-/** Creates a new symbol of the type //type// in the grammar //g//.
+#define NAMELEN			80
+#define DERIVCHAR		'\''
 
-	//name// is the name for nonterminal symbols, for terminal symbols it
-	can be left empty.
-	//def// contains the definition of the symbol in case of a terminal type.
-	It will be ignored else.
-*/
-ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
+#define T_CCL			PPSYMTYPE_CCL
+#define T_STRING		PPSYMTYPE_STRING
+#define T_REGEX			PPSYMTYPE_REGEX
+#define T_IDENT			10
+#define T_INT			11
+
+#define T_SYMBOL		20
+
+#define T_KLEENE		25
+#define T_POSITIVE		26
+#define T_OPTIONAL		27
+
+#define T_PRODUCTION	30
+#define T_NONTERMDEF	31
+#define T_INLINE		32
+
+#define T_TERMDEF		35
+
+#define T_FLAG			40
+#define T_GFLAG			41
+#define T_EMIT			42
+
+/* Derive name from basename */
+static char* derive_name( ppgram* g, char* base )
 {
-	ppsym*	sym;
+	int             i;
+	static
+	char    deriv   [ ( NAMELEN * 2 ) + 1 ];
 
-	if( !g )
+	sprintf( deriv, "%s%c", base, DERIVCHAR );
+
+	for( i = 0; strlen( deriv ) < ( NAMELEN * 2 ); i++ )
 	{
-		WRONGPARAM;
-		return (ppsym*)NULL;
+		if( !pp_sym_get_by_name( g, deriv ) )
+			return deriv;
+
+		sprintf( deriv + strlen( deriv ), "%c", DERIVCHAR );
 	}
 
-	name = pstrdup( name );
+	return (char*)NULL;
+}
 
-	/* Insert into symbol table */
-	if( !( sym = (ppsym*)plist_access(
-							plist_insert(
-								g->symbols, (plistel*)NULL,
-									name, (void*)NULL ) ) ) )
+/* Stack machine compiling AST to ppgram. */
+static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
+{
+	typedef struct
 	{
-		fprintf( stderr, "Symbol '%s' already exists\n", name );
+		int			emit;
+		char*		buf;
+		ppsym*		sym;
+		parray*		seq;
+		int			i;
+	} ATT;
 
-		pfree( name );
-		return (ppsym*)NULL;
-	}
+	ATT			att;
+	ATT*		attp;
+	parray*		st;
+	ppmatch*	e;
+	ppsym*		scope		= (ppsym*)NULL;
+	ppsym*		nonterm;
+	ppprod*		p;
+	int			i;
+	pboolean	ignore;
+	pboolean	doemit;
+	pboolean	emitall		= FALSE;
+	int			emit;
+	int			emit_max	= 0;
+	char		name		[ NAMELEN * 2 + 1 ];
 
-	sym->id = -1;
-	sym->name = name;
+	st = parray_create( sizeof( ATT ), 0 );
 
-	switch( ( sym->type = type ) )
+	for( e = (ppmatch*)parray_first( ast );
+			e <= (ppmatch*)parray_last( ast ); e++ )
 	{
-		case PPSYMTYPE_NONTERM:
-			sym->prods = plist_create( 0, PLIST_MOD_PTR  );
-			break;
+		memset( &att, 0, sizeof( ATT ) );
 
-		case PPSYMTYPE_CCL:
-			sym->ccl = p_ccl_create( 0, 255, def ); /* TODO */
-			break;
-
-		case PPSYMTYPE_STRING:
-			sym->str = pstrdup( def );
-			break;
-
-		case PPSYMTYPE_REGEX:
-			sym->re = pregex_create( def, 0 );
-			break;
-
-		default:
-			break;
-	}
-
-	/* FIRST */
-	sym->first = plist_create( 0, PLIST_MOD_PTR );
-
-	if( sym->type != PPSYMTYPE_NONTERM )
-	{
-		/* Terminals reference only themself as FIRST set. */
-		plist_push( sym->first, sym );
-
-		/* Define symbol with no name as nameless, use def as name.
-			The name is used by several debug functions, so this
-			flagging prevents from NULL-pointer bugs. */
-		if( !sym->name )
+		if( e->type & PPMATCH_BEGIN && !( e->type & PPMATCH_END ) )
 		{
-			sym->name = pstrdup( def );
-			sym->flags |= PPFLAG_NAMELESS;
-		}
-	}
+			if( e->emit == T_NONTERMDEF )
+			{
+				e++;
 
-	return sym;
-}
+				att.buf = pstrndup( e->start, e->end - e->start );
 
-/** Get the //n//th symbol from grammar //g//.
-Returns (ppsym*)NULL if no symbol was found. */
-ppsym* pp_sym_get( ppgram* g, int n )
-{
-	if( !( g && n >= 0 ) )
-	{
-		WRONGPARAM;
-		return (ppsym*)NULL;
-	}
+				if( !( scope = pp_sym_get_by_name( g, att.buf ) ) )
+					scope = pp_sym_create( g, PPSYMTYPE_NONTERM,
+											att.buf, (char*)NULL );
 
-	return (ppsym*)plist_access( plist_get( g->symbols, n ) );
-}
+				nonterm = scope;
+				pfree( att.buf );
+			}
+			else if( e->emit == T_PRODUCTION )
+				/* Push an empty sequence delimiter */
+				parray_push( st, &att );
 
-/** Get a symbol from grammar //g// by its //name//. */
-ppsym* pp_sym_get_by_name( ppgram* g, char* name )
-{
-	if( !( g && name && *name ) )
-	{
-		WRONGPARAM;
-		return (ppsym*)NULL;
-	}
-
-	return (ppsym*)plist_access( plist_get_by_key( g->symbols, name ) );
-}
-
-/** Find a nameless terminal symbol by its pattern. */
-ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name )
-{
-	int		i;
-	ppsym*	sym;
-
-	if( !( g && name && *name ) )
-	{
-		WRONGPARAM;
-		return (ppsym*)NULL;
-	}
-
-	for( i = 0; ( sym = pp_sym_get( g, i ) ); i++ )
-	{
-		if( sym->type == PPSYMTYPE_NONTERM
-				|| !( sym->flags & PPFLAG_NAMELESS ) )
 			continue;
+		}
 
-		if( strcmp( sym->name, name ) == 0 )
-			return sym;
-	}
-
-	return (ppsym*)NULL;
-}
-
-/** Returns the string representation of symbol //p//.
-
-	Nonterminals are not expanded, they are just returned as their name.
-	The returned pointer is part of //sym// and can be referenced multiple
-	times. It may not be freed by the caller. */
-char* pp_sym_to_str( ppsym* sym )
-{
-	if( !sym )
-	{
-		WRONGPARAM;
-		return "";
-	}
-
-	if( !sym->strval )
-	{
-		sym->strval = (char*)pmalloc(
-						( strlen( sym->name ) + 2 + 1 + 1 )
-							* sizeof( char ) );
-
-		switch( sym->type )
+		switch( ( att.emit = e->emit ) )
 		{
-			case PPSYMTYPE_NONTERM:
-				strcpy( sym->strval, sym->name );
+			case T_IDENT:
+				att.buf = pstrndup( e->start, e->end - e->start );
 				break;
 
-			case PPSYMTYPE_CCL:
-				sprintf( sym->strval, "'%s'", sym->name );
+			case T_INT:
+				att.i = atoi( e->start );
 				break;
 
-			case PPSYMTYPE_STRING:
-				sprintf( sym->strval, "\"%s\"", sym->name );
+			case T_CCL:
+			case T_STRING:
+			case T_REGEX:
+				att.buf = pstrndup( e->start + 1, e->end - e->start - 2 );
 				break;
 
-			case PPSYMTYPE_REGEX:
-				sprintf( sym->strval, "/%s/", sym->name );
+			case T_INLINE:
+				/* Inline nonterminal */
+				att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, scope->name ), (char*)NULL );
+				att.sym->flags |= PPFLAG_DEFINED;
+
+				while( ( attp = (ATT*)parray_last( st ) )
+							&& attp->emit == T_PRODUCTION )
+				{
+					parray_pop( st );
+					p = pp_prod_create( g, att.sym, (ppsym*)NULL );
+
+					while( parray_count( attp->seq ) )
+						pp_prod_append( p,
+							*( (ppsym**)parray_pop( attp->seq ) ) );
+
+					parray_free( attp->seq );
+				}
 				break;
 
-			case PPSYMTYPE_SPECIAL:
-				sprintf( sym->strval, "@%s", sym->name );
+			case T_SYMBOL:
+				/* Symbol */
+				attp = parray_pop( st );
+
+				if( attp->sym )
+					att.sym = attp->sym;
+				else if( attp->buf )
+				{
+					if( attp->emit == T_IDENT )
+					{
+						if( !( att.sym = pp_sym_get_by_name( g, attp->buf ) ) )
+							att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+										attp->buf, (char*)NULL );
+					}
+					else if( !( att.sym = pp_sym_get_nameless_term_by_def(
+												g, attp->buf ) ) )
+					{
+						att.sym = pp_sym_create( g, attp->emit,
+													(char*)NULL, attp->buf );
+						att.sym->flags |= PPFLAG_DEFINED;
+
+						if( emitall )
+							att.sym->emit = ++emit_max;
+					}
+
+					pfree( attp->buf );
+				}
+				else
+				{
+					fprintf( stderr, "CHECK YOUR CODE:\n" );
+					fprintf( stderr, "%s, %d: Can't find symbol.\n",
+										__FILE__, __LINE__ );
+				}
+
+				att.sym->flags |= PPFLAG_CALLED;
 				break;
 
-			default:
-				MISSINGCASE;
+			case T_KLEENE:
+			case T_POSITIVE:
+			case T_OPTIONAL:
+				attp = parray_pop( st );
+
+				if( e->emit == T_KLEENE || e->emit == T_POSITIVE )
+				{
+					sprintf( name, "%s%c", attp->sym->name, PPMOD_POSITIVE );
+
+					if( !( att.sym = pp_sym_get_by_name( g, name ) ) )
+					{
+						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+														name, (char*)NULL );
+
+						if( g->flags & PPFLAG_PREVENTLREC )
+							pp_prod_create( g, att.sym,
+								attp->sym, att.sym, (ppsym*)NULL );
+						else
+							pp_prod_create( g, att.sym,
+								att.sym, attp->sym, (ppsym*)NULL );
+
+						pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
+					}
+
+					attp->sym = att.sym;
+				}
+
+				if( e->emit == T_OPTIONAL || e->emit == T_KLEENE )
+				{
+					sprintf( name, "%s%c", attp->sym->name, PPMOD_OPTIONAL );
+
+					if( !( att.sym = pp_sym_get_by_name( g, name ) ) )
+					{
+						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+														name, (char*)NULL );
+
+						pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
+						pp_prod_create( g, att.sym, (ppsym*)NULL );
+					}
+				}
+
+				att.emit = T_SYMBOL;
+				break;
+
+			case T_PRODUCTION:
+				att.seq = parray_create( sizeof( ppsym* ), 16 );
+
+				while( ( attp = (ATT*)parray_last( st ) )
+							&& attp->emit == T_SYMBOL )
+				{
+					parray_pop( st );
+					parray_push( att.seq, &attp->sym );
+				}
+
+				if( !attp->emit )
+					parray_pop( st ); /* Pop seqence delimiter */
+
+				break;
+
+			case T_FLAG:
+				att.buf = pstrndup( e->start, e->end - e->start );
+				break;
+
+			case T_GFLAG:
+				if( !strncmp( e->start, "emitall", e->end - e->start ) )
+					emitall = TRUE;
+				else if( !strncmp( e->start, "emitnone", e->end - e->start ) )
+					emitall = FALSE;
+				else if( !strncmp( e->start, "lrec", e->end - e->start ) )
+					g->flags &= ~PPFLAG_PREVENTLREC;
+				else if( !strncmp( e->start, "rrec", e->end - e->start ) )
+					g->flags |= PPFLAG_PREVENTLREC;
+
+				att.emit = 0;
+				break;
+
+			case T_EMIT:
+				if( ( attp = (ATT*)parray_last( st ) ) && attp->emit == T_INT )
+				{
+					parray_pop( st );
+					att.i = attp->i;
+				}
+				break;
+
+			case T_NONTERMDEF:
+			case T_TERMDEF:
+				doemit = emitall;
+				emit = 0;
+				ignore = FALSE;
+
+				while( ( attp = (ATT*)parray_last( st ) )
+							&& ( attp->emit == T_FLAG
+									|| attp->emit == T_EMIT ) )
+				{
+					parray_pop( st );
+
+					if( attp->emit == T_EMIT )
+					{
+						doemit = TRUE;
+						emit = attp->i;
+						continue;
+					}
+					else if( strcmp( attp->buf, "goal" ) == 0 )
+					{
+						if( scope && !g->goal ) /* fixme */
+						{
+							g->goal = scope;
+							scope->flags |= PPFLAG_CALLED;
+						}
+					}
+					else if( strcmp( attp->buf, "noemit" ) == 0 )
+						doemit = FALSE;
+					else if( strcmp( attp->buf, "ignore" ) == 0 )
+						ignore = TRUE;
+					else if( strcmp( attp->buf, "lexem" ) == 0 )
+						scope->flags |= PPFLAG_LEXEM;
+
+					pfree( attp->buf );
+				}
+
+				if( e->emit == T_TERMDEF )
+				{
+					attp = parray_pop( st ); 	/* Definition */
+
+					if( parray_last( st )
+						&& ( (ATT*)parray_last( st ) )->emit == T_IDENT )
+					{
+						attp = parray_pop( st );	/* Identifier */
+
+						scope = pp_sym_create( g, ( attp + 1 )->emit,
+											attp->buf, ( attp + 1 )->buf );
+
+						pfree( ( attp + 1 )->buf );
+					}
+					else
+						scope = pp_sym_create( g, attp->emit,
+													(char*)NULL, attp->buf );
+
+					pfree( attp->buf );
+
+					scope->flags |= PPFLAG_DEFINED;
+
+					/* Whitespace now only for terminals */
+					if( ignore )
+					{
+						scope->flags |= PPFLAG_WHITESPACE;
+						plist_push( g->ws, scope );
+					}
+				}
+
+				while( e->emit == T_NONTERMDEF
+						&& ( attp = (ATT*)parray_last( st ) )
+							&& attp->emit == T_PRODUCTION )
+				{
+					parray_pop( st );
+					p = pp_prod_create( g, scope, (ppsym*)NULL );
+
+					while( parray_count( attp->seq ) )
+						pp_prod_append( p,
+							*( (ppsym**)parray_pop( attp->seq ) ) );
+
+					parray_free( attp->seq );
+				}
+
+				scope->flags |= PPFLAG_DEFINED;
+
+				/* Set emit ID if configured */
+				if( doemit )
+				{
+					if( emit )
+					{
+						scope->emit = emit;
+
+						if( emit > emit_max )
+							emit_max = emit;
+					}
+					else
+						scope->emit = ++emit_max;
+				}
+
+				att.emit = 0;
 				break;
 		}
+
+		if( att.emit > 0 )
+			parray_push( st, &att );
 	}
 
-	return sym->strval;
-}
-
-/** Creates a new production on left-hand-side //lhs//
-	within the grammar //g//. */
-ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
-{
-	ppprod*	prod;
-	ppsym*	sym;
-	va_list	varg;
-
-	if( !( g && lhs ) )
+	if( parray_count( st ) )
 	{
-		WRONGPARAM;
-		return (ppprod*)NULL;
-	}
+		fprintf( stderr, "CHECK YOUR CODE:\n" );
+		fprintf( stderr, "%s, %d: Still %d elements on stack\n",
+			__FILE__, __LINE__, parray_count( st ) );
 
-	prod = (ppprod*)plist_malloc( g->prods );
+		while( attp = parray_pop( st ) )
+			printf( "%d\n", attp->emit );
 
-	prod->id = -1;
-	prod->lhs = lhs;
-	prod->rhs = plist_create( 0, PLIST_MOD_PTR );
-
-	plist_push( lhs->prods, prod );
-
-	va_start( varg, lhs );
-
-	while( ( sym = va_arg( varg, ppsym* ) ) )
-		pp_prod_append( prod, sym );
-
-	va_end( varg );
-
-	return prod;
-}
-
-/** Get the //n//th production from grammar //g//.
-Returns (ppprod*)NULL if no symbol was found. */
-ppprod* pp_prod_get( ppgram* g, int n )
-{
-	if( !( g && n >= 0 ) )
-	{
-		WRONGPARAM;
-		return (ppprod*)NULL;
-	}
-
-	return (ppprod*)plist_access( plist_get( g->prods, n ) );
-}
-
-/** Appends the symbol //sym// to the right-hand-side of production //p//. */
-pboolean pp_prod_append( ppprod* p, ppsym* sym )
-{
-	if( !( p && sym ) )
-	{
-		WRONGPARAM;
+		parray_free( st );
 		return FALSE;
 	}
 
-	plist_push( p->rhs, sym );
-	pfree( p->strval );
+	parray_free( st );
+
+	/* If there is no goal, then the last defined nonterm becomes goal symbol */
+	if( !g->goal )
+		g->goal = nonterm;
+
+	/* Look for unique goal sequence */
+	if( plist_count( g->goal->prods ) > 1 )
+	{
+		nonterm = pp_sym_create( g, PPSYMTYPE_NONTERM,
+						derive_name( g, g->goal->name ), (char*)NULL );
+
+		pp_prod_create( g, nonterm, g->goal, (ppsym*)NULL );
+		g->goal = nonterm;
+	}
 
 	return TRUE;
 }
 
-/** Returns the //off//s element from the right-hand-side of
-	production //p//. Returns (ppsym*)NULL if the requested element does
-	not exist. */
-ppsym* pp_prod_getfromrhs( ppprod* p, int off )
+/* Compile BNF string to grammar. */
+static pboolean pp_bnf_to_gram( ppgram* g, char* bnf )
 {
-	if( !( p ) )
+	ppgram*		bnfgram;
+	char*		s = bnf;
+	char*		e;
+	parray*		a;
+
+	/* Define grammar for BNF */
+	bnfgram = pp_gram_create( (char*)NULL );
+	pp_bnf_define( bnfgram );
+	pp_gram_prepare( bnfgram );
+
+	if( !pp_lr_parse( &a, bnfgram, s, &e ) )
 	{
-		WRONGPARAM;
-		return (ppsym*)NULL;
+		pp_gram_free( bnfgram );
+		return FALSE;
 	}
 
-	return (ppsym*)plist_access( plist_get( p->rhs, off ) );
-}
+	/* pp_ast_simplify( a ); */
 
-/** Returns the string representation of production //p//.
+	pp_gram_free( bnfgram );
 
-	The returned pointer is part of //p// and can be referenced multiple times.
-	It may not be freed by the caller. */
-char* pp_prod_to_str( ppprod* p )
-{
-	plistel*	e;
-	ppsym*		sym;
+	if( !pp_bnf_ast_to_gram( g, a ) )
+		return FALSE;
 
-	if( ( !p ) )
-	{
-		WRONGPARAM;
-		return "";
-	}
-
-	if( !p->strval )
-	{
-		if( p->lhs )
-			p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
-
-		p->strval = pstrcatstr( p->strval, " : ", FALSE );
-
-		plist_for( p->rhs, e )
-		{
-			sym = (ppsym*)plist_access( e );
-
-			if( e != plist_first( p->rhs ) )
-				p->strval = pstrcatstr( p->strval, " ", FALSE );
-
-			if( sym->type != PPSYMTYPE_NONTERM )
-				p->strval = pstrcatstr( p->strval, "@", FALSE );
-
-			p->strval = pstrcatstr( p->strval, sym->name, FALSE );
-		}
-	}
-
-	return p->strval;
+	parray_free( a );
+	return TRUE;
 }
 
 /* Prepares the grammar //g// by computing all necessary stuff required for
@@ -473,6 +607,11 @@ pboolean pp_gram_prepare( ppgram* g )
 	return TRUE;
 }
 
+/** Creates a new ppgram-object.
+
+//bnf// is optional and may contain a BNF-string that will immediatelly
+compiled to a ppgram-structure. If //bnf// is not given, the function returns
+an empty, well initialized ppgram-object. */
 ppgram* pp_gram_create( char* bnf )
 {
 	ppsym*		s;
@@ -498,16 +637,6 @@ ppgram* pp_gram_create( char* bnf )
 		if( !pp_bnf_to_gram( g, bnf ) )
 			return pp_gram_free( g );
 
-		/* Look for unique goal sequence */
-		if( plist_count( g->goal->prods ) > 1 )
-		{
-			s = pp_sym_create( g, PPSYMTYPE_NONTERM,
-							pp_derive_name( g, g->goal->name ), (char*)NULL );
-
-			pp_prod_create( g, s, g->goal, (ppsym*)NULL );
-			g->goal = s;
-		}
-
 		/* Prepare grammar */
 		pp_gram_prepare( g );
 	}
@@ -515,6 +644,7 @@ ppgram* pp_gram_create( char* bnf )
 	return g;
 }
 
+/** Dumps the grammar //g// to stdout. */
 void pp_gram_print( ppgram* g )
 {
 	plistel*	e;
@@ -576,7 +706,7 @@ void pp_gram_print( ppgram* g )
 	}
 }
 
-/** Free grammar //g// and all its related memory. */
+/** Frees grammar //g// and all its related memory. */
 ppgram* pp_gram_free( ppgram* g )
 {
 	plistel*	e;

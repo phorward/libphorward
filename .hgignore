@@ -17,7 +17,9 @@ libtool
 
 DEMO/basis
 DEMO/regex
-NEWPROJECT/newproject
+DEMO/parse
+
+run/ppgram2c
 
 tmp
 src/lrtest
