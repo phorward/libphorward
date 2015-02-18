@@ -70,7 +70,13 @@ int main( int argc, char** argv )
 		return 1;
 	}
 
-	g = pp_gram_create( gstr );
+	if( !( ( g = pp_gram_create() )
+				&& pp_gram_from_bnf( g, gstr ) ) )
+	{
+		fprintf( stderr, "Parse error in >%s<\n", gstr );
+		return 1;
+	}
+
 	pp_gram_print( g );
 
 	if( s )

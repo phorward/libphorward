@@ -112,18 +112,17 @@ typedef char 					pboolean;	/* Phorward Boolean */
  * Including the different library modules
  */
 
+/* Watch for order! */
 ##include "base/dbg.h"
 ##include "base/array.h"
 ##include "base/list.h"
-##include "xml/xml.h"
+##include "base/ccl.h"
 
-##include "ccl/ccl.h"
 ##include "regex/regex.h"
-
+##include "parse/parse.h"
 ##include "value/value.h"
 
-/* Phorward Parsing Library */
-##include "parse/parse.h"
+##include "util/xml.h"
 
 /*
  * Function Prototypes

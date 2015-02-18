@@ -57,7 +57,7 @@ static char* derive_name( ppgram* g, char* base )
 }
 
 /* Stack machine compiling AST to ppgram. */
-static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
+static pboolean ast_to_gram( ppgram* g, parray* ast )
 {
 	typedef struct
 	{
@@ -405,41 +405,11 @@ static pboolean pp_bnf_ast_to_gram( ppgram* g, parray* ast )
 	return TRUE;
 }
 
-/* Compile BNF string to grammar. */
-static pboolean pp_bnf_to_gram( ppgram* g, char* bnf )
-{
-	ppgram*		bnfgram;
-	char*		s = bnf;
-	char*		e;
-	parray*		a;
-
-	/* Define grammar for BNF */
-	bnfgram = pp_gram_create( (char*)NULL );
-	pp_bnf_define( bnfgram );
-	pp_gram_prepare( bnfgram );
-
-	if( !pp_lr_parse( &a, bnfgram, s, &e ) )
-	{
-		pp_gram_free( bnfgram );
-		return FALSE;
-	}
-
-	/* pp_ast_simplify( a ); */
-
-	pp_gram_free( bnfgram );
-
-	if( !pp_bnf_ast_to_gram( g, a ) )
-		return FALSE;
-
-	parray_free( a );
-	return TRUE;
-}
-
-/* Prepares the grammar //g// by computing all necessary stuff required for
+/** Prepares the grammar //g// by computing all necessary stuff required for
 runtime and parser generator.
 
-Includes:
-- Symbol and productiosn IDs
+The preparation process includes:
+- Symbol and productions IDs
 - FIRST-set computation
 - Mark left-recursions
 - Lexem flag pull-trough
@@ -607,12 +577,8 @@ pboolean pp_gram_prepare( ppgram* g )
 	return TRUE;
 }
 
-/** Creates a new ppgram-object.
-
-//bnf// is optional and may contain a BNF-string that will immediatelly
-compiled to a ppgram-structure. If //bnf// is not given, the function returns
-an empty, well initialized ppgram-object. */
-ppgram* pp_gram_create( char* bnf )
+/** Creates a new ppgram-object. */
+ppgram* pp_gram_create( void )
 {
 	ppsym*		s;
 	ppgram*		g;
@@ -631,17 +597,47 @@ ppgram* pp_gram_create( char* bnf )
 
 	g->eof = pp_sym_create( g, PPSYMTYPE_SPECIAL, "eof", (char*)NULL );
 
-	/* Parse grammar into description */
-	if( bnf && *bnf )
-	{
-		if( !pp_bnf_to_gram( g, bnf ) )
-			return pp_gram_free( g );
+	return g;
+}
 
-		/* Prepare grammar */
-		pp_gram_prepare( g );
+/** Compiles a grammar definition into a grammar.
+
+//g// is the grammar that receives the result of the parse.
+//bnf// is the BNF definition string that defines the grammar.
+*/
+pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
+{
+	ppgram*		bnfgram;
+	char*		s = bnf;
+	char*		e;
+	parray*		a;
+
+	if( !( g && bnf ) )
+	{
+		WRONGPARAM;
+		return FALSE;
 	}
 
-	return g;
+	/* Define grammar for BNF */
+	bnfgram = pp_gram_create();
+	pp_bnf_define( bnfgram );
+	pp_gram_prepare( bnfgram );
+
+	if( !pp_lr_parse( &a, bnfgram, s, &e ) )
+	{
+		pp_gram_free( bnfgram );
+		return FALSE;
+	}
+
+	/* pp_ast_simplify( a ); */
+
+	pp_gram_free( bnfgram );
+
+	if( !ast_to_gram( g, a ) )
+		return FALSE;
+
+	parray_free( a );
+	return TRUE;
 }
 
 /** Dumps the grammar //g// to stdout. */
@@ -745,4 +741,3 @@ ppgram* pp_gram_free( ppgram* g )
 
 	return (ppgram*)NULL;
 }
-

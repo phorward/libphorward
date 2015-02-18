@@ -11,10 +11,19 @@ PATHEXT = PATH="../run:$(PATH)"
 
 SRC = \
 	base/array.c \
+	base/ccl.c \
 	base/dbg.c \
 	base/list.c \
 	base/memory.c \
-	ccl/ccl.c \
+	parse/ast.c \
+	parse/bnf.c \
+	parse/gram.c \
+	parse/ll.c \
+	parse/lr.c \
+	parse/parse.c \
+	parse/prod.c \
+	parse/scan.c \
+	parse/sym.c \
 	regex/dfa.c \
 	regex/direct.c \
 	regex/lex.c \
@@ -26,29 +35,22 @@ SRC = \
 	string/string.c \
 	string/utf8.c \
 	util/system.c \
-	xml/xml.c \
+	util/xml.c \
 	value/value.c \
 	value/value.conv.c \
 	value/value.get.c \
-	value/value.set.c \
-	parse/ast.c \
-	parse/bnf.c \
-	parse/gram.c \
-	parse/ll.c \
-	parse/lr.c \
-	parse/prod.c \
-	parse/scan.c \
-	parse/sym.c
+	value/value.set.c
 
 HSRC = \
 	base/array.h \
+	base/ccl.h \
 	base/dbg.h \
 	base/list.h \
 	parse/parse.h \
 	phorward.tpl.h \
 	regex/regex.h \
+	util/xml.h \
 	value/value.h \
-	xml/xml.h \
 	$(PROTOFILE)
 
 OBJ = $(patsubst %.c,%.o,$(SRC))

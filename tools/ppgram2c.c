@@ -259,12 +259,26 @@ int main( int argc, char** argv )
 		return 1;
 	}
 
+	/* Read grammar from input */
 	if( !pfiletostr( &gram, in ) )
 	{
 		fprintf( stderr, "Can't read from '%s'\n", in );
 		return 1;
 	}
 
+	/* Generate & parse grammar */
+	if( !( ( g = pp_gram_create() )
+				&& pp_gram_from_bnf( g, gram ) ) )
+	{
+		fprintf( stderr, "Parse error\n" );
+		return 1;
+	}
+
+	pp_gram_prepare( g );
+
+	pfree( gram );
+
+	/* Open output file */
 	if( out )
 	{
 		if( !( f = fopen( out, "rb" ) ) )
@@ -273,14 +287,6 @@ int main( int argc, char** argv )
 			return 1;
 		}
 	}
-
-	if( !( g = pp_gram_create( gram ) ) )
-	{
-		fprintf( stderr, "Parse error\n", in );
-		return 1;
-	}
-
-	pfree( gram );
 
 	/* Generate C code */
 	gen_decl( f, g );

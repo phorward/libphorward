@@ -9,19 +9,11 @@ Usage:	Phorward Parsing Library
 		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
 ----------------------------------------------------------------------------- */
 
-typedef enum
-{
-	PPSYMTYPE_NONTERM,
-	PPSYMTYPE_CCL,
-	PPSYMTYPE_STRING,
-	PPSYMTYPE_REGEX,
-	PPSYMTYPE_SPECIAL
-} ppsymtype;
-
 typedef struct _ppsym		ppsym;
 typedef struct _ppprod		ppprod;
 typedef struct _ppgram		ppgram;
 
+/* Flags for grammars and their objects */
 #define PPFLAG_CALLED		1
 #define PPFLAG_DEFINED		2
 #define PPFLAG_NULLABLE		4
@@ -35,6 +27,7 @@ typedef struct _ppgram		ppgram;
 #define PPMOD_POSITIVE		'+'
 #define PPMOD_KLEENE		'*'
 
+/* Production */
 struct _ppprod
 {
 	int						id;
@@ -47,6 +40,17 @@ struct _ppprod
 	char*					strval;
 };
 
+/* Symbol types */
+typedef enum
+{
+	PPSYMTYPE_NONTERM,
+	PPSYMTYPE_CCL,
+	PPSYMTYPE_STRING,
+	PPSYMTYPE_REGEX,
+	PPSYMTYPE_SPECIAL
+} ppsymtype;
+
+/* Symbol */
 struct _ppsym
 {
 	int						id;
@@ -71,6 +75,7 @@ struct _ppsym
 	char*					strval;
 };
 
+/* Grammar */
 struct _ppgram
 {
 	plist*					symbols;
@@ -83,6 +88,7 @@ struct _ppgram
 	int						flags;
 };
 
+/* Match (AST entry) */
 typedef struct
 {
 	#define PPMATCH_BEGIN	1
@@ -100,3 +106,13 @@ typedef struct
 	int						col;
 } ppmatch;
 
+/* Parser maintainance object */
+typedef struct
+{
+	int						type;
+	ppgram*					gram;
+
+	/*
+	plist*					states;
+	*/
+} pparse;

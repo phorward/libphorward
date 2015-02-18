@@ -19,15 +19,16 @@ lib_LTLIBRARIES = libphorward.la
 
 libphorward_la_SOURCES = \
 	base/array.c \
+	base/ccl.c \
 	base/dbg.c \
 	base/list.c \
 	base/memory.c \
-	ccl/ccl.c \
 	parse/ast.c \
 	parse/bnf.c \
 	parse/gram.c \
 	parse/ll.c \
 	parse/lr.c \
+	parse/parse.c \
 	parse/prod.c \
 	parse/scan.c \
 	parse/sym.c \
@@ -42,22 +43,22 @@ libphorward_la_SOURCES = \
 	string/string.c \
 	string/utf8.c \
 	util/system.c \
+	util/xml.c \
 	value/value.c \
 	value/value.conv.c \
 	value/value.get.c \
-	value/value.set.c \
-	xml/xml.c
+	value/value.set.c
 
 noinst_HEADERS = \
 	base/array.h \
+	base/ccl.h \
 	base/dbg.h \
 	base/list.h \
-	ccl/ccl.h \
 	parse/parse.h \
 	phorward.tpl.h \
 	regex/regex.h \
+	util/xml.h \
 	value/value.h \
-	xml/xml.h \
 	$(PROTOFILE)
 
 include_HEADERS = \

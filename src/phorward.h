@@ -110,6 +110,7 @@ typedef char 					pboolean;
 
 
 
+
 #ifndef _DBG_H
 #define _DBG_H
 
@@ -261,106 +262,6 @@ struct Plist
 
 
 
-
-#ifndef _XML_H
-#define _XML_H
-
-#define XML_BUFSIZE 1024	
-#define XML_NAMEM	0x80	
-#define XML_TXTM	0x40	
-#define XML_DUP		0x20	
-
-typedef struct xml*		XML_T;
-struct xml
-{
-	char*		name;		
-	char **	 attr;		
-	char*		txt;		
-	size_t		off;		
-	int			line;		
-	XML_T		next;		
-	XML_T		sibling;	
-	XML_T		ordered;	
-	XML_T		child;		
-	XML_T		parent;		
-	short		flags;		
-};
-
-#define xml_next( xml )		\
-	( ( xml ) ? xml->next : NULL )
-
-#define xml_next_inorder( xml ) \
-	((xml) ? xml->ordered : NULL)
-
-#define xml_name( xml )	\
-	( ( xml ) ? xml->name : NULL )
-
-#define xml_txt( xml ) \
-	( ( xml ) ? xml->txt : "" )
-	
-#define xml_line(xml) \
-	( ( xml ) ? (xml)->line : 0 )
-
-#define xml_new_d( name ) \
-	xml_set_flag( xml_new( pstrdup(name) ),XML_NAMEM )
-
-#define xml_add_child_d( xml, name, off ) \
-	xml_set_flag \
-	( \
-		xml_add_child( xml, pstrdup(name), off ), \
-		XML_NAMEM \
-	)
-
-#define xml_set_txt_d( xml, txt ) \
-	xml_set_flag \
-	( \
-		xml_set_txt( xml, pstrdup(txt) ), \
-		XML_TXTM \
-	)
-
-#define xml_set_attr_d( xml, name, value ) \
-	xml_set_attr \
-	( \
-		xml_set_flag( xml, XML_DUP ), \
-		pstrdup( name ), \
-		pstrdup( value ) \
-	)
-	
-#define xml_add_child_f( xml, name, off ) \
-	xml_set_flag \
-	( \
-		xml_add_child( xml, name, off ), \
-		XML_NAMEM \
-	)
-	
-#define xml_set_txt_f( xml, txt ) \
-	xml_set_flag \
-	( \
-		xml_set_txt( xml, txt ), \
-		XML_TXTM \
-	)
-
-#define xml_set_attr_f( xml, name, value ) \
-	xml_set_attr \
-	( \
-		xml_set_flag( xml, XML_DUP ), \
-		pstrdup( name ), \
-		(value) \
-	)
-
-#define xml_move( xml, dest, off )	\
-	xml_insert( xml_cut( xml ),dest,off )
-
-#define xml_remove( xml ) \
-	xml_free( xml_cut( xml ) )
-
-#endif 
-
-
-
-
-
-
 #define PCCL_MIN			0x0
 #if UNICODE
 #define PCCL_MAX			0xFFFF
@@ -383,6 +284,7 @@ typedef struct
 
 	char*			str;
 } pccl;
+
 
 
 
@@ -557,6 +459,114 @@ struct _lex
 
 
 
+typedef struct _ppsym		ppsym;
+typedef struct _ppprod		ppprod;
+typedef struct _ppgram		ppgram;
+
+
+#define PPFLAG_CALLED		1
+#define PPFLAG_DEFINED		2
+#define PPFLAG_NULLABLE		4
+#define PPFLAG_LEFTREC		8
+#define PPFLAG_LEXEM		16
+#define PPFLAG_WHITESPACE	32
+#define PPFLAG_PREVENTLREC	64
+#define PPFLAG_NAMELESS		128
+
+#define PPMOD_OPTIONAL		'?'
+#define PPMOD_POSITIVE		'+'
+#define PPMOD_KLEENE		'*'
+
+
+struct _ppprod
+{
+	int						id;
+	ppsym*					lhs;
+	plist*					rhs;
+
+	int						flags;
+
+	
+	char*					strval;
+};
+
+
+typedef enum
+{
+	PPSYMTYPE_NONTERM,
+	PPSYMTYPE_CCL,
+	PPSYMTYPE_STRING,
+	PPSYMTYPE_REGEX,
+	PPSYMTYPE_SPECIAL
+} ppsymtype;
+
+
+struct _ppsym
+{
+	int						id;
+	ppsymtype				type;
+
+	char*					name;
+	int						flags;
+
+	
+	plist*					first;
+	plist*					prods;
+
+	
+	pccl*					ccl;
+	char*					str;
+	pregex*					re;
+
+	
+	int						emit;
+
+	
+	char*					strval;
+};
+
+
+struct _ppgram
+{
+	plist*					symbols;
+	plist*					prods;
+
+	plist*					ws;
+	ppsym*					goal;
+	ppsym*					eof;
+
+	int						flags;
+};
+
+
+typedef struct
+{
+	#define PPMATCH_BEGIN	1
+	#define PPMATCH_END		2
+	int						type;
+
+	int						emit;
+	ppsym*					sym;
+	ppprod*					prod;
+
+	char*					start;
+	char*					end;
+
+	int						row;
+	int						col;
+} ppmatch;
+
+
+typedef struct
+{
+	int						type;
+	ppgram*					gram;
+
+	
+} pparse;
+
+
+
 
 
 typedef enum
@@ -634,97 +644,100 @@ typedef struct
 
 
 
-typedef enum
+
+#ifndef _XML_H
+#define _XML_H
+
+#define XML_BUFSIZE 1024	
+#define XML_NAMEM	0x80	
+#define XML_TXTM	0x40	
+#define XML_DUP		0x20	
+
+typedef struct xml*		XML_T;
+struct xml
 {
-	PPSYMTYPE_NONTERM,
-	PPSYMTYPE_CCL,
-	PPSYMTYPE_STRING,
-	PPSYMTYPE_REGEX,
-	PPSYMTYPE_SPECIAL
-} ppsymtype;
-
-typedef struct _ppsym		ppsym;
-typedef struct _ppprod		ppprod;
-typedef struct _ppgram		ppgram;
-
-#define PPFLAG_CALLED		1
-#define PPFLAG_DEFINED		2
-#define PPFLAG_NULLABLE		4
-#define PPFLAG_LEFTREC		8
-#define PPFLAG_LEXEM		16
-#define PPFLAG_WHITESPACE	32
-#define PPFLAG_PREVENTLREC	64
-#define PPFLAG_NAMELESS		128
-
-#define PPMOD_OPTIONAL		'?'
-#define PPMOD_POSITIVE		'+'
-#define PPMOD_KLEENE		'*'
-
-struct _ppprod
-{
-	int						id;
-	ppsym*					lhs;
-	plist*					rhs;
-
-	int						flags;
-
-	
-	char*					strval;
+	char*		name;		
+	char **	 attr;		
+	char*		txt;		
+	size_t		off;		
+	int			line;		
+	XML_T		next;		
+	XML_T		sibling;	
+	XML_T		ordered;	
+	XML_T		child;		
+	XML_T		parent;		
+	short		flags;		
 };
 
-struct _ppsym
-{
-	int						id;
-	ppsymtype				type;
+#define xml_next( xml )		\
+	( ( xml ) ? xml->next : NULL )
 
-	char*					name;
-	int						flags;
+#define xml_next_inorder( xml ) \
+	((xml) ? xml->ordered : NULL)
 
+#define xml_name( xml )	\
+	( ( xml ) ? xml->name : NULL )
+
+#define xml_txt( xml ) \
+	( ( xml ) ? xml->txt : "" )
 	
-	plist*					first;
-	plist*					prods;
+#define xml_line(xml) \
+	( ( xml ) ? (xml)->line : 0 )
 
+#define xml_new_d( name ) \
+	xml_set_flag( xml_new( pstrdup(name) ),XML_NAMEM )
+
+#define xml_add_child_d( xml, name, off ) \
+	xml_set_flag \
+	( \
+		xml_add_child( xml, pstrdup(name), off ), \
+		XML_NAMEM \
+	)
+
+#define xml_set_txt_d( xml, txt ) \
+	xml_set_flag \
+	( \
+		xml_set_txt( xml, pstrdup(txt) ), \
+		XML_TXTM \
+	)
+
+#define xml_set_attr_d( xml, name, value ) \
+	xml_set_attr \
+	( \
+		xml_set_flag( xml, XML_DUP ), \
+		pstrdup( name ), \
+		pstrdup( value ) \
+	)
 	
-	pccl*					ccl;
-	char*					str;
-	pregex*					re;
-
+#define xml_add_child_f( xml, name, off ) \
+	xml_set_flag \
+	( \
+		xml_add_child( xml, name, off ), \
+		XML_NAMEM \
+	)
 	
-	int						emit;
+#define xml_set_txt_f( xml, txt ) \
+	xml_set_flag \
+	( \
+		xml_set_txt( xml, txt ), \
+		XML_TXTM \
+	)
 
-	
-	char*					strval;
-};
+#define xml_set_attr_f( xml, name, value ) \
+	xml_set_attr \
+	( \
+		xml_set_flag( xml, XML_DUP ), \
+		pstrdup( name ), \
+		(value) \
+	)
 
-struct _ppgram
-{
-	plist*					symbols;
-	plist*					prods;
+#define xml_move( xml, dest, off )	\
+	xml_insert( xml_cut( xml ),dest,off )
 
-	plist*					ws;
-	ppsym*					goal;
-	ppsym*					eof;
+#define xml_remove( xml ) \
+	xml_free( xml_cut( xml ) )
 
-	int						flags;
-};
-
-typedef struct
-{
-	#define PPMATCH_BEGIN	1
-	#define PPMATCH_END		2
-	int						type;
-
-	int						emit;
-	ppsym*					sym;
-	ppprod*					prod;
-
-	char*					start;
-	char*					end;
-
-	int						row;
-	int						col;
-} ppmatch;
-
+#endif 
 
 
 
@@ -759,6 +772,31 @@ void* parray_swap( parray* array, size_t pos1, size_t pos2 );
 size_t parray_count( parray* array );
 pboolean parray_partof( parray* array, void* ptr );
 size_t parray_offset( parray* array, void* ptr );
+
+
+pccl* p_ccl_create( int min, int max, char* ccldef );
+pboolean p_ccl_compat( pccl* l, pccl* r );
+int p_ccl_size( pccl* ccl );
+int p_ccl_count( pccl* ccl );
+pccl* p_ccl_dup( pccl* ccl );
+pboolean p_ccl_testrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_test( pccl* ccl, wchar_t ch );
+pboolean p_ccl_instest( pccl* ccl, wchar_t ch );
+pboolean p_ccl_addrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_add( pccl* ccl, wchar_t ch );
+pboolean p_ccl_delrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_del( pccl* ccl, wchar_t ch );
+pboolean p_ccl_negate( pccl* ccl );
+pccl* p_ccl_union( pccl* ccl, pccl* add );
+pccl* p_ccl_diff( pccl* ccl, pccl* rem );
+int p_ccl_compare( pccl* left, pccl* right );
+pccl* p_ccl_intersect( pccl* ccl, pccl* within );
+pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
+pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend );
+pboolean p_ccl_erase( pccl* ccl );
+pccl* p_ccl_free( pccl* ccl );
+char* p_ccl_to_str( pccl* ccl, pboolean escape );
+void p_ccl_print( FILE* stream, pccl* ccl, int break_after );
 
 
 void _dbg_trace( char* file, int line, char* type, char* format, ... );
@@ -809,29 +847,53 @@ void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
 
 
-pccl* p_ccl_create( int min, int max, char* ccldef );
-pboolean p_ccl_compat( pccl* l, pccl* r );
-int p_ccl_size( pccl* ccl );
-int p_ccl_count( pccl* ccl );
-pccl* p_ccl_dup( pccl* ccl );
-pboolean p_ccl_testrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean p_ccl_test( pccl* ccl, wchar_t ch );
-pboolean p_ccl_instest( pccl* ccl, wchar_t ch );
-pboolean p_ccl_addrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean p_ccl_add( pccl* ccl, wchar_t ch );
-pboolean p_ccl_delrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean p_ccl_del( pccl* ccl, wchar_t ch );
-pboolean p_ccl_negate( pccl* ccl );
-pccl* p_ccl_union( pccl* ccl, pccl* add );
-pccl* p_ccl_diff( pccl* ccl, pccl* rem );
-int p_ccl_compare( pccl* left, pccl* right );
-pccl* p_ccl_intersect( pccl* ccl, pccl* within );
-pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
-pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend );
-pboolean p_ccl_erase( pccl* ccl );
-pccl* p_ccl_free( pccl* ccl );
-char* p_ccl_to_str( pccl* ccl, pboolean escape );
-void p_ccl_print( FILE* stream, pccl* ccl, int break_after );
+ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset );
+ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth );
+ppmatch* pp_ast_pendant( parray* ast, ppmatch* match );
+void pp_ast_print( parray* ast );
+void pp_ast_simplify( parray* ast );
+void pp_ast_tree2svg( parray* ast );
+
+
+void pp_bnf_define( ppgram* g );
+
+
+pboolean pp_gram_prepare( ppgram* g );
+ppgram* pp_gram_create( void );
+pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
+void pp_gram_print( ppgram* g );
+ppgram* pp_gram_free( ppgram* g );
+
+
+pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
+
+
+plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
+pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
+
+
+pparse* pp_create( int flags, char* bnf );
+pparse* pp_free( pparse* par );
+pboolean pp_parse_to_ast( parray** ast, pparse* par, char* start, char** end );
+
+
+ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
+ppprod* pp_prod_get( ppgram* g, int n );
+pboolean pp_prod_append( ppprod* p, ppsym* sym );
+ppsym* pp_prod_getfromrhs( ppprod* p, int off );
+char* pp_prod_to_str( ppprod* p );
+
+
+pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );
+pboolean pp_white_in_input( ppgram* grm, char* start, char** end );
+size_t pp_pos_in_input( int* row, int* col, char* start, char* end );
+
+
+ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
+ppsym* pp_sym_get( ppgram* g, int n );
+ppsym* pp_sym_get_by_name( ppgram* g, char* name );
+ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
+char* pp_sym_to_str( ppsym* sym );
 
 
 void pregex_dfa_print( pregex_dfa* dfa );
@@ -1051,49 +1113,6 @@ char* pvalue_set_str( pvalue* val, char* s );
 wchar_t* pvalue_set_cwcs( pvalue* val, wchar_t* ws );
 wchar_t* pvalue_set_wcs( pvalue* val, wchar_t* ws );
 void* pvalue_set_ptr( pvalue* val, void* ptr );
-
-
-ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset );
-ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth );
-ppmatch* pp_ast_pendant( parray* ast, ppmatch* match );
-void pp_ast_print( parray* ast );
-void pp_ast_simplify( parray* ast );
-void pp_ast_tree2svg( parray* ast );
-
-
-void pp_bnf_define( ppgram* g );
-
-
-pboolean pp_gram_prepare( ppgram* g );
-ppgram* pp_gram_create( char* bnf );
-void pp_gram_print( ppgram* g );
-ppgram* pp_gram_free( ppgram* g );
-
-
-pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
-
-
-plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
-pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
-
-
-ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
-ppprod* pp_prod_get( ppgram* g, int n );
-pboolean pp_prod_append( ppprod* p, ppsym* sym );
-ppsym* pp_prod_getfromrhs( ppprod* p, int off );
-char* pp_prod_to_str( ppprod* p );
-
-
-pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );
-pboolean pp_white_in_input( ppgram* grm, char* start, char** end );
-size_t pp_pos_in_input( int* row, int* col, char* start, char* end );
-
-
-ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
-ppsym* pp_sym_get( ppgram* g, int n );
-ppsym* pp_sym_get_by_name( ppgram* g, char* name );
-ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
-char* pp_sym_to_str( ppsym* sym );
 
 
 
