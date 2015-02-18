@@ -10,21 +10,21 @@ The following example defines a simple grammar, runs a parser and prints the gen
     
     int main()
     {
-        ppgram* g;
+        pparse* p;
+        parray* a;
         char*   s = "1+2*(3+4)+5";
         char*   e;
-        parray* a;
     
-        g = pp_gram_create(
-            "%emitall"
-            "f: /[0-9]+/ | '(' e ')';"
-            "t: t '*' f | f ;"
-            "e: e '+' t | t ;" );
+        p = pp_create( 0,
+    			"%emitall"
+    			"f: /[0-9]+/ | '(' e ')';"
+    			"t: t '*' f | f ;"
+    			"e: e '+' t | t ;" );
     
-        if( !pp_lr_parse( &a, g, s, &e ) )
+        if( !pp_parse_to_ast( &a, p, s, &e ) )
             return 1; /* parse error */
     
-        pp_ast_simplify( a );
+        pp_ast_print( a );
         return 0;
     }
 
