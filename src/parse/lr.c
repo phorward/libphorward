@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	lr.c
-Usage:	Phorward Parsing Library
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	LR/LALR/SLR parse table construction and execution.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -243,7 +242,7 @@ static pplrstate* pp_lrstate_create( plist* states, plist* kernel )
 	return state;
 }
 
-static plist* pp_lrstates_free( plist* states )
+static plist* pp_lr_free( plist* states )
 {
 	pplrstate*	st;
 	plistel*	e;
@@ -269,7 +268,7 @@ static plist* pp_lrstates_free( plist* states )
 	return plist_free( states );
 }
 
-static pp_lrstates_print( plist* states )
+static void pp_lr_print( plist* states )
 {
 	plistel*	e;
 	plistel*	f;
@@ -333,7 +332,7 @@ static pp_lrstates_print( plist* states )
 	}
 }
 
-static int pp_lrstates_to_dfa( int*** act_tab, int*** go_tab, plist* states )
+static int pp_lr_to_dfa( int*** act_tab, int*** go_tab, plist* states )
 {
 	pplrstate*	st;
 	pplrcolumn*	col;
@@ -342,7 +341,7 @@ static int pp_lrstates_to_dfa( int*** act_tab, int*** go_tab, plist* states )
 	plistel*	e;
 	plistel*	f;
 
-	PROC( "pp_lrstates_to_dfa" );
+	PROC( "pp_lr_to_dfa" );
 	PARMS( "act_tab", "%p", act_tab );
 	PARMS( "go_tab", "%p", go_tab );
 	PARMS( "states", "%p", states );
@@ -459,7 +458,7 @@ static int pp_lrstates_to_dfa( int*** act_tab, int*** go_tab, plist* states )
 	RETURN( plist_count( states ) );
 }
 
-static BOOLEAN pp_parser_lr_compare( plist* set1, plist* set2 )
+static pboolean lr_compare( plist* set1, plist* set2 )
 {
 	plistel*	e;
 	plistel*	f;
@@ -493,7 +492,7 @@ static BOOLEAN pp_parser_lr_compare( plist* set1, plist* set2 )
 	return FALSE;
 }
 
-static pplrstate* pp_parser_lr_get_undone( plist* states )
+static pplrstate* lr_get_undone( plist* states )
 {
 	pplrstate*	st;
 	plistel*	e;
@@ -509,7 +508,7 @@ static pplrstate* pp_parser_lr_get_undone( plist* states )
 	return (pplrstate*)NULL;
 }
 
-plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
+plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 {
 	plist*			states;
 	pplrstate*		st;
@@ -560,7 +559,7 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 	closure = plist_create( sizeof( pplritem ), PLIST_MOD_RECYCLE );
 
 	MSG( "Run the closure loop" );
-	while( ( st = pp_parser_lr_get_undone( states ) ) )
+	while( ( st = lr_get_undone( states ) ) )
 	{
 		st->done = TRUE;
 
@@ -763,7 +762,7 @@ plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize )
 			{
 				nst = (pplrstate*)plist_access( e );
 
-				if( pp_parser_lr_compare( part, nst->kernel ) )
+				if( lr_compare( part, nst->kernel ) )
 					break;
 			}
 
@@ -1257,17 +1256,17 @@ pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end )
 		return FALSE;
 	}
 
-	states = pp_parser_lr_closure( grm, TRUE );
+	states = pp_lr_closure( grm, TRUE );
 
 	#if DEBUGLEVEL > 0
-	pp_lrstates_print( states );
+	pp_lr_print( states );
 	#endif
 
 	if( ast )
 		*ast = parray_create( sizeof( ppmatch ), 0 );
 
 	ret = pp_lr_PARSE( ast ? *ast : (parray*)NULL, grm, start, end, states );
-	pp_lrstates_free( states );
+	pp_lr_free( states );
 
 	return ret;
 }

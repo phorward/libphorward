@@ -71,7 +71,8 @@ int main( int argc, char** argv )
 	}
 
 	if( !( ( g = pp_gram_create() )
-				&& pp_gram_from_bnf( g, gstr ) ) )
+				&& pp_gram_from_bnf( g, gstr )
+					&& pp_gram_prepare( g ) ) )
 	{
 		fprintf( stderr, "Parse error in >%s<\n", gstr );
 		return 1;
