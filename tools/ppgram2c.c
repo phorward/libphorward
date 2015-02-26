@@ -13,12 +13,14 @@ Usage:	ppgram to C-code generator
 char*	emptystr	= "";
 char*	gname		= "g";
 char*	symname		= "sym";
+char*	prodname	= "prod";
 char*	indent;
 
 void help( char** argv )
 {
 	printf( "usage: %s OPTIONS grammar\n\n"
 
+	"   -d  --debug             Print parsed grammar.\n"
 	"   -h  --help              Show this help, and exit.\n"
 	"   -i  --indent NUM        Indent generated code by NUM tabs\n"
 	"   -o  --output FILE       Output to FILE; Default is stdout.\n", *argv );
@@ -31,15 +33,10 @@ char* cident( char* ident )
 
 void gen_decl( FILE* f, ppgram* g )
 {
-	/*
-	fprintf( f, "%sppgram*	%s;\n", indent, gname );
-	*/
-	fprintf( f, "%sppsym*	%s[ %d ];\n\n",
+	fprintf( f, "%sppsym*	%s[ %d ];\n",
 		indent, symname, plist_count( g->symbols ) );
-
-	/*
-	fprintf( f, "%s%s = pp_gram_create( (char*)NULL );\n\n", indent, gname );
-	*/
+	fprintf( f, "%sppprod*	%s[ %d ];\n",
+		indent, prodname, plist_count( g->prods ) );
 }
 
 void gen_sym( FILE* f, ppgram* g )
@@ -143,8 +140,8 @@ void gen_prods( FILE* f, ppgram* g )
 
 	for( i = 0; prod = pp_prod_get( g, i ); i++ )
 	{
-		fprintf( f, "%spp_prod_create( %s, %s[ %d ] /* %s */,",
-							indent, gname, symname, prod->lhs->id,
+		fprintf( f, "%s%s[ %d ] = pp_prod_create( %s, %s[ %d ] /* %s */,",
+							indent, prodname, i, gname, symname, prod->lhs->id,
 								prod->lhs->name );
 
 		for( j = 0; sym = pp_prod_getfromrhs( prod, j ); j++ )
@@ -200,7 +197,13 @@ void gen_prods( FILE* f, ppgram* g )
 		}
 
 		fprintf( f, "\n%s\t", indent );
-		fprintf( f, "(ppsym*)NULL );\n\n" );
+		fprintf( f, "(ppsym*)NULL );\n" );
+
+		if( prod->emit )
+			fprintf( f, "%s%s[ %d ]->emit = %d;\n",
+							indent, prodname, i, prod->emit );
+
+		fprintf( f, "\n" );
 	}
 
 	fprintf( f, "\n" );
@@ -220,13 +223,16 @@ int main( int argc, char** argv )
 	char*		in		= (char*)NULL;
 	char*		gram;
 	char*		out		= (char*)NULL;
-	FILE*		f	= stdout;
+	FILE*		f		= stdout;
+	pboolean	debug	= FALSE;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"hi:o:",
-						"help indent: output:", i ) ) == 0; i++ )
+						"dhi:o:",
+						"debug help indent: output:", i ) ) == 0; i++ )
 	{
-		if( !strcmp( opt, "help" ) || *opt == 'h' )
+		if( !strcmp( opt, "debug" ) || *opt == 'd' )
+			debug = TRUE;
+		else if( !strcmp( opt, "help" ) || *opt == 'h' )
 		{
 			help( argv );
 			return 0;
@@ -273,6 +279,9 @@ int main( int argc, char** argv )
 		fprintf( stderr, "Parse error\n" );
 		return 1;
 	}
+
+	if( debug )
+		pp_gram_print( g );
 
 	pp_gram_prepare( g );
 

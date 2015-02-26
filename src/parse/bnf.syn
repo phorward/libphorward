@@ -7,7 +7,7 @@ $regex 			/\/(\\.|[^\\\/])*\//								%emit 3;
 $ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit 10;
 $int			/[0-9]+/ 											%emit 11;
 
-symbol 			: ident | ccl | string | regex | inline				%emit 20;
+symbol %emit 20 : ident | ccl | string | regex | inline;
 inline			: '(' alternation ')'								%emit 32;
 
 mod_kleene		: symbol '*'										%emit 25;

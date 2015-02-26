@@ -126,6 +126,11 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 		if( !( e->type & PPMATCH_END ) )
 			continue;
 
+		/*
+		fprintf( stderr, "emit %d >%.*s<\n",
+			e->emit, e->end - e->start, e->start );
+		*/
+
 		switch( ( att.emit = e->emit ) )
 		{
 			case T_IDENT:
@@ -430,8 +435,8 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 		fprintf( stderr, "%s, %d: Still %d elements on stack\n",
 			__FILE__, __LINE__, parray_count( st ) );
 
-		while( attp = parray_pop( st ) )
-			printf( "%d\n", attp->emit );
+		while( attp = (ATT*)parray_pop( st ) )
+			fprintf( stderr, "%d\n", attp->emit );
 
 		parray_free( st );
 		return FALSE;
@@ -685,12 +690,12 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 
 	/* pp_ast_simplify( a ); */
 
-	pp_gram_free( bnfgram );
-
 	if( !ast_to_gram( g, a ) )
 		return FALSE;
 
+	pp_gram_free( bnfgram );
 	parray_free( a );
+
 	return TRUE;
 }
 
