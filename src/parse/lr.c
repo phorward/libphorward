@@ -1162,7 +1162,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
-			if( ast && lhs->emit )
+			if( ast && reduce->emit )
 			{
 				if( begin >= 0L && begin != parray_count( ast ) )
 				{
@@ -1188,7 +1188,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 				mend->prod = mbegin->prod = reduce;
 				mend->sym = mbegin->sym = lhs;
-				mend->emit = mbegin->emit = lhs->emit;
+				mend->emit = mbegin->emit = reduce->emit;
 
 				mend->start = mbegin->start = start;
 				mend->end = mbegin->end = lend;

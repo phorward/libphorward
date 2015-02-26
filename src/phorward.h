@@ -485,6 +485,7 @@ struct _ppprod
 	plist*					rhs;
 
 	int						flags;
+	int						emit;
 
 	
 	char*					strval;
@@ -868,7 +869,7 @@ ppgram* pp_gram_free( ppgram* g );
 pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
 
 
-plist* pp_parser_lr_closure( ppgram* gram, pboolean optimize );
+plist* pp_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
 
 

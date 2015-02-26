@@ -35,6 +35,7 @@ struct _ppprod
 	plist*					rhs;
 
 	int						flags;
+	int						emit;
 
 	/* Debug */
 	char*					strval;

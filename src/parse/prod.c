@@ -19,7 +19,7 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 	ppsym*	sym;
 	va_list	varg;
 
-	if( !( g && lhs ) )
+	if( !( g && lhs && lhs->type == PPSYMTYPE_NONTERM ) )
 	{
 		WRONGPARAM;
 		return (ppprod*)NULL;

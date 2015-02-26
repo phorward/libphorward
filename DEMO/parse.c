@@ -17,12 +17,16 @@ void help( char** argv )
 {
 	printf( "usage: %s OPTIONS grammar\n\n"
 
-	"   -e  --exec   INPUT      Execute string INPUT on grammar.\n"
+	"   -e  --exec    INPUT     Execute string INPUT on grammar.\n"
+	"   -g  --grammar BNF       Define grammar from BNF.\n"
 	"   -h  --help              Show this help, and exit.\n"
-	"   -m  --mode   MODE       Use construction mode MODE:\n"
+	"   -m  --mode    MODE      Use construction mode MODE:\n"
 	"                           lr=bottom-up (default), ll=top-down\n"
-	"   -r  --render RENDERER   Use AST renderer RENDERER:\n"
-	"                           tree (default), tree2svg\n\n", *argv );
+	"   -r  --render  RENDERER  Use AST renderer RENDERER:\n"
+	"                           tree (default), tree2svg\n"
+	"   -s  --source  FILENAME  Execute input from FILENAME on grammar.\n"
+	"\n", *argv );
+
 }
 
 int main( int argc, char** argv )
@@ -41,12 +45,15 @@ int main( int argc, char** argv )
 	char*		param;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"e:m:r:",
-						"exec: mode: renderer:", i ) ) == 0; i++ )
+						"e:g:m:r:s:",
+						"exec: grammar: mode: renderer: source:", i ) )
+							== 0; i++ )
 	{
 		if( !strcmp( opt, "exec" ) || *opt == 'e' )
 			s = param;
-		if( !strcmp( opt, "help" ) || *opt == 'h' )
+		else if( !strcmp( opt, "grammar" ) || *opt == 'g' )
+			gstr = param;
+		else if( !strcmp( opt, "help" ) || *opt == 'h' )
 		{
 			help( argv );
 			return 0;
@@ -57,12 +64,28 @@ int main( int argc, char** argv )
 				lr = FALSE;
 		}
 		else if( !strcmp( opt, "renderer" ) || *opt == 'r' )
+		{
 			if( pstrcasecmp( param, "tree2svg" ) == 0 )
 				as = TRUE;
+		}
+		else if( !strcmp( opt, "source" ) || *opt == 's' )
+		{
+			if( !pfiletostr( &s, param ) )
+			{
+				fprintf( stderr, "Unable to read source file '%s'\n", param );
+				return 1;
+			}
+		}
 	}
 
-	if( rc == 1 )
-		gstr = param;
+	if( rc == 1 && param )
+	{
+		if( !pfiletostr( &gstr, param ) )
+		{
+			fprintf( stderr, "Unable to read grammar file '%s'\n", param );
+			return 1;
+		}
+	}
 
 	if( !gstr )
 	{

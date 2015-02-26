@@ -64,15 +64,15 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 		int			emit;
 		char*		buf;
 		ppsym*		sym;
-		parray*		seq;
 		int			i;
 	} ATT;
 
 	ATT			att;
 	ATT*		attp;
 	parray*		st;
+	parray*		dec;
 	ppmatch*	e;
-	ppsym*		scope		= (ppsym*)NULL;
+	ppsym*		sym;
 	ppsym*		nonterm;
 	ppprod*		p;
 	int			i;
@@ -84,13 +84,18 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 	char		name		[ NAMELEN * 2 + 1 ];
 
 	st = parray_create( sizeof( ATT ), 0 );
+	dec = parray_create( sizeof( ppsym* ), 0 );
 
 	for( e = (ppmatch*)parray_first( ast );
 			e <= (ppmatch*)parray_last( ast ); e++ )
 	{
+		doemit = emitall;
+		emit = 0;
+		ignore = FALSE;
+
 		memset( &att, 0, sizeof( ATT ) );
 
-		if( e->type & PPMATCH_BEGIN && !( e->type & PPMATCH_END ) )
+		if( e->type & PPMATCH_BEGIN )
 		{
 			if( e->emit == T_NONTERMDEF )
 			{
@@ -98,19 +103,28 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 
 				att.buf = pstrndup( e->start, e->end - e->start );
 
-				if( !( scope = pp_sym_get_by_name( g, att.buf ) ) )
-					scope = pp_sym_create( g, PPSYMTYPE_NONTERM,
-											att.buf, (char*)NULL );
+				if( !( nonterm = pp_sym_get_by_name( g, att.buf ) ) )
+					nonterm = pp_sym_create( g, PPSYMTYPE_NONTERM,
+												att.buf, (char*)NULL );
 
-				nonterm = scope;
+				parray_push( dec, &nonterm );
 				pfree( att.buf );
+			}
+			else if( e->emit == T_INLINE )
+			{
+				sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+							derive_name( g, nonterm->name ), (char*)NULL );
+				sym->flags |= PPFLAG_DEFINED;
+
+				parray_push( dec, &sym );
 			}
 			else if( e->emit == T_PRODUCTION )
 				/* Push an empty sequence delimiter */
 				parray_push( st, &att );
-
-			continue;
 		}
+
+		if( !( e->type & PPMATCH_END ) )
+			continue;
 
 		switch( ( att.emit = e->emit ) )
 		{
@@ -130,22 +144,8 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 
 			case T_INLINE:
 				/* Inline nonterminal */
-				att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-							derive_name( g, scope->name ), (char*)NULL );
-				att.sym->flags |= PPFLAG_DEFINED;
-
-				while( ( attp = (ATT*)parray_last( st ) )
-							&& attp->emit == T_PRODUCTION )
-				{
-					parray_pop( st );
-					p = pp_prod_create( g, att.sym, (ppsym*)NULL );
-
-					while( parray_count( attp->seq ) )
-						pp_prod_append( p,
-							*( (ppsym**)parray_pop( attp->seq ) ) );
-
-					parray_free( attp->seq );
-				}
+				att.sym = *( (ppsym**)parray_pop( dec ) );
+				att.emit = T_SYMBOL;
 				break;
 
 			case T_SYMBOL:
@@ -230,18 +230,49 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 				break;
 
 			case T_PRODUCTION:
-				att.seq = parray_create( sizeof( ppsym* ), 16 );
+				p = pp_prod_create( g, *( (ppsym**)parray_last( dec ) ),
+											(ppsym*)NULL );
 
 				while( ( attp = (ATT*)parray_last( st ) )
-							&& attp->emit == T_SYMBOL )
+							&& ( attp->emit == T_FLAG
+									|| attp->emit == T_EMIT ) )
 				{
 					parray_pop( st );
-					parray_push( att.seq, &attp->sym );
+
+					if( attp->emit == T_EMIT )
+					{
+						doemit = TRUE;
+						emit = attp->i;
+						continue;
+					}
+					else if( strcmp( attp->buf, "noemit" ) == 0 )
+						doemit = FALSE;
+
+					pfree( attp->buf );
 				}
 
-				if( !attp->emit )
-					parray_pop( st ); /* Pop seqence delimiter */
+				for( i = 0; ( attp = (ATT*)parray_pop( st ) )
+								&& attp->emit == T_SYMBOL; i++ )
+					;
 
+				while( i-- )
+					pp_prod_append( p, ( ++attp )->sym );
+
+				/* Set emit ID if configured */
+				if( doemit )
+				{
+					if( emit )
+					{
+						p->emit = emit;
+
+						if( emit > emit_max )
+							emit_max = emit;
+					}
+					else
+						p->emit = ++emit_max;
+				}
+
+				att.emit = 0;
 				break;
 
 			case T_FLAG:
@@ -269,12 +300,74 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 				}
 				break;
 
-			case T_NONTERMDEF:
 			case T_TERMDEF:
-				doemit = emitall;
-				emit = 0;
-				ignore = FALSE;
+				while( ( attp = (ATT*)parray_last( st ) )
+							&& ( attp->emit == T_FLAG
+									|| attp->emit == T_EMIT ) )
+				{
+					parray_pop( st );
 
+					if( attp->emit == T_EMIT )
+					{
+						doemit = TRUE;
+						emit = attp->i;
+						continue;
+					}
+					else if( strcmp( attp->buf, "noemit" ) == 0 )
+						doemit = FALSE;
+					else if( strcmp( attp->buf, "ignore" ) == 0 )
+						ignore = TRUE;
+
+					pfree( attp->buf );
+				}
+
+				attp = parray_pop( st ); 	/* Definition */
+
+				if( parray_last( st )
+						&& ( (ATT*)parray_last( st ) )->emit == T_IDENT )
+				{
+					attp = parray_pop( st );	/* Identifier */
+
+					sym = pp_sym_create( g, ( attp + 1 )->emit,
+										attp->buf, ( attp + 1 )->buf );
+
+					pfree( ( attp + 1 )->buf );
+				}
+				else
+					sym = pp_sym_create( g, attp->emit,
+											(char*)NULL, attp->buf );
+
+				pfree( attp->buf );
+
+				sym->flags |= PPFLAG_DEFINED;
+
+				/* Whitespace now only for terminals */
+				if( ignore )
+				{
+					sym->flags |= PPFLAG_WHITESPACE;
+					plist_push( g->ws, sym );
+				}
+
+				sym->flags |= PPFLAG_DEFINED;
+
+				/* Set emit ID if configured */
+				if( doemit )
+				{
+					if( emit )
+					{
+						sym->emit = emit;
+
+						if( emit > emit_max )
+							emit_max = emit;
+					}
+					else
+						sym->emit = ++emit_max;
+				}
+
+				att.emit = 0;
+				break;
+
+			case T_NONTERMDEF:
 				while( ( attp = (ATT*)parray_last( st ) )
 							&& ( attp->emit == T_FLAG
 									|| attp->emit == T_EMIT ) )
@@ -289,10 +382,10 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 					}
 					else if( strcmp( attp->buf, "goal" ) == 0 )
 					{
-						if( scope && !g->goal ) /* fixme */
+						if( nonterm && !g->goal ) /* fixme */
 						{
-							g->goal = scope;
-							scope->flags |= PPFLAG_CALLED;
+							g->goal = nonterm;
+							nonterm->flags |= PPFLAG_CALLED;
 						}
 					}
 					else if( strcmp( attp->buf, "noemit" ) == 0 )
@@ -300,69 +393,27 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 					else if( strcmp( attp->buf, "ignore" ) == 0 )
 						ignore = TRUE;
 					else if( strcmp( attp->buf, "lexem" ) == 0 )
-						scope->flags |= PPFLAG_LEXEM;
+						nonterm->flags |= PPFLAG_LEXEM;
 
 					pfree( attp->buf );
 				}
 
-				if( e->emit == T_TERMDEF )
-				{
-					attp = parray_pop( st ); 	/* Definition */
-
-					if( parray_last( st )
-						&& ( (ATT*)parray_last( st ) )->emit == T_IDENT )
-					{
-						attp = parray_pop( st );	/* Identifier */
-
-						scope = pp_sym_create( g, ( attp + 1 )->emit,
-											attp->buf, ( attp + 1 )->buf );
-
-						pfree( ( attp + 1 )->buf );
-					}
-					else
-						scope = pp_sym_create( g, attp->emit,
-													(char*)NULL, attp->buf );
-
-					pfree( attp->buf );
-
-					scope->flags |= PPFLAG_DEFINED;
-
-					/* Whitespace now only for terminals */
-					if( ignore )
-					{
-						scope->flags |= PPFLAG_WHITESPACE;
-						plist_push( g->ws, scope );
-					}
-				}
-
-				while( e->emit == T_NONTERMDEF
-						&& ( attp = (ATT*)parray_last( st ) )
-							&& attp->emit == T_PRODUCTION )
-				{
-					parray_pop( st );
-					p = pp_prod_create( g, scope, (ppsym*)NULL );
-
-					while( parray_count( attp->seq ) )
-						pp_prod_append( p,
-							*( (ppsym**)parray_pop( attp->seq ) ) );
-
-					parray_free( attp->seq );
-				}
-
-				scope->flags |= PPFLAG_DEFINED;
+				nonterm->flags |= PPFLAG_DEFINED;
+				parray_pop( st ); /* Identifier */
+				parray_pop( dec );
 
 				/* Set emit ID if configured */
 				if( doemit )
 				{
 					if( emit )
 					{
-						scope->emit = emit;
+						nonterm->emit = emit;
 
 						if( emit > emit_max )
 							emit_max = emit;
 					}
 					else
-						scope->emit = ++emit_max;
+						nonterm->emit = ++emit_max;
 				}
 
 				att.emit = 0;
@@ -458,6 +509,9 @@ pboolean pp_gram_prepare( ppgram* g )
 	{
 		p = (ppprod*)plist_access( e );
 		p->id = id;
+
+		if( !p->emit )
+			p->emit = p->lhs->emit;
 	}
 
 	/* Compute FIRST sets and mark left-recursions */
