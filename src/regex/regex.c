@@ -165,12 +165,17 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 		else
 		{
 			VARS( "pstr", "%s", ptr );
+			if( ( regex->flags & PREGEX_RUN_UCHAR ) )
+				ch = (unsigned char)*ptr++;
+			else
+			{			
 #ifdef UTF8
-			ch = u8_char( ptr );
-			ptr += u8_seqlen( ptr );
+				ch = u8_char( ptr );
+				ptr += u8_seqlen( ptr );
 #else
-			ch = *ptr++;
+				ch = *ptr++;
 #endif
+			}
 
 			if( regex->flags & PREGEX_RUN_DEBUG )
 				fprintf( stderr, "reading char %d (>%c<)\n", ch, ch );
@@ -260,12 +265,17 @@ char* pregex_find( pregex* regex, char* start, char** end )
 		}
 		else
 		{
+			if( ( regex->flags & PREGEX_RUN_UCHAR ) )
+				ch = (unsigned char)*ptr++;
+			else
+			{			
 #ifdef UTF8
-			ch = u8_char( ptr );
-			ptr += u8_seqlen( ptr );
+				ch = u8_char( ptr );
+				ptr += u8_seqlen( ptr );
 #else
-			ch = *ptr++;
+				ch = *ptr++;
 #endif
+			}
 		}
 
 		if( !ch )
@@ -380,12 +390,17 @@ char* pregex_split( pregex* regex, char* start, char** end, char** next )
 		}
 		else
 		{
+			if( ( regex->flags & PREGEX_RUN_UCHAR ) )
+				ch = (unsigned char)*ptr++;
+			else
+			{			
 #ifdef UTF8
-			ch = u8_char( ptr );
-			ptr += u8_seqlen( ptr );
+				ch = u8_char( ptr );
+				ptr += u8_seqlen( ptr );
 #else
-			ch = *ptr++;
+				ch = *ptr++;
 #endif
+			}
 		}
 
 		if( !ch )

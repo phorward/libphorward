@@ -36,11 +36,12 @@ Usage:	Header for the pregex object and functions.
 /* ---> Part II: Runtime flags */
 #define PREGEX_RUN_WCHAR		0x100	/*	Run regular expression with
 											wchar_t as input */
-#define PREGEX_RUN_NOANCHORS	0x200	/* 	Ignore anchors while processing */
-#define PREGEX_RUN_NOREF		0x400	/*	Don't create references */
-#define PREGEX_RUN_GREEDY		0x800		/*	Run regular expression greedy */
-#define PREGEX_RUN_NONGREEDY	0x1000	/*	Run regular expression nongreedy */
-#define PREGEX_RUN_DEBUG		0x2000 	/*	Debug mode; output some debug to
+#define	PREGEX_RUN_UCHAR		0x200	/*  Handle input as unsigned char */
+#define PREGEX_RUN_NOANCHORS	0x400	/* 	Ignore anchors while processing */
+#define PREGEX_RUN_NOREF		0x800	/*	Don't create references */
+#define PREGEX_RUN_GREEDY		0x1000		/*	Run regular expression greedy */
+#define PREGEX_RUN_NONGREEDY	0x2000	/*	Run regular expression nongreedy */
+#define PREGEX_RUN_DEBUG		0x4000 	/*	Debug mode; output some debug to
 											stderr */
 
 /* Matching flags */
