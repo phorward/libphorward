@@ -21,13 +21,12 @@ Usage:	Header for the pregex object and functions.
 #define PREGEX_COMP_NOANCHORS	0x02	/* 	Ignore anchor tokens, handle them
 											as normal characters */
 #define PREGEX_COMP_NOREF		0x04	/* 	Don't compile references. */
-#define PREGEX_COMP_GREEDY		0x08	/* 	Compile regex to be greedy */
-#define PREGEX_COMP_NONGREEDY	0x10	/* 	Compile regex to be nongreedy */
-#define PREGEX_COMP_NOERRORS	0x20	/*	Don't report errors, and try to
+#define PREGEX_COMP_NONGREEDY	0x08	/* 	Compile pattern to be nongreedy */
+#define PREGEX_COMP_NOERRORS	0x10	/*	Don't report errors, and try to
 											compile as much as possible */
-#define PREGEX_COMP_INSENSITIVE	0x40	/* 	Regular expression is case
+#define PREGEX_COMP_INSENSITIVE	0x20	/* 	Regular expression is case
 											insensitive */
-#define PREGEX_COMP_STATIC		0x80	/*	The regular expression passed
+#define PREGEX_COMP_STATIC		0x40	/*	The regular expression passed
 											to the compiler should be converted
 											1:1 as it where a string-constant.
 											Any regex-specific symbols will
@@ -39,9 +38,8 @@ Usage:	Header for the pregex object and functions.
 #define	PREGEX_RUN_UCHAR		0x200	/*  Handle input as unsigned char */
 #define PREGEX_RUN_NOANCHORS	0x400	/* 	Ignore anchors while processing */
 #define PREGEX_RUN_NOREF		0x800	/*	Don't create references */
-#define PREGEX_RUN_GREEDY		0x1000		/*	Run regular expression greedy */
-#define PREGEX_RUN_NONGREEDY	0x2000	/*	Run regular expression nongreedy */
-#define PREGEX_RUN_DEBUG		0x4000 	/*	Debug mode; output some debug to
+#define PREGEX_RUN_NONGREEDY	0x1000	/*	Run regular expression nongreedy */
+#define PREGEX_RUN_DEBUG		0x2000 	/*	Debug mode; output some debug to
 											stderr */
 
 /* Matching flags */
@@ -50,8 +48,7 @@ Usage:	Header for the pregex object and functions.
 #define PREGEX_FLAG_EOL			0x02	/* Match at end of line only */
 #define PREGEX_FLAG_BOW			0x04	/* Match at begin of word only */
 #define PREGEX_FLAG_EOW			0x08	/* Match at end of word only */
-#define PREGEX_FLAG_GREEDY		0x10	/* Greedy match, overwrite mode. */
-#define PREGEX_FLAG_NONGREEDY	0x20	/* Nongreedy match, overwrite mode. */
+#define PREGEX_FLAG_NONGREEDY	0x10	/* Nongreedy match, overwrite mode. */
 
 /* Regular Expression pattern types */
 enum _regex_ptntype

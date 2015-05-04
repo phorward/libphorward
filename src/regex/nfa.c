@@ -496,18 +496,14 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 			VARS( "last_accept", "%d", last_accept );
 			VARS( "*len", "%d", *len );
 
-			if( !( flags & PREGEX_RUN_GREEDY ) )
+			if(	( accept.flags & PREGEX_FLAG_NONGREEDY )
+					|| ( flags & PREGEX_RUN_NONGREEDY ) )
 			{
-				if(	( accept.flags & PREGEX_FLAG_NONGREEDY )
-						|| ( flags & PREGEX_RUN_NONGREEDY ) )
-				{
-					if( flags & PREGEX_RUN_DEBUG )
-						fprintf( stderr, "greedy set, match terminates\n" );
+				if( flags & PREGEX_RUN_DEBUG )
+					fprintf( stderr, "greedy set, match terminates\n" );
 
-					MSG( "Greedy is set, will stop recognition with "
-							"this match" );
-					break;
-				}
+				MSG( "Greedy is set, will stop recognition with this match" );
+				break;
 			}
 		}
 

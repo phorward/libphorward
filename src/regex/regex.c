@@ -21,7 +21,6 @@ Usage:	Interface for pregex-objects serving regular expressions.
 | PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
 characters |
 | PREGEX_COMP_NOREF | Don't compile references. |
-| PREGEX_COMP_GREEDY | Compile regex to be forced greedy. |
 | PREGEX_COMP_NONGREEDY | Compile regex to be forced nongreedy. |
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as \
 possible |
@@ -32,7 +31,6 @@ taken as they where escaped. |
 | PREGEX_RUN_WCHAR | Run regular expression with wchar_t as input. |
 | PREGEX_RUN_NOANCHORS | Ignore anchors while processing the regex. |
 | PREGEX_RUN_NOREF | Don't create references. |
-| PREGEX_RUN_GREEDY	| Force run regular expression greedy. |
 | PREGEX_RUN_NONGREEDY | Force run regular expression nongreedy. |
 | PREGEX_RUN_DEBUG | Debug mode; output some debug to stderr. |
 
@@ -59,10 +57,11 @@ pregex* pregex_create( char* pat, int flags )
 	regex->flags = flags;
 
 	/* Generate a dfatab */
-
-	/* pregex_ptn_to_dfatab( (wchar_t***)NULL, ptn ); */
 	if( ( regex->trans_cnt = pregex_ptn_to_dfatab( &regex->trans, ptn ) ) < 0 )
 		RETURN( pregex_free( regex ) );
+
+	/* Print dfatab */
+	/* pregex_ptn_to_dfatab( (wchar_t***)NULL, ptn ); */
 
 	RETURN( regex );
 }
@@ -130,11 +129,16 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 			MSG( "This state accepts the input" );
 			match = ptr;
 
-			if( ( !( regex->flags & PREGEX_RUN_GREEDY )
-					&& regex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY )
-				|| ( ( regex->flags & PREGEX_RUN_NONGREEDY )
-					&& !( regex->trans[ state ][ 2 ] & PREGEX_FLAG_GREEDY ) ) )
+			if( ( regex->flags & PREGEX_RUN_NONGREEDY
+					|| regex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY ) )
+			{
+				if( regex->flags & PREGEX_RUN_DEBUG )
+					fprintf( stderr,
+						"state %d accepted %d, end of recognition\n",
+							state, regex->trans[ state ][ 1 ] );
+
 				break;
+			}
 		}
 
 		/* References */
@@ -158,17 +162,15 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 			VARS( "pstr", "%ls", (wchar_t*)ptr );
 			ch = *( (wchar_t*)ptr );
 			ptr += sizeof( wchar_t );
-
-			if( regex->flags & PREGEX_RUN_DEBUG )
-				fprintf( stderr, "reading wchar_t %d (>%lc<)\n", ch, ch );
 		}
 		else
 		{
 			VARS( "pstr", "%s", ptr );
+
 			if( ( regex->flags & PREGEX_RUN_UCHAR ) )
 				ch = (unsigned char)*ptr++;
 			else
-			{			
+			{
 #ifdef UTF8
 				ch = u8_char( ptr );
 				ptr += u8_seqlen( ptr );
@@ -176,9 +178,6 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 				ch = *ptr++;
 #endif
 			}
-
-			if( regex->flags & PREGEX_RUN_DEBUG )
-				fprintf( stderr, "reading char %d (>%c<)\n", ch, ch );
 		}
 
 		if( !ch )
@@ -200,6 +199,18 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 
 		if( next_state == regex->trans_cnt )
 			break;
+
+		if( regex->flags & PREGEX_RUN_DEBUG )
+		{
+			if( regex->flags & PREGEX_RUN_WCHAR )
+				fprintf( stderr,
+					"state %d, wchar_t %d (>%lc<), next state %d\n",
+						state, ch, ch, next_state );
+			else
+				fprintf( stderr,
+					"state %d, char %d (>%c<), next state %d\n",
+						state, ch, ch, next_state );
+		}
 
 		state = next_state;
 	}
@@ -268,7 +279,7 @@ char* pregex_find( pregex* regex, char* start, char** end )
 			if( ( regex->flags & PREGEX_RUN_UCHAR ) )
 				ch = (unsigned char)*ptr++;
 			else
-			{			
+			{
 #ifdef UTF8
 				ch = u8_char( ptr );
 				ptr += u8_seqlen( ptr );
@@ -393,7 +404,7 @@ char* pregex_split( pregex* regex, char* start, char** end, char** next )
 			if( ( regex->flags & PREGEX_RUN_UCHAR ) )
 				ch = (unsigned char)*ptr++;
 			else
-			{			
+			{
 #ifdef UTF8
 				ch = u8_char( ptr );
 				ptr += u8_seqlen( ptr );

@@ -894,7 +894,6 @@ pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
 	}
 
 	pregex_dfa_reset( dfa );
-
 	nfa = pregex_nfa_create();
 
 	if( !pregex_ptn_to_nfa( nfa, ptn ) )
@@ -911,13 +910,11 @@ pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
 
 	pregex_nfa_free( nfa );
 
-	/*
 	if( pregex_dfa_minimize( dfa ) < 0 )
 	{
 		pregex_dfa_free( dfa );
 		RETURN( FALSE );
 	}
-	*/
 
 	RETURN( TRUE );
 }
@@ -1061,14 +1058,12 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 			accept.flags |= PREGEX_FLAG_EOW;
 	}
 
+	/* Force nongreedy matching */
+	if( flags & PREGEX_COMP_NONGREEDY )
+		accept.flags |= PREGEX_FLAG_NONGREEDY;
+
 	/* Free duplicated string */
 	pfree( str );
-
-	/* Forcing (non-)greedyness */
-	if( flags & PREGEX_COMP_GREEDY )
-		accept.flags |= PREGEX_FLAG_GREEDY;
-	else if( flags & PREGEX_COMP_NONGREEDY )
-		accept.flags |= PREGEX_COMP_NONGREEDY;
 
 	/* Copy accept structure */
 	(*ptn)->accept = pmemdup( &accept, sizeof( pregex_accept ) );
@@ -1116,13 +1111,6 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			break;
 
 		case '.':
-			/*
-				If ANY_CHAR is used, then greedyness should be set to
-				non-greedy by default
-			*/
-			if( accept )
-				accept->flags |= PREGEX_FLAG_NONGREEDY;
-
 			ccl = p_ccl_create( -1, -1, (char*)NULL );
 
 			if( !( ccl && p_ccl_addrange( ccl,

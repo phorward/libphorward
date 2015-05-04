@@ -1,6 +1,7 @@
 #include "phorward.h"
 
-char*	str	= 	"hello 1234 /aa\\/this/ is 634 /abc/ my7world1337a";
+char*	str	= 	"hello 1234 /ab\\/this/ is 634 /abc/ my7world1337a";
+char*	str1 =	"Hello 'world\\'s ending' whats here 'da da'";
 
 void printanddrop( parray* a )
 {
@@ -30,6 +31,19 @@ void test_regex()
 	r = pregex_replace( re, str, "int" );
 	printf( "r = >%s<\n", r );
 	free( r );
+}
+
+void test_regex2()
+{
+	pregex*	re;
+	parray*	a;
+	char*	r;
+
+	re = pregex_create( "'(\\\\.|[^'])*'", 0 );
+
+	printf( "str = >%s<\n", str1 );
+	printf( "matches = %d\n", pregex_findall( re, str1, &a ) );
+	printanddrop( a );
 }
 
 void test_lex()
@@ -73,8 +87,11 @@ int main( int argc, char** argv )
 	return 1;
 	*/
 
+	test_regex2();
+	/*
 	test_regex();
 	test_lex();
+	*/
 
 	return 0;
 }
