@@ -13,7 +13,7 @@ Usage:	Direct regular expression access functions running an internal pregex
 #include "phorward.h"
 
 /** Performs a regular expression match on a string, and returns an array of
-matches via pregex_range-structures, which holds pointers to the begin- and
+matches via prange-structures, which holds pointers to the begin- and
 end-addresses of all matches.
 
 //regex// is the regular expression pattern to be processed.
@@ -21,7 +21,7 @@ end-addresses of all matches.
 //flags// are the flags for regular expression compile- and runtime-mode
 switching. Several of them can be used with the bitwise op-operator.
 //matches// is the array of results to the matched substrings within //str//,
-provided as parray-object existing of one pregex_range-object for every match.
+provided as parray-object existing of one prange-object for every match.
 It is optional. //matches// must be released with parray_free() after its usage.
 
 Returns the number of matches, which is the amount of result entries in the
@@ -61,7 +61,7 @@ separator; All strings that where split are returned as //matches//-array.
 //str// is the string on which the pattern will be executed on.
 //flags// are the flags for regular expression mode switching.
 //matches// is the array of results to the matched substrings within //str//,
-provided as parray-object existing of one pregex_range-object for every match.
+provided as parray-object existing of one prange-object for every match.
 It is optional. //matches// must be released with parray_free() after its usage.
 
 Returns the number of split substrings, which is the amount of result entries in

@@ -152,7 +152,7 @@ pboolean pregex_dfa_reset( pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
 int pregex_dfa_minimize( pregex_dfa* dfa );
-int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* mflags, pregex_range** ref, int* ref_count, int flags );
+int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* mflags, prange** ref, int* ref_count, int flags );
 int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa );
 
 /* regex/direct.c */
@@ -181,7 +181,7 @@ pboolean pregex_nfa_reset( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa );
 int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to );
 int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, pregex_accept* accept );
-int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, pregex_range** ref, int* ref_count, int flags );
+int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, prange** ref, int* ref_count, int flags );
 pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
 /* regex/pattern.c */

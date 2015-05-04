@@ -119,7 +119,7 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 		RETURN( FALSE );
 	}
 
-	memset( regex->ref, 0, PREGEX_MAXREF * sizeof( pregex_range ) );
+	memset( regex->ref, 0, PREGEX_MAXREF * sizeof( prange ) );
 
 	while( state >= 0 )
 	{
@@ -294,8 +294,9 @@ char* pregex_find( pregex* regex, char* start, char** end )
 
 		/* Find a transition according to current character */
 		for( i = 5; i < regex->trans[ 0 ][ 0 ]; i += 3 )
-			if( regex->trans[ 0 ][ i ] <= ch
-				&& regex->trans[ 0 ][ i + 1 ] >= ch
+			if( ( ( regex->trans[ 0 ][ 4 ] < regex->trans_cnt )
+					|| ( regex->trans[ 0 ][ i ] <= ch
+							&& regex->trans[ 0 ][ i + 1 ] >= ch ) )
 					&& pregex_match( regex, lptr, end ) )
 						RETURN( lptr );
 	}
@@ -311,13 +312,13 @@ char* pregex_find( pregex* regex, char* start, char** end )
 to the configuration of the pregex-object).
 
 The function fills the array //matches//, if provided, with items of size
-pregex_range. It returns the total number of matches.
+prange. It returns the total number of matches.
 */
 int pregex_findall( pregex* regex, char* start, parray** matches )
 {
 	char*			end;
 	int				count	= 0;
-	pregex_range*	r;
+	prange*	r;
 
 	PROC( "pregex_findall" );
 	PARMS( "regex", "%p", regex );
@@ -338,9 +339,9 @@ int pregex_findall( pregex* regex, char* start, parray** matches )
 		if( matches )
 		{
 			if( ! *matches )
-				*matches = parray_create( sizeof( pregex_range ), 0 );
+				*matches = parray_create( sizeof( prange ), 0 );
 
-			r = (pregex_range*)parray_malloc( *matches );
+			r = (prange*)parray_malloc( *matches );
 			r->id = 1;
 			r->begin = start;
 			r->end = end;
@@ -445,14 +446,14 @@ array.
 to the configuration of the pregex-object).
 
 The function fills the array //matches//, if provided, with items of size
-pregex_range. It returns the total number of matches.
+prange. It returns the total number of matches.
 */
 int pregex_splitall( pregex* regex, char* start, parray** matches )
 {
 	char*			end;
 	char*			next;
 	int				count	= 0;
-	pregex_range*	r;
+	prange*	r;
 
 	PROC( "pregex_splitall" );
 	PARMS( "regex", "%p", regex );
@@ -473,9 +474,9 @@ int pregex_splitall( pregex* regex, char* start, parray** matches )
 		if( matches )
 		{
 			if( ! *matches )
-				*matches = parray_create( sizeof( pregex_range ), 0 );
+				*matches = parray_create( sizeof( prange ), 0 );
 
-			r = (pregex_range*)parray_malloc( *matches );
+			r = (prange*)parray_malloc( *matches );
 			r->begin = start;
 			r->end = end;
 		}
@@ -505,7 +506,7 @@ in error case.
 */
 char* pregex_replace( pregex* regex, char* str, char* replacement )
 {
-	pregex_range*	refer;
+	prange*	refer;
 	char*			ret			= (char*)NULL;
 	char*			sstart		= str;
 	char*			start;
@@ -626,7 +627,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 								refer = &( regex->ref[ ref ] );
 							/* TODO: Ref $0 */
 							else
-								refer = (pregex_range*)NULL;
+								refer = (prange*)NULL;
 
 							if( refer )
 							{
@@ -684,7 +685,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 								refer = &( regex->ref[ ref ] );
 							/* TODO: Ref $0 */
 							else
-								refer = (pregex_range*)NULL;
+								refer = (prange*)NULL;
 
 							if( refer )
 							{

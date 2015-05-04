@@ -550,7 +550,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	}
 
 	/* Set default transitions */
-	/* pregex_dfa_default_trans( dfa ); */
+	pregex_dfa_default_trans( dfa );
 
 	RETURN( plist_count( dfa->states ) );
 }
@@ -815,8 +815,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	dfa->states = min_states;
 
 	/* Set default transitions */
-
-	/* pregex_dfa_default_trans( dfa ); */
+	pregex_dfa_default_trans( dfa );
 
 	RETURN( plist_count( dfa->states ) );
 }
@@ -833,7 +832,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 Returns 0, if no match was found, else the id of the bestmost (=longest) match.
 */
 int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
-		int* mflags, pregex_range** ref, int* ref_count, int flags )
+		int* mflags, prange** ref, int* ref_count, int flags )
 {
 	pregex_dfa_st*	dfa_st;
 	pregex_dfa_st*	next_dfa_st;

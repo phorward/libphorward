@@ -76,10 +76,10 @@ typedef struct	_regex_dfa		pregex_dfa;
 typedef enum 	_regex_ptntype	pregex_ptntype;
 typedef struct	_regex_ptn		pregex_ptn;
 
-typedef	struct	_regex_range	pregex_range;
-
+typedef struct	_range			prange;
 typedef struct	_regex			pregex;
 typedef struct	_lex			plex;
+
 
 /*
  * Internal Structures
@@ -157,16 +157,17 @@ struct _regex_ptn
 									pregex_ptn_to_regex() */
 };
 
-struct _regex_range
+/*
+ * Userspace Objects
+ */
+
+/* A pattern matching range */
+struct _range
 {
 	int				id;			/* Match ID */
 	char*			begin;		/* Begin pointer */
 	char*			end;		/* End pointer */
 };
-
-/*
- * Userspace Objects
- */
 
 /* The pregex object structure */
 struct _regex
@@ -177,7 +178,7 @@ struct _regex
 	int				trans_cnt;	/* Counts of DFA states */
 	wchar_t**		trans;		/* DFA transitions */
 
-	pregex_range	ref			[ PREGEX_MAXREF ];
+	prange			ref			[ PREGEX_MAXREF ];
 };
 
 /* The pregex object structure */
@@ -190,6 +191,6 @@ struct _lex
 	int				trans_cnt;	/* Counts of DFA states */
 	wchar_t**		trans;		/* DFA transitions */
 
-	pregex_range	ref			[ PREGEX_MAXREF ];
+	prange			ref			[ PREGEX_MAXREF ];
 };
 

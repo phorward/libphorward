@@ -6,9 +6,9 @@ char*	str1 =	"Hello 'world\\'s ending' whats here 'da da'";
 void printanddrop( parray* a )
 {
 	int				i;
-	pregex_range*	r;
+	prange*	r;
 
-	for( i = 0; ( r = (pregex_range*)parray_get( a, i ) ); i++ )
+	for( i = 0; ( r = (prange*)parray_get( a, i ) ); i++ )
 		printf( "%2d: %2d @ >%.*s<\n", i, r->id, r->end - r->begin, r->begin );
 
 	parray_free( a );

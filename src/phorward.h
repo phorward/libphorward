@@ -310,9 +310,8 @@ typedef struct
 #define	PREGEX_RUN_UCHAR		0x200	
 #define PREGEX_RUN_NOANCHORS	0x400	
 #define PREGEX_RUN_NOREF		0x800	
-#define PREGEX_RUN_GREEDY		0x1000		
-#define PREGEX_RUN_NONGREEDY	0x2000	
-#define PREGEX_RUN_DEBUG		0x4000 	
+#define PREGEX_RUN_NONGREEDY	0x1000	
+#define PREGEX_RUN_DEBUG		0x2000 	
 
 
 #define PREGEX_FLAG_NONE		0x00	
@@ -348,10 +347,10 @@ typedef struct	_regex_dfa		pregex_dfa;
 typedef enum 	_regex_ptntype	pregex_ptntype;
 typedef struct	_regex_ptn		pregex_ptn;
 
-typedef	struct	_regex_range	pregex_range;
-
+typedef struct	_range			prange;
 typedef struct	_regex			pregex;
 typedef struct	_lex			plex;
+
 
 
 
@@ -420,14 +419,15 @@ struct _regex_ptn
 	char*			str;		
 };
 
-struct _regex_range
+
+
+
+struct _range
 {
 	int				id;			
 	char*			begin;		
 	char*			end;		
 };
-
-
 
 
 struct _regex
@@ -438,7 +438,7 @@ struct _regex
 	int				trans_cnt;	
 	wchar_t**		trans;		
 
-	pregex_range	ref			[ PREGEX_MAXREF ];
+	prange			ref			[ PREGEX_MAXREF ];
 };
 
 
@@ -451,7 +451,7 @@ struct _lex
 	int				trans_cnt;	
 	wchar_t**		trans;		
 
-	pregex_range	ref			[ PREGEX_MAXREF ];
+	prange			ref			[ PREGEX_MAXREF ];
 };
 
 
@@ -902,7 +902,7 @@ pboolean pregex_dfa_reset( pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_free( pregex_dfa* dfa );
 int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa );
 int pregex_dfa_minimize( pregex_dfa* dfa );
-int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* mflags, pregex_range** ref, int* ref_count, int flags );
+int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len, int* mflags, prange** ref, int* ref_count, int flags );
 int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa );
 
 
@@ -931,7 +931,7 @@ pboolean pregex_nfa_reset( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa );
 int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to );
 int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, pregex_accept* accept );
-int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, pregex_range** ref, int* ref_count, int flags );
+int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, prange** ref, int* ref_count, int flags );
 pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
 

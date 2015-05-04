@@ -383,7 +383,7 @@ function will allocate memory for a reference array. This array is only
 allocated if the following dependencies are met:
 # The NFA has references
 # //ref_count// is zero
-# //ref// points to a pregex_range*
+# //ref// points to a prange*
 
 //ref_count// receives the number of references. This value MUST be zero, if the
 function should allocate refs. A positive value indicates the number of elements
@@ -395,7 +395,7 @@ Returns 0, if no match was found, else the number of the match that was found
 relating to a pattern in //nfa//.
 */
 int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
-		pregex_range** ref, int* ref_count, int flags )
+		prange** ref, int* ref_count, int flags )
 {
 	plist*			res;
 	plistel*		e;

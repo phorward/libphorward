@@ -239,7 +239,7 @@ int plex_match( plex* lex, char* start, char** end )
 	if( !lex->trans_cnt )
 		plex_prepare( lex );
 
-	memset( lex->ref, 0, PREGEX_MAXREF * sizeof( pregex_range ) );
+	memset( lex->ref, 0, PREGEX_MAXREF * sizeof( prange ) );
 
 	while( state >= 0 )
 	{
@@ -403,8 +403,9 @@ char* plex_find( plex* lex, char* start, int* id, char** end )
 
 		/* Find a transition according to current character */
 		for( i = 5; i < lex->trans[ 0 ][ 0 ]; i += 3 )
-			if( lex->trans[ 0 ][ i ] <= ch
-				&& lex->trans[ 0 ][ i + 1 ] >= ch
+			if( ( ( lex->trans[ 0 ][ 4 ] < lex->trans_cnt )
+					|| ( lex->trans[ 0 ][ i ] <= ch
+							&& lex->trans[ 0 ][ i + 1 ] >= ch ) )
 					&& ( mid = plex_match( lex, lptr, end ) ) )
 					{
 						if( id )
@@ -425,14 +426,14 @@ char* plex_find( plex* lex, char* start, int* id, char** end )
 to the configuration of the plex-object).
 
 The function fills the array //matches//, if provided, with items of size
-pregex_range. It returns the total number of matches.
+prange. It returns the total number of matches.
 */
 int plex_findall( plex* lex, char* start, parray** matches )
 {
 	char*			end;
 	int				count	= 0;
 	int				id;
-	pregex_range*	r;
+	prange*	r;
 
 	PROC( "plex_findall" );
 	PARMS( "lex", "%p", lex );
@@ -453,9 +454,9 @@ int plex_findall( plex* lex, char* start, parray** matches )
 		if( matches )
 		{
 			if( ! *matches )
-				*matches = parray_create( sizeof( pregex_range ), 0 );
+				*matches = parray_create( sizeof( prange ), 0 );
 
-			r = (pregex_range*)parray_malloc( *matches );
+			r = (prange*)parray_malloc( *matches );
 			r->id = id;
 			r->begin = start;
 			r->end = end;
