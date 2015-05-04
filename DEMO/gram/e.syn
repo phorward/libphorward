@@ -2,4 +2,4 @@
 
 f: '(' e ')' | '0-9'+ ;
 t: t '*' f | t '/' f | f ;
-e: e '+' t | e '-' t | t 	%goal;
+e %goal: e '+' t | e '-' t | t ;

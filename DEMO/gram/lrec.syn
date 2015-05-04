@@ -1,7 +1,7 @@
 
 $digit '0-9' ;
 
-s : a | b | c %goal;
+s %goal : a | b | c ;
 
 a : digit+ ;
 b : digit* ;

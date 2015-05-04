@@ -11,5 +11,5 @@ t : mul | div | f ;
 add : e '+' t %emit 30;
 sub : e '-' t %emit 40;
 
-e: add | sub | t %goal;
+e %goal: add | sub | t ;
 

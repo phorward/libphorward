@@ -1,9 +1,9 @@
 %rrec
-ws = ' ' %ignore ;
+$' ' %ignore ;
 
-int : '0-9'+	%emit %lexem;
+int %emit lexeme: '0-9'+;
 
-start : e %goal;
+start %goal: e;
 
 e : add | sub | t ;
 add: t '+' e 	%emit;

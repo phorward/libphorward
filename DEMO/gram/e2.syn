@@ -1,6 +1,6 @@
-$ws ' ' %ignore;
+$' ' %ignore;
+int %emit lexeme: '0-9'+ ;
 
-int : '0-9'+ %emit %lexem;
 f: '(' e ')' | int ;
 
 mul : t '*' f %emit;
@@ -10,4 +10,4 @@ t : mul | div | f ;
 add : e '+' t %emit;
 sub : e '-' t %emit;
 
-e: add | sub | t %goal;
+e %goal: add | sub | t;
