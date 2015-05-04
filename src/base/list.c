@@ -1051,7 +1051,7 @@ pboolean plist_set_sortfn( plist* list,
 	RETURN( TRUE );
 }
 
-/** Set sort function */
+/** Set an element dump function. */
 pboolean plist_set_printfn( plist* list, void (*printfn)( plist* ) )
 {
 	PROC( "plist_set_printfn" );

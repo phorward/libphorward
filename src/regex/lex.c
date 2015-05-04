@@ -20,7 +20,6 @@ with special compile-time flags provided for each pattern.
 | PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
 characters |
 | PREGEX_COMP_NOREF | Don't compile references. |
-| PREGEX_COMP_GREEDY | Compile all patterns to be forced greedy. |
 | PREGEX_COMP_NONGREEDY | Compile all patterns to be forced nongreedy. |
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as \
 possible |
@@ -31,7 +30,6 @@ taken as they where escaped. |
 | PREGEX_RUN_WCHAR | Run regular expressions with wchar_t as input. |
 | PREGEX_RUN_NOANCHORS | Ignore anchors while processing the lexer. |
 | PREGEX_RUN_NOREF | Don't create references. |
-| PREGEX_RUN_GREEDY	| Force run lexer greedy. |
 | PREGEX_RUN_NONGREEDY | Force run lexer nongreedy. |
 | PREGEX_RUN_DEBUG | Debug mode; output some debug to stderr. |
 
@@ -170,6 +168,7 @@ pboolean plex_prepare( plex* lex )
 //match_id// must be a token match ID, a value > 0. The lower the match ID is,
 the higher precedence takes the appended expression when there are multiple
 matches.
+matches.
 
 //flags// may ONLY contain compile-time flags, and is combined with the
 compile-time flags of the plex-object provided at plex_create().
@@ -179,7 +178,6 @@ compile-time flags of the plex-object provided at plex_create().
 | PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
 characters |
 | PREGEX_COMP_NOREF | Don't compile references. |
-| PREGEX_COMP_GREEDY | Compile all patterns to be forced greedy. |
 | PREGEX_COMP_NONGREEDY | Compile all patterns to be forced nongreedy. |
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as \
 possible |
@@ -252,10 +250,8 @@ int plex_match( plex* lex, char* start, char** end )
 			match = ptr;
 			id = lex->trans[ state ][ 1 ];
 
-			if( ( !( lex->flags & PREGEX_RUN_GREEDY )
-					&& lex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY )
-					|| ( ( lex->flags & PREGEX_RUN_NONGREEDY )
-					&& !( lex->trans[ state ][ 2 ] & PREGEX_FLAG_GREEDY ) ) )
+			if( ( lex->flags & PREGEX_RUN_NONGREEDY
+					|| lex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY ) )
 				break;
 		}
 
@@ -280,22 +276,22 @@ int plex_match( plex* lex, char* start, char** end )
 			VARS( "pstr", "%ls", (wchar_t*)ptr );
 			ch = *( (wchar_t*)ptr );
 			ptr += sizeof( wchar_t );
-
-			if( lex->flags & PREGEX_RUN_DEBUG )
-				fprintf( stderr, "reading wchar_t %d (>%lc<)\n", ch, ch );
 		}
 		else
 		{
 			VARS( "pstr", "%s", ptr );
-#ifdef UTF8
-			ch = u8_char( ptr );
-			ptr += u8_seqlen( ptr );
-#else
-			ch = *ptr++;
-#endif
 
-			if( lex->flags & PREGEX_RUN_DEBUG )
-				fprintf( stderr, "reading char %d (>%c<)\n", ch, ch );
+			if( ( lex->flags & PREGEX_RUN_UCHAR ) )
+				ch = (unsigned char)*ptr++;
+			else
+			{
+#ifdef UTF8
+				ch = u8_char( ptr );
+				ptr += u8_seqlen( ptr );
+#else
+				ch = *ptr++;
+#endif
+			}
 		}
 
 		/* Initialize default transition */
@@ -314,6 +310,18 @@ int plex_match( plex* lex, char* start, char** end )
 
 		if( next_state == lex->trans_cnt )
 			break;
+
+		if( lex->flags & PREGEX_RUN_DEBUG )
+		{
+			if( lex->flags & PREGEX_RUN_WCHAR )
+				fprintf( stderr,
+					"state %d, wchar_t %d (>%lc<), next state %d\n",
+						state, ch, ch, next_state );
+			else
+				fprintf( stderr,
+					"state %d, char %d (>%c<), next state %d\n",
+						state, ch, ch, next_state );
+		}
 
 		state = next_state;
 	}

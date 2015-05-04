@@ -12,7 +12,7 @@ Usage:	Internal DFA creation and transformation functions.
 #include "phorward.h"
 
 /*NO_DOC*/
-/* No documentation for the entire module, all here is only interally used. */
+/* No documentation for the entire module, all here is only used internally. */
 
 /* For Debug */
 static void pregex_dfa_print_state(
@@ -80,7 +80,7 @@ static int pregex_dfa_sort_trans( plist* list, plistel* el, plistel* er )
 	pregex_dfa_tr*	l = (pregex_dfa_tr*)plist_access( el );
 	pregex_dfa_tr*	r = (pregex_dfa_tr*)plist_access( er );
 
-	return p_ccl_compare( l->ccl, r->ccl ) > 0 ? 1 : 0;
+	return p_ccl_compare( l->ccl, r->ccl ) < 0 ? 1 : 0;
 }
 
 /* Creating a new DFA state */
@@ -244,7 +244,7 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 			all += cnt;
 		}
 
-		if( all != PCCL_MAX )
+		if( all < PCCL_MAX )
 			st->def_trans = (pregex_dfa_tr*)NULL;
 	}
 
@@ -339,6 +339,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 	/* Initialize */
 	classes = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+	plist_set_sortfn( classes, pregex_dfa_sort_trans );
+
 	transitions = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
 	if( !( current = pregex_dfa_create_state( dfa ) ) )
@@ -548,7 +550,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 	}
 
 	/* Set default transitions */
-	pregex_dfa_default_trans( dfa );
+	/* pregex_dfa_default_trans( dfa ); */
 
 	RETURN( plist_count( dfa->states ) );
 }
@@ -813,7 +815,8 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 	dfa->states = min_states;
 
 	/* Set default transitions */
-	pregex_dfa_default_trans( dfa );
+
+	/* pregex_dfa_default_trans( dfa ); */
 
 	RETURN( plist_count( dfa->states ) );
 }
@@ -885,15 +888,11 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 			last_accept = dfa_st;
 			*len = plen;
 
-			if( !( flags & PREGEX_RUN_GREEDY ) )
+			if(	( last_accept->accept.flags & PREGEX_FLAG_NONGREEDY )
+					|| ( flags & PREGEX_RUN_NONGREEDY ) )
 			{
-				if(	( last_accept->accept.flags & PREGEX_FLAG_NONGREEDY )
-						|| ( flags & PREGEX_RUN_NONGREEDY ) )
-				{
-					MSG( "This match is not greedy, "
-							"so matching will stop now" );
-					break;
-				}
+				MSG( "This match is not greedy, so matching will stop now" );
+				break;
 			}
 		}
 
@@ -1050,6 +1049,8 @@ int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa )
 	plistel*		f;
 	wchar_t			from;
 	wchar_t			to;
+	char			pr_from	[ 10 + 1 ];
+	char			pr_to	[ 10 + 1 ];
 
 	PROC( "pregex_dfa_to_dfatab" );
 	PARMS( "dfatab", "%p", dfatab );
@@ -1086,6 +1087,9 @@ int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa )
 		for( cnt = 5, f = plist_first( st->trans ); f; f = plist_next( f ) )
 		{
 			tr = (pregex_dfa_tr*)plist_access( f );
+			if( st->def_trans == tr )
+				continue;
+
 			cnt += p_ccl_size( tr->ccl ) * 3;
 		}
 
@@ -1098,13 +1102,14 @@ int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa )
 		trans[ i ][ 2 ] = st->accept.flags;
 		trans[ i ][ 3 ] = st->refs;
 		trans[ i ][ 4 ] = st->def_trans ? st->def_trans->go_to :
-										plist_count( dfa->states );
-
+												plist_count( dfa->states );
 
 		MSG( "Fill columns" );
 		for( j = 5, f = plist_first( st->trans ); f; f = plist_next( f ) )
 		{
 			tr = (pregex_dfa_tr*)plist_access( f );
+			if( st->def_trans == tr )
+				continue;
 
 			for( k = 0; p_ccl_get( &from, &to, tr->ccl, k ); k++ )
 			{
@@ -1126,9 +1131,21 @@ int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa )
 
 			for( j = 5; j < trans[i][0]; j += 3 )
 			{
-				fprintf( stderr, " tra=%03d(%lc);%03d(%lc):%02d",
-					trans[i][j], trans[i][j],
-						trans[i][j+1], trans[i][j+1], trans[i][j+2] );
+				if( isprint( trans[i][j] ) )
+					sprintf( pr_from, "(%lc)", trans[i][j] );
+				else
+					*pr_from = '\0';
+
+				if( isprint( trans[i][j+1] ) )
+					sprintf( pr_to, "(%lc)", trans[i][j+1] );
+				else
+					*pr_to = '\0';
+
+
+				fprintf( stderr, " tra=%03d%s;%03d%s:%02d",
+					trans[i][j], pr_from,
+						trans[i][j+1], pr_to,
+							trans[i][j+2] );
 			}
 
 			fprintf( stderr, "\n" );
