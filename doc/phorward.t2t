@@ -5,7 +5,11 @@ Reference Manual
 
 == parray ==
 
+=== Overview ===
+
 The **parray** object is a general-purpose data structure which can be used for several operations. **parray** forms a data management container for handling homogenious elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
+
+=== Construction and destruction ===
 
 **parray** objects are created using parray_create() or initialized with parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with parray_erase(), respectively cleared and freed with parray_free().
 
@@ -19,13 +23,15 @@ a = parray_create( sizeof( usertype ), 0 );
 parray_free( a );
 ```
 
+=== Inserting elements ===
+
 Elements can be inserted with
 
-- parray_insert() - Insert element at any desired offset,
-- parray_push() - Push element to end of array,
-- parray_shift() - Shift element on begin of array,
-- parray_malloc() - Zero-initialize new element at end of array, and
-- parray_rmalloc() - Zero-initialize new element at begin of array.
+- parray_insert() - insert element at any desired offset,
+- parray_push() - push element to end of array,
+- parray_shift() - shift element on begin of array,
+- parray_malloc() - zero-initialize new element at end of array, and
+- parray_rmalloc() - zero-initialize new element at begin of array.
 -
 
 ```
@@ -46,10 +52,12 @@ tp = (usertype*)parray_rmalloc( a );
 fill_usertype( tp );
 ```
 
+=== Accessing and iterating elements ===
+
 Direct access to specific elements is done using
 
-- parray_get() - Get element by offset from begin, and
-- parray_rget() - Get element by offset from end.
+- parray_get() - get element by offset from begin, and
+- parray_rget() - get element by offset from end.
 -
 
 Iterating over the elements:
@@ -70,17 +78,19 @@ for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
 
 Elements can be replaced with
 
-- parray_put() - Put element by offset from begin, respective
-- parray_rput() - Put element by offset from end.
+- parray_put() - put element by offset from begin, respective
+- parray_rput() - put element by offset from end.
 -
 
 Quick access to the first or last elements is gained by parray_last() and parray_first().
 
+=== Removing elements ===
+
 Elements can be removed with
 
-- parray_remove() - Remove element at any desired offset,
-- parray_pop() - Remove last element like from a stack, and
-- parray_unshift() - Remove first element.
+- parray_remove() - remove element at any desired offset,
+- parray_pop() - remove last element like from a stack, and
+- parray_unshift() - remove first element.
 -
 
 ```
@@ -93,18 +103,25 @@ tp = (usertype*)parray_pop( a );
 tp = (usertype*)parray_unshift( a );
 ```
 
+=== Additional functions ===
+
 Other, useful functions are
 
-- parray_count() - Get number of elements within object,
-- parray_offset() - Get offset of element by pointer,
-- parray_partof() - Check if element is part of object,
-- parray_swap() - Swap two elements within an object.
-- parray_reserve() - Assume memory pre-allocation.
+- parray_count() - get number of elements within object,
+- parray_offset() - get offset of element by pointer,
+- parray_partof() - check if element is part of object,
+- parray_swap() - swap two elements within an object.
+- parray_reserve() - assume memory pre-allocation.
 -
+
 
 == plist ==
 
-Next to the **parray** object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks, including symbol tables, functions relating to set theories or for associative arrays. **plist** can be seen as a superset of the **parray** object, because it features nearly the same operations but with other underlying data management methods.
+=== Overview ===
+
+Next to the **parray** object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
+
+**plist** can be seen as a superset of the **parray** object, because it features nearly the same operations but with other underlying data management methods.
 
 The **plist** object implements:
 
@@ -115,17 +132,28 @@ The **plist** object implements:
 - set functions
 -
 
+**plist** can be used as a generic data structure for
+
+- hash tables
+- queues
+- arrays
+- stacks
+-
+
+=== Construction and destruction ===
+
 **plist** objects are created using plist_create() or initialized with plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the **plist** object to a specified behavior.
 
-Possible flags are:
+Possible flags are listed below, and can be combined using bitwise or (|).
 
 - **PLIST_MOD_NONE** no flags, this can also be just 0.
 - **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
 - **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later, which reduces dynamic memory consumption.
+- **PLIST_MOD_AUTOSORT** to automatically sort the list on insert operations.
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
+- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
 - **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
 - **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
-- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
 -
 
 The mode **PLIST_MOD_PTR** is automatically set if the elements size is specified as 0.
@@ -140,13 +168,15 @@ l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
 plist_free( l );
 ```
 
+=== Inserting elements ===
+
 Elements can be inserted with
 
-- plist_insert() - Insert element, optionally with key, at any desired position,
-- plist_push() - Push element to end of list,
-- plist_shift() - Shift element on begin of list,
-- plist_malloc() - Zero-initialize new element at end of list, and
-- plist_rmalloc() - Zero-initialize new element at begin of list.
+- plist_insert() - insert element, optionally with key, at any desired position,
+- plist_push() - push element to end of list,
+- plist_shift() - shift element on begin of list,
+- plist_malloc() - zero-initialize new element at end of list, and
+- plist_rmalloc() - zero-initialize new element at begin of list.
 -
 
 ```
@@ -154,19 +184,88 @@ plist* l;
 usertype t;
 usertype* tp;
 
+/* Insert to position */
 fill_usertype( &t );
-plist_insert( l, plist_get( l, 2 ), &t );
+plist_insert( l, plist_get( l, 2 ), (char*)NULL, &t );
 
+/* Insert to end, with key value */
+plist_insert( l, (plistel*)NULL, "hello", &t );
+
+/* Insert and end and begin */
 fill_usertype( &t );
 plist_push( a, &t );
 plist_shift( a, &t );
 
+/* Retrieve fresh element memory at end and begin */
 tp = (usertype*)plist_malloc( a );
 fill_usertype( tp );
 tp = (usertype*)plist_rmalloc( a );
 fill_usertype( tp );
 ```
 
-Elements within a **plist** object are references by **plistel** items. To access the data element behind a **plistel** item, the function plist_access() is used.
+=== Accessing and iterating elements ===
+
+Elements within a **plist** object are references by **plistel** items. To access the data element behind a **plistel** item, the function plist_access() is used, in combination with element retrival functions, like
+
+- plist_get() - get element by offset,
+- plist_rget() - get element by offset from the end,
+- plist_get_by_key() - retrieve element by key (hash table),
+- plist_get_by_ptr() - retrieve element by its data pointer,
+- plist_first() - return first element  of list,
+- plist_last() - return last element of list.
+-
+
+```
+plist* l;
+plistel* e;
+usertype* tp;
+int i;
+
+/* Get 5th data element */
+tp = (usertype*)plist_access( plist_get( l, 5 ) );
+
+/* Get data element with key "hello" */
+tp = (usertype*)plist_access( plist_get_by_key( l, "hello" ) );
+
+/* Iterate from begin to end */
+for( e = plist_first( l ); e; e = plist_next( e ) )
+	tp = (usertype*)plist_access( e );
+
+/* Alternative: Using the plist_for()-macro */
+plist_for( l, e )
+	tp = (usertype*)plist_access( e );
+
+/* Alternative: Using offset */
+for( i = 0; ( tp = (usertype*)plist_access( plist_get( l, i ) ) ); i++ )
+	;
+
+/* Reversely iterate from end to begin */
+for( e = plist_last( l ); e; e = plist_prev( e ) )
+	tp = (usertype*)plist_access( e );
+
+/* Reverse alternative: Using offset */
+for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
+	;
+```
+
+=== Removing elements ===
+
+To remove elements from a **plist** object, the following functions can be used.
+
+- plist_remove() - remove any element,
+- plist_pop() - pop last element as from a stack,
+- plist_unshift() - remove first element as from a queue.
+-
+
+```
+plist* l;
+usertype t;
+
+plist_remove( l, plist_get( l, 7 ) );
+plist_pop( a, &t );
+plist_unshift( a, &t );
+```
+
+=== Additional functions ===
 
 
