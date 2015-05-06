@@ -497,11 +497,11 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 	RETURN( e );
 }
 
-/** Push //src// to //list//.
+/** Push //src// to end of //list//.
 
 Like //list// would be a stack, //src// is pushed at the end of the list.
-This function can only be used for simple linked lists without the hash-table
-feature in use. */
+This function can only be used for linked lists without the hash-table feature
+in use. */
 plistel* plist_push( plist* list, void* src )
 {
 	if( !( list ) )
@@ -511,6 +511,22 @@ plistel* plist_push( plist* list, void* src )
 	}
 
 	return plist_insert( list, (plistel*)NULL, (char*)NULL, src );
+}
+
+/** Shift //src// at begin of //list//.
+
+Like //list// would be a queue, //src// is shifted at the begin of the list.
+This function can only be used for linked lists without the hash-table feature
+in use. */
+plistel* plist_shift( plist* list, void* src )
+{
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		return (plistel*)NULL;
+	}
+
+	return plist_insert( list, plist_first( list ), (char*)NULL, src );
 }
 
 /** Allocates memory for a new element in list //list//, push it to the end and
@@ -530,56 +546,22 @@ void* plist_malloc( plist* list )
 	return plist_access( plist_push( list, (void*)NULL ) );
 }
 
-#if 0
-/* THIS WAS AN IDEA. But it increases the size of each plistel-element object,
-because additonal flags would be required. */
+/** Allocates memory for a new element in list //list//, shift it at the begin
+and return the pointer to this.
 
-/** Pre-allocates //n// elements in list //list// and sets the allocation step
-size to //chunk//, so that //chunk// elements will be allocated the next time
-when more memory for list elements is required.
-
-If //chunk// is < 0, the parameter will be ignored.
-
-The function returns true if all elements could be pre-allocated.
+The function works as a shortcut for plist_access() in combination with
+plist_shift().
 */
-pboolean plist_preallocate( plist* list, int n, int chunk )
+void* plist_rmalloc( plist* list )
 {
-	plistel*	chain;
-	int			i;
-
-	if( !list )
+	if( !( list ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		return (void*)NULL;
 	}
 
-	if( n > 0 )
-	{
-		chain = (plistel*)plist_malloc( n * sizeof( plistel ) );
-
-		/* Allocate chunk table */
-		if( ( list->chunks_cnt % PLIST_CHUNKSTEP ) == 0 )
-			list->chunks = (plistel**)prealloc( list->chunks,
-								( list->chunks_cnt + PLIST_CHUNKSTEP )
-									* sizeof( plistel* ) );
-
-		list->chunks[ list->chunks++ ] = chain;
-
-		for( i = 0; i < n; i++ )
-		{
-			if( i < n - 1 )
-				list->chunks[ i ].next = list->chunks[ i + 1 ].next;
-
-			list->chunks[ i ].from_chunk = TRUE;
-		}
-	}
-
-	if( chunk >= 0 )
-	{
-
-	}
+	return plist_access( plist_shift( list, (void*)NULL ) );
 }
-#endif
 
 /** Removes the element //e// from the the //list// and frees it or puts
  it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
@@ -681,7 +663,7 @@ its content is written to //dest//.
 
 //dest// can be omitted and given as (void*)NULL, so the first element will
 be taken from the list and discards. */
-pboolean plist_take( plist* list, void* dest )
+pboolean plist_unshift( plist* list, void* dest )
 {
 	if( !( list ) )
 	{

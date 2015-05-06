@@ -810,13 +810,12 @@ pboolean plist_clear( plist* list );
 plist* plist_free( plist* list );
 plistel* plist_insert( plist* list, plistel* pos, char* key, void* src );
 plistel* plist_push( plist* list, void* src );
+plistel* plist_shift( plist* list, void* src );
 void* plist_malloc( plist* list );
-#if 0
-pboolean plist_preallocate( plist* list, int n, int chunk );
-#endif
+void* plist_rmalloc( plist* list );
 pboolean plist_remove( plist* list, plistel* e );
 pboolean plist_pop( plist* list, void* dest );
-pboolean plist_take( plist* list, void* dest );
+pboolean plist_unshift( plist* list, void* dest );
 plistel* plist_get( plist* list, int n );
 plistel* plist_get_by_key( plist* list, char* key );
 plistel* plist_get_by_ptr( plist* list, void* ptr );
