@@ -11,7 +11,7 @@ Usage:	Universal, dynamic array management functions.
 
 #include "phorward.h"
 
-#define STD_STEP			128		/* Default step size */
+#define STD_CHUNK			128		/* Default chunk size */
 
 /** Performs an array initialization.
 
@@ -20,17 +20,17 @@ Usage:	Universal, dynamic array management functions.
 //size// defines the size of one array element, in bytes.
 This should be evaluated using the sizeof()-macro.
 
-//step// defines the step size, where an array-(re)allocation will be performed.
+//chunk// defines the chunk size, where an array-(re)allocation will be performed.
 If, e.g. this is set to 128, then, if the 128th item is created within the
 array, a realloction is done. Once allocated memory remains until the array is
 freed again.
 */
-pboolean parray_init( parray* array, size_t size, size_t step )
+pboolean parray_init( parray* array, size_t size, size_t chunk )
 {
 	PROC( "parray_init" );
 	PARMS( "array", "%p", array );
 	PARMS( "size", "%ld", size );
-	PARMS( "step", "%ld", step );
+	PARMS( "chunk", "%ld", chunk );
 
 	if( !( array && size > 0 ) )
 	{
@@ -38,21 +38,21 @@ pboolean parray_init( parray* array, size_t size, size_t step )
 		RETURN( FALSE );
 	}
 
-	if( step <= 0 )
-		step = STD_STEP;
+	if( chunk <= 0 )
+		chunk = STD_CHUNK;
 
 	memset( array, 0, sizeof( parray ) );
 	array->size = size;
-	array->step = step;
+	array->chunk = chunk;
 
 	RETURN( TRUE );
 }
 
 /** Create a new parray as an object with an element allocation size //size//
-and a reallocation-step-size of //step//.
+and a reallocation-chunk-size of //chunk//.
 
 The returned memory must be released with parray_free().  */
-parray* parray_create( size_t size, size_t step )
+parray* parray_create( size_t size, size_t chunk )
 {
 	parray*	array;
 
@@ -63,12 +63,13 @@ parray* parray_create( size_t size, size_t step )
 	}
 
 	array = (parray*)pmalloc( sizeof( parray ) );
-	parray_init( array, size, step );
+	parray_init( array, size, chunk );
 
 	return array;
 }
 
 /** Erase a dynamic array.
+
 The array must not be reinitialized after destruction, using parray_init().
 
 //array// is the pointer to the array to be erased. */
@@ -91,7 +92,7 @@ pboolean parray_erase( parray* array )
 
 /** Releases all the memory //array// uses and destroys the array object.
 
-The function always returns (plist*)NULL. */
+The function always returns (parray*)NULL. */
 parray* parray_free( parray* array )
 {
 	if( !array )
@@ -134,7 +135,7 @@ void* parray_push( parray* array, void* item )
 	/* Is reallocation required? */
 	if( !array->count || array->last == array->count )
 	{
-		array->count += array->step;
+		array->count += array->chunk;
 
 		if( !( array->array = (void*)prealloc(
 				(void*)array->array, array->count * array->size ) ) )
@@ -169,7 +170,7 @@ pboolean parray_reserve( parray* array, size_t n )
 	if( array->last + n < array->count )
 		RETURN( TRUE );
 
-	array->count += n + ( n % array->step );
+	array->count += n + ( n % array->chunk );
 
 	if( !( array->array = (void*)prealloc(
 			(void*)array->array, array->count * array->size ) ) )
@@ -390,13 +391,13 @@ void* parray_unshift( parray* array, void* item )
 	/* Is reallocation required? */
 	if( !array->count || array->first == 0 )
 	{
-		array->count += array->step;
+		array->count += array->chunk;
 
 		if( !( array->array = (void*)prealloc(
 				(void*)array->array, array->count * array->size ) ) )
 			RETURN( (void*)NULL );
 
-		array->first = array->step;
+		array->first = array->chunk;
 
 		if( array->last > 0 )
 			memmove( (char*)array->array + array->first * array->size,

@@ -1,503 +1,172 @@
 The Phorward Foundation Toolkit
 Reference Manual
 
-= General =
+= Function Reference =
 
-== Description ==
+== parray ==
 
-The Phorward Foundation Toolkit provides a powerful toolchain within an extended functions library (libphorward) to implement more powerful, more useful programs using the C programming language.
+The **parray** object is a general-purpose data structure which can be used for several operations. **parray** forms a data management container for handling homogenious elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
 
-With the use of the Phorward Foundation Toolkit, programmers are enabled to enhance their C and C++ programs with the capabilities of dynamic linked lists, hash tables, stacks, string management functions, full-fledged regular expressions and multi-platform system-functions. The entire library is designed to work with both UTF-8-enabled and wide-character-based Unicode character sets.
+**parray** objects are created using parray_create() or initialized with parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with parray_erase(), respectively cleared and freed with parray_free().
 
-The main intention behind the Phorward Foundation Toolkit is the development of software products that are having their origin at Phorward Software Technologies. Phorward Software Technologies is a software company from Dortmund, Germany, that focuses strongly on the development of high-performance software solutions around the area of compilers, compiler-construction tools, scripting languages and general software development tools. Because almost all of Phorward Softwares newer solutions are open-source-based products, the Phorward Foundation Toolkit forms the general base of all C-based projects.
+```
+parray* a;
 
-== Features ==
+a = parray_create( sizeof( usertype ), 0 );
 
-The Phorward Foundation Toolkit provides
+/* Do something... */
 
-- Extensions for dynamical standard data structures: Linked lists, hash tables, stacks, bitsets
-- Extending string functions for dynamic string management
-- Powerful implementation of regular expressions, including tools for their construction, transformation and analysis
-- Universal system-specific functions for platform-independent C software development
-- An XML-parser (DOM) and management tools
-- A universal, extendable variant-styled data type structure to work with arbitrary values within one object
-- Consistent support of Unicode by supporting UTF-8-byte character strings and wide-character strings
-- Object-oriented fashion of some function interfaces (e.g. regular expressions)
-- Growing code-base of more and more powerful functions
+parray_free( a );
+```
+
+Elements can be inserted with
+
+- parray_insert() - Insert element at any desired offset,
+- parray_push() - Push element to end of array,
+- parray_shift() - Shift element on begin of array,
+- parray_malloc() - Zero-initialize new element at end of array, and
+- parray_rmalloc() - Zero-initialize new element at begin of array.
 -
 
-== Building ==
-
-Building the Phorward Foundation Toolkit is simple as every GNU-style open source program. Extract the released tarball or clone the Mercurial repository into a directory of your choice.
-
-Then, run
-
-``` ./configure
-
-to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
-
-``` make
-
-and
-
-``` make install
-
-(properly as root), to install the toolkit into your system.
-
-On Windows systems, the usage of [Cygwin #http://cygwin.org/] or another Unix shell environment is required. The Phorward Foundation Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
-
-To compile into 32-Bit Windows executables, configure with
-
-``` ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
-
-To compile into 64-Bit Windows executables, configure with
-
-``` ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
-
-= Usage =
-
-This chapter describes how the Phorward Foundation Toolkit is used in general, and how its elements can be perfectly integrated into existing systems.
-
-== How to import? ==
-
-To import functions from the Phorward Foundation Toolkit, simply
-
-``` #include <phorward.h>
-
-into your programs.
-
-The linker must be told to link //libphorward.a// for the static version, //libphorward.so// for the dynamic version.
-
-A simple example program extracting numbers from a string
-
 ```
-#include <phorward.h>
+parray* a;
+usertype t;
+usertype* tp;
 
-int main()
-{
-        uchar*          str     =   "This 1st release of a 1337 "
-                                    "software is really awe50me!";
-        pregex_range*   r;
-        int             cnt, i;
+fill_usertype( &t );
+parray_insert( a, 2, &t );
 
-        cnt = pregex_qmatch( "[0-9]+", str, PREGEX_MOD_GLOBAL, &r );
+fill_usertype( &t );
+parray_push( a, &t );
+parray_shift( a, &t );
 
-        for( i = 0; i < cnt; i++ )
-                printf( "%d: %.*s\n", i, r[i].len, r[i].begin );
-
-        pfree( r );
-        return 0;
-}
+tp = (usertype*)parray_malloc( a );
+fill_usertype( tp );
+tp = (usertype*)parray_rmalloc( a );
+fill_usertype( tp );
 ```
 
-compiles perfectly with
+Direct access to specific elements is done using
 
-``` cc -o hello hello.c -lphorward
-
-and runs simply by typing
-
-```
-$ ./hello
-0: 1
-1: 1337
-2: 50
-```
-
-== Primary data types ==[data_types]
-
-The Phorward Foundation Toolkit provides some self-defined primary data-types. They are used by many of the library functions, but are only pendants to standard C types. It is not explicitly required to use these data-types in your projects, but they may be used for a clean code integrity with the Phorward coding convention, if wanted.
-
-|| Type | Alias | C-type | used for |
-| uchar | - | unsigned char | UTF-8-enabled character string, this is **unsigned char**. |
-| pchar | wchar | wchar_t or unsigned int | If unicode-support enabled, pchar is of type **wchar_t**, else of type **unsigned int**. |
-| pboolean | BOOLEAN, boolean | char | A [boolean type #boolean_type] to store TRUE or FALSE. |
-| pbyte | - | unsigned char | Byte and pointer data type, mostly used instead of **void***. |
-| pint | - | int | Integer value type. |
-| plong | - | long | Long value type. |
-| pfloat | - | float | Floating point value type. |
-| pdouble | - | double | Double floating point value type. |
-| pulong | - | size_t | Unsigned long value type. |
-| psize | - | size_t | Unsigned size-type. |
-
-== Boolean type ==[boolean_type]
-
-The Phorward Foundation Toolkit defines a type pboolean (alias: BOOLEAN, boolean) that is used to store boolean values.
-
-|| Define | Meaning |
-| BOOLEAN_STR( b ) | Returns "TRUE" if //b// is unequal 0, else "FALSE" |
-| TRUE | Defines the value 1. |
-| FALSE | Defines the value 0. |
-
-== Phorward-specific data-types and structures ==[phorward_types]
-
-The following data-types are Phorward-specific for various library function implementations.
-
-|| Type | Description |
-| HASHTAB | [Hash table #hash_table] |
-| HASHELEM | [Hash table entry #hash_table] |
-| LIST | [Linked pointer list #linked_list] |
-| pregex | [Regular expression object #regular_expression] |
-| pregex_ptn | [Regular expression pattern #regular_expression] |
-| pregex_range | [Regular expression match range #regular_expression] |
-| punion | [Phorward Unioned Datatype #union] |
-| STACK | [Dynamic stack #stack] |
-| XML_T | [XML entity #xml] |
-
-== Error codes ==[error_codes]
-
-May functions of the Phorward Foundation Toolkit return one of the following error codes on failure. They are always negative. A value of 0 or ERR_OK identifies a successfull action, a positive return code identifies another, more specific error, or a kind of successfull function run.
-
-|| Errorcode (Define) | Meaning |
-| ERR_OK | Function executed successfully. |
-| ERR_FAILURE | Function generally failed. |
-| ERR_PARMS | Function parameters where wrong. |
-| ERR_MEM* | A memory allocation error occured. |
-| ERR_SYSTEM | A system-error occured. |
-| ERR_UNIMPL | A part of the function is not implemented in the given parameter constellation. |
-| ERR_OTHER | Another error occured. |
-
-
-* Normally, functions of the Phorward Foundation Toolkit that run into insufficent memory errors immediatelly exit the program with a message to stderr and errorcode 1.
-This behavior can be changed by redefining the OUTOFMEM-macro.
-
-== Other defines & macros ==
-
-The following macros can be used.
-
-|| Macro | Usage |
-| OUTOFMEM | Immediatelly stops the program with the message "Ran out of memory" to stderr. |
-| WRONGPARAM | Prints a warning message to stderr that a function was called with wrong parameters. |
-| PDIRSEP | Directory separator, under Unix-like systems, this is ':', under Windows ';' |
-| PPATHSEP | Path separator, under Unix-like systems, this is '/', under Windows '\' |
-
-== General-purpose dynamic data structures ==
-
-The Phorward Foundation Toolkit provides general-purpose data structures for various situations.
-
-=== Simple linked lists ===[linked_list]
-
-The LIST-structure and related functions can be used for dynamic creation and manipulation of single linked-lists.
-Each LIST-element is a simple constructure that provides a pointer to the data-part that is associated with the list, and a pointer to the follower, which is (LIST*)NULL in case of the last element.
-
-```
-LIST*    mylist;        /* This is our main list */
-LIST*    l;             /* l, for list iteration */
-uchar*   values[] = { "Hello", "World", "out there!" };
-
-/* Create the list. */
-mylist = list_push( (LIST*)NULL, (void*)values[0] );
-mylist = list_push( mylist, (void*)values[1] );
-mylist = list_push( mylist, (void*)values[2] );
-
-/* Let's iterate trough it. */
-printf( "mylist contains %d items\n", list_count( mylist ) );
-for( l = mylist; l; l = list_next( l ) )
-    printf( "%s ", (uchar*)list_access( l ) );
-
-/* Now, we remove one element (identified by its pointer) and iterate
-    the list again */
-mylist = list_remove( mylist, (void*)values[1] );
-printf( "\nmylist contains now %d items\n", list_count( mylist ) );
-
-/* LISTFOR expands in a for-loop as above, but is shorter! */
-LISTFOR( mylist, l )
-    printf( "%s ", (uchar*)list_access( l ) );
-
-printf( "\n" );
-
-/* Free the entire list */
-mylist = list_free( mylist );
-```
-
-- [list_access() #fn_list_access] - Access the list elements data pointer.
-- [list_count() #fn_list_count] - Count elements in list.
-- [list_diff() #fn_list_diff] - Compare lists for same elements.
-- [list_dup() #fn_list_dup] - Duplicate a list.
-- [list_find() #fn_list_find] - Get data element index number.
-- [list_free() #fn_list_free] - Free entire list.
-- [list_getptr() #fn_list_getptr] - Get list element by index.
-- [list_next() #fn_list_next] - Access list elements follower.
-- [list_pop() #fn_list_pop] - Remove and return last element from list.
-- [list_push() #fn_list_push] - Create/extend a list.
-- [list_remove() #fn_list_remove] - Remove element from list.
-- [list_sort() #fn_list_sort] - Sort list.
-- [list_subset() #fn_list_subset] - Check for subset of two lists.
-- [list_union() #fn_list_union] - Union elements of two lists, remove duplicates.
+- parray_get() - Get element by offset from begin, and
+- parray_rget() - Get element by offset from end.
 -
 
-=== Double linked, extended lists ===[extended_linked_list]
-
-TODO plist
-
-=== Hash Tables ===[hash_table]
-
-The HASHTAB-structure and related functions implement an easy-to-handle and flexible hash-table implementation. Hash-tables can perfectly be used to implement symbol tables using string identifiers, including element overloading.
-
-A hash-table consists of the elements HASHTAB, describing the hash-table and HASHELEM, describing the final hash-table entry that is hold.
-
-Hash-tables in the Phorward Foundation Toolkit can be configured to allow for collisions or not (HASHTAB_MOD_NO_COLL). If collisions are enabled, the hash-table permits to add multiple elements with the same key, so it is possible to overwrite and hide general elements with more specific ones. It is also possible to discard elements for later use or to entirely destroy them. Discarding elements is more memory friendly, because the elements memory will be reused after anoter insert-operation. Calling an delete-operation also frees the used memory.
+Iterating over the elements:
 
 ```
-HASHTAB		ht;
-HASHELEM*	e;
-LIST*		l;
+parray* a;
+usertype* tp;
+int i;
 
-/* We configure a hash-table with 6 buckets, wide-character enabled and
-	list-feature enabled */
-hashtab_init( &ht, 6, HASHTAB_MOD_WCHAR | HASHTAB_MOD_LIST );
+/* Iterate from first to last. */
+for( i = 0; ( tp = (usertype*)parray_get( a, i ) ); i++ )
+	;
 
-/* Let's insert some data */
-hashtab_insert( &ht, (uchar*)L"Hello", "This is my first string" );
-hashtab_insert( &ht, (uchar*)L"World", "And this is my second one" );
-hashtab_insert( &ht, (uchar*)L"Test", "Last but no least, the third :)" );
-
-/* Get one entry */
-e = hashtab_get( &ht, (uchar*)L"World" );
-printf( ">%s<\n", (uchar*)hashelem_access( e ) );
-printf( "%d items in table\n", hashtab_count( &ht ) );
-
-/* Loop trough the entries, without any order */
-for( e = hashtab_fetch( &ht, (HASHELEM*)NULL );
-		e; e = hashtab_fetch( &ht, e ) )
-	printf( ">%ls<: >%s<\n",
-		(pchar*)hashelem_key( e ),
-			(uchar*)hashelem_access( e ) );
-
-/* Loop trough the entries using the list */
-LISTFOR( hashtab_list( &ht ), l )
-{
-	e = (HASHELEM*)list_access( l );
-	printf( ">%ls<: >%s<\n",
-		(pchar*)hashelem_key( e ),
-			(uchar*)hashelem_access( e ) );
-}
-
-/* Dump the table to stderr */
-hashtab_print( &ht, stderr );
-
-/* Discard the element with the key "World" */
-hashtab_discard( &ht, (uchar*)L"World", HASHTAB_NO_CALLBACK );
-
-/* Print again! */
-hashtab_print( &ht, stderr );
-
-/* Free entire table, reset all */
-hashtab_free( &ht, HASHTAB_NO_CALLBACK );
+/* Iterate from last to first. */
+for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
+	;
 ```
 
-- [hashtab_init() #fn_hashtab_init] - Initialize hash table.
-- [hashtab_free() #fn_hashtab_free] - Free hash table, drop all elements.
-- [hashtab_insert() #fn_hashtab_insert] - Insert element into hash table.
-- [hashtab_get() #fn_hashtab_get] - Get element by key.
-- [hashtab_update() #fn_hashtab_update] - Update element by key.
-- [hashtab_discard() #fn_hashtab_discard] - Discard element by key.
-- [hashtab_delete() #fn_hashtab_delete] - Delete (free) element by key.
-- [hashtab_print() #fn_hashtab_print] - Dump hash table content to file stream.
-- [hashtab_count() #fn_hashtab_count] - Count number of active elements in hash table.
-- [hashtab_fetch() #fn_hashtab_fetch] - Fetch hash table elements.
-- [hashelem_access() #fn_hashelem_access] - Access hash table elements data payload.
-- [hashelem_key() #fn_hashelem_key] - Access hash table elements key string
-- [hashelem_next() #fn_hashelem_next] - Access next hash table element.
-- [hashelem_prev() #fn_hashelem_prev] - Acess previous hash table element.
+Elements can be replaced with
+
+- parray_put() - Put element by offset from begin, respective
+- parray_rput() - Put element by offset from end.
 -
 
-Hash-tables allow for the following flags at initialization:
+Quick access to the first or last elements is gained by parray_last() and parray_first().
 
-- **HASHTAB_MOD_EXTKEYS** - Hold keys externally; The memory will not be copied. This option should be used if the key value is part of the data-container pointer that is stored within the hash-table, and the pointer to this value is used as key pointer. It saves some memory.
-- **HASHTAB_MOD_WCHAR** - Keys are of wide-character type.
-- **HASHTAB_MOD_LIST** - All table elements are additionally hold in a [linked list #linked_list], to keep the insertation order of the hash table elements. This requires a little more memory.
-- **HASHTAB_MOD_NO_COLL** - Disallow collisions of hash table elements; When inserted, (HASHELEM*) NULL will be returned if a collision occurs!
+Elements can be removed with
+
+- parray_remove() - Remove element at any desired offset,
+- parray_pop() - Remove last element like from a stack, and
+- parray_unshift() - Remove first element.
 -
 
-=== Stacks ===[stack]
-
-The stack feature provides a possibility to create software that uses dynamic stacks. A stack is a data structure working with the first-in-first-out principle. The stack feature is provided using the STACK data-structure. At initializiation, it is required to specify the element size of one stack element and the allocation step size, which means how many elements should be allocated in a row.
-
 ```
-struct person
-{
-    uchar   first_name  [ 30 + 1 ];
-    uchar   last_name   [ 30 + 1 ];
-};
+parray* a;
+usertype t;
+usertype* tp;
 
-int             i;
-struct person   x;
-struct person*  p;
-STACK           s;
-
-/* Initialization: Element size, three elements in a row */
-stack_init( &s, sizeof( struct person ), 3 );
-
-/* Fill and insert first element */
-pstrcpy( x.last_name, "Zufall" );
-pstrcpy( x.first_name, "Reiner" );
-stack_push( &s, (pbyte*)&x );
-
-/* Fill and insert second element */
-pstrcpy( x.last_name, "Pfahl" );
-pstrcpy( x.first_name, "Martha" );
-stack_push( &s, (pbyte*)&x );
-
-/* Fill and insert third element */
-pstrcpy( x.last_name, "Racho" );
-pstrcpy( x.first_name, "Volker" );
-stack_push( &s, (pbyte*)&x );
-
-/* Fill and insert fourth element */
-pstrcpy( x.last_name, "Pete" );
-pstrcpy( x.first_name, "Dieter" );
-stack_push( &s, (pbyte*)&x );
-
-/* Print all elements */
-for( i = 0; ( p = (struct person*)stack_access( &s, i ) ); i++ )
-	printf( "%d: %s, %s\n", i, p->first_name, p->last_name );
-
-/* Pop all elements */
-while( ( p = (struct person*)stack_pop( &s ) ) )
-	printf( "Pop: %s %s\n", p->first_name, p->last_name );
-
-/* Free stack */
-stack_free( &s, STACK_NO_CALLBACK );
+parray_remove( a, 2, &t );
+tp = (usertype*)parray_pop( a );
+tp = (usertype*)parray_unshift( a );
 ```
 
-- [stack_access() #fn_stack_access] - Access stack element.
-- [stack_count() #fn_stack_count] - Number of elements on stack.
-- [stack_dump() #fn_stack_dump] - Dump stack to stream (using a callback function)
-- [stack_free() #fn_stack_free] - Free entire stack.
-- [stack_init() #fn_stack_init] - Initialize stack.
-- [stack_pop() #fn_stack_pop] - Pop element from top of the stack.
-- [stack_push() #fn_stack_push] - Push element onto the stack.
+Other, useful functions are
+
+- parray_count() - Get number of elements within object,
+- parray_offset() - Get offset of element by pointer,
+- parray_partof() - Check if element is part of object,
+- parray_swap() - Swap two elements within an object.
+- parray_reserve() - Assume memory pre-allocation.
 -
 
-A [linked list #linked_list] can also be used like a stack ([list_push() #fn_list_push], [list_pop() #fn_list_pop]), but is less memory-friendly.
+== plist ==
 
-=== The union data-type ===[union]
+Next to the **parray** object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks, including symbol tables, functions relating to set theories or for associative arrays. **plist** can be seen as a superset of the **parray** object, because it features nearly the same operations but with other underlying data management methods.
 
-The Phorward Foundation Toolkit provides a data-type structure called **punion**. A punion is a structure that can hold different data-types in one place, and performs automatic conversion. The data-structure supports the following values in the default configuration:
+The **plist** object implements:
 
-|| Define | Data-Type | C-Datatype | Naming |
-| PUNION_NULL | - | - | Unset union object |
-| PUNION_BYTE | pbyte | unsigned char | Byte value |
-| PUNION_CHAR | uchar | char | Char value |
-| PUNION_INT | pint | int | Integer value |
-| PUNION_LONG | plong | long | Long value
-| PUNION_ULONG | pulong | unsigned long | Unsigned long value |
-| PUNION_FLOAT | pfloat | float | Floating point value |
-| PUNION_DOUBLE | pdouble | double | Double floating point value |
-| PUNION_STRING | uchar* | char* | UTF-8 byte character string |
-| PUNION_WSTRING | pchar | wchar_t | Wide-character Unicode string |
-
-
-The punion data-structure can be easily extended to other data-types by changing the definitions in //src/union/punion.h//, because the get-, set- and conversion-functions are generated by an awk-script during libphorwards compile-time.
-
-
-```
-punion	utest;
-
-/* Initialize the union structure */
-punion_init( &utest );
-
-/* Set a string, duplicate its memory (*_d) */
-punion_set_string_d( &utest, "123 Hello World" );
-
-/* Get the string */
-printf( "utest(str) = %s\n", punion_get_string( &utest ) );
-
-/* Get the string as wide-character value */
-printf( "utest(wstr) = %ls\n", punion_get_wstring( &utest ) );
-
-/*
- * Well, this is not possible, because the punion object is
- * configured to be not convertible by default. Let's enable this.
- */
-punion_set_convertible( &utest );
-
-/* Get the string as wide-character value, again. */
-printf( "utest(wstr) = %ls\n", punion_get_wstring( &utest ) );
-
-/* The the string as integer value - only 123 will be returned! */
-printf( "utest(int) = %d\n", punion_get_int( &utest ) );
-
-/* Reset the value by a floating point number */
-punion_set_double( &utest, 123.456 );
-
-printf( "utest(double) = %lf\n", punion_get_double( &utest ) );
-printf( "utest(str) = %s\n", punion_get_string( &utest ) );
-
-/* Free (possibly) used memory */
-punion_reset( &utest );
-```
-
-This program results in the following output:
-
-```
-utest(str) = 123 Hello World
-utest(wstr) = (null)
-utest(wstr) = 123 Hello World
-utest(int) = 123
-utest(double) = 123.456000
-utest(str) = 123.456
-```
-
-The default configuration provides the following function set to read, write and convert values within the punion-object.
-
-- [punion_convert() #fn_punion_convert] - Explicitly convert value into another type.
-- [punion_get_byte() #fn_punion_get_byte] - Return and convert value into byte.
-- [punion_get_char() #fn_punion_get_char] - Return and convert value into char.
-- [punion_get_cstring() #fn_punion_get_cstring] - Return and convert value into string with constant flag.
-- [punion_get_double() #fn_punion_get_double] - Return and convert value into double.
-- [punion_get_float() #fn_punion_get_float] - Return and convert value into float.
-- [punion_get_int() #fn_punion_get_int] - Return and convert value into int.
-- [punion_get_long() #fn_punion_get_long] - Return and convert value into long.
-- [punion_get_string() #fn_punion_get_string] - Return and convert value into string.
-- [punion_get_ulong() #fn_punion_get_ulong] - Return and convert value into unsigned long.
-- [punion_get_wcstring() #fn_punion_get_wcstring] - Return and convert value into wide-character string with constant flag.
-- [punion_get_wstring() #fn_punion_get_wstring] - Return and convert value into wide-character string.
-- [punion_init() #fn_punion_init] - Initialize punion object.
-- [punion_is_constant() #fn_punion_is_constant] - Tell if constant flag is set.
-- [punion_is_convertible() #fn_punion_is_convertible] - Tell if convertible flag is set.
-- [punion_reset() #fn_punion_reset] - Reset punion object, free possibly used memory.
-- [punion_set_byte() #fn_punion_set_byte] - Set byte value.
-- [punion_set_char() #fn_punion_set_char] - Set char value.
-- [punion_set_constant() #fn_punion_set_constant] - Set constant flag.
-- [punion_set_convertible() #fn_punion_set_convertible] - Set convertible flag.
-- [punion_set_cstring() #fn_punion_set_cstring] - Set string value with constant flag.
-- [punion_set_double() #fn_punion_set_double] - Set double value.
-- [punion_set_float() #fn_punion_set_float] - Set float value.
-- [punion_set_int() #fn_punion_set_int] - Set integer value.
-- [punion_set_long() #fn_punion_set_long] - Set long value.
-- [punion_set_string() #fn_punion_set_string] - Set string value.
-- [punion_set_string_d() #fn_punion_set_string_d] - Set string value and duplicate it.
-- [punion_set_ulong() #fn_punion_set_ulong] - Set unsigned long value.
-- [punion_set_wcstring() #fn_punion_set_wcstring] - Set wide-character string value with constant flag.
-- [punion_set_wstring() #fn_punion_set_wstring] - Set wide-character string value.
-- [punion_set_wstring_d() #fn_punion_set_wstring_d] - Set wide-character string value and duplicate it.
-- [punion_to_byte() #fn_punion_to_byte] - Return value as byte.
-- [punion_to_char() #fn_punion_to_char] - Return value as char.
-- [punion_to_double() #fn_punion_to_double] - Return value as double.
-- [punion_to_float() #fn_punion_to_float] - Return value as float.
-- [punion_to_int() #fn_punion_to_int] - Return value as integer.
-- [punion_to_long() #fn_punion_to_long] - Return value as long.
-- [punion_to_string() #fn_punion_to_string] - Return value as string.
-- [punion_to_ulong() #fn_punion_to_ulong] - Return value as unsigned long.
-- [punion_to_wstring() #fn_punion_to_wstring] - Return value as wide-character string.
-- [punion_type() #fn_punion_type] - Tell value type define.
-- [punion_unset_constant() #fn_punion_unset_constant] - Unset constant flag.
-- [punion_unset_convertible() #fn_punion_unset_convertible] - Unset convertible flag.
+- a double linked-list
+- hashable entries (hash table, including same element key stacking)
+- dynamic stack functionalities
+- data object collections
+- set functions
 -
 
-== Extending string functions ==
+**plist** objects are created using plist_create() or initialized with plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the **plist** object to a specified behavior.
 
-=== Data types ===
+Possible flags are:
 
-In general, the Phorward Foundation Toolkit provides two data-types for characters and string buffers.
+- **PLIST_MOD_NONE** no flags, this can also be just 0.
+- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
+- **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later, which reduces dynamic memory consumption.
+- **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
+- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
+- **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
+- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
+-
 
-- **uchar** is the data-type used for 1-byte characters. When the Phorward Foundation Toolkit is compiled with the UTF8-flag, multi-byte UTF-8 character-strings are also supporting Unicode. All string functions working with this type begin with the prefix **pstr** (lower-case "p").
-- **pchar** is the data-type used for 4-byte wide-character strings (normally **wchar_t**). This type is only available as wide-character if compiled with UNICODE-flag enabled. All string functions working with this type begin with the prefix **Pstr** (upper-case "P"). 
+The mode **PLIST_MOD_PTR** is automatically set if the elements size is specified as 0.
 
+```
+plist* l;
 
-== Regular expressions ==
+l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
 
-The Phorward Foundation Toolkit provides a powerful library to work with regular expressions, including their underlying non-deterministic and deterministic finite automatas (NFAs, DFAs) and their transformation. This library enables developers to write C programs with an unlimited bandwith relating to regular expression features. If just a quick matching, splitting or replacement of strings based on a regular expression is required or the implementation of a lexical analyzer for a compiler's lexer shall be the target - with the Phorward regular expression tools on hand, all these requirements can be easily satisfied and implemented.
+/* Do something... */
+
+plist_free( l );
+```
+
+Elements can be inserted with
+
+- plist_insert() - Insert element, optionally with key, at any desired position,
+- plist_push() - Push element to end of list,
+- plist_shift() - Shift element on begin of list,
+- plist_malloc() - Zero-initialize new element at end of list, and
+- plist_rmalloc() - Zero-initialize new element at begin of list.
+-
+
+```
+plist* l;
+usertype t;
+usertype* tp;
+
+fill_usertype( &t );
+plist_insert( l, plist_get( l, 2 ), &t );
+
+fill_usertype( &t );
+plist_push( a, &t );
+plist_shift( a, &t );
+
+tp = (usertype*)plist_malloc( a );
+fill_usertype( tp );
+tp = (usertype*)plist_rmalloc( a );
+fill_usertype( tp );
+```
+
+Elements within a **plist** object are references by **plistel** items. To access the data element behind a **plistel** item, the function plist_access() is used.
 
 

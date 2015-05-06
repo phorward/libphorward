@@ -192,7 +192,7 @@ typedef struct
 	size_t	count;
 
 	size_t	size;
-	size_t	step;
+	size_t	chunk;
 } parray;
 
 #endif
@@ -749,8 +749,8 @@ extern "C"
 
 
 
-pboolean parray_init( parray* array, size_t size, size_t step );
-parray* parray_create( size_t size, size_t step );
+pboolean parray_init( parray* array, size_t size, size_t chunk );
+parray* parray_create( size_t size, size_t chunk );
 pboolean parray_erase( parray* array );
 parray* parray_free( parray* array );
 void* parray_push( parray* array, void* item );

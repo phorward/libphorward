@@ -20,7 +20,7 @@ typedef struct
 	size_t	count;
 
 	size_t	size;
-	size_t	step;
+	size_t	chunk;
 } parray;
 
 #endif
