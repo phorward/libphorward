@@ -110,8 +110,8 @@ Other, useful functions are
 - parray_count() - get number of elements within object,
 - parray_offset() - get offset of element by pointer,
 - parray_partof() - check if element is part of object,
-- parray_swap() - swap two elements within an object.
-- parray_reserve() - assume memory pre-allocation.
+- parray_swap() - swap two elements within an object,
+- parray_reserve() - assume memory pre-allocation; This is interesting for stack operations.
 -
 
 
@@ -211,8 +211,8 @@ Elements within a **plist** object are references by **plistel** items. To acces
 - plist_rget() - get element by offset from the end,
 - plist_get_by_key() - retrieve element by key (hash table),
 - plist_get_by_ptr() - retrieve element by its data pointer,
-- plist_first() - return first element  of list,
-- plist_last() - return last element of list.
+- plist_first() - get first element,
+- plist_last() - get last element.
 -
 
 ```
@@ -266,6 +266,117 @@ plist_pop( a, &t );
 plist_unshift( a, &t );
 ```
 
+=== Sorting elements ===
+
+**plist** objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertation.
+
+The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like strcmp() does.
+This function can be individually set using plist_set_sortfn(), and defaultly points to a callback function that uses memcmp() as the element comparison function.
+
+As prototype and example, the following comparison function:
+
+```
+int my_compare( plist* list, plistel* l, plistel* r )
+{
+	usertype*	tr;
+	usertype*	tl;
+
+	tl = (usertype*)plist_access( l );
+	tr = (usertype*)plist_access( r );
+
+	if( tl < tr )
+		return -1;
+	else if( tl > tr )
+		return 1;
+
+	return 0;
+}
+```
+
+This can, than, be attached to the **plist** object with
+
+``` plist_set_sortfn( l, my_compare );
+
+To configure a **plist** object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
+The sorting can be also be performed by invoking the functions
+
+- plist_sort() - to sort the entire list,
+- plist_subsort() - to sort only a part of the list (begin- and end-elements required).
+-
+
+=== Interchanging functions ===
+
+**plist** objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind **plist**. Both lists must be configured with the same element memory size, else all functions will fail.
+
+To implement these functions, every **plist** object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
+
+- plist_diff() - checks two lists for same items (equality),
+- plist_union() - extends a list to all elements of a second list that are not equal to elements in the first list.
+-
+
 === Additional functions ===
 
+**plist** provides these additional functions:
+
+- plist_swap() - swaps the two elements within a list,
+- plist_clear() - clear list content without destroying the object,
+- plist_dup() - duplicate list and its items,
+- plist_count() - return number of items in a list.
+-
+
+
+== pccl ==
+
+The **pccl** object is established on top of the **plist** object and encapsulates easy-to-handle low-level functions for character-class handling.
+
+These functions are heavily used by the library's regular expressions and parser implementations, but may also be helpful for other related projects. The **pccl** can handle character classes, by chaining ranges. It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. **pccl** objects are designed to work on huge alphabets with a low memory consumption. By default, characters are specified as wchar_t wide-character unicode values.
+
+```
+pccl* ccl;
+
+/* Construct a character-class within a universe of the ASCII-alphabet (0-255):
+	"-0123456789ABCDEFGHIJKLMNOQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+*/
+ccl = p_ccl_create( 0, 255, "A-Za-z0-9_-" );
+
+/* Invert character class */
+p_ccl_negate( ccl );
+
+/* Remove system chars */
+p_ccl_delrange( ccl, 0, 31 );
+
+/* Oh, and delete the "z" */
+p_ccl_del( ccl, 'z' );
+
+/* But add tab again! */
+p_ccl_add( ccl, '\t' );
+
+/* Enable all from 32 to 126  */
+p_ccl_addrange( ccl, ' ', '~' );
+
+/* Alternative way: */
+p_ccl_parse( ccl, " -~", TRUE );
+
+/* Test for characters */
+printf( "A is in? %s\n", BOOLEAN_STR( p_ccl_test( ccl, 'A' ) );
+printf( "a-z are in? %s\n", BOOLEAN_STR( p_ccl_testrange( ccl, 'a', 'z' ) );
+printf( "\\n is in? %s\n", BOOLEAN_STR( p_ccl_test( ccl, '\n' ) );
+
+/* Generate string */
+printf( "My ccl is: %s\n", p_ccl_to_str( ccl, TRUE ) );
+
+/* Drop it! */
+p_ccl_free( ccl );
+```
+
+Useful, additional functions when working with **pccl** are:
+
+- p_ccl_compare() - compary character-classes,
+- p_ccl_diff() - create differencing character-class of two classes,
+- p_ccl_erase() - clear character-class,
+- p_ccl_get() - retrieve characters or ranges by offset,
+- p_ccl_instest() - like p_ccl_test(), but with insensitve-character check,
+- p_ccl_intersect() - create intersection character-class of two classes,
+- p_ccl_print() - print character-class (for debug),
+-
 

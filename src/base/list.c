@@ -275,6 +275,7 @@ plist* plist_create( size_t size, int flags )
 }
 
 /** Creates an independent copy of //list// and returns it.
+
 All elements of //list// are duplicated and stand-alone. */
 plist* plist_dup( plist* list )
 {

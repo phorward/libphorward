@@ -753,7 +753,7 @@ pccl* p_ccl_intersect( pccl* ccl, pccl* within )
 /** Return a character or a character-range by its offset.
 
 If the function is called only with pointer //from// provided, and //to// as
-(char*)NULL, it writes the character in //offset//th position of the
+(wchar_t*)NULL, it writes the character in //offset//th position of the
 character-class into from.
 
 If the function is called both with pointer //from// and //to// provided,
