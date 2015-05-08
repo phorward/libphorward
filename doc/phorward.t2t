@@ -1,382 +1,150 @@
-The Phorward Foundation Toolkit
-Reference Manual
+Phorward Toolkit Reference Manual
+libphorward 0.18
+May 2015
 
-= Function Reference =
+%-------------------------------------------------------------------------------
+
+= General =
+
+== What is libphorward? ==
+
+The Phorward Toolkit provides a powerful set of useful functions for C programmers, which heavily focus on the topic of compiler-frontend development, meaning parsing and lexical analysis. The project can be seen as a dynamic generator and executor for lexers and parsers which can be defined and executed immediatelly within the program's sourcecode, making an extra step of generating parse tables or a recursive-descent parser unnecessary.
+
+The following example defines a simple grammar, runs a parser and prints the generated abstract syntax tree:
+
+%!include: ``example.c``
+
+(to compile it, run: ``gcc -o example example.c -lphorward``)
+
+Additionally, the toolkit also provides useful general-purpose extensions for dynamic data structures (linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
+
+== Feature overview ==
+
+The Phorward Toolkit provides
+
+- Parser development tools
+  - BNF-based grammar definition
+  - generators and executors for LR, LALR and LL grammars
+  - a uniform AST (abstract syntax tree) representation
+  - tools for AST traversal (coming soon!)
+  - tools for parser deployment (coming soon!)
+- Lexer development tools
+  - regular expressions and pattern definition interface
+  - //plex// for lexical analyzers
+  - //pregex// for regular expressions
+  - tools for regex and lexer deployment
+  - string functions for regular expression matching, splitting and replacement
+- Dynamic data structures
+  - //plist// for linked-lists with build-in hash table support,
+  - //parray// for arrays and stacks.
+- Extended string management functions
+  - concat, extend, tokenize, shorthand allocation of strings and wide-character strings
+  - consistent byte- and wide-character (unicode) function support
+  - unicode support for UTF-8 in byte-character functions
+- Debug und trace facilities
+- A build-in DOM-based XML-parser
+- Universal system-specific functions for platform-independent C software development
+  - Unix-style command-line parser
+  - Mapping files to strings
+- Object-oriented fashion for all function interfaces (e.g. plist, parray, pregex, pgram, ...)
+- Growing code-base of more and more powerful functions
+-
+
+Please check out http://phorward.phorward-software.com/ from time to time to get the latest news, documentation, updates and support on the Phorward Toolkit.
+
+== Building from sources ==
+
+Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
+
+Then, run
+
+``` ./configure
+
+to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
+
+``` make
+
+and
+
+``` make install
+
+(properly as root), to install the toolkit into your system.
+
+On Windows systems, the usage of [Cygwin #http://cygwin.org/] or another Unix shell environment is required. The Phorward Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
+
+To compile into 32-Bit Windows executables, configure with
+
+``` ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
+
+To compile into 64-Bit Windows executables, configure with
+
+``` ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
+
+== Alternative local development system ==
+
+Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
+
+Once, type
+
+``` make -f Makefile.gnu make_install
+
+then, a simple run of
+
+``` make
+
+can be used to simply build the entire library or parts of it.
+
+Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.
+
+== Who develops libphorward? ==
+
+The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
+
+It is the result of a several years experience in parser development systems, and has been preceded by the parser generators [UniCC #http://unicc.phorward-software.com/] and [JS/CC #http://jscc.phorward-software.com], and shall be the final step for an ultimate, powerful compiler-frontend toolchain.
+
+Help of any kind to extend and improve this product is always appreciated.
+
+== License ==
+
+This product is an open source software released under the terms and conditions of the 3-clause BSD license.
+
+== Copyright ==
+
+Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer.
+
+You may use, modify and distribute this software under the terms and conditions of the 3-clause BSD license. The full license terms can be obtained from the file LICENSE.
+
+THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+%-------------------------------------------------------------------------------
+
+= Basic tools =
+
+The Phorward Toolkit provides some extensional basic functions, making C programming a little way easier and simpler. It is not necessary or required to use these functions when creating software that makes use of features from the Phorward Toolchain, but maybe they fit some developer's needs and could be useful.
+
+== Replacement for memory functions ==
+
+The standard memory allocation functions can be replaced by these pendants:
+
+- pmalloc() - allocate and zero-intialize memory, stop on error.
+- prealloc() - reallocate memory, stop on error.
+- pfree() - free memory and return (void*)NULL pointer.
+- pmemdup() - shorthand for malloc() and memcpy().
+-
+
+
+%-------------------------------------------------------------------------------
+
+= Data management tools =
 
 == parray ==
 
-=== Overview ===
-
-The **parray** object is a general-purpose data structure which can be used for several operations. **parray** forms a data management container for handling homogenious elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
-
-=== Construction and destruction ===
-
-**parray** objects are created using parray_create() or initialized with parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with parray_erase(), respectively cleared and freed with parray_free().
-
-```
-parray* a;
-
-a = parray_create( sizeof( usertype ), 0 );
-
-/* Do something... */
-
-parray_free( a );
-```
-
-=== Inserting elements ===
-
-Elements can be inserted with
-
-- parray_insert() - insert element at any desired offset,
-- parray_push() - push element to end of array,
-- parray_shift() - shift element on begin of array,
-- parray_malloc() - zero-initialize new element at end of array, and
-- parray_rmalloc() - zero-initialize new element at begin of array.
--
-
-```
-parray* a;
-usertype t;
-usertype* tp;
-
-fill_usertype( &t );
-parray_insert( a, 2, &t );
-
-fill_usertype( &t );
-parray_push( a, &t );
-parray_shift( a, &t );
-
-tp = (usertype*)parray_malloc( a );
-fill_usertype( tp );
-tp = (usertype*)parray_rmalloc( a );
-fill_usertype( tp );
-```
-
-=== Accessing and iterating elements ===
-
-Direct access to specific elements is done using
-
-- parray_get() - get element by offset from begin, and
-- parray_rget() - get element by offset from end.
--
-
-Iterating over the elements:
-
-```
-parray* a;
-usertype* tp;
-int i;
-
-/* Iterate from first to last. */
-for( i = 0; ( tp = (usertype*)parray_get( a, i ) ); i++ )
-	;
-
-/* Iterate from last to first. */
-for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
-	;
-```
-
-Elements can be replaced with
-
-- parray_put() - put element by offset from begin, respective
-- parray_rput() - put element by offset from end.
--
-
-Quick access to the first or last elements is gained by parray_last() and parray_first().
-
-=== Removing elements ===
-
-Elements can be removed with
-
-- parray_remove() - remove element at any desired offset,
-- parray_pop() - remove last element like from a stack, and
-- parray_unshift() - remove first element.
--
-
-```
-parray* a;
-usertype t;
-usertype* tp;
-
-parray_remove( a, 2, &t );
-tp = (usertype*)parray_pop( a );
-tp = (usertype*)parray_unshift( a );
-```
-
-=== Additional functions ===
-
-Other, useful functions are
-
-- parray_count() - get number of elements within object,
-- parray_offset() - get offset of element by pointer,
-- parray_partof() - check if element is part of object,
-- parray_swap() - swap two elements within an object,
-- parray_reserve() - assume memory pre-allocation; This is interesting for stack operations.
--
-
+%!include: array.t2t
 
 == plist ==
 
-=== Overview ===
-
-Next to the **parray** object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
-
-**plist** can be seen as a superset of the **parray** object, because it features nearly the same operations but with other underlying data management methods.
-
-The **plist** object implements:
-
-- a double linked-list
-- hashable entries (hash table, including same element key stacking)
-- dynamic stack functionalities
-- data object collections
-- set functions
--
-
-**plist** can be used as a generic data structure for
-
-- hash tables
-- queues
-- arrays
-- stacks
--
-
-=== Construction and destruction ===
-
-**plist** objects are created using plist_create() or initialized with plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the **plist** object to a specified behavior.
-
-Possible flags are listed below, and can be combined using bitwise or (|).
-
-- **PLIST_MOD_NONE** no flags, this can also be just 0.
-- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
-- **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later, which reduces dynamic memory consumption.
-- **PLIST_MOD_AUTOSORT** to automatically sort the list on insert operations.
-- **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
-- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
-- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
-- **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
--
-
-The mode **PLIST_MOD_PTR** is automatically set if the elements size is specified as 0.
-
-```
-plist* l;
-
-l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
-
-/* Do something... */
-
-plist_free( l );
-```
-
-=== Inserting elements ===
-
-Elements can be inserted with
-
-- plist_insert() - insert element, optionally with key, at any desired position,
-- plist_push() - push element to end of list,
-- plist_shift() - shift element on begin of list,
-- plist_malloc() - zero-initialize new element at end of list, and
-- plist_rmalloc() - zero-initialize new element at begin of list.
--
-
-```
-plist* l;
-usertype t;
-usertype* tp;
-
-/* Insert to position */
-fill_usertype( &t );
-plist_insert( l, plist_get( l, 2 ), (char*)NULL, &t );
-
-/* Insert to end, with key value */
-plist_insert( l, (plistel*)NULL, "hello", &t );
-
-/* Insert and end and begin */
-fill_usertype( &t );
-plist_push( a, &t );
-plist_shift( a, &t );
-
-/* Retrieve fresh element memory at end and begin */
-tp = (usertype*)plist_malloc( a );
-fill_usertype( tp );
-tp = (usertype*)plist_rmalloc( a );
-fill_usertype( tp );
-```
-
-=== Accessing and iterating elements ===
-
-Elements within a **plist** object are references by **plistel** items. To access the data element behind a **plistel** item, the function plist_access() is used, in combination with element retrival functions, like
-
-- plist_get() - get element by offset,
-- plist_rget() - get element by offset from the end,
-- plist_get_by_key() - retrieve element by key (hash table),
-- plist_get_by_ptr() - retrieve element by its data pointer,
-- plist_first() - get first element,
-- plist_last() - get last element.
--
-
-```
-plist* l;
-plistel* e;
-usertype* tp;
-int i;
-
-/* Get 5th data element */
-tp = (usertype*)plist_access( plist_get( l, 5 ) );
-
-/* Get data element with key "hello" */
-tp = (usertype*)plist_access( plist_get_by_key( l, "hello" ) );
-
-/* Iterate from begin to end */
-for( e = plist_first( l ); e; e = plist_next( e ) )
-	tp = (usertype*)plist_access( e );
-
-/* Alternative: Using the plist_for()-macro */
-plist_for( l, e )
-	tp = (usertype*)plist_access( e );
-
-/* Alternative: Using offset */
-for( i = 0; ( tp = (usertype*)plist_access( plist_get( l, i ) ) ); i++ )
-	;
-
-/* Reversely iterate from end to begin */
-for( e = plist_last( l ); e; e = plist_prev( e ) )
-	tp = (usertype*)plist_access( e );
-
-/* Reverse alternative: Using offset */
-for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
-	;
-```
-
-=== Removing elements ===
-
-To remove elements from a **plist** object, the following functions can be used.
-
-- plist_remove() - remove any element,
-- plist_pop() - pop last element as from a stack,
-- plist_unshift() - remove first element as from a queue.
--
-
-```
-plist* l;
-usertype t;
-
-plist_remove( l, plist_get( l, 7 ) );
-plist_pop( a, &t );
-plist_unshift( a, &t );
-```
-
-=== Sorting elements ===
-
-**plist** objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertation.
-
-The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like strcmp() does.
-This function can be individually set using plist_set_sortfn(), and defaultly points to a callback function that uses memcmp() as the element comparison function.
-
-As prototype and example, the following comparison function:
-
-```
-int my_compare( plist* list, plistel* l, plistel* r )
-{
-	usertype*	tr;
-	usertype*	tl;
-
-	tl = (usertype*)plist_access( l );
-	tr = (usertype*)plist_access( r );
-
-	if( tl < tr )
-		return -1;
-	else if( tl > tr )
-		return 1;
-
-	return 0;
-}
-```
-
-This can, than, be attached to the **plist** object with
-
-``` plist_set_sortfn( l, my_compare );
-
-To configure a **plist** object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
-The sorting can be also be performed by invoking the functions
-
-- plist_sort() - to sort the entire list,
-- plist_subsort() - to sort only a part of the list (begin- and end-elements required).
--
-
-=== Interchanging functions ===
-
-**plist** objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind **plist**. Both lists must be configured with the same element memory size, else all functions will fail.
-
-To implement these functions, every **plist** object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
-
-- plist_diff() - checks two lists for same items (equality),
-- plist_union() - extends a list to all elements of a second list that are not equal to elements in the first list.
--
-
-=== Additional functions ===
-
-**plist** provides these additional functions:
-
-- plist_swap() - swaps the two elements within a list,
-- plist_clear() - clear list content without destroying the object,
-- plist_dup() - duplicate list and its items,
-- plist_count() - return number of items in a list.
--
-
+%!include: list.t2t
 
 == pccl ==
 
-The **pccl** object is established on top of the **plist** object and encapsulates easy-to-handle low-level functions for character-class handling.
-
-These functions are heavily used by the library's regular expressions and parser implementations, but may also be helpful for other related projects. The **pccl** can handle character classes, by chaining ranges. It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. **pccl** objects are designed to work on huge alphabets with a low memory consumption. By default, characters are specified as wchar_t wide-character unicode values.
-
-```
-pccl* ccl;
-
-/* Construct a character-class within a universe of the ASCII-alphabet (0-255):
-	"-0123456789ABCDEFGHIJKLMNOQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
-*/
-ccl = p_ccl_create( 0, 255, "A-Za-z0-9_-" );
-
-/* Invert character class */
-p_ccl_negate( ccl );
-
-/* Remove system chars */
-p_ccl_delrange( ccl, 0, 31 );
-
-/* Oh, and delete the "z" */
-p_ccl_del( ccl, 'z' );
-
-/* But add tab again! */
-p_ccl_add( ccl, '\t' );
-
-/* Enable all from 32 to 126  */
-p_ccl_addrange( ccl, ' ', '~' );
-
-/* Alternative way: */
-p_ccl_parse( ccl, " -~", TRUE );
-
-/* Test for characters */
-printf( "A is in? %s\n", BOOLEAN_STR( p_ccl_test( ccl, 'A' ) );
-printf( "a-z are in? %s\n", BOOLEAN_STR( p_ccl_testrange( ccl, 'a', 'z' ) );
-printf( "\\n is in? %s\n", BOOLEAN_STR( p_ccl_test( ccl, '\n' ) );
-
-/* Generate string */
-printf( "My ccl is: %s\n", p_ccl_to_str( ccl, TRUE ) );
-
-/* Drop it! */
-p_ccl_free( ccl );
-```
-
-Useful, additional functions when working with **pccl** are:
-
-- p_ccl_compare() - compary character-classes,
-- p_ccl_diff() - create differencing character-class of two classes,
-- p_ccl_erase() - clear character-class,
-- p_ccl_get() - retrieve characters or ranges by offset,
-- p_ccl_instest() - like p_ccl_test(), but with insensitve-character check,
-- p_ccl_intersect() - create intersection character-class of two classes,
-- p_ccl_print() - print character-class (for debug),
--
-
+%!include: ccl.t2t

@@ -10,6 +10,8 @@ The following example defines a simple grammar, runs a parser and prints the gen
 
 %!include: ``example.c``
 
+(to compile it, run: ``gcc -o example example.c -lphorward``)
+
 Additionally, the toolkit also provides useful general-purpose extensions for dynamic data structures (linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
 
 = FEATURES =
@@ -74,7 +76,7 @@ To compile into 64-Bit Windows executables, configure with
 
 ``` ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 
-= LOCAL DEVELOPMENT MAKE-BASED BUILD-SYSTEM =
+= LOCAL DEVELOPMENT BUILD-SYSTEM =
 
 Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
 
@@ -94,7 +96,13 @@ Note, that changes to the build system then must be done in the local Makefile, 
 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
+It is the result of a several years experience in parser development systems, and has been preceded by the parser generators [UniCC #http://unicc.phorward-software.com/] and [JS/CC #http://jscc.phorward-software.com], and shall be the final step for an ultimate, powerful compiler-frontend toolchain.
+
 Help of any kind to extend and improve this product is always appreciated.
+
+= LICENSE =
+
+This product is an open source software released under the terms and conditions of the 3-clause BSD license.
 
 = COPYRIGHT =
 

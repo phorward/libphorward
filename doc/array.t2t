@@ -1,0 +1,48 @@
+=== Overview ===
+
+The **parray** object is a general-purpose data structure which can be used for several operations. **parray** forms a data management container for handling homogenious elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
+
+=== Construction and destruction ===
+
+**parray** objects are created using parray_create() or initialized with parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with parray_erase(), respectively cleared and freed with parray_free().
+
+```
+parray* a;
+
+a = parray_create( sizeof( usertype ), 0 );
+
+/* Do something... */
+
+parray_free( a );
+```
+
+=== Inserting elements ===
+
+Elements can be inserted with
+
+- parray_insert() - insert element at any desired offset,
+- parray_push() - push element to end of array,
+- parray_shift() - shift element on begin of array,
+- parray_malloc() - zero-initialize new element at end of array, and
+- parray_rmalloc() - zero-initialize new element at begin of array.
+-
+
+```
+parray* a;
+usertype t;
+usertype* tp;
+
+fill_usertype( &t );
+parray_insert( a, 2, &t );
+
+fill_usertype( &t );
+parray_push( a, &t );
+parray_shift( a, &t );
+
+tp = (usertype*)parray_malloc( a );
+fill_usertype( tp );
+tp = (usertype*)parray_rmalloc( a );
+fill_usertype( tp );
+```
+
+=== Accessing and iterating elements ===
