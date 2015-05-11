@@ -132,6 +132,44 @@ The standard memory allocation functions can be replaced by these pendants:
 - pmemdup() - shorthand for malloc() and memcpy().
 -
 
+== Debug and trace facilities ==
+
+Althought this option is not used in modern C/C++ projects, libphorward offers its own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
+
+For this, the library provides the following macros:
+
+- PROC() - starting macro marking a functions entry point,
+- PARMS() - log function parameters,
+- VARS() - log variables,
+- MSG() - debug message
+- RETURN() - return a value
+- VOIDRET - return from a void function.
+-
+
+So a function is written like this in libphorward's way:
+
+```
+int func( int a, char* b )
+{
+	int i;
+
+	PROC( "func" );
+	PARMS( "a", "%d", a );
+	PARMS( "b", "%s", b );
+
+	MSG( "Performing loop..." );
+	for( i = 0; i < a; i++ )
+	{
+		VARS( "i", "%d", i );
+		printf( "%c\n", b[ i ] );
+	}
+
+	MSG( "Ok, everything is fine! :)" );
+	RETURN( i );
+}
+```
+
+Trace is written to stderr, and only will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value > 0.
 
 %-------------------------------------------------------------------------------
 

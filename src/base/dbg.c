@@ -27,7 +27,7 @@ Usage:	Macros and functions for trace output.
 		for( i = 0; i < a; i++ )
 		{
 			VARS( "i", "%d", i );
-			( do an "i" thing ;)
+			printf( "%c\n", b[ i ] );
 		}
 
 		MSG( "Ok, everything is fine! :)" );
