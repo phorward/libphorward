@@ -123,26 +123,26 @@ by the caller.
 */
 char* pdbl_to_str( double d )
 {
-	char*		ret;
 	char*		trail;
+	char		str		[ 128 ];
 
 	PROC( "pdbl_to_str" );
 	PARMS( "d", "%lf", d );
 
-	if( !( ret = pasprintf( "%lf", d ) ) )
-		RETURN( (char*)NULL );
-	VARS( "ret", "%s", ret );
+	sprintf( str, "%lf", d );
+	VARS( "str", "%s", str );
 
-	for( trail = ret + pstrlen( ret ) - 1;
+	for( trail = str + strlen( str ) - 1;
 			*trail == '0'; trail-- )
 		;
 
 	*( trail + 1 ) = '\0';
 
-	VARS( "ret", "%s", ret );
-	RETURN( ret );
+	VARS( "str", "%s", str );
+	RETURN( pstrdup( str ) );
 }
 
+#ifdef UNICODE
 /** Converts a double-value into an allocated wide-character string buffer.
 
 //d// is the double value to become converted. Zero-digits behind the decimal
@@ -155,24 +155,22 @@ by the caller.
 */
 wchar_t* pdbl_to_wcs( double d )
 {
-	wchar_t*		ret;
-	wchar_t*		trail;
+	wchar_t*	trail;
+	wchar_t		str		[ 128 ];
 
 	PROC( "pdbl_to_wcs" );
 	PARMS( "d", "%lf", d );
 
-	if( !( ret = pawcsprintf( L"%lf", d ) ) )
-		RETURN( (wchar_t*)NULL );
+	swprintf( str, sizeof( str ), L"%lf", d );
+	VARS( "str", "%ls", str );
 
-	VARS( "ret", "%ls", ret );
-
-	for( trail = ret + pwcslen( ret ) - 1;
+	for( trail = str + wcslen( str ) - 1;
 			*trail == '0'; trail-- )
 		;
 
 	*( trail + 1 ) = '\0';
 
-	VARS( "ret", "%ls", ret );
-	RETURN( ret );
+	VARS( "str", "%ls", str );
+	RETURN( pwcsdup( str ) );
 }
-
+#endif

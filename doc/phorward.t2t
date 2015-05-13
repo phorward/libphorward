@@ -100,13 +100,9 @@ Note, that changes to the build system then must be done in the local Makefile, 
 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
-It is the result of a several years experience in parser development systems, and has been preceded by the parser generators [UniCC #http://unicc.phorward-software.com/] and [JS/CC #http://jscc.phorward-software.com], and shall be the final step for an ultimate, powerful compiler-frontend toolchain.
+It is the result of a several years experience in parser development systems, and has been preceded by the parser generators [UniCC #http://unicc.phorward-software.com/] and [JS/CC #http://jscc.phorward-software.com]. The libphorward shall be the final step for the most universal, compiler-frontend toolchain, still established on the good, old C programming language.
 
 Help of any kind to extend and improve this product is always appreciated.
-
-== License ==
-
-This product is an open source software released under the terms and conditions of the 3-clause BSD license.
 
 == Copyright ==
 
@@ -118,9 +114,74 @@ THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) ''AS
 
 %-------------------------------------------------------------------------------
 
-= Basic tools =
+= Guidelines =
 
-The Phorward Toolkit provides some extensional basic functions, making C programming a little way easier and simpler. It is not necessary or required to use these functions when creating software that makes use of features from the Phorward Toolchain, but maybe they fit some developer's needs and could be useful.
+The Phorward Toolkit, shortly called libphorward, is a well-established C programming library which has its origins in several existing projects, where many features had been modularized and unified for a general purpose usage.
+
+The roots of this library go back into the year 2006, where Phorward Software began with the development of a universal programming library shared by several C projects that existed at this time. Since then, the library heavily grew and also had many redesign stages behind.
+
+Althought time went on, libphorward still is a state-of-the-art software toolchain for many everyday C programmer's tasks.
+
+libphorward has its own function style paradigm and coding standard. Therefore, the following rules and conditions are characteristic when working with libphorward's tools.
+
+- any functions, data-types and tools provided by libphorward begin with the character "p", defines and constants begin with an uppercase "P". The only exceptions for this are the boolean constants TRUE and FALSE.
+- defines are always written uppercase.
+- all functions are written in underscore-style, so like with camel-case, the function pListGet() is written plist_get() in libphorward.
+-
+
+As general C coding style, we don't use ugly K&R style or any other coding standard style.
+
+The libphorward style is (which is only our style within the library) is:
+
+```
+/* Clear, use of spaces behind and before brackets,
+	curly-bracket blocks are _ALWAYS_ written in SINGLE lines: */
+if( a && !b( c ) )
+{
+	/* newlines on every block */
+	c = 0;
+	we_like_this_style();
+}
+
+/* Block only where more than one statement is executed */
+if( !c )
+	fuck_yeah();
+else
+{
+	c = 0;
+	this_is_better();
+}
+
+/* Cascading view on multiple lines, never go over 80 chars
+	per line */
+if( this_would_be_a_long_condition()
+		&& i_would_prefer_a_cascading_code_style()
+			&& i < 300
+				&& that_looks_cooler_eh() ? FALSE : TRUE )
+	that_s_libphorward_style( TRUE );
+```
+
+If you don't like our coding style, you still can code on your own style, but please not within libphorward's sources for the general public - these shall be kept clear - Thank you! :)
+
+%-------------------------------------------------------------------------------
+
+= General tools =
+
+The Phorward Toolkit provides some extensional general-purpose functions, making C programming a little way easier and simpler. It is not necessary or required to use these functions when creating software that makes use of features from the Phorward Toolchain, but maybe they fit some developer's needs and could be useful.
+
+== Booleans ==
+
+libphorward makes a heavy usage of the self-hosted data-type **pboolean**, which is also referenced by a define //BOOLEAN//, and the constants //TRUE// and //FALSE//.
+
+It is known, that several header files and projects define these constants on their own, so that **pboolean**, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
+
+```
+#ifndef TRUE
+#define TRUE					1
+#endif
+```
+
+within phorward.h.
 
 == Replacement for memory functions ==
 
@@ -129,12 +190,14 @@ The standard memory allocation functions can be replaced by these pendants:
 - pmalloc() - allocate and zero-intialize memory, stop on error.
 - prealloc() - reallocate memory, stop on error.
 - pfree() - free memory and return (void*)NULL pointer.
-- pmemdup() - shorthand for malloc() and memcpy().
+- pmemdup() - shorthand for malloc() with memcpy().
 -
+
+These functions are entirely used trough libphorward's internal object mapping functions.
 
 == Debug and trace facilities ==
 
-Althought this option is not used in modern C/C++ projects, libphorward offers its own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
+Althought this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
 
 For this, the library provides the following macros:
 
@@ -146,30 +209,135 @@ For this, the library provides the following macros:
 - VOIDRET - return from a void function.
 -
 
-So a function is written like this in libphorward's way:
+So when a function is written like this in libphorward's way:
 
 ```
-int func( int a, char* b )
+int faculty( int x )
 {
-	int i;
+	int ret;
 
-	PROC( "func" );
-	PARMS( "a", "%d", a );
-	PARMS( "b", "%s", b );
+	PROC( "faculty" );
+	PARMS( "x", "%d", x );
 
-	MSG( "Performing loop..." );
-	for( i = 0; i < a; i++ )
+	if( x < 0 )
 	{
-		VARS( "i", "%d", i );
-		printf( "%c\n", b[ i ] );
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+	else if( x == 0 )
+	{
+		MSG( "x is 0, so faculty is 1" );
+		RETURN( 1 );
+	}
+	else
+	{
+		MSG( "Calling faculty recursively with:" );
+		VARS( "x - 1", "%d", x - 1 );
+		ret = x * faculty( x - 1 );
 	}
 
-	MSG( "Ok, everything is fine! :)" );
-	RETURN( i );
+	VARS( "ret", "%d", ret );
+	RETURN( ret );
 }
 ```
 
 Trace is written to stderr, and only will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value > 0.
+
+Calling this function with
+
+``` faculty( 3 );
+
+yields in a debug log
+
+```
+20772 (demo.c:  380) {
+20772 (demo.c:  380) .ENTRY : faculty
+20772 (demo.c:  381) .PARMS : x = >3<
+20772 (demo.c:  395) .MSG   : Calling faculty recursively with:
+20772 (demo.c:  396) .VARS  : x - 1 = >2<
+20772 (demo.c:  380) .{
+20772 (demo.c:  380) ..ENTRY : faculty
+20772 (demo.c:  381) ..PARMS : x = >2<
+20772 (demo.c:  395) ..MSG   : Calling faculty recursively with:
+20772 (demo.c:  396) ..VARS  : x - 1 = >1<
+20772 (demo.c:  380) ..{
+20772 (demo.c:  380) ...ENTRY : faculty
+20772 (demo.c:  381) ...PARMS : x = >1<
+20772 (demo.c:  395) ...MSG   : Calling faculty recursively with:
+20772 (demo.c:  396) ...VARS  : x - 1 = >0<
+20772 (demo.c:  380) ...{
+20772 (demo.c:  380) ....ENTRY : faculty
+20772 (demo.c:  381) ....PARMS : x = >0<
+20772 (demo.c:  390) ....MSG   : x is 0, so faculty is 1
+20772 (demo.c:  391) ....RETURN: faculty
+20772 (demo.c:  391) ...}
+20772 (demo.c:  400) ...VARS  : ret = >1<
+20772 (demo.c:  401) ...RETURN: faculty
+20772 (demo.c:  401) ..}
+20772 (demo.c:  400) ..VARS  : ret = >2<
+20772 (demo.c:  401) ..RETURN: faculty
+20772 (demo.c:  401) .}
+20772 (demo.c:  400) .VARS  : ret = >6<
+20772 (demo.c:  401) .RETURN: faculty
+20772 (demo.c:  401) }
+```
+
+== Command-line tools ==
+
+libphorward also provides some general-purpose command-line tools which are installed and made available. These tools are heavily used by libphorward's own build process.
+
+- pproto - is a function prototype generator,
+- pinclude - is some kind of simple pre-processor to generate one big file from various smaller ones,
+- premcomments - remove any comments from C sources
+- pdostounix - Convert DOS-formatted text into Unix format.
+-
+
+The general command-line tools are written as shell scripts in combination with standard Unix command-line utilities like awk, grep and sed.
+
+%TODO: doc generator
+
+%-------------------------------------------------------------------------------
+
+= String tools =
+
+The libphorward provides a set of functions for extended, dynamic string memory handling.
+
+These function are
+
+- pstrcasecmp() - case-insensitive string comparison,
+- pstrcatchar() - append character to string with dynamic allocation,
+- pstrcatstr() - append string to string with dynamic allocation,
+- pstrdup() - duplicate string, also accepts NULL-pointers,
+- pstrget() - securely get string from a pointer,
+- pstrlen() - return length ot string, also accepts NULL-pointers,
+- pstrltrim() - remove prefixing whitespace,
+- pstrlwr() - convert string to lower-case-order,
+- pstrncasecmp() - case-insensitive string comparison over maximum length,
+- pstrncatstr() - append string to string with dynamic allocation and maximum length,
+- pstrndup() - duplicate string with maximum length,
+- pstrparsechar() - parse an escaped character sequence into a wide-character
+- pstrput() - securely set an allocated string into a pointer,
+- pstrrender() - dynamically render a string with placeholder substitution
+- pstrreplace() - dynamically replace substrings within string,
+- pstrrtrim() - remove trailing whitespace,
+- pstrsplit() - dynamic tokenizer,
+- pstrtrim() - remove prefixing and trailing whitespace,
+- pstrupr() - convert string to lower-case-order.
+-
+
+Additionally, the following pendants for white-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
+
+- pwcscatchar() - append character to wide-character string with dynamic allocation,
+- pwcscatstr() - append wide-character string to wide-character string with dynamic allocation,
+- pwcsdup() - duplicate wide-character string, also accepts NULL-pointers,
+- pwcslen() - return length ot wide-character string, also accepts NULL-pointers,
+- pwcsncatstr() - append wide-character string to wide-character string with dynamic allocation and maximum length,
+- pwcsndup() - duplicate wide-character string with maximum length.
+-
+
+Althought the wide-character pendants to the standard extended string functions are not consistent, they may be extended in the future, when the existence of such function is required (or another, brave programmer could enjoy the fun to implement them!).
+
+
 
 %-------------------------------------------------------------------------------
 
@@ -186,3 +354,4 @@ Trace is written to stderr, and only will be compiled into the executable code i
 == pccl ==
 
 %!include: ccl.t2t
+

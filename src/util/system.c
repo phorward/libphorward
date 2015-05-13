@@ -297,7 +297,7 @@ int pgetopt( char* opt, char** param, int* next,
 
 						if( !idx )
 						{
-							psprintf( opt, "%c", *pos );
+							sprintf( opt, "%c", *pos );
 
 							if( next )
 								*next = i + 1;
@@ -349,7 +349,7 @@ int pgetopt( char* opt, char** param, int* next,
 
 					if( !idx )
 					{
-						psprintf( opt, "%.*s", (int)( del - pos ), str );
+						sprintf( opt, "%.*s", (int)( del - pos ), str );
 
 						if( next )
 							*next = i + 1;

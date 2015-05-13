@@ -442,7 +442,7 @@ static void pregex_char_to_REGEX( char* str, int size,
 {
 	if( ( !in_range && ( strchr( "|()[]*+?", ch ) || ch == '.' ) ) ||
 			( in_range && ch == ']' ) )
-		psprintf( str, "\\%c", (char)ch );
+		sprintf( str, "\\%c", (char)ch );
 	else if( escape )
 		u8_escape_wchar( str, size, ch );
 	else
@@ -515,7 +515,7 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 		if( cfrom < cto )
 		{
 			pregex_char_to_REGEX( to, (int)sizeof( to ), cto, TRUE, range );
-			psprintf( from + strlen( from ), "%s%s",
+			sprintf( from + strlen( from ), "%s%s",
 				cfrom + 1 < cto ? "-" : "", to );
 		}
 

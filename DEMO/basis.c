@@ -392,7 +392,7 @@ int faculty( int x )
 	}
 	else
 	{
-		MSG( "Calling dbg_demo recurisvely with:" );
+		MSG( "Calling faculty recurisvely with:" );
 		VARS( "x - 1", "%d", x - 1 );
 		ret = x * faculty( x - 1 );
 	}

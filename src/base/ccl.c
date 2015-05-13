@@ -869,7 +869,7 @@ pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 	if( !extend )
 		p_ccl_erase( ccl );
 
-	for( cclptr = pgetstr( ccldef ); *cclptr; )
+	for( cclptr = pstrget( ccldef ); *cclptr; )
 	{
 		VARS( "cclptr", "%s", cclptr );
 

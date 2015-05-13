@@ -530,13 +530,13 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 #ifdef DEBUG
 	if( regex && regex->flags & PREGEX_RUN_WCHAR )
 	{
-		PARMS( "str", "%ls", pgetstr( str ) );
-		PARMS( "replacement", "%ls", pgetstr( replacement ) );
+		PARMS( "str", "%ls", pstrget( str ) );
+		PARMS( "replacement", "%ls", pstrget( replacement ) );
 	}
 	else
 	{
-		PARMS( "str", "%s", pgetstr( str ) );
-		PARMS( "replacement", "%s", pgetstr( replacement ) );
+		PARMS( "str", "%s", pstrget( str ) );
+		PARMS( "replacement", "%s", pstrget( replacement ) );
 	}
 #endif
 

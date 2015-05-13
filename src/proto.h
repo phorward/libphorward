@@ -216,7 +216,9 @@ char* pregex_replace( pregex* regex, char* str, char* replacement );
 char* pwcs_to_str( wchar_t* str, pboolean freestr );
 wchar_t* pstr_to_wcs( char* str, pboolean freestr );
 char* pdbl_to_str( double d );
+#ifdef UNICODE
 wchar_t* pdbl_to_wcs( double d );
+#endif
 
 /* string/string.c */
 char* pstrcatchar( char* str, wchar_t chr );
@@ -226,11 +228,8 @@ char* pstrreplace( char* str, char* find, char* replace );
 char* pstrdup( char* str );
 char* pstrndup( char* str, size_t len );
 size_t pstrlen( char* str );
-int psprintf( char* res, char* fmt, ... );
-int pvasprintf( char** str, char* fmt, va_list ap );
-char* pasprintf( char* fmt, ... );
-char* psetstr( char** str, char* val );
-char* pgetstr( char* str );
+char* pstrput( char** str, char* val );
+char* pstrget( char* str );
 char* pstrrender( char* tpl, ... );
 char* pstrltrim( char* s );
 char* pstrrtrim( char* s );
@@ -241,17 +240,18 @@ char* pstrlwr( char* s );
 int pstrcasecmp( char* s1, char* s2 );
 int pstrncasecmp( char* s1, char* s2, int n );
 int pstrparsechar( wchar_t* retc, char *str, pboolean escapeseq );
+int pvasprintf( char** str, char* fmt, va_list ap );
+char* pasprintf( char* fmt, ... );
 #ifdef UNICODE
 wchar_t* pwcsdup( wchar_t* str );
-int pwcsprintf( wchar_t* res, wchar_t* fmt, ... );
-int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap );
-wchar_t* pawcsprintf( wchar_t* fmt, ... );
 wchar_t* pwcscatchar( wchar_t* str, wchar_t chr );
-wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, boolean freesrc );
-wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t num );
+wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc );
+wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n );
 size_t pwcslen( wchar_t* str );
 wchar_t* pwcsndup( wchar_t* str, size_t len );
-#endif
+int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap );
+wchar_t* pawcsprintf( wchar_t* fmt, ... );
+#endif 
 
 /* string/utf8.c */
 pboolean u8_isutf( unsigned char c );

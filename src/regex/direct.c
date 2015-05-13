@@ -33,8 +33,8 @@ int pregex_qmatch( char* regex, char* str, int flags, parray** matches )
 	pregex*		re;
 
 	PROC( "pregex_qmatch" );
-	PARMS( "regex", "%s", pgetstr( regex ) );
-	PARMS( "str", "%s", pgetstr( str ) );
+	PARMS( "regex", "%s", pstrget( regex ) );
+	PARMS( "str", "%s", pstrget( str ) );
 	PARMS( "flags", "%d", flags );
 	PARMS( "matches", "%p", matches );
 
@@ -73,8 +73,8 @@ int pregex_qsplit( char* regex, char* str, int flags, parray** matches )
 	pregex*		re;
 
 	PROC( "pregex_qsplit" );
-	PARMS( "regex", "%s", pgetstr( regex ) );
-	PARMS( "str", "%s", pgetstr( str ) );
+	PARMS( "regex", "%s", pstrget( regex ) );
+	PARMS( "str", "%s", pstrget( str ) );
 	PARMS( "flags", "%d", flags );
 	PARMS( "matches", "%p", matches );
 
@@ -114,9 +114,9 @@ char* pregex_qreplace( char* regex, char* str, char* replace, int flags )
 	pregex*			re;
 
 	PROC( "pregex_qreplace" );
-	PARMS( "regex", "%s", pgetstr( regex ) );
-	PARMS( "str", "%s", pgetstr( str ) );
-	PARMS( "replace", "%s", pgetstr( replace ) );
+	PARMS( "regex", "%s", pstrget( regex ) );
+	PARMS( "str", "%s", pstrget( str ) );
+	PARMS( "replace", "%s", pstrget( replace ) );
 	PARMS( "flags", "%d", flags );
 
 	if( !( regex && str ) )
