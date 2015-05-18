@@ -78,7 +78,7 @@ END									{
 										var_emptyval = types[5]
 
 										if( var_define == "" )
-											var_define = "PGVALUETYPE_" \
+											var_define = "PVALUETYPE_" \
 												toupper( var_type )
 
 										variants[ ++variants_cnt ] = datatype

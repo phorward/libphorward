@@ -221,8 +221,8 @@ wchar_t* pdbl_to_wcs( double d );
 #endif
 
 /* string/string.c */
-char* pstrcatchar( char* str, wchar_t chr );
-char* pstrcatstr( char* dest, char* src, boolean freesrc );
+char* pstrcatchar( char* str, char chr );
+char* pstrcatstr( char* dest, char* src, pboolean freesrc );
 char* pstrncatstr( char* str, char* append, size_t n );
 char* pstrreplace( char* str, char* find, char* replace );
 char* pstrdup( char* str );

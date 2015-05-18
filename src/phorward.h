@@ -571,22 +571,22 @@ typedef struct
 
 typedef enum
 {
-	PGVALUETYPE_NULL,
+	PVALUETYPE_NULL,
 
 	
-	PGVALUETYPE_CHAR,
-	PGVALUETYPE_INT,
-	PGVALUETYPE_LONG,
-	PGVALUETYPE_ULONG,
-	PGVALUETYPE_FLOAT,
-	PGVALUETYPE_DOUBLE,
+	PVALUETYPE_CHAR,
+	PVALUETYPE_INT,
+	PVALUETYPE_LONG,
+	PVALUETYPE_ULONG,
+	PVALUETYPE_FLOAT,
+	PVALUETYPE_DOUBLE,
 
 	
-	PGVALUETYPE_STR,
-	PGVALUETYPE_WCS,
+	PVALUETYPE_STR,
+	PVALUETYPE_WCS,
 
 	
-	PGVALUETYPE_PTR
+	PVALUETYPE_PTR
 } pvaluetype;
 
 
@@ -971,8 +971,8 @@ wchar_t* pdbl_to_wcs( double d );
 #endif
 
 
-char* pstrcatchar( char* str, wchar_t chr );
-char* pstrcatstr( char* dest, char* src, boolean freesrc );
+char* pstrcatchar( char* str, char chr );
+char* pstrcatstr( char* dest, char* src, pboolean freesrc );
 char* pstrncatstr( char* str, char* append, size_t n );
 char* pstrreplace( char* str, char* find, char* replace );
 char* pstrdup( char* str );

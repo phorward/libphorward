@@ -24,23 +24,23 @@ char pvalue_to_char( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( val->val.c );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( (char)val->val.i );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( (char)val->val.l );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( (char)val->val.ul );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( (char)val->val.f );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( (char)val->val.d );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( (char)strtol( val->val.s, (char**)NULL, 0 ) );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( (char)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( (char)0 );
 	}
 
@@ -67,23 +67,23 @@ int pvalue_to_int( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( (int)val->val.c );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( val->val.i );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( (int)val->val.l );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( (int)val->val.ul );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( (int)val->val.f );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( (int)val->val.d );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( (int)strtol( val->val.s, (char**)NULL, 0 ) );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( (int)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( (int)0 );
 	}
 
@@ -110,23 +110,23 @@ long pvalue_to_long( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( (long)val->val.c );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( (long)val->val.i );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( val->val.l );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( (long)val->val.ul );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( (long)val->val.f );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( (long)val->val.d );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( (long)strtol( val->val.s, (char**)NULL, 0 ) );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( (long)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( (long)val->val.ptr );
 	}
 
@@ -153,23 +153,23 @@ ulong pvalue_to_ulong( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( (ulong)val->val.c );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( (ulong)val->val.i );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( (ulong)val->val.l );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( val->val.ul );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( (ulong)val->val.f );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( (ulong)val->val.d );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( (ulong)strtol( val->val.s, (char**)NULL, 0 ) );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( (ulong)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( (ulong)val->val.ptr );
 	}
 
@@ -196,23 +196,23 @@ float pvalue_to_float( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( (float)val->val.c );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( (float)val->val.i );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( (float)val->val.l );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( (float)val->val.ul );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( val->val.f );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( (float)val->val.d );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( (float)strtod( val->val.s, (char**)NULL ) );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( (float)wcstod( val->val.ws, (wchar_t**)NULL ) );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( (float)0.0 );
 	}
 
@@ -239,23 +239,23 @@ double pvalue_to_double( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( (double)val->val.c );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( (double)val->val.i );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( (double)val->val.l );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( (double)val->val.ul );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( (double)val->val.f );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( val->val.d );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( (double)strtod( val->val.s, (char**)NULL ) );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( (double)wcstod( val->val.ws, (wchar_t**)NULL ) );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( (double)0.0 );
 	}
 
@@ -282,23 +282,23 @@ char* pvalue_to_str( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( (char*)pasprintf( "%d", val->val.c ) );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( (char*)pasprintf( "%d", val->val.i ) );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( (char*)pasprintf( "%ld", val->val.l ) );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( (char*)pasprintf( "%ld", val->val.ul ) );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( (char*)pdbl_to_str( (double)val->val.f ) );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( (char*)pdbl_to_str( val->val.d ) );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( val->val.s );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( (char*)pwcs_to_str( val->val.ws, FALSE ) );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( (char*)pasprintf( "%p", val->val.ptr ) );
 	}
 
@@ -325,23 +325,23 @@ wchar_t* pvalue_to_wcs( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( (wchar_t*)pawcsprintf( L"%d", val->val.c ) );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( (wchar_t*)pawcsprintf( L"%d", val->val.i ) );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( (wchar_t*)pawcsprintf( L"%ld", val->val.l ) );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( (wchar_t*)pawcsprintf( L"%ld", val->val.ul ) );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( (wchar_t*)pdbl_to_wcs( (double)val->val.f ) );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( (wchar_t*)pdbl_to_wcs( val->val.d ) );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( (wchar_t*)pstr_to_wcs( val->val.s, FALSE ) );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( val->val.ws );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( (wchar_t*)pawcsprintf( L"%p", val->val.ptr ) );
 	}
 
@@ -368,23 +368,23 @@ void* pvalue_to_ptr( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			RETURN( (void*)NULL );
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			RETURN( (void*)NULL );
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			RETURN( (void*)val->val.l );
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			RETURN( (void*)val->val.ul );
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			RETURN( (void*)NULL );
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			RETURN( (void*)NULL );
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			RETURN( (void*)val->val.s );
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			RETURN( (void*)val->val.ws );
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			RETURN( val->val.ptr );
 	}
 
@@ -416,39 +416,39 @@ pboolean pvalue_convert( pvalue* val, pvaluetype type )
 
 	switch( type )
 	{
-		case PGVALUETYPE_CHAR:
+		case PVALUETYPE_CHAR:
 			pvalue_set_char( val, pvalue_to_char( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_INT:
+		case PVALUETYPE_INT:
 			pvalue_set_int( val, pvalue_to_int( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_LONG:
+		case PVALUETYPE_LONG:
 			pvalue_set_long( val, pvalue_to_long( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_ULONG:
+		case PVALUETYPE_ULONG:
 			pvalue_set_ulong( val, pvalue_to_ulong( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_FLOAT:
+		case PVALUETYPE_FLOAT:
 			pvalue_set_float( val, pvalue_to_float( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_DOUBLE:
+		case PVALUETYPE_DOUBLE:
 			pvalue_set_double( val, pvalue_to_double( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			pvalue_set_str( val, pvalue_to_str( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			pvalue_set_wcs( val, pvalue_to_wcs( val ) );
 			RETURN( TRUE );
 
-		case PGVALUETYPE_PTR:
+		case PVALUETYPE_PTR:
 			pvalue_set_ptr( val, pvalue_to_ptr( val ) );
 			RETURN( TRUE );
 

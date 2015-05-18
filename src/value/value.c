@@ -33,7 +33,7 @@ pboolean pvalue_init( pvalue* val )
 	}
 
 	memset( val, 0, sizeof( pvalue ) );
-	val->type = PGVALUETYPE_NULL;
+	val->type = PVALUETYPE_NULL;
 
 	RETURN( TRUE );
 }
@@ -54,7 +54,7 @@ pvalue* pvalue_create( void )
 /** Frees all memory used by a pvalue-element.
 
 All memory used by the element is freed, and the union's structure is reset
-to be of type PGVALUETYPE_NULL.
+to be of type PVALUETYPE_NULL.
 
 //val// is the pointer to pvalue structure. */
 pboolean pvalue_reset( pvalue* val )
@@ -70,11 +70,11 @@ pboolean pvalue_reset( pvalue* val )
 
 	switch( val->type )
 	{
-		case PGVALUETYPE_STR:
+		case PVALUETYPE_STR:
 			pfree( val->val.s );
 			break;
 
-		case PGVALUETYPE_WCS:
+		case PVALUETYPE_WCS:
 			pfree( val->val.ws );
 			break;
 
@@ -83,7 +83,7 @@ pboolean pvalue_reset( pvalue* val )
 			break;
 	}
 
-	val->type = PGVALUETYPE_NULL;
+	val->type = PVALUETYPE_NULL;
 
 	RETURN( TRUE );
 }
@@ -112,7 +112,7 @@ pboolean pvalue_parse( pvalue* val, char* str, pvaluetype prefer )
 		return FALSE;
 	}
 
-	if( prefer != PGVALUETYPE_NULL )
+	if( prefer != PVALUETYPE_NULL )
 	{
 		switch( prefer )
 		{

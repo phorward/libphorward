@@ -124,14 +124,13 @@ Althought time went on, libphorward still is a state-of-the-art software toolcha
 
 libphorward has its own function style paradigm and coding standard. Therefore, the following rules and conditions are characteristic when working with libphorward's tools.
 
-- any functions, data-types and tools provided by libphorward begin with the character "p", defines and constants begin with an uppercase "P". The only exceptions for this are the boolean constants TRUE and FALSE.
-- defines are always written uppercase.
-- all functions are written in underscore-style, so like with camel-case, the function pListGet() is written plist_get() in libphorward.
+- any functions, data-types and tools provided by libphorward begin with the prefixing character "p", defines and constants begin with an uppercase "P". The only exceptions for this are the boolean constants TRUE and FALSE, and the debug macros.
+- defines are always written in uppercase-order.
+- all functions are written in an underscore-style, so like with camel-case, the function ``pListGet()`` is written ``plist_get()`` in libphorward.
 -
 
 As general C coding style, we don't use ugly K&R style or any other coding standard style.
-
-The libphorward style is (which is only our style within the library) is:
+The libphorward style (which is only our style within the library) is:
 
 ```
 /* Clear, use of spaces behind and before brackets,
@@ -161,7 +160,7 @@ if( this_would_be_a_long_condition()
 	that_s_libphorward_style( TRUE );
 ```
 
-If you don't like our coding style, you still can code on your own style, but please not within libphorward's sources for the general public - these shall be kept clear - Thank you! :)
+If you don't like our coding style, you still can code on your own style, but please not within libphorward's own sources which are for the general public - these shall be kept clear - Thank you! :)
 
 %-------------------------------------------------------------------------------
 
@@ -315,9 +314,9 @@ These function are
 - pstrncasecmp() - case-insensitive string comparison over maximum length,
 - pstrncatstr() - append string to string with dynamic allocation and maximum length,
 - pstrndup() - duplicate string with maximum length,
-- pstrparsechar() - parse an escaped character sequence into a wide-character
+- pstrparsechar() - parse an escaped character sequence into a wide-character,
 - pstrput() - securely set an allocated string into a pointer,
-- pstrrender() - dynamically render a string with placeholder substitution
+- pstrrender() - dynamically render a string with placeholder substitution,
 - pstrreplace() - dynamically replace substrings within string,
 - pstrrtrim() - remove trailing whitespace,
 - pstrsplit() - dynamic tokenizer,
@@ -325,7 +324,7 @@ These function are
 - pstrupr() - convert string to lower-case-order.
 -
 
-Additionally, the following pendants for white-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
+Additionally, the following pendants for wide-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
 
 - pwcscatchar() - append character to wide-character string with dynamic allocation,
 - pwcscatstr() - append wide-character string to wide-character string with dynamic allocation,
@@ -335,7 +334,7 @@ Additionally, the following pendants for white-character strings (wchar_t) exist
 - pwcsndup() - duplicate wide-character string with maximum length.
 -
 
-Althought the wide-character pendants to the standard extended string functions are not consistent, they may be extended in the future, when the existence of such function is required (or another, brave programmer could enjoy the fun to implement them!).
+Althought the wide-character pendants to the standard extended string functions are not consistent, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having fun to implement them.
 
 
 

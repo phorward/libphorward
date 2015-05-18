@@ -46,3 +46,63 @@ fill_usertype( tp );
 ```
 
 === Accessing and iterating elements ===
+
+Direct access to specific elements is done using
+
+- parray_get() - get element by offset from begin, and
+- parray_rget() - get element by offset from end.
+-
+
+Iterating over the elements:
+
+```
+parray* a;
+usertype* tp;
+int i;
+
+/* Iterate from first to last. */
+for( i = 0; ( tp = (usertype*)parray_get( a, i ) ); i++ )
+	;
+
+/* Iterate from last to first. */
+for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
+	;
+```
+
+Elements can be replaced with
+
+- parray_put() - put element by offset from begin, respective
+- parray_rput() - put element by offset from end.
+-
+
+Quick access to the first or last elements is gained by parray_last() and parray_first().
+
+=== Removing elements ===
+
+Elements can be removed with
+
+- parray_remove() - remove element at any desired offset,
+- parray_pop() - remove last element like from a stack, and
+- parray_unshift() - remove first element.
+-
+
+```
+parray* a;
+usertype t;
+usertype* tp;
+
+parray_remove( a, 2, &t );
+tp = (usertype*)parray_pop( a );
+tp = (usertype*)parray_unshift( a );
+```
+
+=== Additional functions ===
+
+Other, useful functions are
+
+- parray_count() - get number of elements within object,
+- parray_offset() - get offset of element by pointer,
+- parray_partof() - check if element is part of object,
+- parray_swap() - swap two elements within an object,
+- parray_reserve() - assume memory pre-allocation; This is interesting for stack operations.
+-

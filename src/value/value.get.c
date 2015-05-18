@@ -26,12 +26,12 @@ char pvalue_get_char( pvalue* val )
 		RETURN( (char)0 );
 	}
 
-	if( val->type != PGVALUETYPE_CHAR)
+	if( val->type != PVALUETYPE_CHAR)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_CHAR ) )
+			if( !pvalue_convert( val, PVALUETYPE_CHAR ) )
 				RETURN( (char)0 );
 		}
 		else
@@ -62,12 +62,12 @@ int pvalue_get_int( pvalue* val )
 		RETURN( (int)0 );
 	}
 
-	if( val->type != PGVALUETYPE_INT)
+	if( val->type != PVALUETYPE_INT)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_INT ) )
+			if( !pvalue_convert( val, PVALUETYPE_INT ) )
 				RETURN( (int)0 );
 		}
 		else
@@ -98,12 +98,12 @@ long pvalue_get_long( pvalue* val )
 		RETURN( (long)0 );
 	}
 
-	if( val->type != PGVALUETYPE_LONG)
+	if( val->type != PVALUETYPE_LONG)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_LONG ) )
+			if( !pvalue_convert( val, PVALUETYPE_LONG ) )
 				RETURN( (long)0 );
 		}
 		else
@@ -134,12 +134,12 @@ ulong pvalue_get_ulong( pvalue* val )
 		RETURN( (ulong)0 );
 	}
 
-	if( val->type != PGVALUETYPE_ULONG)
+	if( val->type != PVALUETYPE_ULONG)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_ULONG ) )
+			if( !pvalue_convert( val, PVALUETYPE_ULONG ) )
 				RETURN( (ulong)0 );
 		}
 		else
@@ -170,12 +170,12 @@ float pvalue_get_float( pvalue* val )
 		RETURN( (float)0.0 );
 	}
 
-	if( val->type != PGVALUETYPE_FLOAT)
+	if( val->type != PVALUETYPE_FLOAT)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_FLOAT ) )
+			if( !pvalue_convert( val, PVALUETYPE_FLOAT ) )
 				RETURN( (float)0.0 );
 		}
 		else
@@ -206,12 +206,12 @@ double pvalue_get_double( pvalue* val )
 		RETURN( (double)0.0 );
 	}
 
-	if( val->type != PGVALUETYPE_DOUBLE)
+	if( val->type != PVALUETYPE_DOUBLE)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_DOUBLE ) )
+			if( !pvalue_convert( val, PVALUETYPE_DOUBLE ) )
 				RETURN( (double)0.0 );
 		}
 		else
@@ -242,12 +242,12 @@ char* pvalue_get_cstr( pvalue* val )
 		RETURN( (char*)NULL );
 	}
 
-	if( val->type != PGVALUETYPE_STR)
+	if( val->type != PVALUETYPE_STR)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_STR ) )
+			if( !pvalue_convert( val, PVALUETYPE_STR ) )
 				RETURN( (char*)NULL );
 		}
 		else
@@ -278,12 +278,12 @@ char* pvalue_get_str( pvalue* val )
 		RETURN( (char*)NULL );
 	}
 
-	if( val->type != PGVALUETYPE_STR)
+	if( val->type != PVALUETYPE_STR)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_STR ) )
+			if( !pvalue_convert( val, PVALUETYPE_STR ) )
 				RETURN( (char*)NULL );
 		}
 		else
@@ -314,12 +314,12 @@ wchar_t* pvalue_get_cwcs( pvalue* val )
 		RETURN( (wchar_t*)NULL );
 	}
 
-	if( val->type != PGVALUETYPE_WCS)
+	if( val->type != PVALUETYPE_WCS)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_WCS ) )
+			if( !pvalue_convert( val, PVALUETYPE_WCS ) )
 				RETURN( (wchar_t*)NULL );
 		}
 		else
@@ -350,12 +350,12 @@ wchar_t* pvalue_get_wcs( pvalue* val )
 		RETURN( (wchar_t*)NULL );
 	}
 
-	if( val->type != PGVALUETYPE_WCS)
+	if( val->type != PVALUETYPE_WCS)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_WCS ) )
+			if( !pvalue_convert( val, PVALUETYPE_WCS ) )
 				RETURN( (wchar_t*)NULL );
 		}
 		else
@@ -386,12 +386,12 @@ void* pvalue_get_ptr( pvalue* val )
 		RETURN( (void*)NULL );
 	}
 
-	if( val->type != PGVALUETYPE_PTR)
+	if( val->type != PVALUETYPE_PTR)
 	{
 		if( pvalue_get_autoconvert( val ) )
 		{
 			MSG( "Conversion allowed and required" );
-			if( !pvalue_convert( val, PGVALUETYPE_PTR ) )
+			if( !pvalue_convert( val, PVALUETYPE_PTR ) )
 				RETURN( (void*)NULL );
 		}
 		else

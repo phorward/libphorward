@@ -18,22 +18,22 @@ Usage:	Structures and definitions for a variant-style data storage type pvalue.
 /* Defines */
 typedef enum
 {
-	PGVALUETYPE_NULL,
+	PVALUETYPE_NULL,
 
 	/* Primary */
-	PGVALUETYPE_CHAR,
-	PGVALUETYPE_INT,
-	PGVALUETYPE_LONG,
-	PGVALUETYPE_ULONG,
-	PGVALUETYPE_FLOAT,
-	PGVALUETYPE_DOUBLE,
+	PVALUETYPE_CHAR,
+	PVALUETYPE_INT,
+	PVALUETYPE_LONG,
+	PVALUETYPE_ULONG,
+	PVALUETYPE_FLOAT,
+	PVALUETYPE_DOUBLE,
 
 	/* String */
-	PGVALUETYPE_STR,
-	PGVALUETYPE_WCS,
+	PVALUETYPE_STR,
+	PVALUETYPE_WCS,
 
 	/* Special */
-	PGVALUETYPE_PTR
+	PVALUETYPE_PTR
 } pvaluetype;
 
 
@@ -93,7 +93,7 @@ typedef struct
 		*/
 
 		char*	s;
-		/*vargen:cstr:%s:PGVALUETYPE_STR:NULL
+		/*vargen:cstr:%s:PVALUETYPE_STR:NULL
 			set: pvalue_set_constant( val, TRUE );
 		*/
 		/*vargen:str:%s::NULL
@@ -108,7 +108,7 @@ typedef struct
 		*/
 
 		wchar_t*	ws;
-		/*vargen:cwcs:%ls:PGVALUETYPE_WCS:NULL
+		/*vargen:cwcs:%ls:PVALUETYPE_WCS:NULL
 			set: pvalue_set_constant( val, TRUE );
 		*/
 		/*vargen:wcs:%ls::NULL

@@ -27,7 +27,7 @@ Returns a char*-pointer to the (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated. This pointer must
 be released with pfree() when its existence is no longer required.
 */
-char* pstrcatchar( char* str, wchar_t chr )
+char* pstrcatchar( char* str, char chr )
 {
 	PROC( "pstrcatchar" );
 	PARMS( "str", "%p", str );
@@ -48,7 +48,7 @@ char* pstrcatchar( char* str, wchar_t chr )
 	{
 		MSG( "Reallocating existing string" );
 		str = (char*)prealloc( (char*)str,
-				( pstrlen( str ) + 1 + 1) * sizeof( char ) );
+				( pstrlen( str ) + 1 + 1 ) * sizeof( char ) );
 	}
 
 	VARS( "str", "%p", str );
@@ -79,12 +79,12 @@ where NULL. If //dest// is NULL and //freesrc// is FALSE, the function
 automatically returns the pointer //src//. This pointer must be released with
 pfree() when its existence is no longer required.
 */
-char* pstrcatstr( char* dest, char* src, boolean freesrc )
+char* pstrcatstr( char* dest, char* src, pboolean freesrc )
 {
 	PROC( "pstrcatstr" );
 	PARMS( "dest", "%p", dest );
 	PARMS( "src", "%p", src );
-	PARMS( "freesrc", "%d", freesrc );
+	PARMS( "freesrc", "%s", BOOLEAN_STR( freesrc ) );
 
 	if( src )
 	{
@@ -355,7 +355,7 @@ strings.
 //tpl// is the template string to be rendered with values.
 //...// are the set of values to be inserted into the desired position;
 
-These must be always consist of three values each:
+These consist of three values each:
 
 - //char* name// as a wildcard-name
 - //char* value// as the replacement value for the wildcard
@@ -529,8 +529,7 @@ Requires a pointer to char**.
 //limit// is the token limit; If set to 0, there is no token limit available, so
 that as much as possible tokens are read.
 
-Returns the number of separated tokens, or negative values with errorcode
-in error case.
+Returns the number of separated tokens, or -1 on error.
 */
 int pstrsplit( char*** tokens, char* str, char* sep, int limit )
 {
@@ -790,7 +789,7 @@ int pstrparsechar( wchar_t* retc, char *str, pboolean escapeseq )
     RETURN( (int)( p - str ) );
 }
 
-/* These functions are marked for removal, but are still in use. */
+/* These two functions are marked for removal, but are still in use. */
 
 /*REMOVE?*/
 /** Implementation and replacement for vasprintf.
@@ -889,7 +888,7 @@ char* pasprintf( char* fmt, ... )
 }
 
 /******************************************************************************
- * FUNCTIONS FOR UNICODE PROCESSING (wchar_t)                                   *
+ * FUNCTIONS FOR UNICODE PROCESSING (wchar_t)                                 *
  ******************************************************************************/
 
 #ifdef UNICODE
@@ -913,8 +912,8 @@ wchar_t* pwcsdup( wchar_t* str )
 /** Appends a character to a dynamic wide-character string.
 
 //str// is the pointer to a wchar_t-string to be appended. If this is
-(wchar_t*)NULL, the string is newly allocated. //chr// is the the character to be
-appended to str.
+(wchar_t*)NULL, the string is newly allocated. //chr// is the the character
+to be appended to str.
 
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated.
@@ -1094,7 +1093,7 @@ wchar_t* pwcsndup( wchar_t* str, size_t len )
 	return ret;
 }
 
-/* These functions are also marked for removal: */
+/* These two functions are also marked for removal: */
 
 /* REMOVE! */
 /* Wide-character implementation of pasprintf().
@@ -1103,7 +1102,7 @@ wchar_t* pwcsndup( wchar_t* str, size_t len )
 //fmt// is the the format string.
 //...// is the parameters according to the placeholders set in //fmt//.
 
-Returns a int Returns the number of characters written.
+Returns the number of characters written.
 */
 int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 {
@@ -1151,15 +1150,15 @@ int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 }
 
 /* REMOVE! */
-/* An implementation of pasprintf() for wide-character wchar_t. pasprintf() takes
-only the format-string and various arguments. It outputs an allocated string to
-be released with pfree() later on.
+/* An implementation of pasprintf() for wide-character wchar_t. pasprintf()
+takes only the format-string and various arguments. It outputs an allocated
+string to bbe released with pfree() later on.
 
 //fmt// is the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
-Returns a wchar_t* Returns the allocated string which cointains the format string
-with inserted values.
+Returns a wchar_t* Returns the allocated string which cointains the format
+string with inserted values.
 */
 wchar_t* pawcsprintf( wchar_t* fmt, ... )
 {

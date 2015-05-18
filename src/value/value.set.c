@@ -25,7 +25,7 @@ char pvalue_set_char( pvalue* val, char c )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_CHAR;
+	val->type = PVALUETYPE_CHAR;
 	val->val.c = c;
 
 	RETURN( val->val.c );
@@ -51,7 +51,7 @@ int pvalue_set_int( pvalue* val, int i )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_INT;
+	val->type = PVALUETYPE_INT;
 	val->val.i = i;
 
 	RETURN( val->val.i );
@@ -77,7 +77,7 @@ long pvalue_set_long( pvalue* val, long l )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_LONG;
+	val->type = PVALUETYPE_LONG;
 	val->val.l = l;
 
 	RETURN( val->val.l );
@@ -103,7 +103,7 @@ ulong pvalue_set_ulong( pvalue* val, ulong ul )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_ULONG;
+	val->type = PVALUETYPE_ULONG;
 	val->val.ul = ul;
 
 	RETURN( val->val.ul );
@@ -129,7 +129,7 @@ float pvalue_set_float( pvalue* val, float f )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_FLOAT;
+	val->type = PVALUETYPE_FLOAT;
 	val->val.f = f;
 
 	RETURN( val->val.f );
@@ -155,7 +155,7 @@ double pvalue_set_double( pvalue* val, double d )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_DOUBLE;
+	val->type = PVALUETYPE_DOUBLE;
 	val->val.d = d;
 
 	RETURN( val->val.d );
@@ -181,7 +181,7 @@ char* pvalue_set_cstr( pvalue* val, char* s )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_STR;
+	val->type = PVALUETYPE_STR;
 	val->val.s = s;
 	pvalue_set_constant( val, TRUE );
 
@@ -208,7 +208,7 @@ char* pvalue_set_str( pvalue* val, char* s )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_STR;
+	val->type = PVALUETYPE_STR;
 	val->val.s = s;
 
 	RETURN( val->val.s );
@@ -234,7 +234,7 @@ wchar_t* pvalue_set_cwcs( pvalue* val, wchar_t* ws )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_WCS;
+	val->type = PVALUETYPE_WCS;
 	val->val.ws = ws;
 	pvalue_set_constant( val, TRUE );
 
@@ -261,7 +261,7 @@ wchar_t* pvalue_set_wcs( pvalue* val, wchar_t* ws )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_WCS;
+	val->type = PVALUETYPE_WCS;
 	val->val.ws = ws;
 
 	RETURN( val->val.ws );
@@ -287,7 +287,7 @@ void* pvalue_set_ptr( pvalue* val, void* ptr )
 	}
 
 	pvalue_reset( val );
-	val->type = PGVALUETYPE_PTR;
+	val->type = PVALUETYPE_PTR;
 	val->val.ptr = ptr;
 
 	RETURN( val->val.ptr );
