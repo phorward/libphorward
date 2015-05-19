@@ -1,13 +1,16 @@
-#!/bin/awk -f
+#!/bin/sh
 # -SCRIPT-----------------------------------------------------------------------
 # Phorward Foundation Toolkit
 # Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See LICENSE for more information.
 #
-# File:		gendoc.awk
-# Usage:	Documentation Generator
+# File:		pdoc
+# Usage:	Phorward Documentation Generator
 # ------------------------------------------------------------------------------
+
+read -r -d '' src <<'ENDL'
+#!/bin/awk -f
 
 /```/					{
 							with_trim = 0
@@ -314,3 +317,7 @@ function headline( size )
 
 	return line
 }
+ENDL
+
+src=`cat "$src" | sed -e "s/'/\\'/g"`
+awk '$src' $1

@@ -10,15 +10,6 @@
 # Usage:		C function prototype generator
 #-------------------------------------------------------------------------------
 
-if [ $# -lt 1 ]
-then
-	echo "usage: $0 [OPTION...] FILE..."
-	echo
-	echo "          -s        Output static declarations also"
-	echo "          -S        Only output static declarations"
-	exit 1
-fi
-
 #assemble options
 options=""
 
@@ -38,6 +29,16 @@ do
 
 	shift
 done
+
+if [ $# -lt 1 ]
+then
+	echo "usage: $0 [OPTION...] FILE..."
+	echo
+	echo "          -s        Output static declarations also"
+	echo "          -S        Only output static declarations"
+	exit 1
+fi
+
 
 #build the prototypes
 
