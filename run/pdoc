@@ -319,5 +319,5 @@ function headline( size )
 }
 ENDL
 
-src=`cat "$src" | sed -e "s/'/\\'/g"`
-awk '$src' $1
+src=`echo "$src" | sed -e "s/'/\\'/g"`
+echo "$src" | awk -f - $1

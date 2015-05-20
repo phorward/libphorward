@@ -18,7 +18,11 @@ fi
 
 ext=`echo $file | awk -F . '{print $NF}'`
 what=""
-source="c"
+
+cbeg="/* "
+cend=" */"
+clin=""
+
 case "$ext" in
 	"c")
 		what="MODULE--"
@@ -29,15 +33,33 @@ case "$ext" in
 	"y"|"par")
 		what="PARSER--"
 		;;
-	"sh"|"awk")
+	"syn"|"bnf")
+		what="GRAMMAR-"
+		cbeg=""
+		cend=""
+		clin="// "
+		;;
+	"sh")
+		echo "#!/bin/sh"
 		what="SCRIPT--"
-		source="sh"
+		cbeg=""
+		cend=""
+		clin="# "
+		;;
+	"awk")
+		echo "#!/bin/awk"
+		what="AWK-----"
+		cbeg=""
+		cend=""
+		clin="# "
 		;;
 	*)
 		if [ "$file" = "Makefile" ]
 		then
 			what="MAKEFILE"
-			source="sh"
+			cbeg=""
+			cend=""
+			clin="# "
 		else
 			what="FILE----"
 		fi
@@ -45,33 +67,14 @@ case "$ext" in
 		;;
 esac
 
-if [ "$source" = "c" ]
-then
-	echo "/* -$what--------------------------------------------------------------------"
-	echo "Phorward Foundation Toolkit"
-	echo "Copyright (C) 2006-`date +\"%Y\"` by Phorward Software Technologies, Jan Max Meyer"
-	echo "http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com"
-	echo "All rights reserved. See LICENSE for more information."
-	echo ""
-	echo "File:	$file"
-	echo "Usage:	$desc"
-	echo "----------------------------------------------------------------------------- */"
-	echo ""
-elif [ "$source" = "sh" ]
-then
-	if [ "$file" != "Makefile" ]
-	then
-		echo "#!/bin/sh"
-	fi
+echo "$clin$cbeg-$what--------------------------------------------------------------------"
+echo "${clin}Phorward Foundation Toolkit"
+echo "${clin}Copyright (C) 2006-`date +\"%Y\"` by Phorward Software Technologies, Jan Max Meyer"
+echo "${clin}http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com"
+echo "${clin}All rights reserved. See LICENSE for more information."
+echo "${clin}"
+echo "${clin}File:	$file"
+echo "${clin}Usage:	$desc"
+echo "${clin}-----------------------------------------------------------------------------$cend"
+echo ""
 
-	echo "# -$what---------------------------------------------------------------------"
-	echo "# Phorward Foundation Toolkit"
-	echo "# Copyright (C) 2006-`date +\"%Y\"` by Phorward Software Technologies, Jan Max Meyer"
-	echo "# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com"
-	echo "# All rights reserved. See LICENSE for more information."
-	echo "#"
-	echo "# File:	$file"
-	echo "# Usage:	$desc"
-	echo "# ------------------------------------------------------------------------------"
-	echo ""
-fi
