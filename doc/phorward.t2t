@@ -336,8 +336,6 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 
 Althought the wide-character pendants to the standard extended string functions are not consistent, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having fun to implement them.
 
-
-
 %-------------------------------------------------------------------------------
 
 = Data management tools =
@@ -353,4 +351,10 @@ Althought the wide-character pendants to the standard extended string functions 
 == pccl ==
 
 %!include: ccl.t2t
+
+%-------------------------------------------------------------------------------
+
+= Function reference =
+
+%!include: ref.t2t
 

@@ -9,6 +9,34 @@
 # Usage:	Phorward Documentation Generator
 # ------------------------------------------------------------------------------
 
+#assemble options
+depth=1
+
+while [ "$1" ]
+do
+	case "$1" in
+		-d)
+			depth=$2
+			shift
+			;;
+		*)
+			break
+			;;
+	esac
+
+	shift
+done
+
+if [ $# -lt 1 ]
+then
+	echo "usage: $0 [OPTION...] FILE..."
+	echo
+	echo "          -d DEPTH    Enforce headline level DEPTH (default:$depth)"
+	exit 1
+fi
+
+
+
 read -r -d '' src <<'ENDL'
 #!/bin/awk -f
 
@@ -320,4 +348,4 @@ function headline( size )
 ENDL
 
 src=`echo "$src" | sed -e "s/'/\\'/g"`
-echo "$src" | awk -f - $1
+echo "$src" | awk -f - -vdepth=$depth $*

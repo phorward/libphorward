@@ -9,6 +9,8 @@ PROTOFILE =	proto.h
 LIBHEADER = phorward.h
 PATHEXT = PATH="../run:$(PATH)"
 
+REF = ../doc/ref.t2t
+
 SRC = \
 	base/array.c \
 	base/ccl.c \
@@ -68,6 +70,13 @@ clean_all: clean
 	-rm value/value.get.c
 	-rm value/value.set.c
 	-rm value/value.conv.c
+
+ref: $(SRC)
+	echo "" >$(REF)
+	echo "" >>$(REF)
+	echo "" >>$(REF)
+	pdoc $(SRC) >>$(REF)
+	
 
 # Prototypes Files
 $(PROTOFILE): $(SRC)
