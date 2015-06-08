@@ -361,7 +361,7 @@ top_srcdir = @top_srcdir@
 SUBDIRS = src run DEMO
 man1_MANS = phorward.man
 phorwarddir = $(datadir)/phorward
-dist_phorward_DATA = LICENSE README
+dist_phorward_DATA = LICENSE README CHANGELOG
 all: all-recursive
 
 .SUFFIXES:
@@ -904,9 +904,10 @@ uninstall-man: uninstall-man1
 
 @WITH_TXT2TAGS_TRUE@README: doc/readme.t2t
 @WITH_TXT2TAGS_TRUE@	-rm -f $@
-@WITH_TXT2TAGS_TRUE@	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\2==\n \1 \n\2==/g;p;}' >$@.tmp
-@WITH_TXT2TAGS_TRUE@	cat doc/readme.hdr $@.tmp >>$@
-@WITH_TXT2TAGS_TRUE@	rm -f $@.tmp
+@WITH_TXT2TAGS_TRUE@	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@
+
+@WITH_TXT2TAGS_TRUE@README.md: README
+@WITH_TXT2TAGS_TRUE@	cp $? $@
 
 @WITH_TXT2TAGS_TRUE@phorward.man: doc/readme.t2t
 @WITH_TXT2TAGS_TRUE@	txt2tags -o $@ -t man $?
