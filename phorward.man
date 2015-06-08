@@ -197,7 +197,7 @@ Note, that changes to the build system then must be done in the local Makefile, 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
 .P
-It is the result of a several years experience in parser development systems, and has been preceded by the parser generators http://unicc.phorward\-software.com/ and UniCC (#http://jscc.phorward\-software.com), and shall be the final step for an ultimate, powerful compiler\-frontend toolchain.
+It is the result of a several years experience in parser development systems, and has been preceded by the parser generators UniCC (http://unicc.phorward\-software.com/) and JS/CC (http://jscc.phorward\-software.com), and shall be the final step for an ultimate, powerful compiler\-frontend toolchain.
 
 .P
 Help of any kind to extend and improve this product is always appreciated.
