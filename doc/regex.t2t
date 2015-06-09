@@ -1,0 +1,96 @@
+== Overview ==
+
+libphorward provides a powerful set of functions relating to general string pattern matching and lexical analysis using regular expressions.
+
+- The //pregex// object encapsulates several regular expression patterns into one data structure that is compiled into a reusable DFA (deterministic finite automata) for quick pattern processing. Strings can be matched, split or replaced on patterns.
+- Based on the //pregex// object, the functions pregex_qmatch(), pregex_qsplit() and pregex_qreplace() are provided, for one-line string processing.
+- The //plex// object ecapsulates a regular expression-based scanner for lexical analysis into one object. It is used by libphorward's [build-in parser generator #pparse] for lexical analysis also.
+- All functions are designed to work on wide-character alphabets to fully support Unicode. Therefore, the flags PREGEX_COMP_WCHAR and PREGEX_RUN_WCHAR are provided, to allow processing on patterns and input strings provided as wide-character strings. If not explicitly deactivated by build-flags (-DUTF8), UTF-8 input is generally supported on all functions.
+- Supports anchoring and back-references
+- Patterns are internally encapsulated in structures of //pregex_ptn// objects, which are then used to generate the NFA (nondeterministic finite automata) from which a DFA is constructed (subset construction algorithm).
+- DFAs can be deployed in form of a two dimensional array containing all information that is required to run the regex without the slower, object-oriented data structure layers.
+-
+
+In general, regular expressions are made-up of the following elements:
+
+|| Construct | Usage |
+| ``[...]`` or ``[^...]`` | Specifies a character, character-class or negated character-class (^). |
+| ``.`` | Specifies a character-class standing for "any character". Using this construct causes the terminal to be configured as "non-greedy".
+| ``(`` and ``)`` | Parantheses to build sub-expressions. |
+| ``|`` | The alternative operator to define multiple expressions at one expression level. |
+| ``*`` | Kleene closure (none or several of previous expression) modifier. |
+| ``+`` | Positive closure (one or several of previous expression) modifier. |
+| ``?`` | Optional closure (none or one of previous expression) modifier. |
+| ``^`` | Anchor at begin of pattern, marking begin-of-line. |
+| ``$`` | Anchor at end of pattern, marking end-of-line. |
+| ``<`` | Anchor at begin of pattern, marking begin-of-word. |
+| ``>`` | Anchor at end of pattern, marking end-of-word. |
+
+
+Any other character coming up is consumed as one expression. Escape sequences (C-style) and Unicode are supported.
+
+Some examples:
+
+- ``Hello World`` matches "Hello World",
+- ``Hello? World`` matches "Hello World" and "Hell World",
+- ``Hello+ World`` matches "Hello World" or "Hellooooooooo World",
+- ``Hello* World`` matches "Hello World", "Hellooooooooo World" or even "Hell World",
+- ``(Hello)? World`` matches "Hello World" and " World",
+- ``(Hello)+ World`` matches "Hello World" and "HelloHelloHello World",
+- ``(Hello)* World`` matches "Hello World", "HelloHelloHello World" or even " World",
+- ``[any]+ World`` matches "any World", "n World, "an World" or "ayayayaaa World",
+- ``[^none]* World`` matches "yuluthisisfun World", "xxx World" and " World",
+- ``'([^']|\\')*'`` matches "''", "'Hello World'" or even "'What\'s Up?'",
+- ``Hello|World`` matches "Hello" or "World",
+- ``Hello (World|Universe)`` matches both "Hello World" or "Hello Universe".
+-
+
+== pregex: A tool for regular expressions ==
+
+The //pregex// object is the object-oriented interface for actions working on regular expressions.
+
+Patterns are compiled into a DFA and associated with the //pregex// object as a reusable state machine that can be executed several times.
+
+Generally, the actions
+
+- matching
+- finding
+- splitting
+- replacing
+-
+
+by the compiled pattern are supported.
+
+=== Construction and destruction ===
+
+//pregex// objects are constructed by pregex_create(). First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
+
+|| Flag | Usage |
+| PREGEX_COMP_WCHAR	| The regular expression provided to pregex_create() shall be casted to wchar_t. |
+| PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal characters |
+| PREGEX_COMP_NOREF | Don't compile references. |
+| PREGEX_COMP_NONGREEDY | Compile regex to be forced nongreedy. |
+| PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as possible |
+| PREGEX_COMP_INSENSITIVE | Parse regular expression as case insensitive. |
+| PREGEX_COMP_STATIC | The regular expression passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped. |
+| PREGEX_RUN_WCHAR | Run regular expression with wchar_t as input. |
+| PREGEX_RUN_NOANCHORS | Ignore anchors while processing the regex. |
+| PREGEX_RUN_NOREF | Don't create references. |
+| PREGEX_RUN_NONGREEDY | Force run regular expression nongreedy. |
+| PREGEX_RUN_DEBUG | Debug mode; output some debug to stderr. |
+
+
+pregex_free() destructs and releases a //pregex// object after its use.
+
+```
+pregex* r;
+
+r = pregex_create( "[_A-Za-z]+", 0 );
+pregex_free( r );
+```
+
+
+
+== plex: A tool for lexical analysis ==
+
+Coming soon.

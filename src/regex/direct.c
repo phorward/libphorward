@@ -13,19 +13,22 @@ Usage:	Direct regular expression access functions running an internal pregex
 #include "phorward.h"
 
 /** Performs a regular expression match on a string, and returns an array of
-matches via prange-structures, which holds pointers to the begin- and
+matches via prange-structures, which hold pointers to the begin- and
 end-addresses of all matches.
 
 //regex// is the regular expression pattern to be processed.
+
 //str// is the string on which the pattern will be executed on.
-//flags// are the flags for regular expression compile- and runtime-mode
-switching. Several of them can be used with the bitwise op-operator.
+
+//flags// are for regular expression compile- and runtime-mode switching.
+Several of them can be used with the bitwise or-operator (|).
+
 //matches// is the array of results to the matched substrings within //str//,
 provided as parray-object existing of one prange-object for every match.
 It is optional. //matches// must be released with parray_free() after its usage.
 
 Returns the number of matches, which is the amount of result entries in the
-returned array //results//. If the value is negative, an error occured.
+returned array //matches//. If the value is negative, an error occured.
 */
 int pregex_qmatch( char* regex, char* str, int flags, parray** matches )
 {
@@ -58,8 +61,12 @@ int pregex_qmatch( char* regex, char* str, int flags, parray** matches )
 separator; All strings that where split are returned as //matches//-array.
 
 //regex// is the regular expression pattern to be processed.
+
 //str// is the string on which the pattern will be executed on.
-//flags// are the flags for regular expression mode switching.
+
+//flags// are for regular expression compile- and runtime-mode switching.
+Several of them can be used with the bitwise or-operator (|).
+
 //matches// is the array of results to the matched substrings within //str//,
 provided as parray-object existing of one prange-object for every match.
 It is optional. //matches// must be released with parray_free() after its usage.
@@ -95,14 +102,18 @@ int pregex_qsplit( char* regex, char* str, int flags, parray** matches )
 }
 
 /** Replaces all matches of a regular expression pattern within a string with
-the replacement. Backreferences can be used with $x for each opening bracket
+the replacement. Backreferences can be used with ``$x`` for each opening bracket
 within the regular expression.
 
 //regex// is the regular expression pattern to be processed.
+
 //str// is the string on which the pattern will be executed on.
+
 //replace// is the string that will be inserted as replacement for each pattern
-match. $x backreferences can be used.
-//flags// are the flags for regular expression mode switching.
+match. ``$x`` back-references can be used.
+
+//flags// are for regular expression compile- and runtime-mode switching.
+Several of them can be used with the bitwise or-operator (|).
 
 Returns an allocated pointer to the generated string with the replacements.
 This string must be released after its existence is no longer required by the

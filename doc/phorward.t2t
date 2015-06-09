@@ -100,7 +100,7 @@ Note, that changes to the build system then must be done in the local Makefile, 
 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
-It is the result of a several years experience in parser development systems, and has been preceded by the parser generators [UniCC #http://unicc.phorward-software.com/] and [JS/CC #http://jscc.phorward-software.com]. The libphorward shall be the final step for the most universal, compiler-frontend toolchain, still established on the good, old C programming language.
+It is the result of a several years experience in parser development systems, and has been preceded by the parser generators [UniCC http://unicc.phorward-software.com/] and [JS/CC http://jscc.phorward-software.com]. The libphorward shall be the final step for the most universal, compiler-frontend toolchain, still established on the good, old C programming language.
 
 Help of any kind to extend and improve this product is always appreciated.
 
@@ -313,7 +313,7 @@ These function are
 - pstrlwr() - convert string to lower-case-order,
 - pstrncasecmp() - case-insensitive string comparison over maximum length,
 - pstrncatstr() - append string to string with dynamic allocation and maximum length,
-- pstrndup() - duplicate string with maximum length,
+- pstrndup() - duplicate a string with maximum length,
 - pstrparsechar() - parse an escaped character sequence into a wide-character,
 - pstrput() - securely set an allocated string into a pointer,
 - pstrrender() - dynamically render a string with placeholder substitution,
@@ -331,14 +331,14 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 - pwcsdup() - duplicate wide-character string, also accepts NULL-pointers,
 - pwcslen() - return length ot wide-character string, also accepts NULL-pointers,
 - pwcsncatstr() - append wide-character string to wide-character string with dynamic allocation and maximum length,
-- pwcsndup() - duplicate wide-character string with maximum length.
+- pwcsndup() - duplicate a wide-character string with maximum length.
 -
 
-Althought the wide-character pendants to the standard extended string functions are not consistent, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having fun to implement them.
+Althought the wide-character pendants to the standard extended string functions are not consistent, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
 
 %-------------------------------------------------------------------------------
 
-= Data management tools =
+= Dynamic data management tools =
 
 == parray ==
 
@@ -351,6 +351,24 @@ Althought the wide-character pendants to the standard extended string functions 
 == pccl ==
 
 %!include: ccl.t2t
+
+%-------------------------------------------------------------------------------
+
+= Regular expression tools =
+
+%!include: regex.t2t
+
+%-------------------------------------------------------------------------------
+
+= pparse: The compiler frontend toolchain =
+
+Coming soon.
+
+%-------------------------------------------------------------------------------
+
+= Utility functions =
+
+Coming soon.
 
 %-------------------------------------------------------------------------------
 
