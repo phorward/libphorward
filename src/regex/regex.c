@@ -469,9 +469,9 @@ int pregex_splitall( pregex* regex, char* start, parray** matches )
 	if( matches )
 		*matches = (parray*)NULL;
 
-	while( pregex_split( regex, start, &end, &next ) )
+	while( start )
 	{
-		if( matches )
+		if( pregex_split( regex, start, &end, &next ) && matches )
 		{
 			if( ! *matches )
 				*matches = parray_create( sizeof( prange ), 0 );
@@ -483,8 +483,7 @@ int pregex_splitall( pregex* regex, char* start, parray** matches )
 
 		count++;
 
-		if( !( start = next ) )
-			break;
+		start = next;
 	}
 
 	RETURN( count );

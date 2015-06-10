@@ -110,7 +110,6 @@ typedef char 					pboolean;
 
 
 
-
 #ifndef _DBG_H
 #define _DBG_H
 
@@ -180,7 +179,6 @@ typedef char 					pboolean;
 
 
 
-
 #ifndef PARRAY_H
 #define PARRAY_H
 
@@ -196,7 +194,6 @@ typedef struct
 } parray;
 
 #endif
-
 
 
 
@@ -261,7 +258,6 @@ struct Plist
 
 
 
-
 #define PCCL_MIN			0x0
 #if UNICODE
 #define PCCL_MAX			0xFFFF
@@ -284,7 +280,6 @@ typedef struct
 
 	char*			str;
 } pccl;
-
 
 
 
@@ -457,7 +452,6 @@ struct _lex
 
 
 
-
 typedef struct _ppsym		ppsym;
 typedef struct _ppprod		ppprod;
 typedef struct _ppgram		ppgram;
@@ -568,7 +562,6 @@ typedef struct
 
 
 
-
 typedef enum
 {
 	PVALUETYPE_NULL,
@@ -637,7 +630,6 @@ typedef struct
 			pvalue_set_str( val, pstrdup( str ) )
 #define pvalue_set_wcsdup( val, str ) \
 			pvalue_set_wcs( val, pwcsdup( str ) )
-
 
 
 
@@ -746,7 +738,6 @@ struct xml
 extern "C"
 {
 #endif
-
 
 
 pboolean parray_init( parray* array, size_t size, size_t chunk );
