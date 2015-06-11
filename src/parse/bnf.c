@@ -21,13 +21,13 @@ void pp_bnf_define( ppgram* g )
 	sym[ 1 ] = pp_sym_create( g, PPSYMTYPE_REGEX, (char*)NULL, "[\\t\\n\\r ]+" );
 	sym[ 1 ]->flags |= PPFLAG_WHITESPACE;
 
-	sym[ 2 ] = pp_sym_create( g, PPSYMTYPE_REGEX, (char*)NULL, "//.*\\n" );
+	sym[ 2 ] = pp_sym_create( g, PPSYMTYPE_REGEX, (char*)NULL, "//[^\\n]*\\n" );
 	sym[ 2 ]->flags |= PPFLAG_WHITESPACE;
 
-	sym[ 3 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "ccl", "'.*'" );
+	sym[ 3 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "ccl", "'[^']*'" );
 	sym[ 3 ]->emit = 1;
 
-	sym[ 4 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "string", "\".*\"" );
+	sym[ 4 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "string", "\"[^\"]*\"" );
 	sym[ 4 ]->emit = 2;
 
 	sym[ 5 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "regex", "/(\\\\.|[^/\\\\])*/" );
@@ -162,12 +162,12 @@ void pp_bnf_define( ppgram* g )
 	prod[ 1 ]->emit = 20;
 
 	prod[ 2 ] = pp_prod_create( g, sym[ 12 ] /* symbol */,
-		sym[ 3 ], /* /'.*'/ */
+		sym[ 3 ], /* /'[^']*'/ */
 		(ppsym*)NULL );
 	prod[ 2 ]->emit = 20;
 
 	prod[ 3 ] = pp_prod_create( g, sym[ 12 ] /* symbol */,
-		sym[ 4 ], /* /".*"/ */
+		sym[ 4 ], /* /"[^"]*"/ */
 		(ppsym*)NULL );
 	prod[ 3 ]->emit = 20;
 
@@ -392,11 +392,11 @@ void pp_bnf_define( ppgram* g )
 		(ppsym*)NULL );
 
 	prod[ 51 ] = pp_prod_create( g, sym[ 48 ] /* termdef' */,
-		sym[ 3 ], /* /'.*'/ */
+		sym[ 3 ], /* /'[^']*'/ */
 		(ppsym*)NULL );
 
 	prod[ 52 ] = pp_prod_create( g, sym[ 48 ] /* termdef' */,
-		sym[ 4 ], /* /".*"/ */
+		sym[ 4 ], /* /"[^"]*"/ */
 		(ppsym*)NULL );
 
 	prod[ 53 ] = pp_prod_create( g, sym[ 48 ] /* termdef' */,
