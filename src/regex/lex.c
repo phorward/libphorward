@@ -211,11 +211,16 @@ pboolean plex_define( plex* lex, char* pat, int match_id, int flags )
 }
 
 
-/** Tries to match the lexer //lex// at pointer //start//.
+/** Performs a lexical analysis using the object //lex// on pointer //start//.
 
-If the expression can be matched, the function returns TRUE and //end// receives
-the pointer to the last matched character. */
-int plex_match( plex* lex, char* start, char** end )
+If a token can be matched, the function returns the related id of the matching
+pattern, and //end// receives the pointer to the last matched character.
+
+The function returns 0 in case that there was no direct match.
+The function plex_next() ignores unrecognized symbols and directly moves to the
+next matching pattern.
+*/
+int plex_lex( plex* lex, char* start, char** end )
 {
 	int		i;
 	int		state		= 0;
@@ -225,7 +230,7 @@ int plex_match( plex* lex, char* start, char** end )
 	wchar_t	ch;
 	int		id			= 0;
 
-	PROC( "plex_match" );
+	PROC( "plex_lex" );
 	PARMS( "lex", "%p", lex );
 	PARMS( "start", "%s", start );
 	PARMS( "end", "%p", end );
@@ -345,18 +350,20 @@ int plex_match( plex* lex, char* start, char** end )
 	RETURN( 0 );
 }
 
-/** Find a match for the lexer //lex// from begin of pointer //start//.
+/** Performs lexical analysis using //lex// from begin of pointer //start//, to
+the next matching token.
 
 //start// has to be a zero-terminated string or wide-character string (according
 to the configuration of the plex-object).
 
-If the expression can be matched, the function returns the pointer to the
-position where the match begins. //id// receives the matching ID, when provided,
-//end// receives the end pointer of the match, when provided.
+If a token can be matched, the function returns the pointer to the position
+where the match starts at. //id// receives the id of the matching patternn,
+//end// receives the end pointer of the match, when provided. //id// and //end//
+can be omitted by providing NULL-pointers.
 
 The function returns (char*)NULL in case that there is no match.
 */
-char* plex_find( plex* lex, char* start, int* id, char** end )
+char* plex_next( plex* lex, char* start, int* id, char** end )
 {
 	wchar_t		ch;
 	char*		ptr 	= start;
@@ -364,7 +371,7 @@ char* plex_find( plex* lex, char* start, int* id, char** end )
 	int			i;
 	int			mid;
 
-	PROC( "plex_find" );
+	PROC( "plex_next" );
 	PARMS( "lex", "%p", lex );
 	PARMS( "start", "%s", start );
 	PARMS( "end", "%p", end );
@@ -406,7 +413,7 @@ char* plex_find( plex* lex, char* start, int* id, char** end )
 			if( ( ( lex->trans[ 0 ][ 4 ] < lex->trans_cnt )
 					|| ( lex->trans[ 0 ][ i ] <= ch
 							&& lex->trans[ 0 ][ i + 1 ] >= ch ) )
-					&& ( mid = plex_match( lex, lptr, end ) ) )
+					&& ( mid = plex_lex( lex, lptr, end ) ) )
 					{
 						if( id )
 							*id = mid;
@@ -419,23 +426,23 @@ char* plex_find( plex* lex, char* start, int* id, char** end )
 	RETURN( (char*)NULL );
 }
 
-/** Find all matches for the regular expression //lex// from begin of pointer
-//start//, and optionally return matches as an array.
+/** Tokenizes the string beginning at //start// using the lexical analyzer
+//lex//.
 
 //start// has to be a zero-terminated string or wide-character string (according
 to the configuration of the plex-object).
 
-The function fills the array //matches//, if provided, with items of size
-prange. It returns the total number of matches.
+The function initializes and fills the array //matches//, if provided, with
+items of size prange. It returns the total number of matches.
 */
-int plex_findall( plex* lex, char* start, parray** matches )
+int plex_tokenize( plex* lex, char* start, parray** matches )
 {
 	char*			end;
 	int				count	= 0;
 	int				id;
 	prange*	r;
 
-	PROC( "plex_findall" );
+	PROC( "plex_tokenize" );
 	PARMS( "lex", "%p", lex );
 	PARMS( "start", "%s", start );
 	PARMS( "matches", "%p", matches );
@@ -449,9 +456,9 @@ int plex_findall( plex* lex, char* start, parray** matches )
 	if( matches )
 		*matches = (parray*)NULL;
 
-	while( ( start = plex_find( lex, start, &id, &end ) ) )
+	while( start )
 	{
-		if( matches )
+		if( ( start = plex_next( lex, start, &id, &end ) ) && matches )
 		{
 			if( ! *matches )
 				*matches = parray_create( sizeof( prange ), 0 );

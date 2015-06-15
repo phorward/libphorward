@@ -907,9 +907,9 @@ plex* plex_free( plex* lex );
 pboolean plex_reset( plex* lex );
 pboolean plex_prepare( plex* lex );
 pboolean plex_define( plex* lex, char* pat, int match_id, int flags );
-int plex_match( plex* lex, char* start, char** end );
-char* plex_find( plex* lex, char* start, int* id, char** end );
-int plex_findall( plex* lex, char* start, parray** matches );
+int plex_lex( plex* lex, char* start, char** end );
+char* plex_next( plex* lex, char* start, int* id, char** end );
+int plex_tokenize( plex* lex, char* start, parray** matches );
 
 
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );
