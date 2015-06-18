@@ -777,7 +777,7 @@ pboolean p_ccl_addrange( pccl* ccl, wchar_t begin, wchar_t end );
 pboolean p_ccl_add( pccl* ccl, wchar_t ch );
 pboolean p_ccl_delrange( pccl* ccl, wchar_t begin, wchar_t end );
 pboolean p_ccl_del( pccl* ccl, wchar_t ch );
-pboolean p_ccl_negate( pccl* ccl );
+pccl* p_ccl_negate( pccl* ccl );
 pccl* p_ccl_union( pccl* ccl, pccl* add );
 pccl* p_ccl_diff( pccl* ccl, pccl* rem );
 int p_ccl_compare( pccl* left, pccl* right );

@@ -492,7 +492,7 @@ pboolean p_ccl_del( pccl* ccl, wchar_t ch )
 
 Returns a pointer to //ccl//.
 */
-pboolean p_ccl_negate( pccl* ccl )
+pccl* p_ccl_negate( pccl* ccl )
 {
 	wchar_t		start;
 	wchar_t		end;
@@ -506,7 +506,7 @@ pboolean p_ccl_negate( pccl* ccl )
 	if( !ccl )
 	{
 		WRONGPARAM;
-		RETURN( FALSE );
+		RETURN( (pccl*)NULL );
 	}
 
 	start = end = ccl->min;
@@ -536,7 +536,7 @@ pboolean p_ccl_negate( pccl* ccl )
 
 	p_ccl_normalize( ccl );
 
-	RETURN( TRUE );
+	RETURN( ccl );
 }
 
 /** Unions two character-classes into a new, normalized one.
