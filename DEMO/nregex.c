@@ -39,10 +39,11 @@ void test_regex2()
 	parray*	a;
 	char*	r;
 
-	re = pregex_create( "'(\\\\.|[^'])*'", 0 );
+	/* re = pregex_create( "'(\\\\.|[^'])*'", 0 ); */
+	re = pregex_create( "\\d+", 0 );
 
-	printf( "str = >%s<\n", str1 );
-	printf( "matches = %d\n", pregex_findall( re, str1, &a ) );
+	printf( "str = >%s<\n", str );
+	printf( "matches = %d\n", pregex_findall( re, str, &a ) );
 	printanddrop( a );
 }
 
@@ -56,7 +57,7 @@ void test_lex()
 	plex_define( l, "[a-z]+", 2, 0 );
 
 	printf( "str = >%s<\n", str );
-	printf( "matches = %d\n", plex_findall( l, str, &a ) );
+	printf( "matches = %d\n", plex_tokenize( l, str, &a ) );
 	printanddrop( a );
 }
 

@@ -49,6 +49,8 @@ Useful, additional functions when working with **pccl** are:
 - p_ccl_instest() - like p_ccl_test(), but with insensitve-character check,
 - p_ccl_intersect() - create intersection character-class of two classes,
 - p_ccl_print() - print character-class (for debug),
+- p_ccl_parsechar() - parse an escaped character sequence into a wide-character,
+- p_ccl_parseshorthand() - parse a typical shorthand (\d, \w) into a character-class.
 -
 
 

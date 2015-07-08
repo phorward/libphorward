@@ -42,6 +42,8 @@ pccl* p_ccl_diff( pccl* ccl, pccl* rem );
 int p_ccl_compare( pccl* left, pccl* right );
 pccl* p_ccl_intersect( pccl* ccl, pccl* within );
 pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
+size_t p_ccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq );
+size_t p_ccl_parseshorthand( pccl* ccl, char *str );
 pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend );
 pboolean p_ccl_erase( pccl* ccl );
 pccl* p_ccl_free( pccl* ccl );
@@ -239,7 +241,6 @@ char* pstrupr( char* s );
 char* pstrlwr( char* s );
 int pstrcasecmp( char* s1, char* s2 );
 int pstrncasecmp( char* s1, char* s2, int n );
-int pstrparsechar( wchar_t* retc, char *str, pboolean escapeseq );
 int pvasprintf( char** str, char* fmt, va_list ap );
 char* pasprintf( char* fmt, ... );
 #ifdef UNICODE

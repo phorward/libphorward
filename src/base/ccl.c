@@ -831,6 +831,198 @@ pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset )
 	RETURN( FALSE );
 }
 
+/** Reads a character from a string. The character may exist of one single
+character or it may be made up of an escape sequence or UTF-8 character.
+The function returns the number of bytes read.
+
+//retc// is the return pointer for the character code of the escaped string.
+//str// is the begin pointer of the string at which character parsing begins.
+If //escapeseq// is TRUE, the function regards escape sequences, else it ignores
+them.
+
+Returns the number of bytes that had been read for the character.
+*/
+size_t p_ccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq )
+{
+	wchar_t	ch;
+    char 	digs[9]		=	"\0\0\0\0\0\0\0\0";
+    int		dno 		= 0;
+	char*	p			= str;
+
+	PROC( "p_ccl_parsechar" );
+	PARMS( "retc", "%p", retc );
+	PARMS( "str", "%s", str );
+	PARMS( "escapeseq", "%s", BOOLEAN_STR( escapeseq ) );
+
+	if( escapeseq && *p == '\\' )
+	{
+		p++;
+
+		switch( *p )
+		{
+			case 'n':
+				ch = '\n';
+				p++;
+				break;
+			case 't':
+				ch = '\t';
+				p++;
+				break;
+			case 'r':
+				ch = '\r';
+				p++;
+				break;
+			case 'b':
+				ch = '\b';
+				p++;
+				break;
+			case 'f':
+				ch = '\f';
+				p++;
+				break;
+			case 'v':
+				ch = '\v';
+				p++;
+				break;
+			case 'a':
+				ch = '\a';
+				p++;
+				break;
+
+			default:
+				if( octal_digit( *p ) )
+				{
+					do
+						digs[dno++] = *( p++ );
+					while( octal_digit( *p ) && dno < 3 );
+					ch = strtol( digs, (char**)NULL, 8 );
+				}
+				else if( *p == 'x' )
+				{
+					p++;
+					while( hex_digit( *p ) && dno < 2 )
+						digs[ dno++ ] = *( p++ );
+
+					if (dno > 0)
+						ch = strtol( digs, (char**)NULL, 16 );
+				}
+#ifdef UTF8
+				else if( *p == 'u' )
+				{
+					p++;
+					while( hex_digit( *p ) && dno < 4 )
+						digs[dno++] = *( p++ );
+
+					if( dno > 0 )
+						ch = strtol( digs, (char**)NULL, 16 );
+				}
+				else if( *p == 'U' )
+				{
+					p++;
+					while( hex_digit( *p ) && dno < 8 )
+						digs[dno++] = *( p++ );
+
+					if( dno > 0 )
+						ch = strtol( digs, (char**)NULL, 16 );
+				}
+#endif
+				else
+				{
+#ifdef UTF8
+					ch = u8_char( p );
+					p += u8_seqlen( p );
+#else
+					ch = *( p++ );
+#endif
+				}
+				break;
+		}
+	}
+	else
+	{
+#ifdef UTF8
+		ch = u8_char( p );
+		p += u8_seqlen( p );
+#else
+		ch = *( p++ );
+#endif
+	}
+
+	VARS( "ch", "%d", ch );
+	VARS( "len", "%d", (int)( p - str ) );
+	*retc = ch;
+
+    RETURN( (size_t)( p - str ) );
+}
+
+/**  Tries to parse a shorthand sequence from a string. This matches the
+shorthands \w, \W, \d, \D, \s and \S. If it matches, all characters are
+added to //ccl//.
+
+The function returns the number of bytes that had been read for the character.
+If no shorthand sequence could be found, it returns 0, and leaves //ccl//
+untouched.
+*/
+size_t p_ccl_parseshorthand( pccl* ccl, char *str )
+{
+	pccl*		sh;
+	pboolean	neg	= FALSE;
+	int			i;
+	wchar_t		begin;
+	wchar_t		end;
+
+	PROC( "p_ccl_parseshorthand" );
+	PARMS( "ccl", "%p", ccl );
+	PARMS( "str", "%s", str );
+
+	if( !ccl )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	/* Check for shorthand */
+	if( *str == '\\' )
+	{
+		switch( *( str + 1 ) )
+		{
+			/* This solution is ugly and does not support any Unicode features.
+				So it would be nice to find out a cooler solution in future. */
+			case 'D':
+				neg = TRUE;
+			case 'd':
+				sh = p_ccl_create( ccl->min, ccl->max, "0-9" );
+				break;
+
+			case 'W':
+				neg = TRUE;
+			case 'w':
+				sh = p_ccl_create( ccl->min, ccl->max, "a-zA-Z_0-9" );
+				break;
+
+			case 'S':
+				neg = TRUE;
+			case 's':
+				sh = p_ccl_create( ccl->min, ccl->max, " \f\n\r\t\v" );
+				break;
+
+			default:
+				return 0; /* Not a shorthand! */
+		}
+
+		if( neg )
+			p_ccl_negate( sh );
+
+		for( i = 0; p_ccl_get( &begin, &end, sh, i ); i++ )
+			p_ccl_ADDRANGE( ccl, begin, end );
+
+		p_ccl_free( sh );
+		p_ccl_normalize( ccl );
+		return 2;
+	}
+
+	return 0;
+}
 
 /** Parses the character-class definition provided in //ccldef// and assigns
 this definition to the character-class //ccl//. //ccldef// may contain
@@ -854,6 +1046,7 @@ pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 	pcrange		cr;
 	wchar_t		begin;
 	wchar_t		end;
+	size_t		shift;
 
 	PROC( "p_ccl_parse" );
 	PARMS( "ccl", "%p", ccl );
@@ -873,7 +1066,10 @@ pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 	{
 		VARS( "cclptr", "%s", cclptr );
 
-		cclptr += pstrparsechar( &begin, cclptr, TRUE );
+		if( cclptr < ( cclptr += p_ccl_parseshorthand( ccl, cclptr ) ) )
+			continue;
+
+		cclptr += p_ccl_parsechar( &begin, cclptr, TRUE );
 		end = begin;
 
 		VARS( "begin", "%d", begin );
@@ -884,7 +1080,7 @@ pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 		{
 			MSG( "This is a range!" );
 			cclptr++;
-			cclptr += pstrparsechar( &end, cclptr, TRUE );
+			cclptr += p_ccl_parsechar( &end, cclptr, TRUE );
 			VARS( "end", "%d", end );
 		}
 

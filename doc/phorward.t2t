@@ -314,7 +314,6 @@ These function are
 - pstrncasecmp() - case-insensitive string comparison over maximum length,
 - pstrncatstr() - append string to string with dynamic allocation and maximum length,
 - pstrndup() - duplicate a string with maximum length,
-- pstrparsechar() - parse an escaped character sequence into a wide-character,
 - pstrput() - securely set an allocated string into a pointer,
 - pstrrender() - dynamically render a string with placeholder substitution,
 - pstrreplace() - dynamically replace substrings within string,

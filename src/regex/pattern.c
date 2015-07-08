@@ -1160,14 +1160,18 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			/* No break here! */
 
 		default:
-			*pstr += pstrparsechar( &single, *pstr, TRUE );
-
-			ccl = p_ccl_create( -1, -1, (char*)NULL );
-
-			if( !( ccl && p_ccl_add( ccl, single ) ) )
+			if( !( ccl = p_ccl_create( -1, -1, (char*)NULL ) ) )
 			{
-				p_ccl_free( ccl );
+				OUTOFMEM;
 				return FALSE;
+			}
+
+			if( *pstr == ( *pstr += p_ccl_parseshorthand( ccl, *pstr ) ) )
+			{
+				*pstr += p_ccl_parsechar( &single, *pstr, TRUE );
+
+				if( !p_ccl_add( ccl, single ) )
+					return FALSE;
 			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
