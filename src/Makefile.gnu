@@ -76,7 +76,7 @@ ref: $(SRC)
 	echo "" >>$(REF)
 	echo "" >>$(REF)
 	pdoc $(SRC) >>$(REF)
-	
+
 
 # Prototypes Files
 $(PROTOFILE): $(SRC)

@@ -1,6 +1,8 @@
 Phorward Toolkit Reference Manual
 libphorward 0.18
-May 2015
+July 2015
+
+%%!preproc(html): '([a-zA-Z0-9_]+)\(\)' ' [\1() #fn_\1]\2'
 
 %-------------------------------------------------------------------------------
 
@@ -132,33 +134,7 @@ libphorward has its own function style paradigm and coding standard. Therefore, 
 As general C coding style, we don't use ugly K&R style or any other coding standard style.
 The libphorward style (which is only our style within the library) is:
 
-```
-/* Clear, use of spaces behind and before brackets,
-	curly-bracket blocks are _ALWAYS_ written in SINGLE lines: */
-if( a && !b( c ) )
-{
-	/* newlines on every block */
-	c = 0;
-	we_like_this_style();
-}
-
-/* Block only where more than one statement is executed */
-if( !c )
-	fuck_yeah();
-else
-{
-	c = 0;
-	this_is_better();
-}
-
-/* Cascading view on multiple lines, never go over 80 chars
-	per line */
-if( this_would_be_a_long_condition()
-		&& i_would_prefer_a_cascading_code_style()
-			&& i < 300
-				&& that_looks_cooler_eh() ? FALSE : TRUE )
-	that_s_libphorward_style( TRUE );
-```
+%!include: ``codestyle.c``
 
 If you don't like our coding style, you still can code on your own style, but please not within libphorward's own sources which are for the general public - these shall be kept clear - Thank you! :)
 

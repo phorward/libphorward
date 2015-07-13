@@ -61,7 +61,7 @@ plex* plex_free( plex* lex )
 {
 	plistel*	e;
 
-	PROC( "pregex_free" );
+	PROC( "plex_free" );
 	PARMS( "lex", "%p", lex );
 
 	if( !lex )
@@ -167,7 +167,6 @@ pboolean plex_prepare( plex* lex )
 
 //match_id// must be a token match ID, a value > 0. The lower the match ID is,
 the higher precedence takes the appended expression when there are multiple
-matches.
 matches.
 
 //flags// may ONLY contain compile-time flags, and is combined with the

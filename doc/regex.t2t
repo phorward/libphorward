@@ -6,11 +6,13 @@ libphorward provides a powerful set of functions relating to general string patt
 - Based on the //pregex// object, the functions pregex_qmatch(), pregex_qsplit() and pregex_qreplace() are provided, for one-line string processing.
 - The //plex// object ecapsulates a regular expression-based scanner for lexical analysis into one object. It is used by libphorward's [build-in parser generator #pparse] for lexical analysis also.
 - All functions are designed to work on wide-character alphabets to fully support Unicode. Therefore, the flags PREGEX_COMP_WCHAR and PREGEX_RUN_WCHAR are provided, to allow processing on patterns and input strings provided as wide-character strings. If not explicitly deactivated by build-flags (-DUTF8), UTF-8 input is generally supported on all functions.
-- Supports anchoring and back-references
+- Supports anchoring and back-references.
 - Patterns are internally encapsulated in structures of //pregex_ptn// objects, which are then used to generate the NFA (nondeterministic finite automata) from which a DFA is constructed (subset construction algorithm).
 - Matches are described in a structure called //prange//.
 - DFAs can be deployed in form of a two dimensional array containing all information that is required to run the regex without the slower, object-oriented data structure layers.
 -
+
+=== Meta constructs ===
 
 In general, regular expressions are made-up of the following elements:
 
@@ -22,13 +24,63 @@ In general, regular expressions are made-up of the following elements:
 | ``*`` | Kleene closure (none or several of previous expression) modifier. |
 | ``+`` | Positive closure (one or several of previous expression) modifier. |
 | ``?`` | Optional closure (none or one of previous expression) modifier. |
-| ``^`` | Anchor at begin of pattern, marking begin-of-line. |
-| ``$`` | Anchor at end of pattern, marking end-of-line. |
-| ``<`` | Anchor at begin of pattern, marking begin-of-word. |
-| ``>`` | Anchor at end of pattern, marking end-of-word. |
 
 
-Any other character coming up is consumed as one expression. Escape sequences (C-style) and Unicode are supported.
+All meta-characters can be escaped by backslash, so they are interpretered as usual characters.
+
+=== Characters and escape sequences ===
+
+Any other character coming up is consumed as one expression to be matched in the input.
+By default, all strings are interpretered in UTF-8 encoded unicode style, so unicode is fully supported.
+
+Escape sequences (C-style) are supported according to the following table:
+
+|| Escape sequence | Description |
+| ``\a`` | Bell (alert) |
+| ``\b`` | Backspace |
+| ``\f`` | Formfeed |
+| ``\n`` | New line |
+| ``\r`` | Carriage return |
+| ``\t`` | Horizontal tab |
+| ``\v`` | Vertical tab |
+| ``\'`` | Single quotation mark |
+| ``\"`` | Double quotation mark |
+| ``\\`` | Backslash |
+| ``\OOO`` | ASCII character in octal notation, (O = octal digit) |
+| ``\xHH`` | ASCII character in hexadecimal notation (H = hexadecimal digit) |
+| ``\uHHHH`` | 32-Bit Unicode character in hexadecimal notation (H = hexadecimal digit) |
+| ``\UHHHHHHHH`` | 64-Bit Unicode character in hexadecimal notation (H = hexadecimal digit) |
+
+
+__**Note:** When specifying escape-sequences in static strings within C-code, they must be double-escaped, because they are first analyzed by the C compiler and then by libphorward's regex-parser. Therefore, specifiying a backslash ``\\`` must become ``\\\\`` in the C-Code, which then yields in ``\\`` after compiling the C program.__
+
+=== Shorthand character classes ===
+
+Pre-defined shorthand character-classes are also supported by libphorward's pregex and plex tools.
+
+|| Shorthand | Complains with | Explanation |
+| \w | [A-Za-z0-9_] | All alphanumeric characters (ASCII only) |
+| \W | [^A-Za-z0-9_] | Any other than (ASCII only) alphanumeric characters |
+| \d | [0-9] | All digit characters (ASCII-only) |
+| \D | [^0-9_] | Any other than (ASCII only) digit characters |
+| \s | [ \f\n\r\t\v] | All whitespace characters (ASCII-only) |
+| \S | [^ \f\n\r\t\v] | Any other than (ASCII only) whitespace characters |
+
+
+=== Anchoring ===
+
+The following anchors are supported, when specified at beginning or ending of an expression:
+
+|| Anchor | Usage |
+| ``^`` | Anchor at begin of pattern, matching begin-of-line. |
+| ``$`` | Anchor at end of pattern, matching end-of-line. |
+| ``<`` | Anchor at begin of pattern, matching begin-of-word. |
+| ``>`` | Anchor at end of pattern, matching end-of-word. |
+
+
+Anchors can be entirely switched off when setting the PREGEX_COMP_NOANCHORS on compile-time, respectively PREGEX_RUN_NOANCHORS on run-time.
+
+=== Examples ===
 
 Some examples:
 
@@ -39,16 +91,19 @@ Some examples:
 - ``(Hello)? World`` matches "Hello World" and " World",
 - ``(Hello)+ World`` matches "Hello World" and "HelloHelloHello World",
 - ``(Hello)* World`` matches "Hello World", "HelloHelloHello World" or even " World",
-- ``[any]+ World`` matches "any World", "n World, "an World" or "ayayayaaa World",
-- ``[^none]* World`` matches "yuluthisisfun World", "xxx World" and " World",
+- ``[any]+ World`` matches "any World", "n World, "nyan World" or "nayayayaaa World",
+- ``[^none]* World`` matches "yuluthisisfun World", "xyz World" and " World",
 - ``'([^']|\\')*'`` matches "''", "'Hello World'" or even "'What\'s Up?'",
 - ``Hello|World`` matches "Hello" or "World",
 - ``Hello (World|Universe)`` matches both "Hello World" or "Hello Universe".
 -
 
+(TODO: more examples)
+
+
 == pregex: Operating on regular expressions ==
 
-The //pregex// object is the object-oriented interface for actions working on regular expressions.
+The //pregex// object is the object-oriented interface for string operations based on regular expressions.
 
 Patterns are compiled into a DFA and associated with the //pregex// object as a reusable state machine that can be executed several times.
 
@@ -60,15 +115,15 @@ Generally, the actions
 - replacing
 -
 
-by the compiled pattern are supported.
+are supported by the compiled pattern.
 
 === Construction and destruction ===
 
 //pregex// objects are constructed by pregex_create(). First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
 
 || Flag | Usage |
-| PREGEX_COMP_WCHAR	| The regular expression provided to pregex_create() shall be casted to wchar_t. |
-| PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal characters |
+| PREGEX_COMP_WCHAR | The regular expression provided to pregex_create() shall be casted to wchar_t. |
+| PREGEX_COMP_NOANCHORS | Ignore anchor tokens, handle them as normal characters |
 | PREGEX_COMP_NOREF | Don't compile references. |
 | PREGEX_COMP_NONGREEDY | Compile regex to be forced nongreedy. |
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as possible |
@@ -87,6 +142,9 @@ pregex_free() destructs and releases a //pregex// object after its use.
 pregex* r;
 
 r = pregex_create( "[_A-Za-z]+", 0 );
+
+/* do something with r */
+
 pregex_free( r );
 ```
 
@@ -146,10 +204,10 @@ r = pregex_create( "[0-9]+", 0 );
 
 while( s )
 {
-		if( ( s = pregex_split( r, s, &e, &n ) ) )
-				printf( ">%.*s<\n", e - s, s );
+	if( ( s = pregex_split( r, s, &e, &n ) ) )
+			printf( ">%.*s<\n", e - s, s );
 
-		s = n;
+	s = n;
 }
 ```
 
@@ -210,20 +268,47 @@ The second part of libphorwards regular expression tools is the //plex//-object,
 
 A //plex//-object can be seen as a container, which merges multiple regular expressions together into one state machine to recognize tokens. A token is then identified by an unique number that is associated with the matching regular expression.
 
-To tokenize a strings written in a simple programming language into operators, words, numbers and whitespace, one can define
+To tokenize a C-styled variable assignment, one could write a simple lexical analyzer for this:
 
 ```
-#define WHITE 	1
-#define NUMBER	2
-#define WORD	3
+enum
+{
+	IDENT = 1, INTEGER, EQUALS, PLUS_OP, SEMICOLON
+};
 
-char* s = "Hello 234 World 5 67		exploration";
+char* nid[] = { "ident", "integer", "equals", "plus_op", "semicolon" };
+
+int m;
+char* s = "sum = 5 + 23 + x;";
+char* e;
 plex* l;
 
 l = plex_create( 0 );
 
-plex_define( l, "[ \t\r\n]+", WHITE, 0 );
-plex_define( l, "[0-9]+", NUMBER, 0 );
-plex_define( l, "[A-Za-z_][A-Za-z_0-9]*", WORD, 0 );
+plex_define( l, "[A-Za-z_][A-Za-z0-9_]*", IDENT, 0 );
+plex_define( l, "[0-9]+", INTEGER, 0 );
+plex_define( l, "=", EQUALS, 0 );
+plex_define( l, "+", PLUS_OP, 0 );
+plex_define( l, ";", SEMICOLON, 0 );
 
+while( *s && ( s = plex_next( l, s, &m, &e ) ) )
+{
+	printf( "%s >%.*s<\n", nid[m - 1], e - s, s );
+	s = e;
+}
+
+plex_free( l );
+```
+
+When running, this yields in the output:
+
+```
+ident >sum<
+equals >=<
+integer >5<
+plus_op >+<
+integer >23<
+plus_op >+<
+ident >x<
+semicolon >;<
 ```
