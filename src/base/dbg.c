@@ -92,11 +92,9 @@ For parameters taken to functions, the PARMS()-macro shall be used.
 
 /** Write a message to trace.
 
-//param_name// is the Name of the parameter
+//param_name// is the name of the parameter
 //format// is the A printf-styled format string.
-//parameter// is the The parameter itself.
-
-Returns a void Nothing
+//parameter// is the parameter itself.
 */
 
 /*NO_DOC*/
@@ -179,3 +177,4 @@ void _dbg_trace( char* file, int line, char* type, char* format, ... )
 	fflush( stderr );
 }
 
+/*COD_ON*/

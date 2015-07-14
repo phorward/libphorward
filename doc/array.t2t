@@ -4,7 +4,7 @@ The **parray** object is a general-purpose data structure which can be used for 
 
 === Construction and destruction ===
 
-**parray** objects are created using parray_create() or initialized with parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with parray_erase(), respectively cleared and freed with parray_free().
+**parray** objects are created using @parray_create() or initialized with @parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with @parray_erase(), respectively cleared and freed with @parray_free().
 
 ```
 parray* a;
@@ -20,11 +20,11 @@ parray_free( a );
 
 Elements can be inserted with
 
-- parray_insert() - insert element at any desired offset,
-- parray_push() - push element to end of array,
-- parray_shift() - shift element on begin of array,
-- parray_malloc() - zero-initialize new element at end of array, and
-- parray_rmalloc() - zero-initialize new element at begin of array.
+- @parray_insert() - insert element at any desired offset,
+- @parray_push() - push element to end of array,
+- @parray_shift() - shift element on begin of array,
+- @parray_malloc() - zero-initialize new element at end of array, and
+- @parray_rmalloc() - zero-initialize new element at begin of array.
 -
 
 ```
@@ -49,8 +49,8 @@ fill_usertype( tp );
 
 Direct access to specific elements is done using
 
-- parray_get() - get element by offset from begin, and
-- parray_rget() - get element by offset from end.
+- @parray_get() - get element by offset from begin, and
+- @parray_rget() - get element by offset from end.
 -
 
 Iterating over the elements:
@@ -71,19 +71,19 @@ for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
 
 Elements can be replaced with
 
-- parray_put() - put element by offset from begin, respective
-- parray_rput() - put element by offset from end.
+- @parray_put() - put element by offset from begin, respective
+- @parray_rput() - put element by offset from end.
 -
 
-Quick access to the first or last elements is gained by parray_last() and parray_first().
+Quick access to the first or last elements is gained by @parray_last() and @parray_first().
 
 === Removing elements ===
 
 Elements can be removed with
 
-- parray_remove() - remove element at any desired offset,
-- parray_pop() - remove last element like from a stack, and
-- parray_unshift() - remove first element.
+- @parray_remove() - remove element at any desired offset,
+- @parray_pop() - remove last element like from a stack, and
+- @parray_unshift() - remove first element.
 -
 
 ```
@@ -100,9 +100,9 @@ tp = (usertype*)parray_unshift( a );
 
 Other, useful functions are
 
-- parray_count() - get number of elements within object,
-- parray_offset() - get offset of element by pointer,
-- parray_partof() - check if element is part of object,
-- parray_swap() - swap two elements within an object,
-- parray_reserve() - assume memory pre-allocation; This is interesting for stack operations.
+- @parray_count() - get number of elements within object,
+- @parray_offset() - get offset of element by pointer,
+- @parray_partof() - check if element is part of object,
+- @parray_swap() - swap two elements within an object,
+- @parray_reserve() - assume memory pre-allocation; This is interesting for stack operations.
 -

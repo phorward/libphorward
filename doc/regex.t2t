@@ -2,9 +2,9 @@
 
 libphorward provides a powerful set of functions relating to general string pattern matching and lexical analysis using regular expressions.
 
-- The //pregex// object encapsulates several regular expression patterns into one data structure that is compiled into a reusable DFA (deterministic finite automata) for quick pattern processing. Strings can be matched, split or replaced on patterns.
-- Based on the //pregex// object, the functions pregex_qmatch(), pregex_qsplit() and pregex_qreplace() are provided, for one-line string processing.
-- The //plex// object ecapsulates a regular expression-based scanner for lexical analysis into one object. It is used by libphorward's [build-in parser generator #pparse] for lexical analysis also.
+- The **pregex** object encapsulates several regular expression patterns into one data structure that is compiled into a reusable DFA (deterministic finite automata) for quick pattern processing. Strings can be matched, split or replaced on patterns.
+- Based on the **pregex** object, the functions @pregex_qmatch(), @pregex_qsplit() and @pregex_qreplace() are provided, for one-line string processing.
+- The **plex** object ecapsulates a regular expression-based scanner for lexical analysis into one object. It is used by libphorward's [build-in parser generator #pparse] for lexical analysis also.
 - All functions are designed to work on wide-character alphabets to fully support Unicode. Therefore, the flags PREGEX_COMP_WCHAR and PREGEX_RUN_WCHAR are provided, to allow processing on patterns and input strings provided as wide-character strings. If not explicitly deactivated by build-flags (-DUTF8), UTF-8 input is generally supported on all functions.
 - Supports anchoring and back-references.
 - Patterns are internally encapsulated in structures of //pregex_ptn// objects, which are then used to generate the NFA (nondeterministic finite automata) from which a DFA is constructed (subset construction algorithm).
@@ -103,9 +103,9 @@ Some examples:
 
 == pregex: Operating on regular expressions ==
 
-The //pregex// object is the object-oriented interface for string operations based on regular expressions.
+The **pregex** object is the object-oriented interface for string operations based on regular expressions.
 
-Patterns are compiled into a DFA and associated with the //pregex// object as a reusable state machine that can be executed several times.
+Patterns are compiled into a DFA and associated with the **pregex** object as a reusable state machine that can be executed several times.
 
 Generally, the actions
 
@@ -119,7 +119,7 @@ are supported by the compiled pattern.
 
 === Construction and destruction ===
 
-//pregex// objects are constructed by pregex_create(). First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
+**pregex** objects are constructed by @pregex_create(). First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
 
 || Flag | Usage |
 | PREGEX_COMP_WCHAR | The regular expression provided to pregex_create() shall be casted to wchar_t. |
@@ -136,7 +136,7 @@ are supported by the compiled pattern.
 | PREGEX_RUN_DEBUG | Debug mode; output some debug to stderr. |
 
 
-pregex_free() destructs and releases a //pregex// object after its use.
+@pregex_free() destructs and releases a **pregex** object after its use.
 
 ```
 pregex* r;
@@ -150,7 +150,7 @@ pregex_free( r );
 
 === Matching ===
 
-To immediatelly test if a //pregex//-object matches on a string, the function pregex_match() shall be invoked.
+To immediatelly test if a **pregex**-object matches on a string, the function @pregex_match() shall be invoked.
 
 ```
 pregex* r;
@@ -162,11 +162,11 @@ pregex_match( r, s, &e ); /* returns FALSE */
 pregex_match( r, s + 1, &e ); /* returns TRUE, e receives s+5. */
 ```
 
-pregex_match() only tests for a string that immediatelly matches the pattern. To find a matching pattern within a string, the function pregex_find() shall be invoked, which is called with the same parameters, but returns the position of the match instead of a bool state.
+@pregex_match() only tests for a string that immediatelly matches the pattern. To find a matching pattern within a string, the function @pregex_find() shall be invoked, which is called with the same parameters, but returns the position of the match instead of a bool state.
 
 ``` pregex_find( r, s, &e ); /* returns s + 1, e receives s+5. */
 
-To find all matching patterns, pregex_find() must be called in a loop.
+To find all matching patterns, @pregex_find() must be called in a loop.
 
 ```
 while( ( s = pregex_find( r, s, &e ) ) )
@@ -176,7 +176,7 @@ while( ( s = pregex_find( r, s, &e ) ) )
 }
 ```
 
-The function pregex_findall() can do this with one call, and fills an //parray// object with //prange// structures.
+The function @pregex_findall() can do this with one call, and fills an //parray// object with //prange// structures.
 
 ```
 parray* a;
@@ -192,7 +192,7 @@ parray_free( a );
 
 === Splitting ===
 
-Splitting a string by a regular expression can be done with pregex_split(). This function takes several parameters, and is designed to be called in a loop.
+Splitting a string by a regular expression can be done with @pregex_split(). This function takes several parameters, and is designed to be called in a loop.
 
 ```
 pregex* r;
@@ -211,7 +211,7 @@ while( s )
 }
 ```
 
-There is also an one call shortcut pregex_splitall(), filling an array:
+There is also an one call shortcut @pregex_splitall(), filling an array:
 
 ```
 parray* a;
@@ -227,7 +227,7 @@ parray_free( a );
 
 === Replacing ===
 
-The function pregex_replace() allows for replacing parts of strings by regular expressions.
+The function @pregex_replace() allows for replacing parts of strings by regular expressions.
 
 ```
 char* ns;
@@ -235,7 +235,7 @@ char* ns;
 ns = pregex_replace( r, s, "int" );
 ```
 
-The result of this function is always an dynamically allocated string that contains the replaces version of the input string, even if there hadn't been any matches. The above example will return "int and int are the cross sums of int and int." when executed on the string of previous chapter. The returned string must always be released with pfree() after its use.
+The result of this function is always an dynamically allocated string that contains the replaces version of the input string, even if there hadn't been any matches. The above example will return "int and int are the cross sums of int and int." when executed on the string of previous chapter. The returned string must always be released with @pfree() after its use.
 
 The replacement may also allow backreference-placeholders defined as ``$<backreference>``, to take parts of the matched regular expression into the replaces string. A back-reference is created for every opening that exists in the regular expression, and begins counting at 1.
 
@@ -252,23 +252,31 @@ To disable the backreference replacement features, the regular expression flag P
 
 === Quick-access functions ===
 
-Based on the //pregex//-object, libphorward provides the shortcut functons
+Based on the **pregex**-object, libphorward provides the shortcut functons
 
-- pregex_qmatch() - match strings by pattern,
-- pregex_qsplit() - split strings by pattern,
-- pregex_qreplace() - replace strings by pattern
+- @pregex_qmatch() - match strings by pattern,
+- @pregex_qsplit() - split strings by pattern,
+- @pregex_qreplace() - replace strings by pattern
 -
 
-for immediate use, without creating and destroying a //pregex//-object. Because this is done within the function calls, multiple calls of these functions result in huger runtime latencies and produce more overhead.
+for immediate use, without creating and destroying a **pregex**-object. Because this is done within the function calls, multiple calls of these functions result in huger runtime latencies and produce more overhead.
 
 
 == plex: Lexical analysis using regular expressions ==
 
-The second part of libphorwards regular expression tools is the //plex//-object, which encapsulates all required features for creating lexical analyzers (in terms of compiler-writers also called "scanners" or "lexers") into one handy object.
+The second part of libphorwards regular expression tools is the **plex**-object, which encapsulates all required features for creating lexical analyzers (in terms of compiler-writers also called "scanners" or "lexers") into one handy object.
 
-A //plex//-object can be seen as a container, which merges multiple regular expressions together into one state machine to recognize tokens. A token is then identified by an unique number that is associated with the matching regular expression.
+A **plex**-object can be seen as a container, which merges multiple regular expressions together into one state machine to recognize tokens. A token is then identified by an unique number that is associated with the matching regular expression.
 
-To tokenize a C-styled variable assignment, one could write a simple lexical analyzer for this:
+- @plex_create() - creates a new **plex**-object,
+- @plex_define() - adds a new token matcher,
+- @plex_lex() - immediatelly tests for a direct match on a string,
+- @plex_next() - finds the next match within a string, where unrecognized characters are ignored,
+- @plex_tokenize() - generates an array of all tokens from a string,
+- @plex_free() - destructs the **plex**-object after its usage,
+-
+
+To tokenize a C-styled variable assignment, one could write a simple lexical analyzer, like this:
 
 ```
 enum

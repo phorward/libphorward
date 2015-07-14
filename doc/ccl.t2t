@@ -2,6 +2,16 @@ The **pccl** object is established on top of the **plist** object and encapsulat
 
 These functions are heavily used by the library's regular expressions and parser implementations, but may also be helpful for other related projects. The **pccl** can handle character classes, by chaining ranges. It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. **pccl** objects are designed to work on huge alphabets with a low memory consumption. By default, characters are specified as wchar_t wide-character unicode values.
 
+- @p_ccl_create() - create and optionally parse a new character-class,
+- @p_ccl_parse() - parse characters and ranges from a string into a character-class,
+- @p_ccl_negate() - negate a character-class over the character universe,
+- @p_ccl_add(), @p_ccl_addrange() - add single characters or ranges to the class,
+- @p_ccl_del(), @p_ccl_delrange() - delete single characters or ranges from the class,
+- @p_ccl_test(), @p_ccl_tesrange() - test if a character or range matches a class,
+- @p_ccl_to_str() - convert a character-class into a string,
+- @p_ccl_free() - detroy a previously created character-class,
+-
+
 ```
 pccl* ccl;
 
@@ -42,15 +52,13 @@ p_ccl_free( ccl );
 
 Useful, additional functions when working with **pccl** are:
 
-- p_ccl_compare() - compary character-classes,
-- p_ccl_diff() - create differencing character-class of two classes,
-- p_ccl_erase() - clear character-class,
-- p_ccl_get() - retrieve characters or ranges by offset,
-- p_ccl_instest() - like p_ccl_test(), but with insensitve-character check,
-- p_ccl_intersect() - create intersection character-class of two classes,
-- p_ccl_print() - print character-class (for debug),
-- p_ccl_parsechar() - parse an escaped character sequence into a wide-character,
-- p_ccl_parseshorthand() - parse a typical shorthand (\d, \w) into a character-class.
+- @p_ccl_compare() - compary character-classes,
+- @p_ccl_diff() - create differencing character-class of two classes,
+- @p_ccl_erase() - clear character-class,
+- @p_ccl_get() - retrieve characters or ranges by offset,
+- @p_ccl_instest() - like @p_ccl_test(), but with insensitve-character check,
+- @p_ccl_intersect() - create intersection character-class of two classes,
+- @p_ccl_print() - print character-class (for debug),
+- @p_ccl_parsechar() - parse an escaped character sequence into a wide-character,
+- @p_ccl_parseshorthand() - parse a typical shorthand (\d, \w) into a character-class.
 -
-
-

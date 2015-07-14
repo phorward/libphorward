@@ -2,7 +2,7 @@ Phorward Toolkit Reference Manual
 libphorward 0.18
 July 2015
 
-%%!preproc(html): '([a-zA-Z0-9_]+)\(\)' ' [\1() #fn_\1]\2'
+%!preproc(html): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
 
 %-------------------------------------------------------------------------------
 
@@ -162,10 +162,10 @@ within phorward.h.
 
 The standard memory allocation functions can be replaced by these pendants:
 
-- pmalloc() - allocate and zero-intialize memory, stop on error.
-- prealloc() - reallocate memory, stop on error.
-- pfree() - free memory and return (void*)NULL pointer.
-- pmemdup() - shorthand for malloc() with memcpy().
+- @pmalloc() - allocate and zero-intialize memory, stop on error.
+- @prealloc() - reallocate memory, stop on error.
+- @pfree() - free memory and return (void*)NULL pointer.
+- @pmemdup() - shorthand for a malloc() with memcpy().
 -
 
 These functions are entirely used trough libphorward's internal object mapping functions.
@@ -176,12 +176,12 @@ Althought this option is not widely used in modern C/C++ projects, libphorward o
 
 For this, the library provides the following macros:
 
-- PROC() - starting macro marking a functions entry point,
-- PARMS() - log function parameters,
-- VARS() - log variables,
-- MSG() - debug message
-- RETURN() - return a value
-- VOIDRET - return from a void function.
+- @PROC() - starting macro marking a functions entry point,
+- @PARMS() - log function parameters,
+- @VARS() - log variables,
+- @MSG() - debug message
+- @RETURN() - return a value
+- @VOIDRET - return from a void function.
 -
 
 So when a function is written like this in libphorward's way:
@@ -279,34 +279,34 @@ The libphorward provides a set of functions for extended, dynamic string memory 
 
 These function are
 
-- pstrcasecmp() - case-insensitive string comparison,
-- pstrcatchar() - append character to string with dynamic allocation,
-- pstrcatstr() - append string to string with dynamic allocation,
-- pstrdup() - duplicate string, also accepts NULL-pointers,
-- pstrget() - securely get string from a pointer,
-- pstrlen() - return length ot string, also accepts NULL-pointers,
-- pstrltrim() - remove prefixing whitespace,
-- pstrlwr() - convert string to lower-case-order,
-- pstrncasecmp() - case-insensitive string comparison over maximum length,
-- pstrncatstr() - append string to string with dynamic allocation and maximum length,
-- pstrndup() - duplicate a string with maximum length,
-- pstrput() - securely set an allocated string into a pointer,
-- pstrrender() - dynamically render a string with placeholder substitution,
-- pstrreplace() - dynamically replace substrings within string,
-- pstrrtrim() - remove trailing whitespace,
-- pstrsplit() - dynamic tokenizer,
-- pstrtrim() - remove prefixing and trailing whitespace,
-- pstrupr() - convert string to lower-case-order.
+- @pstrcasecmp() - case-insensitive string comparison,
+- @pstrcatchar() - append character to string with dynamic allocation,
+- @pstrcatstr() - append string to string with dynamic allocation,
+- @pstrdup() - duplicate string, also accepts NULL-pointers,
+- @pstrget() - securely get string from a pointer,
+- @pstrlen() - return length ot string, also accepts NULL-pointers,
+- @pstrltrim() - remove prefixing whitespace,
+- @pstrlwr() - convert string to lower-case-order,
+- @pstrncasecmp() - case-insensitive string comparison over maximum length,
+- @pstrncatstr() - append string to string with dynamic allocation and maximum length,
+- @pstrndup() - duplicate a string with maximum length,
+- @pstrput() - securely set an allocated string into a pointer,
+- @pstrrender() - dynamically render a string with placeholder substitution,
+- @pstrreplace() - dynamically replace substrings within string,
+- @pstrrtrim() - remove trailing whitespace,
+- @pstrsplit() - dynamic tokenizer,
+- @pstrtrim() - remove prefixing and trailing whitespace,
+- @pstrupr() - convert string to lower-case-order.
 -
 
 Additionally, the following pendants for wide-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
 
-- pwcscatchar() - append character to wide-character string with dynamic allocation,
-- pwcscatstr() - append wide-character string to wide-character string with dynamic allocation,
-- pwcsdup() - duplicate wide-character string, also accepts NULL-pointers,
-- pwcslen() - return length ot wide-character string, also accepts NULL-pointers,
-- pwcsncatstr() - append wide-character string to wide-character string with dynamic allocation and maximum length,
-- pwcsndup() - duplicate a wide-character string with maximum length.
+- @pwcscatchar() - append character to wide-character string with dynamic allocation,
+- @pwcscatstr() - append wide-character string to wide-character string with dynamic allocation,
+- @pwcsdup() - duplicate wide-character string, also accepts NULL-pointers,
+- @pwcslen() - return length ot wide-character string, also accepts NULL-pointers,
+- @pwcsncatstr() - append wide-character string to wide-character string with dynamic allocation and maximum length,
+- @pwcsndup() - duplicate a wide-character string with maximum length.
 -
 
 Althought the wide-character pendants to the standard extended string functions are not consistent, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.

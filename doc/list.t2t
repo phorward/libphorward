@@ -23,7 +23,7 @@ The **plist** object implements:
 
 === Construction and destruction ===
 
-**plist** objects are created using plist_create() or initialized with plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the **plist** object to a specified behavior.
+**plist** objects are created using @plist_create() or initialized with @plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the **plist** object to a specified behavior.
 
 Possible flags are listed below, and can be combined using bitwise or (|).
 
@@ -39,6 +39,8 @@ Possible flags are listed below, and can be combined using bitwise or (|).
 
 The mode **PLIST_MOD_PTR** is automatically set if the elements size is specified as 0.
 
+A **plist** object must be freed using @plist_free() or cleared with @plist_clear().
+
 ```
 plist* l;
 
@@ -53,11 +55,11 @@ plist_free( l );
 
 Elements can be inserted with
 
-- plist_insert() - insert element, optionally with key, at any desired position,
-- plist_push() - push element to end of list,
-- plist_shift() - shift element on begin of list,
-- plist_malloc() - zero-initialize new element at end of list, and
-- plist_rmalloc() - zero-initialize new element at begin of list.
+- @plist_insert() - insert element, optionally with key, at any desired position,
+- @plist_push() - push element to end of list,
+- @plist_shift() - shift element on begin of list,
+- @plist_malloc() - zero-initialize new element at end of list, and
+- @plist_rmalloc() - zero-initialize new element at begin of list.
 -
 
 ```
@@ -88,12 +90,12 @@ fill_usertype( tp );
 
 Elements within a **plist** object are references by **plistel** items. To access the data element behind a **plistel** item, the function plist_access() is used, in combination with element retrival functions, like
 
-- plist_get() - get element by offset,
-- plist_rget() - get element by offset from the end,
-- plist_get_by_key() - retrieve element by key (hash table),
-- plist_get_by_ptr() - retrieve element by its data pointer,
-- plist_first() - get first element,
-- plist_last() - get last element.
+- @plist_get() - get element by offset,
+- @plist_rget() - get element by offset from the end,
+- @plist_first() - get first element,
+- @plist_last() - get last element,
+- @plist_get_by_key() - retrieve element by key (in a hash table),
+- @plist_get_by_ptr() - retrieve element by its data pointer.
 -
 
 ```
@@ -133,9 +135,9 @@ for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
 
 To remove elements from a **plist** object, the following functions can be used.
 
-- plist_remove() - remove any element,
-- plist_pop() - pop last element as from a stack,
-- plist_unshift() - remove first element as from a queue.
+- @plist_remove() - remove any element,
+- @plist_pop() - pop last element as from a stack,
+- @plist_unshift() - remove first element as from a queue.
 -
 
 ```
@@ -152,7 +154,7 @@ plist_unshift( a, &t );
 **plist** objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertation.
 
 The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like strcmp() does.
-This function can be individually set using plist_set_sortfn(), and defaultly points to a callback function that uses memcmp() as the element comparison function.
+This function can be individually set using @plist_set_sortfn(), and defaultly points to a callback function that uses memcmp() as the element comparison function.
 
 As prototype and example, the following comparison function:
 
@@ -181,8 +183,8 @@ This can, than, be attached to the **plist** object with
 To configure a **plist** object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
 The sorting can be also be performed by invoking the functions
 
-- plist_sort() - to sort the entire list,
-- plist_subsort() - to sort only a part of the list (begin- and end-elements required).
+- @plist_sort() - to sort the entire list,
+- @plist_subsort() - to sort only a part of the list (begin- and end-elements required).
 -
 
 === Interchanging functions ===
@@ -191,17 +193,16 @@ The sorting can be also be performed by invoking the functions
 
 To implement these functions, every **plist** object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
 
-- plist_diff() - checks two lists for same items (equality),
-- plist_union() - extends a list to all elements of a second list that are not equal to elements in the first list.
+- @plist_diff() - checks two lists for same items (equality),
+- @plist_union() - extends a list to all elements of a second list that are not equal to elements in the first list.
 -
 
 === Additional functions ===
 
 **plist** provides these additional functions:
 
-- plist_swap() - swaps the two elements within a list,
-- plist_clear() - clear list content without destroying the object,
-- plist_dup() - duplicate list and its items,
-- plist_count() - return number of items in a list.
+- @plist_swap() - swaps the two elements within a list,
+- @plist_dup() - duplicate list and its items,
+- @plist_count() - return number of items in a list.
 -
 

@@ -17,8 +17,8 @@ Usage:	Interface for pregex-objects serving regular expressions.
 //flags// can be a combination of compile- and runtime-flags.
 
 || Flag | Usage |
-| PREGEX_COMP_WCHAR	| The regular expression //pat// is provided as wchar_t. |
-| PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
+| PREGEX_COMP_WCHAR | The regular expression //pat// is provided as wchar_t. |
+| PREGEX_COMP_NOANCHORS | Ignore anchor tokens, handle them as normal \
 characters |
 | PREGEX_COMP_NOREF | Don't compile references. |
 | PREGEX_COMP_NONGREEDY | Compile regex to be forced nongreedy. |

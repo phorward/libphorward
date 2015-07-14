@@ -16,8 +16,8 @@ Usage:	Writing lexical analyzers.
 with special compile-time flags provided for each pattern.
 
 || Flag | Usage |
-| PREGEX_COMP_WCHAR	| The regular expressions are provided as wchar_t. |
-| PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
+| PREGEX_COMP_WCHAR | The regular expressions are provided as wchar_t. |
+| PREGEX_COMP_NOANCHORS | Ignore anchor tokens, handle them as normal \
 characters |
 | PREGEX_COMP_NOREF | Don't compile references. |
 | PREGEX_COMP_NONGREEDY | Compile all patterns to be forced nongreedy. |
@@ -173,8 +173,8 @@ matches.
 compile-time flags of the plex-object provided at plex_create().
 
 || Flag | Usage |
-| PREGEX_COMP_WCHAR	| The regular expressions are provided as wchar_t. |
-| PREGEX_COMP_NOANCHORS	| Ignore anchor tokens, handle them as normal \
+| PREGEX_COMP_WCHAR | The regular expressions are provided as wchar_t. |
+| PREGEX_COMP_NOANCHORS | Ignore anchor tokens, handle them as normal \
 characters |
 | PREGEX_COMP_NOREF | Don't compile references. |
 | PREGEX_COMP_NONGREEDY | Compile all patterns to be forced nongreedy. |

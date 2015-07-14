@@ -469,6 +469,8 @@ The preparation process includes:
 - FIRST-set computation
 - Mark left-recursions
 - Lexem flag pull-trough
+-
+
 */
 pboolean pp_gram_prepare( ppgram* g )
 {
