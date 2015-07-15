@@ -2,9 +2,19 @@ Phorward Toolkit Reference Manual
 libphorward 0.18
 July 2015
 
-%!preproc(html): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
+%!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
+%!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
+%!preproc(xhtml): '%FUNCTION:BEGIN' "''' <div class='function'>"
+%!preproc(xhtml): '%FUNCTION:END' "''' </div>"
+%!preproc(xhtml): '%DEFINITION:BEGIN' "''' <div class='definition'>"
+%!preproc(xhtml): '%DEFINITION:END' "''' </div>"
+%!postproc(xhtml): '\(C\)' '&copy;'
 
 %-------------------------------------------------------------------------------
+
+= Table of Contents =
+
+%%toc
 
 = General =
 

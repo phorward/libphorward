@@ -1,7 +1,29 @@
 html, body, table
 {
 	font-family: Helvetica, Consolas, sans-serif;
-	font-size: 10pt;
+	font-size: 11pt;
+}
+
+html
+{
+	background-color: #333;
+}
+
+body
+{
+	margin: 0 8%;
+	padding: 1%;
+	background-color: #fff;
+}
+
+pre, code
+{
+	font-family: "Lucida Console", Monaco, monospace;
+}
+
+pre
+{
+	margin-left: 3%;
 }
 
 a
@@ -28,56 +50,61 @@ li
 div#header
 {
 	text-align: center;
-	border-bottom: 1px solid black;
 	font-size: 18pt;
 	padding-bottom: 10px;
 	margin-bottom: 5px;
 }
 
-div#menu
+div#header h1
 {
-	text-align: center;
-	border-bottom: 1px solid black;
-	font-size: 14pt;
-	padding: 8px;
-	margin-bottom: 20px;
+	font-size: 22pt;
 }
 
-div#footer
-{
-	text-align: center;
-	border-top: 1px solid black;
-	font-size: 8pt;
-	padding-top: 10px;
-	margin-top: 5px;
-}			
-
-h1
+div#header h2
 {
 	font-size: 20pt;
-	margin: 0;
+}
+
+div#header h3
+{
+	font-size: 14pt;
+	font-style: italic;
+}
+
+div#body h1
+{
+	border-top: 3px solid #333;
+	font-size: 20pt;
 }
 
 div.function
 {
 	page-break-before:auto;
 	border-top: 1px dotted #000066;
-	border-left: 1px groove #000066;
-	margin-bottom: 50px;
+	padding: 0 1%;
+	margin-bottom: 3.5%;
 }
 
-h2
+div.function .definition
 {
 	font-size: 12pt;
-	text-align: center;
-	padding: 0;
-	/* margin: 15px 20% 10px 20%; */
+	font-family: "Lucida Console", Monaco, monospace;
 }
 
-a.back_to_top
+div#body h2
 {
-	font-size: 8pt;
+	border-top: 1px dashed #666;
+	font-size: 16pt;
+	margin-right: 5%;
 }
+
+div#body h3
+{
+	font-size: 14pt;
+	margin: 1% 5% 1% 0%;
+	padding: 0;
+}
+
 
 @media print
 {

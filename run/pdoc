@@ -299,24 +299,29 @@ function render( f, d )
 	x = functions[ f ] "\n" entries[ f ]
 	count += gsub( /\n/, "", x )
 
-	print "'''"
-	print "<!-- NEED " count " -->"
-	print "'''"
+	print "%NEED:" count
+	print "%FUNCTION:BEGIN"
 
 	print headline( d ) " " f " " headline( d ) "[" prefix f "]"
 
 	print ""
 	print "**Definition:**"
 	print ""
+	print "%DEFINITION:BEGIN"
 
 	if( whatis[ f ] != "F" )
 		print functions[ f ] " - //" type[ whatis[ f ] ] "//"
 	else
 		print functions[ f ]
 
+	print "%DEFINITION:END"
+
 	print ""
 	print "**Usage:**\n"
 	print entries[ f ]
+
+	print "%FUNCTION:END"
+
 }
 
 function ltrim( s )

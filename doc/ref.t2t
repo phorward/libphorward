@@ -1,15 +1,16 @@
 
 
 
-= Macros =
-'''
-<!-- NEED 20 -->
-'''
-== PARMS ==[fn_PARMS]
+== Macros ==
+%NEED:20
+%FUNCTION:BEGIN
+=== PARMS ===[fn_PARMS]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 PARMS( char* param_name, char* format, param_type parameter ) - //Macro//
+%DEFINITION:END
 
 **Usage:**
 
@@ -23,14 +24,16 @@ trace, the [VARS() #fn_VARS]-macro shall be used.
 //param_name// is the name of the parameter
 //format// is a printf-styled format placeholder.
 //parameter// is the parameter itself.
-'''
-<!-- NEED 22 -->
-'''
-== PROC ==[fn_PROC]
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== PROC ===[fn_PROC]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 PROC( char* func_name ) - //Macro//
+%DEFINITION:END
 
 **Usage:**
 
@@ -46,14 +49,16 @@ value, must be used. If PROC is used without RETURN, the trace output will
 output a wrong call level depth.
 
 The parameter //func_name// is a static string for the function name.
-'''
-<!-- NEED 15 -->
-'''
-== RETURN ==[fn_RETURN]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== RETURN ===[fn_RETURN]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 RETURN( function_type return_value ) - //Macro//
+%DEFINITION:END
 
 **Usage:**
 
@@ -62,14 +67,16 @@ Write function return to trace.
 For void-functions, use the macro VOIDRET.
 
 //return_value// is return-value of the function.
-'''
-<!-- NEED 18 -->
-'''
-== VARS ==[fn_VARS]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== VARS ===[fn_VARS]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 VARS( char* var_name, char* format, var_type variable ) - //Macro//
+%DEFINITION:END
 
 **Usage:**
 
@@ -81,14 +88,16 @@ For parameters taken to functions, the [PARMS() #fn_PARMS]-macro shall be used.
 //var_name// is the name of the variable
 //format// is a printf-styled format placeholder.
 //variable// is the the parameter itself.
-'''
-<!-- NEED 14 -->
-'''
-== VOIDRET ==[fn_VOIDRET]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== VOIDRET ===[fn_VOIDRET]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 VOIDRET - //Macro//
+%DEFINITION:END
 
 **Usage:**
 
@@ -96,15 +105,17 @@ Write void function return to trace.
 
 VOIDRET can only be used if [PROC() #fn_PROC] is used at the beginning of the function.
 For typed functions, use the macro [RETURN() #fn_RETURN].
-= Functions =
-'''
-<!-- NEED 16 -->
-'''
-== p_ccl_add ==[fn_p_ccl_add]
+%FUNCTION:END
+== Functions ==
+%NEED:16
+%FUNCTION:BEGIN
+=== p_ccl_add ===[fn_p_ccl_add]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_add( pccl* ccl, wchar_t ch )
+%DEFINITION:END
 
 **Usage:**
 
@@ -114,14 +125,16 @@ Integrates a single character into a character-class.
 //ch// is the character to be integrated.
 
 The function is a shortcut for [p_ccl_addrange() #fn_p_ccl_addrange].
-'''
-<!-- NEED 19 -->
-'''
-== p_ccl_addrange ==[fn_p_ccl_addrange]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== p_ccl_addrange ===[fn_p_ccl_addrange]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_addrange( pccl* ccl, wchar_t begin, wchar_t end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -134,14 +147,16 @@ provided as (pccl*)NULL, it will be created by the function.
 //end// is the end of character range to be integrated.
 
 If //begin// is greater than //end//, the values will be swapped.
-'''
-<!-- NEED 17 -->
-'''
-== p_ccl_compare ==[fn_p_ccl_compare]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== p_ccl_compare ===[fn_p_ccl_compare]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int p_ccl_compare( pccl* left, pccl* right )
+%DEFINITION:END
 
 **Usage:**
 
@@ -152,27 +167,31 @@ Checks for differences in two character-classes.
 
 Returns a value < 0 if //left// is lower than //right//, 0 if //left// is
 equal to //right// or a value > 0 if //left// is greater than //right//.
-'''
-<!-- NEED 12 -->
-'''
-== p_ccl_compat ==[fn_p_ccl_compat]
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== p_ccl_compat ===[fn_p_ccl_compat]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_compat( pccl* l, pccl* r )
+%DEFINITION:END
 
 **Usage:**
 
 Checks if the character-classes //l// and //r// are in the same
 character universe and compatible for operations.
-'''
-<!-- NEED 15 -->
-'''
-== p_ccl_count ==[fn_p_ccl_count]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== p_ccl_count ===[fn_p_ccl_count]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int p_ccl_count( pccl* ccl )
+%DEFINITION:END
 
 **Usage:**
 
@@ -181,14 +200,16 @@ Returns the number of characters within a character-class.
 //ccl// is a pointer to the character-class to be processed.
 
 Returns the total number of characters the class is holding.
-'''
-<!-- NEED 15 -->
-'''
-== p_ccl_create ==[fn_p_ccl_create]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== p_ccl_create ===[fn_p_ccl_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pccl* p_ccl_create( int min, int max, char* ccldef )
+%DEFINITION:END
 
 **Usage:**
 
@@ -197,14 +218,16 @@ Constructor function to create a new character-class.
 
 Returns a pointer to the newly created character-class. This pointer should be
 released with [p_ccl_free() #fn_p_ccl_free] when its existence is no longer required.
-'''
-<!-- NEED 16 -->
-'''
-== p_ccl_del ==[fn_p_ccl_del]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== p_ccl_del ===[fn_p_ccl_del]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_del( pccl* ccl, wchar_t ch )
+%DEFINITION:END
 
 **Usage:**
 
@@ -214,14 +237,16 @@ Removes a character from a character-class.
 //ch// is the character to be removed from //ccl//.
 
 The function is a shortcut for [p_ccl_delrange() #fn_p_ccl_delrange].
-'''
-<!-- NEED 15 -->
-'''
-== p_ccl_delrange ==[fn_p_ccl_delrange]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== p_ccl_delrange ===[fn_p_ccl_delrange]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_delrange( pccl* ccl, wchar_t begin, wchar_t end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -230,14 +255,16 @@ Removes a character range from a character-class.
 //ccl// is the pointer to the character-class to be affected.
 //begin// is the begin of character range to be removed.
 //end// is the end of character range to be removed.
-'''
-<!-- NEED 20 -->
-'''
-== p_ccl_diff ==[fn_p_ccl_diff]
+%FUNCTION:END
+%NEED:20
+%FUNCTION:BEGIN
+=== p_ccl_diff ===[fn_p_ccl_diff]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pccl* p_ccl_diff( pccl* ccl, pccl* rem )
+%DEFINITION:END
 
 **Usage:**
 
@@ -251,14 +278,16 @@ new character-class.
 Returns a new pointer to a copy of //ccl//, without the ranges contained in
 //rem//. Returns (pccl*)NULL in case of memory allocation or parameter
 error.
-'''
-<!-- NEED 16 -->
-'''
-== p_ccl_dup ==[fn_p_ccl_dup]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== p_ccl_dup ===[fn_p_ccl_dup]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pccl* p_ccl_dup( pccl* ccl )
+%DEFINITION:END
 
 **Usage:**
 
@@ -268,14 +297,16 @@ Duplicates a character-class into a new one.
 
 Returns a pointer to the duplicate of //ccl//, or (pcrange)NULL
 in error case.
-'''
-<!-- NEED 15 -->
-'''
-== p_ccl_erase ==[fn_p_ccl_erase]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== p_ccl_erase ===[fn_p_ccl_erase]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_erase( pccl* ccl )
+%DEFINITION:END
 
 **Usage:**
 
@@ -284,28 +315,32 @@ Erases a character-class //ccl//.
 The function sets a character-class to zero, as it continas no character range
 definitions. The object //ccl// will be still alive. To delete the entire
 object, use [p_ccl_free() #fn_p_ccl_free].
-'''
-<!-- NEED 13 -->
-'''
-== p_ccl_free ==[fn_p_ccl_free]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== p_ccl_free ===[fn_p_ccl_free]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pccl* p_ccl_free( pccl* ccl )
+%DEFINITION:END
 
 **Usage:**
 
 Frees a character-class //ccl// and all its used memory.
 
 The function always returns (pccl*)NULL.
-'''
-<!-- NEED 23 -->
-'''
-== p_ccl_get ==[fn_p_ccl_get]
+%FUNCTION:END
+%NEED:23
+%FUNCTION:BEGIN
+=== p_ccl_get ===[fn_p_ccl_get]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset )
+%DEFINITION:END
 
 **Usage:**
 
@@ -322,14 +357,16 @@ it writes the //begin// and //end// character of the character-range in the
 If no character or range with the given offset was found, the function
 returns FALSE, meaning that the end of the characters is reached.
 On success, the function will always return TRUE.
-'''
-<!-- NEED 19 -->
-'''
-== p_ccl_instest ==[fn_p_ccl_instest]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== p_ccl_instest ===[fn_p_ccl_instest]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_instest( pccl* ccl, wchar_t ch )
+%DEFINITION:END
 
 **Usage:**
 
@@ -342,14 +379,16 @@ a character-class.
 The function is a shortcut for [p_ccl_testrange() #fn_p_ccl_testrange].
 
 It returns TRUE, if the character matches the class, and FALSE if not.
-'''
-<!-- NEED 19 -->
-'''
-== p_ccl_intersect ==[fn_p_ccl_intersect]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== p_ccl_intersect ===[fn_p_ccl_intersect]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pccl* p_ccl_intersect( pccl* ccl, pccl* within )
+%DEFINITION:END
 
 **Usage:**
 
@@ -362,14 +401,16 @@ provided character-classes.
 Returns a new character-class containing the insersections from //ccl//
 and //within//. If there is no intersection between both character-classes,
 the function returns (pccl*)NULL.
-'''
-<!-- NEED 15 -->
-'''
-== p_ccl_negate ==[fn_p_ccl_negate]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== p_ccl_negate ===[fn_p_ccl_negate]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pccl* p_ccl_negate( pccl* ccl )
+%DEFINITION:END
 
 **Usage:**
 
@@ -378,14 +419,16 @@ Negates all ranges in a character-class.
 //ccl// is the pointer to the character-class to be negated.
 
 Returns a pointer to //ccl//.
-'''
-<!-- NEED 25 -->
-'''
-== p_ccl_parse ==[fn_p_ccl_parse]
+%FUNCTION:END
+%NEED:25
+%FUNCTION:BEGIN
+=== p_ccl_parse ===[fn_p_ccl_parse]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
+%DEFINITION:END
 
 **Usage:**
 
@@ -404,14 +447,16 @@ character-class. This means that definitions that already exist in the
 character-class, should be erased first or not.
 
 The function returns TRUE on success, and FALSE on an error.
-'''
-<!-- NEED 20 -->
-'''
-== p_ccl_parsechar ==[fn_p_ccl_parsechar]
+%FUNCTION:END
+%NEED:20
+%FUNCTION:BEGIN
+=== p_ccl_parsechar ===[fn_p_ccl_parsechar]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 size_t p_ccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq )
+%DEFINITION:END
 
 **Usage:**
 
@@ -425,14 +470,16 @@ If //escapeseq// is TRUE, the function regards escape sequences, else it ignores
 them.
 
 Returns the number of bytes that had been read for the character.
-'''
-<!-- NEED 17 -->
-'''
-== p_ccl_parseshorthand ==[fn_p_ccl_parseshorthand]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== p_ccl_parseshorthand ===[fn_p_ccl_parseshorthand]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 size_t p_ccl_parseshorthand( pccl* ccl, char *str )
+%DEFINITION:END
 
 **Usage:**
 
@@ -443,14 +490,16 @@ added to //ccl//.
 The function returns the number of bytes that had been read for the character.
 If no shorthand sequence could be found, it returns 0, and leaves //ccl//
 untouched.
-'''
-<!-- NEED 22 -->
-'''
-== p_ccl_print ==[fn_p_ccl_print]
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== p_ccl_print ===[fn_p_ccl_print]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void p_ccl_print( FILE* stream, pccl* ccl, int break_after )
+%DEFINITION:END
 
 **Usage:**
 
@@ -466,14 +515,16 @@ left (FILE*)NULL, so //stderr// will be used.
 - if 0 print all into one line
 - if > 0 print linewise
 -
-'''
-<!-- NEED 17 -->
-'''
-== p_ccl_size ==[fn_p_ccl_size]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== p_ccl_size ===[fn_p_ccl_size]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int p_ccl_size( pccl* ccl )
+%DEFINITION:END
 
 **Usage:**
 
@@ -484,14 +535,16 @@ Returns the number of range pairs within a character-class.
 To retrieve the number of characters in a character-class, use [p_ccl_count() #fn_p_ccl_count] instead.
 
 Returns the number of pairs the charclass holds.
-'''
-<!-- NEED 18 -->
-'''
-== p_ccl_test ==[fn_p_ccl_test]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== p_ccl_test ===[fn_p_ccl_test]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_test( pccl* ccl, wchar_t ch )
+%DEFINITION:END
 
 **Usage:**
 
@@ -503,14 +556,16 @@ Tests a character-class if it cointains a character.
 The function is a shortcut for [p_ccl_testrange() #fn_p_ccl_testrange].
 
 It returns TRUE, if the character matches the class, and FALSE if not.
-'''
-<!-- NEED 17 -->
-'''
-== p_ccl_testrange ==[fn_p_ccl_testrange]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== p_ccl_testrange ===[fn_p_ccl_testrange]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean p_ccl_testrange( pccl* ccl, wchar_t begin, wchar_t end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -521,14 +576,16 @@ Tests a character-class to match a character range.
 //end// is the end of character-range to be tested.
 
 Returns TRUE if the entire character range matches the class, and FALSE if not.
-'''
-<!-- NEED 22 -->
-'''
-== p_ccl_to_str ==[fn_p_ccl_to_str]
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== p_ccl_to_str ===[fn_p_ccl_to_str]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* p_ccl_to_str( pccl* ccl, pboolean escape )
+%DEFINITION:END
 
 **Usage:**
 
@@ -544,14 +601,16 @@ be returned as "\0"
 Returns a pointer to the generated string that represents the charclass.
 The returned pointer belongs to the //ccl// and is managed by the
 character-class handling functions, so it should not be freed manually.
-'''
-<!-- NEED 18 -->
-'''
-== p_ccl_union ==[fn_p_ccl_union]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== p_ccl_union ===[fn_p_ccl_union]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pccl* p_ccl_union( pccl* ccl, pccl* add )
+%DEFINITION:END
 
 **Usage:**
 
@@ -563,26 +622,30 @@ ranges contained in //add//.
 
 The function creates and returns a new character-class that is the union
 if //ccl// and //add//.
-'''
-<!-- NEED 11 -->
-'''
-== parray_count ==[fn_parray_count]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== parray_count ===[fn_parray_count]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 size_t parray_count( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
 Returns the number of elements in a array.
-'''
-<!-- NEED 14 -->
-'''
-== parray_create ==[fn_parray_create]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_create ===[fn_parray_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 parray* parray_create( size_t size, size_t chunk )
+%DEFINITION:END
 
 **Usage:**
 
@@ -590,14 +653,16 @@ Create a new parray as an object with an element allocation size //size//
 and a reallocation-chunk-size of //chunk//.
 
 The returned memory must be released with [parray_free() #fn_parray_free].
-'''
-<!-- NEED 15 -->
-'''
-== parray_erase ==[fn_parray_erase]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== parray_erase ===[fn_parray_erase]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean parray_erase( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
@@ -606,14 +671,16 @@ Erase a dynamic array.
 The array must not be reinitialized after destruction, using [parray_init() #fn_parray_init].
 
 //array// is the pointer to the array to be erased.
-'''
-<!-- NEED 14 -->
-'''
-== parray_first ==[fn_parray_first]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_first ===[fn_parray_first]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_first( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
@@ -621,28 +688,32 @@ Access first element of the array.
 
 Returns the address of the accessed item, and (void*)NULL if nothing is on
 the array.
-'''
-<!-- NEED 13 -->
-'''
-== parray_free ==[fn_parray_free]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== parray_free ===[fn_parray_free]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 parray* parray_free( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
 Releases all the memory //array// uses and destroys the array object.
 
 The function always returns (parray*)NULL.
-'''
-<!-- NEED 20 -->
-'''
-== parray_get ==[fn_parray_get]
+%FUNCTION:END
+%NEED:20
+%FUNCTION:BEGIN
+=== parray_get ===[fn_parray_get]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_get( parray* array, size_t offset )
+%DEFINITION:END
 
 **Usage:**
 
@@ -656,14 +727,16 @@ Returns the address of the accessed item, and (void*)NULL if the item could not
 be accessed (e.g. if the array is empty or offset is beyond the last of array).
 
 Use [parray_rget() #fn_parray_rget] for access items from the end.
-'''
-<!-- NEED 21 -->
-'''
-== parray_init ==[fn_parray_init]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== parray_init ===[fn_parray_init]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean parray_init( parray* array, size_t size, size_t chunk )
+%DEFINITION:END
 
 **Usage:**
 
@@ -678,14 +751,16 @@ This should be evaluated using the [sizeof() #fn_sizeof]-macro.
 If, e.g. this is set to 128, then, if the 128th item is created within the
 array, a realloction is done. Once allocated memory remains until the array is
 freed again.
-'''
-<!-- NEED 15 -->
-'''
-== parray_insert ==[fn_parray_insert]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== parray_insert ===[fn_parray_insert]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_insert( parray* array, size_t offset, void* item )
+%DEFINITION:END
 
 **Usage:**
 
@@ -694,14 +769,16 @@ Items right to //offset// will move up.
 
 Gap space between the offset is filled with zero elements;
 Handle with care!
-'''
-<!-- NEED 14 -->
-'''
-== parray_last ==[fn_parray_last]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_last ===[fn_parray_last]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_last( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
@@ -709,14 +786,16 @@ Access last element of the array.
 
 Returns the address of the accessed item, and (void*)NULL if nothing is on
 the array.
-'''
-<!-- NEED 14 -->
-'''
-== parray_malloc ==[fn_parray_malloc]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_malloc ===[fn_parray_malloc]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_malloc( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
@@ -724,14 +803,16 @@ Pushes and "allocates" an empty element on the array.
 
 This function is just a shortcut to ```parray_push( array, (void*)NULL )```,
 and the memory of the pushed element is initialized to zero.
-'''
-<!-- NEED 16 -->
-'''
-== parray_offset ==[fn_parray_offset]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== parray_offset ===[fn_parray_offset]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 size_t parray_offset( parray* array, void* ptr )
+%DEFINITION:END
 
 **Usage:**
 
@@ -741,26 +822,30 @@ The function returns the size of the array (which is an invalid offset)
 if //ptr// is not part of //array//.
 
 To check if a pointer belongs to an array, call [parray_partof() #fn_parray_partof].
-'''
-<!-- NEED 11 -->
-'''
-== parray_partof ==[fn_parray_partof]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== parray_partof ===[fn_parray_partof]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean parray_partof( parray* array, void* ptr )
+%DEFINITION:END
 
 **Usage:**
 
 Returns TRUE, if //ptr// is an element of array //array//.
-'''
-<!-- NEED 20 -->
-'''
-== parray_pop ==[fn_parray_pop]
+%FUNCTION:END
+%NEED:20
+%FUNCTION:BEGIN
+=== parray_pop ===[fn_parray_pop]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_pop( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
@@ -774,14 +859,16 @@ only be overwritten with the next push operation.
 
 The function returns the address of the popped item, and (void*)NULL if the
 item could not be popped (e.g. array is empty).
-'''
-<!-- NEED 23 -->
-'''
-== parray_push ==[fn_parray_push]
+%FUNCTION:END
+%NEED:23
+%FUNCTION:BEGIN
+=== parray_push ===[fn_parray_push]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_push( parray* array, void* item )
+%DEFINITION:END
 
 **Usage:**
 
@@ -798,14 +885,16 @@ with a macro. It can be left (void*)NULL, so no memory will be copied.
 
 The function returns the address of the newly pushed item, and (void*)NULL if
 the item could not be pushed.
-'''
-<!-- NEED 20 -->
-'''
-== parray_put ==[fn_parray_put]
+%FUNCTION:END
+%NEED:20
+%FUNCTION:BEGIN
+=== parray_put ===[fn_parray_put]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_put( parray* array, size_t offset, void* item )
+%DEFINITION:END
 
 **Usage:**
 
@@ -819,14 +908,16 @@ set to zero.
 
 Returns the address of the item in the array, or NULL if the desired offset
 is out of the array bounds.
-'''
-<!-- NEED 15 -->
-'''
-== parray_remove ==[fn_parray_remove]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== parray_remove ===[fn_parray_remove]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_remove( parray* array, size_t offset, void** item )
+%DEFINITION:END
 
 **Usage:**
 
@@ -835,14 +926,16 @@ Remove item on //offset// from array //array//.
 The removed item will be copied into //item//, if //item// is not NULL.
 The function returns the memory of the removed item (it will contain the
 moved up data part or invalid memory, if on the end).
-'''
-<!-- NEED 14 -->
-'''
-== parray_reserve ==[fn_parray_reserve]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_reserve ===[fn_parray_reserve]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean parray_reserve( parray* array, size_t n )
+%DEFINITION:END
 
 **Usage:**
 
@@ -850,14 +943,16 @@ Reserves memory for //n// items in //array//.
 
 This function is only used to assume that no memory reallocation is done when
 the next //n// items are inserted/malloced.
-'''
-<!-- NEED 21 -->
-'''
-== parray_rget ==[fn_parray_rget]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== parray_rget ===[fn_parray_rget]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_rget( parray* array, size_t offset )
+%DEFINITION:END
 
 **Usage:**
 
@@ -872,14 +967,16 @@ be accessed (e.g. if the array is empty or offset is beyond the bottom of
 the array).
 
 Use [parray_get() #fn_parray_get] for access items from the begin.
-'''
-<!-- NEED 14 -->
-'''
-== parray_rmalloc ==[fn_parray_rmalloc]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_rmalloc ===[fn_parray_rmalloc]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_rmalloc( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
@@ -887,14 +984,16 @@ Unshifts and "allocates" an empty element on the array.
 
 This function is just a shortcut to ```parray_unshift( array, (void*)NULL )```,
 and the memory of the unshifted element is initialized to zero.
-'''
-<!-- NEED 21 -->
-'''
-== parray_rput ==[fn_parray_rput]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== parray_rput ===[fn_parray_rput]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_rput( parray* array, size_t offset, void* item )
+%DEFINITION:END
 
 **Usage:**
 
@@ -909,14 +1008,16 @@ set to zero.
 
 Returns the address of the item in the array, or NULL if the desired offset
 is out of the array bounds.
-'''
-<!-- NEED 21 -->
-'''
-== parray_shift ==[fn_parray_shift]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== parray_shift ===[fn_parray_shift]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_shift( parray* array )
+%DEFINITION:END
 
 **Usage:**
 
@@ -931,26 +1032,30 @@ operation.
 
 The function returns the address of the shifted item, and (void*)NULL if the
 item could not be popped (e.g. array is empty).
-'''
-<!-- NEED 11 -->
-'''
-== parray_swap ==[fn_parray_swap]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== parray_swap ===[fn_parray_swap]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_swap( parray* array, size_t pos1, size_t pos2 )
+%DEFINITION:END
 
 **Usage:**
 
 Swap two elements of an array.
-'''
-<!-- NEED 23 -->
-'''
-== parray_unshift ==[fn_parray_unshift]
+%FUNCTION:END
+%NEED:23
+%FUNCTION:BEGIN
+=== parray_unshift ===[fn_parray_unshift]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* parray_unshift( parray* array, void* item )
+%DEFINITION:END
 
 **Usage:**
 
@@ -967,14 +1072,16 @@ with a macro. It can be left (void*)NULL, so no memory will be copied.
 
 The function returns the address of the newly unhshifted item, and (void*)NULL
 if the item could not be unshifted.
-'''
-<!-- NEED 19 -->
-'''
-== pasprintf ==[fn_pasprintf]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pasprintf ===[fn_pasprintf]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pasprintf( char* fmt, ... )
+%DEFINITION:END
 
 **Usage:**
 
@@ -987,14 +1094,16 @@ later on.
 
 Returns a char* Returns the allocated string which cointains the format string
 with inserted values.
-'''
-<!-- NEED 15 -->
-'''
-== pbasename ==[fn_pbasename]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pbasename ===[fn_pbasename]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pbasename( char* path )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1003,14 +1112,16 @@ Returns the basename of a file.
 //path// is the file path pointer.
 
 Returns a pointer to the basename, which is a part of //path//.
-'''
-<!-- NEED 19 -->
-'''
-== pdbl_to_str ==[fn_pdbl_to_str]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pdbl_to_str ===[fn_pdbl_to_str]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pdbl_to_str( double d )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1023,14 +1134,16 @@ string representation.
 Returns a pointer to the newly allocated string, which contains the
 string-representation of the double value. This pointer must be released
 by the caller.
-'''
-<!-- NEED 19 -->
-'''
-== pdbl_to_wcs ==[fn_pdbl_to_wcs]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pdbl_to_wcs ===[fn_pdbl_to_wcs]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pdbl_to_wcs( double d )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1043,14 +1156,16 @@ wide-character string representation.
 Returns a pointer to the newly allocated wide-character string, which contains
 the string-representation of the double value. This pointer must be released
 by the caller.
-'''
-<!-- NEED 15 -->
-'''
-== pfileexists ==[fn_pfileexists]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pfileexists ===[fn_pfileexists]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pfileexists( char* filename )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1059,14 +1174,16 @@ Checks for file existence.
 //filename// is the path to a file that will be checked.
 
 Returns TRUE on success, FALSE if not.
-'''
-<!-- NEED 16 -->
-'''
-== pfiletostr ==[fn_pfiletostr]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pfiletostr ===[fn_pfiletostr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pfiletostr( char** cont, char* filename )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1076,14 +1193,16 @@ Maps the content of an entire file into memory.
 //filename// is the path to file to be mapped
 
 The function returns TRUE on success.
-'''
-<!-- NEED 22 -->
-'''
-== pfree ==[fn_pfree]
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== pfree ===[fn_pfree]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* pfree( void* ptr )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1099,14 +1218,16 @@ It could be used this way to immedatelly reset a pointer to NULL:
 //ptr// is the pointer to be freed.
 
 Returns always (void*)NULL.
-'''
-<!-- NEED 56 -->
-'''
-== pgetopt ==[fn_pgetopt]
+%FUNCTION:END
+%NEED:56
+%FUNCTION:BEGIN
+=== pgetopt ===[fn_pgetopt]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1156,14 +1277,16 @@ but not as part of options. The parameter param will receive the given pointer.
 It returns -1 if no more options could be read, or if an option could
 not be evaluated (unknown option). In such case, param will hold a string to the
 option that is unknown to [pgetopt() #fn_pgetopt].
-'''
-<!-- NEED 32 -->
-'''
-== plex_create ==[fn_plex_create]
+%FUNCTION:END
+%NEED:32
+%FUNCTION:BEGIN
+=== plex_create ===[fn_plex_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plex* plex_create( int flags )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1189,14 +1312,16 @@ with special compile-time flags provided for each pattern.
 
 On success, the function returns the allocated pointer to a plex-object.
 This must be freed later using [plex_free() #fn_plex_free].
-'''
-<!-- NEED 29 -->
-'''
-== plex_define ==[fn_plex_define]
+%FUNCTION:END
+%NEED:29
+%FUNCTION:BEGIN
+=== plex_define ===[fn_plex_define]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plex_define( plex* lex, char* pat, int match_id, int flags )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1219,14 +1344,16 @@ compile-time flags of the plex-object provided at [plex_create() #fn_plex_create
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as possible |
 | PREGEX_COMP_INSENSITIVE | Parse regular expressions as case insensitive. |
 | PREGEX_COMP_STATIC | The regular expressions passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped. |
-'''
-<!-- NEED 15 -->
-'''
-== plex_free ==[fn_plex_free]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plex_free ===[fn_plex_free]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plex* plex_free( plex* lex )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1235,14 +1362,16 @@ Destructor function for a plex-object.
 //lex// is the pointer to a plex-structure that will be released.
 
 Returns always (plex*)NULL.
-'''
-<!-- NEED 18 -->
-'''
-== plex_lex ==[fn_plex_lex]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== plex_lex ===[fn_plex_lex]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int plex_lex( plex* lex, char* start, char** end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1254,14 +1383,16 @@ pattern, and //end// receives the pointer to the last matched character.
 The function returns 0 in case that there was no direct match.
 The function [plex_next() #fn_plex_next] ignores unrecognized symbols and directly moves to the
 next matching pattern.
-'''
-<!-- NEED 22 -->
-'''
-== plex_next ==[fn_plex_next]
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== plex_next ===[fn_plex_next]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* plex_next( plex* lex, char* start, int* id, char** end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1277,38 +1408,44 @@ where the match starts at. //id// receives the id of the matching patternn,
 can be omitted by providing NULL-pointers.
 
 The function returns (char*)NULL in case that there is no match.
-'''
-<!-- NEED 11 -->
-'''
-== plex_prepare ==[fn_plex_prepare]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plex_prepare ===[fn_plex_prepare]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plex_prepare( plex* lex )
+%DEFINITION:END
 
 **Usage:**
 
 Prepares the DFA state machine of a plex-object //lex// for execution.
-'''
-<!-- NEED 11 -->
-'''
-== plex_reset ==[fn_plex_reset]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plex_reset ===[fn_plex_reset]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plex_reset( plex* lex )
+%DEFINITION:END
 
 **Usage:**
 
 Resets the DFA state machine of a plex-object //lex//.
-'''
-<!-- NEED 18 -->
-'''
-== plex_tokenize ==[fn_plex_tokenize]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== plex_tokenize ===[fn_plex_tokenize]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int plex_tokenize( plex* lex, char* start, parray** matches )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1320,26 +1457,30 @@ to the configuration of the plex-object).
 
 The function initializes and fills the array //matches//, if provided, with
 items of size prange. It returns the total number of matches.
-'''
-<!-- NEED 11 -->
-'''
-== plist_access ==[fn_plist_access]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_access ===[fn_plist_access]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* plist_access( plistel* e )
+%DEFINITION:END
 
 **Usage:**
 
 Access data-content of the current element //e//.
-'''
-<!-- NEED 15 -->
-'''
-== plist_clear ==[fn_plist_clear]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_clear ===[fn_plist_clear]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_clear( plist* list )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1348,26 +1489,30 @@ Clear content of the list //list//.
 The function has nearly the same purpose as [plist_erase() #fn_plist_erase], except that
 the entire list is only cleared, but if the list was initialized with
 PLIST_MOD_RECYCLE, existing pointers are hold for later usage.
-'''
-<!-- NEED 11 -->
-'''
-== plist_count ==[fn_plist_count]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_count ===[fn_plist_count]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int plist_count( plist* l )
+%DEFINITION:END
 
 **Usage:**
 
 Return element count of list //l//.
-'''
-<!-- NEED 29 -->
-'''
-== plist_create ==[fn_plist_create]
+%FUNCTION:END
+%NEED:29
+%FUNCTION:BEGIN
+=== plist_create ===[fn_plist_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plist* plist_create( size_t size, int flags )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1390,14 +1535,16 @@ Possible flags are:
 -
 
 Use [plist_free() #fn_plist_free] to erase and release the returned list object.
-'''
-<!-- NEED 16 -->
-'''
-== plist_diff ==[fn_plist_diff]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== plist_diff ===[fn_plist_diff]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int plist_diff( plist* left, plist* right )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1407,28 +1554,32 @@ for equal elements.
 The function returns a value < 0 if //left// is lower //right//, a value > 0
 if //left// is greater //right// and a value == 0 if //left// is equal to
 //right//.
-'''
-<!-- NEED 13 -->
-'''
-== plist_dup ==[fn_plist_dup]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== plist_dup ===[fn_plist_dup]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plist* plist_dup( plist* list )
+%DEFINITION:END
 
 **Usage:**
 
 Creates an independent copy of //list// and returns it.
 
 All elements of //list// are duplicated and stand-alone.
-'''
-<!-- NEED 14 -->
-'''
-== plist_erase ==[fn_plist_erase]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== plist_erase ===[fn_plist_erase]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_erase( plist* list )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1436,54 +1587,62 @@ Erase all allocated content of the list //list//.
 
 The object //list// will be still alive, but must be re-configured
 using [plist_init() #fn_plist_init].
-'''
-<!-- NEED 11 -->
-'''
-== plist_first ==[fn_plist_first]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_first ===[fn_plist_first]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_first( plist* l )
+%DEFINITION:END
 
 **Usage:**
 
 Return first element of list //l//.
-'''
-<!-- NEED 13 -->
-'''
-== plist_free ==[fn_plist_free]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== plist_free ===[fn_plist_free]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plist* plist_free( plist* list )
+%DEFINITION:END
 
 **Usage:**
 
 Releases all the memory //list// uses and destroys the list object.
 
 The function always returns (plist*)NULL.
-'''
-<!-- NEED 13 -->
-'''
-== plist_get ==[fn_plist_get]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== plist_get ===[fn_plist_get]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_get( plist* list, size_t n )
+%DEFINITION:END
 
 **Usage:**
 
 Retrieve list element by its index from the begin.
 
 The function returns the //n//th element of the list //list//.
-'''
-<!-- NEED 14 -->
-'''
-== plist_get_by_key ==[fn_plist_get_by_key]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== plist_get_by_key ===[fn_plist_get_by_key]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_get_by_key( plist* list, char* key )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1491,14 +1650,16 @@ Retrieve list element by hash-table key.
 
 This function tries to fetch a list entry plistel from list //list//
 with the key //key//.
-'''
-<!-- NEED 14 -->
-'''
-== plist_get_by_ptr ==[fn_plist_get_by_ptr]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== plist_get_by_ptr ===[fn_plist_get_by_ptr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_get_by_ptr( plist* list, void* ptr )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1506,14 +1667,16 @@ Retrieve list element by pointer.
 
 This function returns the list element of the unit within the list //list//
 that is the pointer //ptr//.
-'''
-<!-- NEED 15 -->
-'''
-== plist_hash_rebuild ==[fn_plist_hash_rebuild]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_hash_rebuild ===[fn_plist_hash_rebuild]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 static pboolean plist_hash_rebuild( plist* list );/* Compare hash-table elements */static int plist_hash_compare( plist* list, char* l, char* r )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1522,52 +1685,60 @@ Write a message to trace.
 //param_name// is the name of the parameter
 //format// is the A printf-styled format string.
 //parameter// is the parameter itself.
-'''
-<!-- NEED 11 -->
-'''
-== plist_hashnext ==[fn_plist_hashnext]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_hashnext ===[fn_plist_hashnext]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_hashnext( plistel* u )
+%DEFINITION:END
 
 **Usage:**
 
 Access next element with same hash value of current unit //u//.
-'''
-<!-- NEED 11 -->
-'''
-== plist_hashprev ==[fn_plist_hashprev]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_hashprev ===[fn_plist_hashprev]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_hashprev( plistel* u )
+%DEFINITION:END
 
 **Usage:**
 
 Access previous element with same hash value of a current unit //u//.
-'''
-<!-- NEED 13 -->
-'''
-== plist_init ==[fn_plist_init]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== plist_init ===[fn_plist_init]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_init( plist* list, size_t size, int flags )
+%DEFINITION:END
 
 **Usage:**
 
 Initialize the list //list// with an element allocation size //size//.
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage.
-'''
-<!-- NEED 15 -->
-'''
-== plist_insert ==[fn_plist_insert]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_insert ===[fn_plist_insert]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1576,38 +1747,44 @@ Insert //src// as element to the list //list// __before__ positon //pos//.
 If //pos// is NULL, the new element will be attached to the end of the
 list. If //key// is not NULL, the element will be additionally engaged
 into the lists hash table.
-'''
-<!-- NEED 11 -->
-'''
-== plist_key ==[fn_plist_key]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_key ===[fn_plist_key]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* plist_key( plistel* e )
+%DEFINITION:END
 
 **Usage:**
 
 Access key-content of the current element //e//.
-'''
-<!-- NEED 11 -->
-'''
-== plist_last ==[fn_plist_last]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_last ===[fn_plist_last]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_last( plist* l )
+%DEFINITION:END
 
 **Usage:**
 
 Return last element of list //l//.
-'''
-<!-- NEED 14 -->
-'''
-== plist_malloc ==[fn_plist_malloc]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== plist_malloc ===[fn_plist_malloc]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* plist_malloc( plist* list )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1615,38 +1792,44 @@ Allocates memory for a new element in list //list//, push it to the end and
 return the pointer to this.
 
 The function works as a shortcut for [plist_access() #fn_plist_access] in combination with [plist_push() #fn_plist_push].
-'''
-<!-- NEED 11 -->
-'''
-== plist_next ==[fn_plist_next]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_next ===[fn_plist_next]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_next( plistel* u )
+%DEFINITION:END
 
 **Usage:**
 
 Access next element of current unit //u//.
-'''
-<!-- NEED 11 -->
-'''
-== plist_offset ==[fn_plist_offset]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_offset ===[fn_plist_offset]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int plist_offset( plistel* u )
+%DEFINITION:END
 
 **Usage:**
 
 Return the offset of the unit //u// within the list it belongs to.
-'''
-<!-- NEED 17 -->
-'''
-== plist_pop ==[fn_plist_pop]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== plist_pop ===[fn_plist_pop]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_pop( plist* list, void* dest )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1657,26 +1840,30 @@ its content is written to //dest//, if provided at the end of the list.
 
 //dest// can be omitted and given as (void*)NULL, so the last element will
 be popped off the list and discards.
-'''
-<!-- NEED 11 -->
-'''
-== plist_prev ==[fn_plist_prev]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_prev ===[fn_plist_prev]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_prev( plistel* u )
+%DEFINITION:END
 
 **Usage:**
 
 Access previous element of a current unit //u//.
-'''
-<!-- NEED 15 -->
-'''
-== plist_push ==[fn_plist_push]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_push ===[fn_plist_push]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_push( plist* list, void* src )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1685,27 +1872,31 @@ Push //src// to end of //list//.
 Like //list// would be a stack, //src// is pushed at the end of the list.
 This function can only be used for linked lists without the hash-table feature
 in use.
-'''
-<!-- NEED 12 -->
-'''
-== plist_remove ==[fn_plist_remove]
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== plist_remove ===[fn_plist_remove]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_remove( plist* list, plistel* e )
+%DEFINITION:END
 
 **Usage:**
 
 Removes the element //e// from the the //list// and frees it or puts
 it into the unused element chain if PLIST_MOD_RECYCLE is flagged.
-'''
-<!-- NEED 14 -->
-'''
-== plist_rget ==[fn_plist_rget]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== plist_rget ===[fn_plist_rget]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_rget( plist* list, size_t n )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1713,14 +1904,16 @@ Retrieve list element by its index from the end.
 
 The function returns the //n//th element of the list //list//
 from the right.
-'''
-<!-- NEED 14 -->
-'''
-== plist_rmalloc ==[fn_plist_rmalloc]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== plist_rmalloc ===[fn_plist_rmalloc]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* plist_rmalloc( plist* list )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1728,50 +1921,58 @@ Allocates memory for a new element in list //list//, shift it at the begin
 and return the pointer to this.
 
 The function works as a shortcut for [plist_access() #fn_plist_access] in combination with [plist_shift() #fn_plist_shift].
-'''
-<!-- NEED 11 -->
-'''
-== plist_set_comparefn ==[fn_plist_set_comparefn]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_set_comparefn ===[fn_plist_set_comparefn]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_set_comparefn( plist* list, int (*comparefn)( plist*, plistel*, plistel* ) )
+%DEFINITION:END
 
 **Usage:**
 
 Set compare function
-'''
-<!-- NEED 11 -->
-'''
-== plist_set_printfn ==[fn_plist_set_printfn]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_set_printfn ===[fn_plist_set_printfn]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_set_printfn( plist* list, void (*printfn)( plist* ) )
+%DEFINITION:END
 
 **Usage:**
 
 Set an element dump function.
-'''
-<!-- NEED 11 -->
-'''
-== plist_set_sortfn ==[fn_plist_set_sortfn]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_set_sortfn ===[fn_plist_set_sortfn]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_set_sortfn( plist* list, int (*sortfn)( plist*, plistel*, plistel* ) )
+%DEFINITION:END
 
 **Usage:**
 
 Set sort function
-'''
-<!-- NEED 15 -->
-'''
-== plist_shift ==[fn_plist_shift]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_shift ===[fn_plist_shift]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 plistel* plist_shift( plist* list, void* src )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1780,26 +1981,30 @@ Shift //src// at begin of //list//.
 Like //list// would be a queue, //src// is shifted at the begin of the list.
 This function can only be used for linked lists without the hash-table feature
 in use.
-'''
-<!-- NEED 11 -->
-'''
-== plist_size ==[fn_plist_size]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_size ===[fn_plist_size]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int plist_size( plist* l )
+%DEFINITION:END
 
 **Usage:**
 
 Return element size of list //l//.
-'''
-<!-- NEED 17 -->
-'''
-== plist_sort ==[fn_plist_sort]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== plist_sort ===[fn_plist_sort]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_sort( plist* list )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1810,14 +2015,16 @@ To sort only parts of a list, use [plist_subsort() #fn_plist_subsort].
 The sort-function can be modified by using [plist_set_sortfn() #fn_plist_set_sortfn].
 The default sort function sorts the list by they contents, internally by using
 the [memcmp() #fn_memcmp] standard function.
-'''
-<!-- NEED 18 -->
-'''
-== plist_subsort ==[fn_plist_subsort]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== plist_subsort ===[fn_plist_subsort]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_subsort( plist* list, plistel* from, plistel* to )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1829,28 +2036,32 @@ To sort the entire list, use [plist_sort() #fn_plist_sort].
 The sort-function can be modified by using [plist_set_sortfn() #fn_plist_set_sortfn].
 The default sort function sorts the list by they contents, internally by using
 the [memcmp() #fn_memcmp] standard function.
-'''
-<!-- NEED 13 -->
-'''
-== plist_swap ==[fn_plist_swap]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== plist_swap ===[fn_plist_swap]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_swap( plistel* a, plistel* b )
+%DEFINITION:END
 
 **Usage:**
 
 Swaps the positions of the list elemements //a// and //b// with each
 other. The elements must be in the same plist object, else the function
 returns with FALSE.
-'''
-<!-- NEED 18 -->
-'''
-== plist_union ==[fn_plist_union]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== plist_union ===[fn_plist_union]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int plist_union( plist* all, plist* from )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1862,14 +2073,16 @@ element with the same size and content.
 The function will not run if both lists have different element size settings.
 
 The function returns the number of elements added to //from//.
-'''
-<!-- NEED 17 -->
-'''
-== plist_unshift ==[fn_plist_unshift]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== plist_unshift ===[fn_plist_unshift]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean plist_unshift( plist* list, void* dest )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1880,14 +2093,16 @@ its content is written to //dest//.
 
 //dest// can be omitted and given as (void*)NULL, so the first element will
 be taken from the list and discards.
-'''
-<!-- NEED 20 -->
-'''
-== pmalloc ==[fn_pmalloc]
+%FUNCTION:END
+%NEED:20
+%FUNCTION:BEGIN
+=== pmalloc ===[fn_pmalloc]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* pmalloc( size_t size )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1901,14 +2116,16 @@ can be allocated.
 
 The function returns the allocated heap memory pointer. The returned memory
 address should be freed using [pfree() #fn_pfree] after it is not required anymore.
-'''
-<!-- NEED 17 -->
-'''
-== pmemdup ==[fn_pmemdup]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pmemdup ===[fn_pmemdup]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* pmemdup( void* ptr, size_t size )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1919,53 +2136,61 @@ Duplicates a memory entry onto the heap.
 
 Returns the new pointer to the memory copy. This should be casted back to the
 type of //ptr// again.
-'''
-<!-- NEED 12 -->
-'''
-== pp_ast_get ==[fn_pp_ast_get]
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== pp_ast_get ===[fn_pp_ast_get]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset )
+%DEFINITION:END
 
 **Usage:**
 
 Retrieves the entry with offset //offset// starting to count from
 entry //from//.
-'''
-<!-- NEED 13 -->
-'''
-== pp_ast_pendant ==[fn_pp_ast_pendant]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pp_ast_pendant ===[fn_pp_ast_pendant]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppmatch* pp_ast_pendant( parray* ast, ppmatch* match )
+%DEFINITION:END
 
 **Usage:**
 
 Returns the pendant entry of //match//.
 
 If //match// is a match begin, it returns the corresponding end, and reverse.
-'''
-<!-- NEED 11 -->
-'''
-== pp_ast_print ==[fn_pp_ast_print]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_ast_print ===[fn_pp_ast_print]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void pp_ast_print( parray* ast )
+%DEFINITION:END
 
 **Usage:**
 
 Print detailed //ast// to stdout.
-'''
-<!-- NEED 20 -->
-'''
-== pp_ast_query ==[fn_pp_ast_query]
+%FUNCTION:END
+%NEED:20
+%FUNCTION:BEGIN
+=== pp_ast_query ===[fn_pp_ast_query]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth )
+%DEFINITION:END
 
 **Usage:**
 
@@ -1979,88 +2204,102 @@ begins at the first element.
 ignores the deepness.
 
 The function returns the element found.
-'''
-<!-- NEED 12 -->
-'''
-== pp_ast_simplify ==[fn_pp_ast_simplify]
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== pp_ast_simplify ===[fn_pp_ast_simplify]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void pp_ast_simplify( parray* ast )
+%DEFINITION:END
 
 **Usage:**
 
 Print simplified //ast// to stdout.
 Only opening matches are printed.
-'''
-<!-- NEED 12 -->
-'''
-== pp_ast_tree2svg ==[fn_pp_ast_tree2svg]
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== pp_ast_tree2svg ===[fn_pp_ast_tree2svg]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void pp_ast_tree2svg( parray* ast )
+%DEFINITION:END
 
 **Usage:**
 
 Print //ast// in notation for the tree2svg tool that generates a
 graphical view of the parse tree.
-'''
-<!-- NEED 11 -->
-'''
-== pp_create ==[fn_pp_create]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_create ===[fn_pp_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pparse* pp_create( int flags, char* bnf )
+%DEFINITION:END
 
 **Usage:**
 
 Creates a new parser object with flags //flags// and the grammar //bnf//.
-'''
-<!-- NEED 11 -->
-'''
-== pp_free ==[fn_pp_free]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_free ===[fn_pp_free]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pparse* pp_free( pparse* par )
+%DEFINITION:END
 
 **Usage:**
 
 Free parser //par//.
-'''
-<!-- NEED 11 -->
-'''
-== pp_gram_create ==[fn_pp_gram_create]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_gram_create ===[fn_pp_gram_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppgram* pp_gram_create( void )
+%DEFINITION:END
 
 **Usage:**
 
 Creates a new ppgram-object.
-'''
-<!-- NEED 11 -->
-'''
-== pp_gram_free ==[fn_pp_gram_free]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_gram_free ===[fn_pp_gram_free]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppgram* pp_gram_free( ppgram* g )
+%DEFINITION:END
 
 **Usage:**
 
 Frees grammar //g// and all its related memory.
-'''
-<!-- NEED 14 -->
-'''
-== pp_gram_from_bnf ==[fn_pp_gram_from_bnf]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== pp_gram_from_bnf ===[fn_pp_gram_from_bnf]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2068,14 +2307,16 @@ Compiles a grammar definition into a grammar.
 
 //g// is the grammar that receives the result of the parse.
 //bnf// is the BNF definition string that defines the grammar.
-'''
-<!-- NEED 19 -->
-'''
-== pp_gram_prepare ==[fn_pp_gram_prepare]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pp_gram_prepare ===[fn_pp_gram_prepare]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pp_gram_prepare( ppgram* g )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2088,26 +2329,30 @@ The preparation process includes:
 - Mark left-recursions
 - Lexem flag pull-trough
 -
-'''
-<!-- NEED 11 -->
-'''
-== pp_gram_print ==[fn_pp_gram_print]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_gram_print ===[fn_pp_gram_print]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void pp_gram_print( ppgram* g )
+%DEFINITION:END
 
 **Usage:**
 
 Dumps the grammar //g// to stdout.
-'''
-<!-- NEED 18 -->
-'''
-== pp_ll_parse ==[fn_pp_ll_parse]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== pp_ll_parse ===[fn_pp_ll_parse]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2119,14 +2364,16 @@ that describe the prooduced abstract syntax tree.
 
 //end// receives the position of the last character matched.
 The function returns TRUE if no parse error orccured.
-'''
-<!-- NEED 18 -->
-'''
-== pp_lr_parse ==[fn_pp_lr_parse]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== pp_lr_parse ===[fn_pp_lr_parse]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2138,14 +2385,16 @@ that describe the produced abstract syntax tree.
 
 //end// receives the position of the last character matched.
 The function returns TRUE if no parse error occured.
-'''
-<!-- NEED 16 -->
-'''
-== pp_parse_to_ast ==[fn_pp_parse_to_ast]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pp_parse_to_ast ===[fn_pp_parse_to_ast]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pp_parse_to_ast( parray** ast, pparse* par, char* start, char** end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2155,66 +2404,76 @@ The function uses the parsing method defined when then parser was created.
 //end// receives a pointer to the position where the parser stopped.
 
 It returns a parse-tree to //ast// on success.
-'''
-<!-- NEED 11 -->
-'''
-== pp_prod_append ==[fn_pp_prod_append]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_prod_append ===[fn_pp_prod_append]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pp_prod_append( ppprod* p, ppsym* sym )
+%DEFINITION:END
 
 **Usage:**
 
 Appends the symbol //sym// to the right-hand-side of production //p//.
-'''
-<!-- NEED 12 -->
-'''
-== pp_prod_create ==[fn_pp_prod_create]
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== pp_prod_create ===[fn_pp_prod_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
+%DEFINITION:END
 
 **Usage:**
 
 Creates a new production on left-hand-side //lhs//
 within the grammar //g//.
-'''
-<!-- NEED 12 -->
-'''
-== pp_prod_get ==[fn_pp_prod_get]
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== pp_prod_get ===[fn_pp_prod_get]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppprod* pp_prod_get( ppgram* g, int n )
+%DEFINITION:END
 
 **Usage:**
 
 Get the //n//th production from grammar //g//.
 Returns (ppprod*)NULL if no symbol was found.
-'''
-<!-- NEED 13 -->
-'''
-== pp_prod_getfromrhs ==[fn_pp_prod_getfromrhs]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pp_prod_getfromrhs ===[fn_pp_prod_getfromrhs]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppsym* pp_prod_getfromrhs( ppprod* p, int off )
+%DEFINITION:END
 
 **Usage:**
 
 Returns the //off//s element from the right-hand-side of
 production //p//. Returns (ppsym*)NULL if the requested element does
 not exist.
-'''
-<!-- NEED 14 -->
-'''
-== pp_prod_to_str ==[fn_pp_prod_to_str]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== pp_prod_to_str ===[fn_pp_prod_to_str]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pp_prod_to_str( ppprod* p )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2222,14 +2481,16 @@ Returns the string representation of production //p//.
 
 The returned pointer is part of //p// and can be referenced multiple times.
 It may not be freed by the caller.
-'''
-<!-- NEED 16 -->
-'''
-== pp_sym_create ==[fn_pp_sym_create]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pp_sym_create ===[fn_pp_sym_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2239,51 +2500,59 @@ Creates a new symbol of the type //type// in the grammar //g//.
 can be left empty.
 //def// contains the definition of the symbol in case of a terminal type.
 It will be ignored else.
-'''
-<!-- NEED 12 -->
-'''
-== pp_sym_get ==[fn_pp_sym_get]
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== pp_sym_get ===[fn_pp_sym_get]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppsym* pp_sym_get( ppgram* g, int n )
+%DEFINITION:END
 
 **Usage:**
 
 Get the //n//th symbol from grammar //g//.
 Returns (ppsym*)NULL if no symbol was found.
-'''
-<!-- NEED 11 -->
-'''
-== pp_sym_get_by_name ==[fn_pp_sym_get_by_name]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_sym_get_by_name ===[fn_pp_sym_get_by_name]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppsym* pp_sym_get_by_name( ppgram* g, char* name )
+%DEFINITION:END
 
 **Usage:**
 
 Get a symbol from grammar //g// by its //name//.
-'''
-<!-- NEED 11 -->
-'''
-== pp_sym_get_nameless_term_by_def ==[fn_pp_sym_get_nameless_term_by_def]
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_sym_get_nameless_term_by_def ===[fn_pp_sym_get_nameless_term_by_def]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name )
+%DEFINITION:END
 
 **Usage:**
 
 Find a nameless terminal symbol by its pattern.
-'''
-<!-- NEED 15 -->
-'''
-== pp_sym_to_str ==[fn_pp_sym_to_str]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pp_sym_to_str ===[fn_pp_sym_to_str]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pp_sym_to_str( ppsym* sym )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2292,14 +2561,16 @@ Returns the string representation of symbol //p//.
 Nonterminals are not expanded, they are just returned as their name.
 The returned pointer is part of //sym// and can be referenced multiple
 times. It may not be freed by the caller.
-'''
-<!-- NEED 22 -->
-'''
-== prealloc ==[fn_prealloc]
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== prealloc ===[fn_prealloc]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* prealloc( void* oldptr, size_t size )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2315,14 +2586,16 @@ can be allocated.
 
 The function returns the allocated heap memory pointer. The returned memory
 address should be freed using [pfree() #fn_pfree] after it is not required anymore.
-'''
-<!-- NEED 32 -->
-'''
-== pregex_create ==[fn_pregex_create]
+%FUNCTION:END
+%NEED:32
+%FUNCTION:BEGIN
+=== pregex_create ===[fn_pregex_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pregex* pregex_create( char* pat, int flags )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2348,14 +2621,16 @@ Constructor function to create a new pregex object.
 
 On success, the function returns the allocated pointer to a pregex-object.
 This must be freed later using [pregex_free() #fn_pregex_free].
-'''
-<!-- NEED 21 -->
-'''
-== pregex_find ==[fn_pregex_find]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== pregex_find ===[fn_pregex_find]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pregex_find( pregex* regex, char* start, char** end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2370,14 +2645,16 @@ position where the match begins. //end// receives the end pointer of the match,
 when provided.
 
 The function returns (char*)NULL in case that there is no match.
-'''
-<!-- NEED 18 -->
-'''
-== pregex_findall ==[fn_pregex_findall]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== pregex_findall ===[fn_pregex_findall]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pregex_findall( pregex* regex, char* start, parray** matches )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2389,14 +2666,16 @@ to the configuration of the pregex-object).
 
 The function fills the array //matches//, if provided, with items of size
 prange. It returns the total number of matches.
-'''
-<!-- NEED 15 -->
-'''
-== pregex_free ==[fn_pregex_free]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pregex_free ===[fn_pregex_free]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pregex* pregex_free( pregex* regex )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2405,14 +2684,16 @@ Destructor function for a pregex-object.
 //regex// is the pointer to a pregex-structure that will be released.
 
 Returns always (pregex*)NULL.
-'''
-<!-- NEED 14 -->
-'''
-== pregex_match ==[fn_pregex_match]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== pregex_match ===[fn_pregex_match]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pregex_match( pregex* regex, char* start, char** end )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2420,14 +2701,16 @@ Tries to match the regular expression //regex// at pointer //start//.
 
 If the expression can be matched, the function returns TRUE and //end// receives
 the pointer to the last matched character.
-'''
-<!-- NEED 27 -->
-'''
-== pregex_qmatch ==[fn_pregex_qmatch]
+%FUNCTION:END
+%NEED:27
+%FUNCTION:BEGIN
+=== pregex_qmatch ===[fn_pregex_qmatch]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pregex_qmatch( char* regex, char* str, int flags, parray** matches )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2448,14 +2731,16 @@ It is optional. //matches// must be released with [parray_free() #fn_parray_free
 
 Returns the number of matches, which is the amount of result entries in the
 returned array //matches//. If the value is negative, an error occured.
-'''
-<!-- NEED 27 -->
-'''
-== pregex_qreplace ==[fn_pregex_qreplace]
+%FUNCTION:END
+%NEED:27
+%FUNCTION:BEGIN
+=== pregex_qreplace ===[fn_pregex_qreplace]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pregex_qreplace( char* regex, char* str, char* replace, int flags )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2476,14 +2761,16 @@ Several of them can be used with the bitwise or-operator (|).
 Returns an allocated pointer to the generated string with the replacements.
 This string must be released after its existence is no longer required by the
 caller using [pfree() #fn_pfree].
-'''
-<!-- NEED 26 -->
-'''
-== pregex_qsplit ==[fn_pregex_qsplit]
+%FUNCTION:END
+%NEED:26
+%FUNCTION:BEGIN
+=== pregex_qsplit ===[fn_pregex_qsplit]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pregex_qsplit( char* regex, char* str, int flags, parray** matches )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2503,14 +2790,16 @@ It is optional. //matches// must be released with [parray_free() #fn_parray_free
 
 Returns the number of split substrings, which is the amount of result entries in
 the returned array //matches//. If the value is negative, an error occured.
-'''
-<!-- NEED 23 -->
-'''
-== pregex_replace ==[fn_pregex_replace]
+%FUNCTION:END
+%NEED:23
+%FUNCTION:BEGIN
+=== pregex_replace ===[fn_pregex_replace]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pregex_replace( pregex* regex, char* str, char* replacement )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2527,14 +2816,16 @@ beginning at 1.
 
 The function returns the string with the replaced elements, or (char*)NULL
 in error case.
-'''
-<!-- NEED 24 -->
-'''
-== pregex_split ==[fn_pregex_split]
+%FUNCTION:END
+%NEED:24
+%FUNCTION:BEGIN
+=== pregex_split ===[fn_pregex_split]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pregex_split( pregex* regex, char* start, char** end, char** next )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2552,14 +2843,16 @@ called in a loop.
 
 The function returns (char*)NULL in case that there is no more string to split,
 else it returns //start//.
-'''
-<!-- NEED 19 -->
-'''
-== pregex_splitall ==[fn_pregex_splitall]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pregex_splitall ===[fn_pregex_splitall]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pregex_splitall( pregex* regex, char* start, parray** matches )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2572,14 +2865,16 @@ to the configuration of the pregex-object).
 
 The function fills the array //matches//, if provided, with items of size
 prange. It returns the total number of matches.
-'''
-<!-- NEED 24 -->
-'''
-== pstr_to_wcs ==[fn_pstr_to_wcs]
+%FUNCTION:END
+%NEED:24
+%FUNCTION:BEGIN
+=== pstr_to_wcs ===[fn_pstr_to_wcs]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pstr_to_wcs( char* str, pboolean freestr )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2597,14 +2892,16 @@ conversion, if set to TRUE.
 
 Returns the wide-character pendant of //str// as pointer to dynamically
 allocated memory.
-'''
-<!-- NEED 17 -->
-'''
-== pstrcasecmp ==[fn_pstrcasecmp]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pstrcasecmp ===[fn_pstrcasecmp]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pstrcasecmp( char* s1, char* s2 )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2615,14 +2912,16 @@ Compare a string by ignoring case-order.
 
 Returns 0 if both strings are equal. Returns a value <0 if //s1// is lower than
 //s2// or a value >0 if //s1// is greater than //s2//.
-'''
-<!-- NEED 19 -->
-'''
-== pstrcatchar ==[fn_pstrcatchar]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pstrcatchar ===[fn_pstrcatchar]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrcatchar( char* str, char chr )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2635,14 +2934,16 @@ to str.
 Returns a char*-pointer to the (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated. This pointer must
 be released with [pfree() #fn_pfree] when its existence is no longer required.
-'''
-<!-- NEED 24 -->
-'''
-== pstrcatstr ==[fn_pstrcatstr]
+%FUNCTION:END
+%NEED:24
+%FUNCTION:BEGIN
+=== pstrcatstr ===[fn_pstrcatstr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrcatstr( char* dest, char* src, pboolean freesrc )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2660,14 +2961,16 @@ Returns a char*-pointer to (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated, or both strings
 where NULL. If //dest// is NULL and //freesrc// is FALSE, the function
 automatically returns the pointer //src//. This pointer must be released with [pfree() #fn_pfree] when its existence is no longer required.
-'''
-<!-- NEED 17 -->
-'''
-== pstrdup ==[fn_pstrdup]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pstrdup ===[fn_pstrdup]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrdup( char* str )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2678,14 +2981,16 @@ the function will also return NULL.
 
 Returns a char*-pointer to the newly allocated copy of //str//. This pointer
 must be released with [pfree() #fn_pfree] when its existence is no longer required.
-'''
-<!-- NEED 14 -->
-'''
-== pstrget ==[fn_pstrget]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== pstrget ===[fn_pstrget]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrget( char* str )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2693,14 +2998,16 @@ Savely reads a string.
 
 //str// is the string pointer to be savely read. If //str// is NULL, the
 function returns a pointer to a static address holding an empty string.
-'''
-<!-- NEED 17 -->
-'''
-== pstrlen ==[fn_pstrlen]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pstrlen ===[fn_pstrlen]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 size_t pstrlen( char* str )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2711,14 +3018,16 @@ returns 0. [pstrlen() #fn_pstrlen] is much more saver than [strlen() #fn_strlen]
 a NULL-pointer is provided.
 
 Returns the length of the string //str//.
-'''
-<!-- NEED 15 -->
-'''
-== pstrltrim ==[fn_pstrltrim]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pstrltrim ===[fn_pstrltrim]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrltrim( char* s )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2727,14 +3036,16 @@ Removes whitespace on the left of a string.
 //s// is the string to be left-trimmed.
 
 Returns //s//.
-'''
-<!-- NEED 15 -->
-'''
-== pstrlwr ==[fn_pstrlwr]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pstrlwr ===[fn_pstrlwr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrlwr( char* s )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2743,14 +3054,16 @@ Convert a string to lower-case order.
 //s// is the acts both as input and output-string.
 
 Returns //s//.
-'''
-<!-- NEED 18 -->
-'''
-== pstrncasecmp ==[fn_pstrncasecmp]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== pstrncasecmp ===[fn_pstrncasecmp]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pstrncasecmp( char* s1, char* s2, int n )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2762,14 +3075,16 @@ Compare a string by ignoring case-order about a maximum of //n// bytes.
 
 Returns 0 if both strings are equal. Returns a value <0 if //s1// is lower than
 //s2// or a value >0 if //s1// is greater than //s2//.
-'''
-<!-- NEED 24 -->
-'''
-== pstrncatstr ==[fn_pstrncatstr]
+%FUNCTION:END
+%NEED:24
+%FUNCTION:BEGIN
+=== pstrncatstr ===[fn_pstrncatstr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrncatstr( char* str, char* append, size_t n )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2787,14 +3102,16 @@ Returns a char*-pointer to (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated, or both strings
 where NULL. This pointer must be released with [pfree() #fn_pfree] when its existence
 is no longer required.
-'''
-<!-- NEED 24 -->
-'''
-== pstrndup ==[fn_pstrndup]
+%FUNCTION:END
+%NEED:24
+%FUNCTION:BEGIN
+=== pstrndup ===[fn_pstrndup]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrndup( char* str, size_t len )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2812,14 +3129,16 @@ terminator.
 Returns a char*-pointer to the allocated memory holding the zero-terminated
 string duplicate. This pointer must be released with [pfree() #fn_pfree] when its existence
 is no longer required.
-'''
-<!-- NEED 23 -->
-'''
-== pstrput ==[fn_pstrput]
+%FUNCTION:END
+%NEED:23
+%FUNCTION:BEGIN
+=== pstrput ===[fn_pstrput]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrput( char** str, char* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2836,14 +3155,16 @@ Returns a pointer to the allocated heap memory on success, (char*)NULL else.
 This is the same pointer as returned like calling ``*str``. The returned pointer
 must be released with [pfree() #fn_pfree] or another call of [pstrput() #fn_pstrput]. Calling [pstrput() #fn_pstrput]
 as ``pstrput( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
-'''
-<!-- NEED 29 -->
-'''
-== pstrrender ==[fn_pstrrender]
+%FUNCTION:END
+%NEED:29
+%FUNCTION:BEGIN
+=== pstrrender ===[fn_pstrrender]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrrender( char* tpl, ... )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2866,14 +3187,16 @@ These consist of three values each:
 Returns an allocated string which is the resulting source. This string must be
 release by [pfree() #fn_pfree] or another function releasing heap memory when its existence
 is no longer required.
-'''
-<!-- NEED 19 -->
-'''
-== pstrreplace ==[fn_pstrreplace]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pstrreplace ===[fn_pstrreplace]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrreplace( char* str, char* find, char* replace )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2886,14 +3209,16 @@ substring //find//.
 Returns a pointer to char* containing the allocated string which is the
 resulting source. This pointer must be released with [pfree() #fn_pfree] when its existence
 is no longer required.
-'''
-<!-- NEED 15 -->
-'''
-== pstrrtrim ==[fn_pstrrtrim]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pstrrtrim ===[fn_pstrrtrim]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrrtrim( char* s )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2902,14 +3227,16 @@ Removes trailing whitespace on the right of a string.
 //s// is the string to be right-trimmed.
 
 Returns //s//.
-'''
-<!-- NEED 21 -->
-'''
-== pstrsplit ==[fn_pstrsplit]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== pstrsplit ===[fn_pstrsplit]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pstrsplit( char*** tokens, char* str, char* sep, int limit )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2924,14 +3251,16 @@ Requires a pointer to char**.
 that as much as possible tokens are read.
 
 Returns the number of separated tokens, or -1 on error.
-'''
-<!-- NEED 15 -->
-'''
-== pstrtrim ==[fn_pstrtrim]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pstrtrim ===[fn_pstrtrim]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrtrim( char* s )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2940,14 +3269,16 @@ Removes beginning and trailing whitespace from a string.
 //s// is the string to be trimmed.
 
 Returns //s//.
-'''
-<!-- NEED 15 -->
-'''
-== pstrupr ==[fn_pstrupr]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pstrupr ===[fn_pstrupr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pstrupr( char* s )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2956,14 +3287,16 @@ Convert a string to upper-case order.
 //s// is the acts both as input and output-string.
 
 Returns //s//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_convert ==[fn_pvalue_convert]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_convert ===[fn_pvalue_convert]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pvalue_convert( pvalue* val, pvaluetype type )
+%DEFINITION:END
 
 **Usage:**
 
@@ -2973,42 +3306,48 @@ Converts a pvalue-structure to any supported type.
 //type// is the type define to which //val// should be converted to.
 
 The function returns TRUE on success, FALSE else.
-'''
-<!-- NEED 13 -->
-'''
-== pvalue_create ==[fn_pvalue_create]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pvalue_create ===[fn_pvalue_create]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pvalue* pvalue_create( void )
+%DEFINITION:END
 
 **Usage:**
 
 Creates a new pvalue-object.
 
 This object must be released after usage using [pvalue_free() #fn_pvalue_free].
-'''
-<!-- NEED 13 -->
-'''
-== pvalue_free ==[fn_pvalue_free]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pvalue_free ===[fn_pvalue_free]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pvalue* pvalue_free( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
 Frees an allocated pvalue object and all its used memory.
 
 The function always returns (pvalue*)NULL.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_char ==[fn_pvalue_get_char]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_char ===[fn_pvalue_get_char]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char pvalue_get_char( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3021,14 +3360,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as char.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_cstr ==[fn_pvalue_get_cstr]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_cstr ===[fn_pvalue_get_cstr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pvalue_get_cstr( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3041,14 +3382,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as char*.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_cwcs ==[fn_pvalue_get_cwcs]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_cwcs ===[fn_pvalue_get_cwcs]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pvalue_get_cwcs( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3061,14 +3404,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as wchar_t*.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_double ==[fn_pvalue_get_double]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_double ===[fn_pvalue_get_double]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 double pvalue_get_double( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3081,14 +3426,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as double.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_float ==[fn_pvalue_get_float]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_float ===[fn_pvalue_get_float]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 float pvalue_get_float( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3101,14 +3448,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as float.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_int ==[fn_pvalue_get_int]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_int ===[fn_pvalue_get_int]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pvalue_get_int( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3121,14 +3470,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as int.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_long ==[fn_pvalue_get_long]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_long ===[fn_pvalue_get_long]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 long pvalue_get_long( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3141,14 +3492,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as long.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_ptr ==[fn_pvalue_get_ptr]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_ptr ===[fn_pvalue_get_ptr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* pvalue_get_ptr( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3161,14 +3514,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as void*.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_str ==[fn_pvalue_get_str]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_str ===[fn_pvalue_get_str]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pvalue_get_str( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3181,14 +3536,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as char*.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_ulong ==[fn_pvalue_get_ulong]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_ulong ===[fn_pvalue_get_ulong]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ulong pvalue_get_ulong( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3201,14 +3558,16 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as ulong.
 This value could be converted from the original value.
-'''
-<!-- NEED 19 -->
-'''
-== pvalue_get_wcs ==[fn_pvalue_get_wcs]
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pvalue_get_wcs ===[fn_pvalue_get_wcs]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pvalue_get_wcs( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3221,28 +3580,32 @@ so use it carefully if data loss is not wanted.
 
 The function returns the value assigned to //val// as wchar_t*.
 This value could be converted from the original value.
-'''
-<!-- NEED 13 -->
-'''
-== pvalue_init ==[fn_pvalue_init]
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pvalue_init ===[fn_pvalue_init]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pvalue_init( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
 Initializes a pvalue-element.
 
 //val// is the pointer to the pvalue-structure to be initialized.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_reset ==[fn_pvalue_reset]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_reset ===[fn_pvalue_reset]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean pvalue_reset( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3252,14 +3615,16 @@ All memory used by the element is freed, and the union's structure is reset
 to be of type PVALUETYPE_NULL.
 
 //val// is the pointer to pvalue structure.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_char ==[fn_pvalue_set_char]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_char ===[fn_pvalue_set_char]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char pvalue_set_char( pvalue* val, char c )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3269,14 +3634,16 @@ Sets the char data value and type.
 //c// is the char value to be assigned to //val//.
 
 The function always returns the value //c//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_cstr ==[fn_pvalue_set_cstr]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_cstr ===[fn_pvalue_set_cstr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pvalue_set_cstr( pvalue* val, char* s )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3286,14 +3653,16 @@ Sets the char* data value and type.
 //s// is the char* value to be assigned to //val//.
 
 The function always returns the value //s//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_cwcs ==[fn_pvalue_set_cwcs]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_cwcs ===[fn_pvalue_set_cwcs]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pvalue_set_cwcs( pvalue* val, wchar_t* ws )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3303,14 +3672,16 @@ Sets the wchar_t* data value and type.
 //ws// is the wchar_t* value to be assigned to //val//.
 
 The function always returns the value //ws//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_double ==[fn_pvalue_set_double]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_double ===[fn_pvalue_set_double]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 double pvalue_set_double( pvalue* val, double d )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3320,14 +3691,16 @@ Sets the double data value and type.
 //d// is the double value to be assigned to //val//.
 
 The function always returns the value //d//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_float ==[fn_pvalue_set_float]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_float ===[fn_pvalue_set_float]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 float pvalue_set_float( pvalue* val, float f )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3337,14 +3710,16 @@ Sets the float data value and type.
 //f// is the float value to be assigned to //val//.
 
 The function always returns the value //f//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_int ==[fn_pvalue_set_int]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_int ===[fn_pvalue_set_int]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pvalue_set_int( pvalue* val, int i )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3354,14 +3729,16 @@ Sets the int data value and type.
 //i// is the int value to be assigned to //val//.
 
 The function always returns the value //i//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_long ==[fn_pvalue_set_long]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_long ===[fn_pvalue_set_long]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 long pvalue_set_long( pvalue* val, long l )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3371,14 +3748,16 @@ Sets the long data value and type.
 //l// is the long value to be assigned to //val//.
 
 The function always returns the value //l//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_ptr ==[fn_pvalue_set_ptr]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_ptr ===[fn_pvalue_set_ptr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* pvalue_set_ptr( pvalue* val, void* ptr )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3388,14 +3767,16 @@ Sets the void* data value and type.
 //ptr// is the void* value to be assigned to //val//.
 
 The function always returns the value //ptr//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_str ==[fn_pvalue_set_str]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_str ===[fn_pvalue_set_str]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pvalue_set_str( pvalue* val, char* s )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3405,14 +3786,16 @@ Sets the char* data value and type.
 //s// is the char* value to be assigned to //val//.
 
 The function always returns the value //s//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_ulong ==[fn_pvalue_set_ulong]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_ulong ===[fn_pvalue_set_ulong]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ulong pvalue_set_ulong( pvalue* val, ulong ul )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3422,14 +3805,16 @@ Sets the ulong data value and type.
 //ul// is the ulong value to be assigned to //val//.
 
 The function always returns the value //ul//.
-'''
-<!-- NEED 16 -->
-'''
-== pvalue_set_wcs ==[fn_pvalue_set_wcs]
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pvalue_set_wcs ===[fn_pvalue_set_wcs]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pvalue_set_wcs( pvalue* val, wchar_t* ws )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3439,14 +3824,16 @@ Sets the wchar_t* data value and type.
 //ws// is the wchar_t* value to be assigned to //val//.
 
 The function always returns the value //ws//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_char ==[fn_pvalue_to_char]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_char ===[fn_pvalue_to_char]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char pvalue_to_char( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3455,14 +3842,16 @@ Converts the current value of //val// into a char value.
 //val// is the pvalue-object to convert from.
 
 The function returns the char-value of //val//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_double ==[fn_pvalue_to_double]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_double ===[fn_pvalue_to_double]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 double pvalue_to_double( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3471,14 +3860,16 @@ Converts the current value of //val// into a double value.
 //val// is the pvalue-object to convert from.
 
 The function returns the double-value of //val//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_float ==[fn_pvalue_to_float]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_float ===[fn_pvalue_to_float]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 float pvalue_to_float( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3487,14 +3878,16 @@ Converts the current value of //val// into a float value.
 //val// is the pvalue-object to convert from.
 
 The function returns the float-value of //val//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_int ==[fn_pvalue_to_int]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_int ===[fn_pvalue_to_int]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pvalue_to_int( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3503,14 +3896,16 @@ Converts the current value of //val// into a int value.
 //val// is the pvalue-object to convert from.
 
 The function returns the int-value of //val//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_long ==[fn_pvalue_to_long]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_long ===[fn_pvalue_to_long]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 long pvalue_to_long( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3519,14 +3914,16 @@ Converts the current value of //val// into a long value.
 //val// is the pvalue-object to convert from.
 
 The function returns the long-value of //val//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_ptr ==[fn_pvalue_to_ptr]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_ptr ===[fn_pvalue_to_ptr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 void* pvalue_to_ptr( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3535,14 +3932,16 @@ Converts the current value of //val// into a void* value.
 //val// is the pvalue-object to convert from.
 
 The function returns the void*-value of //val//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_str ==[fn_pvalue_to_str]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_str ===[fn_pvalue_to_str]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pvalue_to_str( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3551,14 +3950,16 @@ Converts the current value of //val// into a char* value.
 //val// is the pvalue-object to convert from.
 
 The function returns the char*-value of //val//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_ulong ==[fn_pvalue_to_ulong]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_ulong ===[fn_pvalue_to_ulong]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 ulong pvalue_to_ulong( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3567,14 +3968,16 @@ Converts the current value of //val// into a ulong value.
 //val// is the pvalue-object to convert from.
 
 The function returns the ulong-value of //val//.
-'''
-<!-- NEED 15 -->
-'''
-== pvalue_to_wcs ==[fn_pvalue_to_wcs]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pvalue_to_wcs ===[fn_pvalue_to_wcs]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pvalue_to_wcs( pvalue* val )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3583,14 +3986,16 @@ Converts the current value of //val// into a wchar_t* value.
 //val// is the pvalue-object to convert from.
 
 The function returns the wchar_t*-value of //val//.
-'''
-<!-- NEED 17 -->
-'''
-== pvasprintf ==[fn_pvasprintf]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pvasprintf ===[fn_pvasprintf]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int pvasprintf( char** str, char* fmt, va_list ap )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3601,14 +4006,16 @@ Implementation and replacement for vasprintf.
 //...// are the parameters according to the placeholders set in //fmt//.
 
 Returns the number of characters written, or -1 in error case.
-'''
-<!-- NEED 22 -->
-'''
-== pwcs_to_str ==[fn_pwcs_to_str]
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== pwcs_to_str ===[fn_pwcs_to_str]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pwcs_to_str( wchar_t* str, pboolean freestr )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3624,14 +4031,16 @@ conversion, if set to TRUE.
 
 Returns the UTF-8 character pendant of //str// as pointer to dynamically
 allocated memory.
-'''
-<!-- NEED 18 -->
-'''
-== pwcscatchar ==[fn_pwcscatchar]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== pwcscatchar ===[fn_pwcscatchar]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pwcscatchar( wchar_t* str, wchar_t chr )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3643,14 +4052,16 @@ to be appended to str.
 
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated.
-'''
-<!-- NEED 21 -->
-'''
-== pwcscatstr ==[fn_pwcscatstr]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== pwcscatstr ===[fn_pwcscatstr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3665,14 +4076,16 @@ wide-character string.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 where NULL.
-'''
-<!-- NEED 17 -->
-'''
-== pwcsdup ==[fn_pwcsdup]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pwcsdup ===[fn_pwcsdup]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pwcsdup( wchar_t* str )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3683,14 +4096,16 @@ the function will also return NULL.
 
 Returns a wchar_t*-pointer to the newly allocated copy of //str//. This pointer
 must be released with [pfree() #fn_pfree] when its existence is no longer required.
-'''
-<!-- NEED 14 -->
-'''
-== pwcslen ==[fn_pwcslen]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== pwcslen ===[fn_pwcslen]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 size_t pwcslen( wchar_t* str )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3698,14 +4113,16 @@ Saver strlen replacement for wide-character.
 
 //str// is the parameter string to be evaluated. If (wchar_t*)NULL,
 the function returns 0.
-'''
-<!-- NEED 21 -->
-'''
-== pwcsncatstr ==[fn_pwcsncatstr]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== pwcsncatstr ===[fn_pwcsncatstr]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3720,14 +4137,16 @@ string.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 where NULL.
-'''
-<!-- NEED 26 -->
-'''
-== pwcsndup ==[fn_pwcsndup]
+%FUNCTION:END
+%NEED:26
+%FUNCTION:BEGIN
+=== pwcsndup ===[fn_pwcsndup]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t* pwcsndup( wchar_t* str, size_t len )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3747,14 +4166,16 @@ terminator.
 Returns a wchar_t*-pointer to the allocated memory holding the zero-terminated
 wide-character string duplicate. This pointer must be released with [pfree() #fn_pfree]
 when its existence is no longer required.
-'''
-<!-- NEED 21 -->
-'''
-== pwhich ==[fn_pwhich]
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== pwhich ===[fn_pwhich]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* pwhich( char* filename, char* directories )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3769,14 +4190,16 @@ by a character that depends on the current platform (Unix: ":", Windows: ";").
 
 Returns a static pointer to the absolute path that contains the file specifed
 as filename, else it will return (char*)NULL.
-'''
-<!-- NEED 14 -->
-'''
-== u8_char ==[fn_u8_char]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== u8_char ===[fn_u8_char]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t u8_char( char* str )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3784,14 +4207,16 @@ Return single character (as wide-character value) from UTF-8 multi-byte
 character string.
 
 //str// is the pointer to character sequence begin.
-'''
-<!-- NEED 14 -->
-'''
-== u8_isutf ==[fn_u8_isutf]
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== u8_isutf ===[fn_u8_isutf]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 pboolean u8_isutf( unsigned char c )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3799,14 +4224,16 @@ Check for UTF-8 character sequence signature.
 
 The function returns TRUE, if the character //c// is the beginning of a UTF-8
 character signature, else FALSE.
-'''
-<!-- NEED 18 -->
-'''
-== u8_move ==[fn_u8_move]
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== u8_move ===[fn_u8_move]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 char* u8_move( char* str, int count )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3818,14 +4245,16 @@ Moves //count// characters ahead in an UTF-8 multi-byte character sequence.
 The function returns the address of the next UTF-8 character sequence after
 //count// characters. If the string's end is reached, it will return a
 pointer to the zero-terminator.
-'''
-<!-- NEED 17 -->
-'''
-== u8_parse_char ==[fn_u8_parse_char]
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== u8_parse_char ===[fn_u8_parse_char]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 wchar_t u8_parse_char( char** ch )
+%DEFINITION:END
 
 **Usage:**
 
@@ -3836,14 +4265,16 @@ This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
 to the next character or escape-sequence within the string.
 
 The function teturns the character code of the parsed character.
-'''
-<!-- NEED 15 -->
-'''
-== u8_seqlen ==[fn_u8_seqlen]
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== u8_seqlen ===[fn_u8_seqlen]
 
 **Definition:**
 
+%DEFINITION:BEGIN
 int u8_seqlen(char *s)
+%DEFINITION:END
 
 **Usage:**
 
@@ -3852,3 +4283,4 @@ Returns length of next UTF-8 sequence in a multi-byte character string.
 //s// is the pointer to begin of UTF-8 sequence.
 
 Returns the number of bytes used for the next character.
+%FUNCTION:END
