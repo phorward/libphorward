@@ -1,0 +1,12 @@
+== Overview ==
+
+After Phorward Software Technologies did several approaches and efforts on parser and compiler development tools in the past, all the knowledge behind these projects has now been adapted and meanwile implemented into libphorward itself, as the ultimative library for various, compiler-specifc tasks.
+
+Therefore, libphorward serves as a parser generator and tool processor for language-related development tasks in the area of lexical analysis, parsing, compiler-construction and parse tree or abstract syntax tree traversal.
+
+- The **pparse** object encapsulates a parser generator and parser executor for several paradigms into one object.
+- Supports parsers for LALR(1), LR(1), SLR(1) and LL(1) languages.
+- Grammars can be typed in a BNF-styled (Backus-Naur-Form) description language.
+- Using a universal abstract syntax tree structure as intermediate language representation.
+-
+

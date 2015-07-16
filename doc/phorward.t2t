@@ -325,29 +325,29 @@ Althought the wide-character pendants to the standard extended string functions 
 
 = Dynamic data management tools =
 
-== parray ==
+== parray: Arrays and stacks ==
 
 %!include: array.t2t
 
-== plist ==
+== plist: Linked lists, hash-tables and queues ==
 
 %!include: list.t2t
 
-== pccl ==
+== pccl: Character-classes ==
 
 %!include: ccl.t2t
 
 %-------------------------------------------------------------------------------
 
-= Regular expression tools =
+= pregex, plex: Regular expression tools =
 
 %!include: regex.t2t
 
 %-------------------------------------------------------------------------------
 
-= pparse: The compiler frontend toolchain =
+= pparse: Parser development tools =
 
-Coming soon.
+%!include: parse.t2t
 
 %-------------------------------------------------------------------------------
 
