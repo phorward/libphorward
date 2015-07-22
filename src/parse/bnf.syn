@@ -72,8 +72,10 @@ termflag		: "noemit" 											%emit 40
 termflags		: termflags '%' termflag+
 				| '%' termflag+
 				;
+
 termdef			: '$' ident? ( ccl | string | regex )
-						termflags? ';'								%emit 35;
+						termflags? ';'								%emit 35
+				;
 
 gflag       														%emit 41
 				: "emitall"

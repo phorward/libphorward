@@ -1,6 +1,6 @@
 == Overview ==
 
-After Phorward Software Technologies did several approaches and efforts on parser and compiler development tools in the past, all the knowledge behind these projects has now been adapted and meanwile implemented into libphorward itself, as the ultimative library for various, compiler-specifc tasks.
+After Phorward Software Technologies started, but discontinued several projects and experiments on parser and compiler development tools in the past, all the knowledge behind these projects has now been adapted and meanwile implemented into libphorward itself, as the ultimative library for various, compiler-specifc tasks.
 
 Therefore, libphorward serves as a parser generator and language processing toolkit for language-related development tasks in the area of lexical analysis, parsing, compiler-construction, as well as parse tree and abstract syntax tree traversal.
 
@@ -10,3 +10,48 @@ Therefore, libphorward serves as a parser generator and language processing tool
 - The entire library uses a uniform structure for parse trees and astract syntax tress as intermediate language representation.
 -
 
+== Defining grammars ==
+
+Grammars in the libphorward //pparse// extensions are expressed in a Backus-Naur-Form-styled (BNF) meta language, which was itself implemented using the //pparse// toolchain.
+
+This language is made up of the fundamental elements: **terminals**, **nonterminals** and **productions**.
+
+=== Terminals ===
+
+**Terminals**, also called //terminal symbols//, are atomics of the implemented language. They are directly read from the input stream. A terminal can be a single character, a string or a regular expression that matches on a pattern. It is on the language designer's choice how terminal symbols are made up in the particular implementation. Some examples for widely used terminals in programming languages are identifiers for variables and functions, operators, brackets, keywords like //if// or //while//, floating point or integer numbers, and so on. The parser will expect these terminals in a valid order according to the position it is during the parse - which is in turn defined by the underlying grammatical rules it follows.
+
+In libphorwards //pparse// tools, terminals can be expressed inline or as named terminals.
+
+- ``/\d+/`` defines a regular expression that matches an integer number.
+- ``"while"`` defines a string //while// that is accepted from the input.
+- ``'+'`` defines a single character //+//, but also allows for specification of character-classes, e.g.
+- ``'0-9A-F'`` to match any hexadecimal character.
+-
+
+A named terminal is defined in its own definition block like:
+
+```
+$integer /\d+/;
+$keyword "while";
+$hexchar '0-9A-F';
+```
+
+Each block is always closed with a semicolon. To reference a named symbol in a production later on, the name is used without the dollar-sign.
+
+=== Nonterminals ===
+
+**Nonterminals**, also called //nonterminal symbols//, can be seen like some sort of variable or "function calls" within a grammar, although they aren't. They reference to one or a bunch of the so called //productions//, which means that each production is always associated with at least one nonterminal. But one nonterminal may exist of several productions. They form valid sequences of //terminals// and other //nonterminals// which are allowed in the current context in they particular order. In other words: Nontermals can be expanded into their productions.
+
+=== Productions ===
+
+**Productions**, also called //grammar rules// or just //rules//, finally describe the syntax. Its better to say, that productions define a syntactical part of the grammar - which can be replaced by the specific //nonterminal// each production is associated with. This syntactical description is done by defining a sequence in which terminals and nonterminals may occur to form a valid sentence. This includes, that a nonterminal can reference itself recursively in its own productions, which is a very important aspect in non-regular languages. In other words: Productions can be substituted by their associated nonterminals.
+
+Productions are always defined in combination with a nonterminal definition in a block. The name before the colon (:) is the nonterminal that is defined (its also called //left-hand side// of a production), the sequences behind the colon define the productions (so they are also called //right-hand sides//). Several productions can be defined by separating them with a pipe (|) symbol. The block must be closed with a semicolon (;).
+
+The full grammar of a four-function calculator (yes, the simples example for a programming language in nearly any compiler construction textbook!) in libphorward's grammar definition languages would be
+
+```
+factor : /\d+/ | '(' expr ')' ;
+term : term '*' factor | term '/' factor | factor ;
+expr : expr '+' term | expr '-' term | term ;
+```
