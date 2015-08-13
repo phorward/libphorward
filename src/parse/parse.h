@@ -23,19 +23,33 @@ typedef struct _ppgram		ppgram;
 #define PPFLAG_PREVENTLREC	64
 #define PPFLAG_NAMELESS		128
 
+#define PPDOPARMS_MAX		8
+#define PPDOEVENT_MAX		3
+
+#define PPDOEVENT_BEFORE	0
+#define PPDOEVENT_TRAVERSE	1
+#define PPDOEVENT_BEHIND	2
+
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
 #define PPMOD_KLEENE		'*'
 
+/* Do */
+typedef void (*ppdofunc)( pany* param );
+
 /* Production */
 struct _ppprod
 {
+	/* Primaries */
 	int						id;
 	ppsym*					lhs;
 	plist*					rhs;
-
 	int						flags;
+
+	/* AST construction and Do-logics */
 	int						emit;
+	ppdofunc				actions	[PPDOEVENT_MAX];
+	pany*					parms	[PPDOEVENT_MAX][PPDOPARMS_MAX+1];
 
 	/* Debug */
 	char*					strval;
@@ -54,9 +68,9 @@ typedef enum
 /* Symbol */
 struct _ppsym
 {
+	/* Primaries */
 	int						id;
 	ppsymtype				type;
-
 	char*					name;
 	int						flags;
 
@@ -69,8 +83,10 @@ struct _ppsym
 	char*					str;
 	pregex*					re;
 
-	/* AST construction */
+	/* AST construction and Do-logics */
 	int						emit;
+	ppdofunc				actions	[PPDOEVENT_MAX];
+	pany*					parms	[PPDOEVENT_MAX][PPDOPARMS_MAX+1];
 
 	/* Debug */
 	char*					strval;
@@ -89,10 +105,7 @@ struct _ppgram
 	int						flags;
 };
 
-/* Do */
-typedef void (*ppdofunc)( pany** param, int param_cnt );
-
-/* Match (AST entry) */
+/* Match (an AST entry) */
 typedef struct
 {
 	#define PPMATCH_BEGIN	1
@@ -110,9 +123,12 @@ typedef struct
 	int						col;
 } ppmatch;
 
-/* Parser maintainance object */
+/* Parser maintainance/runtime object */
 typedef struct
 {
 	int						type;
 	ppgram*					gram;
+
+	plist*					dc;		/* Do commands */
+	parray*					ds;		/* Do stack */
 } pparse;

@@ -77,42 +77,42 @@ static void pp_lritem_print( pplritem* it )
 		return;
 	}
 
-	printf( "%s : ", pp_sym_to_str( it->prod->lhs ) );
+	fprintf( stderr, "%s : ", pp_sym_to_str( it->prod->lhs ) );
 
 	for( i = 0; i < plist_count( it->prod->rhs ); i++ )
 	{
 		sym = pp_prod_getfromrhs( it->prod, i );
 
 		if( i > 0 )
-			printf( " " );
+			fprintf( stderr, " " );
 
 		if( i == it->dot )
-			printf( ". " );
+			fprintf( stderr, ". " );
 
-		printf( "%s", pp_sym_to_str( sym ) );
+		fprintf( stderr, "%s", pp_sym_to_str( sym ) );
 	}
 
 	if( i == it->dot )
 	{
-		printf( " ." );
+		fprintf( stderr, " ." );
 
 		if( it->lookahead )
 		{
-			printf( "   { " );
+			fprintf( stderr, "   { " );
 
 			plist_for( it->lookahead, e )
 			{
 				if( e != plist_first( it->lookahead ) )
-					printf( " " );
+					fprintf( stderr, " " );
 
-				printf( "%s", pp_sym_to_str( ( (ppsym*)plist_access( e ) ) ) );
+				fprintf( stderr, "%s", pp_sym_to_str( ( (ppsym*)plist_access( e ) ) ) );
 			}
 
-			printf( " }" );
+			fprintf( stderr, " }" );
 		}
 	}
 
-	printf( "\n" );
+	fprintf( stderr, "\n" );
 }
 
 /* Debug for an item set consisting of lritems */
@@ -124,15 +124,15 @@ static void pp_lritems_print( plist* items, char* what )
 		return;
 
 	if( what && *what )
-		printf( "%s (%d):\n", what, plist_count( items ) );
+		fprintf( stderr, "%s (%d):\n", what, plist_count( items ) );
 
 	if( !plist_count( items ) )
-		printf( "\t(empty)\n" );
+		fprintf( stderr, "\t(empty)\n" );
 
 	plist_for( items, e )
 	{
 		if( what && *what )
-			printf( "\t" );
+			fprintf( stderr, "\t" );
 
 		pp_lritem_print( (pplritem*)plist_access( e ) );
 	}
@@ -144,12 +144,12 @@ static void pp_lritem_lookahead_print( plist* list )
 	plistel*	e;
 	ppsym*		s;
 
-	printf( "[[" );
+	fprintf( stderr, "[[" );
 
 	plist_for( list, e )
-		printf( " %s", pp_sym_to_str( (ppsym*)plist_access( e ) ) );
+		fprintf( stderr, " %s", pp_sym_to_str( (ppsym*)plist_access( e ) ) );
 
-	printf( " ]]\n" );
+	fprintf( stderr, " ]]\n" );
 }
 
 /* Priority sort function for the lookahead-sets */
@@ -427,31 +427,31 @@ static int pp_lr_to_dfa( int*** act_tab, int*** go_tab, plist* states )
 	}
 
 	/* DEBUG */
-	printf( "count = %d\n", plist_count( states ) );
+	fprintf( stderr, "count = %d\n", plist_count( states ) );
 
 	for( i = 0; i < plist_count( states ); i++ )
 	{
-		printf( "%02d:", i );
+		fprintf( stderr, "%02d:", i );
 
-		printf( " def:%02d",  *(act_tab)[ i ][ 1 ] );
+		fprintf( stderr, " def:%02d",  *(act_tab)[ i ][ 1 ] );
 
 		for( j = 2; j < *(act_tab)[ i ][ 0 ]; j += 3 )
-			printf( " %02d:%s%s:%02d",
+			fprintf( stderr, " %02d:%s%s:%02d",
 				*(act_tab)[ i ][ j ],
 				*(act_tab)[ i ][ j + 1 ] & PPLR_SHIFT ? "s" : "-",
 				*(act_tab)[ i ][ j + 1 ] & PPLR_REDUCE ? "r" : "-",
 				*(act_tab)[ i ][ j + 2 ] );
 
-		printf( "\n          " );
+		fprintf( stderr, "\n          " );
 
 		for( j = 1; j < *(go_tab)[ i ][ 0 ]; j += 3 )
-			printf( " %02d:%s%s:%02d",
+			fprintf( stderr, " %02d:%s%s:%02d",
 				*(go_tab)[ i ][ j ],
 				*(go_tab)[ i ][ j + 1 ] & PPLR_SHIFT ? "g" : "-",
 				*(go_tab)[ i ][ j + 1 ] & PPLR_REDUCE ? "r" : "-",
 				*(go_tab)[ i ][ j + 2 ] );
 
-		printf( "\n" );
+		fprintf( stderr, "\n" );
 	}
 
 	VARS( "states count", "%d", plist_count( states ) );
@@ -641,7 +641,7 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 					{
 						plist_union( cit->lookahead, sym->first );
 
-						if( !sym->flags & PPFLAG_NULLABLE )
+						if( !( sym->flags & PPFLAG_NULLABLE ) )
 							break;
 					}
 
@@ -900,9 +900,9 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 				{
 					/* TODO Conflict resolution */
 					fprintf( stderr,
-						"\nState %d: %s/reduce on %s",
+						"State %d encouters %s/reduce-conflict on %s\n",
 							plist_offset( e ),
-								col->shift ? "shift" : "reduce",
+								col->reduce ? "reduce" : "shift",
 									sym->name );
 				}
 			}
@@ -1143,6 +1143,8 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 		/* Reduce */
 		while( reduce )
 		{
+			*end = lend;
+
 			#if DEBUGLEVEL > 1
 			fprintf( stderr,
 				"reduce by production %d\n"

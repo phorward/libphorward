@@ -3,7 +3,7 @@
 // Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 // http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 // All rights reserved. See LICENSE for more information.
-// 
+//
 // File:	bnf.syn
 // Usage:	Grammar for grammar definition language ;)
 // -----------------------------------------------------------------------------
@@ -20,6 +20,7 @@ $string 		/"[^"]*"/											%emit 2;
 $regex 			/\/(\\.|[^\\\/])*\//								%emit 3;
 $ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit 10;
 $int			/[0-9]+/ 											%emit 11;
+$float			/[0-9]+\.[0-9]*|[0-9]*\.[0-9]+/ 					%emit 12;
 
 // Nonterminals ----------------------------------------------------------------
 
@@ -35,11 +36,29 @@ modifier		: symbol '*' 										%emit 25
 				| symbol '?'										%emit 27
 				| symbol ;
 
+do_cmd			: ident												%emit 50
+				;
+
+do_param															%emit 51
+				: string | ident | int | float
+				;
+
+do_param_list	: do_param_list ',' do_param
+				| do_param
+				;
+
+do_params		: '(' do_param_list? ')'
+				;
+
 sequence		: sequence modifier | modifier ;
 
 production	 	: sequence | ;
 
-emit			: "emit" int?										%emit 42;
+emit			: "emit" int?										%emit 42
+				| "before" do_cmd do_params?						%emit 60
+				| "within" do_cmd do_params?						%emit 61
+				| "behind"? do_cmd do_params?						%emit 62
+				;
 
 flag			: "noemit"											%emit 40
 				| emit
