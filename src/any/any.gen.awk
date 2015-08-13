@@ -5,11 +5,11 @@
 # http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See LICENSE for more information.
 #
-# File:		value.gen.awk
-# Usage:	Generator for pvalue type conversion functions.
+# File:		any.gen.awk
+# Usage:	Generator for pany type conversion functions.
 #
 # This is a utility script to generate get-/set and conversion-functions for the
-# union data type pvalue implemented in union.h
+# union data type pany implemented in union.h
 #
 # I was lazy, had not the wish to write every of this functions by hand... so
 # I'm sorry for yet another generator script...
@@ -78,7 +78,7 @@ END									{
 										var_emptyval = types[5]
 
 										if( var_define == "" )
-											var_define = "PVALUETYPE_" \
+											var_define = "PANYTYPE_" \
 												toupper( var_type )
 
 										variants[ ++variants_cnt ] = datatype
@@ -160,7 +160,7 @@ function setfunc()
 {
 	# Comment
 	print "/** Sets the " datatype " data value and type."
-	print "//val// is the pvalue-object to be set."
+	print "//val// is the pany-object to be set."
 	print ""
 	print "//" member "// is the " datatype " value to be assigned to //val//."
 	print ""
@@ -168,10 +168,10 @@ function setfunc()
 	print "*/"
 
 	# Code
-	print datatype " pvalue_set_" var_type "( pvalue* val, " \
+	print datatype " pany_set_" var_type "( pany* val, " \
 				datatype " " member " )"
 	print "{"
-	print "	PROC( \"pvalue_set_" var_type "\" );"
+	print "	PROC( \"pany_set_" var_type "\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print "	PARMS( \"" member "\", \"" var_format "\", " member " );"
 	print ""
@@ -181,7 +181,7 @@ function setfunc()
 	print "		RETURN( (" datatype ")" var_emptyval " );"
 	print "	}"
 	print ""
-	print "	pvalue_reset( val );"
+	print "	pany_reset( val );"
 	print "	val->type = " var_define ";"
 	print "	val->val." member " = " member ";"
 
@@ -198,19 +198,19 @@ function getfunc()
 	# Comment
 	print "/** Returns the " datatype " data value if //val//."
 	print ""
-	print "If the pvalue contains another data type, it will be converted,"
+	print "If the pany contains another data type, it will be converted,"
 	print "so use it carefully if data loss is not wanted."
 	print ""
-	print "//val// is the pointer to the pvalue structure."
+	print "//val// is the pointer to the pany structure."
 	print ""
 	print "The function returns the value assigned to //val// as " datatype "."
 	print "This value could be converted from the original value."
 	print "*/"
 
 	# Code
-	print datatype " pvalue_get_" var_type "( pvalue* val )"
+	print datatype " pany_get_" var_type "( pany* val )"
 	print "{"
-	print "	PROC( \"pvalue_get_" var_type "\" );"
+	print "	PROC( \"pany_get_" var_type "\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print ""
 	print "	if( !val )"
@@ -221,10 +221,10 @@ function getfunc()
 	print ""
 	print "	if( val->type != " var_define ")"
 	print "	{"
-	print "		if( pvalue_get_autoconvert( val ) )"
+	print "		if( pany_get_autoconvert( val ) )"
 	print "		{"
 	print "			MSG( \"Conversion allowed and required\" );"
-	print "			if( !pvalue_convert( val, " var_define " ) )"
+	print "			if( !pany_convert( val, " var_define " ) )"
 	print "				RETURN( (" datatype ")" var_emptyval " );"
 	print "		}"
 	print "		else"
@@ -253,7 +253,7 @@ function convfunc( type )
 			"and must be freed by the caller."
 
 	print ""
-	print "//val// is the pvalue-object to convert from."
+	print "//val// is the pany-object to convert from."
 	print ""
 	print "The function returns the " type "-value of //val//."
 
@@ -262,9 +262,9 @@ function convfunc( type )
 	print "*/"
 
 	# Code
-	print type " pvalue_to_" var_type "( pvalue* val )"
+	print type " pany_to_" var_type "( pany* val )"
 	print "{"
-	print "	PROC( \"pvalue_to_" var_type "\" );"
+	print "	PROC( \"pany_to_" var_type "\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print ""
 	print "	if( !val )"
@@ -308,18 +308,18 @@ function allconv_func()
 		okdone[ ok ] = 0
 
 	# Comment
-	print "/** Converts a pvalue-structure to any supported type."
+	print "/** Converts a pany-structure to any supported type."
 	print ""
-	print "//val// is the pvalue-object to be converted."
+	print "//val// is the pany-object to be converted."
 	print "//type// is the type define to which //val// should be converted to."
 	print ""
 	print "The function returns TRUE on success, FALSE else."
 	print "*/"
 
 	#Code
-	print "pboolean pvalue_convert( pvalue* val, pvaluetype type )"
+	print "pboolean pany_convert( pany* val, panytype type )"
 	print "{"
-	print "	PROC( \"pvalue_convert\" );"
+	print "	PROC( \"pany_convert\" );"
 	print "	PARMS( \"val\", \"%p\", val );"
 	print "	PARMS( \"type\", \"%d\", type );"
 	print ""
@@ -343,8 +343,8 @@ function allconv_func()
 		okdone[ variants[i] ] = 1
 
 		print "		case " members[ variants[i] SUBSEP "var_define" ] ":"
-		print "			pvalue_set_" members[ variants[i] SUBSEP "var_type" ]\
-			  "( val, pvalue_to_" members[ variants[i] SUBSEP "var_type" ]\
+		print "			pany_set_" members[ variants[i] SUBSEP "var_type" ]\
+			  "( val, pany_to_" members[ variants[i] SUBSEP "var_type" ]\
 			  "( val ) );"
 		print "			RETURN( TRUE );\n"
 	}

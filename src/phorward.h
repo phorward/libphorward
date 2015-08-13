@@ -452,167 +452,58 @@ struct _lex
 
 
 
-typedef struct _ppsym		ppsym;
-typedef struct _ppprod		ppprod;
-typedef struct _ppgram		ppgram;
-
-
-#define PPFLAG_CALLED		1
-#define PPFLAG_DEFINED		2
-#define PPFLAG_NULLABLE		4
-#define PPFLAG_LEFTREC		8
-#define PPFLAG_LEXEM		16
-#define PPFLAG_WHITESPACE	32
-#define PPFLAG_PREVENTLREC	64
-#define PPFLAG_NAMELESS		128
-
-#define PPMOD_OPTIONAL		'?'
-#define PPMOD_POSITIVE		'+'
-#define PPMOD_KLEENE		'*'
-
-
-struct _ppprod
-{
-	int						id;
-	ppsym*					lhs;
-	plist*					rhs;
-
-	int						flags;
-	int						emit;
-
-	
-	char*					strval;
-};
-
 
 typedef enum
 {
-	PPSYMTYPE_NONTERM,
-	PPSYMTYPE_CCL,
-	PPSYMTYPE_STRING,
-	PPSYMTYPE_REGEX,
-	PPSYMTYPE_SPECIAL
-} ppsymtype;
-
-
-struct _ppsym
-{
-	int						id;
-	ppsymtype				type;
-
-	char*					name;
-	int						flags;
+	PANYTYPE_NULL,
 
 	
-	plist*					first;
-	plist*					prods;
+	PANYTYPE_CHAR,
+	PANYTYPE_INT,
+	PANYTYPE_LONG,
+	PANYTYPE_ULONG,
+	PANYTYPE_FLOAT,
+	PANYTYPE_DOUBLE,
 
 	
-	pccl*					ccl;
-	char*					str;
-	pregex*					re;
+	PANYTYPE_STR,
+	PANYTYPE_WCS,
 
 	
-	int						emit;
-
-	
-	char*					strval;
-};
+	PANYTYPE_PTR
+} panytype;
 
 
-struct _ppgram
-{
-	plist*					symbols;
-	plist*					prods;
-
-	plist*					ws;
-	ppsym*					goal;
-	ppsym*					eof;
-
-	int						flags;
-};
+#define PANYFLAG_CONSTANT		16	
+#define PANYFLAG_AUTOCONVERT	32	
 
 
 typedef struct
 {
-	#define PPMATCH_BEGIN	1
-	#define PPMATCH_END		2
-	int						type;
-
-	int						emit;
-	ppsym*					sym;
-	ppprod*					prod;
-
-	char*					start;
-	char*					end;
-
-	int						row;
-	int						col;
-} ppmatch;
-
-
-typedef struct
-{
-	int						type;
-	ppgram*					gram;
-
-	
-} pparse;
-
-
-
-
-typedef enum
-{
-	PVALUETYPE_NULL,
-
-	
-	PVALUETYPE_CHAR,
-	PVALUETYPE_INT,
-	PVALUETYPE_LONG,
-	PVALUETYPE_ULONG,
-	PVALUETYPE_FLOAT,
-	PVALUETYPE_DOUBLE,
-
-	
-	PVALUETYPE_STR,
-	PVALUETYPE_WCS,
-
-	
-	PVALUETYPE_PTR
-} pvaluetype;
-
-
-#define PGVALUEFLAG_CONSTANT	16	
-#define PGVALUEFLAG_AUTOCONVERT	32	
-
-
-typedef struct
-{
-	pvaluetype	type;				
+	panytype	type;				
 	short		flags;				
 
 	union
 	{
-		char	c;
+		char		c;
 		
 
-		int		i;
+		int			i;
 		
 
-		long	l;
+		long		l;
 		
 
-		ulong	ul;
+		ulong		ul;
 		
 
-		float	f;
+		float		f;
 		
 
-		double	d;
+		double		d;
 		
 
-		char*	s;
+		char*		s;
 		
 		
 
@@ -620,17 +511,16 @@ typedef struct
 		
 		
 
-		void*	ptr;
+		void*		ptr;
 		
 	} val;
-} pvalue;
+} pany;
 
 
-#define pvalue_set_strdup( val, str ) \
-			pvalue_set_str( val, pstrdup( str ) )
-#define pvalue_set_wcsdup( val, str ) \
-			pvalue_set_wcs( val, pwcsdup( str ) )
-
+#define pany_set_strdup( val, str ) \
+			pany_set_str( val, pstrdup( str ) )
+#define pany_set_wcsdup( val, str ) \
+			pany_set_wcs( val, pwcsdup( str ) )
 
 
 
@@ -730,6 +620,117 @@ struct xml
 	xml_free( xml_cut( xml ) )
 
 #endif 
+
+
+
+
+typedef struct _ppsym		ppsym;
+typedef struct _ppprod		ppprod;
+typedef struct _ppgram		ppgram;
+
+
+#define PPFLAG_CALLED		1
+#define PPFLAG_DEFINED		2
+#define PPFLAG_NULLABLE		4
+#define PPFLAG_LEFTREC		8
+#define PPFLAG_LEXEM		16
+#define PPFLAG_WHITESPACE	32
+#define PPFLAG_PREVENTLREC	64
+#define PPFLAG_NAMELESS		128
+
+#define PPMOD_OPTIONAL		'?'
+#define PPMOD_POSITIVE		'+'
+#define PPMOD_KLEENE		'*'
+
+
+struct _ppprod
+{
+	int						id;
+	ppsym*					lhs;
+	plist*					rhs;
+
+	int						flags;
+	int						emit;
+
+	
+	char*					strval;
+};
+
+
+typedef enum
+{
+	PPSYMTYPE_NONTERM,
+	PPSYMTYPE_CCL,
+	PPSYMTYPE_STRING,
+	PPSYMTYPE_REGEX,
+	PPSYMTYPE_SPECIAL
+} ppsymtype;
+
+
+struct _ppsym
+{
+	int						id;
+	ppsymtype				type;
+
+	char*					name;
+	int						flags;
+
+	
+	plist*					first;
+	plist*					prods;
+
+	
+	pccl*					ccl;
+	char*					str;
+	pregex*					re;
+
+	
+	int						emit;
+
+	
+	char*					strval;
+};
+
+
+struct _ppgram
+{
+	plist*					symbols;
+	plist*					prods;
+
+	plist*					ws;
+	ppsym*					goal;
+	ppsym*					eof;
+
+	int						flags;
+};
+
+
+typedef void (*ppdofunc)( pany** param, int param_cnt );
+
+
+typedef struct
+{
+	#define PPMATCH_BEGIN	1
+	#define PPMATCH_END		2
+	int						type;
+
+	int						emit;
+	ppsym*					sym;
+	ppprod*					prod;
+
+	char*					start;
+	char*					end;
+
+	int						row;
+	int						col;
+} ppmatch;
+
+
+typedef struct
+{
+	int						type;
+	ppgram*					gram;
+} pparse;
 
 
 
@@ -1059,52 +1060,52 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
-pboolean pvalue_init( pvalue* val );
-pvalue* pvalue_create( void );
-pboolean pvalue_reset( pvalue* val );
-pvalue* pvalue_free( pvalue* val );
-pboolean pvalue_set_constant( pvalue* val, pboolean constant );
-pboolean pvalue_get_constant( pvalue* val );
-pboolean pvalue_set_autoconvert( pvalue* val, pboolean autoconvert );
-pboolean pvalue_get_autoconvert( pvalue* val );
+pboolean pany_init( pany* val );
+pany* pany_create( void );
+pboolean pany_reset( pany* val );
+pany* pany_free( pany* val );
+pboolean pany_set_constant( pany* val, pboolean constant );
+pboolean pany_get_constant( pany* val );
+pboolean pany_set_autoconvert( pany* val, pboolean autoconvert );
+pboolean pany_get_autoconvert( pany* val );
 
 
-char pvalue_to_char( pvalue* val );
-int pvalue_to_int( pvalue* val );
-long pvalue_to_long( pvalue* val );
-ulong pvalue_to_ulong( pvalue* val );
-float pvalue_to_float( pvalue* val );
-double pvalue_to_double( pvalue* val );
-char* pvalue_to_str( pvalue* val );
-wchar_t* pvalue_to_wcs( pvalue* val );
-void* pvalue_to_ptr( pvalue* val );
-pboolean pvalue_convert( pvalue* val, pvaluetype type );
+char pany_to_char( pany* val );
+int pany_to_int( pany* val );
+long pany_to_long( pany* val );
+ulong pany_to_ulong( pany* val );
+float pany_to_float( pany* val );
+double pany_to_double( pany* val );
+char* pany_to_str( pany* val );
+wchar_t* pany_to_wcs( pany* val );
+void* pany_to_ptr( pany* val );
+pboolean pany_convert( pany* val, panytype type );
 
 
-char pvalue_get_char( pvalue* val );
-int pvalue_get_int( pvalue* val );
-long pvalue_get_long( pvalue* val );
-ulong pvalue_get_ulong( pvalue* val );
-float pvalue_get_float( pvalue* val );
-double pvalue_get_double( pvalue* val );
-char* pvalue_get_cstr( pvalue* val );
-char* pvalue_get_str( pvalue* val );
-wchar_t* pvalue_get_cwcs( pvalue* val );
-wchar_t* pvalue_get_wcs( pvalue* val );
-void* pvalue_get_ptr( pvalue* val );
+char pany_get_char( pany* val );
+int pany_get_int( pany* val );
+long pany_get_long( pany* val );
+ulong pany_get_ulong( pany* val );
+float pany_get_float( pany* val );
+double pany_get_double( pany* val );
+char* pany_get_cstr( pany* val );
+char* pany_get_str( pany* val );
+wchar_t* pany_get_cwcs( pany* val );
+wchar_t* pany_get_wcs( pany* val );
+void* pany_get_ptr( pany* val );
 
 
-char pvalue_set_char( pvalue* val, char c );
-int pvalue_set_int( pvalue* val, int i );
-long pvalue_set_long( pvalue* val, long l );
-ulong pvalue_set_ulong( pvalue* val, ulong ul );
-float pvalue_set_float( pvalue* val, float f );
-double pvalue_set_double( pvalue* val, double d );
-char* pvalue_set_cstr( pvalue* val, char* s );
-char* pvalue_set_str( pvalue* val, char* s );
-wchar_t* pvalue_set_cwcs( pvalue* val, wchar_t* ws );
-wchar_t* pvalue_set_wcs( pvalue* val, wchar_t* ws );
-void* pvalue_set_ptr( pvalue* val, void* ptr );
+char pany_set_char( pany* val, char c );
+int pany_set_int( pany* val, int i );
+long pany_set_long( pany* val, long l );
+ulong pany_set_ulong( pany* val, ulong ul );
+float pany_set_float( pany* val, float f );
+double pany_set_double( pany* val, double d );
+char* pany_set_cstr( pany* val, char* s );
+char* pany_set_str( pany* val, char* s );
+wchar_t* pany_set_cwcs( pany* val, wchar_t* ws );
+wchar_t* pany_set_wcs( pany* val, wchar_t* ws );
+void* pany_set_ptr( pany* val, void* ptr );
 
 
 

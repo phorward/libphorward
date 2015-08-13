@@ -89,6 +89,9 @@ struct _ppgram
 	int						flags;
 };
 
+/* Do */
+typedef void (*ppdofunc)( pany** param, int param_cnt );
+
 /* Match (AST entry) */
 typedef struct
 {
@@ -112,8 +115,4 @@ typedef struct
 {
 	int						type;
 	ppgram*					gram;
-
-	/*
-	plist*					states;
-	*/
 } pparse;

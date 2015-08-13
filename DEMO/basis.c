@@ -453,64 +453,64 @@ void xml_demo( void )
 	xml_free( comp );
 }
 
-void value_demo( void )
+void any_demo( void )
 {
 	/*
-	 * This is a demonstration of the pvalue object, which implements
+	 * This is a demonstration of the pany object, which implements
 	 * a union data type storage. A union type is a variable which is capable to
 	 * store different values, by using a type flag, but only one memory store.
 	 *
-	 * The pvalue-data type and its support functions of libphorward allows to
+	 * The pany-data type and its support functions of libphorward allows to
 	 * store byte, char, int, long, unsigned long (ulong), float, double,
 	 * string (char*) and wide-character string (wchar_t*) and their conversion
 	 * among each other.
 	 *
-	 * String memory is always hold with the pvalue-object, until the
+	 * String memory is always hold with the pany-object, until the
 	 * structure is converted into another type or freed.
 	 */
-	pvalue*	val;
+	pany*	val;
 
-	DEMO( "value_demo" );
+	DEMO( "any_demo" );
 
-	/* Get new union object */
-	val = pvalue_create();
+	/* Get new any object */
+	val = pany_create();
 
-	/* Set a string, duplicate its memory (*_d) */
-	pvalue_set_strdup( val, "123 Hello World" );
+	/* Set a string, duplicate its memory (strdup) */
+	pany_set_strdup( val, "123 Hello World" );
 
 	/* Get the string */
-	printf( "val(str) = %s\n", pvalue_get_str( val ) );
+	printf( "val(str) = %s\n", pany_get_str( val ) );
 
 	/* Get the string as wide-character value */
-	printf( "val(wcs) = %ls\n", pvalue_get_wcs( val ) );
+	printf( "val(wcs) = %ls\n", pany_get_wcs( val ) );
 
 	/*
-	 * Well, this is not possible, because the pvalue object is
+	 * Well, this is not possible, because the pany object is
 	 * configured to be not convertible by default. Let's enable this.
 	 */
-	pvalue_set_autoconvert( val, TRUE );
+	pany_set_autoconvert( val, TRUE );
 
 	/* Get the string as wide-character value, again. */
-	printf( "val(wcs) = %ls\n", pvalue_get_wcs( val ) );
+	printf( "val(wcs) = %ls\n", pany_get_wcs( val ) );
 
 	/* The the string as integer value - only 123 will be returned! */
-	printf( "val(int) = %d\n", pvalue_get_int( val ) );
+	printf( "val(int) = %d\n", pany_get_int( val ) );
 
 	/* Reset the value by a floating point number */
-	pvalue_set_double( val, 123.456 );
+	pany_set_double( val, 123.456 );
 
-	printf( "val(double) = %lf\n", pvalue_get_double( val ) );
-	printf( "val(str) = %s\n", pvalue_get_str( val ) );
+	printf( "val(double) = %lf\n", pany_get_double( val ) );
+	printf( "val(str) = %s\n", pany_get_str( val ) );
 
-	/* Free the object */
-	val = pvalue_free( val );
+	/* Free that object */
+	val = pany_free( val );
 }
 
 void help( char** argv )
 {
 	printf( "usage: %s OPTIONS\n\n"
 
-	"   -s  --stepwise        Execute demo step-by-step.\n"
+	"   -s  --stepwise        Execute demo, step-by-step.\n"
 	"   -h  --help            Show this help, and exit.\n\n", *argv );
 }
 
@@ -530,7 +530,7 @@ int main( int argc, char** argv )
 		&parray_demo,
 		&dbg_demo,
 		&xml_demo,
-		&value_demo
+		&any_demo
 	};
 	char*		param;
 

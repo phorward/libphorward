@@ -317,51 +317,51 @@ int xml_count( XML_T xml );
 int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
-/* value/value.c */
-pboolean pvalue_init( pvalue* val );
-pvalue* pvalue_create( void );
-pboolean pvalue_reset( pvalue* val );
-pvalue* pvalue_free( pvalue* val );
-pboolean pvalue_set_constant( pvalue* val, pboolean constant );
-pboolean pvalue_get_constant( pvalue* val );
-pboolean pvalue_set_autoconvert( pvalue* val, pboolean autoconvert );
-pboolean pvalue_get_autoconvert( pvalue* val );
+/* any/any.c */
+pboolean pany_init( pany* val );
+pany* pany_create( void );
+pboolean pany_reset( pany* val );
+pany* pany_free( pany* val );
+pboolean pany_set_constant( pany* val, pboolean constant );
+pboolean pany_get_constant( pany* val );
+pboolean pany_set_autoconvert( pany* val, pboolean autoconvert );
+pboolean pany_get_autoconvert( pany* val );
 
-/* value/value.conv.c */
-char pvalue_to_char( pvalue* val );
-int pvalue_to_int( pvalue* val );
-long pvalue_to_long( pvalue* val );
-ulong pvalue_to_ulong( pvalue* val );
-float pvalue_to_float( pvalue* val );
-double pvalue_to_double( pvalue* val );
-char* pvalue_to_str( pvalue* val );
-wchar_t* pvalue_to_wcs( pvalue* val );
-void* pvalue_to_ptr( pvalue* val );
-pboolean pvalue_convert( pvalue* val, pvaluetype type );
+/* any/any.conv.c */
+char pany_to_char( pany* val );
+int pany_to_int( pany* val );
+long pany_to_long( pany* val );
+ulong pany_to_ulong( pany* val );
+float pany_to_float( pany* val );
+double pany_to_double( pany* val );
+char* pany_to_str( pany* val );
+wchar_t* pany_to_wcs( pany* val );
+void* pany_to_ptr( pany* val );
+pboolean pany_convert( pany* val, panytype type );
 
-/* value/value.get.c */
-char pvalue_get_char( pvalue* val );
-int pvalue_get_int( pvalue* val );
-long pvalue_get_long( pvalue* val );
-ulong pvalue_get_ulong( pvalue* val );
-float pvalue_get_float( pvalue* val );
-double pvalue_get_double( pvalue* val );
-char* pvalue_get_cstr( pvalue* val );
-char* pvalue_get_str( pvalue* val );
-wchar_t* pvalue_get_cwcs( pvalue* val );
-wchar_t* pvalue_get_wcs( pvalue* val );
-void* pvalue_get_ptr( pvalue* val );
+/* any/any.get.c */
+char pany_get_char( pany* val );
+int pany_get_int( pany* val );
+long pany_get_long( pany* val );
+ulong pany_get_ulong( pany* val );
+float pany_get_float( pany* val );
+double pany_get_double( pany* val );
+char* pany_get_cstr( pany* val );
+char* pany_get_str( pany* val );
+wchar_t* pany_get_cwcs( pany* val );
+wchar_t* pany_get_wcs( pany* val );
+void* pany_get_ptr( pany* val );
 
-/* value/value.set.c */
-char pvalue_set_char( pvalue* val, char c );
-int pvalue_set_int( pvalue* val, int i );
-long pvalue_set_long( pvalue* val, long l );
-ulong pvalue_set_ulong( pvalue* val, ulong ul );
-float pvalue_set_float( pvalue* val, float f );
-double pvalue_set_double( pvalue* val, double d );
-char* pvalue_set_cstr( pvalue* val, char* s );
-char* pvalue_set_str( pvalue* val, char* s );
-wchar_t* pvalue_set_cwcs( pvalue* val, wchar_t* ws );
-wchar_t* pvalue_set_wcs( pvalue* val, wchar_t* ws );
-void* pvalue_set_ptr( pvalue* val, void* ptr );
+/* any/any.set.c */
+char pany_set_char( pany* val, char c );
+int pany_set_int( pany* val, int i );
+long pany_set_long( pany* val, long l );
+ulong pany_set_ulong( pany* val, ulong ul );
+float pany_set_float( pany* val, float f );
+double pany_set_double( pany* val, double d );
+char* pany_set_cstr( pany* val, char* s );
+char* pany_set_str( pany* val, char* s );
+wchar_t* pany_set_cwcs( pany* val, wchar_t* ws );
+wchar_t* pany_set_wcs( pany* val, wchar_t* ws );
+void* pany_set_ptr( pany* val, void* ptr );
 

@@ -44,10 +44,10 @@ libphorward_la_SOURCES = \
 	string/utf8.c \
 	util/system.c \
 	util/xml.c \
-	value/value.c \
-	value/value.conv.c \
-	value/value.get.c \
-	value/value.set.c
+	any/any.c \
+	any/any.conv.c \
+	any/any.get.c \
+	any/any.set.c
 
 noinst_HEADERS = \
 	base/array.h \
@@ -58,7 +58,7 @@ noinst_HEADERS = \
 	phorward.tpl.h \
 	regex/regex.h \
 	util/xml.h \
-	value/value.h \
+	any/any.h \
 	$(PROTOFILE)
 
 include_HEADERS = \
@@ -92,14 +92,14 @@ $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 
-value/value.get.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_get=1 value/value.h >$@
+any/any.get.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_get=1 any/any.h >$@
 
-value/value.set.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_set=1 value/value.h >$@
+any/any.set.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_set=1 any/any.h >$@
 
-value/value.conv.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_conv=1 value/value.h >$@
+any/any.conv.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_conv=1 any/any.h >$@
 
 # Phorward Foundation Library Documentation
 $(DOCFILE): $(libphorward_la_SOURCES)

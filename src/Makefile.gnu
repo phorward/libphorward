@@ -38,10 +38,10 @@ SRC = \
 	string/utf8.c \
 	util/system.c \
 	util/xml.c \
-	value/value.c \
-	value/value.conv.c \
-	value/value.get.c \
-	value/value.set.c
+	any/any.c \
+	any/any.conv.c \
+	any/any.get.c \
+	any/any.set.c
 
 HSRC = \
 	base/array.h \
@@ -52,7 +52,7 @@ HSRC = \
 	phorward.tpl.h \
 	regex/regex.h \
 	util/xml.h \
-	value/value.h \
+	any/any.h \
 	$(PROTOFILE)
 
 OBJ = $(patsubst %.c,%.o,$(SRC))
@@ -67,9 +67,9 @@ clean:
 	-rm -f $(LIBPHORWARD)
 
 clean_all: clean
-	-rm value/value.get.c
-	-rm value/value.set.c
-	-rm value/value.conv.c
+	-rm any/any.get.c
+	-rm any/any.set.c
+	-rm any/any.conv.c
 
 ref: $(SRC)
 	echo "" >$(REF)
@@ -88,13 +88,13 @@ $(LIBHEADER): $(HSRC)
 		>$@
 	$(PATHEXT) pinclude phorward.tpl.h >>$@
 
-# pvalue object functions (generated from definitions in pvalue.h comments)
-value/value.get.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_get=1 value/value.h >$@
+# pany object functions (generated from definitions in any.h comments)
+any/any.get.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_get=1 any/any.h >$@
 
-value/value.set.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_set=1 value/value.h >$@
+any/any.set.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_set=1 any/any.h >$@
 
-value/value.conv.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_conv=1 value/value.h >$@
+any/any.conv.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_conv=1 any/any.h >$@
 
