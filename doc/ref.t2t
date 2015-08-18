@@ -623,6 +623,705 @@ ranges contained in //add//.
 The function creates and returns a new character-class that is the union
 if //ccl// and //add//.
 %FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_convert ===[fn_pany_convert]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pany_convert( pany* val, panytype type )
+%DEFINITION:END
+
+**Usage:**
+
+Converts a pany-structure to any supported type.
+
+//val// is the pany-object to be converted.
+//type// is the type define to which //val// should be converted to.
+
+The function returns TRUE on success, FALSE else.
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pany_create ===[fn_pany_create]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pany* pany_create( void )
+%DEFINITION:END
+
+**Usage:**
+
+Creates a new pany-object.
+
+This object must be released after usage using [pany_free() #fn_pany_free].
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pany_free ===[fn_pany_free]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pany* pany_free( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Frees an allocated pany object and all its used memory.
+
+The function always returns (pany*)NULL.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_char ===[fn_pany_get_char]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char pany_get_char( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the char data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as char.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_cstr ===[fn_pany_get_cstr]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char* pany_get_cstr( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the char* data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as char*.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_cwcs ===[fn_pany_get_cwcs]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t* pany_get_cwcs( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the wchar_t* data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as wchar_t*.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_double ===[fn_pany_get_double]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+double pany_get_double( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the double data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as double.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_float ===[fn_pany_get_float]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+float pany_get_float( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the float data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as float.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_int ===[fn_pany_get_int]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int pany_get_int( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the int data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as int.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_long ===[fn_pany_get_long]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+long pany_get_long( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the long data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as long.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_ptr ===[fn_pany_get_ptr]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void* pany_get_ptr( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the void* data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as void*.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_str ===[fn_pany_get_str]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char* pany_get_str( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the char* data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as char*.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_ulong ===[fn_pany_get_ulong]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ulong pany_get_ulong( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the ulong data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as ulong.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pany_get_wcs ===[fn_pany_get_wcs]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t* pany_get_wcs( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the wchar_t* data value if //val//.
+
+If the pany contains another data type, it will be converted,
+so use it carefully if data loss is not wanted.
+
+//val// is the pointer to the pany structure.
+
+The function returns the value assigned to //val// as wchar_t*.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pany_init ===[fn_pany_init]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pany_init( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Initializes a pany-element.
+
+//val// is the pointer to the pany-structure to be initialized.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_reset ===[fn_pany_reset]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pany_reset( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Frees all memory used by a pany-element.
+
+All memory used by the element is freed, and the union's structure is reset
+to be of type PANYTYPE_NULL.
+
+//val// is the pointer to pany structure.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_char ===[fn_pany_set_char]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char pany_set_char( pany* val, char c )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the char data value and type.
+//val// is the pany-object to be set.
+
+//c// is the char value to be assigned to //val//.
+
+The function always returns the value //c//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_cstr ===[fn_pany_set_cstr]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char* pany_set_cstr( pany* val, char* s )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the char* data value and type.
+//val// is the pany-object to be set.
+
+//s// is the char* value to be assigned to //val//.
+
+The function always returns the value //s//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_cwcs ===[fn_pany_set_cwcs]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t* pany_set_cwcs( pany* val, wchar_t* ws )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the wchar_t* data value and type.
+//val// is the pany-object to be set.
+
+//ws// is the wchar_t* value to be assigned to //val//.
+
+The function always returns the value //ws//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_double ===[fn_pany_set_double]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+double pany_set_double( pany* val, double d )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the double data value and type.
+//val// is the pany-object to be set.
+
+//d// is the double value to be assigned to //val//.
+
+The function always returns the value //d//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_float ===[fn_pany_set_float]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+float pany_set_float( pany* val, float f )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the float data value and type.
+//val// is the pany-object to be set.
+
+//f// is the float value to be assigned to //val//.
+
+The function always returns the value //f//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_int ===[fn_pany_set_int]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int pany_set_int( pany* val, int i )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the int data value and type.
+//val// is the pany-object to be set.
+
+//i// is the int value to be assigned to //val//.
+
+The function always returns the value //i//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_long ===[fn_pany_set_long]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+long pany_set_long( pany* val, long l )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the long data value and type.
+//val// is the pany-object to be set.
+
+//l// is the long value to be assigned to //val//.
+
+The function always returns the value //l//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_ptr ===[fn_pany_set_ptr]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void* pany_set_ptr( pany* val, void* ptr )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the void* data value and type.
+//val// is the pany-object to be set.
+
+//ptr// is the void* value to be assigned to //val//.
+
+The function always returns the value //ptr//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_str ===[fn_pany_set_str]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char* pany_set_str( pany* val, char* s )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the char* data value and type.
+//val// is the pany-object to be set.
+
+//s// is the char* value to be assigned to //val//.
+
+The function always returns the value //s//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_ulong ===[fn_pany_set_ulong]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ulong pany_set_ulong( pany* val, ulong ul )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the ulong data value and type.
+//val// is the pany-object to be set.
+
+//ul// is the ulong value to be assigned to //val//.
+
+The function always returns the value //ul//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pany_set_wcs ===[fn_pany_set_wcs]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t* pany_set_wcs( pany* val, wchar_t* ws )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the wchar_t* data value and type.
+//val// is the pany-object to be set.
+
+//ws// is the wchar_t* value to be assigned to //val//.
+
+The function always returns the value //ws//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_char ===[fn_pany_to_char]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char pany_to_char( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a char value.
+
+//val// is the pany-object to convert from.
+
+The function returns the char-value of //val//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_double ===[fn_pany_to_double]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+double pany_to_double( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a double value.
+
+//val// is the pany-object to convert from.
+
+The function returns the double-value of //val//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_float ===[fn_pany_to_float]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+float pany_to_float( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a float value.
+
+//val// is the pany-object to convert from.
+
+The function returns the float-value of //val//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_int ===[fn_pany_to_int]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int pany_to_int( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a int value.
+
+//val// is the pany-object to convert from.
+
+The function returns the int-value of //val//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_long ===[fn_pany_to_long]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+long pany_to_long( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a long value.
+
+//val// is the pany-object to convert from.
+
+The function returns the long-value of //val//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_ptr ===[fn_pany_to_ptr]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void* pany_to_ptr( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a void* value.
+
+//val// is the pany-object to convert from.
+
+The function returns the void*-value of //val//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_str ===[fn_pany_to_str]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char* pany_to_str( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a char* value.
+
+//val// is the pany-object to convert from.
+
+The function returns the char*-value of //val//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_ulong ===[fn_pany_to_ulong]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ulong pany_to_ulong( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a ulong value.
+
+//val// is the pany-object to convert from.
+
+The function returns the ulong-value of //val//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_wcs ===[fn_pany_to_wcs]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t* pany_to_wcs( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a wchar_t* value.
+
+//val// is the pany-object to convert from.
+
+The function returns the wchar_t*-value of //val//.
+%FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
 === parray_count ===[fn_parray_count]
@@ -1219,7 +1918,7 @@ It could be used this way to immedatelly reset a pointer to NULL:
 
 Returns always (void*)NULL.
 %FUNCTION:END
-%NEED:56
+%NEED:37
 %FUNCTION:BEGIN
 === pgetopt ===[fn_pgetopt]
 
@@ -1241,42 +1940,23 @@ This function is currently under recent development relating to the issues it
 is used for. It can't be seen as compatible or feature-proven, and does not
 follow a clear concept right now.
 
-//opt// is a pointer to a buffer with enough space to store the requested
-parameter to. For short parameters, this is only one char, for long-parameters
-the full name. The string will be zero-terminated.
-
-//param// is a pointer to store a possible parameter value to, if the detected
-option allows for parameters.
-
-//next// receives the index in argv of the next evaluated option. It can be
-left (int*)NULL. It points to the next valid index in argv[] after all
-parameters have been evaluated. Check it for < argc, to point to valid data.
-
-//argc// is the argument count as taken from the [main() #fn_main] function.
-
-//argv// are the argument values as taken from the [main() #fn_main] function.
-
-//optstr// contains the possible short-options. This is a string where each
-character defines an option. If an option takes a parameter, a colon (:) is
-submitted.
-E.g. "abc:def:g". The Options "-c" and "-f" will take a parameter that is
+- //opt// is a pointer to a buffer with enough space to store the requested parameter to. For short parameters, this is only one char, for long-parameters the full name. The string will be zero-terminated.
+- //param// is a pointer to store a possible parameter value to, if the detected option allows for parameters.
+- //next// receives the index in argv of the next evaluated option. It can be left (int*)NULL. It points to the next valid index in argv[] after all parameters have been evaluated. Check it for < argc, to point to valid data.
+- //argc// is the argument count as taken from the [main() #fn_main] function.
+- //argv// are the argument values as taken from the [main() #fn_main] function.
+- //optstr// contains the possible short-options. This is a string where each character defines an option. If an option takes a parameter, a colon (:) is submitted. E.g. "abc:def:g". The Options "-c" and "-f" will take a parameter that is
 returned to param. This parameter can be (char*)NULL.
-
-//loptstr// contains the possible long-options. This is a string containing all
-long option names, each separated by a blank. Long options taking parameters
-have an attached colon (:) to the name.
-E.g. "hello world: next" defines three long options, where option 'world' takes
-one parameter that is returned to param. This parameter can be (char*)NULL.
-
-//idx// is the index of the requested option, 0 for the first option behind
-argv[0].
+- //loptstr// contains the possible long-options. This is a string containing all long option names, each separated by a blank. Long options taking parameters have an attached colon (:) to the name.  E.g. "hello world: next" defines three long options, where option 'world' takes one parameter that is returned to param. This parameter can be (char*)NULL.
+- //idx// is the index of the requested option, 0 for the first option behind argv[0].
+-
 
 The function returns 0, if the parameter with the given index was
-successfully evaluated. It returns 1, if there are sill command-line parameters,
-but not as part of options. The parameter param will receive the given pointer.
-It returns -1 if no more options could be read, or if an option could
-not be evaluated (unknown option). In such case, param will hold a string to the
-option that is unknown to [pgetopt() #fn_pgetopt].
+successfully evaluated. It returns 1, if there are still command-line
+parameters, but not as part of options. The parameter //param// will receive
+the given pointer. It returns -1 if no more options could be read, or if an
+option could not be evaluated (unknown option). In such case, //param// will
+hold a string to the option that is unknown to [pgetopt() #fn_pgetopt].
 %FUNCTION:END
 %NEED:32
 %FUNCTION:BEGIN
@@ -3288,705 +3968,6 @@ Convert a string to upper-case order.
 
 Returns //s//.
 %FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_convert ===[fn_pvalue_convert]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pboolean pvalue_convert( pvalue* val, pvaluetype type )
-%DEFINITION:END
-
-**Usage:**
-
-Converts a pvalue-structure to any supported type.
-
-//val// is the pvalue-object to be converted.
-//type// is the type define to which //val// should be converted to.
-
-The function returns TRUE on success, FALSE else.
-%FUNCTION:END
-%NEED:13
-%FUNCTION:BEGIN
-=== pvalue_create ===[fn_pvalue_create]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pvalue* pvalue_create( void )
-%DEFINITION:END
-
-**Usage:**
-
-Creates a new pvalue-object.
-
-This object must be released after usage using [pvalue_free() #fn_pvalue_free].
-%FUNCTION:END
-%NEED:13
-%FUNCTION:BEGIN
-=== pvalue_free ===[fn_pvalue_free]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pvalue* pvalue_free( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Frees an allocated pvalue object and all its used memory.
-
-The function always returns (pvalue*)NULL.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_char ===[fn_pvalue_get_char]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char pvalue_get_char( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the char data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as char.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_cstr ===[fn_pvalue_get_cstr]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char* pvalue_get_cstr( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the char* data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as char*.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_cwcs ===[fn_pvalue_get_cwcs]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-wchar_t* pvalue_get_cwcs( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the wchar_t* data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as wchar_t*.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_double ===[fn_pvalue_get_double]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-double pvalue_get_double( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the double data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as double.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_float ===[fn_pvalue_get_float]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-float pvalue_get_float( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the float data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as float.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_int ===[fn_pvalue_get_int]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-int pvalue_get_int( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the int data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as int.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_long ===[fn_pvalue_get_long]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-long pvalue_get_long( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the long data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as long.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_ptr ===[fn_pvalue_get_ptr]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-void* pvalue_get_ptr( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the void* data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as void*.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_str ===[fn_pvalue_get_str]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char* pvalue_get_str( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the char* data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as char*.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_ulong ===[fn_pvalue_get_ulong]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-ulong pvalue_get_ulong( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the ulong data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as ulong.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:19
-%FUNCTION:BEGIN
-=== pvalue_get_wcs ===[fn_pvalue_get_wcs]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-wchar_t* pvalue_get_wcs( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the wchar_t* data value if //val//.
-
-If the pvalue contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
-
-//val// is the pointer to the pvalue structure.
-
-The function returns the value assigned to //val// as wchar_t*.
-This value could be converted from the original value.
-%FUNCTION:END
-%NEED:13
-%FUNCTION:BEGIN
-=== pvalue_init ===[fn_pvalue_init]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pboolean pvalue_init( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Initializes a pvalue-element.
-
-//val// is the pointer to the pvalue-structure to be initialized.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_reset ===[fn_pvalue_reset]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pboolean pvalue_reset( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Frees all memory used by a pvalue-element.
-
-All memory used by the element is freed, and the union's structure is reset
-to be of type PVALUETYPE_NULL.
-
-//val// is the pointer to pvalue structure.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_char ===[fn_pvalue_set_char]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char pvalue_set_char( pvalue* val, char c )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the char data value and type.
-//val// is the pvalue-object to be set.
-
-//c// is the char value to be assigned to //val//.
-
-The function always returns the value //c//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_cstr ===[fn_pvalue_set_cstr]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char* pvalue_set_cstr( pvalue* val, char* s )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the char* data value and type.
-//val// is the pvalue-object to be set.
-
-//s// is the char* value to be assigned to //val//.
-
-The function always returns the value //s//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_cwcs ===[fn_pvalue_set_cwcs]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-wchar_t* pvalue_set_cwcs( pvalue* val, wchar_t* ws )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the wchar_t* data value and type.
-//val// is the pvalue-object to be set.
-
-//ws// is the wchar_t* value to be assigned to //val//.
-
-The function always returns the value //ws//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_double ===[fn_pvalue_set_double]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-double pvalue_set_double( pvalue* val, double d )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the double data value and type.
-//val// is the pvalue-object to be set.
-
-//d// is the double value to be assigned to //val//.
-
-The function always returns the value //d//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_float ===[fn_pvalue_set_float]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-float pvalue_set_float( pvalue* val, float f )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the float data value and type.
-//val// is the pvalue-object to be set.
-
-//f// is the float value to be assigned to //val//.
-
-The function always returns the value //f//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_int ===[fn_pvalue_set_int]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-int pvalue_set_int( pvalue* val, int i )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the int data value and type.
-//val// is the pvalue-object to be set.
-
-//i// is the int value to be assigned to //val//.
-
-The function always returns the value //i//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_long ===[fn_pvalue_set_long]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-long pvalue_set_long( pvalue* val, long l )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the long data value and type.
-//val// is the pvalue-object to be set.
-
-//l// is the long value to be assigned to //val//.
-
-The function always returns the value //l//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_ptr ===[fn_pvalue_set_ptr]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-void* pvalue_set_ptr( pvalue* val, void* ptr )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the void* data value and type.
-//val// is the pvalue-object to be set.
-
-//ptr// is the void* value to be assigned to //val//.
-
-The function always returns the value //ptr//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_str ===[fn_pvalue_set_str]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char* pvalue_set_str( pvalue* val, char* s )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the char* data value and type.
-//val// is the pvalue-object to be set.
-
-//s// is the char* value to be assigned to //val//.
-
-The function always returns the value //s//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_ulong ===[fn_pvalue_set_ulong]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-ulong pvalue_set_ulong( pvalue* val, ulong ul )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the ulong data value and type.
-//val// is the pvalue-object to be set.
-
-//ul// is the ulong value to be assigned to //val//.
-
-The function always returns the value //ul//.
-%FUNCTION:END
-%NEED:16
-%FUNCTION:BEGIN
-=== pvalue_set_wcs ===[fn_pvalue_set_wcs]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-wchar_t* pvalue_set_wcs( pvalue* val, wchar_t* ws )
-%DEFINITION:END
-
-**Usage:**
-
-Sets the wchar_t* data value and type.
-//val// is the pvalue-object to be set.
-
-//ws// is the wchar_t* value to be assigned to //val//.
-
-The function always returns the value //ws//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_char ===[fn_pvalue_to_char]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char pvalue_to_char( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a char value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the char-value of //val//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_double ===[fn_pvalue_to_double]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-double pvalue_to_double( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a double value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the double-value of //val//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_float ===[fn_pvalue_to_float]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-float pvalue_to_float( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a float value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the float-value of //val//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_int ===[fn_pvalue_to_int]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-int pvalue_to_int( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a int value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the int-value of //val//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_long ===[fn_pvalue_to_long]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-long pvalue_to_long( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a long value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the long-value of //val//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_ptr ===[fn_pvalue_to_ptr]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-void* pvalue_to_ptr( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a void* value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the void*-value of //val//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_str ===[fn_pvalue_to_str]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char* pvalue_to_str( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a char* value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the char*-value of //val//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_ulong ===[fn_pvalue_to_ulong]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-ulong pvalue_to_ulong( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a ulong value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the ulong-value of //val//.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pvalue_to_wcs ===[fn_pvalue_to_wcs]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-wchar_t* pvalue_to_wcs( pvalue* val )
-%DEFINITION:END
-
-**Usage:**
-
-Converts the current value of //val// into a wchar_t* value.
-
-//val// is the pvalue-object to convert from.
-
-The function returns the wchar_t*-value of //val//.
-%FUNCTION:END
 %NEED:17
 %FUNCTION:BEGIN
 === pvasprintf ===[fn_pvasprintf]
@@ -4185,10 +4166,10 @@ Figures out a filepath by searching in a PATH definition.
 
 //directories// is a string specifying the directories to search in.
 If this is (char*)NULL, the environment variable PATH will be used and
-evaluated by using [getenv() #fn_getenv]. The path can be split with multuple pathes
+evaluated by using [getenv() #fn_getenv]. The path can be split with multiple pathes
 by a character that depends on the current platform (Unix: ":", Windows: ";").
 
-Returns a static pointer to the absolute path that contains the file specifed
+Returns a static pointer to the absolute path that contains the file specified
 as filename, else it will return (char*)NULL.
 %FUNCTION:END
 %NEED:14

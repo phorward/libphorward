@@ -1,9 +1,13 @@
+
+
+
 == Overview ==
 
 libphorward provides a powerful set of functions relating to general string pattern matching and lexical analysis using regular expressions.
 
 - The **pregex** object encapsulates several regular expression patterns into one data structure that is compiled into a reusable DFA (deterministic finite automata) for quick pattern processing. Strings can be matched, split or replaced on patterns.
-- Based on the **pregex** object, the functions @pregex_qmatch(), @pregex_qsplit() and @pregex_qreplace() are provided, for one-line string processing.
+  - Based on the **pregex** object, the functions @pregex_qmatch(), @pregex_qsplit() and @pregex_qreplace() are provided, for one-line string processing.
+  -
 - The **plex** object ecapsulates a regular expression-based scanner for lexical analysis into one object. It is used by libphorward's [build-in parser generator #pparse] for lexical analysis also.
 - All functions are designed to work on wide-character alphabets to fully support Unicode. Therefore, the flags PREGEX_COMP_WCHAR and PREGEX_RUN_WCHAR are provided, to allow processing on patterns and input strings provided as wide-character strings. If not explicitly deactivated by build-flags (-DUTF8), UTF-8 input is generally supported on all functions.
 - Supports anchoring and back-references.
@@ -62,7 +66,7 @@ Pre-defined shorthand character-classes are also supported by libphorward's preg
 | \w | [A-Za-z0-9_] | All alphanumeric characters (ASCII only) |
 | \W | [^A-Za-z0-9_] | Any other than (ASCII only) alphanumeric characters |
 | \d | [0-9] | All digit characters (ASCII-only) |
-| \D | [^0-9_] | Any other than (ASCII only) digit characters |
+| \D | [^0-9] | Any other than (ASCII only) digit characters |
 | \s | [ \f\n\r\t\v] | All whitespace characters (ASCII-only) |
 | \S | [^ \f\n\r\t\v] | Any other than (ASCII only) whitespace characters |
 

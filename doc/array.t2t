@@ -1,6 +1,27 @@
+
+
+
 === Overview ===
 
-The **parray** object is a general-purpose data structure which can be used for several operations. **parray** forms a data management container for handling homogenious elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
+The **parray** object is a general-purpose data structure which can be used for several operations.
+
+**parray** forms a data management container for handling homogenious elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
+
+The **parray** object brings the following advantages and disadvantages:
+
+- __Advantages__
+  - Chunk allocation requires lesser @pmalloc()/@prealloc() operations than with **plist**
+  - Dynamic and quick implementation for huger data structures
+  - Elements are hold in a real array on the heap
+  - Low memory consumption
+  - Fast iteration over elements
+  -
+- __Disadvantages__
+  - Not so flexible like **plist**
+  - No hashable entries
+  - Removing elements or rechaining requires more computing power
+  -
+-
 
 === Construction and destruction ===
 

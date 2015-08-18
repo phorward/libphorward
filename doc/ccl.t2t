@@ -1,6 +1,11 @@
+
+
+
 The **pccl** object is established on top of the **plist** object and encapsulates easy-to-handle low-level functions for character-class handling.
 
-These functions are heavily used by the library's regular expressions and parser implementations, but may also be helpful for other related projects. The **pccl** can handle character classes, by chaining ranges. It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. **pccl** objects are designed to work on huge alphabets with a low memory consumption. By default, characters are specified as wchar_t wide-character unicode values.
+These functions are heavily used by the library's regular expressions and parser implementations, but may also be helpful for other related projects. The **pccl** can handle character classes, by chaining ranges.
+
+It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. **pccl** objects are designed to work on huge alphabets with a low memory consumption. By default, characters are specified as **wchar_t** (wide-character unicode) values.
 
 - @p_ccl_create() - create and optionally parse a new character-class,
 - @p_ccl_parse() - parse characters and ranges from a string into a character-class,
@@ -52,7 +57,7 @@ p_ccl_free( ccl );
 
 Useful, additional functions when working with **pccl** are:
 
-- @p_ccl_compare() - compary character-classes,
+- @p_ccl_compare() - compare character-classes,
 - @p_ccl_diff() - create differencing character-class of two classes,
 - @p_ccl_erase() - clear character-class,
 - @p_ccl_get() - retrieve characters or ranges by offset,

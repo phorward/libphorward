@@ -1,3 +1,6 @@
+
+
+
 === Overview ===
 
 Next to the **parray** object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
@@ -21,6 +24,24 @@ The **plist** object implements:
 - stacks
 -
 
+The **plist** object brings the following advantages and disadvantages:
+
+- __Advantages__
+  - Allows pointer-mode and entity-mode configuration (PLIST_MOD_PTR)
+  - Additionally find objects using a hash-table
+  - Provides element recycling methods (PLIST_MOD_RECYCLE)
+  - Elements are chained and can be re-arraged
+  - Automatical sorting using individual sort-functions
+  - Simple set-theory functions (union, diff)
+  -
+- __Disadvantages__
+  - High memory consumption, especially in case when used with hash-tables
+  - Iteration over elements is much slower
+  - List elements are chained as **plistel** data structures, while the data members must be called separately
+  - All operations require more computing power in comparison to **parray**
+  -
+-
+
 === Construction and destruction ===
 
 **plist** objects are created using @plist_create() or initialized with @plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the **plist** object to a specified behavior.
@@ -28,7 +49,7 @@ The **plist** object implements:
 Possible flags are listed below, and can be combined using bitwise or (|).
 
 - **PLIST_MOD_NONE** no flags, this can also be just 0.
-- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
+- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each element contains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
 - **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later, which reduces dynamic memory consumption.
 - **PLIST_MOD_AUTOSORT** to automatically sort the list on insert operations.
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
@@ -88,7 +109,7 @@ fill_usertype( tp );
 
 === Accessing and iterating elements ===
 
-Elements within a **plist** object are references by **plistel** items. To access the data element behind a **plistel** item, the function plist_access() is used, in combination with element retrival functions, like
+Elements within a **plist** object are references by **plistel** items. To access the data element behind a **plistel** item, the function @plist_access() is used, in combination with element retrival functions, like
 
 - @plist_get() - get element by offset,
 - @plist_rget() - get element by offset from the end,
@@ -104,7 +125,7 @@ plistel* e;
 usertype* tp;
 int i;
 
-/* Get 5th data element */
+/* Get 6th data element */
 tp = (usertype*)plist_access( plist_get( l, 5 ) );
 
 /* Get data element with key "hello" */
