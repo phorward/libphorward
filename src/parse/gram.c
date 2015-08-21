@@ -19,6 +19,7 @@ Usage:	Grammar-specific stuff.
 #define T_REGEX			PPSYMTYPE_REGEX
 #define T_IDENT			10
 #define T_INT			11
+#define T_FLOAT			12
 
 #define T_SYMBOL		20
 
@@ -35,6 +36,13 @@ Usage:	Grammar-specific stuff.
 #define T_FLAG			40
 #define T_GFLAG			41
 #define T_EMIT			42
+
+#define T_DOCMD			50
+#define T_DOPARAM		51
+
+#define T_DOBEFORE		60
+#define T_DOWITHIN		61
+#define T_DOBEHIND		62
 
 /* Derive name from basename */
 static char* derive_name( ppgram* g, char* base )
@@ -65,6 +73,9 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 		char*		buf;
 		ppsym*		sym;
 		int			i;
+		double		d;
+		ppdofunc	func;
+		pany*		any;
 	} ATT;
 
 	ATT			att;
@@ -139,6 +150,10 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 
 			case T_INT:
 				att.i = atoi( e->start );
+				break;
+
+			case T_FLOAT:
+				att.d = atof( e->start );
 				break;
 
 			case T_CCL:
@@ -240,20 +255,30 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 
 				while( ( attp = (ATT*)parray_last( st ) )
 							&& ( attp->emit == T_FLAG
-									|| attp->emit == T_EMIT ) )
+									|| attp->emit == T_EMIT
+										|| attp->emit == T_DOBEFORE
+											|| attp->emit == T_DOWITHIN
+												|| attp->emit == T_DOBEHIND ) )
 				{
 					parray_pop( st );
 
-					if( attp->emit == T_EMIT )
+					switch( attp->emit )
 					{
-						doemit = TRUE;
-						emit = attp->i;
-						continue;
-					}
-					else if( strcmp( attp->buf, "noemit" ) == 0 )
-						doemit = FALSE;
+						case T_EMIT:
+							doemit = TRUE;
+							emit = attp->i;
+							break;
 
-					pfree( attp->buf );
+						case T_FLAG:
+							if( strcmp( attp->buf, "noemit" ) == 0 )
+								doemit = FALSE;
+
+							pfree( attp->buf );
+							break;
+
+						default:
+							break;
+					}
 				}
 
 				for( i = 0; ( attp = (ATT*)parray_pop( st ) )
@@ -308,23 +333,33 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 			case T_TERMDEF:
 				while( ( attp = (ATT*)parray_last( st ) )
 							&& ( attp->emit == T_FLAG
-									|| attp->emit == T_EMIT ) )
+									|| attp->emit == T_EMIT
+										|| attp->emit == T_DOBEFORE
+											|| attp->emit == T_DOWITHIN
+												|| attp->emit == T_DOBEHIND ) )
 				{
 					parray_pop( st );
 
-					if( attp->emit == T_EMIT )
+					switch( attp->emit )
 					{
-						doemit = TRUE;
-						emit = attp->i;
-						continue;
-					}
-					else if( strcmp( attp->buf, "noemit" ) == 0 )
-						doemit = FALSE;
-					else if( strcmp( attp->buf, "ignore" ) == 0
-								|| strcmp( attp->buf, "skip" ) == 0 )
-						ignore = TRUE;
+						case T_EMIT:
+							doemit = TRUE;
+							emit = attp->i;
+							break;
 
-					pfree( attp->buf );
+						case T_FLAG:
+							if( strcmp( attp->buf, "noemit" ) == 0 )
+								doemit = FALSE;
+							else if( strcmp( attp->buf, "ignore" ) == 0
+										|| strcmp( attp->buf, "skip" ) == 0 )
+								ignore = TRUE;
+
+							pfree( attp->buf );
+							break;
+
+						default:
+							break;
+					}
 				}
 
 				attp = parray_pop( st ); 	/* Definition */
@@ -376,32 +411,42 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 			case T_NONTERMDEF:
 				while( ( attp = (ATT*)parray_last( st ) )
 							&& ( attp->emit == T_FLAG
-									|| attp->emit == T_EMIT ) )
+									|| attp->emit == T_EMIT
+										|| attp->emit == T_DOBEFORE
+											|| attp->emit == T_DOWITHIN
+												|| attp->emit == T_DOBEHIND ) )
 				{
 					parray_pop( st );
 
-					if( attp->emit == T_EMIT )
+					switch( attp->emit )
 					{
-						doemit = TRUE;
-						emit = attp->i;
-						continue;
-					}
-					else if( strcmp( attp->buf, "goal" ) == 0 )
-					{
-						if( nonterm && !g->goal ) /* fixme */
-						{
-							g->goal = nonterm;
-							nonterm->flags |= PPFLAG_CALLED;
-						}
-					}
-					else if( strcmp( attp->buf, "noemit" ) == 0 )
-						doemit = FALSE;
-					else if( strcmp( attp->buf, "ignore" ) == 0 )
-						ignore = TRUE;
-					else if( strcmp( attp->buf, "lexem" ) == 0 )
-						nonterm->flags |= PPFLAG_LEXEM;
+						case T_EMIT:
+							doemit = TRUE;
+							emit = attp->i;
+							break;
 
-					pfree( attp->buf );
+						case T_FLAG:
+							if( strcmp( attp->buf, "goal" ) == 0 )
+							{
+								if( nonterm && !g->goal ) /* fixme */
+								{
+									g->goal = nonterm;
+									nonterm->flags |= PPFLAG_CALLED;
+								}
+							}
+							else if( strcmp( attp->buf, "noemit" ) == 0 )
+								doemit = FALSE;
+							else if( strcmp( attp->buf, "ignore" ) == 0 )
+								ignore = TRUE;
+							else if( strcmp( attp->buf, "lexem" ) == 0 )
+								nonterm->flags |= PPFLAG_LEXEM;
+
+							pfree( attp->buf );
+							break;
+
+						default:
+							break;
+					}
 				}
 
 				nonterm->flags |= PPFLAG_DEFINED;
@@ -423,6 +468,28 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 				}
 
 				att.emit = 0;
+				break;
+
+			case T_DOCMD:
+				attp = parray_pop( st );
+				/* TODO: Find do-command and push pointer */
+				break;
+
+			case T_DOPARAM:
+				attp = parray_pop( st );
+				/* TODO: Generate pany */
+				break;
+
+			case T_DOBEFORE:
+			case T_DOWITHIN:
+			case T_DOBEHIND:
+				/* TODO: Initialize action */
+
+				while( ( attp = parray_pop( st ) ) && attp->emit == T_DOPARAM )
+					/* TODO: Take parameter */
+					;
+
+				/* TODO: Take command. */
 				break;
 		}
 

@@ -54,14 +54,17 @@ sequence		: sequence modifier | modifier ;
 
 production	 	: sequence | ;
 
-emit			: "emit" int?										%emit 42
-				| "before" do_cmd do_params?						%emit 60
+do				: "before" do_cmd do_params?						%emit 60
 				| "within" do_cmd do_params?						%emit 61
 				| "behind"? do_cmd do_params?						%emit 62
 				;
 
+emit			: "emit" int?										%emit 42
+				;
+
 flag			: "noemit"											%emit 40
 				| emit
+				| do
 				;
 
 flags    		: flags '%' flag+
@@ -75,6 +78,7 @@ nontermflag		: "noemit"											%emit 40
 				| "goal"											%emit 40
 				| "lexeme" 											%emit 40
 				| emit
+				| do
 				;
 
 nontermflags	: nontermflags '%' nontermflag+
@@ -87,6 +91,7 @@ termflag		: "noemit" 											%emit 40
 				| "ignore" 											%emit 40
 				| "skip" 											%emit 40
 				| emit
+				| do
 				;
 
 termflags		: termflags '%' termflag+
