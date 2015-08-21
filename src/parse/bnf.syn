@@ -85,6 +85,7 @@ nontermdef		: ident nontermflags? ( ':' alternation )? ';'		%emit 31;
 
 termflag		: "noemit" 											%emit 40
 				| "ignore" 											%emit 40
+				| "skip" 											%emit 40
 				| emit
 				;
 

@@ -320,7 +320,8 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 					}
 					else if( strcmp( attp->buf, "noemit" ) == 0 )
 						doemit = FALSE;
-					else if( strcmp( attp->buf, "ignore" ) == 0 )
+					else if( strcmp( attp->buf, "ignore" ) == 0
+								|| strcmp( attp->buf, "skip" ) == 0 )
 						ignore = TRUE;
 
 					pfree( attp->buf );
