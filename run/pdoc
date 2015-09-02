@@ -156,6 +156,12 @@ read -r -d '' src <<'ENDL'
 							}
 						}
 
+BEGINFILE				{
+							cur_func = ""
+							cur_doc = ""
+							on_doc = 1
+						}
+
 BEGIN					{
 							if( prefix == "" )
 								prefix = "fn_"

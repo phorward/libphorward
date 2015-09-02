@@ -2348,24 +2348,6 @@ Retrieve list element by pointer.
 This function returns the list element of the unit within the list //list//
 that is the pointer //ptr//.
 %FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== plist_hash_rebuild ===[fn_plist_hash_rebuild]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-static pboolean plist_hash_rebuild( plist* list );/* Compare hash-table elements */static int plist_hash_compare( plist* list, char* l, char* r )
-%DEFINITION:END
-
-**Usage:**
-
-Write a message to trace.
-
-//param_name// is the name of the parameter
-//format// is the A printf-styled format string.
-//parameter// is the parameter itself.
-%FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
 === plist_hashnext ===[fn_plist_hashnext]
@@ -3065,6 +3047,20 @@ that describe the produced abstract syntax tree.
 
 //end// receives the position of the last character matched.
 The function returns TRUE if no parse error occured.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_parse_add_do ===[fn_pp_parse_add_do]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pp_parse_add_do( pparse* par, char* name, ppdofunc func )
+%DEFINITION:END
+
+**Usage:**
+
+Adds a do command.
 %FUNCTION:END
 %NEED:16
 %FUNCTION:BEGIN
