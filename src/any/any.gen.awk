@@ -19,7 +19,7 @@ BEGIN								{
 										FS = "[ \t;:]+"
 										datatype = ""
 										member = ""
-										within_vargen = 0
+										within_type = 0
 										first = 0
 										variants_cnt = 0
 										on_vargen = 0
@@ -48,6 +48,31 @@ END									{
 											if( with_conv )
 												convfunc( variants[ i ] );
 
+											if( with_from )
+											{
+												for( ok in okdone )
+													okdone[ ok ] = 0
+
+												for( j = 1;
+														j <= variants_cnt;
+															j++ )
+												{
+													if( getfrom[ \
+															variants[i] \
+																SUBSEP \
+																variants[j] ] \
+														&& !okdone[variants[j]]\
+															)
+													{
+														okdone[variants[j]] = 1
+
+														fromfunc( \
+															variants[i], \
+																variants[j] )
+													}
+												}
+											}
+
 											prev = members[ variants[ i ] \
 													SUBSEP "member" ]
 										}
@@ -57,7 +82,7 @@ END									{
 									}
 
 /[a-zA-Z_]+\*?[ \t]*[a-zA-Z_]+;/	{
-										if( !within_vargen )
+										if( !within_type )
 										{
 											datatype = $2
 											member = $3
@@ -65,8 +90,8 @@ END									{
 										}
 									}
 
-/vargen:/							{
-										within_vargen = 1
+/type:/								{
+										within_type = 1
 										line = $0
 										gsub( "/\\*", "", line )
 										gsub( "\\*/", "", line )
@@ -97,10 +122,49 @@ END									{
 										setcode = ""
 										first = 1
 										lastconvcode = ""
+										next
+									}
+
+/format:/							{
+										if( !within_type )
+											next
+
+										split( trim($0), tok, ":" )
+										var_format = tok[2]
+
+										members[ datatype SUBSEP \
+													"var_format" ] = var_format
+
+										next
+									}
+
+/define:/							{
+										if( !within_type )
+											next
+
+										split( trim($0), tok, ":" )
+										var_define = tok[2]
+
+										members[ datatype SUBSEP \
+													"var_define" ] = var_define
+										next
+									}
+
+/empty:/							{
+										if( !within_type )
+											next
+
+										split( trim($0), tok, ":" )
+										var_emptyval = tok[2]
+
+										members[ datatype SUBSEP \
+													"var_emptyval" ] = \
+														var_emptyval
+										next
 									}
 
 /to [a-zA-Z_]+\*?:/					{
-										if( !within_vargen )
+										if( !within_type )
 											next
 
 										convcode = trim( substr( $0, \
@@ -109,15 +173,30 @@ END									{
 										if( convcode == "(same)" )
 											convcode = lastconvcode
 
-										#print "/*" $3 SUBSEP datatype " = " \
-										# convcode " */"
 										convert[ $3 SUBSEP datatype ] = convcode
 
 										lastconvcode = convcode
+										next
+									}
+
+/from [a-zA-Z_]+\*?:/				{
+										if( !within_type )
+											next
+
+										fromcode = trim( substr( $0, \
+														index( $0, ":" ) + 1) )
+
+										if( fromcode == "(same)" )
+											fromcode = lastfromcode
+
+										getfrom[ datatype SUBSEP $3 ] = fromcode
+
+										lastfromcode = fromcode
+										next
 									}
 
 /set:/								{
-										if( !within_vargen )
+										if( !within_type )
 											next
 
 										gsub( "set:", "", $0 )
@@ -135,14 +214,14 @@ END									{
 									}
 
 									{
-										if( !within_vargen )
+										if( !within_type )
 											next
 
 										line = trim( $0 )
 										if( substr( line, length( line ) \
 												 - 1, 2 ) == "*/" )
 										{
-											within_vargen = 0
+											within_type = 0
 
 											if( with_set )
 												setfunc()
@@ -232,6 +311,43 @@ function getfunc()
 	print "	}"
 	print ""
 	print "	RETURN( val->val." member " );"
+	print "}\n"
+}
+
+function fromfunc( type, from )
+{
+	member = members[ type SUBSEP "member" ]
+	var_type = members[ type SUBSEP "var_type" ]
+	var_format = members[ type SUBSEP "var_format" ]
+	var_define = members[ type SUBSEP "var_define" ]
+	var_emptyval = members[ type SUBSEP "var_emptyval" ]
+
+	from_member = members[ from SUBSEP "member" ]
+	from_type = members[ from SUBSEP "var_type" ]
+	from_format = members[ from SUBSEP "var_format" ]
+	from_code = getfrom[ type SUBSEP from ]
+	gsub( "\\$from", from_member, from_code )
+
+	print "/** Reads a value from //" from_member "// into the object //val//,"
+	print "by converting it into a " type " value."
+	print ""
+	print "The function returns the " type " converted value of //" \
+				from_member "//."
+	print "*/"
+
+	# Code
+	print type " pany_set_" var_type "_from_" from_type \
+				"( pany* val, " from " " from_member " )"
+	print "{"
+	print "	PROC( \"pany_from_" from_type "\" );"
+	print "	PARMS( \"val\", \"%p\", val );"
+	print "	PARMS( \"" from_member "\", \"" from_format "\", " from_member " );"
+	print ""
+	print "	if( !val )"
+	print "		RETURN( " from_code " );"
+	print ""
+	print "	pany_set_" var_type "( val, " from_code " );"
+	print "	RETURN( pany_get_" var_type "( val ) );"
 	print "}\n"
 }
 

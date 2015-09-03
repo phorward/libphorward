@@ -10,7 +10,7 @@ Usage:	Structures and definitions for a variant-style data storage type pany.
 
 		The only hand-written modules of the pany variant data type exists in
 		any.h and any.c.
-		
+
 		The files any.get.c, any.set.c and any.conv.c are automatically
 		generated from the definitions below, using any.gen.awk. Due this
 		automatic generation of the get/set/conversion functions, the pany
@@ -55,52 +55,82 @@ typedef struct
 	union
 	{
 		char		c;
-		/*vargen:char:%c::0
+		/*type:char
+			format:%c
+			empty:0
+
 			to char*: pasprintf( "%d", val->val.c )
 			to wchar_t*: pawcsprintf( L"%d", val->val.c )
 			to void*: NULL
+			from char*: *$from
+			from wchar_t*: (char)( *$from )
 		*/
 
 		int			i;
-		/*vargen:int:%d::0
+		/*type:int
+			format:%d
+			empty:0
+
 			to char*: pasprintf( "%d", val->val.i )
 			to wchar_t*: pawcsprintf( L"%d", val->val.i )
 			to void*: NULL
+			from char*: atoi( $from )
+			from wchar_t*: (int)wcstol( $from, (wchar_t**)NULL, 0 )
 		*/
 
 		long		l;
-		/*vargen:long:%ld::0
+		/*type:long
+			format:%ld
+			empty:0
+
 			to char*: pasprintf( "%ld", val->val.l )
 			to wchar_t*: pawcsprintf( L"%ld", val->val.l )
 			to void*: val->val.l
+			from char*: atol( $from )
 		*/
 
 		ulong		ul;
-		/*vargen:ulong:%ld::0
+		/*type:ulong
+			format:%ld
+			empty:0
+
 			to char*: pasprintf( "%ld", val->val.ul )
 			to wchar_t*: pawcsprintf( L"%ld", val->val.ul )
 			to void*: val->val.ul
 		*/
 
 		float		f;
-		/*vargen:float:%f::0.0
+		/*type:float
+			format:%f
+			empty:0.0
+
 			to char*: pdbl_to_str( (double)val->val.f )
 			to wchar_t*: pdbl_to_wcs( (double)val->val.f )
 			to void*: NULL
 		*/
 
 		double		d;
-		/*vargen:double:%lf::0.0
+		/*type:double
+			format:%lf
+			empty:0.0
+
 			to char*: pdbl_to_str( val->val.d )
 			to wchar_t*: pdbl_to_wcs( val->val.d )
 			to void*: NULL
 		*/
 
 		char*		s;
-		/*vargen:cstr:%s:PANYTYPE_STR:NULL
+		/*type:cstr
+			format:%s
+			define:PANYTYPE_STR
+			empty:NULL
+
 			set: pany_set_constant( val, TRUE );
 		*/
-		/*vargen:str:%s::NULL
+		/*type:str
+			format:%s
+			empty:NULL
+
 			to char: strtol( val->val.s, (char**)NULL, 0 )
 			to int: (same)
 			to long: (same)
@@ -112,10 +142,18 @@ typedef struct
 		*/
 
 		wchar_t*	ws;
-		/*vargen:cwcs:%ls:PANYTYPE_WCS:NULL
+		/*type:cwcs
+			format:%ls
+			define:PANYTYPE_WCS
+			empty:NULL
+
 			set: pany_set_constant( val, TRUE );
 		*/
-		/*vargen:wcs:%ls::NULL
+
+		/*type:wcs
+			format:%ls
+			empty:NULL
+
 			to char: wcstol( val->val.ws, (wchar_t**)NULL, 0 )
 			to int: (same)
 			to long: (same)
@@ -127,7 +165,10 @@ typedef struct
 		*/
 
 		void*		ptr;
-		/*vargen:ptr:%p::NULL
+		/*type:ptr
+			format:%p
+			empty:NULL
+
 			to char: 0
 			to int: 0
 			to long: val->val.ptr
@@ -143,6 +184,11 @@ typedef struct
 /* Macros */
 #define pany_set_strdup( val, str ) \
 			pany_set_str( val, pstrdup( str ) )
-#define pany_set_wcsdup( val, str ) \
-			pany_set_wcs( val, pwcsdup( str ) )
+#define pany_set_strndup( val, str, n ) \
+			pany_set_str( val, pstrndup( str, n ) )
+
+#define pany_set_wcsdup( val, wcs ) \
+			pany_set_wcs( val, pwcsdup( wcs ) )
+#define pany_set_wcsndup( val, wcs ) \
+			pany_set_wcs( val, pwcnsdup( wcs ) )
 
