@@ -79,6 +79,9 @@ END									{
 
 										if( with_conv )
 											allconv_func()
+
+										if( with_fprint )
+											fprint_func()
 									}
 
 /[a-zA-Z_]+\*?[ \t]*[a-zA-Z_]+;/	{
@@ -468,6 +471,50 @@ function allconv_func()
 	print "	}"
 	print ""
 	print "	RETURN( FALSE );"
+	print "}\n"
+}
+
+function fprint_func()
+{
+	# Comment
+	print "/** Print the type and value of //val// to //stream//"
+	print "without any conversion. This function shall be used for debug only."
+	print ""
+	print "//stream// is the stream to write to."
+	print "//val// is the pany-object to be printed."
+	print "*/"
+
+	#Code
+	print "void pany_fprint( FILE* stream, pany* val )"
+	print "{"
+	print "	if( !val )"
+	print "	{"
+	print "		fprintf( stream, \"%p (empty)\", val );"
+	print "		return;"
+	print "	}"
+	print
+	print "	switch( val->type )"
+	print "	{"
+
+	for( i = 1; i <= variants_cnt; i++ )
+	{
+		if( okdone[ variants[i] ] )
+			continue
+
+		okdone[ variants[i] ] = 1
+
+		print "		case " members[ variants[i] SUBSEP "var_define" ] ":"
+		print "			fprintf( stream, \"%p " \
+							members[ variants[i] SUBSEP "var_type" ] " >"\
+							members[ variants[i] SUBSEP "var_format" ] \
+							"<\\n\",\n\t\t\t\t\tval, pany_get_" \
+							members[ variants[i] SUBSEP "var_type" ] \
+								"( val ) );"
+
+		print "			break;\n"
+	}
+
+	print "	}"
 	print "}\n"
 }
 

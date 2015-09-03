@@ -19,8 +19,7 @@ Usage:	pany implements a universal data type object, which can hold any of
 
 /** Initializes a pany-element.
 
-//val// is the pointer to the pany-structure to be initialized.
-*/
+//val// is the pointer to the pany-structure to be initialized. */
 pboolean pany_init( pany* val )
 {
 	PROC( "pany_init" );
@@ -40,13 +39,18 @@ pboolean pany_init( pany* val )
 
 /** Creates a new pany-object.
 
+It allows for parsing a value from //str//.
+
 This object must be released after usage using pany_free(). */
-pany* pany_create( void )
+pany* pany_create( char* str )
 {
 	pany*		val;
 
 	val = (pany*)pmalloc( sizeof( pany ) );
 	pany_init( val );
+
+	if( str && *str )
+		pany_parse( val, str, 0 );
 
 	return val;
 }
@@ -102,25 +106,106 @@ pany* pany_free( pany* val )
 	return (pany*)NULL;
 }
 
-/* Parse value or accept only preferred type */
-/*
-pboolean pany_parse( pany* val, char* str, panytype prefer )
+/** Parse any value from a string.
+
+The function will check and ignore for leading and following whitespace, and
+matches long integer, double values and strings.
+
+If a string is encapsulated between C-styled string or character tokens (", '),
+the content between the delimiters will be taken as a string and ran trough an
+escaping function.
+
+Any other content is taken as string. If the parameter //enforce// is set to
+an desired PANY_-type, this type will be enforced, and no special recognition
+is done.
+
+This function tries to detect*/
+pboolean pany_parse( pany* val, char* str, panytype enforce )
 {
+	static	plex*	lex;	/* Not that nice. */
+	char*			sstr;
+	char*			estr;
+	int				match;
+	size_t			len;
+
 	if( !( val && str && *str ) )
 	{
 		WRONGPARAM;
 		return FALSE;
 	}
 
-	if( prefer != PANYTYPE_NULL )
+	if( !enforce )
 	{
-		switch( prefer )
-		{
+		for( sstr = str; *sstr && isspace( *sstr ); sstr++ )
+			;
 
+		if( !lex )
+		{
+			lex = plex_create( 0 );
+
+			/* (1) long integer */
+			plex_define( lex, "\\d+", 1, 0 );
+
+			/* (2) double float */
+			plex_define( lex, "\\d+\\.\\d*|\\d*\\.\\d+", 2, 0 );
+
+			/* (3) string, encapsulated by '...' */
+			plex_define( lex, "'(\\\\'|[^'])*'", 3, 0 );
+
+			/* (3) string, encapsulated by "..." */
+			plex_define( lex, "\"(\\\\\"|[^\"])*\"", 3, 0 );
 		}
+
+		if( ( match = plex_lex( lex, sstr, &estr ) ) )
+		{
+			len = estr - sstr;
+
+			/* Check if preceded by whitespace ONLY! */
+			while( *estr && isspace( *estr ) )
+				estr++;
+
+			/* Take match when estr ran to string's end */
+			if( !*estr )
+			{
+				switch( match )
+				{
+					case 1: /* Integer detected */
+						pany_set_long( val, atol( sstr ) );
+						break;
+
+					case 2: /* Double detected */
+						pany_set_double( val, atof( sstr ) );
+						break;
+
+					case 3: /* Encapsulated String */
+						pany_set_strndup( val, sstr + 1, len - 2 );
+						pstrunescape( pany_get_str( val ) );
+						break;
+
+					default:
+						MISSINGCASE;
+						break;
+				}
+			}
+			/* If not, then throw away any match. */
+			else
+				match = 0;
+		}
+
+		if( !match )
+			pany_set_strdup( val, str );
 	}
+	else
+	{
+		/* Convert to string first... */
+		pany_set_str( val, str );
+
+		/* ...then into preferred type. */
+		pany_convert( val, enforce );
+	}
+
+	return TRUE;
 }
-*/
 
 /*
 	Get & Set

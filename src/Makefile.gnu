@@ -40,6 +40,7 @@ SRC = \
 	util/xml.c \
 	any/any.c \
 	any/any.conv.c \
+	any/any.print.c \
 	any/any.get.c \
 	any/any.set.c
 
@@ -67,9 +68,10 @@ clean:
 	-rm -f $(LIBPHORWARD)
 
 clean_all: clean
-	-rm any/any.get.c
-	-rm any/any.set.c
 	-rm any/any.conv.c
+	-rm any/any.get.c
+	-rm any/any.print.c
+	-rm any/any.set.c
 
 ref: $(SRC)
 	echo "" >$(REF)
@@ -97,4 +99,7 @@ any/any.set.c: any/any.h any/any.gen.awk
 
 any/any.conv.c: any/any.h any/any.gen.awk
 	$(AWK) -f any/any.gen.awk -vwith_conv=1 any/any.h >$@
+
+any/any.print.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_fprint=1 any/any.h >$@
 

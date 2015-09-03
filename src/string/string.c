@@ -665,6 +665,67 @@ int	pstrncasecmp( char* s1, char* s2, int n )
 	return (int)( ( !n ) ? 0 : ( toupper( *s1 ) - toupper( *s2 ) ) );
 }
 
+
+/** Converts a string with included escape-sequences back into its natural form.
+
+The following table shows escape sequences which are converted.
+
+|| Sequence | is replaced by |
+| \n | newline |
+| \t | tabulator |
+| \r | carriage-return |
+| \b | backspace |
+| \f | form feed |
+| \a | bell / alert |
+| \' | single-quote |
+| \" | double-quote |
+
+
+The replacement is done within the memory bounds of //str// itself, because the
+unescaped version of the character requires lesser space that its previous
+escape sequence.
+
+The function always returns its input pointer.
+
+**Example:**
+```
+char* s = (char*)NULL;
+
+psetstr( &s, "\tHello\nWorld!" );
+printf( ">%s<\n", pstrunescape( s ) );
+
+s = pfree( s );
+```
+*/
+char* pstrunescape( char* str )
+{
+	char*	ch;
+	char*	esc;
+	char*	ptr;
+
+	for( ptr = ch = str; *ch; ch++, ptr++ )
+	{
+		if( *ch == '\\' && *( ch + 1 ) )
+		{
+			for( esc = "n\nt\tr\rb\bf\fv\va\a'\'\"\""; *esc; esc += 2 )
+				if( *( ch + 1 ) == *esc )
+				{
+					*ptr = *( esc + 1 );
+					ch++;
+					break;
+				}
+
+			/* TODO: hex-seqs (UTF-8). */
+		}
+		else
+			*ptr = *ch;
+	}
+
+	*ptr = '\0';
+	return str;
+}
+
+
 /* These two functions are marked for removal, but are still in use. */
 
 /*REMOVE?*/

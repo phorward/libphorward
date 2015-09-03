@@ -509,6 +509,7 @@ typedef struct
 
 		wchar_t*	ws;
 		
+
 		
 
 		void*		ptr;
@@ -519,8 +520,13 @@ typedef struct
 
 #define pany_set_strdup( val, str ) \
 			pany_set_str( val, pstrdup( str ) )
-#define pany_set_wcsdup( val, str ) \
-			pany_set_wcs( val, pwcsdup( str ) )
+#define pany_set_strndup( val, str, n ) \
+			pany_set_str( val, pstrndup( str, n ) )
+
+#define pany_set_wcsdup( val, wcs ) \
+			pany_set_wcs( val, pwcsdup( wcs ) )
+#define pany_set_wcsndup( val, wcs ) \
+			pany_set_wcs( val, pwcnsdup( wcs ) )
 
 
 
@@ -1021,6 +1027,7 @@ char* pstrupr( char* s );
 char* pstrlwr( char* s );
 int pstrcasecmp( char* s1, char* s2 );
 int pstrncasecmp( char* s1, char* s2, int n );
+char* pstrunescape( char* str );
 int pvasprintf( char** str, char* fmt, va_list ap );
 char* pasprintf( char* fmt, ... );
 #ifdef UNICODE
@@ -1099,9 +1106,10 @@ XML_T xml_cut( XML_T xml );
 
 
 pboolean pany_init( pany* val );
-pany* pany_create( void );
+pany* pany_create( char* str );
 pboolean pany_reset( pany* val );
 pany* pany_free( pany* val );
+pboolean pany_parse( pany* val, char* str, panytype enforce );
 pboolean pany_set_constant( pany* val, pboolean constant );
 pboolean pany_get_constant( pany* val );
 pboolean pany_set_autoconvert( pany* val, pboolean autoconvert );
@@ -1118,6 +1126,9 @@ char* pany_to_str( pany* val );
 wchar_t* pany_to_wcs( pany* val );
 void* pany_to_ptr( pany* val );
 pboolean pany_convert( pany* val, panytype type );
+
+
+void pany_fprint( FILE* stream, pany* val );
 
 
 char pany_get_char( pany* val );

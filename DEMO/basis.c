@@ -473,7 +473,7 @@ void any_demo( void )
 	DEMO( "any_demo" );
 
 	/* Get new any object */
-	val = pany_create();
+	val = pany_create( (char*)NULL );
 
 	/* Set a string, duplicate its memory (strdup) */
 	pany_set_strdup( val, "123 Hello World" );

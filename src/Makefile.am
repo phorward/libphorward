@@ -47,6 +47,7 @@ libphorward_la_SOURCES = \
 	any/any.c \
 	any/any.conv.c \
 	any/any.get.c \
+	any/any.print.c \
 	any/any.set.c
 
 noinst_HEADERS = \
@@ -100,6 +101,9 @@ any/any.set.c: any/any.h any/any.gen.awk
 
 any/any.conv.c: any/any.h any/any.gen.awk
 	$(AWK) -f any/any.gen.awk -vwith_conv=1 any/any.h >$@
+
+any/any.print.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_fprint=1 any/any.h >$@
 
 # Phorward Foundation Library Documentation
 $(DOCFILE): $(libphorward_la_SOURCES)
