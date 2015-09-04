@@ -33,6 +33,11 @@ pparse* pp_create( int flags, char* bnf )
 	if( !pp_gram_from_bnf( par->gram, bnf ) )
 		return pp_free( par ); /* TODO */
 
+	/*
+	par->dc = plist_create( sizeof( ppdofunc ), PLIST_MOD_UNIQUE );
+	pp_do_setup_base( par->dc );
+	*/
+
 	pp_gram_prepare( par->gram );
 
 	return par;
@@ -49,6 +54,38 @@ pparse* pp_free( pparse* par )
 
 	return (pparse*)NULL;
 }
+
+/* Adds a do command. */
+/*
+pboolean pp_parse_add_do( pparse* par, char* name, ppdofunc func )
+{
+	static char* invalid[10+1] = { "before", "behind", "emit", "goal",
+										"ignore", "lrec", "rrec", "skip",
+											"within" };
+	int i;
+
+	if( !( par && name && *name && func ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	for( i = 0; i < sizeof( invalid ) / sizeof( *invalid ); i++ )
+		if( strcmp( invalid[ i ], name ) == 0 )
+		{
+			fprintf( stderr, "Do command '%s' is a reserved word\n", name );
+			return FALSE;
+		}
+
+	if( !plist_insert( par->dc, (plistel*)NULL, name, (void*)&func ) )
+	{
+		fprintf( stderr, "Do command '%s' already defined\n", name );
+		return FALSE;
+	}
+
+	return TRUE;
+}
+*/
 
 /** Run parser //par// with input //start//.
 

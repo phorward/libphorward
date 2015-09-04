@@ -13,9 +13,6 @@ Usage:	Phorward Parsing Library
 
 pboolean pp_sym_in_input( ppsym* sym, char* start, char** end )
 {
-	size_t		len;
-	pboolean	ret		= FALSE;
-
 	if( !( sym && start && end ) )
 	{
 		WRONGPARAM;

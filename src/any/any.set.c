@@ -5,10 +5,10 @@
 
 #include "phorward.h"
 
-/** Sets the char data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``char``-value and type of //va//.
 
-//c// is the char value to be assigned to //val//.
+//val// is the pany-object to be set.
+//c// is the ``char``-value to be assigned to //val//.
 
 The function always returns the value //c//.
 */
@@ -31,10 +31,10 @@ char pany_set_char( pany* val, char c )
 	RETURN( val->val.c );
 }
 
-/** Sets the int data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``int``-value and type of //va//.
 
-//i// is the int value to be assigned to //val//.
+//val// is the pany-object to be set.
+//i// is the ``int``-value to be assigned to //val//.
 
 The function always returns the value //i//.
 */
@@ -57,10 +57,10 @@ int pany_set_int( pany* val, int i )
 	RETURN( val->val.i );
 }
 
-/** Sets the long data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``long``-value and type of //va//.
 
-//l// is the long value to be assigned to //val//.
+//val// is the pany-object to be set.
+//l// is the ``long``-value to be assigned to //val//.
 
 The function always returns the value //l//.
 */
@@ -83,10 +83,10 @@ long pany_set_long( pany* val, long l )
 	RETURN( val->val.l );
 }
 
-/** Sets the ulong data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``ulong``-value and type of //va//.
 
-//ul// is the ulong value to be assigned to //val//.
+//val// is the pany-object to be set.
+//ul// is the ``ulong``-value to be assigned to //val//.
 
 The function always returns the value //ul//.
 */
@@ -109,10 +109,10 @@ ulong pany_set_ulong( pany* val, ulong ul )
 	RETURN( val->val.ul );
 }
 
-/** Sets the float data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``float``-value and type of //va//.
 
-//f// is the float value to be assigned to //val//.
+//val// is the pany-object to be set.
+//f// is the ``float``-value to be assigned to //val//.
 
 The function always returns the value //f//.
 */
@@ -135,10 +135,10 @@ float pany_set_float( pany* val, float f )
 	RETURN( val->val.f );
 }
 
-/** Sets the double data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``double``-value and type of //va//.
 
-//d// is the double value to be assigned to //val//.
+//val// is the pany-object to be set.
+//d// is the ``double``-value to be assigned to //val//.
 
 The function always returns the value //d//.
 */
@@ -161,10 +161,10 @@ double pany_set_double( pany* val, double d )
 	RETURN( val->val.d );
 }
 
-/** Sets the char* data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``char*``-value and type of //va//.
 
-//s// is the char* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//s// is the ``char*``-value to be assigned to //val//.
 
 The function always returns the value //s//.
 */
@@ -181,17 +181,16 @@ char* pany_set_cstr( pany* val, char* s )
 	}
 
 	pany_reset( val );
-	val->type = PANYTYPE_STR;
+	val->type = PANYTYPE_CSTR;
 	val->val.s = s;
-	pany_set_constant( val, TRUE );
 
 	RETURN( val->val.s );
 }
 
-/** Sets the char* data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``char*``-value and type of //va//.
 
-//s// is the char* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//s// is the ``char*``-value to be assigned to //val//.
 
 The function always returns the value //s//.
 */
@@ -214,10 +213,10 @@ char* pany_set_str( pany* val, char* s )
 	RETURN( val->val.s );
 }
 
-/** Sets the wchar_t* data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``wchar_t*``-value and type of //va//.
 
-//ws// is the wchar_t* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//ws// is the ``wchar_t*``-value to be assigned to //val//.
 
 The function always returns the value //ws//.
 */
@@ -234,17 +233,16 @@ wchar_t* pany_set_cwcs( pany* val, wchar_t* ws )
 	}
 
 	pany_reset( val );
-	val->type = PANYTYPE_WCS;
+	val->type = PANYTYPE_CWCS;
 	val->val.ws = ws;
-	pany_set_constant( val, TRUE );
 
 	RETURN( val->val.ws );
 }
 
-/** Sets the wchar_t* data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``wchar_t*``-value and type of //va//.
 
-//ws// is the wchar_t* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//ws// is the ``wchar_t*``-value to be assigned to //val//.
 
 The function always returns the value //ws//.
 */
@@ -267,10 +265,10 @@ wchar_t* pany_set_wcs( pany* val, wchar_t* ws )
 	RETURN( val->val.ws );
 }
 
-/** Sets the void* data value and type.
-//val// is the pany-object to be set.
+/** Sets the ``void*``-value and type of //va//.
 
-//ptr// is the void* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//ptr// is the ``void*``-value to be assigned to //val//.
 
 The function always returns the value //ptr//.
 */

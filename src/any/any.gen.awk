@@ -241,10 +241,11 @@ END									{
 function setfunc()
 {
 	# Comment
-	print "/** Sets the " datatype " data value and type."
-	print "//val// is the pany-object to be set."
+	print "/** Sets the ``" datatype "``-value and type of //va//."
 	print ""
-	print "//" member "// is the " datatype " value to be assigned to //val//."
+	print "//val// is the pany-object to be set."
+	print "//" member "// is the ``" datatype "``-value to be assigned to" \
+			" //val//."
 	print ""
 	print "The function always returns the value //" member "//."
 	print "*/"
@@ -278,13 +279,12 @@ function setfunc()
 function getfunc()
 {
 	# Comment
-	print "/** Returns the " datatype " data value if //val//."
+	print "/** Returns the ``" datatype "``-value of //val//."
 	print ""
-	print "If the pany contains another data type, it will be converted,"
-	print "so use it carefully if data loss is not wanted."
+	print "//val// is the pointer to the pany-object."
 	print ""
-	print "//val// is the pointer to the pany structure."
-	print ""
+	print "If the pany-object exists in another data type, it will be " \
+			"converted."
 	print "The function returns the value assigned to //val// as " datatype "."
 	print "This value could be converted from the original value."
 	print "*/"
@@ -303,13 +303,7 @@ function getfunc()
 	print ""
 	print "	if( val->type != " var_define ")"
 	print "	{"
-	print "		if( pany_get_autoconvert( val ) )"
-	print "		{"
-	print "			MSG( \"Conversion allowed and required\" );"
-	print "			if( !pany_convert( val, " var_define " ) )"
-	print "				RETURN( (" datatype ")" var_emptyval " );"
-	print "		}"
-	print "		else"
+	print "		if( !pany_convert( val, " var_define " ) )"
 	print "			RETURN( (" datatype ")" var_emptyval " );"
 	print "	}"
 	print ""

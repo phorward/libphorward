@@ -18,7 +18,7 @@ Usage:	Structures and definitions for a variant-style data storage type pany.
 		huger code changes.
 ----------------------------------------------------------------------------- */
 
-/* Defines */
+/* Types */
 typedef enum
 {
 	PANYTYPE_NULL,
@@ -33,26 +33,22 @@ typedef enum
 
 	/* String */
 	PANYTYPE_STR,
+	PANYTYPE_CSTR,
 	PANYTYPE_WCS,
+	PANYTYPE_CWCS,
 
 	/* Special */
 	PANYTYPE_PTR
 } panytype;
 
-
-#define PANYFLAG_CONSTANT		16	/* Const-value flag for strings, so no
-										automatic freeing is done on these
-											variables */
-#define PANYFLAG_AUTOCONVERT	32	/* Allow on-the-fly type conversion with
-										(possible) data-loss */
-
-/* Typedefs */
+/* Object */
 typedef struct
 {
-	panytype	type;				/* Data type */
-	short		flags;				/* Flags */
+	panytype		type;			/* Data type */
 
-	union
+	union							/* Unfortunatelly not the
+										brewery of Dortmund,
+											but anyways... ;) */
 	{
 		char		c;
 		/*type:char
@@ -122,10 +118,7 @@ typedef struct
 		char*		s;
 		/*type:cstr
 			format:%s
-			define:PANYTYPE_STR
 			empty:NULL
-
-			set: pany_set_constant( val, TRUE );
 		*/
 		/*type:str
 			format:%s
@@ -144,10 +137,7 @@ typedef struct
 		wchar_t*	ws;
 		/*type:cwcs
 			format:%ls
-			define:PANYTYPE_WCS
 			empty:NULL
-
-			set: pany_set_constant( val, TRUE );
 		*/
 
 		/*type:wcs

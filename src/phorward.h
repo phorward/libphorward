@@ -467,23 +467,20 @@ typedef enum
 
 	
 	PANYTYPE_STR,
+	PANYTYPE_CSTR,
 	PANYTYPE_WCS,
+	PANYTYPE_CWCS,
 
 	
 	PANYTYPE_PTR
 } panytype;
 
 
-#define PANYFLAG_CONSTANT		16	
-#define PANYFLAG_AUTOCONVERT	32	
-
-
 typedef struct
 {
-	panytype	type;				
-	short		flags;				
+	panytype		type;			
 
-	union
+	union							
 	{
 		char		c;
 		
@@ -656,7 +653,7 @@ typedef struct _ppgram		ppgram;
 #define PPMOD_KLEENE		'*'
 
 
-typedef void (*ppdofunc)( pany* param, int param_cnt );
+typedef void (*ppdofunc)( parray* st, pany* param, int param_cnt );
 
 typedef enum
 {
@@ -706,6 +703,7 @@ typedef enum
 	PPSYMTYPE_CCL,
 	PPSYMTYPE_STRING,
 	PPSYMTYPE_REGEX,
+	PPSYMTYPE_FUNCTION,
 	PPSYMTYPE_SPECIAL
 } ppsymtype;
 
@@ -726,6 +724,7 @@ struct _ppsym
 	pccl*					ccl;
 	char*					str;
 	pregex*					re;
+	size_t 					(*ppsymfunc)( char* start );
 
 	
 	int						emit;
@@ -1110,10 +1109,6 @@ pany* pany_create( char* str );
 pboolean pany_reset( pany* val );
 pany* pany_free( pany* val );
 pboolean pany_parse( pany* val, char* str, panytype enforce );
-pboolean pany_set_constant( pany* val, pboolean constant );
-pboolean pany_get_constant( pany* val );
-pboolean pany_set_autoconvert( pany* val, pboolean autoconvert );
-pboolean pany_get_autoconvert( pany* val );
 
 
 char pany_to_char( pany* val );

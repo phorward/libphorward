@@ -68,6 +68,7 @@ clean:
 	-rm -f $(LIBPHORWARD)
 
 clean_all: clean
+	-rm $(LIBHEADER)
 	-rm any/any.conv.c
 	-rm any/any.get.c
 	-rm any/any.print.c

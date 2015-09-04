@@ -324,10 +324,6 @@ pany* pany_create( char* str );
 pboolean pany_reset( pany* val );
 pany* pany_free( pany* val );
 pboolean pany_parse( pany* val, char* str, panytype enforce );
-pboolean pany_set_constant( pany* val, pboolean constant );
-pboolean pany_get_constant( pany* val );
-pboolean pany_set_autoconvert( pany* val, pboolean autoconvert );
-pboolean pany_get_autoconvert( pany* val );
 
 /* any/any.conv.c */
 char pany_to_char( pany* val );

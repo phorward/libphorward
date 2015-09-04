@@ -472,26 +472,14 @@ void any_demo( void )
 
 	DEMO( "any_demo" );
 
-	/* Get new any object */
-	val = pany_create( (char*)NULL );
-
-	/* Set a string, duplicate its memory (strdup) */
-	pany_set_strdup( val, "123 Hello World" );
+	/* Get new any object, with a string. */
+	val = pany_create( "123 Hello World" );
 
 	/* Get the string */
-	printf( "val(str) = %s\n", pany_get_str( val ) );
+	printf( "val(str) = >%s<\n", pany_get_str( val ) );
 
-	/* Get the string as wide-character value */
-	printf( "val(wcs) = %ls\n", pany_get_wcs( val ) );
-
-	/*
-	 * Well, this is not possible, because the pany object is
-	 * configured to be not convertible by default. Let's enable this.
-	 */
-	pany_set_autoconvert( val, TRUE );
-
-	/* Get the string as wide-character value, again. */
-	printf( "val(wcs) = %ls\n", pany_get_wcs( val ) );
+	/* Get the string as wide-character value. */
+	printf( "val(wcs) = >%ls<\n", pany_get_wcs( val ) );
 
 	/* The the string as integer value - only 123 will be returned! */
 	printf( "val(int) = %d\n", pany_get_int( val ) );
@@ -500,7 +488,7 @@ void any_demo( void )
 	pany_set_double( val, 123.456 );
 
 	printf( "val(double) = %lf\n", pany_get_double( val ) );
-	printf( "val(str) = %s\n", pany_get_str( val ) );
+	printf( "val(str) = >%s<\n", pany_get_str( val ) );
 
 	/* Free that object */
 	val = pany_free( val );

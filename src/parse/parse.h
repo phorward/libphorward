@@ -35,7 +35,7 @@ typedef struct _ppgram		ppgram;
 #define PPMOD_KLEENE		'*'
 
 /* Do */
-typedef void (*ppdofunc)( pany* param, int param_cnt );
+typedef void (*ppdofunc)( parray* st, pany* param, int param_cnt );
 
 typedef enum
 {
@@ -85,6 +85,7 @@ typedef enum
 	PPSYMTYPE_CCL,
 	PPSYMTYPE_STRING,
 	PPSYMTYPE_REGEX,
+	PPSYMTYPE_FUNCTION,
 	PPSYMTYPE_SPECIAL
 } ppsymtype;
 
@@ -105,6 +106,7 @@ struct _ppsym
 	pccl*					ccl;
 	char*					str;
 	pregex*					re;
+	size_t 					(*ppsymfunc)( char* start );
 
 	/* AST construction / Do logics */
 	int						emit;

@@ -21,6 +21,8 @@ Usage:	Grammar-specific stuff.
 #define T_INT			11
 #define T_FLOAT			12
 
+#define T_RECOGNIZER	15
+
 #define T_SYMBOL		20
 
 #define T_KLEENE		25
@@ -715,15 +717,12 @@ ppgram* pp_gram_create( void )
 	/* Setup grammar description */
 	g = (ppgram*)pmalloc( sizeof( ppgram ) );
 
-	g->symbols = plist_create( sizeof( ppsym ),
-					PLIST_MOD_RECYCLE
-						| PLIST_MOD_EXTKEYS
-							| PLIST_MOD_UNIQUE );
+	g->symbols = plist_create( sizeof( ppsym ), PLIST_MOD_RECYCLE
+													| PLIST_MOD_EXTKEYS
+														| PLIST_MOD_UNIQUE );
+	g->prods = plist_create( sizeof( ppprod ), PLIST_MOD_RECYCLE );
 
-	g->prods = plist_create( sizeof( ppprod ),
-					PLIST_MOD_RECYCLE );
 	g->ws = plist_create( sizeof( ppsym* ), PLIST_MOD_PTR );
-
 	g->eof = pp_sym_create( g, PPSYMTYPE_SPECIAL, "eof", (char*)NULL );
 
 	return g;
