@@ -653,31 +653,7 @@ typedef struct _ppgram		ppgram;
 #define PPMOD_KLEENE		'*'
 
 
-typedef void (*ppdofunc)( parray* st, pany* param, int param_cnt );
 
-typedef enum
-{
-	PPDO_PUSH,
-	PPDO_CALL
-} PPDOACT;
-
-typedef struct
-{
-	PPDOACT					cmd;
-
-	union
-	{
-		pany*					push;
-
-		struct
-		{
-			ppdofunc				func;
-			int						param;
-		}						call;
-
-	}						payload;
-
-} ppdo;
 
 
 struct _ppprod
@@ -690,7 +666,7 @@ struct _ppprod
 
 	
 	int						emit;
-	parray*					dorun	[ PPDOEVENT_MAX ];
+	
 
 	
 	char*					strval;
@@ -708,6 +684,9 @@ typedef enum
 } ppsymtype;
 
 
+typedef pboolean (*ppsymfunc)( char* start, char** end );
+
+
 struct _ppsym
 {
 	
@@ -721,14 +700,14 @@ struct _ppsym
 	plist*					prods;
 
 	
-	pccl*					ccl;
-	char*					str;
-	pregex*					re;
-	size_t 					(*ppsymfunc)( char* start );
+	pccl*					ccl;		
+	char*					str;		
+	pregex*					re;			
+	ppsymfunc				sf;			
 
 	
 	int						emit;
-	parray*					dorun	[ PPDOEVENT_MAX ];
+	
 
 	
 	char*					strval;
@@ -743,6 +722,8 @@ struct _ppgram
 	plist*					ws;
 	ppsym*					goal;
 	ppsym*					eof;
+
+	ppsymfunc 				(*getsymfunc)( char* name );
 
 	int						flags;
 };

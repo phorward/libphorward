@@ -63,6 +63,24 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 			sym->re = pregex_create( def, 0 );
 			break;
 
+		case PPSYMTYPE_FUNCTION:
+			if( !( g->getsymfunc ) )
+			{
+				fprintf( stderr,
+					"Hey friend! There is no getsymfunc() provided "
+					"along your grammar object...but don't worry: "
+					"Just fix your code :)\n" );
+				break;
+			}
+
+			if( !( sym->sf = *(g->getsymfunc)( def ) ) )
+			{
+				/* TODO */
+				fprintf( stderr,
+					"The symbol function '%s' is not defined\n", def );
+			}
+			break;
+
 		default:
 			break;
 	}
@@ -177,6 +195,10 @@ char* pp_sym_to_str( ppsym* sym )
 
 			case PPSYMTYPE_SPECIAL:
 				sprintf( sym->strval, "@%s", sym->name );
+				break;
+
+			case PPSYMTYPE_FUNCTION:
+				sprintf( sym->strval, "%s()", sym->name );
 				break;
 
 			default:

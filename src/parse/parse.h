@@ -35,6 +35,8 @@ typedef struct _ppgram		ppgram;
 #define PPMOD_KLEENE		'*'
 
 /* Do */
+/* NOT FOR NOW.
+
 typedef void (*ppdofunc)( parray* st, pany* param, int param_cnt );
 
 typedef enum
@@ -60,6 +62,7 @@ typedef struct
 	}						payload;
 
 } ppdo;
+*/
 
 /* Production */
 struct _ppprod
@@ -72,7 +75,7 @@ struct _ppprod
 
 	/* AST construction / Do logics */
 	int						emit;
-	parray*					dorun	[ PPDOEVENT_MAX ];
+	/* parray*					dorun	[ PPDOEVENT_MAX ]; */
 
 	/* Debug */
 	char*					strval;
@@ -89,6 +92,9 @@ typedef enum
 	PPSYMTYPE_SPECIAL
 } ppsymtype;
 
+/* Symbol function */
+typedef pboolean (*ppsymfunc)( char* start, char** end );
+
 /* Symbol */
 struct _ppsym
 {
@@ -103,14 +109,14 @@ struct _ppsym
 	plist*					prods;
 
 	/* Terminal specific */
-	pccl*					ccl;
-	char*					str;
-	pregex*					re;
-	size_t 					(*ppsymfunc)( char* start );
+	pccl*					ccl;		/* Character class */
+	char*					str;		/* String */
+	pregex*					re;			/* Regular expression */
+	ppsymfunc				sf;			/* Symbol function */
 
 	/* AST construction / Do logics */
 	int						emit;
-	parray*					dorun	[ PPDOEVENT_MAX ];
+	/* parray*					dorun	[ PPDOEVENT_MAX ]; */
 
 	/* Debug */
 	char*					strval;
@@ -125,6 +131,8 @@ struct _ppgram
 	plist*					ws;
 	ppsym*					goal;
 	ppsym*					eof;
+
+	ppsymfunc 				(*getsymfunc)( char* name );
 
 	int						flags;
 };

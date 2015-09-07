@@ -11,6 +11,11 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
+/* Checks for a symbol //sym// in //start//.
+
+Marks the end of a possible match by returning TRUE and writing the end position
+into //end//.
+*/
 pboolean pp_sym_in_input( ppsym* sym, char* start, char** end )
 {
 	if( !( sym && start && end ) )
@@ -43,6 +48,12 @@ pboolean pp_sym_in_input( ppsym* sym, char* start, char** end )
 
 		case PPSYMTYPE_REGEX:
 			if( pregex_match( sym->re, start, end ) )
+				return TRUE;
+
+			break;
+
+		case PPSYMTYPE_FUNCTION:
+			if( (*sym->sf)( start, end ) )
 				return TRUE;
 
 			break;

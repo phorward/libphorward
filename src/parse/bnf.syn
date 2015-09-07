@@ -1,17 +1,18 @@
-// -GRAMMAR---------------------------------------------------------------------
-// Phorward Foundation Toolkit
-// Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
-// http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
-// All rights reserved. See LICENSE for more information.
-//
-// File:	bnf.syn
-// Usage:	Grammar for grammar definition language ;)
-// -----------------------------------------------------------------------------
+/* -GRAMMAR---------------------------------------------------------------------
+Phorward Foundation Toolkit
+Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See LICENSE for more information.
+
+File:	bnf.syn
+Usage:	Grammar for grammar definition language ;)
+----------------------------------------------------------------------------- */
 
 // Whitespace ------------------------------------------------------------------
 
 $				/[ \t\r\n]+/										%ignore;
 $				/\/\/[^\n]*\n/										%ignore;
+$				/\/\*([^*]|\*[^\/])*\*\//							%ignore;
 
 // Terminals -------------------------------------------------------------------
 
@@ -23,7 +24,7 @@ $ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit 10;
 $int			/[0-9]+/ 											%emit 11;
 $float			/[0-9]+\.[0-9]*|[0-9]*\.[0-9]+/ 					%emit 12;
 
-$function		/[A-Za-z_][A-Za-z0-9_]*\(\)/ 						%emit 15;
+$function		/[A-Za-z_][A-Za-z0-9_]*\(\)/ 						%emit 4;
 
 // Nonterminals ----------------------------------------------------------------
 
@@ -31,11 +32,11 @@ inline			: '(' alternation ')'								%emit 32
 				;
 
 symbol 																%emit 20
-				: function
-				| ident
+				: ident
 				| ccl
 				| string
 				| regex
+				| function
 				| inline
 				;
 
@@ -106,7 +107,7 @@ termflags		: termflags '%' termflag+
 				| '%' termflag+
 				;
 
-termdef			: '$' ident? ( ccl | string | regex )
+termdef			: '$' ident? ( ccl | string | regex | function )
 						termflags? ';'								%emit 35
 				;
 

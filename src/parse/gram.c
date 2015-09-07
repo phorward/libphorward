@@ -21,7 +21,7 @@ Usage:	Grammar-specific stuff.
 #define T_INT			11
 #define T_FLOAT			12
 
-#define T_RECOGNIZER	15
+#define T_FUNCTION		15
 
 #define T_SYMBOL		20
 
@@ -74,9 +74,10 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 		int			emit;
 		char*		buf;
 		ppsym*		sym;
+		ppsymfunc	sf;
 		int			i;
 		double		d;
-		ppdofunc	func;
+		/* ppdofunc	func; */
 		pany*		any;
 	} ATT;
 
@@ -162,6 +163,10 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 			case T_STRING:
 			case T_REGEX:
 				att.buf = pstrndup( e->start + 1, e->end - e->start - 2 );
+				break;
+
+			case T_FUNCTION:
+				att.buf = pstrndup( e->start, e->end - e->start - 2 );
 				break;
 
 			case T_INLINE:
@@ -535,13 +540,13 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 runtime and parser generator.
 
 The preparation process includes:
-- Symbol and productions IDs
-- FIRST-set computation
-- Mark left-recursions
-- Lexem flag pull-trough
+- Setting up final symbol and productions IDs
+- Nonterminals FIRST-set computation
+- Marking of left-recursions
+- The 'lexem'-flag pull-trough the grammar.
 -
 
-*/
+This function is only internally run. */
 pboolean pp_gram_prepare( ppgram* g )
 {
 	plistel*	e;
@@ -577,6 +582,9 @@ pboolean pp_gram_prepare( ppgram* g )
 	{
 		s = (ppsym*)plist_access( e );
 		s->id = id;
+
+		if( s->type == PPSYMTYPE_NONTERM )
+			plist_erase( s->first );
 
 		if( s->flags & PPFLAG_WHITESPACE )
 			plist_push( g->ws, s );
