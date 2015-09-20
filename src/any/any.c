@@ -206,3 +206,45 @@ pboolean pany_parse( pany* val, char* str, panytype enforce )
 
 	return TRUE;
 }
+
+/** Copy any value from //src// into //dest//.
+
+//dest// will be reset and stand on its own after copying. */
+pboolean pany_copy( pany* dest, pany* src )
+{
+	if( !( dest && src ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	pany_reset( dest );
+	memcpy( dest, src, sizeof( pany ) );
+
+	switch( dest->type )
+	{
+		case PANYTYPE_STR:
+			dest->val.s = pstrdup( dest->val.s );
+			break;
+
+		case PANYTYPE_WCS:
+			dest->val.ws = pwcsdup( dest->val.ws );
+			break;
+
+		default:
+			break;
+	}
+
+	return TRUE;
+}
+
+/** Duplicate the object //src// into a new object that stands on its own. */
+pany* pany_dup( pany* src )
+{
+	pany*	dest;
+
+	dest = pany_create( (char*)NULL );
+	pany_copy( dest, src );
+
+	return dest;
+}

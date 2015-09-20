@@ -324,6 +324,8 @@ pany* pany_create( char* str );
 pboolean pany_reset( pany* val );
 pany* pany_free( pany* val );
 pboolean pany_parse( pany* val, char* str, panytype enforce );
+pboolean pany_copy( pany* dest, pany* src );
+pany* pany_dup( pany* src );
 
 /* any/any.conv.c */
 char pany_to_char( pany* val );
