@@ -21,6 +21,11 @@ void pany_fprint( FILE* stream, pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			fprintf( stream, "%p bool >%d<\n",
+					val, pany_get_bool( val ) );
+			break;
+
 		case PANYTYPE_CHAR:
 			fprintf( stream, "%p char >%c<\n",
 					val, pany_get_char( val ) );

@@ -24,6 +24,7 @@ typedef enum
 	PANYTYPE_NULL,
 
 	/* Primary */
+	PANYTYPE_BOOL,
 	PANYTYPE_CHAR,
 	PANYTYPE_INT,
 	PANYTYPE_LONG,
@@ -50,11 +51,22 @@ typedef struct
 										brewery of Dortmund,
 											but anyways... ;) */
 	{
+		pboolean	b;
+		/*type:bool
+			format:%d
+			empty:FALSE
+
+			to char*: pstrdup( BOOLEAN_STR( val->val.c ) )
+			to wchar_t*: pwcsdup( val->val.c ? L"TRUE" : L"FALSE" )
+			to void*: NULL
+		*/
+
 		char		c;
 		/*type:char
 			format:%c
 			empty:0
 
+			to pboolean: TRUEBOOLEAN( val->val.c )
 			to char*: pasprintf( "%d", val->val.c )
 			to wchar_t*: pawcsprintf( L"%d", val->val.c )
 			to void*: NULL
@@ -67,6 +79,7 @@ typedef struct
 			format:%d
 			empty:0
 
+			to pboolean: TRUEBOOLEAN( val->val.i )
 			to char*: pasprintf( "%d", val->val.i )
 			to wchar_t*: pawcsprintf( L"%d", val->val.i )
 			to void*: NULL
@@ -79,6 +92,7 @@ typedef struct
 			format:%ld
 			empty:0
 
+			to pboolean: TRUEBOOLEAN( val->val.l )
 			to char*: pasprintf( "%ld", val->val.l )
 			to wchar_t*: pawcsprintf( L"%ld", val->val.l )
 			to void*: val->val.l
@@ -90,6 +104,7 @@ typedef struct
 			format:%ld
 			empty:0
 
+			to pboolean: TRUEBOOLEAN( val->val.ul )
 			to char*: pasprintf( "%ld", val->val.ul )
 			to wchar_t*: pawcsprintf( L"%ld", val->val.ul )
 			to void*: val->val.ul
@@ -100,6 +115,7 @@ typedef struct
 			format:%f
 			empty:0.0
 
+			to pboolean: TRUEBOOLEAN( val->val.f )
 			to char*: pdbl_to_str( (double)val->val.f )
 			to wchar_t*: pdbl_to_wcs( (double)val->val.f )
 			to void*: NULL
@@ -110,6 +126,7 @@ typedef struct
 			format:%lf
 			empty:0.0
 
+			to pboolean: TRUEBOOLEAN( val->val.d )
 			to char*: pdbl_to_str( val->val.d )
 			to wchar_t*: pdbl_to_wcs( val->val.d )
 			to void*: NULL
@@ -124,6 +141,7 @@ typedef struct
 			format:%s
 			empty:NULL
 
+			to pboolean: TRUEBOOLEAN( *pstrget( val->val.s ) )
 			to char: strtol( val->val.s, (char**)NULL, 0 )
 			to int: (same)
 			to long: (same)
@@ -144,6 +162,7 @@ typedef struct
 			format:%ls
 			empty:NULL
 
+			to pboolean: TRUEBOOLEAN( *pwcsget( val->val.ws ) )
 			to char: wcstol( val->val.ws, (wchar_t**)NULL, 0 )
 			to int: (same)
 			to long: (same)
@@ -159,6 +178,7 @@ typedef struct
 			format:%p
 			empty:NULL
 
+			to pboolean: TRUEBOOLEAN( val->val.ptr )
 			to char: 0
 			to int: 0
 			to long: val->val.ptr

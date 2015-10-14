@@ -5,6 +5,51 @@
 
 #include "phorward.h"
 
+/** Converts the current value of //val// into a pboolean value.
+
+//val// is the pany-object to convert from.
+
+The function returns the pboolean-value of //val//.
+*/
+pboolean pany_to_bool( pany* val )
+{
+	PROC( "pany_to_bool" );
+	PARMS( "val", "%p", val );
+
+	if( !val )
+	{
+		WRONGPARAM;
+		RETURN( (pboolean)FALSE );
+	}
+
+	switch( val->type )
+	{
+		case PANYTYPE_BOOL:
+			RETURN( val->val.b );
+		case PANYTYPE_CHAR:
+			RETURN( (pboolean)TRUEBOOLEAN( val->val.c ) );
+		case PANYTYPE_INT:
+			RETURN( (pboolean)TRUEBOOLEAN( val->val.i ) );
+		case PANYTYPE_LONG:
+			RETURN( (pboolean)TRUEBOOLEAN( val->val.l ) );
+		case PANYTYPE_ULONG:
+			RETURN( (pboolean)TRUEBOOLEAN( val->val.ul ) );
+		case PANYTYPE_FLOAT:
+			RETURN( (pboolean)TRUEBOOLEAN( val->val.f ) );
+		case PANYTYPE_DOUBLE:
+			RETURN( (pboolean)TRUEBOOLEAN( val->val.d ) );
+		case PANYTYPE_STR:
+			RETURN( (pboolean)TRUEBOOLEAN( *pstrget( val->val.s ) ) );
+		case PANYTYPE_WCS:
+			RETURN( (pboolean)TRUEBOOLEAN( *pwcsget( val->val.ws ) ) );
+		case PANYTYPE_PTR:
+			RETURN( (pboolean)TRUEBOOLEAN( val->val.ptr ) );
+	}
+
+	MSG( "Can't convert this type!" );
+	RETURN( (pboolean)FALSE );
+}
+
 /** Converts the current value of //val// into a char value.
 
 //val// is the pany-object to convert from.
@@ -24,6 +69,8 @@ char pany_to_char( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (char)val->val.b );
 		case PANYTYPE_CHAR:
 			RETURN( val->val.c );
 		case PANYTYPE_INT:
@@ -67,6 +114,8 @@ int pany_to_int( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (int)val->val.b );
 		case PANYTYPE_CHAR:
 			RETURN( (int)val->val.c );
 		case PANYTYPE_INT:
@@ -110,6 +159,8 @@ long pany_to_long( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (long)val->val.b );
 		case PANYTYPE_CHAR:
 			RETURN( (long)val->val.c );
 		case PANYTYPE_INT:
@@ -153,6 +204,8 @@ ulong pany_to_ulong( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (ulong)val->val.b );
 		case PANYTYPE_CHAR:
 			RETURN( (ulong)val->val.c );
 		case PANYTYPE_INT:
@@ -196,6 +249,8 @@ float pany_to_float( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (float)val->val.b );
 		case PANYTYPE_CHAR:
 			RETURN( (float)val->val.c );
 		case PANYTYPE_INT:
@@ -239,6 +294,8 @@ double pany_to_double( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (double)val->val.b );
 		case PANYTYPE_CHAR:
 			RETURN( (double)val->val.c );
 		case PANYTYPE_INT:
@@ -282,6 +339,8 @@ char* pany_to_str( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (char*)pstrdup( BOOLEAN_STR( val->val.c ) ) );
 		case PANYTYPE_CHAR:
 			RETURN( (char*)pasprintf( "%d", val->val.c ) );
 		case PANYTYPE_INT:
@@ -325,6 +384,8 @@ wchar_t* pany_to_wcs( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (wchar_t*)pwcsdup( val->val.c ? L"TRUE" : L"FALSE" ) );
 		case PANYTYPE_CHAR:
 			RETURN( (wchar_t*)pawcsprintf( L"%d", val->val.c ) );
 		case PANYTYPE_INT:
@@ -368,6 +429,8 @@ void* pany_to_ptr( pany* val )
 
 	switch( val->type )
 	{
+		case PANYTYPE_BOOL:
+			RETURN( (void*)NULL );
 		case PANYTYPE_CHAR:
 			RETURN( (void*)NULL );
 		case PANYTYPE_INT:
@@ -416,6 +479,10 @@ pboolean pany_convert( pany* val, panytype type )
 
 	switch( type )
 	{
+		case PANYTYPE_BOOL:
+			pany_set_bool( val, pany_to_bool( val ) );
+			RETURN( TRUE );
+
 		case PANYTYPE_CHAR:
 			pany_set_char( val, pany_to_char( val ) );
 			RETURN( TRUE );

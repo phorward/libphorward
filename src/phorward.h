@@ -458,6 +458,7 @@ typedef enum
 	PANYTYPE_NULL,
 
 	
+	PANYTYPE_BOOL,
 	PANYTYPE_CHAR,
 	PANYTYPE_INT,
 	PANYTYPE_LONG,
@@ -482,6 +483,9 @@ typedef struct
 
 	union							
 	{
+		pboolean	b;
+		
+
 		char		c;
 		
 
@@ -1016,6 +1020,8 @@ wchar_t* pwcscatchar( wchar_t* str, wchar_t chr );
 wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc );
 wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n );
 size_t pwcslen( wchar_t* str );
+wchar_t* pwcsput( wchar_t** str, wchar_t* val );
+wchar_t* pwcsget( wchar_t* str );
 wchar_t* pwcsndup( wchar_t* str, size_t len );
 int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap );
 wchar_t* pawcsprintf( wchar_t* fmt, ... );
@@ -1094,6 +1100,7 @@ pboolean pany_copy( pany* dest, pany* src );
 pany* pany_dup( pany* src );
 
 
+pboolean pany_to_bool( pany* val );
 char pany_to_char( pany* val );
 int pany_to_int( pany* val );
 long pany_to_long( pany* val );
@@ -1109,6 +1116,7 @@ pboolean pany_convert( pany* val, panytype type );
 void pany_fprint( FILE* stream, pany* val );
 
 
+pboolean pany_get_bool( pany* val );
 char pany_get_char( pany* val );
 int pany_get_int( pany* val );
 long pany_get_long( pany* val );
@@ -1122,6 +1130,7 @@ wchar_t* pany_get_wcs( pany* val );
 void* pany_get_ptr( pany* val );
 
 
+pboolean pany_set_bool( pany* val, pboolean b );
 char pany_set_char( pany* val, char c );
 int pany_set_int( pany* val, int i );
 long pany_set_long( pany* val, long l );

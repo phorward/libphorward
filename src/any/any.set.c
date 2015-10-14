@@ -5,6 +5,32 @@
 
 #include "phorward.h"
 
+/** Sets the ``pboolean``-value and type of //va//.
+
+//val// is the pany-object to be set.
+//b// is the ``pboolean``-value to be assigned to //val//.
+
+The function always returns the value //b//.
+*/
+pboolean pany_set_bool( pany* val, pboolean b )
+{
+	PROC( "pany_set_bool" );
+	PARMS( "val", "%p", val );
+	PARMS( "b", "%d", b );
+
+	if( !val )
+	{
+		WRONGPARAM;
+		RETURN( (pboolean)FALSE );
+	}
+
+	pany_reset( val );
+	val->type = PANYTYPE_BOOL;
+	val->val.b = b;
+
+	RETURN( val->val.b );
+}
+
 /** Sets the ``char``-value and type of //va//.
 
 //val// is the pany-object to be set.

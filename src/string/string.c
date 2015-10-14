@@ -996,6 +996,50 @@ size_t pwcslen( wchar_t* str )
 	return wcslen( str );
 }
 
+/** Assign a wide-character string into a dynamically allocated pointer.
+
+pwcsput() manages the assignment of an dynamically allocated  wide-chararacter
+string.
+
+//str// is a pointer receiving the target pointer to be (re)allocated. If
+//str// already references a wide-character string, this pointer will be freed
+and reassigned to a copy of //val//.
+
+//val// is the the wide-character string to be assigned to //str//
+(as a independent copy).
+
+Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
+This is the same pointer as returned like calling ``*str``. The returned pointer
+must be released with pfree() or another call of pwcsput(). Calling pwcsput()
+as ``pwcsput( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
+*/
+wchar_t* pwcsput( wchar_t** str, wchar_t* val )
+{
+	if( *str )
+	{
+		if( val && wcscmp( *str, val ) == 0 )
+			return *str;
+
+		pfree( *str );
+	}
+
+	*str = pwcsdup( val );
+	return *str;
+}
+
+/** Savely reads a wide-character string.
+
+//str// is the string pointer to be savely read. If //str// is NULL, the
+function returns a pointer to a static address holding an empty string.
+*/
+wchar_t* pwcsget( wchar_t* str )
+{
+	if( !str )
+		return L"";
+
+	return str;
+}
+
 /** Duplicate //n// characters from a wide-character string in memory.
 
 The function mixes the functionalities of wcsdup() and wcsncpy().

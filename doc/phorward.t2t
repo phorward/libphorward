@@ -314,12 +314,14 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 - @pwcscatchar() - append character to wide-character string with dynamic allocation,
 - @pwcscatstr() - append wide-character string to wide-character string with dynamic allocation,
 - @pwcsdup() - duplicate wide-character string, also accepts NULL-pointers,
+- @pwcsget() - securely get wide-character string from a pointer,
 - @pwcslen() - return length ot wide-character string, also accepts NULL-pointers,
 - @pwcsncatstr() - append wide-character string to wide-character string with dynamic allocation and maximum length,
-- @pwcsndup() - duplicate a wide-character string with maximum length.
+- @pwcsndup() - duplicate a wide-character string with maximum length,
+- @pwcsput() - securely set an allocated wide-character string into a pointer.
 -
 
-Althought the wide-character pendants to the standard extended string functions are not consistent, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
+Althought the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
 
 %-------------------------------------------------------------------------------
 

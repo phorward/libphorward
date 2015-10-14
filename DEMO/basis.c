@@ -489,6 +489,8 @@ void any_demo( void )
 
 	printf( "val(double) = %lf\n", pany_get_double( val ) );
 	printf( "val(str) = >%s<\n", pany_get_str( val ) );
+	printf( "val(bool) = %d\n", pany_get_bool( val ) );
+	printf( "val(str) = %s\n", pany_get_str( val ) );
 
 	/* Free that object */
 	val = pany_free( val );

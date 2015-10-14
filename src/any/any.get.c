@@ -5,6 +5,34 @@
 
 #include "phorward.h"
 
+/** Returns the ``pboolean``-value of //val//.
+
+//val// is the pointer to the pany-object.
+
+If the pany-object exists in another data type, it will be converted.
+The function returns the value assigned to //val// as pboolean.
+This value could be converted from the original value.
+*/
+pboolean pany_get_bool( pany* val )
+{
+	PROC( "pany_get_bool" );
+	PARMS( "val", "%p", val );
+
+	if( !val )
+	{
+		WRONGPARAM;
+		RETURN( (pboolean)FALSE );
+	}
+
+	if( val->type != PANYTYPE_BOOL)
+	{
+		if( !pany_convert( val, PANYTYPE_BOOL ) )
+			RETURN( (pboolean)FALSE );
+	}
+
+	RETURN( val->val.b );
+}
+
 /** Returns the ``char``-value of //val//.
 
 //val// is the pointer to the pany-object.
