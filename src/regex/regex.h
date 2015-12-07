@@ -181,7 +181,7 @@ struct _regex
 	prange			ref			[ PREGEX_MAXREF ];
 };
 
-/* The pregex object structure */
+/* The plex object structure */
 
 struct _lex
 {
