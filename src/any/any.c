@@ -141,7 +141,7 @@ pboolean pany_parse( pany* val, char* str, panytype enforce )
 
 		if( !lex )
 		{
-			lex = plex_create( 0 );
+			lex = plex_create( PREGEX_COMP_INSENSITIVE );
 
 			/* (1) long integer */
 			plex_define( lex, "\\d+", 1, 0 );
@@ -153,7 +153,10 @@ pboolean pany_parse( pany* val, char* str, panytype enforce )
 			plex_define( lex, "'(\\\\'|[^'])*'", 3, 0 );
 
 			/* (3) string, encapsulated by "..." */
-			plex_define( lex, "\"(\\\\\"|[^\"])*\"", 3, 0 );
+			plex_define( lex, "\"(\\\\\"|[^\"])*\"", 4, 0 );
+
+			/* (4) boolean */
+			plex_define( lex, "true|false", 5, 0 );
 		}
 
 		if( ( match = plex_lex( lex, sstr, &estr ) ) )
@@ -178,8 +181,17 @@ pboolean pany_parse( pany* val, char* str, panytype enforce )
 						break;
 
 					case 3: /* Encapsulated String */
+					case 4: /* Encapsulated Wide-character string */
 						pany_set_strndup( val, sstr + 1, len - 2 );
 						pstrunescape( pany_get_str( val ) );
+
+						if( match == 4 )
+							pany_convert( val, PANYTYPE_WCS );
+
+						break;
+
+					case 5: /* Boolean */
+						pany_set_bool( val, !pstrcasecmp( sstr, "true" ) );
 						break;
 
 					default:
