@@ -38,6 +38,7 @@ Usage:	Grammar-specific stuff.
 #define T_FLAG			40
 #define T_GFLAG			41
 #define T_EMIT			42
+#define T_SEMIT			43
 
 #define T_DOCMD			50
 #define T_DOPARAM		51
@@ -94,6 +95,7 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 	pboolean	doemit;
 	pboolean	emitall		= FALSE;
 	int			emit;
+	char*		semit;
 	int			emit_max	= 0;
 	char		name		[ NAMELEN * 2 + 1 ];
 
@@ -105,6 +107,7 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 	{
 		doemit = emitall;
 		emit = 0;
+		semit = (char*)NULL;
 		ignore = FALSE;
 
 		memset( &att, 0, sizeof( ATT ) );
@@ -261,8 +264,9 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 											(ppsym*)NULL );
 
 				while( ( attp = (ATT*)parray_last( st ) )
-							&& ( attp->emit == T_FLAG
-									|| attp->emit == T_EMIT
+						&& ( attp->emit == T_FLAG
+								|| attp->emit == T_EMIT
+									|| attp->emit == T_SEMIT
 										|| attp->emit == T_DOBEFORE
 											|| attp->emit == T_DOWITHIN
 												|| attp->emit == T_DOBEHIND ) )
@@ -274,6 +278,11 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 						case T_EMIT:
 							doemit = TRUE;
 							emit = attp->i;
+							break;
+
+						case T_SEMIT:
+							doemit = TRUE;
+							semit = attp->buf;
 							break;
 
 						case T_FLAG:
@@ -307,6 +316,9 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 					}
 					else
 						p->emit = ++emit_max;
+
+					if( semit )
+						p->semit = semit;
 				}
 
 				att.emit = 0;
@@ -330,17 +342,26 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 				break;
 
 			case T_EMIT:
-				if( ( attp = (ATT*)parray_last( st ) ) && attp->emit == T_INT )
+				attp = (ATT*)parray_last( st );
+
+				if( attp && attp->emit == T_INT )
 				{
 					parray_pop( st );
 					att.i = attp->i;
+				}
+				else if( attp && attp->emit == T_IDENT )
+				{
+					att.emit = T_SEMIT;
+					parray_pop( st );
+					att.buf = attp->buf;
 				}
 				break;
 
 			case T_TERMDEF:
 				while( ( attp = (ATT*)parray_last( st ) )
-							&& ( attp->emit == T_FLAG
-									|| attp->emit == T_EMIT
+						&& ( attp->emit == T_FLAG
+								|| attp->emit == T_EMIT
+									|| attp->emit == T_SEMIT
 										|| attp->emit == T_DOBEFORE
 											|| attp->emit == T_DOWITHIN
 												|| attp->emit == T_DOBEHIND ) )
@@ -352,6 +373,11 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 						case T_EMIT:
 							doemit = TRUE;
 							emit = attp->i;
+							break;
+
+						case T_SEMIT:
+							doemit = TRUE;
+							semit = attp->buf;
 							break;
 
 						case T_FLAG:
@@ -410,6 +436,9 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 					}
 					else
 						sym->emit = ++emit_max;
+
+					if( semit )
+						sym->semit = semit;
 				}
 
 				att.emit = 0;
@@ -417,8 +446,9 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 
 			case T_NONTERMDEF:
 				while( ( attp = (ATT*)parray_last( st ) )
-							&& ( attp->emit == T_FLAG
-									|| attp->emit == T_EMIT
+						&& ( attp->emit == T_FLAG
+								|| attp->emit == T_EMIT
+									|| attp->emit == T_SEMIT
 										|| attp->emit == T_DOBEFORE
 											|| attp->emit == T_DOWITHIN
 												|| attp->emit == T_DOBEHIND ) )
@@ -431,6 +461,12 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 							doemit = TRUE;
 							emit = attp->i;
 							break;
+
+						case T_SEMIT:
+							doemit = TRUE;
+							semit = attp->buf;
+							break;
+
 
 						case T_FLAG:
 							if( strcmp( attp->buf, "goal" ) == 0 )
@@ -472,6 +508,9 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 					}
 					else
 						nonterm->emit = ++emit_max;
+
+					if( semit )
+						nonterm->semit = semit;
 				}
 
 				att.emit = 0;
@@ -546,7 +585,8 @@ The preparation process includes:
 - The 'lexem'-flag pull-trough the grammar.
 -
 
-This function is only internally run. */
+This function is only run internally.
+Don't call it if you're unsure ;)... */
 pboolean pp_gram_prepare( ppgram* g )
 {
 	plistel*	e;

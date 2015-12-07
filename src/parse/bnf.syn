@@ -68,7 +68,7 @@ do				: "before" do_cmd do_params?						%emit 60
 				| "behind"? do_cmd do_params?						%emit 62
 				;
 
-emit			: "emit" int?										%emit 42
+emit			: "emit" ( int | string )?							%emit 42
 				;
 
 flag			: "noemit"											%emit 40

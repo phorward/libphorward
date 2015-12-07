@@ -75,6 +75,7 @@ struct _ppprod
 
 	/* AST construction / Do logics */
 	int						emit;
+	char*					semit;
 	/* parray*					dorun	[ PPDOEVENT_MAX ]; */
 
 	/* Debug */
@@ -116,6 +117,7 @@ struct _ppsym
 
 	/* AST construction / Do logics */
 	int						emit;
+	char*					semit;
 	/* parray*					dorun	[ PPDOEVENT_MAX ]; */
 
 	/* Debug */
@@ -145,6 +147,7 @@ typedef struct
 	int						type;
 
 	int						emit;
+	char*					semit;
 	ppsym*					sym;
 	ppprod*					prod;
 

@@ -1125,6 +1125,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 				mend->prod = (ppprod*)NULL;
 				mend->sym = sym;
 				mend->emit = sym->emit;
+				mend->semit = sym->semit;
 				mend->row = row;
 				mend->col = col;
 
@@ -1191,6 +1192,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 				mend->prod = mbegin->prod = reduce;
 				mend->sym = mbegin->sym = lhs;
 				mend->emit = mbegin->emit = reduce->emit;
+				mend->semit = mbegin->semit = reduce->semit;
 
 				mend->start = mbegin->start = start;
 				mend->end = mbegin->end = lend;
