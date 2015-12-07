@@ -142,15 +142,14 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(phorwarddir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libphorward_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libphorward_la_OBJECTS = base/array.lo base/ccl.lo base/dbg.lo \
-	base/list.lo base/memory.lo parse/ast.lo parse/bnf.lo \
-	parse/gram.lo parse/ll.lo parse/lr.lo parse/parse.lo \
-	parse/prod.lo parse/scan.lo parse/sym.lo regex/dfa.lo \
-	regex/direct.lo regex/lex.lo regex/misc.lo regex/nfa.lo \
-	regex/pattern.lo regex/regex.lo string/convert.lo \
-	string/string.lo string/utf8.lo util/system.lo util/xml.lo \
-	value/value.lo value/value.conv.lo value/value.get.lo \
-	value/value.set.lo
+am_libphorward_la_OBJECTS = any/any.lo any/any.conv.lo any/any.get.lo \
+	any/any.print.lo any/any.set.lo base/array.lo base/ccl.lo \
+	base/dbg.lo base/list.lo base/memory.lo parse/ast.lo \
+	parse/bnf.lo parse/gram.lo parse/ll.lo parse/lr.lo \
+	parse/parse.lo parse/prod.lo parse/scan.lo parse/sym.lo \
+	regex/dfa.lo regex/direct.lo regex/lex.lo regex/misc.lo \
+	regex/nfa.lo regex/pattern.lo regex/regex.lo string/convert.lo \
+	string/string.lo string/utf8.lo util/system.lo
 libphorward_la_OBJECTS = $(am_libphorward_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -343,6 +342,11 @@ DOCFILE = ../doc/phorward.html
 PATHEXT = PATH="../run:$(PATH)"
 lib_LTLIBRARIES = libphorward.la
 libphorward_la_SOURCES = \
+	any/any.c \
+	any/any.conv.c \
+	any/any.get.c \
+	any/any.print.c \
+	any/any.set.c \
 	base/array.c \
 	base/ccl.c \
 	base/dbg.c \
@@ -367,23 +371,17 @@ libphorward_la_SOURCES = \
 	string/convert.c \
 	string/string.c \
 	string/utf8.c \
-	util/system.c \
-	util/xml.c \
-	value/value.c \
-	value/value.conv.c \
-	value/value.get.c \
-	value/value.set.c
+	util/system.c
 
 noinst_HEADERS = \
 	base/array.h \
 	base/ccl.h \
 	base/dbg.h \
 	base/list.h \
+	any/any.h \
+	regex/regex.h \
 	parse/parse.h \
 	phorward.tpl.h \
-	regex/regex.h \
-	util/xml.h \
-	value/value.h \
 	$(PROTOFILE)
 
 include_HEADERS = \
@@ -461,6 +459,17 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+any/$(am__dirstamp):
+	@$(MKDIR_P) any
+	@: > any/$(am__dirstamp)
+any/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) any/$(DEPDIR)
+	@: > any/$(DEPDIR)/$(am__dirstamp)
+any/any.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
+any/any.conv.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
+any/any.get.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
+any/any.print.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
+any/any.set.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
 base/$(am__dirstamp):
 	@$(MKDIR_P) base
 	@: > base/$(am__dirstamp)
@@ -520,26 +529,14 @@ util/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) util/$(DEPDIR)
 	@: > util/$(DEPDIR)/$(am__dirstamp)
 util/system.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
-util/xml.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
-value/$(am__dirstamp):
-	@$(MKDIR_P) value
-	@: > value/$(am__dirstamp)
-value/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) value/$(DEPDIR)
-	@: > value/$(DEPDIR)/$(am__dirstamp)
-value/value.lo: value/$(am__dirstamp) value/$(DEPDIR)/$(am__dirstamp)
-value/value.conv.lo: value/$(am__dirstamp) \
-	value/$(DEPDIR)/$(am__dirstamp)
-value/value.get.lo: value/$(am__dirstamp) \
-	value/$(DEPDIR)/$(am__dirstamp)
-value/value.set.lo: value/$(am__dirstamp) \
-	value/$(DEPDIR)/$(am__dirstamp)
 
 libphorward.la: $(libphorward_la_OBJECTS) $(libphorward_la_DEPENDENCIES) $(EXTRA_libphorward_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libphorward_la_OBJECTS) $(libphorward_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f any/*.$(OBJEXT)
+	-rm -f any/*.lo
 	-rm -f base/*.$(OBJEXT)
 	-rm -f base/*.lo
 	-rm -f parse/*.$(OBJEXT)
@@ -550,12 +547,15 @@ mostlyclean-compile:
 	-rm -f string/*.lo
 	-rm -f util/*.$(OBJEXT)
 	-rm -f util/*.lo
-	-rm -f value/*.$(OBJEXT)
-	-rm -f value/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.conv.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.get.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.print.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/ccl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/dbg.Plo@am__quote@
@@ -581,11 +581,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@string/$(DEPDIR)/string.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@string/$(DEPDIR)/utf8.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/system.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/xml.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@value/$(DEPDIR)/value.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@value/$(DEPDIR)/value.conv.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@value/$(DEPDIR)/value.get.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@value/$(DEPDIR)/value.set.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -616,12 +611,12 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf any/.libs any/_libs
 	-rm -rf base/.libs base/_libs
 	-rm -rf parse/.libs parse/_libs
 	-rm -rf regex/.libs regex/_libs
 	-rm -rf string/.libs string/_libs
 	-rm -rf util/.libs util/_libs
-	-rm -rf value/.libs value/_libs
 install-dist_phorwardDATA: $(dist_phorward_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_phorward_DATA)'; test -n "$(phorwarddir)" || list=; \
@@ -780,6 +775,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f any/$(DEPDIR)/$(am__dirstamp)
+	-rm -f any/$(am__dirstamp)
 	-rm -f base/$(DEPDIR)/$(am__dirstamp)
 	-rm -f base/$(am__dirstamp)
 	-rm -f parse/$(DEPDIR)/$(am__dirstamp)
@@ -790,8 +787,6 @@ distclean-generic:
 	-rm -f string/$(am__dirstamp)
 	-rm -f util/$(DEPDIR)/$(am__dirstamp)
 	-rm -f util/$(am__dirstamp)
-	-rm -f value/$(DEPDIR)/$(am__dirstamp)
-	-rm -f value/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -802,7 +797,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf base/$(DEPDIR) parse/$(DEPDIR) regex/$(DEPDIR) string/$(DEPDIR) util/$(DEPDIR) value/$(DEPDIR)
+	-rm -rf any/$(DEPDIR) base/$(DEPDIR) parse/$(DEPDIR) regex/$(DEPDIR) string/$(DEPDIR) util/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -848,7 +843,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf base/$(DEPDIR) parse/$(DEPDIR) regex/$(DEPDIR) string/$(DEPDIR) util/$(DEPDIR) value/$(DEPDIR)
+	-rm -rf any/$(DEPDIR) base/$(DEPDIR) parse/$(DEPDIR) regex/$(DEPDIR) string/$(DEPDIR) util/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -914,14 +909,17 @@ $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)
 
 # Variant Data Type Modules (generated from definitions in var.h comments)
 
-value/value.get.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_get=1 value/value.h >$@
+any/any.get.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_get=1 any/any.h >$@
 
-value/value.set.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_set=1 value/value.h >$@
+any/any.set.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_set=1 any/any.h >$@
 
-value/value.conv.c: value/value.h value/value.gen.awk
-	$(AWK) -f value/value.gen.awk -vwith_conv=1 value/value.h >$@
+any/any.conv.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_conv=1 any/any.h >$@
+
+any/any.print.c: any/any.h any/any.gen.awk
+	$(AWK) -f any/any.gen.awk -vwith_fprint=1 any/any.h >$@
 
 # Phorward Foundation Library Documentation
 $(DOCFILE): $(libphorward_la_SOURCES)
