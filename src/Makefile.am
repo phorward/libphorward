@@ -47,8 +47,7 @@ libphorward_la_SOURCES = \
 	string/convert.c \
 	string/string.c \
 	string/utf8.c \
-	util/system.c \
-	util/xml.c
+	util/system.c
 
 noinst_HEADERS = \
 	base/array.h \
@@ -58,7 +57,6 @@ noinst_HEADERS = \
 	any/any.h \
 	regex/regex.h \
 	parse/parse.h \
-	util/xml.h \
 	phorward.tpl.h \
 	$(PROTOFILE)
 

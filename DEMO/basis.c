@@ -416,43 +416,6 @@ void dbg_demo( void )
 	putenv( "TRACEMODULE=" );
 }
 
-void xml_demo( void )
-{
-	XML_T	comp;
-	XML_T	div;
-	XML_T	emp;
-	char*	s;
-
-	DEMO( "xml_demo" );
-
-	comp = xml_new( "company" );
-
-	div = xml_add_child( comp, "division", 0 );
-	xml_set_attr( div, "task", "Development" );
-
-	emp = xml_add_child( div, "employee", 0 );
-	xml_set_attr( emp, "name", "Eduard Woodstock" );
-	emp = xml_add_child( div, "employee", 0 );
-	xml_set_attr( emp, "name", "Helga Wacken" );
-	emp = xml_add_child( div, "employee", 0 );
-	xml_set_attr( emp, "name", "Horst Summerbreeze" );
-
-	xml_set_txt( emp, "Das ist ein Test!" );
-
-	div = xml_add_child( comp, "division", 0 );
-	xml_set_attr( div, "task", "Sales" );
-	emp = xml_add_child( div, "employee", 0 );
-	xml_set_attr( emp, "name", "Peter Paris" );
-	emp = xml_add_child( div, "employee", 0 );
-	xml_set_attr( emp, "name", "Josephine Julianadorp" );
-
-	s = xml_toxml( comp );
-
-	printf( "%s\n", s );
-	pfree( s );
-	xml_free( comp );
-}
-
 void any_demo( void )
 {
 	/*
@@ -519,7 +482,6 @@ int main( int argc, char** argv )
 		&plist_demo,
 		&parray_demo,
 		&dbg_demo,
-		&xml_demo,
 		&any_demo
 	};
 	char*		param;

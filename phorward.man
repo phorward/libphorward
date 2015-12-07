@@ -1,4 +1,4 @@
-.TH "Phorward Toolkit" 1 "July 2015" "libphorward 0.18"
+.TH "Phorward Toolkit" 1 "December 2015" "libphorward 0.18"
 
 
 .SH DESCRIPTION
@@ -94,8 +94,6 @@ unicode support for UTF\-8 in byte\-character functions
 .RE
 .IP \(bu 3
 Debug und trace facilities
-.IP \(bu 3
-A build\-in DOM\-based XML\-parser
 .IP \(bu 3
 Universal system\-specific functions for platform\-independent C software development
 .RS

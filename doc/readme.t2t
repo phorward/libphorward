@@ -1,6 +1,6 @@
 Phorward Toolkit
 libphorward 0.18
-July 2015
+December 2015
 
 = DESCRIPTION =
 
@@ -38,7 +38,6 @@ The Phorward Toolkit provides
   - consistent byte- and wide-character (unicode) function support
   - unicode support for UTF-8 in byte-character functions
 - Debug und trace facilities
-- A build-in DOM-based XML-parser
 - Universal system-specific functions for platform-independent C software development
   - Unix-style command-line parser
   - Mapping files to strings

@@ -42,7 +42,6 @@ SRC = \
 	string/string.c \
 	string/utf8.c \
 	util/system.c \
-	util/xml.c \
 	vm/prog.c \
 	vm/run.c \
 	vm/vm.c
@@ -56,7 +55,6 @@ HSRC = \
 	any/any.h \
 	vm/vm.h \
 	regex/regex.h \
-	util/xml.h \
 	phorward.tpl.h \
 	$(PROTOFILE)
 

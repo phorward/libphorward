@@ -121,7 +121,6 @@ typedef char 					pboolean;	/* Phorward Boolean */
 ##include "any/any.h"
 
 ##include "regex/regex.h"
-##include "util/xml.h"
 
 ##include "vm/vm.h"
 
