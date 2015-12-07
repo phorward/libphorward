@@ -333,7 +333,7 @@ void* parray_remove( parray* array, size_t offset, void** item )
 
 The function returns the pointer of the popped item. Because dynamic arrays only
 grow and no memory is freed, the returned data pointer is still valid, and will
-only be overwritten with the next push operation.
+only be overidden with the next push operation.
 
 //array// is the pointer to array where to pop an item off.
 
@@ -419,7 +419,7 @@ void* parray_unshift( parray* array, void* item )
 
 The function returns the pointer of the shifted item.
 Because dynamic arrays only grow and no memory is freed, the returned data
-pointer is still valid, and will only be overwritten with the next unshift
+pointer is still valid, and will only be overidden with the next unshift
 operation.
 
 //array// is the pointer to array where to pop an item off.
@@ -597,7 +597,7 @@ void* parray_last( parray* array )
 	if( array->first == array->last )
 		RETURN( (void*)NULL );
 
-	RETURN( parray_get( array, array->last - 1 ) );
+	RETURN( (char*)array->array + ( ( array->last - 1 ) * array->size ) );
 }
 
 /** Access first element of the array.
