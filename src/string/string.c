@@ -650,9 +650,9 @@ int	pstrcasecmp( char* s1, char* s2 )
 Returns 0 if both strings are equal. Returns a value <0 if //s1// is lower than
 //s2// or a value >0 if //s1// is greater than //s2//.
 */
-int	pstrncasecmp( char* s1, char* s2, int n )
+int	pstrncasecmp( char* s1, char* s2, size_t n )
 {
-	if( !( s1 && s2 && n < 1 ) )
+	if( !( s1 && s2 && n ) )
 	{
 		WRONGPARAM;
 		return -1;
