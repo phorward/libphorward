@@ -34,36 +34,6 @@ typedef struct _ppgram		ppgram;
 #define PPMOD_POSITIVE		'+'
 #define PPMOD_KLEENE		'*'
 
-/* Do */
-/* NOT FOR NOW.
-
-typedef void (*ppdofunc)( parray* st, pany* param, int param_cnt );
-
-typedef enum
-{
-	PPDO_PUSH,
-	PPDO_CALL
-} PPDOACT;
-
-typedef struct
-{
-	PPDOACT					cmd;
-
-	union
-	{
-		pany*					push;
-
-		struct
-		{
-			ppdofunc				func;
-			int						param;
-		}						call;
-
-	}						payload;
-
-} ppdo;
-*/
-
 /* Production */
 struct _ppprod
 {
@@ -73,10 +43,9 @@ struct _ppprod
 	plist*					rhs;
 	int						flags;
 
-	/* AST construction / Do logics */
+	/* AST construction */
 	int						emit;
 	char*					semit;
-	/* parray*					dorun	[ PPDOEVENT_MAX ]; */
 
 	/* Debug */
 	char*					strval;
@@ -115,10 +84,9 @@ struct _ppsym
 	pregex*					re;			/* Regular expression */
 	ppsymfunc				sf;			/* Symbol function */
 
-	/* AST construction / Do logics */
+	/* AST construction */
 	int						emit;
 	char*					semit;
-	/* parray*					dorun	[ PPDOEVENT_MAX ]; */
 
 	/* Debug */
 	char*					strval;
@@ -163,7 +131,4 @@ typedef struct
 {
 	int						type;
 	ppgram*					gram;
-
-	/* Do command pool */
-	plist*					dc;
 } pparse;

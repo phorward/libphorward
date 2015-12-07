@@ -295,9 +295,6 @@ char* pstrlwr( char* s );
 int pstrcasecmp( char* s1, char* s2 );
 int pstrncasecmp( char* s1, char* s2, size_t n );
 char* pstrunescape( char* str );
-#if 0
-int pstrescape( char* str );
-#endif
 int pvasprintf( char** str, char* fmt, va_list ap );
 char* pasprintf( char* fmt, ... );
 #ifdef UNICODE
