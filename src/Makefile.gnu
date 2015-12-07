@@ -12,6 +12,11 @@ PATHEXT = PATH="../run:$(PATH)"
 REF = ../doc/ref.t2t
 
 SRC = \
+	any/any.c \
+	any/any.conv.c \
+	any/any.print.c \
+	any/any.get.c \
+	any/any.set.c \
 	base/array.c \
 	base/ccl.c \
 	base/dbg.c \
@@ -38,11 +43,9 @@ SRC = \
 	string/utf8.c \
 	util/system.c \
 	util/xml.c \
-	any/any.c \
-	any/any.conv.c \
-	any/any.print.c \
-	any/any.get.c \
-	any/any.set.c
+	vm/prog.c \
+	vm/run.c \
+	vm/vm.c
 
 HSRC = \
 	base/array.h \
@@ -50,10 +53,11 @@ HSRC = \
 	base/dbg.h \
 	base/list.h \
 	parse/parse.h \
-	phorward.tpl.h \
+	any/any.h \
+	vm/vm.h \
 	regex/regex.h \
 	util/xml.h \
-	any/any.h \
+	phorward.tpl.h \
 	$(PROTOFILE)
 
 OBJ = $(patsubst %.c,%.o,$(SRC))

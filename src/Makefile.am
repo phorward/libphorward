@@ -18,6 +18,11 @@ PATHEXT = PATH="../run:$(PATH)"
 lib_LTLIBRARIES = libphorward.la
 
 libphorward_la_SOURCES = \
+	any/any.c \
+	any/any.conv.c \
+	any/any.get.c \
+	any/any.print.c \
+	any/any.set.c \
 	base/array.c \
 	base/ccl.c \
 	base/dbg.c \
@@ -43,23 +48,18 @@ libphorward_la_SOURCES = \
 	string/string.c \
 	string/utf8.c \
 	util/system.c \
-	util/xml.c \
-	any/any.c \
-	any/any.conv.c \
-	any/any.get.c \
-	any/any.print.c \
-	any/any.set.c
+	util/xml.c
 
 noinst_HEADERS = \
 	base/array.h \
 	base/ccl.h \
 	base/dbg.h \
 	base/list.h \
-	parse/parse.h \
-	phorward.tpl.h \
-	regex/regex.h \
-	util/xml.h \
 	any/any.h \
+	regex/regex.h \
+	parse/parse.h \
+	util/xml.h \
+	phorward.tpl.h \
 	$(PROTOFILE)
 
 include_HEADERS = \

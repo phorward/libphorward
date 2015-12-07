@@ -286,6 +286,87 @@ typedef struct
 
 
 
+typedef enum
+{
+	PANYTYPE_NULL,
+
+	
+	PANYTYPE_BOOL,
+	PANYTYPE_CHAR,
+	PANYTYPE_INT,
+	PANYTYPE_LONG,
+	PANYTYPE_ULONG,
+	PANYTYPE_FLOAT,
+	PANYTYPE_DOUBLE,
+
+	
+	PANYTYPE_STR,
+	PANYTYPE_CSTR,
+	PANYTYPE_WCS,
+	PANYTYPE_CWCS,
+
+	
+	PANYTYPE_PTR
+} panytype;
+
+
+typedef struct
+{
+	panytype		type;			
+
+	union							
+	{
+		pboolean	b;
+		
+
+		char		c;
+		
+
+		int			i;
+		
+
+		long		l;
+		
+
+		ulong		ul;
+		
+
+		float		f;
+		
+
+		double		d;
+		
+
+		char*		s;
+		
+		
+
+		wchar_t*	ws;
+		
+
+		
+
+		void*		ptr;
+		
+	} val;
+} pany;
+
+
+#define pany_set_strdup( val, str ) \
+			pany_set_str( val, pstrdup( str ) )
+#define pany_set_strndup( val, str, n ) \
+			pany_set_str( val, pstrndup( str, n ) )
+
+#define pany_set_wcsdup( val, wcs ) \
+			pany_set_wcs( val, pwcsdup( wcs ) )
+#define pany_set_wcsndup( val, wcs ) \
+			pany_set_wcs( val, pwcnsdup( wcs ) )
+
+
+
+
+
+
 #define PREGEX_ALLOC_STEP		16
 #define PREGEX_MAXREF			32
 
@@ -453,86 +534,6 @@ struct _lex
 
 
 
-typedef enum
-{
-	PANYTYPE_NULL,
-
-	
-	PANYTYPE_BOOL,
-	PANYTYPE_CHAR,
-	PANYTYPE_INT,
-	PANYTYPE_LONG,
-	PANYTYPE_ULONG,
-	PANYTYPE_FLOAT,
-	PANYTYPE_DOUBLE,
-
-	
-	PANYTYPE_STR,
-	PANYTYPE_CSTR,
-	PANYTYPE_WCS,
-	PANYTYPE_CWCS,
-
-	
-	PANYTYPE_PTR
-} panytype;
-
-
-typedef struct
-{
-	panytype		type;			
-
-	union							
-	{
-		pboolean	b;
-		
-
-		char		c;
-		
-
-		int			i;
-		
-
-		long		l;
-		
-
-		ulong		ul;
-		
-
-		float		f;
-		
-
-		double		d;
-		
-
-		char*		s;
-		
-		
-
-		wchar_t*	ws;
-		
-
-		
-
-		void*		ptr;
-		
-	} val;
-} pany;
-
-
-#define pany_set_strdup( val, str ) \
-			pany_set_str( val, pstrdup( str ) )
-#define pany_set_strndup( val, str, n ) \
-			pany_set_str( val, pstrndup( str, n ) )
-
-#define pany_set_wcsdup( val, wcs ) \
-			pany_set_wcs( val, pwcsdup( wcs ) )
-#define pany_set_wcsndup( val, wcs ) \
-			pany_set_wcs( val, pwcnsdup( wcs ) )
-
-
-
-
-
 
 #ifndef _XML_H
 #define _XML_H
@@ -631,6 +632,50 @@ struct xml
 
 
 
+
+typedef struct _pvm 	pvm;
+typedef struct _pvmprog	pvmprog;
+typedef struct _pvmexec	pvmexec;
+
+typedef size_t			pvmaddr;
+typedef unsigned char	pvmbyte;
+
+#define PVM_MAXOPS		CHAR_MAX			
+
+
+typedef void (*pvmop)( pvmexec* runtime );	
+
+
+struct _pvm
+{
+	pvmop		op		[ PVM_MAXOPS ];		
+	char*		mn		[ PVM_MAXOPS ];		
+
+	plex*		lex;						
+};
+
+
+struct _pvmprog
+{
+	pvm*		vm;							
+	parray		prog;						
+	parray		lit;						
+};
+
+
+struct _pvmexec
+{
+	parray*		stack;						
+
+	pvmaddr		fp;							
+	pvmbyte*	cs;							
+	pvmbyte*	ecs;						
+	pvmbyte*	ip;							
+};
+
+
+
+
 typedef struct _ppsym		ppsym;
 typedef struct _ppprod		ppprod;
 typedef struct _ppgram		ppgram;
@@ -670,6 +715,7 @@ struct _ppprod
 
 	
 	int						emit;
+	char*					semit;
 	
 
 	
@@ -711,6 +757,7 @@ struct _ppsym
 
 	
 	int						emit;
+	char*					semit;
 	
 
 	
@@ -740,6 +787,7 @@ typedef struct
 	int						type;
 
 	int						emit;
+	char*					semit;
 	ppsym*					sym;
 	ppprod*					prod;
 
@@ -767,6 +815,59 @@ typedef struct
 extern "C"
 {
 #endif
+
+
+pboolean pany_init( pany* val );
+pany* pany_create( char* str );
+pboolean pany_reset( pany* val );
+pany* pany_free( pany* val );
+pboolean pany_parse( pany* val, char* str, panytype enforce );
+pboolean pany_copy( pany* dest, pany* src );
+pany* pany_dup( pany* src );
+
+
+pboolean pany_to_bool( pany* val );
+char pany_to_char( pany* val );
+int pany_to_int( pany* val );
+long pany_to_long( pany* val );
+ulong pany_to_ulong( pany* val );
+float pany_to_float( pany* val );
+double pany_to_double( pany* val );
+char* pany_to_str( pany* val );
+wchar_t* pany_to_wcs( pany* val );
+void* pany_to_ptr( pany* val );
+pboolean pany_convert( pany* val, panytype type );
+
+
+void pany_fprint( FILE* stream, pany* val );
+
+
+pboolean pany_get_bool( pany* val );
+char pany_get_char( pany* val );
+int pany_get_int( pany* val );
+long pany_get_long( pany* val );
+ulong pany_get_ulong( pany* val );
+float pany_get_float( pany* val );
+double pany_get_double( pany* val );
+char* pany_get_cstr( pany* val );
+char* pany_get_str( pany* val );
+wchar_t* pany_get_cwcs( pany* val );
+wchar_t* pany_get_wcs( pany* val );
+void* pany_get_ptr( pany* val );
+
+
+pboolean pany_set_bool( pany* val, pboolean b );
+char pany_set_char( pany* val, char c );
+int pany_set_int( pany* val, int i );
+long pany_set_long( pany* val, long l );
+ulong pany_set_ulong( pany* val, ulong ul );
+float pany_set_float( pany* val, float f );
+double pany_set_double( pany* val, double d );
+char* pany_set_cstr( pany* val, char* s );
+char* pany_set_str( pany* val, char* s );
+wchar_t* pany_set_cwcs( pany* val, wchar_t* ws );
+wchar_t* pany_set_wcs( pany* val, wchar_t* ws );
+void* pany_set_ptr( pany* val, void* ptr );
 
 
 pboolean parray_init( parray* array, size_t size, size_t chunk );
@@ -1010,8 +1111,11 @@ int pstrsplit( char*** tokens, char* str, char* sep, int limit );
 char* pstrupr( char* s );
 char* pstrlwr( char* s );
 int pstrcasecmp( char* s1, char* s2 );
-int pstrncasecmp( char* s1, char* s2, int n );
+int pstrncasecmp( char* s1, char* s2, size_t n );
 char* pstrunescape( char* str );
+#if 0
+int pstrescape( char* str );
+#endif
 int pvasprintf( char** str, char* fmt, va_list ap );
 char* pasprintf( char* fmt, ... );
 #ifdef UNICODE
@@ -1091,57 +1195,20 @@ int xml_count_all( XML_T xml );
 XML_T xml_cut( XML_T xml );
 
 
-pboolean pany_init( pany* val );
-pany* pany_create( char* str );
-pboolean pany_reset( pany* val );
-pany* pany_free( pany* val );
-pboolean pany_parse( pany* val, char* str, panytype enforce );
-pboolean pany_copy( pany* dest, pany* src );
-pany* pany_dup( pany* src );
+pvmprog* pvm_prog_create( pvm* vm, char* src );
+pvmprog* pvm_prog_free( pvmprog* prog );
+pboolean pvm_prog_compile( pvmprog* prog, char* src );
+void pvm_prog_dump( pvmprog* prog );
 
 
-pboolean pany_to_bool( pany* val );
-char pany_to_char( pany* val );
-int pany_to_int( pany* val );
-long pany_to_long( pany* val );
-ulong pany_to_ulong( pany* val );
-float pany_to_float( pany* val );
-double pany_to_double( pany* val );
-char* pany_to_str( pany* val );
-wchar_t* pany_to_wcs( pany* val );
-void* pany_to_ptr( pany* val );
-pboolean pany_convert( pany* val, panytype type );
+void pvm_prog_run( pvmprog* prog );
 
 
-void pany_fprint( FILE* stream, pany* val );
-
-
-pboolean pany_get_bool( pany* val );
-char pany_get_char( pany* val );
-int pany_get_int( pany* val );
-long pany_get_long( pany* val );
-ulong pany_get_ulong( pany* val );
-float pany_get_float( pany* val );
-double pany_get_double( pany* val );
-char* pany_get_cstr( pany* val );
-char* pany_get_str( pany* val );
-wchar_t* pany_get_cwcs( pany* val );
-wchar_t* pany_get_wcs( pany* val );
-void* pany_get_ptr( pany* val );
-
-
-pboolean pany_set_bool( pany* val, pboolean b );
-char pany_set_char( pany* val, char c );
-int pany_set_int( pany* val, int i );
-long pany_set_long( pany* val, long l );
-ulong pany_set_ulong( pany* val, ulong ul );
-float pany_set_float( pany* val, float f );
-double pany_set_double( pany* val, double d );
-char* pany_set_cstr( pany* val, char* s );
-char* pany_set_str( pany* val, char* s );
-wchar_t* pany_set_cwcs( pany* val, wchar_t* ws );
-wchar_t* pany_set_wcs( pany* val, wchar_t* ws );
-void* pany_set_ptr( pany* val, void* ptr );
+pvm* pvm_init( pvm* vm );
+pvm* pvm_create( void );
+pvm* pvm_reset( pvm* vm );
+pvm* pvm_free( pvm* vm );
+int pvm_define( pvm* vm, char* mn, pvmop op );
 
 
 
