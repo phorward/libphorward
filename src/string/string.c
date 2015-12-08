@@ -7,9 +7,7 @@ All rights reserved. See LICENSE for more information.
 File:	string.c
 Author:	Jan Max Meyer
 Usage:	Some extended functions for zero-terminated byte- and wide-character
-		strings that can be universally used. The library was build from
-		several UniCC and RapidBATCH 6 functions, and is now assembled into
-		the pbasis-library now.
+		strings that can be universally used.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"

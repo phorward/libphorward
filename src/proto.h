@@ -239,7 +239,7 @@ int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, pregex_accept* 
 int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, prange** ref, int* ref_count, int flags );
 pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
-/* regex/pattern.c */
+/* regex/ptn.c */
 pregex_ptn* pregex_ptn_create_char( pccl* ccl );
 pregex_ptn* pregex_ptn_create_string( char* str, int flags );
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn );

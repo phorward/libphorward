@@ -27,10 +27,10 @@ void pp_bnf_define( ppgram* g )
 	sym[ 3 ] = pp_sym_create( g, PPSYMTYPE_REGEX, (char*)NULL, "/\\*([^*]|\\*[^/])*\\*/" );
 	sym[ 3 ]->flags |= PPFLAG_WHITESPACE;
 
-	sym[ 4 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "ccl", "'[^']*'" );
+	sym[ 4 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "ccl", "\\[(\\\\.|[^\\\\\\]])*\\]" );
 	sym[ 4 ]->emit = 1;
 
-	sym[ 5 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "string", "\"[^\"]*\"" );
+	sym[ 5 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "string", "\"[^\"]*\"|'[^']*'" );
 	sym[ 5 ]->emit = 2;
 
 	sym[ 6 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "regex", "/(\\\\.|[^/\\\\])*/" );
@@ -47,22 +47,22 @@ void pp_bnf_define( ppgram* g )
 
 	sym[ 10 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "inline", (char*)NULL );
 
-	sym[ 11 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "(" );
+	sym[ 11 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "(" );
 
 	sym[ 12 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "alternation", (char*)NULL );
 
-	sym[ 13 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ")" );
+	sym[ 13 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, ")" );
 
 	sym[ 14 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "symbol", (char*)NULL );
 	sym[ 14 ]->emit = 20;
 
 	sym[ 15 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "modifier", (char*)NULL );
 
-	sym[ 16 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "*" );
+	sym[ 16 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "*" );
 
-	sym[ 17 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "+" );
+	sym[ 17 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "+" );
 
-	sym[ 18 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "?" );
+	sym[ 18 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "?" );
 
 	sym[ 19 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "sequence", (char*)NULL );
 
@@ -82,7 +82,7 @@ void pp_bnf_define( ppgram* g )
 
 	sym[ 27 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "flags", (char*)NULL );
 
-	sym[ 28 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "%" );
+	sym[ 28 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "%" );
 
 	sym[ 29 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "flag+", (char*)NULL );
 
@@ -90,7 +90,7 @@ void pp_bnf_define( ppgram* g )
 
 	sym[ 31 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "flags?", (char*)NULL );
 
-	sym[ 32 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "|" );
+	sym[ 32 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "|" );
 
 	sym[ 33 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermflag", (char*)NULL );
 
@@ -108,11 +108,11 @@ void pp_bnf_define( ppgram* g )
 
 	sym[ 40 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef'", (char*)NULL );
 
-	sym[ 41 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ":" );
+	sym[ 41 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, ":" );
 
 	sym[ 42 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef'?", (char*)NULL );
 
-	sym[ 43 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, ";" );
+	sym[ 43 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, ";" );
 
 	sym[ 44 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termflag", (char*)NULL );
 
@@ -126,7 +126,7 @@ void pp_bnf_define( ppgram* g )
 
 	sym[ 49 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
 
-	sym[ 50 ] = pp_sym_create( g, PPSYMTYPE_CCL, (char*)NULL, "$" );
+	sym[ 50 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "$" );
 
 	sym[ 51 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "ident?", (char*)NULL );
 
@@ -160,9 +160,9 @@ void pp_bnf_define( ppgram* g )
 	/* Productions */
 
 	prod[ 0 ] = pp_prod_create( g, sym[ 10 ] /* inline */,
-		sym[ 11 ], /* '(' */
+		sym[ 11 ], /* "(" */
 		sym[ 12 ], /* alternation */
-		sym[ 13 ], /* ')' */
+		sym[ 13 ], /* ")" */
 		(ppsym*)NULL );
 	prod[ 0 ]->emit = 32;
 
@@ -172,12 +172,12 @@ void pp_bnf_define( ppgram* g )
 	prod[ 1 ]->emit = 20;
 
 	prod[ 2 ] = pp_prod_create( g, sym[ 14 ] /* symbol */,
-		sym[ 4 ], /* /'[^']*'/ */
+		sym[ 4 ], /* /\\[(\\\\.|[^\\\\\\]])*\\]/ */
 		(ppsym*)NULL );
 	prod[ 2 ]->emit = 20;
 
 	prod[ 3 ] = pp_prod_create( g, sym[ 14 ] /* symbol */,
-		sym[ 5 ], /* /"[^"]*"/ */
+		sym[ 5 ], /* /"[^"]*"|'[^']*'/ */
 		(ppsym*)NULL );
 	prod[ 3 ]->emit = 20;
 
@@ -198,19 +198,19 @@ void pp_bnf_define( ppgram* g )
 
 	prod[ 7 ] = pp_prod_create( g, sym[ 15 ] /* modifier */,
 		sym[ 14 ], /* symbol */
-		sym[ 16 ], /* '*' */
+		sym[ 16 ], /* "*" */
 		(ppsym*)NULL );
 	prod[ 7 ]->emit = 25;
 
 	prod[ 8 ] = pp_prod_create( g, sym[ 15 ] /* modifier */,
 		sym[ 14 ], /* symbol */
-		sym[ 17 ], /* '+' */
+		sym[ 17 ], /* "+" */
 		(ppsym*)NULL );
 	prod[ 8 ]->emit = 26;
 
 	prod[ 9 ] = pp_prod_create( g, sym[ 15 ] /* modifier */,
 		sym[ 14 ], /* symbol */
-		sym[ 18 ], /* '?' */
+		sym[ 18 ], /* "?" */
 		(ppsym*)NULL );
 	prod[ 9 ]->emit = 27;
 
@@ -239,7 +239,7 @@ void pp_bnf_define( ppgram* g )
 		(ppsym*)NULL );
 
 	prod[ 16 ] = pp_prod_create( g, sym[ 23 ] /* emit' */,
-		sym[ 5 ], /* /"[^"]*"/ */
+		sym[ 5 ], /* /"[^"]*"|'[^']*'/ */
 		(ppsym*)NULL );
 
 	prod[ 17 ] = pp_prod_create( g, sym[ 24 ] /* emit'? */,
@@ -275,12 +275,12 @@ void pp_bnf_define( ppgram* g )
 
 	prod[ 24 ] = pp_prod_create( g, sym[ 27 ] /* flags */,
 		sym[ 27 ], /* flags */
-		sym[ 28 ], /* '%' */
+		sym[ 28 ], /* "%" */
 		sym[ 29 ], /* flag+ */
 		(ppsym*)NULL );
 
 	prod[ 25 ] = pp_prod_create( g, sym[ 27 ] /* flags */,
-		sym[ 28 ], /* '%' */
+		sym[ 28 ], /* "%" */
 		sym[ 29 ], /* flag+ */
 		(ppsym*)NULL );
 
@@ -299,7 +299,7 @@ void pp_bnf_define( ppgram* g )
 
 	prod[ 29 ] = pp_prod_create( g, sym[ 12 ] /* alternation */,
 		sym[ 12 ], /* alternation */
-		sym[ 32 ], /* '|' */
+		sym[ 32 ], /* "|" */
 		sym[ 30 ], /* alternative */
 		(ppsym*)NULL );
 
@@ -337,12 +337,12 @@ void pp_bnf_define( ppgram* g )
 
 	prod[ 37 ] = pp_prod_create( g, sym[ 36 ] /* nontermflags */,
 		sym[ 36 ], /* nontermflags */
-		sym[ 28 ], /* '%' */
+		sym[ 28 ], /* "%" */
 		sym[ 37 ], /* nontermflag+ */
 		(ppsym*)NULL );
 
 	prod[ 38 ] = pp_prod_create( g, sym[ 36 ] /* nontermflags */,
-		sym[ 28 ], /* '%' */
+		sym[ 28 ], /* "%" */
 		sym[ 37 ], /* nontermflag+ */
 		(ppsym*)NULL );
 
@@ -354,7 +354,7 @@ void pp_bnf_define( ppgram* g )
 		(ppsym*)NULL );
 
 	prod[ 41 ] = pp_prod_create( g, sym[ 40 ] /* nontermdef' */,
-		sym[ 41 ], /* ':' */
+		sym[ 41 ], /* ":" */
 		sym[ 12 ], /* alternation */
 		(ppsym*)NULL );
 
@@ -369,7 +369,7 @@ void pp_bnf_define( ppgram* g )
 		sym[ 7 ], /* /[A-Z_a-z][0-9A-Z_a-z]*\/ */
 		sym[ 39 ], /* nontermflags? */
 		sym[ 42 ], /* nontermdef'? */
-		sym[ 43 ], /* ';' */
+		sym[ 43 ], /* ";" */
 		(ppsym*)NULL );
 	prod[ 44 ]->emit = 31;
 
@@ -403,12 +403,12 @@ void pp_bnf_define( ppgram* g )
 
 	prod[ 51 ] = pp_prod_create( g, sym[ 47 ] /* termflags */,
 		sym[ 47 ], /* termflags */
-		sym[ 28 ], /* '%' */
+		sym[ 28 ], /* "%" */
 		sym[ 48 ], /* termflag+ */
 		(ppsym*)NULL );
 
 	prod[ 52 ] = pp_prod_create( g, sym[ 47 ] /* termflags */,
-		sym[ 28 ], /* '%' */
+		sym[ 28 ], /* "%" */
 		sym[ 48 ], /* termflag+ */
 		(ppsym*)NULL );
 
@@ -420,11 +420,11 @@ void pp_bnf_define( ppgram* g )
 		(ppsym*)NULL );
 
 	prod[ 55 ] = pp_prod_create( g, sym[ 52 ] /* termdef' */,
-		sym[ 4 ], /* /'[^']*'/ */
+		sym[ 4 ], /* /\\[(\\\\.|[^\\\\\\]])*\\]/ */
 		(ppsym*)NULL );
 
 	prod[ 56 ] = pp_prod_create( g, sym[ 52 ] /* termdef' */,
-		sym[ 5 ], /* /"[^"]*"/ */
+		sym[ 5 ], /* /"[^"]*"|'[^']*'/ */
 		(ppsym*)NULL );
 
 	prod[ 57 ] = pp_prod_create( g, sym[ 52 ] /* termdef' */,
@@ -443,11 +443,11 @@ void pp_bnf_define( ppgram* g )
 		(ppsym*)NULL );
 
 	prod[ 61 ] = pp_prod_create( g, sym[ 49 ] /* termdef */,
-		sym[ 50 ], /* '$' */
+		sym[ 50 ], /* "$" */
 		sym[ 51 ], /* ident? */
 		sym[ 52 ], /* termdef' */
 		sym[ 53 ], /* termflags? */
-		sym[ 43 ], /* ';' */
+		sym[ 43 ], /* ";" */
 		(ppsym*)NULL );
 	prod[ 61 ]->emit = 35;
 
@@ -482,12 +482,12 @@ void pp_bnf_define( ppgram* g )
 
 	prod[ 68 ] = pp_prod_create( g, sym[ 59 ] /* gflags */,
 		sym[ 59 ], /* gflags */
-		sym[ 28 ], /* '%' */
+		sym[ 28 ], /* "%" */
 		sym[ 60 ], /* gflag+ */
 		(ppsym*)NULL );
 
 	prod[ 69 ] = pp_prod_create( g, sym[ 59 ] /* gflags */,
-		sym[ 28 ], /* '%' */
+		sym[ 28 ], /* "%" */
 		sym[ 60 ], /* gflag+ */
 		(ppsym*)NULL );
 

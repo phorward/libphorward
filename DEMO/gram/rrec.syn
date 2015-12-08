@@ -1,6 +1,6 @@
 %rrec
 
-$digit '0-9' ;
+$digit [0-9] ;
 
 s %goal : a | b | c ;
 

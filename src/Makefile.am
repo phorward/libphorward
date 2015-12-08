@@ -42,7 +42,7 @@ libphorward_la_SOURCES = \
 	regex/lex.c \
 	regex/misc.c \
 	regex/nfa.c \
-	regex/pattern.c \
+	regex/ptn.c \
 	regex/regex.c \
 	string/convert.c \
 	string/string.c \

@@ -6,7 +6,7 @@ All rights reserved. See LICENSE for more information.
 
 File:	convert.c
 Author:	Jan Max Meyer
-Usage:	String conversion functions.
+Usage:	String conversion functions and wrappers.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"

@@ -1,5 +1,5 @@
 $' ' %ignore;
-int %emit lexeme: '0-9'+ ;
+int %emit lexeme: [0-9]+ ;
 
 f: '(' e ')' | int ;
 

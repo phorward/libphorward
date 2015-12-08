@@ -4,7 +4,7 @@ Copyright (C) 2006-2015 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	pattern.c
+File:	ptn.c
 Author:	Jan Max Meyer
 Usage:	Internal regular expression pattern
 		construction and conversion functions
@@ -1130,7 +1130,12 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			break;
 
 		case '[':
-			if( ( zero = strchr( (*pstr)+1, ']' ) ) )
+			/* Find next UNESCAPED! closing bracket! */
+			for( zero = *pstr + 1; *zero && *zero != ']'; zero++ )
+				if( *zero == '\\' && *(zero + 1) )
+					zero++;
+
+			if( *zero )
 			{
 				restore = *zero;
 				*zero = '\0';

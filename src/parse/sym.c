@@ -182,7 +182,7 @@ char* pp_sym_to_str( ppsym* sym )
 				break;
 
 			case PPSYMTYPE_CCL:
-				sprintf( sym->strval, "'%s'", sym->name );
+				sprintf( sym->strval, "[%s]", sym->name );
 				break;
 
 			case PPSYMTYPE_STRING:
