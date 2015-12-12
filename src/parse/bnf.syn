@@ -17,7 +17,8 @@ $				/\/\*([^*]|\*[^\/])*\*\//							%ignore;
 // Terminals -------------------------------------------------------------------
 
 $ccl 			/\[(\\.|[^\\\]])*\]/ 								%emit 1;
-$string 		/"[^"]*"|'[^']*'/									%emit 2;
+$string 		/'[^']*'/											%emit 2;
+$token			/"[^"]*"/											%emit 9;
 $regex 			/\/(\\.|[^\\\/])*\//								%emit 3;
 
 $ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit 10;
@@ -33,6 +34,7 @@ symbol 																%emit 20
 				: ident
 				| ccl
 				| string
+				| token
 				| regex
 				| function
 				| inline
@@ -47,10 +49,10 @@ sequence		: sequence modifier | modifier ;
 
 production	 	: sequence | ;
 
-emit			: "emit" ( int | string )?							%emit 42
+emit			: 'emit' ( int | string )?							%emit 42
 				;
 
-flag			: "noemit"											%emit 40
+flag			: 'noemit'											%emit 40
 				| emit
 				;
 
@@ -61,9 +63,9 @@ flags    		: flags '%' flag+
 alternative		: production flags?									%emit 30;
 alternation		: alternation '|' alternative | alternative ;
 
-nontermflag		: "noemit"											%emit 40
-				| "goal"											%emit 40
-				| "lexeme" 											%emit 40
+nontermflag		: 'noemit'											%emit 40
+				| 'goal'											%emit 40
+				| 'lexeme' 											%emit 40
 				| emit
 				;
 
@@ -73,9 +75,9 @@ nontermflags	: nontermflags '%' nontermflag+
 
 nontermdef		: ident nontermflags? ( ':' alternation )? ';'		%emit 31;
 
-termflag		: "noemit" 											%emit 40
-				| "ignore" 											%emit 40
-				| "skip" 											%emit 40
+termflag		: 'noemit' 											%emit 40
+				| 'ignore' 											%emit 40
+				| 'skip' 											%emit 40
 				| emit
 				;
 
@@ -88,10 +90,10 @@ termdef			: '$' ident? ( ccl | string | regex | function )
 				;
 
 gflag       														%emit 41
-				: "emitall"
-				| "emitnone"
-				| "lrec"
-				| "rrec"
+				: 'emitall'
+				| 'emitnone'
+				| 'lrec'
+				| 'rrec'
 				;
 
 gflags			: gflags '%' gflag+ | '%' gflag+ ;

@@ -23,13 +23,6 @@ typedef struct _ppgram		ppgram;
 #define PPFLAG_PREVENTLREC	64
 #define PPFLAG_NAMELESS		128
 
-#define PPDOPARMS_MAX		8
-#define PPDOEVENT_MAX		3
-
-#define PPDOEVENT_BEFORE	0
-#define PPDOEVENT_TRAVERSE	1
-#define PPDOEVENT_BEHIND	2
-
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
 #define PPMOD_KLEENE		'*'

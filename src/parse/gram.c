@@ -17,6 +17,8 @@ Usage:	Grammar-specific stuff.
 #define T_CCL			PPSYMTYPE_CCL
 #define T_STRING		PPSYMTYPE_STRING
 #define T_REGEX			PPSYMTYPE_REGEX
+#define T_TOKEN			9
+
 #define T_IDENT			10
 #define T_INT			11
 #define T_FLOAT			12
@@ -39,13 +41,6 @@ Usage:	Grammar-specific stuff.
 #define T_GFLAG			41
 #define T_EMIT			42
 #define T_SEMIT			43
-
-#define T_DOCMD			50
-#define T_DOPARAM		51
-
-#define T_DOBEFORE		60
-#define T_DOWITHIN		61
-#define T_DOBEHIND		62
 
 /* Derive name from basename */
 static char* derive_name( ppgram* g, char* base )
@@ -78,8 +73,6 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 		ppsymfunc	sf;
 		int			i;
 		double		d;
-		/* ppdofunc	func; */
-		pany*		any;
 	} ATT;
 
 	ATT			att;
@@ -165,6 +158,7 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 			case T_CCL:
 			case T_STRING:
 			case T_REGEX:
+			case T_TOKEN:
 				att.buf = pstrndup( e->start + 1, e->end - e->start - 2 );
 				break;
 
@@ -186,20 +180,32 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 					att.sym = attp->sym;
 				else if( attp->buf )
 				{
+					/* Defined symbol */
 					if( attp->emit == T_IDENT )
 					{
 						if( !( att.sym = pp_sym_get_by_name( g, attp->buf ) ) )
 							att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 										attp->buf, (char*)NULL );
 					}
+					/* Inline symbol */
 					else if( !( att.sym = pp_sym_get_nameless_term_by_def(
 												g, attp->buf ) ) )
 					{
+						doemit = emitall;
+
+						/* On Token, create an emittet string */
+						if( attp->emit == T_TOKEN )
+						{
+							attp->emit = PPSYMTYPE_STRING;
+							doemit = TRUE;
+						}
+
 						att.sym = pp_sym_create( g, attp->emit,
-													(char*)NULL, attp->buf );
+													(char*)NULL,
+														attp->buf );
 						att.sym->flags |= PPFLAG_DEFINED;
 
-						if( emitall )
+						if( doemit )
 							att.sym->emit = ++emit_max;
 					}
 
@@ -266,10 +272,7 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 				while( ( attp = (ATT*)parray_last( st ) )
 						&& ( attp->emit == T_FLAG
 								|| attp->emit == T_EMIT
-									|| attp->emit == T_SEMIT
-										|| attp->emit == T_DOBEFORE
-											|| attp->emit == T_DOWITHIN
-												|| attp->emit == T_DOBEHIND ) )
+									|| attp->emit == T_SEMIT ) )
 				{
 					parray_pop( st );
 
@@ -361,10 +364,7 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 				while( ( attp = (ATT*)parray_last( st ) )
 						&& ( attp->emit == T_FLAG
 								|| attp->emit == T_EMIT
-									|| attp->emit == T_SEMIT
-										|| attp->emit == T_DOBEFORE
-											|| attp->emit == T_DOWITHIN
-												|| attp->emit == T_DOBEHIND ) )
+									|| attp->emit == T_SEMIT ) )
 				{
 					parray_pop( st );
 
@@ -448,10 +448,7 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 				while( ( attp = (ATT*)parray_last( st ) )
 						&& ( attp->emit == T_FLAG
 								|| attp->emit == T_EMIT
-									|| attp->emit == T_SEMIT
-										|| attp->emit == T_DOBEFORE
-											|| attp->emit == T_DOWITHIN
-												|| attp->emit == T_DOBEHIND ) )
+									|| attp->emit == T_SEMIT ) )
 				{
 					parray_pop( st );
 
@@ -514,28 +511,6 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 				}
 
 				att.emit = 0;
-				break;
-
-			case T_DOCMD:
-				attp = parray_pop( st );
-				/* TODO: Find do-command and push pointer */
-				break;
-
-			case T_DOPARAM:
-				attp = parray_pop( st );
-				/* TODO: Generate pany */
-				break;
-
-			case T_DOBEFORE:
-			case T_DOWITHIN:
-			case T_DOBEHIND:
-				/* TODO: Initialize action */
-
-				while( ( attp = parray_pop( st ) ) && attp->emit == T_DOPARAM )
-					/* TODO: Take parameter */
-					;
-
-				/* TODO: Take command. */
 				break;
 		}
 
@@ -624,7 +599,24 @@ pboolean pp_gram_prepare( ppgram* g )
 		s->id = id;
 
 		if( s->type == PPSYMTYPE_NONTERM )
+		{
+			/* Erase first sets */
 			plist_erase( s->first );
+
+			/* Turn called but undefined nonterminals into string symbols */
+			if( s->flags & PPFLAG_CALLED
+				&& !( s->flags & PPFLAG_DEFINED )
+					&& plist_count( s->prods ) == 0 )
+			{
+				s->type = PPSYMTYPE_STRING;
+
+				s->str = pstrdup( s->name );
+				s->flags |= PPFLAG_NAMELESS;
+
+				s->prods = plist_free( s->prods );
+				plist_push( s->first, s );
+			}
+		}
 
 		if( s->flags & PPFLAG_WHITESPACE )
 			plist_push( g->ws, s );
