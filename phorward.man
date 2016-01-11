@@ -208,7 +208,7 @@ This product is an open source software released under the terms and conditions 
 .SH COPYRIGHT
 
 .P
-Copyright (C) 2006\-2015 by Phorward Software Technologies, Jan Max Meyer.
+Copyright (C) 2006\-2016 by Phorward Software Technologies, Jan Max Meyer.
 
 .P
 You may use, modify and distribute this software under the terms and conditions of the 3\-clause BSD license. The full license terms can be obtained from the file LICENSE.
