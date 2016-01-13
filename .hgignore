@@ -18,6 +18,7 @@ libtool
 DEMO/basis
 DEMO/regex
 DEMO/parse
+DEMO/testvm
 
 run/ppgram2c
 

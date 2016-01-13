@@ -105,7 +105,8 @@ static void pp_lritem_print( pplritem* it )
 				if( e != plist_first( it->lookahead ) )
 					fprintf( stderr, " " );
 
-				fprintf( stderr, "%s", pp_sym_to_str( ( (ppsym*)plist_access( e ) ) ) );
+				fprintf( stderr, "%s",
+					pp_sym_to_str( ( (ppsym*)plist_access( e ) ) ) );
 			}
 
 			fprintf( stderr, " }" );

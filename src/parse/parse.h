@@ -12,6 +12,7 @@ Usage:	Phorward Parsing Library
 typedef struct _ppsym		ppsym;
 typedef struct _ppprod		ppprod;
 typedef struct _ppgram		ppgram;
+typedef struct _ppast		ppast;
 
 /* Flags for grammars and their objects */
 #define PPFLAG_CALLED		1
@@ -100,6 +101,24 @@ struct _ppgram
 	int						flags;
 };
 
+/* AST */
+struct _ppast
+{
+	int						emit;
+	char*					semit;
+
+	ppsym*					sym;
+	ppprod*					prod;
+
+	char*					start;
+	char*					end;
+	int						row;
+	int						col;
+
+	ppast*					child;
+	ppast*					next;
+};
+
 /* Match (an AST entry) */
 typedef struct
 {
@@ -114,7 +133,6 @@ typedef struct
 
 	char*					start;
 	char*					end;
-
 	int						row;
 	int						col;
 } ppmatch;
