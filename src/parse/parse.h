@@ -116,6 +116,7 @@ struct _ppast
 	int						col;
 
 	ppast*					child;
+	ppast*					prev;
 	ppast*					next;
 };
 

@@ -152,6 +152,8 @@ void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
 
 /* parse/ast.c */
+ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* prev, ppast* child );
+void pp_ast_printnew( ppast* ast );
 ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset );
 ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth );
 ppmatch* pp_ast_pendant( parray* ast, ppmatch* match );

@@ -11,6 +11,69 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
+ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod,
+						char* start, char* end, int row, int col,
+							ppast* prev, ppast* child )
+{
+	ppast*	node;
+
+	node = (ppast*)pmalloc( sizeof( ppast ) );
+
+	node->emit = emit;
+	node->semit = semit;
+	node->sym = sym;
+	node->prod = prod;
+
+	node->start = start;
+	node->end = end;
+
+	node->row = row;
+	node->col = col;
+
+	if( ( node->prev = prev ) )
+	{
+		if( prev->next )
+			prev->next->prev = (ppast*)NULL;
+
+		prev->next = node;
+	}
+
+	node->child = child;
+	return node;
+}
+
+
+void pp_ast_printnew( ppast* ast )
+{
+	static int lev		= 0;
+	int	i;
+
+	while( ast )
+	{
+		for( i = 0; i < lev; i++ )
+			fprintf( stderr, " " );
+
+		fprintf( stderr, "%s %d >%.*s<\n",
+					ast->semit, ast->emit,
+						ast->end - ast->start,
+							ast->start );
+
+		if( ast->child )
+		{
+			lev++;
+			pp_ast_printnew( ast->child );
+			lev--;
+		}
+
+		ast = ast->next;
+	}
+}
+
+
+
+
+
+
 /** Retrieves the entry with offset //offset// starting to count from
 entry //from//. */
 ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset )

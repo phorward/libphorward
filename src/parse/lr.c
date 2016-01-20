@@ -57,6 +57,7 @@ typedef struct
 	char*			end;
 
 	long			begin;
+	ppast*			node;
 
 	int				row;
 	int				col;
@@ -932,26 +933,29 @@ static pplrse* push( parray* stack, ppsym* symbol,
 	return (pplrse*)parray_last( stack );
 }
 
-static pplrse* pop( parray* stack, int n, char** s, long* b, int* r, int* c )
+static pplrse* pop( parray* stack, int n, char** start,
+						long* begin, ppast** node, int* row, int* col )
 {
 	pplrse*	e;
 
-	*s = (char*)NULL;
-	*b = -1L;
-	*r = 1;
-	*c = 1;
+	*start = (char*)NULL;
+	*begin = -1L;
+	*node = (ppast*)NULL;
+	*row = 1;
+	*col = 1;
 
 	while( n-- > 0 )
 	{
 		e = (pplrse*)parray_pop( stack );
 
-		*s = e->start;
+		*start = e->start;
 
-		if( e->begin >= 0L )
+		if( e->node )
 		{
-			*b = e->begin;
-			*r = e->row;
-			*c = e->col;
+			*begin = e->begin;
+			*node = e->node;
+			*row = e->row;
+			*col = e->col;
 		}
 	}
 
@@ -1056,6 +1060,8 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 	long		begin;
 	ppmatch*	mbegin;
 	ppmatch*	mend;
+	ppast*		node	= (ppast*)NULL;
+	ppast*		cnode;
 
 	stack = parray_create( sizeof( pplrse ), 0 );
 	tos = push( stack, grm->goal,
@@ -1119,6 +1125,10 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			/* Shifted symbol becomes AST node? */
 			if( ast && sym->emit )
 			{
+				node = pp_ast_create( sym->emit, sym->semit,
+									sym, (ppprod*)NULL, start, *end, row, col,
+										node, (ppast*)NULL );
+
 				begin = parray_count( ast );
 				mend = (ppmatch*)parray_malloc( ast );
 
@@ -1134,6 +1144,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 				mend->end = *end;
 
 				tos->begin = begin;
+				tos->node = node;
 			}
 
 			lend = *end;
@@ -1162,12 +1173,17 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 			/* Pop elements off the stack */
 			tos = pop( stack, plist_count( reduce->rhs ),
-							&start, &begin, &lrow, &lcol );
+							&start, &begin, &cnode, &lrow, &lcol );
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
 			if( ast && reduce->emit )
 			{
+				node = pp_ast_create( reduce->emit, reduce->semit,
+										lhs, reduce, start, lend, row, col,
+											cnode ? cnode->prev : (ppast*)NULL,
+												cnode );
+
 				if( begin >= 0L && begin != parray_count( ast ) )
 				{
 					parray_reserve( ast, 2 );
@@ -1204,13 +1220,17 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 			/* Goal symbol reduced? */
 			if( lhs == grm->goal && parray_count( stack ) == 1 )
+			{
+				fprintf( stderr, "BREAK %p\n", node );
 				break;
+			}
 
 			/* Push goto state */
 			get_goto( &shift, &reduce, tos, reduce->lhs );
 
 			tos = push( stack, lhs, shift, start, *end );
 			tos->begin = begin;
+			tos->node = node;
 			tos->row = lrow;
 			tos->col = lcol;
 
@@ -1237,6 +1257,12 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 	#if DEBUGLEVEL > 2
 	print_stack( "FINAL", states, stack );
 	#endif
+
+	while( node->prev )
+		node = node->prev;
+
+	fprintf(stderr, "PRINT %p\n", node );
+	pp_ast_printnew( node );
 
 	return TRUE;
 }
