@@ -14,6 +14,8 @@ Usage:	LR/LALR/SLR parse table construction and execution.
 #define PPLR_SHIFT	1
 #define PPLR_REDUCE	2
 
+#define DEBUGLEVEL	0
+
 /* Closure item */
 typedef struct
 {
@@ -53,14 +55,13 @@ typedef struct
 	ppsym*			symbol;			/* Symbol */
 	pplrstate*		state;			/* State */
 
-	char*			start;
-	char*			end;
+	char*			start;			/* Begin of match */
+	char*			end;			/* End of match */
 
-	long			begin;
-	ppast*			node;
+	ppast*			node;			/* AST construction */
 
-	int				row;
-	int				col;
+	int				row;			/* Positioning in source */
+	int				col;			/* Positioning in source */
 } pplrse;
 
 /* LR/LALR parser */
@@ -927,19 +928,18 @@ static pplrse* push( parray* stack, ppsym* symbol,
 	e.state = state;
 	e.start = start;
 	e.end = end;
-	e.begin = -1L;
 
 	parray_push( stack, &e );
 	return (pplrse*)parray_last( stack );
 }
 
-static pplrse* pop( parray* stack, int n, char** start,
-						long* begin, ppast** node, int* row, int* col )
+static pplrse* pop( parray* stack, int n, char** start, ppast** node,
+						int* row, int* col )
 {
+	ppast*	enode;
 	pplrse*	e;
 
 	*start = (char*)NULL;
-	*begin = -1L;
 	*node = (ppast*)NULL;
 	*row = 1;
 	*col = 1;
@@ -950,9 +950,18 @@ static pplrse* pop( parray* stack, int n, char** start,
 
 		*start = e->start;
 
-		if( e->node )
+		/* Connecting nodes, remember last node. */
+		if( ( enode = e->node ) )
 		{
-			*begin = e->begin;
+			if( *node )
+			{
+				while( enode->next )
+					enode = enode->next;
+
+				enode->next = *node;
+				(*node)->prev = enode;
+			}
+
 			*node = e->node;
 			*row = e->row;
 			*col = e->col;
@@ -1040,8 +1049,22 @@ static void print_stack( char* title, plist* states, parray* stack )
 }
 #endif
 
-static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
-									plist* states )
+
+static get_cur_root( ppast* node )
+{
+	if( !node )
+		return node;
+
+
+	while( node->prev)
+		node = node->prev;
+
+	return node;
+}
+
+
+static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
+								char* start, char** end, plist* states )
 {
 	int			row		= 1;
 	int			col		= 1;
@@ -1057,11 +1080,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 	pplrstate*	shift;
 	ppprod*		reduce;
 	pboolean	token;
-	long		begin;
-	ppmatch*	mbegin;
-	ppmatch*	mend;
-	ppast*		node	= (ppast*)NULL;
-	ppast*		cnode;
+	ppast*		node;
 
 	stack = parray_create( sizeof( pplrse ), 0 );
 	tos = push( stack, grm->goal,
@@ -1083,6 +1102,26 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 		#if DEBUGLEVEL > 1
 		fprintf( stderr, "State on Top %d\n",
 					plist_offset( plist_get_by_ptr( states, tos->state ) ) );
+
+		/* AST construction debug */
+		/*
+		{
+			int			i;
+			pplrse*		x;
+
+
+			for( i = 0; i < parray_count( stack ); i++ )
+			{
+				x = parray_get( stack, i );
+				fprintf( stderr, "%d: %p\n", i, x->node );
+				if( x->node )
+					pp_ast_printnew( x->node );
+			}
+
+			fprintf( stderr, "---\n" );
+			getchar();
+		}
+		*/
 		#endif
 		#if DEBUGLEVEL > 2
 		fprintf( stderr, "BEFORE >%s<\n", *end );
@@ -1123,29 +1162,10 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			tos->col = col;
 
 			/* Shifted symbol becomes AST node? */
-			if( ast && sym->emit )
-			{
-				node = pp_ast_create( sym->emit, sym->semit,
-									sym, (ppprod*)NULL, start, *end, row, col,
-										node, (ppast*)NULL );
-
-				begin = parray_count( ast );
-				mend = (ppmatch*)parray_malloc( ast );
-
-				mend->type = PPMATCH_BEGIN | PPMATCH_END;
-				mend->prod = (ppprod*)NULL;
-				mend->sym = sym;
-				mend->emit = sym->emit;
-				mend->semit = sym->semit;
-				mend->row = row;
-				mend->col = col;
-
-				mend->start = start;
-				mend->end = *end;
-
-				tos->begin = begin;
-				tos->node = node;
-			}
+			if( root && sym->emit )
+				tos->node = pp_ast_create( sym->emit, sym->semit, sym,
+											(ppprod*)NULL, start, *end,
+												row, col, (ppast*)NULL );
 
 			lend = *end;
 		}
@@ -1173,55 +1193,21 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 
 			/* Pop elements off the stack */
 			tos = pop( stack, plist_count( reduce->rhs ),
-							&start, &begin, &cnode, &lrow, &lcol );
+							&start, &node, &lrow, &lcol );
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
-			if( ast && reduce->emit )
-			{
+			if( root && reduce->emit )
 				node = pp_ast_create( reduce->emit, reduce->semit,
-										lhs, reduce, start, lend, row, col,
-											cnode ? cnode->prev : (ppast*)NULL,
-												cnode );
-
-				if( begin >= 0L && begin != parray_count( ast ) )
-				{
-					parray_reserve( ast, 2 );
-
-					mbegin = (ppmatch*)parray_insert( ast, begin, (void*)NULL );
-					mend = (ppmatch*)parray_malloc( ast );
-
-					memset( mbegin, 0, sizeof( ppmatch ) );
-					mbegin->type = PPMATCH_BEGIN;
-					mend->type = PPMATCH_END;
-
-					mbegin->row = lrow;
-					mbegin->col = lcol;
-				}
-				else
-				{
-					begin = parray_count( ast );
-					mend = (ppmatch*)parray_malloc( ast );
-					mend->type = PPMATCH_BEGIN | PPMATCH_END;
-					mbegin = mend;
-				}
-
-				mend->prod = mbegin->prod = reduce;
-				mend->sym = mbegin->sym = lhs;
-				mend->emit = mbegin->emit = reduce->emit;
-				mend->semit = mbegin->semit = reduce->semit;
-
-				mend->start = mbegin->start = start;
-				mend->end = mbegin->end = lend;
-
-				mend->row = row;
-				mend->col = col;
-			}
+										lhs, reduce, start, lend,
+											row, col, node );
 
 			/* Goal symbol reduced? */
 			if( lhs == grm->goal && parray_count( stack ) == 1 )
 			{
-				fprintf( stderr, "BREAK %p\n", node );
+				if( root )
+					*root = node;
+
 				break;
 			}
 
@@ -1229,7 +1215,7 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 			get_goto( &shift, &reduce, tos, reduce->lhs );
 
 			tos = push( stack, lhs, shift, start, *end );
-			tos->begin = begin;
+
 			tos->node = node;
 			tos->row = lrow;
 			tos->col = lcol;
@@ -1254,20 +1240,11 @@ static pboolean pp_lr_PARSE( parray* ast, ppgram* grm, char* start, char** end,
 	}
 	while( !reduce );
 
-	#if DEBUGLEVEL > 2
-	print_stack( "FINAL", states, stack );
-	#endif
-
-	while( node->prev )
-		node = node->prev;
-
-	fprintf(stderr, "PRINT %p\n", node );
-	pp_ast_printnew( node );
-
 	return TRUE;
 }
 
 /** Parses the string //str// using the grammar //grm// with a LALR(1) parser.
+
 Parsing stops at least when reading the zero terminator of //str//.
 
 //ast// receives an allocated parray-object with items of //ppmatch// elements
@@ -1276,7 +1253,7 @@ that describe the produced abstract syntax tree.
 //end// receives the position of the last character matched.
 The function returns TRUE if no parse error occured.
 */
-pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end )
+pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end )
 {
 	pboolean	ret;
 	plist*		states;
@@ -1293,10 +1270,7 @@ pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end )
 	pp_lr_print( states );
 	#endif
 
-	if( ast )
-		*ast = parray_create( sizeof( ppmatch ), 0 );
-
-	ret = pp_lr_PARSE( ast ? *ast : (parray*)NULL, grm, start, end, states );
+	ret = pp_lr_PARSE( root, grm, start, end, states );
 	pp_lr_free( states );
 
 	return ret;

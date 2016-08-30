@@ -63,7 +63,7 @@ static char* derive_name( ppgram* g, char* base )
 }
 
 /* Stack machine compiling AST to ppgram. */
-static pboolean ast_to_gram( ppgram* g, parray* ast )
+static pboolean ast_to_gram( ppgram* g, ppast* node )
 {
 	typedef struct
 	{
@@ -78,6 +78,7 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 	ATT			att;
 	ATT*		attp;
 	parray*		st;
+	parray*		lvl;
 	parray*		dec;
 	ppmatch*	e;
 	ppsym*		sym;
@@ -92,54 +93,22 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 	int			emit_max	= 0;
 	char		name		[ NAMELEN * 2 + 1 ];
 
+	lvl = parray_create( sizeof( ppast* ), 0 );
 	st = parray_create( sizeof( ATT ), 0 );
 	dec = parray_create( sizeof( ppsym* ), 0 );
 
-	for( e = (ppmatch*)parray_first( ast );
-			e <= (ppmatch*)parray_last( ast ); e++ )
+	parray_push( lvl, &node );
+
+	while( ( node = *(ppast**)parray_pop( lvl ) ) )
 	{
+
+
 		doemit = emitall;
 		emit = 0;
 		semit = (char*)NULL;
 		ignore = FALSE;
 
 		memset( &att, 0, sizeof( ATT ) );
-
-		if( e->type & PPMATCH_BEGIN )
-		{
-			if( e->emit == T_NONTERMDEF )
-			{
-				e++;
-
-				att.buf = pstrndup( e->start, e->end - e->start );
-
-				if( !( nonterm = pp_sym_get_by_name( g, att.buf ) ) )
-					nonterm = pp_sym_create( g, PPSYMTYPE_NONTERM,
-												att.buf, (char*)NULL );
-
-				parray_push( dec, &nonterm );
-				pfree( att.buf );
-			}
-			else if( e->emit == T_INLINE )
-			{
-				sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-							derive_name( g, nonterm->name ), (char*)NULL );
-				sym->flags |= PPFLAG_DEFINED;
-
-				parray_push( dec, &sym );
-			}
-			else if( e->emit == T_PRODUCTION )
-				/* Push an empty sequence delimiter */
-				parray_push( st, &att );
-		}
-
-		if( !( e->type & PPMATCH_END ) )
-			continue;
-
-		/*
-		fprintf( stderr, "emit %d >%.*s<\n",
-			e->emit, e->end - e->start, e->start );
-		*/
 
 		switch( ( att.emit = e->emit ) )
 		{
@@ -778,7 +747,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 	ppgram*		bnfgram;
 	char*		s = bnf;
 	char*		e;
-	parray*		a;
+	ppast*		ast;
 
 	if( !( g && bnf ) )
 	{
@@ -791,19 +760,24 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 	pp_bnf_define( bnfgram );
 	pp_gram_prepare( bnfgram );
 
-	if( !pp_lr_parse( &a, bnfgram, s, &e ) )
+	if( !pp_lr_parse( &ast, bnfgram, s, &e ) )
 	{
 		pp_gram_free( bnfgram );
 		return FALSE;
 	}
 
+	fprintf(stderr, "I AM HERE\n" );
+	pp_ast_printnew( ast );
+
 	/* pp_ast_simplify( a ); */
 
-	if( !ast_to_gram( g, a ) )
+	/*
+	if( !ast_to_gram( g, ast ) )
 		return FALSE;
+		*/
 
 	pp_gram_free( bnfgram );
-	parray_free( a );
+	pp_ast_free( ast );
 
 	return TRUE;
 }

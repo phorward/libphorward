@@ -13,7 +13,7 @@ Usage:	Phorward Parsing Library
 
 ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod,
 						char* start, char* end, int row, int col,
-							ppast* prev, ppast* child )
+							ppast* child )
 {
 	ppast*	node;
 
@@ -30,16 +30,42 @@ ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod,
 	node->row = row;
 	node->col = col;
 
-	if( ( node->prev = prev ) )
-	{
-		if( prev->next )
-			prev->next->prev = (ppast*)NULL;
-
-		prev->next = node;
-	}
-
 	node->child = child;
 	return node;
+}
+
+ppast* pp_ast_free( ppast* node )
+{
+	ppast*	child;
+	ppast*	next;
+
+	if( !node )
+		return (ppast*)NULL;
+
+	next = node->child;
+
+	while( next )
+	{
+		child = next;
+		next = child->next;
+
+		pp_ast_free( child );
+	}
+
+	return (ppast*)pfree( node );
+}
+
+int pp_ast_len( ppast* node )
+{
+	int		step	= 0;
+
+	while( node )
+	{
+		node = node->next;
+		step++;
+	}
+
+	return step;
 }
 
 
@@ -47,6 +73,12 @@ void pp_ast_printnew( ppast* ast )
 {
 	static int lev		= 0;
 	int	i;
+
+	if( lev > 5 )
+	{
+		fprintf( stderr, "TILT\n" );
+		return;
+	}
 
 	while( ast )
 	{
