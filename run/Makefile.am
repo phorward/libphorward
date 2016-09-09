@@ -1,3 +1,3 @@
 
-bin_SCRIPTS = pdostounix pinclude pproto premcomments
+bin_SCRIPTS = pdoc pdostounix pinclude pproto premcomments
 
