@@ -3,12 +3,40 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
-v0.18
+v0.18.0
 ----------------------------------------
-COMING SOON
+The v0.18 release of libphorward was declared on September 2016 as an
+intermediate release after the version 0.18 has been under development since
+2012.
+
+libphorward's purpose now targets to serve a C toolchain for parsing, lexical
+analysis, regular expressions and powerful standard data structures like linked
+lists, hashtables, dynamic arrays and system-independend utility functions.
+
+The v0.18 serves as the base for the next step, an upcoming v0.19 that will be
+inhanced and furnished for better programming experiences.
+
+v0.18 of libphorward was released together with the UniCC LALR(1) parser
+generator v1.1.0, which is now discontinued, so all development capacities are
+going into libphorward now.
+
+[+] Full refactoring of all modules, evolving in the following new modules:
+	- base (plist, parray, pccl) for data structures
+	- string for extended string functions
+	- util for system-independent utility functions
+	- pany for a dynamic, object-oriented data type
+	- pregex for an object-oriented regular expression toolchain
+	- plex for an object-oriented lexing toolchain
+	- pparse for an object-oriented parsing toolchain with build-in
+	  abstract syntax tree traversal tools (unfinished!)
+	- pvm for object-oriented definition of virtual instruction sets and
+	  machines (unfinished!)
+[+] Started to create a full reference manual and user guide
+[+] New README.md file with examples
+[+] More test programs and tools in DEMO folder
 
 ----------------------------------------
-v0.17 (changeset 394)
+v0.17.0 (changeset 394)
 ----------------------------------------
 [+] New string functions pstrltrim(), pstrrtrim(), pstrtrim(), pstrndup(),
 	pstrset(), pstrget(). There had also been some renamings on existing
@@ -90,14 +118,14 @@ v0.16.4
 	include/Make.inc, and the /doc-directory in $PHOME.
 
 ----------------------------------------
-v0.16.3
+v0.16.1 -> v0.16.3
 ----------------------------------------
 Entire development moved from SCCS to the Mercurial SCM, project maintenance
 and repository now entirely hosted on SourceForge.net. Now development is more
 transparent and faster than before. Enjoy!
 
 ----------------------------------------
-v0.16
+v0.16.0
 ----------------------------------------
 [+] pregex:
 	Implemented feature to finalize a NFA-stated machine into a DFA,

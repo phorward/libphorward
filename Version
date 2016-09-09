@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "0.18 devel"
+echo "0.18.0"
