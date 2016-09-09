@@ -1,4 +1,4 @@
-.TH "Phorward Toolkit" 1 "December 2015" "libphorward 0.18"
+.TH "Phorward Toolkit" 1 "September 2016" "libphorward 0.18.0"
 
 
 .SH DESCRIPTION
