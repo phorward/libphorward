@@ -42,6 +42,7 @@ Usage:	Grammar-specific stuff.
 #define T_EMIT			42
 #define T_SEMIT			43
 
+
 /* Derive name from basename */
 static char* derive_name( ppgram* g, char* base )
 {
@@ -62,8 +63,68 @@ static char* derive_name( ppgram* g, char* base )
 	return (char*)NULL;
 }
 
+
+static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
+{
+	ppast*		child;
+
+	for( child = node->child; child; child = child->next )
+	{
+		switch( child->emit )
+		{
+			case T_SYMBOL:
+				printf( "symbol >%.*s<\n", child->child->end - child->child->start, child->child->start );
+				break;
+		}
+	}
+
+	return TRUE;
+}
+
+static pboolean ast_to_gram( ppgram* g, ppast* ast )
+{
+	ppsym*		sym;
+	ppast* 		node;
+	ppast*		child;
+	char		name		[ NAMELEN * 2 + 1 ];
+
+	for( node = ast; node; node = node->next )
+	{
+		switch( node->emit )
+		{
+			case T_NONTERMDEF:
+				sprintf( name, "%.*s", node->child->end - node->child->start,
+										node->child->start );
+
+				if( !( sym = pp_sym_get_by_name( g, name ) ) )
+					sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+											name, (char*)NULL );
+
+				for( child = node->child->next; child; child = child->next )
+				{
+					switch( child->emit )
+					{
+						case T_FLAG:
+							break;
+
+						case T_PRODUCTION:
+							if( !traverse_production( g, sym, child ) )
+								return FALSE;
+					}
+				}
+
+
+				break;
+		}
+	}
+
+	return FALSE;
+}
+
+
+
 /* Stack machine compiling AST to ppgram. */
-static pboolean ast_to_gram( ppgram* g, ppast* node )
+static pboolean ast_to_gram_OLD( ppgram* g, ppast* node )
 {
 	typedef struct
 	{
@@ -771,10 +832,8 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 
 	/* pp_ast_simplify( a ); */
 
-	/*
 	if( !ast_to_gram( g, ast ) )
 		return FALSE;
-		*/
 
 	pp_gram_free( bnfgram );
 	pp_ast_free( ast );
