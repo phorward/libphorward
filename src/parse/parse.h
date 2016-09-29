@@ -112,6 +112,7 @@ struct _ppast
 
 	char*					start;
 	char*					end;
+	size_t					length;
 	int						row;
 	int						col;
 

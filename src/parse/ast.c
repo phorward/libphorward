@@ -26,6 +26,7 @@ ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod,
 
 	node->start = start;
 	node->end = end;
+	node->length = end - start;
 
 	node->row = row;
 	node->col = col;
@@ -74,12 +75,6 @@ void pp_ast_printnew( ppast* ast )
 	static int lev		= 0;
 	int	i;
 
-	if( lev > 5 )
-	{
-		fprintf( stderr, "TILT\n" );
-		return;
-	}
-
 	while( ast )
 	{
 		for( i = 0; i < lev; i++ )
@@ -100,9 +95,6 @@ void pp_ast_printnew( ppast* ast )
 		ast = ast->next;
 	}
 }
-
-
-
 
 
 
