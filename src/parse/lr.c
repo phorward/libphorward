@@ -1050,19 +1050,6 @@ static void print_stack( char* title, plist* states, parray* stack )
 #endif
 
 
-static get_cur_root( ppast* node )
-{
-	if( !node )
-		return node;
-
-
-	while( node->prev)
-		node = node->prev;
-
-	return node;
-}
-
-
 static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 								char* start, char** end, plist* states )
 {
@@ -1222,7 +1209,6 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 
 			#if DEBUGLEVEL > 2
 			print_stack( "Behind Reduce", states, stack );
-			pp_ast_print( ast );
 			#endif
 		}
 

@@ -170,8 +170,6 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node,
 			case T_KLEENE:
 			case T_POSITIVE:
 			case T_OPTIONAL:
-				printf("closure\n" );
-
 				sym = traverse_symbol( g, lhs, node->child->child,
 										emitall, emit_seq );
 				str = sym->name;
@@ -258,14 +256,14 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	char*		semit;
 	int			emit_id;
 	pboolean	emit;
-	pboolean	ignore;
+
+	pp_ast_simplify( ast );
 
 	for( node = ast; node; node = node->next )
 	{
 		emit_id = 0;
 		semit = (char*)NULL;
 		emit = emitall;
-		ignore = FALSE;
 
 		switch( node->emit )
 		{
@@ -328,7 +326,8 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 							else if( strcmp( name, "noemit" ) == 0 )
 								emit = FALSE;
 							else if( strcmp( name, "ignore" ) == 0 )
-								ignore = TRUE;
+								/* ignore = TRUE; */
+								;
 							else if( strcmp( name, "lexeme" ) == 0 )
 								sym->flags |= PPFLAG_LEXEM;
 
@@ -365,9 +364,9 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 				else
 					*name = '\0';
 
-				sprintf( def, "%.*s", child->length, child->start );
+				sprintf( def, "%.*s", child->length - 2, child->start + 1 );
 
-				sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+				sym = pp_sym_create( g, child->emit,
 										*name ? name : (char*)NULL, def );
 
 				sym->flags |= PPFLAG_DEFINED;
@@ -395,8 +394,10 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 								emit = FALSE;
 							else if( strcmp( name, "ignore" ) == 0
 										|| strcmp( name, "skip" ) == 0 )
-								ignore = TRUE;
-
+							{
+								sym->flags |= PPFLAG_WHITESPACE;
+								plist_push( g->ws, sym );
+							}
 							break;
 
 						default:
@@ -442,7 +443,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 
 	pp_gram_print( g );
 
-	return FALSE;
+	return TRUE;
 }
 
 
@@ -692,9 +693,6 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 		pp_gram_free( bnfgram );
 		return FALSE;
 	}
-
-	fprintf(stderr, "I AM HERE\n" );
-	pp_ast_printnew( ast );
 
 	/* pp_ast_simplify( a ); */
 

@@ -20,8 +20,8 @@ void help( char** argv )
 	"   -e  --exec    INPUT     Execute string INPUT on grammar.\n"
 	"   -g  --grammar BNF       Define grammar from BNF.\n"
 	"   -h  --help              Show this help, and exit.\n"
-	"   -m  --mode    MODE      Use construction mode MODE:\n"
-	"                           lr=bottom-up (default), ll=top-down\n"
+/*	"   -m  --mode    MODE      Use construction mode MODE:\n"
+	"                           lr=bottom-up (default), ll=top-down\n" */
 	"   -r  --render  RENDERER  Use AST renderer RENDERER:\n"
 	"                           tree (default), tree2svg\n"
 	"   -s  --source  FILENAME  Execute input from FILENAME on grammar.\n"
@@ -33,7 +33,7 @@ int main( int argc, char** argv )
 {
 	pboolean	lr		= TRUE;
 	pboolean	as		= FALSE;
-	parray*		a		= (parray*)NULL;
+	ppast*		a;
 	ppgram*		g;
 	char*		gstr	= (char*)NULL;
 	char*		s		= (char*)NULL;
@@ -107,8 +107,8 @@ int main( int argc, char** argv )
 	{
 		e = s;
 
-		if( ( !lr && pp_ll_parse( &a, g, s, &e ) )
-					|| pp_lr_parse( &a, g, s, &e ) )
+		if( /* ( !lr && pp_ll_parse( &a, g, s, &e ) )
+					|| */ pp_lr_parse( &a, g, s, &e ) )
 		{
 			printf( "\n%s SUCCEED >%.*s<\n", lr ? "LR" : "LL", e - s, s );
 
@@ -120,7 +120,7 @@ int main( int argc, char** argv )
 		else
 			printf( "\n%s FAILED\n", lr ? "LR" : "LL" );
 
-		parray_free( a );
+		pp_ast_free( a );
 	}
 
 	return 0;

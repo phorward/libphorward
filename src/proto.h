@@ -155,13 +155,12 @@ void* pmemdup( void* ptr, size_t size );
 ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
-void pp_ast_printnew( ppast* ast );
 ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset );
 ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth );
 ppmatch* pp_ast_pendant( parray* ast, ppmatch* match );
-void pp_ast_print( parray* ast );
-void pp_ast_simplify( parray* ast );
-void pp_ast_tree2svg( parray* ast );
+void pp_ast_print( ppast* ast );
+void pp_ast_simplify( ppast* ast );
+void pp_ast_tree2svg( ppast* ast );
 
 /* parse/bnf.c */
 void pp_bnf_define( ppgram* g );
@@ -174,7 +173,9 @@ void pp_gram_print( ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
 
 /* parse/ll.c */
+#if 0
 pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
+#endif
 
 /* parse/lr.c */
 plist* pp_lr_closure( ppgram* gram, pboolean optimize );
