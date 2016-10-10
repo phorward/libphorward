@@ -15,6 +15,7 @@ typedef struct _ppgram		ppgram;
 typedef struct _ppast		ppast;
 
 /* Flags for grammars and their objects */
+#define PPFLAG_NONE			0
 #define PPFLAG_CALLED		1
 #define PPFLAG_DEFINED		2
 #define PPFLAG_NULLABLE		4
@@ -31,7 +32,7 @@ typedef struct _ppast		ppast;
 /* Production */
 struct _ppprod
 {
-	/* Primaries */
+	/* Elementary */
 	int						id;
 	ppsym*					lhs;
 	plist*					rhs;
@@ -104,40 +105,30 @@ struct _ppgram
 /* AST */
 struct _ppast
 {
+	/* Emit */
 	int						emit;
 	char*					semit;
 
+	/* Grammar */
 	ppsym*					sym;
 	ppprod*					prod;
 
+	/* Match */
 	char*					start;
 	char*					end;
+	size_t					length;
+
+	/* Source */
 	int						row;
 	int						col;
 
+	/* AST */
 	ppast*					child;
+	ppast*					prev;
 	ppast*					next;
 };
 
-/* Match (an AST entry) */
-typedef struct
-{
-	#define PPMATCH_BEGIN	1
-	#define PPMATCH_END		2
-	int						type;
-
-	int						emit;
-	char*					semit;
-	ppsym*					sym;
-	ppprod*					prod;
-
-	char*					start;
-	char*					end;
-	int						row;
-	int						col;
-} ppmatch;
-
-/* Parser maintainance/runtime object */
+/* Parser runtime object */
 typedef struct
 {
 	int						type;

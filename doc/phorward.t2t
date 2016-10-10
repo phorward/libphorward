@@ -1,6 +1,6 @@
 Phorward Toolkit Reference Manual
-libphorward 0.18
-July 2015
+libphorward 0.19.0
+September 2016
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
 %!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"

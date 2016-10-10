@@ -92,8 +92,8 @@ pboolean pp_parse_add_do( pparse* par, char* name, ppdofunc func )
 The function uses the parsing method defined when then parser was created.
 //end// receives a pointer to the position where the parser stopped.
 
-It returns a parse-tree to //ast// on success. */
-pboolean pp_parse_to_ast( parray** ast, pparse* par, char* start, char** end )
+It returns a parse-tree to //root// on success. */
+pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end )
 {
 	if( !( par && start && end ) )
 	{
@@ -106,6 +106,6 @@ pboolean pp_parse_to_ast( parray** ast, pparse* par, char* start, char** end )
 		return pp_ll_parse( ast, par->gram, start, end );
 	*/
 
-	return pp_lr_parse( ast, par->gram, start, end );
+	return pp_lr_parse( root, par->gram, start, end );
 }
 

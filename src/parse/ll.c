@@ -11,6 +11,7 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
+#if 0
 /* Simple recursive-descent LL parser */
 
 static pboolean pp_ll_PARSE( ppsym* sym, parray* ast, ppgram* grm,
@@ -198,4 +199,4 @@ pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end )
 
 	return ret;
 }
-
+#endif

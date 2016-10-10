@@ -11,254 +11,157 @@ Usage:	Phorward Parsing Library
 
 #include "phorward.h"
 
-/** Retrieves the entry with offset //offset// starting to count from
-entry //from//. */
-ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset )
+/** Creates new abstract syntax tree node. */
+ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod,
+						char* start, char* end, int row, int col,
+							ppast* child )
 {
-	return (ppmatch*)parray_get( ast,
-				( from ? parray_offset( ast, from ) : 0 ) + offset );
+	ppast*	node;
+
+	node = (ppast*)pmalloc( sizeof( ppast ) );
+
+	node->emit = emit;
+	node->semit = semit;
+	node->sym = sym;
+	node->prod = prod;
+
+	node->start = start;
+	node->end = end;
+	node->length = end - start;
+
+	node->row = row;
+	node->col = col;
+
+	node->child = child;
+	return node;
 }
 
-/** Queries for the //count//-th element that matches //emit// within the
-boundaries of //start//. If //start// is an end-node of a tree item, the
-function searches upwards, else downwards. If //start// is NULL, search
-begins at the first element.
+/* Frees entire //ast// structure and subsequent links.
 
-//depth// specifies an optional, maximum depth of levels to dive in, so a
-//depth// of 1 will only match elements in the first level. A //depth// of 0
-ignores the deepness.
-
-The function returns the element found. */
-ppmatch* pp_ast_query( parray* ast, ppmatch* start,
-						int count, int emit, int depth )
+Always returns (ppast*)NULL. */
+ppast* pp_ast_free( ppast* node )
 {
-	ppmatch*	walker;
-	int			level	= 0;
+	ppast*	child;
+	ppast*	next;
 
-	if( !( ast && count >= 0 ) )
+	if( !node )
+		return (ppast*)NULL;
+
+	next = node->child;
+
+	while( next )
 	{
-		WRONGPARAM;
-		return (ppmatch*)NULL;
+		child = next;
+		next = child->next;
+
+		pp_ast_free( child );
 	}
 
-	if( !start )
-		start = pp_ast_get( ast, (ppmatch*)NULL, 0 );
-
-	/* Entry is begin and end? Then fail. */
-	if( start->type & PPMATCH_BEGIN && start->type & PPMATCH_END )
-		return (ppmatch*)NULL;
-
-	walker = start;
-
-	/* Search down */
-	if( start->type & PPMATCH_BEGIN )
-	{
-		while( ++walker <= (ppmatch*)parray_last( ast ) && level >= 0 )
-		{
-			if( walker->type & PPMATCH_BEGIN )
-			{
-				level++;
-
-				if( ( depth <= 0 || level <= depth )
-						&& ( emit <= 0 || walker->emit == emit )
-							&& !count-- )
-					return walker;
-			}
-
-			if( walker->type & PPMATCH_END )
-				level--;
-		}
-	}
-	/* Search up */
-	else if( start->type & PPMATCH_END )
-	{
-		while( --walker >= (ppmatch*)parray_first( ast ) && level >= 0 )
-		{
-			if( walker->type & PPMATCH_END )
-			{
-				level++;
-
-				if( ( depth <= 0 || level <= depth )
-						&& ( emit <= 0 || walker->emit == emit )
-							&& !count-- )
-					return walker;
-			}
-
-			if( walker->type & PPMATCH_BEGIN )
-				level--;
-		}
-	}
-
-	/* If this happens, the AST is broken! */
-	return (ppmatch*)NULL;
+	return (ppast*)pfree( node );
 }
 
-/** Returns the pendant entry of //match//.
-
-If //match// is a match begin, it returns the corresponding end, and reverse.*/
-ppmatch* pp_ast_pendant( parray* ast, ppmatch* match )
+/** Returns length of //node// chain. */
+int pp_ast_len( ppast* node )
 {
-	ppmatch*	walker	= match;
-	int			level	= 0;
+	int		step	= 0;
 
-	if( !( ast && match ) )
+	while( node )
 	{
-		WRONGPARAM;
-		return (ppmatch*)NULL;
+		node = node->next;
+		step++;
 	}
 
-	/* Search down */
-	if( match->type & PPMATCH_BEGIN )
-	{
-		do
-		{
-			if( walker->emit == match->emit )
-			{
-				if( walker->type & PPMATCH_BEGIN )
-					level++;
-				if( walker->type & PPMATCH_END )
-					level--;
-
-				if( !level )
-					return walker;
-			}
-
-			walker++;
-		}
-		while( walker <= (ppmatch*)parray_last( ast ) );
-	}
-	/* Search up */
-	else if( match->type & PPMATCH_END )
-	{
-		do
-		{
-			if( walker->emit == match->emit )
-			{
-				if( walker->type & PPMATCH_END )
-					level++;
-				if( walker->type & PPMATCH_BEGIN )
-					level--;
-
-				if( !level )
-					return walker;
-			}
-
-			walker--;
-		}
-		while( walker >= (ppmatch*)parray_first( ast ) );
-	}
-
-	/* If this happens, the AST is broken! */
-	return (ppmatch*)NULL;
+	return step;
 }
 
 /** Print detailed //ast// to stdout. */
-void pp_ast_print( parray* ast )
+void pp_ast_print( ppast* ast )
 {
-	int			i;
-	ppmatch*	match;
-	char		gap		[ 80 + 1 ];
+	static int lev		= 0;
+	int	i;
 
-	if( !ast )
+	while( ast )
 	{
-		WRONGPARAM;
-		return;
-	}
+		for( i = 0; i < lev; i++ )
+			fprintf( stderr, " " );
 
-	*gap = '\0';
+		fprintf( stderr, "{ %s %d >%.*s<\n",
+					ast->semit, ast->emit,
+						ast->end - ast->start,
+							ast->start );
 
-	for( i = 0; ( match = (ppmatch*)parray_get( ast, i ) ); i++ )
-	{
-		if( match->type & PPMATCH_BEGIN )
+		if( ast->child )
 		{
-			printf( "%s{ %s (%d) >%.*s< @%03d:%03d\n",
-				gap,
-				match->sym->name,
-				match->emit,
-				match->end - match->start,
-				match->start,
-				match->row,
-				match->col );
-
-			strcat( gap, " " );
+			lev++;
+			pp_ast_print( ast->child );
+			lev--;
 		}
 
-		if( match->type & PPMATCH_END )
-		{
-			if( *gap )
-				gap[ strlen( gap ) - 1 ] = '\0';
+		for( i = 0; i < lev; i++ )
+			fprintf( stderr, " " );
 
-			printf( "%s} %s (%d) >%.*s< @%03d:%03d\n",
-				gap,
-				match->sym->name,
-				match->emit,
-				match->end - match->start,
-				match->start,
-				match->row,
-				match->col );
-		}
+		fprintf( stderr, "} %s %d >%.*s<\n",
+					ast->semit, ast->emit,
+						ast->end - ast->start,
+							ast->start );
+
+		ast = ast->next;
 	}
 }
 
 /** Print simplified //ast// to stdout.
 Only opening matches are printed. */
-void pp_ast_simplify( parray* ast )
+void pp_ast_simplify( ppast* ast )
 {
-	int			i;
-	ppmatch*	match;
-	char		gap		[ 80 + 1 ];
+	static int lev		= 0;
+	int	i;
 
-	if( !ast )
+	while( ast )
 	{
-		WRONGPARAM;
-		return;
-	}
+		for( i = 0; i < lev; i++ )
+			fprintf( stderr, " " );
 
-	*gap = '\0';
+		fprintf( stderr, "%s %d >%.*s<\n",
+					ast->semit, ast->emit,
+						ast->end - ast->start,
+							ast->start );
 
-	for( i = 0; ( match = (ppmatch*)parray_get( ast, i ) ); i++ )
-	{
-		if( match->type & PPMATCH_BEGIN )
+		if( ast->child )
 		{
-			printf( "%s%s", gap, match->sym->name );
-
-			if( match->sym->type != PPSYMTYPE_NONTERM )
-				printf( " >%.*s<", match->end - match->start, match->start );
-
-			printf( "\n" );
-			strcat( gap, " " );
+			lev++;
+			pp_ast_simplify( ast->child );
+			lev--;
 		}
 
-		if( match->type & PPMATCH_END && *gap )
-			gap[ strlen( gap ) - 1 ] = '\0';
+		ast = ast->next;
 	}
 }
 
 /** Print //ast// in notation for the tree2svg tool that generates a
 graphical view of the parse tree. */
-void pp_ast_tree2svg( parray* ast )
+void pp_ast_tree2svg( ppast* ast )
 {
-	int			i;
-	ppmatch*	match;
+	static int lev		= 0;
 
-	if( !ast )
+	while( ast )
 	{
-		WRONGPARAM;
-		return;
-	}
+		if( ast->sym->type == PPSYMTYPE_NONTERM )
+		{
+			printf( "'%s' [ ", ast->sym->name );
 
-	for( i = 0; ( match = (ppmatch*)parray_get( ast, i ) ); i++ )
-	{
-		if( match->type & PPMATCH_BEGIN )
-			printf( "'%s' [ ",
-				match->sym->name );
+			lev++;
+			pp_ast_tree2svg( ast->child );
+			lev--;
 
-		if( match->sym->type > PPSYMTYPE_NONTERM )
-			printf( "'%.*s' ", match->end - match->start, match->start );
-
-		if( match->type & PPMATCH_END )
 			printf( "] " );
+		}
+		else
+			printf( "'%.*s' ", ast->length, ast->start );
+
+
+		ast = ast->next;
 	}
 
-	printf( "\n" );
+	if( lev == 0 )
+		printf( "\n" );
 }
