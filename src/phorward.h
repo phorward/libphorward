@@ -584,6 +584,7 @@ typedef struct _ppgram		ppgram;
 typedef struct _ppast		ppast;
 
 
+#define PPFLAG_NONE			0
 #define PPFLAG_CALLED		1
 #define PPFLAG_DEFINED		2
 #define PPFLAG_NULLABLE		4
@@ -673,40 +674,28 @@ struct _ppgram
 
 struct _ppast
 {
+	
 	int						emit;
 	char*					semit;
 
+	
 	ppsym*					sym;
 	ppprod*					prod;
 
+	
 	char*					start;
 	char*					end;
 	size_t					length;
+
+	
 	int						row;
 	int						col;
 
+	
 	ppast*					child;
 	ppast*					prev;
 	ppast*					next;
 };
-
-
-typedef struct
-{
-	#define PPMATCH_BEGIN	1
-	#define PPMATCH_END		2
-	int						type;
-
-	int						emit;
-	char*					semit;
-	ppsym*					sym;
-	ppprod*					prod;
-
-	char*					start;
-	char*					end;
-	int						row;
-	int						col;
-} ppmatch;
 
 
 typedef struct
@@ -880,9 +869,6 @@ void* pmemdup( void* ptr, size_t size );
 ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
-ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset );
-ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth );
-ppmatch* pp_ast_pendant( parray* ast, ppmatch* match );
 void pp_ast_print( ppast* ast );
 void pp_ast_simplify( ppast* ast );
 void pp_ast_tree2svg( ppast* ast );
