@@ -95,15 +95,15 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node,
 		case T_REGEX:
 			name[ pstrlen( name ) - 1 ] = '\0';
 
-			sym = pp_sym_create( g, type, (char*)NULL, name + 1 );
+			if( !( sym = pp_sym_get_nameless_term_by_def( g, name + 1 ) ) )
+			{
+				sym = pp_sym_create( g, type, (char*)NULL, name + 1 );
 
-			/* printf( "%d >%s<\n", type, sym->name ); */
+				sym->flags |= PPFLAG_DEFINED;
 
-			sym->flags |= PPFLAG_DEFINED;
-
-			if( emit )
-				sym->emit = ++(*emit_seq);
-
+				if( emit )
+					sym->emit = ++(*emit_seq);
+			}
 			break;
 
 		case T_INLINE:
@@ -143,7 +143,7 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node,
 	char		name		[ NAMELEN * 2 + 1 ];
 	char*		semit		= (char*)NULL;
 	int			emit_id		= 0;
-	pboolean	emit;
+	pboolean	emit		= FALSE;
 
 	prod = pp_prod_create( g, lhs, (ppsym*)NULL );
 
@@ -257,8 +257,6 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	int			emit_id;
 	pboolean	emit;
 
-	pp_ast_simplify( ast );
-
 	for( node = ast; node; node = node->next )
 	{
 		emit_id = 0;
@@ -298,6 +296,8 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 							if( !traverse_production( g, sym, child->child,
 														emitall, &emit_seq ) )
 								return FALSE;
+
+							break;
 
 						case T_EMIT:
 							emit = TRUE;
@@ -441,7 +441,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 		g->goal = nonterm;
 	}
 
-	pp_gram_print( g );
+	/* pp_gram_print( g ); */
 
 	return TRUE;
 }
