@@ -11,7 +11,7 @@ The following example defines a simple grammar, runs a parser and prints the gen
     int main()
     {
         pparse* p;
-        parray* a;
+        ppast*  a;
         char*   s = "1+2*(3+4)+5";
         char*   e;
     

@@ -266,7 +266,6 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 		switch( node->emit )
 		{
 			case T_GFLAG:
-				fprintf( stderr, "GFLAG >%.*s<\n", node->length, node->start );
 				if( !strncmp( node->start, "emitall", node->length ) )
 					emitall = TRUE;
 				else if( !strncmp( node->start, "emitnone", node->length ) )

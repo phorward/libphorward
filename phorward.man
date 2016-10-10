@@ -1,4 +1,4 @@
-.TH "Phorward Toolkit" 1 "September 2016" "libphorward 0.18.0"
+.TH "Phorward Toolkit" 1 "October 2016" "libphorward 0.19.0"
 
 
 .SH DESCRIPTION
@@ -15,7 +15,7 @@ The following example defines a simple grammar, runs a parser and prints the gen
 int main()
 {
     pparse* p;
-    parray* a;
+    ppast*  a;
     char*   s = "1+2*(3+4)+5";
     char*   e;
 
