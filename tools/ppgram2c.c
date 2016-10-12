@@ -101,10 +101,14 @@ void gen_sym( FILE* f, ppgram* g )
 		pfree( name );
 		pfree( def );
 
-		/* Has emit id? */
+		/* Has emit info? */
 		if( sym->emit )
-			fprintf( f, "%s%s[ %d ]->emit = %d;\n",
-				indent, symname, sym->id, sym->emit );
+			if( sym->emit == sym->name )
+				fprintf( f, "%s%s[ %d ]->emit = %s[ %d ]->name;\n",
+								indent, symname, sym->id, symname, sym->id );
+			else
+				fprintf( f, "%s%s[ %d ]->emit = pstrdup( \"%s\" );\n",
+								indent, symname, sym->id, sym->emit );
 
 		/* Set flags? */
 		if( sym->flags & PPFLAG_LEXEM )
@@ -199,9 +203,14 @@ void gen_prods( FILE* f, ppgram* g )
 		fprintf( f, "\n%s\t", indent );
 		fprintf( f, "(ppsym*)NULL );\n" );
 
-		if( prod->emit )
-			fprintf( f, "%s%s[ %d ]->emit = %d;\n",
-							indent, prodname, i, prod->emit );
+		/* Has emit info */
+		if( prod->emit && prod->emit != prod->lhs->emit )
+			if( prod->emit == prod->lhs->name )
+				fprintf( f, "%s%s[ %d ]->emit = %s[ %d ]->name;\n",
+								indent, prodname, i, symname, prod->lhs->id );
+			else
+				fprintf( f, "%s%s[ %d ]->emit = \"%s\";\n",
+								indent, prodname, i, prod->emit );
 
 		fprintf( f, "\n" );
 	}

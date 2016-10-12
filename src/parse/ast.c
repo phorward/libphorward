@@ -12,7 +12,7 @@ Usage:	Phorward Parsing Library
 #include "phorward.h"
 
 /** Creates new abstract syntax tree node. */
-ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod,
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
 						char* start, char* end, int row, int col,
 							ppast* child )
 {
@@ -21,7 +21,6 @@ ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod,
 	node = (ppast*)pmalloc( sizeof( ppast ) );
 
 	node->emit = emit;
-	node->semit = semit;
 	node->sym = sym;
 	node->prod = prod;
 
@@ -85,10 +84,7 @@ void pp_ast_print( ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stderr, " " );
 
-		fprintf( stderr, "{ %s %d >%.*s<\n",
-					ast->semit, ast->emit,
-						ast->end - ast->start,
-							ast->start );
+		fprintf( stderr, "{ %s >%.*s<\n", ast->emit, ast->length, ast->start );
 
 		if( ast->child )
 		{
@@ -100,10 +96,7 @@ void pp_ast_print( ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stderr, " " );
 
-		fprintf( stderr, "} %s %d >%.*s<\n",
-					ast->semit, ast->emit,
-						ast->end - ast->start,
-							ast->start );
+		fprintf( stderr, "} %s >%.*s<\n", ast->emit, ast->length, ast->start );
 
 		ast = ast->next;
 	}
@@ -121,10 +114,7 @@ void pp_ast_simplify( ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stderr, " " );
 
-		fprintf( stderr, "%s %d >%.*s<\n",
-					ast->semit, ast->emit,
-						ast->end - ast->start,
-							ast->start );
+		fprintf( stderr, "%s >%.*s<\n", ast->emit, ast->length, ast->start );
 
 		if( ast->child )
 		{
@@ -147,7 +137,7 @@ void pp_ast_tree2svg( ppast* ast )
 	{
 		if( ast->sym->type == PPSYMTYPE_NONTERM )
 		{
-			printf( "'%s' [ ", ast->sym->name );
+			printf( "'%s' [ ", ast->emit );
 
 			lev++;
 			pp_ast_tree2svg( ast->child );

@@ -1150,7 +1150,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 
 			/* Shifted symbol becomes AST node? */
 			if( root && sym->emit )
-				tos->node = pp_ast_create( sym->emit, sym->semit, sym,
+				tos->node = pp_ast_create( sym->emit, sym,
 											(ppprod*)NULL, start, *end,
 												row, col, (ppast*)NULL );
 
@@ -1185,7 +1185,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 
 			/* Construction of AST node */
 			if( root && reduce->emit )
-				node = pp_ast_create( reduce->emit, reduce->semit,
+				node = pp_ast_create( reduce->emit,
 										lhs, reduce, start, lend,
 											row, col, node );
 

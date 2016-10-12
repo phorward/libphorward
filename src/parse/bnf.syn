@@ -16,21 +16,21 @@ $				/\/\*([^*]|\*[^\/])*\*\//							%ignore;
 
 // Terminals -------------------------------------------------------------------
 
-$ccl 			/\[(\\.|[^\\\]])*\]/ 								%emit 1;
-$string 		/'[^']*'/											%emit 2;
-$token			/"[^"]*"/											%emit 9;
-$regex 			/\/(\\.|[^\\\/])*\//								%emit 3;
+$ccl 			/\[(\\.|[^\\\]])*\]/ 								%emit;
+$string 		/'[^']*'/											%emit;
+$token			/"[^"]*"/											%emit;
+$regex 			/\/(\\.|[^\\\/])*\//								%emit;
 
-$ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit 10;
-$int			/[0-9]+/ 											%emit 11;
-$function		/[A-Za-z_][A-Za-z0-9_]*\(\)/ 						%emit 4;
+$ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit;
+$int			/[0-9]+/ 											%emit;
+$function		/[A-Za-z_][A-Za-z0-9_]*\(\)/ 						%emit;
 
 // Nonterminals ----------------------------------------------------------------
 
-inline			: '(' alternation ')'								%emit 32
+inline			: '(' alternation ')'								%emit
 				;
 
-symbol 																%emit 20
+symbol 																%emit
 				: ident
 				| ccl
 				| string
@@ -40,19 +40,19 @@ symbol 																%emit 20
 				| inline
 				;
 
-modifier		: symbol '*' 										%emit 25
-				| symbol '+' 										%emit 26
-				| symbol '?'										%emit 27
+modifier		: symbol '*' 										%emit kle
+				| symbol '+' 										%emit pos
+				| symbol '?'										%emit opt
 				| symbol ;
 
 sequence		: sequence modifier | modifier ;
 
 production	 	: sequence | ;
 
-emit			: 'emit' ( int | string )?							%emit 42
+emit			: 'emit' ident?										%emit
 				;
 
-flag			: 'noemit'											%emit 40
+flag			: 'noemit'											%emit
 				| emit
 				;
 
@@ -60,12 +60,12 @@ flags    		: flags '%' flag+
 				| '%' flag+
 				;
 
-alternative		: production flags?									%emit 30;
+alternative		: production flags?									%emit;
 alternation		: alternation '|' alternative | alternative ;
 
-nontermflag		: 'noemit'											%emit 40
-				| 'goal'											%emit 40
-				| 'lexeme' 											%emit 40
+nontermflag		: 'noemit'											%emit
+				| 'goal'											%emit
+				| 'lexeme' 											%emit
 				| emit
 				;
 
@@ -73,11 +73,12 @@ nontermflags	: nontermflags '%' nontermflag+
 				| '%' nontermflag+
 				;
 
-nontermdef		: ident nontermflags? ( ':' alternation )? ';'		%emit 31;
+nontermdef		: ident nontermflags? ( ':' alternation )? ';'		%emit
+				;
 
-termflag		: 'noemit' 											%emit 40
-				| 'ignore' 											%emit 40
-				| 'skip' 											%emit 40
+termflag		: 'noemit' 											%emit
+				| 'ignore' 											%emit
+				| 'skip' 											%emit
 				| emit
 				;
 
@@ -86,10 +87,10 @@ termflags		: termflags '%' termflag+
 				;
 
 termdef			: '$' ident? ( ccl | string | regex | function )
-						termflags? ';'								%emit 35
+						termflags? ';'								%emit
 				;
 
-gflag       														%emit 41
+gflag 																%emit
 				: 'emitall'
 				| 'emitnone'
 				| 'lrec'

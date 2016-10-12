@@ -152,7 +152,7 @@ void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
 
 /* parse/ast.c */
-ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
 void pp_ast_print( ppast* ast );

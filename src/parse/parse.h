@@ -39,8 +39,7 @@ struct _ppprod
 	int						flags;
 
 	/* AST construction */
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	/* Debug */
 	char*					strval;
@@ -80,8 +79,7 @@ struct _ppsym
 	ppsymfunc				sf;			/* Symbol function */
 
 	/* AST construction */
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	/* Debug */
 	char*					strval;
@@ -106,8 +104,7 @@ struct _ppgram
 struct _ppast
 {
 	/* Emit */
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	/* Grammar */
 	ppsym*					sym;

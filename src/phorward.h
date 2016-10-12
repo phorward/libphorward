@@ -608,8 +608,7 @@ struct _ppprod
 	int						flags;
 
 	
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	
 	char*					strval;
@@ -649,8 +648,7 @@ struct _ppsym
 	ppsymfunc				sf;			
 
 	
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	
 	char*					strval;
@@ -675,8 +673,7 @@ struct _ppgram
 struct _ppast
 {
 	
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	
 	ppsym*					sym;
@@ -866,7 +863,7 @@ void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
 
 
-ppast* pp_ast_create( int emit, char* semit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
 void pp_ast_print( ppast* ast );
