@@ -80,7 +80,8 @@ static void pvm_WSTR( pvmexec* rt )
 }
 
 static pany* pvm_compute( pany* ret, char op,
-							pany* op1, pany* op2, panytype enforce )
+							pany* op1, pany* op2,
+								panytype enforce )
 {
 	int				c;
 	char*			s;
@@ -290,7 +291,7 @@ static void pvm_DIV( pvmexec* rt )
 
 static void pvm_JOIN( pvmexec* rt )
 {
-	pany*		ops	[2];
+	pany*		ops		[2];
 	panytype	prefer	= PANYTYPE_STR;
 
 	ops[1] = (pany*)parray_pop( rt->stack );
@@ -406,8 +407,4 @@ int pvm_define( pvm* vm, char* mn, pvmop op )
 
 	return -1;
 }
-
-
-
-
 

@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	ll.c
-Usage:	Phorward Parsing Library
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	A stub for a naive LL(1) parser implementation.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"

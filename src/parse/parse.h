@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	parse.h
-Usage:	Phorward Parsing Library
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Phorward parsing library
 ----------------------------------------------------------------------------- */
 
 typedef struct _ppsym		ppsym;
@@ -131,3 +130,4 @@ typedef struct
 	int						type;
 	ppgram*					gram;
 } pparse;
+

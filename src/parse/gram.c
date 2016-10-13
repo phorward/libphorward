@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	gram.c
-Usage:	Grammar-specific stuff.
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Grammar construction and preparation.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -215,7 +214,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 
 		if( NODE_IS( node, "gflag" ) )
 		{
-			if( !strncmp( node->start, "all", node->length ) )
+			if( !strncmp( node->start, "emitall", node->length ) )
 				all = TRUE;
 			else if( !strncmp( node->start, "emitnone", node->length ) )
 				all = FALSE;

@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	ast.c
-Usage:	Phorward Parsing Library
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Abstract syntax tree construction and traversal functions.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"

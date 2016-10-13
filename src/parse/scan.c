@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	scan.c
-Usage:	Phorward Parsing Library
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Scan tokens from the input.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -130,3 +129,4 @@ size_t pp_pos_in_input( int* row, int* col, char* start, char* end )
 
 	return end - start;
 }
+

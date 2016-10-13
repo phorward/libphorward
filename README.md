@@ -2,35 +2,35 @@
 DESCRIPTION
 ===========
 
-The Phorward Toolkit provides a powerful set of useful functions for C programmers, which heavily focus on the topic of compiler-frontend development, meaning parsing and lexical analysis. The project can be seen as a dynamic generator and executor for lexers and parsers which can be defined and executed immediatelly within the program's sourcecode, making an extra step of generating parse tables or a recursive-descent parser unnecessary.
+The Phorward Toolkit provides a powerful set of useful functions for C programmers, which heavily focus on the topic of compiler-frontend development, meaning parsing and lexical analysis. The project can be seen as a dynamic generator and executor for lexers and parsers which can be defined and executed immediatelly within the program's sourcecode, making an extra step of generating parse tables or hand-writing a recursive-descent parser unnecessary.
 
-The following example defines a simple grammar, runs a parser and prints the generated abstract syntax tree:
+The following example defines a simple expressional grammar, runs a parser on it and prints the generated abstract syntax tree:
 
     #include <phorward.h>
     
     int main()
     {
-        pparse* p;
-        ppast*  a;
-        char*   s = "1+2*(3+4)+5";
-        char*   e;
+        pparse* parser;
+        ppast*  ast;
+        char*   input = "1+2*(3+4)+5";
+        char*   end;
     
-        p = pp_create( 0,
-    			"%emitall"
-    			"f: /[0-9]+/ | '(' e ')';"
-    			"t: t '*' f | f ;"
-    			"e: e '+' t | t ;" );
+        parser = pp_create( 0,  "%emitall"
     
-        if( !pp_parse_to_ast( &a, p, s, &e ) )
+                                "factor: /[0-9]+/ | '(' expr ')' ;"
+                                "term:   term '*' factor | factor ;"
+                                "expr:   expr '+' term | term ;" );
+    
+        if( !pp_parse_to_ast( &ast, parser, input, &end ) )
             return 1; /* parse error */
     
-        pp_ast_print( a );
+        pp_ast_simplify( ast );
         return 0;
     }
 
-(to compile it, run: gcc -o example example.c -lphorward)
+(to compile it, run: gcc -o example example.c -lphorward after installation)
 
-Additionally, the toolkit also provides useful general-purpose extensions for dynamic data structures (linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
+Additionally, the toolkit does also provide useful general-purpose extensions for dynamic data structures (linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
 
 
 FEATURES
@@ -39,9 +39,9 @@ FEATURES
 The Phorward Toolkit provides
 
 - Parser development tools
-    - BNF-based grammar definition
-    - generators and executors for LR, LALR and LL grammars
-    - a uniform AST (abstract syntax tree) representation
+    - BNF-based grammar definition interface and modelling objects
+    - pparse providing a modular LR(1) and LALR(1) parser generator
+    - ppast for representing abstract syntax trees universally
     - tools for AST traversal (coming soon!)
     - tools for parser deployment (coming soon!)
 - Lexer development tools
@@ -50,6 +50,10 @@ The Phorward Toolkit provides
     - pregex for regular expressions
     - tools for regex and lexer deployment
     - string functions for regular expression matching, splitting and replacement
+- Runtime evaluation tools
+    - Construction of dynamic intermediate languages and interpreters
+    - pany for handling different C-data-types in one object
+    - pvm for defining stack-based virtual machine instruction sets
 - Dynamic data structures
     - plist for linked-lists with build-in hash table support,
     - parray for arrays and stacks.

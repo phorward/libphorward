@@ -33,7 +33,7 @@ int main( int argc, char** argv )
 		pvm_prog_dump( p );
 
 		printf( "Prepare to run (Y/n)?" );
-		fflush( stdout);
+		fflush( stdout );
 		if( toupper( getchar() ) == 'N' )
 			continue;
 

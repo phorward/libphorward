@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	sym.c
-Usage:	Symbol-related stuff.
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Symbol management function.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"

@@ -6,7 +6,6 @@ All rights reserved. See LICENSE for more information.
 
 File:	parse.c
 Usage:	Parser maintainance object.
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"

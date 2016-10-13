@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	prod.c
-Usage:	Production-specific stuff.
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Defining and handling grammar productions.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
