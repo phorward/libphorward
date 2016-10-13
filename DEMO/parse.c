@@ -19,11 +19,12 @@ void help( char** argv )
 
 	"   -e  --exec    INPUT     Execute string INPUT on grammar.\n"
 	"   -g  --grammar BNF       Define grammar from BNF.\n"
+	"   -G                      Dump constructed grammar\n"
 	"   -h  --help              Show this help, and exit.\n"
 /*	"   -m  --mode    MODE      Use construction mode MODE:\n"
 	"                           lr=bottom-up (default), ll=top-down\n" */
 	"   -r  --render  RENDERER  Use AST renderer RENDERER:\n"
-	"                           tree (default), tree2svg\n"
+	"                           dump (default), shortdump, tree2svg\n"
 	"   -s  --source  FILENAME  Execute input from FILENAME on grammar.\n"
 	"\n", *argv );
 
@@ -32,8 +33,9 @@ void help( char** argv )
 int main( int argc, char** argv )
 {
 	pboolean	lr		= TRUE;
-	pboolean	as		= FALSE;
-	ppast*		a;
+	pboolean	dg		= FALSE;
+	int			r		= 0;
+	ppast*		a		= (ppast*)NULL;
 	ppgram*		g;
 	char*		gstr	= (char*)NULL;
 	char*		s		= (char*)NULL;
@@ -45,7 +47,7 @@ int main( int argc, char** argv )
 	char*		param;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"e:g:m:r:s:",
+						"e:g:Gm:r:s:",
 						"exec: grammar: mode: renderer: source:", i ) )
 							== 0; i++ )
 	{
@@ -53,6 +55,8 @@ int main( int argc, char** argv )
 			s = param;
 		else if( !strcmp( opt, "grammar" ) || *opt == 'g' )
 			gstr = param;
+		else if( *opt == 'G' )
+			dg = TRUE;
 		else if( !strcmp( opt, "help" ) || *opt == 'h' )
 		{
 			help( argv );
@@ -65,8 +69,10 @@ int main( int argc, char** argv )
 		}
 		else if( !strcmp( opt, "renderer" ) || *opt == 'r' )
 		{
-			if( pstrcasecmp( param, "tree2svg" ) == 0 )
-				as = TRUE;
+			if( pstrcasecmp( param, "shortdump" ) == 0 )
+				r = 1;
+			else if( pstrcasecmp( param, "tree2svg" ) == 0 )
+				r = 2;
 		}
 		else if( !strcmp( opt, "source" ) || *opt == 's' )
 		{
@@ -101,24 +107,41 @@ int main( int argc, char** argv )
 		return 1;
 	}
 
-	pp_gram_print( g );
+	if( dg )
+		pp_gram_dump( stdout, g );
 
 	if( s )
 	{
 		e = s;
 
-		if( /* ( !lr && pp_ll_parse( &a, g, s, &e ) )
-					|| */ pp_lr_parse( &a, g, s, &e ) )
+		if( pp_lr_parse( &a, g, s, &e ) )
 		{
-			printf( "\n%s SUCCEED >%.*s<\n", lr ? "LR" : "LL", e - s, s );
-
-			if( as )
-				pp_ast_tree2svg( a );
+			if( !a )
+				printf( "%s SUCCEED >%.*s<\n", lr ? "LR" : "LL", e - s, s );
 			else
-				pp_ast_print( a );
+			{
+				switch( r )
+				{
+					case 0:
+						pp_ast_dump( stdout, a );
+						break;
+
+					case 1:
+						pp_ast_shortdump( stdout, a );
+						break;
+
+					case 2:
+						pp_ast_tree2svg( stdout, a );
+						break;
+
+					default:
+						MISSINGCASE;
+						break;
+				}
+			}
 		}
 		else
-			printf( "\n%s FAILED\n", lr ? "LR" : "LL" );
+			printf( "%s FAILED\n", lr ? "LR" : "LL" );
 
 		pp_ast_free( a );
 	}

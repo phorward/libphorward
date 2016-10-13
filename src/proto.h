@@ -155,9 +155,9 @@ void* pmemdup( void* ptr, size_t size );
 ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
-void pp_ast_print( ppast* ast );
-void pp_ast_simplify( ppast* ast );
-void pp_ast_tree2svg( ppast* ast );
+void pp_ast_dump( FILE* stream, ppast* ast );
+void pp_ast_shortdump( FILE* stream, ppast* ast );
+void pp_ast_tree2svg( FILE* stream, ppast* ast );
 
 /* parse/bnf.c */
 void pp_bnf_define( ppgram* g );
@@ -166,7 +166,7 @@ void pp_bnf_define( ppgram* g );
 pboolean pp_gram_prepare( ppgram* g );
 ppgram* pp_gram_create( void );
 pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
-void pp_gram_print( ppgram* g );
+void pp_gram_dump( FILE* stream, ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
 
 /* parse/ll.c */

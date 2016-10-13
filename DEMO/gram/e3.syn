@@ -4,12 +4,12 @@ $int /[0-9]+/ %emit;
 
 f: '(' e ')' | int ;
 
-mul : t '*' f %emit 10;
-div : t '/' f %emit 20;
+mul : t '*' f %emit;
+div : t '/' f %emit;
 t : mul | div | f ;
 
-add : e '+' t %emit 30;
-sub : e '-' t %emit 40;
+add : e '+' t %emit;
+sub : e '-' t %emit;
 
 e %goal: add | sub | t ;
 

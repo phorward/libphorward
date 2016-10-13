@@ -31,10 +31,11 @@ ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
 	node->col = col;
 
 	node->child = child;
+
 	return node;
 }
 
-/* Frees entire //ast// structure and subsequent links.
+/** Frees entire //ast// structure and subsequent links.
 
 Always returns (ppast*)NULL. */
 ppast* pp_ast_free( ppast* node )
@@ -72,8 +73,8 @@ int pp_ast_len( ppast* node )
 	return step;
 }
 
-/** Print detailed //ast// to stdout. */
-void pp_ast_print( ppast* ast )
+/** Dump detailed //ast// to //stream//. */
+void pp_ast_dump( FILE* stream, ppast* ast )
 {
 	static int lev		= 0;
 	int	i;
@@ -81,29 +82,30 @@ void pp_ast_print( ppast* ast )
 	while( ast )
 	{
 		for( i = 0; i < lev; i++ )
-			fprintf( stderr, " " );
+			fprintf( stream, " " );
 
-		fprintf( stderr, "{ %s >%.*s<\n", ast->emit, ast->length, ast->start );
+		fprintf( stream, "{ %s >%.*s<\n", ast->emit, ast->length, ast->start );
 
 		if( ast->child )
 		{
 			lev++;
-			pp_ast_print( ast->child );
+			pp_ast_dump( stream, ast->child );
 			lev--;
 		}
 
 		for( i = 0; i < lev; i++ )
-			fprintf( stderr, " " );
+			fprintf( stream, " " );
 
-		fprintf( stderr, "} %s >%.*s<\n", ast->emit, ast->length, ast->start );
+		fprintf( stream, "} %s >%.*s<\n", ast->emit, ast->length, ast->start );
 
 		ast = ast->next;
 	}
 }
 
-/** Print simplified //ast// to stdout.
+/** Dump simplified //ast// to //stream//.
+
 Only opening matches are printed. */
-void pp_ast_simplify( ppast* ast )
+void pp_ast_shortdump( FILE* stream, ppast* ast )
 {
 	static int lev		= 0;
 	int	i;
@@ -111,14 +113,20 @@ void pp_ast_simplify( ppast* ast )
 	while( ast )
 	{
 		for( i = 0; i < lev; i++ )
-			fprintf( stderr, " " );
+			fprintf( stream, " " );
 
-		fprintf( stderr, "%s >%.*s<\n", ast->emit, ast->length, ast->start );
+		fprintf( stream, "%s", ast->emit );
+
+		if( ast->sym->type != PPSYMTYPE_NONTERM
+			|| ast->sym->flags & PPFLAG_LEXEM )
+			fprintf( stream, " >%.*s<\n", ast->length, ast->start );
+		else
+			fprintf( stream, "\n" );
 
 		if( ast->child )
 		{
 			lev++;
-			pp_ast_simplify( ast->child );
+			pp_ast_shortdump( stream, ast->child );
 			lev--;
 		}
 
@@ -126,9 +134,9 @@ void pp_ast_simplify( ppast* ast )
 	}
 }
 
-/** Print //ast// in notation for the tree2svg tool that generates a
+/** Dump //ast// in notation for the tree2svg tool that generates a
 graphical view of the parse tree. */
-void pp_ast_tree2svg( ppast* ast )
+void pp_ast_tree2svg( FILE* stream, ppast* ast )
 {
 	static int lev		= 0;
 
@@ -136,21 +144,21 @@ void pp_ast_tree2svg( ppast* ast )
 	{
 		if( ast->sym->type == PPSYMTYPE_NONTERM )
 		{
-			printf( "'%s' [ ", ast->emit );
+			fprintf( stream, "'%s' [ ", ast->emit );
 
 			lev++;
-			pp_ast_tree2svg( ast->child );
+			pp_ast_tree2svg( stream, ast->child );
 			lev--;
 
-			printf( "] " );
+			fprintf( stream, "] " );
 		}
 		else
-			printf( "'%.*s' ", ast->length, ast->start );
+			fprintf( stream, "'%.*s' ", ast->length, ast->start );
 
 
 		ast = ast->next;
 	}
 
 	if( lev == 0 )
-		printf( "\n" );
+		fprintf( stream, "\n" );
 }

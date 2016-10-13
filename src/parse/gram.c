@@ -204,6 +204,8 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	pboolean	doemit;
 	int			type;
 
+	/* pp_ast_shortdump( stderr, ast ); */
+
 	for( node = ast; node; node = node->next )
 	{
 		emit_id = 0;
@@ -348,7 +350,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 		g->goal = nonterm;
 	}
 
-	/* pp_gram_print( g ); */
+	/* pp_gram_dump( stderr, g ); */
 
 	return TRUE;
 }
@@ -612,8 +614,8 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 	return TRUE;
 }
 
-/** Dumps the grammar //g// to stdout. */
-void pp_gram_print( ppgram* g )
+/** Dumps the grammar //g// to //stream//. */
+void pp_gram_dump( FILE* stream, ppgram* g )
 {
 	plistel*	e;
 	plistel*	f;
@@ -632,7 +634,8 @@ void pp_gram_print( ppgram* g )
 	plist_for( g->prods, e )
 	{
 		p = (ppprod*)plist_access( e );
-		printf( "%s%s %s%s%s%s%s %-*s : ",
+		fprintf( stream,
+			"%s%s %s%s%s%s%s %-*s : ",
 			p->emit ? "@" : "",
 			p->emit,
 			g->goal == p->lhs ? "G" : " ",
@@ -647,15 +650,15 @@ void pp_gram_print( ppgram* g )
 			s = (ppsym*)plist_access( f );
 
 			if( f != plist_first( p->rhs ) )
-				printf( " " );
+				fprintf( stream, " " );
 
-			printf( "%s", pp_sym_to_str( s ) );
+			fprintf( stream, "%s", pp_sym_to_str( s ) );
 		}
 
-		printf( "\n" );
+		fprintf( stream, "\n" );
 	}
 
-	printf( "\n" );
+	fprintf( stream, "\n" );
 
 	plist_for( g->symbols, e )
 	{
@@ -663,15 +666,15 @@ void pp_gram_print( ppgram* g )
 		if( s->type != PPSYMTYPE_NONTERM )
 			continue;
 
-		printf( "FIRST %-*s {", maxlhslen, s->name );
+		fprintf( stream, "FIRST %-*s {", maxlhslen, s->name );
 		plist_for( s->first, f )
 		{
 			s = (ppsym*)plist_access( f );
-			printf( " " );
-			printf( "%s", pp_sym_to_str( s ) );
+			fprintf( stream, " " );
+			fprintf( stream, "%s", pp_sym_to_str( s ) );
 		}
 
-		printf( " }\n" );
+		fprintf( stream, " }\n" );
 	}
 }
 

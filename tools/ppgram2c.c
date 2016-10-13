@@ -290,7 +290,7 @@ int main( int argc, char** argv )
 	}
 
 	if( debug )
-		pp_gram_print( g );
+		pp_gram_dump( stderr, g );
 
 	pp_gram_prepare( g );
 
