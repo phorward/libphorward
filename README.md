@@ -65,7 +65,7 @@ The Phorward Toolkit provides
 - Universal system-specific functions for platform-independent C software development
     - Unix-style command-line parser
     - Mapping files to strings
-- Object-oriented fashion for all function interfaces (e.g. plist, parray, pregex, pgram, ...)
+- Consequent object-oriented build-up of all function interfaces (e.g. plist, parray, pregex, pparse, ...)
 - Growing code-base of more and more powerful functions
 
 Please check out http://phorward.phorward-software.com/ from time to time to get the latest news, documentation, updates and support on the Phorward Toolkit.
@@ -74,7 +74,7 @@ Please check out http://phorward.phorward-software.com/ from time to time to get
 BUILDING
 ========
 
-Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
+Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the downloaded release tarball or clone the hg repository into a directory of your choice.
 
 Then, run
 
@@ -104,7 +104,7 @@ To compile into 64-Bit Windows executables, configure with
 LOCAL DEVELOPMENT BUILD-SYSTEM
 ==============================
 
-Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
+Alternatively there is also a simpler method for setting up a local build system for development and testing purposes locally in the file-system.
 
 Once, type
 
@@ -124,15 +124,15 @@ AUTHOR
 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
-It is the result of a several years experience in parser development systems, and has been preceded by the parser generators UniCC (http://unicc.phorward-software.com/) and JS/CC (http://jscc.phorward-software.com), and shall be the final step for an ultimate, powerful compiler-frontend toolchain.
+It is the result of a several years experience in parser development systems, and has been preceded by the parser generators UniCC (http://unicc.phorward-software.com/) and JS/CC (http://jscc.brobston.com), and shall be the final step for an ultimate, powerful compiler-frontend toolchain. A sister project of the libphorward is the pynetree parsing library (http://pynetree.org) which is written in and for the Python programming language and shares the same BNF-syntax for expressing grammars.
 
-Help of any kind to extend and improve this product is always appreciated.
+Help of any kind to extend and improve this software is always appreciated.
 
 
 LICENSE
 =======
 
-This product is an open source software released under the terms and conditions of the 3-clause BSD license.
+This software is an open source project released under the terms and conditions of the 3-clause BSD license. See the LICENSE file for more information.
 
 
 COPYRIGHT
