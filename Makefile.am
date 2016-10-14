@@ -8,11 +8,13 @@
 # Usage:	Automake makefile.
 # ------------------------------------------------------------------------------
 
-SUBDIRS = src run DEMO
+AUTOMAKE_OPTIONS = foreign
+
+SUBDIRS = src run tools DEMO
 
 man1_MANS = phorward.man
 phorwarddir = $(datadir)/phorward
-dist_phorward_DATA = LICENSE README CHANGELOG
+dist_phorward_DATA = LICENSE README.md CHANGELOG
 
 if WITH_TXT2TAGS
 # --- Phorward Documentation --------------------------------------------------
@@ -20,12 +22,9 @@ if WITH_TXT2TAGS
 # Now documentation generation follows, using txt2tags.
 #
 
-README: doc/readme.t2t
+README.md: doc/readme.t2t
 	-rm -f $@
 	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@
-
-README.md: README
-	cp $? $@
 
 phorward.man: doc/readme.t2t
 	txt2tags -o $@ -t man $?

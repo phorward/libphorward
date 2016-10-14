@@ -198,8 +198,8 @@ ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
-am__DIST_COMMON = $(srcdir)/Makefile.in README ar-lib compile \
-	config.guess config.sub depcomp install-sh ltmain.sh missing
+am__DIST_COMMON = $(srcdir)/Makefile.in ar-lib compile config.guess \
+	config.sub depcomp install-sh ltmain.sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -358,10 +358,11 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src run DEMO
+AUTOMAKE_OPTIONS = foreign
+SUBDIRS = src run tools DEMO
 man1_MANS = phorward.man
 phorwarddir = $(datadir)/phorward
-dist_phorward_DATA = LICENSE README CHANGELOG
+dist_phorward_DATA = LICENSE README.md CHANGELOG
 all: all-recursive
 
 .SUFFIXES:
@@ -641,7 +642,7 @@ distdir: $(DISTFILES)
 	  ! -type d ! -perm -444 -exec $(install_sh) -c -m a+r {} {} \; \
 	|| chmod -R a+r "$(distdir)"
 dist-gzip: distdir
-	tardir=$(distdir) && $(am__tar) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	tardir=$(distdir) && $(am__tar) | eval GZIP= gzip $(GZIP_ENV) -c >$(distdir).tar.gz
 	$(am__post_remove_distdir)
 
 dist-bzip2: distdir
@@ -667,7 +668,7 @@ dist-shar: distdir
 	@echo WARNING: "Support for shar distribution archives is" \
 	               "deprecated." >&2
 	@echo WARNING: "It will be removed altogether in Automake 2.0" >&2
-	shar $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).shar.gz
+	shar $(distdir) | eval GZIP= gzip $(GZIP_ENV) -c >$(distdir).shar.gz
 	$(am__post_remove_distdir)
 
 dist-zip: distdir
@@ -685,7 +686,7 @@ dist dist-all:
 distcheck: dist
 	case '$(DIST_ARCHIVES)' in \
 	*.tar.gz*) \
-	  GZIP=$(GZIP_ENV) gzip -dc $(distdir).tar.gz | $(am__untar) ;;\
+	  eval GZIP= gzip $(GZIP_ENV) -dc $(distdir).tar.gz | $(am__untar) ;;\
 	*.tar.bz2*) \
 	  bzip2 -dc $(distdir).tar.bz2 | $(am__untar) ;;\
 	*.tar.lz*) \
@@ -695,7 +696,7 @@ distcheck: dist
 	*.tar.Z*) \
 	  uncompress -c $(distdir).tar.Z | $(am__untar) ;;\
 	*.shar.gz*) \
-	  GZIP=$(GZIP_ENV) gzip -dc $(distdir).shar.gz | unshar ;;\
+	  eval GZIP= gzip $(GZIP_ENV) -dc $(distdir).shar.gz | unshar ;;\
 	*.zip*) \
 	  unzip $(distdir).zip ;;\
 	esac
@@ -902,12 +903,9 @@ uninstall-man: uninstall-man1
 # Now documentation generation follows, using txt2tags.
 #
 
-@WITH_TXT2TAGS_TRUE@README: doc/readme.t2t
+@WITH_TXT2TAGS_TRUE@README.md: doc/readme.t2t
 @WITH_TXT2TAGS_TRUE@	-rm -f $@
 @WITH_TXT2TAGS_TRUE@	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@
-
-@WITH_TXT2TAGS_TRUE@README.md: README
-@WITH_TXT2TAGS_TRUE@	cp $? $@
 
 @WITH_TXT2TAGS_TRUE@phorward.man: doc/readme.t2t
 @WITH_TXT2TAGS_TRUE@	txt2tags -o $@ -t man $?

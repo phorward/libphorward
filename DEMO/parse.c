@@ -24,7 +24,7 @@ void help( char** argv )
 /*	"   -m  --mode    MODE      Use construction mode MODE:\n"
 	"                           lr=bottom-up (default), ll=top-down\n" */
 	"   -r  --render  RENDERER  Use AST renderer RENDERER:\n"
-	"                           dump (default), shortdump, tree2svg\n"
+	"                           dump (default), short, json, tree2svg\n"
 	"   -s  --source  FILENAME  Execute input from FILENAME on grammar.\n"
 	"\n", *argv );
 
@@ -69,10 +69,12 @@ int main( int argc, char** argv )
 		}
 		else if( !strcmp( opt, "renderer" ) || *opt == 'r' )
 		{
-			if( pstrcasecmp( param, "shortdump" ) == 0 )
+			if( pstrcasecmp( param, "short" ) == 0 )
 				r = 1;
-			else if( pstrcasecmp( param, "tree2svg" ) == 0 )
+			else if( pstrcasecmp( param, "json" ) == 0 )
 				r = 2;
+			else if( pstrcasecmp( param, "tree2svg" ) == 0 )
+				r = 3;
 		}
 		else if( !strcmp( opt, "source" ) || *opt == 's' )
 		{
@@ -127,11 +129,17 @@ int main( int argc, char** argv )
 						break;
 
 					case 1:
-						pp_ast_shortdump( stdout, a );
+						pp_ast_dump_short( stdout, a );
 						break;
 
 					case 2:
-						pp_ast_tree2svg( stdout, a );
+						pp_ast_dump_json( stdout, a );
+						printf( "\n" );
+						break;
+
+					case 3:
+						pp_ast_dump_tree2svg( stdout, a );
+						printf( "\n" );
 						break;
 
 					default:

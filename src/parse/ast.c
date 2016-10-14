@@ -105,7 +105,7 @@ void pp_ast_dump( FILE* stream, ppast* ast )
 /** Dump simplified //ast// to //stream//.
 
 Only opening matches are printed. */
-void pp_ast_shortdump( FILE* stream, ppast* ast )
+void pp_ast_dump_short( FILE* stream, ppast* ast )
 {
 	static int lev		= 0;
 	int	i;
@@ -126,7 +126,7 @@ void pp_ast_shortdump( FILE* stream, ppast* ast )
 		if( ast->child )
 		{
 			lev++;
-			pp_ast_shortdump( stream, ast->child );
+			pp_ast_dump_short( stream, ast->child );
 			lev--;
 		}
 
@@ -134,31 +134,88 @@ void pp_ast_shortdump( FILE* stream, ppast* ast )
 	}
 }
 
+/** Dump //ast// to //stream// as JSON-formatted string.
+
+Only opening matches are printed. */
+void pp_ast_dump_json( FILE* stream, ppast* ast )
+{
+	char*	ptr;
+	ppast*	node	= ast;
+
+	if( ast && ast->next )
+		fprintf( stream, "[" );
+
+	while( node )
+	{
+		fputc( '{', stream );
+		fprintf( stream, "\"emit\":" );
+
+		/* Emit */
+		fputc( '"', stream );
+
+		for( ptr = node->emit; *ptr; ptr++ )
+		{
+			if( *ptr == '\"' )
+				fputc( '\\', stream );
+
+			fputc( *ptr, stream );
+		}
+
+		fputc( '"', stream );
+
+		/* Match */
+		if( node->sym->type != PPSYMTYPE_NONTERM
+			|| node->sym->flags & PPFLAG_LEXEM )
+		{
+			fprintf( stream, ",\"match\":" );
+
+			/* Matched string */
+			fputc( '"', stream );
+
+			for( ptr = node->start; *ptr && ptr < node->end; ptr++ )
+				if( *ptr == '\"' )
+					fprintf( stream, "\\\"" );
+				else
+					fputc( *ptr, stream );
+
+			fputc( '"', stream );
+		}
+
+		/* Position */
+		fprintf( stream, ",\"row\":%d,\"column\":%d", node->row, node->col );
+
+		/* Children */
+		if( node->child )
+		{
+			fprintf( stream, ",\"child\":" );
+			pp_ast_dump_json( stream, node->child );
+		}
+
+		fputc( '}', stream );
+
+		if( ( node = node->next ) )
+			fputc( ',', stream );
+	}
+
+	if( ast && ast->next )
+		fprintf( stream, "]" );
+}
+
 /** Dump //ast// in notation for the tree2svg tool that generates a
 graphical view of the parse tree. */
-void pp_ast_tree2svg( FILE* stream, ppast* ast )
+void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 {
-	static int lev		= 0;
-
 	while( ast )
 	{
 		if( ast->sym->type == PPSYMTYPE_NONTERM )
 		{
 			fprintf( stream, "'%s' [ ", ast->emit );
-
-			lev++;
-			pp_ast_tree2svg( stream, ast->child );
-			lev--;
-
+			pp_ast_dump_tree2svg( stream, ast->child );
 			fprintf( stream, "] " );
 		}
 		else
 			fprintf( stream, "'%.*s' ", ast->length, ast->start );
 
-
 		ast = ast->next;
 	}
-
-	if( lev == 0 )
-		fprintf( stream, "\n" );
 }
