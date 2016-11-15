@@ -219,9 +219,9 @@ unsigned long pany_to_ulong( pany* val )
 		case PANYTYPE_DOUBLE:
 			RETURN( (unsigned long)val->val.d );
 		case PANYTYPE_STR:
-			RETURN( (unsigned long)val->val.s );
+			RETURN( (unsigned long)strtol( val->val.s, (char**)NULL, 0 ) );
 		case PANYTYPE_WCS:
-			RETURN( (unsigned long)val->val.ws );
+			RETURN( (unsigned long)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PANYTYPE_PTR:
 			RETURN( (unsigned long)val->val.ptr );
 	}

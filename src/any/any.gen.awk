@@ -179,13 +179,17 @@ END									{
 										if( !within_type )
 											next
 
-										convcode = trim( substr( $0, \
-														index( $0, ":" ) + 1) )
+										line = trim( $0 )
+										col = index( line, ":" )
+										type = substr( line, 4, col - 4 )
+										convcode = trim( substr( \
+															line, col + 1) )
 
 										if( convcode == "(same)" )
 											convcode = lastconvcode
 
-										convert[ $3 SUBSEP datatype ] = convcode
+										convert[ type SUBSEP datatype ] = \
+																		convcode
 
 										lastconvcode = convcode
 										next
@@ -195,13 +199,17 @@ END									{
 										if( !within_type )
 											next
 
-										fromcode = trim( substr( $0, \
-														index( $0, ":" ) + 1) )
+										line = trim( $0 )
+										col = index( line, ":" )
+										type = substr( line, 4, col - 4 )
+										fromcode = trim( substr( \
+															line, col + 1 ) )
 
 										if( fromcode == "(same)" )
 											fromcode = lastfromcode
 
-										getfrom[ datatype SUBSEP $3 ] = fromcode
+										getfrom[ datatype SUBSEP type ] = \
+											fromcode
 
 										lastfromcode = fromcode
 										next
