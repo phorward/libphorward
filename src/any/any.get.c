@@ -117,15 +117,15 @@ long pany_get_long( pany* val )
 	RETURN( val->val.l );
 }
 
-/** Returns the ``ulong``-value of //val//.
+/** Returns the ``unsigned long``-value of //val//.
 
 //val// is the pointer to the pany-object.
 
 If the pany-object exists in another data type, it will be converted.
-The function returns the value assigned to //val// as ulong.
+The function returns the value assigned to //val// as unsigned long.
 This value could be converted from the original value.
 */
-ulong pany_get_ulong( pany* val )
+unsigned long pany_get_ulong( pany* val )
 {
 	PROC( "pany_get_ulong" );
 	PARMS( "val", "%p", val );
@@ -133,13 +133,13 @@ ulong pany_get_ulong( pany* val )
 	if( !val )
 	{
 		WRONGPARAM;
-		RETURN( (ulong)0 );
+		RETURN( (unsigned long)0 );
 	}
 
 	if( val->type != PANYTYPE_ULONG)
 	{
 		if( !pany_convert( val, PANYTYPE_ULONG ) )
-			RETURN( (ulong)0 );
+			RETURN( (unsigned long)0 );
 	}
 
 	RETURN( val->val.ul );

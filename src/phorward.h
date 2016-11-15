@@ -316,37 +316,37 @@ typedef struct
 
 	union							
 	{
-		pboolean	b;
+		pboolean		b;
 		
 
-		char		c;
+		char			c;
 		
 
-		int			i;
+		int				i;
 		
 
-		long		l;
+		long			l;
 		
 
-		ulong		ul;
+		unsigned long	ul;
 		
 
-		float		f;
+		float			f;
 		
 
-		double		d;
+		double			d;
 		
 
-		char*		s;
+		char*			s;
 		
 		
 
-		wchar_t*	ws;
+		wchar_t*		ws;
 		
 
 		
 
-		void*		ptr;
+		void*			ptr;
 		
 	} val;
 } pany;
@@ -724,7 +724,7 @@ pboolean pany_to_bool( pany* val );
 char pany_to_char( pany* val );
 int pany_to_int( pany* val );
 long pany_to_long( pany* val );
-ulong pany_to_ulong( pany* val );
+unsigned long pany_to_ulong( pany* val );
 float pany_to_float( pany* val );
 double pany_to_double( pany* val );
 char* pany_to_str( pany* val );
@@ -740,7 +740,7 @@ pboolean pany_get_bool( pany* val );
 char pany_get_char( pany* val );
 int pany_get_int( pany* val );
 long pany_get_long( pany* val );
-ulong pany_get_ulong( pany* val );
+unsigned long pany_get_ulong( pany* val );
 float pany_get_float( pany* val );
 double pany_get_double( pany* val );
 char* pany_get_cstr( pany* val );
@@ -754,7 +754,7 @@ pboolean pany_set_bool( pany* val, pboolean b );
 char pany_set_char( pany* val, char c );
 int pany_set_int( pany* val, int i );
 long pany_set_long( pany* val, long l );
-ulong pany_set_ulong( pany* val, ulong ul );
+unsigned long pany_set_ulong( pany* val, unsigned long ul );
 float pany_set_float( pany* val, float f );
 double pany_set_double( pany* val, double d );
 char* pany_set_cstr( pany* val, char* s );

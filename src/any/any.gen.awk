@@ -84,6 +84,15 @@ END									{
 											fprint_func()
 									}
 
+/(unsigned|signed) [a-zA-Z_]+\*?[ \t]*[a-zA-Z_]+;/	{
+										if( !within_type )
+										{
+											datatype = $2 " " $3
+											member = $4
+											next
+										}
+									}
+
 /[a-zA-Z_]+\*?[ \t]*[a-zA-Z_]+;/	{
 										if( !within_type )
 										{
@@ -166,7 +175,7 @@ END									{
 										next
 									}
 
-/to [a-zA-Z_]+\*?:/					{
+/to [a-zA-Z_ ]+\*?:/				{
 										if( !within_type )
 											next
 
@@ -182,7 +191,7 @@ END									{
 										next
 									}
 
-/from [a-zA-Z_]+\*?:/				{
+/from [a-zA-Z_ ]+\*?:/				{
 										if( !within_type )
 											next
 
