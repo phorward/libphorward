@@ -1,0 +1,17 @@
+%ignore	' ';
+@int 	/[0-9]+/;
+
+factor	: '(' expr ')'
+		| int ;
+
+
+term 	: @mul( t '*' f )
+		| @div( t '/' f )
+		| factor
+		;
+
+@add 	: expr '+' term;
+@sub 	: expr '-' term;
+
+expr$	: add | sub | term ;
+

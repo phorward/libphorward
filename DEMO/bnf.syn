@@ -1,0 +1,74 @@
+/* -GRAMMAR---------------------------------------------------------------------
+Phorward Foundation Toolkit
+Copyright (C) 2006-2016 by Phorward Software Technologies, Jan Max Meyer
+http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+All rights reserved. See LICENSE for more information.
+
+File:	bnf.syn
+Usage:	Grammar for grammar definition language ;)
+----------------------------------------------------------------------------- */
+
+// Whitespace ------------------------------------------------------------------
+
+$				/[ \t\r\n]+/										%ignore;
+$				/\/\/[^\n]*\n/										%ignore;
+$				/\/\*([^*]|\*[^\/])*\*\//							%ignore;
+
+// Terminals -------------------------------------------------------------------
+
+$ccl 			/\[(\\.|[^\\\]])*\]/ 								%emit;
+$string 		/'[^']*'/											%emit;
+$token			/"[^"]*"/											%emit;
+$regex 			/\/(\\.|[^\\\/])*\//								%emit;
+
+$ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit;
+$int			/[0-9]+/ 											%emit;
+$function		/[A-Za-z_][A-Za-z0-9_]*\(\)/ 						%emit;
+
+$flag_emit		'@'													%emit;
+$flag_goal		'$'													%emit;
+$flag_ignore	/%(ignore|skip)/									%emit;
+
+// Nonterminals ----------------------------------------------------------------
+
+inline	%emit	: flag_emit ident? '(' alternation ')'
+				|  '(' alternation ')'
+				;
+
+symbol 																%emit
+				: ident
+				| ccl
+				| string
+				| token
+				| regex
+				| function
+				| inline
+				;
+
+modifier		: symbol '*' 										%emit kle
+				| symbol '+' 										%emit pos
+				| symbol '?'										%emit opt
+				| symbol ;
+
+sequence		: sequence modifier | modifier ;
+
+production	 	: sequence | ;
+
+
+
+alternative		: production flags?									%emit;
+alternation		: alternation '|' alternative | alternative ;
+
+
+nontermdef		: flag_emit? ident flag_goal? ( ':' alternation )? ';'	%emit
+				;
+
+termdef			: ( flag_emit? ident | flag_ignore )
+					( ccl | string | regex | function ) ';'
+																	%emit
+				;
+
+definition		: nontermdef | termdef ;
+
+grammar			: definition+ ;
+
