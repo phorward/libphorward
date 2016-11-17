@@ -593,6 +593,7 @@ typedef struct _ppast		ppast;
 #define PPFLAG_WHITESPACE	32
 #define PPFLAG_PREVENTLREC	64
 #define PPFLAG_NAMELESS		128
+#define PPFLAG_GENERATED	256
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'

@@ -25,9 +25,14 @@ $ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit;
 $int			/[0-9]+/ 											%emit;
 $function		/[A-Za-z_][A-Za-z0-9_]*\(\)/ 						%emit;
 
+$flag_emit		'@'													%emit;
+$flag_goal		'$'													%emit;
+$flag_ignore	/%(ignore|skip)/									%emit;
+
 // Nonterminals ----------------------------------------------------------------
 
-inline			: '(' alternation ')'								%emit
+inline	%emit	: flag_emit ident? '(' alternation ')'
+				|  '(' alternation ')'
 				;
 
 symbol 																%emit
@@ -49,57 +54,21 @@ sequence		: sequence modifier | modifier ;
 
 production	 	: sequence | ;
 
-emit			: 'emit' ident?										%emit
-				;
 
-flag			: 'noemit'											%emit
-				| emit
-				;
-
-flags    		: flags '%' flag+
-				| '%' flag+
-				;
 
 alternative		: production flags?									%emit;
 alternation		: alternation '|' alternative | alternative ;
 
-nontermflag		: 'noemit'											%emit
-				| 'goal'											%emit
-				| 'lexeme' 											%emit
-				| emit
+
+nontermdef		: flag_emit? ident flag_goal? ( ':' alternation )? ';'	%emit
 				;
 
-nontermflags	: nontermflags '%' nontermflag+
-				| '%' nontermflag+
+termdef			: ( flag_emit? ident | flag_ignore )
+					( ccl | string | regex | function ) ';'
+																	%emit
 				;
 
-nontermdef		: ident nontermflags? ( ':' alternation )? ';'		%emit
-				;
-
-termflag		: 'noemit' 											%emit
-				| 'ignore' 											%emit
-				| 'skip' 											%emit
-				| emit
-				;
-
-termflags		: termflags '%' termflag+
-				| '%' termflag+
-				;
-
-termdef			: '$' ident? ( ccl | string | regex | function )
-						termflags? ';'								%emit
-				;
-
-gflag 																%emit
-				: 'emitall'
-				| 'emitnone'
-				| 'lrec'
-				| 'rrec'
-				;
-
-gflags			: gflags '%' gflag+ | '%' gflag+ ;
-
-definition		: nontermdef | termdef | gflags ;
+definition		: nontermdef | termdef ;
 
 grammar			: definition+ ;
 
