@@ -42,6 +42,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	}
 
 	sym->id = -1;
+	sym->grm = g;
 	sym->name = name;
 
 	switch( ( sym->type = type ) )
@@ -103,6 +104,64 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	}
 
 	return sym;
+}
+
+/** Frees a symbol. */
+ppsym* pp_sym_drop( ppsym* sym )
+{
+	plistel* 	e;
+	ppprod*		p;
+
+	if( !sym )
+		return (ppsym*)NULL;
+
+	if( sym->flags & PPFLAG_FREEEMIT )
+		pfree( sym->emit );
+
+	switch( sym->type )
+	{
+		case PPSYMTYPE_NONTERM:
+			/* Drop related productions */
+			while( ( e = plist_first( sym->prods ) ) )
+				pp_prod_drop( (ppprod*)plist_access( e ) );
+
+			plist_free( sym->prods );
+			break;
+
+		case PPSYMTYPE_CCL:
+			p_ccl_free( sym->ccl );
+			break;
+
+		case PPSYMTYPE_STRING:
+			pfree( sym->str );
+			break;
+
+		case PPSYMTYPE_REGEX:
+			pregex_free( sym->re );
+			break;
+
+		default:
+			break;
+	}
+
+	/* Remove all references from productions */
+	plist_for( sym->grm->prods, e )
+	{
+		p = (ppprod*)plist_access( e );
+		pp_prod_remove( p, sym );
+	}
+
+	/* Remove whitespace occurences */
+	if( ( e = plist_get_by_ptr( sym->grm->ws, sym ) ) ) /* fixme */
+		plist_remove( sym->grm->ws, e );
+
+	/* Remove symbol from pool */
+	plist_remove( sym->grm->symbols,
+		plist_get_by_ptr( sym->grm->symbols, sym ) );
+
+	pfree( sym->name );
+
+	return (ppsym*)NULL;
 }
 
 /** Get the //n//th symbol from grammar //g//.

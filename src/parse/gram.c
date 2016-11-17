@@ -62,6 +62,8 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
 			if( NODE_IS( child, "ident" ) )
 			{
 				sym->emit = pstrndup( child->start, child->length );
+				sym->flags |= PPFLAG_FREEEMIT;
+
 				child = child->next;
 			}
 			else
@@ -116,9 +118,11 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 	ppsym*		sym;
 	ppsym*		csym;
 	ppprod*		prod;
+	ppprod*		popt;
 	ppast*		child;
 	char*		str;
 	char		name		[ NAMELEN * 2 + 1 ];
+	plistel*	e;
 
 	prod = pp_prod_create( g, lhs, (ppsym*)NULL );
 
@@ -185,25 +189,39 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 	}
 
 	/*
-		later...
-
-	if( doemit )
-		prod->emit = emit ? emit : lhs->name;
+		Optimize productions with one generated symbol
+		that was introduced via 'inline'.
 	*/
-
-	/*
-	if( ( sym = pp_prod_getfromrhs( prod, 0 )
+	if( ( sym = pp_prod_getfromrhs( prod, 0 ) )
 			&& !pp_prod_getfromrhs( prod, 1 ) )
 	{
 		if( sym->type == PPSYMTYPE_NONTERM
-			&& sym->flags & PPFLAG_GENERATED
-				&& sym->emit )
+				&& sym->flags & PPFLAG_GENERATED
+					&& sym->emit && plist_count( sym->prods ) == 1 )
+										/* fixme getter */
 		{
-			prod->emit = sym->emit;
+			if( sym->flags & PPFLAG_FREEEMIT )
+			{
+				prod->emit = pstrdup( sym->emit );
+				prod->flags |= PPFLAG_FREEEMIT;
+			}
+			else
+				prod->emit = sym->emit;
 
+			pp_prod_remove( prod, sym );
+
+			popt = (ppprod*)plist_access( plist_get( sym->prods, 0 ) );
+				/* fixme getter */
+
+			plist_for( popt->rhs, e ) /* fixme getter */
+			{
+				csym = (ppsym*)plist_access( e );
+				pp_prod_append( prod, csym );
+			}
+
+			pp_sym_drop( sym );
 		}
 	}
-	*/
 
 	return TRUE;
 }

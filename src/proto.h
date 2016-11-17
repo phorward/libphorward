@@ -186,8 +186,10 @@ pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end );
 
 /* parse/prod.c */
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
+ppprod* pp_prod_drop( ppprod* p );
 ppprod* pp_prod_get( ppgram* g, int n );
 pboolean pp_prod_append( ppprod* p, ppsym* sym );
+int pp_prod_remove( ppprod* p, ppsym* sym );
 ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
 
@@ -198,6 +200,7 @@ size_t pp_pos_in_input( int* row, int* col, char* start, char* end );
 
 /* parse/sym.c */
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
+ppsym* pp_sym_drop( ppsym* sym );
 ppsym* pp_sym_get( ppgram* g, int n );
 ppsym* pp_sym_get_by_name( ppgram* g, char* name );
 ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
