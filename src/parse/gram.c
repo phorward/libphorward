@@ -122,6 +122,7 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 	ppast*		child;
 	char*		str;
 	char		name		[ NAMELEN * 2 + 1 ];
+	int			i;
 	plistel*	e;
 
 	prod = pp_prod_create( g, lhs, (ppsym*)NULL );
@@ -197,8 +198,7 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 	{
 		if( sym->type == PPSYMTYPE_NONTERM
 				&& sym->flags & PPFLAG_GENERATED
-					&& sym->emit && plist_count( sym->prods ) == 1 )
-										/* fixme getter */
+					&& sym->emit && !pp_sym_getprod( sym, 1 ) )
 		{
 			if( sym->flags & PPFLAG_FREEEMIT )
 			{
@@ -210,14 +210,10 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 
 			pp_prod_remove( prod, sym );
 
-			popt = (ppprod*)plist_access( plist_get( sym->prods, 0 ) );
-				/* fixme getter */
+			popt = pp_sym_getprod( sym, 0 );
 
-			plist_for( popt->rhs, e ) /* fixme getter */
-			{
-				csym = (ppsym*)plist_access( e );
+			for( i = 0; ( csym = pp_prod_getfromrhs( popt, i ) ); i++ )
 				pp_prod_append( prod, csym );
-			}
 
 			pp_sym_drop( sym );
 		}

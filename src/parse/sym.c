@@ -214,6 +214,22 @@ ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name )
 	return (ppsym*)NULL;
 }
 
+/** Get the //n//th production from symbol //sym//. //sym// must be of type
+nonterminal.
+
+Returns (ppprod*)NULL if the production is not found or the symbol is
+configured differently. */
+ppprod* pp_sym_getprod( ppsym* sym, int n )
+{
+	if( !( sym && sym->type == PPSYMTYPE_NONTERM && n >= 0 ) )
+	{
+		WRONGPARAM;
+		return (ppprod*)NULL;
+	}
+
+	return (ppprod*)plist_access( plist_get( sym->prods, n ) );
+}
+
 /** Returns the string representation of symbol //p//.
 
 	Nonterminals are not expanded, they are just returned as their name.

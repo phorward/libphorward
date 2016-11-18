@@ -920,6 +920,7 @@ ppsym* pp_sym_drop( ppsym* sym );
 ppsym* pp_sym_get( ppgram* g, int n );
 ppsym* pp_sym_get_by_name( ppgram* g, char* name );
 ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
+ppprod* pp_sym_getprod( ppsym* sym, int n );
 char* pp_sym_to_str( ppsym* sym );
 
 
