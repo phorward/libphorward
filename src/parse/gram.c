@@ -236,26 +236,13 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	pboolean	flag_ignore;
 	pboolean	flag_goal;
 
-	pp_ast_dump_short( stderr, ast );
+	/* pp_ast_dump_short( stderr, ast ); */
 
 	for( node = ast; node; node = node->next )
 	{
 		flag_emit = flag_ignore = flag_goal = FALSE;
 
 		/* fprintf( stderr, "gram >%s<\n", node->emit ); */
-
-		/*if( NODE_IS( node, "gflag" ) )
-		{
-			if( !strncmp( node->start, "emitall", node->length ) )
-				all = TRUE;
-			else if( !strncmp( node->start, "emitnone", node->length ) )
-				all = FALSE;
-			else if( !strncmp( node->start, "lrec", node->length ) )
-				g->flags &= ~PPFLAG_PREVENTLREC;
-			else if( !strncmp( node->start, "rrec", node->length ) )
-				g->flags |= PPFLAG_PREVENTLREC;
-		}
-		else */
 
 		if( NODE_IS( node, "nontermdef" ) )
 		{

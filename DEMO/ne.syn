@@ -5,8 +5,8 @@ factor	: '(' expr ')'
 		| int ;
 
 
-term 	: @mul( t '*' f )
-		| @div( t '/' f )
+term 	: @mul( term '*' factor )
+		| @div( term '/' factor )
 		| factor
 		;
 

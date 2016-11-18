@@ -84,6 +84,7 @@ void pp_bnf_define( ppgram* g )
 	sym[ 25 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "production", (char*)NULL );
 
 	sym[ 26 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "alternative", (char*)NULL );
+	sym[ 26 ]->emit = sym[ 26 ]->name;
 
 	sym[ 27 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "flags" );
 
@@ -92,6 +93,7 @@ void pp_bnf_define( ppgram* g )
 	sym[ 29 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "|" );
 
 	sym[ 30 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef", (char*)NULL );
+	sym[ 30 ]->emit = sym[ 30 ]->name;
 
 	sym[ 31 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "flag_emit?", (char*)NULL );
 
@@ -106,6 +108,7 @@ void pp_bnf_define( ppgram* g )
 	sym[ 36 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, ";" );
 
 	sym[ 37 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
+	sym[ 37 ]->emit = sym[ 37 ]->name;
 
 	sym[ 38 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef'", (char*)NULL );
 
@@ -212,7 +215,6 @@ void pp_bnf_define( ppgram* g )
 		sym[ 25 ], /* production */
 		sym[ 28 ], /* flags? */
 		(ppsym*)NULL );
-	prod[ 19 ]->emit = sym[ 26 ]->name;
 
 	prod[ 20 ] = pp_prod_create( g, sym[ 28 ] /* flags? */,
 		sym[ 27 ], /* "flags" */
@@ -238,7 +240,6 @@ void pp_bnf_define( ppgram* g )
 		sym[ 35 ], /* nontermdef'? */
 		sym[ 36 ], /* ";" */
 		(ppsym*)NULL );
-	prod[ 24 ]->emit = sym[ 30 ]->name;
 
 	prod[ 25 ] = pp_prod_create( g, sym[ 31 ] /* flag_emit? */,
 		sym[ 11 ], /* "@" */
@@ -271,7 +272,6 @@ void pp_bnf_define( ppgram* g )
 		sym[ 39 ], /* termdef'' */
 		sym[ 36 ], /* ";" */
 		(ppsym*)NULL );
-	prod[ 32 ]->emit = sym[ 37 ]->name;
 
 	prod[ 33 ] = pp_prod_create( g, sym[ 38 ] /* termdef' */,
 		sym[ 31 ], /* flag_emit? */
