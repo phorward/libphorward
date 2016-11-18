@@ -10,96 +10,53 @@ Usage:	Grammar for grammar definition language ;)
 
 // Whitespace ------------------------------------------------------------------
 
-$				/[ \t\r\n]+/										%ignore;
-$				/\/\/[^\n]*\n/										%ignore;
-$				/\/\*([^*]|\*[^\/])*\*\//							%ignore;
+%skip			/[ \t\r\n]+/ ;
+%skip			/\/\/[^\n]*\n/ ;
+%skip			/\/\*([^*]|\*[^\/])*\*\// ;
 
 // Terminals -------------------------------------------------------------------
 
-$ccl 			/\[(\\.|[^\\\]])*\]/ 								%emit;
-$string 		/'[^']*'/											%emit;
-$token			/"[^"]*"/											%emit;
-$regex 			/\/(\\.|[^\\\/])*\//								%emit;
+@ccl 			/\[(\\.|[^\\\]])*\]/ ;
+@string 		/'[^']*'/ ;
+@token			/"[^"]*"/ ;
+@regex 			/\/(\\.|[^\\\/])*\// ;
 
-$ident			/[A-Za-z_][A-Za-z0-9_]*/ 							%emit;
-$int			/[0-9]+/ 											%emit;
-$function		/[A-Za-z_][A-Za-z0-9_]*\(\)/ 						%emit;
+@ident			/[A-Za-z_][A-Za-z0-9_]*/ ;
+@int			/[0-9]+/ ;
+@function		/[A-Za-z_][A-Za-z0-9_]*\(\)/ ;
+
+@flag_emit		'@' ;
+@flag_goal		'$' ;
+@flag_ignore	/%(ignore|skip)/ ;
 
 // Nonterminals ----------------------------------------------------------------
 
-inline			: '(' alternation ')'								%emit
+@inline			: flag_emit ident? '(' alternation ')'
+				|  '(' alternation ')'
 				;
 
-symbol 																%emit
-				: ident
-				| ccl
-				| string
-				| token
-				| regex
-				| function
-				| inline
-				;
+@symbol 		: ident | ccl | string | token | regex | function | inline ;
 
-modifier		: symbol '*' 										%emit kle
-				| symbol '+' 										%emit pos
-				| symbol '?'										%emit opt
-				| symbol ;
+modifier		: @kle( symbol '*' )
+				| @pos( symbol '+' )
+				| @opt( symbol '?' )
+				| symbol
+				;
 
 sequence		: sequence modifier | modifier ;
 
 production	 	: sequence | ;
 
-emit			: 'emit' ident?										%emit
-				;
+@alternative	: production flags? ;
 
-flag			: 'noemit'											%emit
-				| emit
-				;
-
-flags    		: flags '%' flag+
-				| '%' flag+
-				;
-
-alternative		: production flags?									%emit;
 alternation		: alternation '|' alternative | alternative ;
 
-nontermflag		: 'noemit'											%emit
-				| 'goal'											%emit
-				| 'lexeme' 											%emit
-				| emit
+@nontermdef		: flag_emit? ident flag_goal? ( ':' alternation )? ';' ;
+
+@termdef		: ( flag_emit? ident | flag_ignore )
+					( ccl | string | regex | function ) ';'
 				;
 
-nontermflags	: nontermflags '%' nontermflag+
-				| '%' nontermflag+
-				;
+definition		: nontermdef | termdef ;
 
-nontermdef		: ident nontermflags? ( ':' alternation )? ';'		%emit
-				;
-
-termflag		: 'noemit' 											%emit
-				| 'ignore' 											%emit
-				| 'skip' 											%emit
-				| emit
-				;
-
-termflags		: termflags '%' termflag+
-				| '%' termflag+
-				;
-
-termdef			: '$' ident? ( ccl | string | regex | function )
-						termflags? ';'								%emit
-				;
-
-gflag 																%emit
-				: 'emitall'
-				| 'emitnone'
-				| 'lrec'
-				| 'rrec'
-				;
-
-gflags			: gflags '%' gflag+ | '%' gflag+ ;
-
-definition		: nontermdef | termdef | gflags ;
-
-grammar			: definition+ ;
-
+grammar	$		: definition+ ;

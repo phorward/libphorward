@@ -1,13 +1,13 @@
-$' ' %ignore;
-int %emit %lexeme: [0-9]+ ;
+%ignore ' ' ;
+@int: [0-9]+ ; // %lexeme fixme!
 
 f: '(' e ')' | int ;
 
-mul : t '*' f %emit;
-div : t '/' f %emit;
+@mul : t '*' f ;
+@div : t '/' f ;
 t : mul | div | f ;
 
-add : e '+' t %emit;
-sub : e '-' t %emit;
+@add : e '+' t ;
+@sub : e '-' t ;
 
-e %goal: add | sub | t;
+e : add | sub | t;

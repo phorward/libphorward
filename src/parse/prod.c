@@ -27,6 +27,8 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 	prod = (ppprod*)plist_malloc( g->prods );
 
 	prod->id = -1;
+	prod->grm = g;
+
 	prod->lhs = lhs;
 	prod->rhs = plist_create( 0, PLIST_MOD_PTR );
 
@@ -40,6 +42,25 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 	va_end( varg );
 
 	return prod;
+}
+
+/** Frees the production object //p// and releases any used memory. */
+ppprod* pp_prod_drop( ppprod* p )
+{
+	if( !p )
+		return (ppprod*)NULL;
+
+	if( p->flags & PPFLAG_FREEEMIT )
+		pfree( p->emit );
+
+	pfree( p->strval );
+
+	plist_free( p->rhs );
+
+	plist_remove( p->lhs->prods, plist_get_by_ptr( p->lhs->prods, p ) );
+	plist_remove( p->grm->prods, plist_get_by_ptr( p->grm->prods, p ) );
+
+	return (ppprod*)NULL;
 }
 
 /** Get the //n//th production from grammar //g//.
@@ -70,6 +91,28 @@ pboolean pp_prod_append( ppprod* p, ppsym* sym )
 	return TRUE;
 }
 
+/** Removes all occurences of symbol //sym// from the right-hand-side of
+	production //p//. */
+int pp_prod_remove( ppprod* p, ppsym* sym )
+{
+	int			cnt 	= 0;
+	plistel*	e;
+
+	if( !( p && sym ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	while( ( e = plist_get_by_ptr( p->rhs, sym ) ) )
+	{
+		plist_remove( p->rhs, e );
+		cnt++;
+	}
+
+	return cnt;
+}
+
 /** Returns the //off//s element from the right-hand-side of
 	production //p//. Returns (ppsym*)NULL if the requested element does
 	not exist. */
@@ -93,7 +136,7 @@ char* pp_prod_to_str( ppprod* p )
 	plistel*	e;
 	ppsym*		sym;
 
-	if( ( !p ) )
+	if( !p )
 	{
 		WRONGPARAM;
 		return "";
@@ -105,7 +148,6 @@ char* pp_prod_to_str( ppprod* p )
 			p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
 
 		p->strval = pstrcatstr( p->strval, " : ", FALSE );
-
 		plist_for( p->rhs, e )
 		{
 			sym = (ppsym*)plist_access( e );

@@ -1,10 +1,10 @@
-.TH "Phorward Toolkit" 1 "October 2016" "libphorward 0.19.0"
+.TH "Phorward Toolkit" 1 "November 2016" "libphorward 0.19.0"
 
 
 .SH DESCRIPTION
 
 .P
-The Phorward Toolkit provides a powerful set of useful functions for C programmers, which heavily focus on the topic of compiler\-frontend development, meaning parsing and lexical analysis. The project can be seen as a dynamic generator and executor for lexers and parsers which can be defined and executed immediatelly within the program's sourcecode, making an extra step of generating parse tables or hand\-writing a recursive\-descent parser unnecessary.
+This software provides a powerful toolkit for compiler\-related development tasks, targetting the C programming language. It mainly focuses on the implementation of parsers to map arbitrary input into logically defined data structures. As the toolkit is hold entirely dynamic, any generation of source code or hand\-writing parsers or lexers is unnecessary. Just define a grammar describing the structure of the input data and that's all \- the toolkit does the rest of the job!
 
 .P
 The following example defines a simple expressional grammar, runs a parser on it and prints the generated abstract syntax tree:
@@ -19,46 +19,51 @@ int main()
     char*   input = "1+2*(3+4)+5";
     char*   end;
 
-    parser = pp_create( 0,  "%emitall"
-
-                            "factor: /[0-9]+/ | '(' expr ')' ;"
-                            "term:   term '*' factor | factor ;"
-                            "expr:   expr '+' term | term ;" );
+    parser = pp_create( 0,  "@int /[0-9]+/ ;"
+							"fact : int | '(' expr ')' ;"
+                            "term : @mul( term '*' fact ) | fact ;"
+                            "expr : @add( expr '+' term ) | term ;" );
 
     if( !pp_parse_to_ast( &ast, parser, input, &end ) )
         return 1; /* parse error */
 
-    pp_ast_simplify( ast );
+    pp_ast_dump_short( stdout, ast );
     return 0;
 }
 .fi
 
 
 .P
-(to compile it, run: gcc \-o example example.c \-lphorward after installation)
+This program can quickly be compiled with
+
+.nf
+$ cc -o example example.c -lphorward
+.fi
+
 
 .P
-Additionally, the toolkit does also provide useful general\-purpose extensions for dynamic data structures (linked lists, hash\-tables, stacks and arrays), extended string management functions and some platform\-independent, system\-specific helper functions.
+after installation.
+
+.P
+Secondary, the toolkit also provides useful general\-purpose extensions for dynamic data structures (linked lists, hash\-tables, stacks and arrays), extended string management functions and some platform\-independent, system\-specific helper functions.
 
 .SH FEATURES
 
 .P
-The Phorward Toolkit provides
+All tools of the Phorward Toolkit are hold as a part of a library, which can be dynamically invoked or merged together. Altought the library is written in C, it provides data objects following an object\-oriented style.
 
 .RS
 .IP \(bu 3
 Parser development tools
 .RS
 .IP \(bu 3
-BNF\-based grammar definition interface and modelling objects
+Self\-hosted Backus\-Naur\-Form (BNF) grammar definition language
 .IP \(bu 3
-\fIpparse\fR providing a modular LR(1) and LALR(1) parser generator
+\fIpparse\fR provides a modular LR(1) and LALR(1) parser generator
 .IP \(bu 3
-\fIppast\fR for representing abstract syntax trees universally
+\fIppast\fR is a representation of a browsable abstract syntax tree (ast)
 .IP \(bu 3
-tools for AST traversal (coming soon!)
-.IP \(bu 3
-tools for parser deployment (coming soon!)
+Coming soon: Tools for ast traversal and parser deployment
 .RE
 .IP \(bu 3
 Lexer development tools
@@ -66,9 +71,11 @@ Lexer development tools
 .IP \(bu 3
 regular expressions and pattern definition interface
 .IP \(bu 3
-\fIplex\fR for lexical analyzers
+\fIplex\fR provides a lexical analyzer
 .IP \(bu 3
-\fIpregex\fR for regular expressions
+\fIpregex\fR for definition and execution of regular expression
+.IP \(bu 3
+\fIpccl\fR for unicode\-enabled character classes
 .IP \(bu 3
 tools for regex and lexer deployment
 .IP \(bu 3
@@ -78,7 +85,7 @@ string functions for regular expression matching, splitting and replacement
 Runtime evaluation tools
 .RS
 .IP \(bu 3
-Construction of dynamic intermediate languages and interpreters
+construction of dynamic intermediate languages and interpreters
 .IP \(bu 3
 \fIpany\fR for handling different C\-data\-types in one object
 .IP \(bu 3
@@ -96,14 +103,12 @@ Dynamic data structures
 Extended string management functions
 .RS
 .IP \(bu 3
-concat, extend, tokenize, shorthand allocation of strings and wide\-character strings
+concat, extend, tokenize and  shorthand allocation of strings and wide\-character strings
 .IP \(bu 3
 consistent byte\- and wide\-character (unicode) function support
 .IP \(bu 3
 unicode support for UTF\-8 in byte\-character functions
 .RE
-.IP \(bu 3
-Debug und trace facilities
 .IP \(bu 3
 Universal system\-specific functions for platform\-independent C software development
 .RS
@@ -113,13 +118,15 @@ Unix\-style command\-line parser
 Mapping files to strings
 .RE
 .IP \(bu 3
+Debug und trace facilities
+.IP \(bu 3
 Consequent object\-oriented build\-up of all function interfaces (e.g. plist, parray, pregex, pparse, ...)
 .IP \(bu 3
 Growing code\-base of more and more powerful functions
 .RE
 
 .P
-Please check out http://phorward.phorward\-software.com/ from time to time to get the latest news, documentation, updates and support on the Phorward Toolkit.
+Please check out http://phorward.phorward\-software.com/ continuously to get latest news, documentation, updates and support on the Phorward Toolkit.
 
 .SH BUILDING
 
@@ -130,7 +137,7 @@ Building the Phorward Toolkit is simple as every GNU\-style open source program.
 Then, run
 
 .nf
-\&./configure
+$ ./configure
 .fi
 
 
@@ -138,7 +145,7 @@ Then, run
 to configure the build\-system and generate the Makefiles for your current platform. After successful configuration, run
 
 .nf
-make
+$ make
 .fi
 
 
@@ -146,31 +153,12 @@ make
 and
 
 .nf
-make install
+$ make install
 .fi
 
 
 .P
 (properly as root), to install the toolkit into your system.
-
-.P
-On Windows systems, the usage of http://cygwin.org/ or another Unix shell environment is required. The Phorward Toolkit also perfectly cross\-compiles on Linux using the MinGW and MinGW_x86\-64 compilers.
-
-.P
-To compile into 32\-Bit Windows executables, configure with
-
-.nf
-\&./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
-.fi
-
-
-.P
-To compile into 64\-Bit Windows executables, configure with
-
-.nf
-\&./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
-.fi
-
 
 .SH LOCAL DEVELOPMENT BUILD-SYSTEM
 
@@ -181,7 +169,7 @@ Alternatively there is also a simpler method for setting up a local build system
 Once, type
 
 .nf
-make -f Makefile.gnu make_install
+$ make -f Makefile.gnu make_install
 .fi
 
 
@@ -189,7 +177,7 @@ make -f Makefile.gnu make_install
 then, a simple run of
 
 .nf
-make
+$ make
 .fi
 
 
@@ -205,7 +193,7 @@ Note, that changes to the build system then must be done in the local Makefile, 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
 .P
-It is the result of a several years experience in parser development systems, and has been preceded by the parser generators UniCC (http://unicc.phorward\-software.com/) and JS/CC (http://jscc.brobston.com), and shall be the final step for an ultimate, powerful compiler\-frontend toolchain. A sister project of the libphorward is the pynetree parsing library (http://pynetree.org) which is written in and for the Python programming language and shares the same BNF\-syntax for expressing grammars.
+This work is the result of several years experiencing in parser development systems, and has been preceded by the open source parser generators UniCC (http://unicc.phorward\-software.com/) and JS/CC (http://jscc.brobston.com). It shall be the final step for an ultimate, powerful compiler toolchain, mainly focusing on compiler\-frontends. A sister project is the pynetree parsing library (http://pynetree.org) which is written in and for the Python programming language. It shares the same BNF\-syntax for expressing grammars.
 
 .P
 Help of any kind to extend and improve this software is always appreciated.

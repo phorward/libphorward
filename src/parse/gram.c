@@ -13,8 +13,7 @@ Usage:	Grammar construction and preparation.
 #define NAMELEN			80
 #define DERIVCHAR		'\''
 
-static pboolean traverse_production( ppgram* g, ppsym* lhs,
-										ppast* node, pboolean all );
+static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node );
 
 /* Derive name from basename */
 static char* derive_name( ppgram* g, char* base )
@@ -38,59 +37,72 @@ static char* derive_name( ppgram* g, char* base )
 
 #define NODE_IS( n, s ) 	( !strcmp( (n)->emit, s ) )
 
-static ppsym* traverse_symbol( ppgram* g, ppsym* lhs,
-									ppast* node, pboolean all )
+static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
 {
 	ppsym*		sym			= (ppsym*)NULL;
 	ppast*		child;
 	int			type		= 0;
 	char		name		[ NAMELEN * 2 + 1 ];
-	pboolean	doemit		= FALSE;
-
-	sprintf( name, "%.*s", node->length, node->start );
 
 	/* fprintf( stderr, "sym >%s<\n", node->emit ); */
 
-	if( NODE_IS( node, "ident") )
-	{
-		if( !( sym = pp_sym_get_by_name( g, name ) ) )
-			sym = pp_sym_create( g, PPSYMTYPE_NONTERM, name, (char*)NULL );
-	}
-	else if( NODE_IS( node, "inline") )
+	if( NODE_IS( node, "inline") )
 	{
 		sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 								derive_name( g, lhs->name ),
 									(char*)NULL );
-		sym->flags |= PPFLAG_DEFINED;
+		sym->flags |= PPFLAG_DEFINED | PPFLAG_GENERATED;
 
-		for( child = node->child; child; child = child->next )
-			if( !traverse_production( g, sym, child->child, all ) )
+		child = node->child;
+
+		if( NODE_IS( child, "flag_emit" ) )
+		{
+			child = child->next;
+
+			if( NODE_IS( child, "ident" ) )
+			{
+				sym->emit = pstrndup( child->start, child->length );
+				sym->flags |= PPFLAG_FREEEMIT;
+
+				child = child->next;
+			}
+			else
+				sym->emit = lhs->name;
+		}
+
+		for( ; child; child = child->next )
+			if( !traverse_production( g, sym, child->child ) )
 				return (ppsym*)NULL;
 	}
 	else
 	{
-		if( NODE_IS( node, "token") )
+		sprintf( name, "%.*s", node->length, node->start );
+
+		if( NODE_IS( node, "ident") )
 		{
-			doemit = TRUE;
-			type = PPSYMTYPE_STRING;
+			if( !( sym = pp_sym_get_by_name( g, name ) ) )
+				sym = pp_sym_create( g, PPSYMTYPE_NONTERM, name, (char*)NULL );
 		}
-		else if( NODE_IS( node, "ccl" ) )
-			type = PPSYMTYPE_CCL;
-		else if( NODE_IS( node, "string" ) )
-			type = PPSYMTYPE_STRING;
-		else if( NODE_IS( node, "regex" ) )
-			type = PPSYMTYPE_REGEX;
-
-		name[ pstrlen( name ) - 1 ] = '\0';
-
-		if( !( sym = pp_sym_get_nameless_term_by_def( g, name + 1 ) ) )
+		else
 		{
-			sym = pp_sym_create( g, type, (char*)NULL, name + 1 );
+			if( NODE_IS( node, "token") || NODE_IS( node, "string" ) )
+				type = PPSYMTYPE_STRING;
+			else if( NODE_IS( node, "ccl" ) )
+				type = PPSYMTYPE_CCL;
+			else if( NODE_IS( node, "regex" ) )
+				type = PPSYMTYPE_REGEX;
 
-			sym->flags |= PPFLAG_DEFINED;
+			name[ pstrlen( name ) - 1 ] = '\0';
 
-			if( doemit )
-				sym->emit = sym->name;
+			if( !( sym = pp_sym_get_nameless_term_by_def( g, name + 1 ) ) )
+			{
+				sym = pp_sym_create( g, type, (char*)NULL, name + 1 );
+
+				sym->flags |= PPFLAG_DEFINED;
+
+				if( NODE_IS( node, "token") )
+					sym->emit = sym->name;
+			}
 		}
 	}
 
@@ -101,17 +113,17 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs,
 }
 
 
-static pboolean traverse_production( ppgram* g, ppsym* lhs,
-										ppast* node, pboolean all )
+static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 {
 	ppsym*		sym;
 	ppsym*		csym;
 	ppprod*		prod;
+	ppprod*		popt;
 	ppast*		child;
 	char*		str;
 	char		name		[ NAMELEN * 2 + 1 ];
-	char*		emit		= (char*)NULL;
-	pboolean	doemit		= FALSE;
+	int			i;
+	plistel*	e;
 
 	prod = pp_prod_create( g, lhs, (ppsym*)NULL );
 
@@ -119,28 +131,16 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs,
 	{
 		/* fprintf( stderr, "prod >%s<\n", node->emit ); */
 
-		if( NODE_IS( node, "flag" ) )
+		if( NODE_IS( node, "symbol" ) )
 		{
-			if( NODE_IS( node->child, "noemit" ) )
-				doemit = FALSE;
-		}
-		else if( NODE_IS( node, "emit" ) )
-		{
-			doemit = TRUE;
-
-			if( node->child && NODE_IS( node->child, "ident" ) )
-				emit = pstrndup( node->child->start, node->child->length );
-		}
-		else if( NODE_IS( node, "symbol" ) )
-		{
-			if( !( sym = traverse_symbol( g, lhs, node->child, all ) ) )
+			if( !( sym = traverse_symbol( g, lhs, node->child ) ) )
 				return FALSE;
 
 			pp_prod_append( prod, sym );
 		}
 		else
 		{
-			sym = traverse_symbol( g, lhs, node->child->child, all );
+			sym = traverse_symbol( g, lhs, node->child->child );
 			str = sym->name;
 
 			if( NODE_IS( node, "kle" ) || NODE_IS( node, "pos" ) )
@@ -151,6 +151,9 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs,
 				{
 					csym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 												name, (char*)NULL );
+					csym->flags |= PPFLAG_DEFINED
+									| PPFLAG_CALLED
+										| PPFLAG_GENERATED;
 
 					if( g->flags & PPFLAG_PREVENTLREC )
 						pp_prod_create( g, csym, sym, csym, (ppsym*)NULL );
@@ -171,6 +174,9 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs,
 				{
 					csym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 													name, (char*)NULL );
+					csym->flags |= PPFLAG_DEFINED
+									| PPFLAG_CALLED
+										| PPFLAG_GENERATED;
 
 					pp_prod_create( g, csym, sym, (ppsym*)NULL );
 					pp_prod_create( g, csym, (ppsym*)NULL );
@@ -183,8 +189,35 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs,
 		}
 	}
 
-	if( doemit )
-		prod->emit = emit ? emit : lhs->name;
+	/*
+		Optimize productions with one generated symbol
+		that was introduced via 'inline'.
+	*/
+	if( ( sym = pp_prod_getfromrhs( prod, 0 ) )
+			&& !pp_prod_getfromrhs( prod, 1 ) )
+	{
+		if( sym->type == PPSYMTYPE_NONTERM
+				&& sym->flags & PPFLAG_GENERATED
+					&& sym->emit && !pp_sym_getprod( sym, 1 ) )
+		{
+			if( sym->flags & PPFLAG_FREEEMIT )
+			{
+				prod->emit = pstrdup( sym->emit );
+				prod->flags |= PPFLAG_FREEEMIT;
+			}
+			else
+				prod->emit = sym->emit;
+
+			pp_prod_remove( prod, sym );
+
+			popt = pp_sym_getprod( sym, 0 );
+
+			for( i = 0; ( csym = pp_prod_getfromrhs( popt, i ) ); i++ )
+				pp_prod_append( prod, csym );
+
+			pp_sym_drop( sym );
+		}
+	}
 
 	return TRUE;
 }
@@ -197,88 +230,75 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	ppast*		child;
 	char		name		[ NAMELEN * 2 + 1 ];
 	char		def			[ NAMELEN * 2 + 1 ];
-	int			emit_seq	= 0;
-	pboolean	all			= FALSE;
-	char*		emit;
-	int			emit_id;
-	pboolean	doemit;
-	int			type;
 
-	/* pp_ast_shortdump( stderr, ast ); */
+	int			type;
+	pboolean	flag_emit;
+	pboolean	flag_ignore;
+	pboolean	flag_goal;
+
+	/* pp_ast_dump_short( stderr, ast ); */
 
 	for( node = ast; node; node = node->next )
 	{
-		emit_id = 0;
-		emit = (char*)NULL;
-		doemit = all;
+		flag_emit = flag_ignore = flag_goal = FALSE;
 
 		/* fprintf( stderr, "gram >%s<\n", node->emit ); */
 
-		if( NODE_IS( node, "gflag" ) )
+		if( NODE_IS( node, "nontermdef" ) )
 		{
-			if( !strncmp( node->start, "emitall", node->length ) )
-				all = TRUE;
-			else if( !strncmp( node->start, "emitnone", node->length ) )
-				all = FALSE;
-			else if( !strncmp( node->start, "lrec", node->length ) )
-				g->flags &= ~PPFLAG_PREVENTLREC;
-			else if( !strncmp( node->start, "rrec", node->length ) )
-				g->flags |= PPFLAG_PREVENTLREC;
-		}
-		else if( NODE_IS( node, "nontermdef" ) )
-		{
-			sprintf( name, "%.*s", node->child->length,
-										node->child->start );
+			child = node->child;
 
+			if( NODE_IS( child, "flag_emit" ) )
+			{
+				flag_emit = TRUE;
+				child = child->next;
+			}
+
+			sprintf( name, "%.*s", child->length, child->start );
+
+			/* Create the terminal symbol */
 			if( !( nonterm = sym = pp_sym_get_by_name( g, name ) ) )
 				nonterm = sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
 												name, (char*)NULL );
 
 			sym->flags |= PPFLAG_DEFINED;
 
+			if( NODE_IS( child, "flag_goal" ) )
+			{
+				if( !g->goal ) /* fixme */
+				{
+					g->goal = sym;
+					sym->flags |= PPFLAG_CALLED;
+				}
+			}
+
 			for( child = node->child->next; child; child = child->next )
 			{
 				if( NODE_IS( child, "alternative" ) )
 				{
-					if( !traverse_production( g, sym, child->child, all ) )
+					if( !traverse_production( g, sym, child->child ) )
 						return FALSE;
-				}
-				else if( NODE_IS( child, "emit" ) )
-				{
-					doemit = TRUE;
-
-					if( child->child && NODE_IS( child->child, "ident" ) )
-						emit = pstrndup( child->child->start,
-											child->child->length );
-				}
-				else if( NODE_IS( child, "nontermflag" ) )
-				{
-					sprintf( name, "%.*s", child->length, child->start );
-
-					if( strcmp( name, "goal" ) == 0 )
-					{
-						if( !g->goal ) /* fixme */
-						{
-							g->goal = sym;
-							sym->flags |= PPFLAG_CALLED;
-						}
-					}
-					else if( strcmp( name, "noemit" ) == 0 )
-						doemit = FALSE;
-					else if( strcmp( name, "ignore" ) == 0 )
-						/* ignore = TRUE; */
-						;
-					else if( strcmp( name, "lexeme" ) == 0 )
-						sym->flags |= PPFLAG_LEXEM;
 				}
 			}
 
-			if( doemit )
-				sym->emit = emit ? emit : sym->name;
+			if( flag_emit )
+				sym->emit = sym->name;
 		}
 		else if( NODE_IS( node, "termdef" ) )
 		{
 			child = node->child;
+
+			if( NODE_IS( child, "flag_ignore" ) )
+			{
+				flag_ignore = TRUE;
+				child = child->next;
+			}
+
+			if( NODE_IS( child, "flag_emit" ) )
+			{
+				flag_emit = TRUE;
+				child = child->next;
+			}
 
 			if( NODE_IS( child, "ident" ) )
 			{
@@ -290,7 +310,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 
 			if( NODE_IS( child, "token") )
 			{
-				doemit = TRUE;
+				flag_emit = TRUE;
 				type = PPSYMTYPE_STRING;
 			}
 			else if( NODE_IS( child, "ccl" ) )
@@ -302,37 +322,20 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 
 			sprintf( def, "%.*s", child->length - 2, child->start + 1 );
 
+			/* Create the terminal symbol */
 			sym = pp_sym_create( g, type, *name ? name : (char*)NULL, def );
 
 			sym->flags |= PPFLAG_DEFINED;
 
-			for( child = child->next; child; child = child->next )
+			/* Configure according to flags */
+			if( flag_emit )
+				sym->emit = sym->name;
+
+			if( flag_ignore )
 			{
-				if( NODE_IS( child, "emit" ) )
-				{
-					doemit = TRUE;
-
-					if( child->child && NODE_IS( child->child, "ident" ) )
-						emit = pstrndup( child->child->start,
-											child->child->length );
-				}
-				else if( NODE_IS( child, "termflag" ) )
-				{
-					sprintf( name, "%.*s", child->length, child->start );
-
-					if( strcmp( name, "noemit" ) == 0 )
-						doemit = FALSE;
-					else if( strcmp( name, "ignore" ) == 0
-								|| strcmp( name, "skip" ) == 0 )
-					{
-						sym->flags |= PPFLAG_WHITESPACE;
-						plist_push( g->ws, sym );
-					}
-				}
+				sym->flags |= PPFLAG_WHITESPACE;
+				plist_push( g->ws, sym );
 			}
-
-			if( doemit )
-				sym->emit = emit ? emit : sym->name;
 		}
 	}
 

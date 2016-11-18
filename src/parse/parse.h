@@ -23,6 +23,8 @@ typedef struct _ppast		ppast;
 #define PPFLAG_WHITESPACE	32
 #define PPFLAG_PREVENTLREC	64
 #define PPFLAG_NAMELESS		128
+#define PPFLAG_GENERATED	256
+#define PPFLAG_FREEEMIT		512
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -36,6 +38,7 @@ struct _ppprod
 	ppsym*					lhs;
 	plist*					rhs;
 	int						flags;
+	ppgram*					grm;
 
 	/* AST construction */
 	char*					emit;
@@ -66,6 +69,7 @@ struct _ppsym
 	ppsymtype				type;
 	char*					name;
 	int						flags;
+	ppgram*					grm;
 
 	/* Nonterminal specific */
 	plist*					first;
