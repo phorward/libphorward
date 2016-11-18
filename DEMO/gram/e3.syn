@@ -1,15 +1,16 @@
-$' ' %ignore;
+%ignore	' ';
+@int 	/[0-9]+/;
 
-$int /[0-9]+/ %emit;
+factor	: '(' expr ')'
+		| int ;
 
-f: '(' e ')' | int ;
+term 	: @mul( term '*' factor )
+		| @div( term '/' factor )
+		| factor
+		;
 
-mul : t '*' f %emit;
-div : t '/' f %emit;
-t : mul | div | f ;
+@add 	: expr '+' term;
+@sub 	: expr '-' term;
 
-add : e '+' t %emit;
-sub : e '-' t %emit;
-
-e %goal: add | sub | t ;
+expr$	: add | sub | term ;
 
