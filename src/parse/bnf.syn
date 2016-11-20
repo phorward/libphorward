@@ -27,6 +27,7 @@ Usage:	Grammar for grammar definition language ;)
 
 @flag_emit		'@' ;
 @flag_goal		'$' ;
+@flag_lexem		'!' ;
 @flag_ignore	/%(ignore|skip)/ ;
 
 // Nonterminals ----------------------------------------------------------------
@@ -51,7 +52,8 @@ production	 	: sequence | ;
 
 alternation		: alternation '|' alternative | alternative ;
 
-@nontermdef		: flag_emit? ident flag_goal? ( ':' alternation )? ';' ;
+@nontermdef		: flag_emit? ident ( flag_goal | flag_lexem )*
+					( ':' alternation )? ';' ;
 
 @termdef		: ( flag_emit? ident | flag_ignore )
 					( ccl | string | regex | function ) ';'

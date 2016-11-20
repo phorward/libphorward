@@ -1,5 +1,5 @@
 %ignore ' ' ;
-@int: [0-9]+ ; // %lexeme fixme!
+@int!: [0-9]+ ;
 
 f: '(' e ')' | int ;
 

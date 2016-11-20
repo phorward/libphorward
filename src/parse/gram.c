@@ -234,13 +234,12 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	int			type;
 	pboolean	flag_emit;
 	pboolean	flag_ignore;
-	pboolean	flag_goal;
 
 	/* pp_ast_dump_short( stderr, ast ); */
 
 	for( node = ast; node; node = node->next )
 	{
-		flag_emit = flag_ignore = flag_goal = FALSE;
+		flag_emit = flag_ignore = FALSE;
 
 		/* fprintf( stderr, "gram >%s<\n", node->emit ); */
 
@@ -263,18 +262,20 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 
 			sym->flags |= PPFLAG_DEFINED;
 
-			if( NODE_IS( child, "flag_goal" ) )
-			{
-				if( !g->goal ) /* fixme */
-				{
-					g->goal = sym;
-					sym->flags |= PPFLAG_CALLED;
-				}
-			}
 
 			for( child = node->child->next; child; child = child->next )
 			{
-				if( NODE_IS( child, "alternative" ) )
+				if( NODE_IS( child, "flag_goal" ) )
+				{
+					if( !g->goal ) /* fixme */
+					{
+						g->goal = sym;
+						sym->flags |= PPFLAG_CALLED;
+					}
+				}
+				else if( NODE_IS( child, "flag_lexem" ) )
+					sym->flags |= PPFLAG_LEXEM;
+				else if( NODE_IS( child, "alternative" ) )
 				{
 					if( !traverse_production( g, sym, child->child ) )
 						return FALSE;
