@@ -48,12 +48,13 @@ sequence		: sequence modifier | modifier ;
 
 production	 	: sequence | ;
 
-@alternative	: production flags? ;
+@alternative	: production ;
 
 alternation		: alternation '|' alternative | alternative ;
 
 @nontermdef		: flag_emit? ident ( flag_goal | flag_lexem )*
-					( ':' alternation )? ';' ;
+					':' alternation ';'
+				;
 
 @termdef		: ( flag_emit? ident | flag_ignore )
 					( ccl | string | regex | function ) ';'

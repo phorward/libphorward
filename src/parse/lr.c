@@ -11,10 +11,10 @@ Usage:	LR/LALR/SLR parse table construction and execution.
 #include "phorward.h"
 
 /* Defines */
-#define PPLR_SHIFT	1
-#define PPLR_REDUCE	2
+#define PPLR_SHIFT		1
+#define PPLR_REDUCE		2
 
-#define DEBUGLEVEL	0
+#define DEBUGLEVEL		0
 
 /* Closure item */
 typedef struct
@@ -829,6 +829,7 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 	{
 		st = (pplrstate*)plist_access( e );
 
+		/* Reductions */
 		for( part = st->kernel; part;
 				part = ( part == st->kernel ? st->epsilon : (plist*)NULL ) )
 		{
@@ -845,6 +846,28 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 				{
 					sym = (ppsym*)plist_access( g );
 					pp_lrcolumn_create( st, sym, (pplrstate*)NULL, it->prod );
+				}
+			}
+		}
+
+		/* Detect and report conflicts */
+		plist_for( st->actions, f )
+		{
+			col = (pplrcolumn*)plist_access( f );
+			sym = (ppsym*)NULL;
+
+			for( g = plist_next( f ); g; g = plist_next( g ) )
+			{
+				ccol = (pplrcolumn*)plist_access( g );
+
+				if( ccol->symbol == col->symbol )
+				{
+					/* TODO Conflict resolution */
+					fprintf( stderr,
+						"State %d encouters %s/reduce-conflict on %s\n",
+							plist_offset( e ),
+								col->reduce ? "reduce" : "shift",
+									col->symbol->name );
 				}
 			}
 		}
@@ -883,34 +906,8 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 		}
 	}
 
+
 	pfree( prodcnt );
-
-	/* Detect and report conflicts */
-	cnt = 0;
-	plist_for( states, e )
-	{
-		st = (pplrstate*)plist_access( e );
-
-		plist_for( st->actions, f )
-		{
-			col = (pplrcolumn*)plist_access( f );
-
-			for( g = plist_next( f ); g; g = plist_next( g ) )
-			{
-				ccol = (pplrcolumn*)plist_access( g );
-
-				if( ccol->symbol == col->symbol )
-				{
-					/* TODO Conflict resolution */
-					fprintf( stderr,
-						"State %d encouters %s/reduce-conflict on %s\n",
-							plist_offset( e ),
-								col->reduce ? "reduce" : "shift",
-									sym->name );
-				}
-			}
-		}
-	}
 
 	MSG( "Finished" );
 	VARS( "States generated", "%d", plist_count( states ) );
