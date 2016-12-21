@@ -4,9 +4,8 @@ Copyright (C) 2006-2016 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	main.c
-Usage:	Phorward Parsing Library
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+File:	pparse.c
+Usage:	Phorward parser command-line tool
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -157,3 +156,70 @@ int main( int argc, char** argv )
 	return 0;
 }
 
+/* This is an old test program stub */
+#if 0
+int main1( int argc, char** argv )
+{
+	char*		e;
+	char*		s;
+	parray*		a;
+	ppgram*		g;
+	ppgram*		g2		= (ppgram*)NULL;
+	int			i		= 0;
+	char*		str;
+
+	g = pp_gram_create( (char*)NULL );
+	pp_gram2gram( g );
+	pp_gram_prepare( g );
+	pp_gram_print( g );
+
+	if( argc > 1 )
+	{
+		str = argv[ 1 ];
+		while( TRUE )
+		{
+			e = s = str;
+
+			if( pp_lr_parse( &a, g, s, &e ) )
+			{
+				printf( "\nSUCCEED >%.*s<\n", e - s, s );
+
+				pp_ast_simplify( a );
+
+				if( parray_count( a ) )
+				{
+					g2 = pp_ast2gram( a );
+					printf( "\n--- final ---\n" );
+					pp_gram_print( g2 );
+
+					g = g2;
+				}
+
+				i++;
+
+				printf( "BOOTSTRAP %d OK\n", i );
+				if( argc > i + 1 )
+				{
+					if( *argv[ i + 1 ] )
+						str = argv[ i + 1 ];plex_lex
+
+					printf( "EXEC >%s<\n", str );
+				}
+
+				getchar();
+			}
+			else
+			{
+				printf( "\nFAILED\n" );
+				break;
+			}
+
+			parray_free( a );
+		}
+
+		printf( "i = %d\n", i );
+	}
+
+	return 0;
+}
+#endif

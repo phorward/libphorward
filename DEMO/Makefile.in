@@ -108,18 +108,6 @@ am__v_lt_1 =
 basis_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(basis_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_parse_OBJECTS = parse-parse.$(OBJEXT)
-parse_OBJECTS = $(am_parse_OBJECTS)
-parse_DEPENDENCIES = ../src/libphorward.la
-parse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(parse_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_regex_OBJECTS = regex-regex.$(OBJEXT)
-regex_OBJECTS = $(am_regex_OBJECTS)
-regex_DEPENDENCIES = ../src/libphorward.la
-regex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(regex_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -154,8 +142,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(basis_SOURCES) $(parse_SOURCES) $(regex_SOURCES)
-DIST_SOURCES = $(basis_SOURCES) $(parse_SOURCES) $(regex_SOURCES)
+SOURCES = $(basis_SOURCES)
+DIST_SOURCES = $(basis_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -298,16 +286,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-noinst_PROGRAMS = basis$(EXEEXT) regex$(EXEEXT) parse$(EXEEXT)
+noinst_PROGRAMS = basis$(EXEEXT)
 basis_SOURCES = basis.c
 basis_LDADD = ../src/libphorward.la
 basis_CFLAGS = -I$(top_srcdir)/src
-regex_SOURCES = regex.c
-regex_LDADD = ../src/libphorward.la
-regex_CFLAGS = -I$(top_srcdir)/src
-parse_SOURCES = parse.c
-parse_LDADD = ../src/libphorward.la
-parse_CFLAGS = -I$(top_srcdir)/src
 all: all-am
 
 .SUFFIXES:
@@ -355,14 +337,6 @@ basis$(EXEEXT): $(basis_OBJECTS) $(basis_DEPENDENCIES) $(EXTRA_basis_DEPENDENCIE
 	@rm -f basis$(EXEEXT)
 	$(AM_V_CCLD)$(basis_LINK) $(basis_OBJECTS) $(basis_LDADD) $(LIBS)
 
-parse$(EXEEXT): $(parse_OBJECTS) $(parse_DEPENDENCIES) $(EXTRA_parse_DEPENDENCIES) 
-	@rm -f parse$(EXEEXT)
-	$(AM_V_CCLD)$(parse_LINK) $(parse_OBJECTS) $(parse_LDADD) $(LIBS)
-
-regex$(EXEEXT): $(regex_OBJECTS) $(regex_DEPENDENCIES) $(EXTRA_regex_DEPENDENCIES) 
-	@rm -f regex$(EXEEXT)
-	$(AM_V_CCLD)$(regex_LINK) $(regex_OBJECTS) $(regex_LDADD) $(LIBS)
-
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -370,8 +344,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/basis-basis.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse-parse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex-regex.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -407,34 +379,6 @@ basis-basis.obj: basis.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='basis.c' object='basis-basis.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(basis_CFLAGS) $(CFLAGS) -c -o basis-basis.obj `if test -f 'basis.c'; then $(CYGPATH_W) 'basis.c'; else $(CYGPATH_W) '$(srcdir)/basis.c'; fi`
-
-parse-parse.o: parse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(parse_CFLAGS) $(CFLAGS) -MT parse-parse.o -MD -MP -MF $(DEPDIR)/parse-parse.Tpo -c -o parse-parse.o `test -f 'parse.c' || echo '$(srcdir)/'`parse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/parse-parse.Tpo $(DEPDIR)/parse-parse.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='parse.c' object='parse-parse.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(parse_CFLAGS) $(CFLAGS) -c -o parse-parse.o `test -f 'parse.c' || echo '$(srcdir)/'`parse.c
-
-parse-parse.obj: parse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(parse_CFLAGS) $(CFLAGS) -MT parse-parse.obj -MD -MP -MF $(DEPDIR)/parse-parse.Tpo -c -o parse-parse.obj `if test -f 'parse.c'; then $(CYGPATH_W) 'parse.c'; else $(CYGPATH_W) '$(srcdir)/parse.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/parse-parse.Tpo $(DEPDIR)/parse-parse.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='parse.c' object='parse-parse.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(parse_CFLAGS) $(CFLAGS) -c -o parse-parse.obj `if test -f 'parse.c'; then $(CYGPATH_W) 'parse.c'; else $(CYGPATH_W) '$(srcdir)/parse.c'; fi`
-
-regex-regex.o: regex.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(regex_CFLAGS) $(CFLAGS) -MT regex-regex.o -MD -MP -MF $(DEPDIR)/regex-regex.Tpo -c -o regex-regex.o `test -f 'regex.c' || echo '$(srcdir)/'`regex.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/regex-regex.Tpo $(DEPDIR)/regex-regex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='regex.c' object='regex-regex.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(regex_CFLAGS) $(CFLAGS) -c -o regex-regex.o `test -f 'regex.c' || echo '$(srcdir)/'`regex.c
-
-regex-regex.obj: regex.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(regex_CFLAGS) $(CFLAGS) -MT regex-regex.obj -MD -MP -MF $(DEPDIR)/regex-regex.Tpo -c -o regex-regex.obj `if test -f 'regex.c'; then $(CYGPATH_W) 'regex.c'; else $(CYGPATH_W) '$(srcdir)/regex.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/regex-regex.Tpo $(DEPDIR)/regex-regex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='regex.c' object='regex-regex.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(regex_CFLAGS) $(CFLAGS) -c -o regex-regex.obj `if test -f 'regex.c'; then $(CYGPATH_W) 'regex.c'; else $(CYGPATH_W) '$(srcdir)/regex.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

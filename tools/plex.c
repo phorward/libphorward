@@ -4,7 +4,7 @@ Copyright (C) 2006-2016 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
-File:	lexer.c
+File:	plex.c
 Usage:	A plex object demonstration suite.
 ----------------------------------------------------------------------------- */
 
@@ -27,7 +27,7 @@ int main( int argc, char** argv )
 
 	while( fgets( buf, BUFSIZ, stdin ) )
 	{
-		n = plex_findall( lex, buf, &a );
+		n = plex_tokenize( lex, buf, &a );
 
 		for( i = 0; n && ( r = (prange*)parray_get( a, i ) ); i++ )
 			printf( "%2d: %2d @ >%.*s<\n",
@@ -39,3 +39,4 @@ int main( int argc, char** argv )
 	plex_free( lex );
 	return 0;
 }
+
