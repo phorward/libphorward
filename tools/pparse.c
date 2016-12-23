@@ -5,7 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	pparse.c
-Usage:	Phorward parser command-line tool
+Usage:	A pparse/ppast object demonstration suite.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
