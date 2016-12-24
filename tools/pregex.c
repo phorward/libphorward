@@ -48,14 +48,15 @@ int main( int argc, char** argv )
 	int			j;
 	int			rc;
 	int			next;
-	char		opt		[ 5 + 1 ];
+	char		opt		[ 10 + 1 ];
 	char*		param;
 
 	/* Analyze command-line parameters */
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"a:De:hf:i:r:",
-						"action: exec: file: help input: replace:", i ) )
-							== 0; i++ )
+						"a:d:De:hf:i:r:",
+						"action: delimiter: exec: file: help "
+							"input: replace:", i ) )
+								== 0; i++ )
 	{
 		if( !strcmp( opt, "action" ) || !strcmp( opt, "a" ) )
 		{
