@@ -15,20 +15,21 @@ clean:
 	-rm pregex.o
 	-rm ppgram2c.o
 	-rm pvm.o
+	-rm utils.o
 	-rm $(PLEX) $(PPARSE) $(PREGEX) $(PPGRAM2C) $(PVM)
 
-$(PLEX): plex.o $(LIBPHORWARD)
-	$(CC) -o $@ plex.o $(LIBPHORWARD)
+$(PLEX): plex.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
 
-$(PPARSE): pparse.o $(LIBPHORWARD)
-	$(CC) -o $@ pparse.o $(LIBPHORWARD)
+$(PPARSE): pparse.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
 
-$(PREGEX): pregex.o $(LIBPHORWARD)
-	$(CC) -o $@ pregex.o $(LIBPHORWARD)
+$(PREGEX): pregex.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
 
-$(PPGRAM2C): ppgram2c.o $(LIBPHORWARD)
-	$(CC) -o $@ ppgram2c.o $(LIBPHORWARD)
+$(PPGRAM2C): ppgram2c.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
 
-$(PVM): pvm.o $(LIBPHORWARD)
-	$(CC) -o $@ pvm.o $(LIBPHORWARD)
+$(PVM): pvm.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
 

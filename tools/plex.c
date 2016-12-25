@@ -8,7 +8,7 @@ File:	plex.c
 Usage:	A plex object demonstration suite.
 ----------------------------------------------------------------------------- */
 
-#include "phorward.h"
+#include "local.h"
 
 void help( char** argv )
 {
@@ -22,6 +22,7 @@ void help( char** argv )
 	"   -f  --file      FILENAME  Read input from FILENAME\n"
 	"   -h  --help                Show this help, and exit.\n"
 	"   -i  --input     INPUT     Use string INPUT as input.\n"
+	"   -v  --version             Show version info and exit.\n"
 
 
 	"\n", *argv );
@@ -47,8 +48,8 @@ int main( int argc, char** argv )
 
 	/* Analyze command-line parameters */
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"d:Df:hi:",
-						"delimiter: file: help input:", i ) )
+						"d:Df:hi:v",
+						"delimiter: file: help input: version", i ) )
 							== 0; i++ )
 	{
 		if( !strcmp( opt, "begin" ) || !strcmp( opt, "b" ) )
@@ -74,6 +75,11 @@ int main( int argc, char** argv )
 		}
 		else if( !strcmp( opt, "input" ) || !strcmp( opt, "i" ) )
 			start = param;
+		else if( !strcmp( opt, "version" ) || !strcmp( opt, "v" ) )
+		{
+			version( argv, "Lexical analysis command-line utility" );
+			return 0;
+		}
 	}
 
 	if( rc < 0 && param )

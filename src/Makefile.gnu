@@ -47,20 +47,24 @@ SRC = \
 	vm/vm.c
 
 HSRC = \
+	any/any.h \
 	base/array.h \
 	base/ccl.h \
 	base/dbg.h \
 	base/list.h \
 	parse/parse.h \
-	any/any.h \
-	vm/vm.h \
 	regex/regex.h \
+	vm/vm.h \
+	version.h \
 	phorward.tpl.h \
 	$(PROTOFILE)
 
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
 all: $(LIBPHORWARD)
+
+version.h:
+	echo "#define LIBPHORWARD_VERSION \"`../Version`\"" >$@
 
 $(LIBPHORWARD): $(LIBHEADER) $(OBJ)
 	$(AR) rv $@ $(OBJ)
@@ -71,6 +75,7 @@ clean:
 
 clean_all: clean
 	-rm $(LIBHEADER)
+	-rm version.h
 	-rm any/any.conv.c
 	-rm any/any.get.c
 	-rm any/any.print.c

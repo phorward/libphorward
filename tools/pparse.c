@@ -8,7 +8,7 @@ File:	pparse.c
 Usage:	A pparse/ppast object demonstration suite.
 ----------------------------------------------------------------------------- */
 
-#include "phorward.h"
+#include "local.h"
 
 /* Main */
 
@@ -16,15 +16,17 @@ void help( char** argv )
 {
 	printf( "usage: %s OPTIONS grammar\n\n"
 
-	"   -e  --exec    INPUT     Execute string INPUT on grammar.\n"
-	"   -g  --grammar BNF       Define grammar from BNF.\n"
-	"   -G                      Dump constructed grammar\n"
-	"   -h  --help              Show this help, and exit.\n"
-/*	"   -m  --mode    MODE      Use construction mode MODE:\n"
-	"                           lr=bottom-up (default), ll=top-down\n" */
-	"   -r  --render  RENDERER  Use AST renderer RENDERER:\n"
-	"                           dump (default), short, json, tree2svg\n"
-	"   -s  --source  FILENAME  Execute input from FILENAME on grammar.\n"
+	"   -e  --exec    INPUT       Execute string INPUT on grammar.\n"
+	"   -g  --grammar BNF         Define grammar from BNF.\n"
+	"   -G                        Dump constructed grammar\n"
+	"   -h  --help                Show this help, and exit.\n"
+/*	"   -m  --mode    MODE        Use construction mode MODE:\n"
+	"                             lr=bottom-up (default), ll=top-down\n" */
+	"   -r  --render  RENDERER    Use AST renderer RENDERER:\n"
+	"                             dump (default), short, json, tree2svg\n"
+	"   -s  --source  FILENAME    Execute input from FILENAME on grammar.\n"
+	"   -v  --version             Show version info and exit.\n"
+
 	"\n", *argv );
 
 }
@@ -46,8 +48,8 @@ int main( int argc, char** argv )
 	char*		param;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"e:g:Gm:r:s:",
-						"exec: grammar: mode: renderer: source:", i ) )
+						"e:g:Gm:r:s:v",
+						"exec: grammar: mode: renderer: source: version", i ) )
 							== 0; i++ )
 	{
 		if( !strcmp( opt, "exec" ) || *opt == 'e' )
@@ -82,6 +84,11 @@ int main( int argc, char** argv )
 				fprintf( stderr, "Unable to read source file '%s'\n", param );
 				return 1;
 			}
+		}
+		else if( !strcmp( opt, "version" ) || !strcmp( opt, "v" ) )
+		{
+			version( argv, "Parser construction command-line utility" );
+			return 0;
 		}
 	}
 

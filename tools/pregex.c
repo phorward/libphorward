@@ -8,7 +8,7 @@ File:	pregex.c
 Usage:	A pregex object demonstration suite.
 ----------------------------------------------------------------------------- */
 
-#include "phorward.h"
+#include "local.h"
 
 void help( char** argv )
 {
@@ -24,6 +24,7 @@ void help( char** argv )
 	"   -h  --help                Show this help, and exit.\n"
 	"   -i  --input     INPUT     Use string INPUT as input.\n"
 	"   -r  --replace   STRING    Replacement string for 'replace' action.\n"
+	"   -v  --version             Show version info and exit.\n"
 
 	"\n", *argv );
 }
@@ -53,9 +54,9 @@ int main( int argc, char** argv )
 
 	/* Analyze command-line parameters */
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"a:d:De:hf:i:r:",
+						"a:d:De:hf:i:r:v",
 						"action: delimiter: exec: file: help "
-							"input: replace:", i ) )
+							"input: replace: version", i ) )
 								== 0; i++ )
 	{
 		if( !strcmp( opt, "action" ) || !strcmp( opt, "a" ) )
@@ -103,6 +104,11 @@ int main( int argc, char** argv )
 			input = param;
 		else if( !strcmp( opt, "replace" ) || !strcmp( opt, "r" ) )
 			replace = param;
+		else if( !strcmp( opt, "version" ) || !strcmp( opt, "v" ) )
+		{
+			version( argv, "Regular expression command-line utility" );
+			return 0;
+		}
 	}
 
 	if( rc == 1 )

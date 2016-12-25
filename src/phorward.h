@@ -108,6 +108,9 @@ typedef char 					pboolean;
 
 
 
+#define LIBPHORWARD_VERSION "0.19.0 devel"
+
+
 
 
 #ifndef _DBG_H

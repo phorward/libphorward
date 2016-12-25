@@ -113,6 +113,8 @@ typedef char 					pboolean;	/* Phorward Boolean */
  */
 
 /* Watch for order! */
+##include "version.h"
+
 ##include "base/dbg.h"
 ##include "base/array.h"
 ##include "base/list.h"
