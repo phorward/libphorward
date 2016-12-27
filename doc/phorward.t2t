@@ -1,6 +1,6 @@
 Phorward Toolkit Reference Manual
 libphorward 0.19.0
-October 2016
+December 2016
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
 %!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
@@ -18,11 +18,11 @@ October 2016
 
 = General =
 
-== What is libphorward? ==
+== Introduction ==
 
-This software provides a powerful toolkit for compiler-related development tasks, targetting the C programming language. It mainly focuses on the implementation of parsers to map arbitrary input into logically defined data structures. As the toolkit is hold entirely dynamic, any generation of source code or hand-writing parsers or lexers is unnecessary. Just define a grammar describing the structure of the input data and that's all - the toolkit does the rest of the job!
+The Phorward SDK provides a powerful software development kit for compiler-related development tasks, primarily targetting the C programming language. It mainly focuses on the implementation of parsers to map arbitrary input into logically defined data structures. As the library is hold entirely dynamic, any generation of source code or hand-writing parsers or lexers is unnecessary. Just define a grammar describing the structure of the input data and that's all - the software does the rest of the job!
 
-The following example defines a simple expressional grammar, runs a parser on it and prints the generated abstract syntax tree:
+The following example programm, written in C, defines a simple expressional grammar, runs a parser on it and prints the generated abstract syntax tree:
 
 %!include: ``example.c``
 
@@ -30,14 +30,18 @@ This program can quickly be compiled with
 
 ``` $ cc -o example example.c -lphorward
 
-after installation.
+Additionally, the toolkit comes with several handy command-line tools serving testing and prototyping facilities. The following command call yields in an equivalent parse tree, altought some symbol names where shortened.
 
-Secondary, the toolkit also provides useful general-purpose extensions for dynamic data structures (linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
+```
+$ pparse -e "1+2*(3+4)+5" -g "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;"
+```
 
-== Feature overview ==
+The SDK also provides useful general-purpose extensions for C programs, including dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
 
-All tools of the Phorward Toolkit are hold as a part of a library, which can be dynamically invoked or merged together. Altought the library is written in C, it provides data objects following an object-oriented style.
+= Features =
 
+All tools of the Phorward SDK are hold as a part of a library, which can be dynamically invoked or merged together.
+Altought the library is written in C, it provides data objects following a strict object-oriented style.
 - Parser development tools
   - Self-hosted Backus-Naur-Form (BNF) grammar definition language
   - //pparse// provides a modular LR(1) and LALR(1) parser generator
@@ -135,7 +139,7 @@ THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) ''AS
 
 = Guidelines =
 
-The Phorward Toolkit, shortly called libphorward, is a well-established C programming library which has its origins in several existing projects, where many features had been modularized and unified for a general purpose usage.
+The Phorward Toolkit, or shortly called libphorward, is a well-established C programming library which has its origins in several existing projects, where many features had been modularized and unified for a general purpose usage.
 
 The roots of this library go back into the year 2006, where Phorward Software began with the development of a universal programming library shared by several C projects that existed at this time. Since then, the library heavily grew and also had many redesign stages behind.
 
