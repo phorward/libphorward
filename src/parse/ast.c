@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2016 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -17,9 +17,16 @@ ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
 {
 	ppast*	node;
 
+	if( !( emit && *emit && start && end ) )
+	{
+		WRONGPARAM;
+		return (ppast*)NULL;
+	}
+
 	node = (ppast*)pmalloc( sizeof( ppast ) );
 
 	node->emit = emit;
+
 	node->sym = sym;
 	node->prod = prod;
 
@@ -71,6 +78,42 @@ int pp_ast_len( ppast* node )
 	}
 
 	return step;
+}
+
+/** Returns the //n//th element of //node//. */
+ppast* pp_ast_get( ppast* node, int n )
+{
+	if( !( node && n >= 0 ) )
+	{
+		WRONGPARAM;
+		return (ppast*)NULL;
+	}
+
+	while( node && n-- > 0 )
+		node = node->next;
+
+	return node;
+}
+
+/** Returns the //n//th element matching emit //emit// starting at //node//. */
+ppast* pp_ast_select( ppast* node, char* emit, int n )
+{
+	if( !( node && n >= 0 ) )
+	{
+		WRONGPARAM;
+		return (ppast*)NULL;
+	}
+
+	while( node )
+	{
+		if( ( !*pstrget( emit ) || strcmp( node->emit, emit ) == 0 )
+				&& n-- == 0 )
+			break;
+
+		node = node->next;
+	}
+
+	return node;
 }
 
 /** Dump detailed //ast// to //stream//. */

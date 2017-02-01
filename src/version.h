@@ -1,0 +1,1 @@
+#define LIBPHORWARD_VERSION "0.19.0 devel"

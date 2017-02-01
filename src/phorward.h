@@ -1,6 +1,6 @@
 /* -HEADER----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2016 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -874,6 +874,8 @@ void* pmemdup( void* ptr, size_t size );
 ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
+ppast* pp_ast_get( ppast* node, int n );
+ppast* pp_ast_select( ppast* node, char* emit, int n );
 void pp_ast_dump( FILE* stream, ppast* ast );
 void pp_ast_dump_short( FILE* stream, ppast* ast );
 void pp_ast_dump_json( FILE* stream, ppast* ast );
