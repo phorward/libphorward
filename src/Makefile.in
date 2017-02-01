@@ -922,7 +922,7 @@ any/any.print.c: any/any.h any/any.gen.awk
 
 # Phorward Foundation Library Documentation
 $(DOCFILE): $(libphorward_la_SOURCES)
-	$(PATHEXT) $(AWK) -f ../run/pdoc \
+	$(PATHEXT) ../run/pdoc \
 	--tpldir ../doc/tpl --no-sections --full-index \
 		$(libphorward_la_SOURCES) >$@
 
