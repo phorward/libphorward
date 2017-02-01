@@ -1,14 +1,35 @@
 CFLAGS += -g -DDEBUG -DUNICODE -DUTF8 -I../src
 LIBPHORWARD = ../src/libphorward.a
 
+PLEX		= ../run/plex
+PPARSE		= ../run/pparse
+PREGEX		= ../run/pregex
 PPGRAM2C	= ../run/ppgram2c
+PVM			= ../run/pvm
 
-all: $(PPGRAM2C)
+all: $(PLEX) $(PPARSE) $(PREGEX) $(PPGRAM2C) $(PVM)
 
 clean:
+	-rm plex.o
+	-rm pparse.o
+	-rm pregex.o
 	-rm ppgram2c.o
-	-rm $(PPGRAM2C)
+	-rm pvm.o
+	-rm utils.o
+	-rm $(PLEX) $(PPARSE) $(PREGEX) $(PPGRAM2C) $(PVM)
 
-$(PPGRAM2C): ppgram2c.o $(LIBPHORWARD)
-	$(CC) -o $@ ppgram2c.o $(LIBPHORWARD)
+$(PLEX): plex.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
+
+$(PPARSE): pparse.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
+
+$(PREGEX): pregex.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
+
+$(PPGRAM2C): ppgram2c.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
+
+$(PVM): pvm.o util.o $(LIBPHORWARD)
+	$(CC) -o $@ $+
 

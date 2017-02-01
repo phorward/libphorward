@@ -50,13 +50,15 @@ libphorward_la_SOURCES = \
 	util/system.c
 
 noinst_HEADERS = \
+	any/any.h \
 	base/array.h \
 	base/ccl.h \
 	base/dbg.h \
 	base/list.h \
-	any/any.h \
-	regex/regex.h \
 	parse/parse.h \
+	regex/regex.h \
+	vm/vm.h \
+	version.h \
 	phorward.tpl.h \
 	$(PROTOFILE)
 
@@ -82,6 +84,11 @@ dist_phorward_DATA = \
 
 $(PROTOFILE): $(libphorward_la_SOURCES)
 	$(PATHEXT) pproto $(libphorward_la_SOURCES) >$@
+
+# Version
+
+version.h:
+	echo "#define LIBPHORWARD_VERSION \"`../Version`\"" >$@
 
 # Library Header
 $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)

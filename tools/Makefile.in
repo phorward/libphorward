@@ -88,7 +88,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = DEMO
+subdir = tools
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -97,16 +97,35 @@ DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-PROGRAMS = $(noinst_PROGRAMS)
-am_basis_OBJECTS = basis-basis.$(OBJEXT)
-basis_OBJECTS = $(am_basis_OBJECTS)
-basis_DEPENDENCIES = ../src/libphorward.la
+am__installdirs = "$(DESTDIR)$(bindir)"
+PROGRAMS = $(bin_PROGRAMS)
+am_plex_OBJECTS = plex-plex.$(OBJEXT)
+plex_OBJECTS = $(am_plex_OBJECTS)
+plex_DEPENDENCIES = ../src/libphorward.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-basis_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(basis_CFLAGS) $(CFLAGS) \
+plex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(plex_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_pparse_OBJECTS = pparse-pparse.$(OBJEXT)
+pparse_OBJECTS = $(am_pparse_OBJECTS)
+pparse_DEPENDENCIES = ../src/libphorward.la
+pparse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pparse_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_ppgram2c_OBJECTS = ppgram2c-ppgram2c.$(OBJEXT)
+ppgram2c_OBJECTS = $(am_ppgram2c_OBJECTS)
+ppgram2c_DEPENDENCIES = ../src/libphorward.la
+ppgram2c_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ppgram2c_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_pregex_OBJECTS = pregex-pregex.$(OBJEXT)
+pregex_OBJECTS = $(am_pregex_OBJECTS)
+pregex_DEPENDENCIES = ../src/libphorward.la
+pregex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pregex_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -142,8 +161,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(basis_SOURCES)
-DIST_SOURCES = $(basis_SOURCES)
+SOURCES = $(plex_SOURCES) $(pparse_SOURCES) $(ppgram2c_SOURCES) \
+	$(pregex_SOURCES)
+DIST_SOURCES = $(plex_SOURCES) $(pparse_SOURCES) $(ppgram2c_SOURCES) \
+	$(pregex_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -286,10 +307,20 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-noinst_PROGRAMS = basis$(EXEEXT)
-basis_SOURCES = basis.c
-basis_LDADD = ../src/libphorward.la
-basis_CFLAGS = -I$(top_srcdir)/src
+bin_PROGRAMS = plex$(EXEEXT) pparse$(EXEEXT) pregex$(EXEEXT) ppgram2c$(EXEEXT)
+#pvm$(EXEEXT)
+plex_SOURCES = plex.c
+plex_LDADD = ../src/libphorward.la
+plex_CFLAGS = -I$(top_srcdir)/src
+pparse_SOURCES = pparse.c
+pparse_LDADD = ../src/libphorward.la
+pparse_CFLAGS = -I$(top_srcdir)/src
+pregex_SOURCES = pregex.c
+pregex_LDADD = ../src/libphorward.la
+pregex_CFLAGS = -I$(top_srcdir)/src
+ppgram2c_SOURCES = ppgram2c.c
+ppgram2c_LDADD = ../src/libphorward.la
+ppgram2c_CFLAGS = -I$(top_srcdir)/src
 all: all-am
 
 .SUFFIXES:
@@ -303,9 +334,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign DEMO/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign tools/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign DEMO/Makefile
+	  $(AUTOMAKE) --foreign tools/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -323,9 +354,49 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
+	fi; \
+	for p in $$list; do echo "$$p $$p"; done | \
+	sed 's/$(EXEEXT)$$//' | \
+	while read p p1; do if test -f $$p \
+	 || test -f $$p1 \
+	  ; then echo "$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n;h' \
+	    -e 's|.*|.|' \
+	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
+	sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
+	    else { print "f", $$3 "/" $$4, $$1; } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	    test -z "$$files" || { \
+	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	    } \
+	; done
 
-clean-noinstPROGRAMS:
-	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
+	      -e 's/$$/$(EXEEXT)/' \
+	`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(bindir)" && rm -f $$files
+
+clean-binPROGRAMS:
+	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
 	rm -f $$list || exit $$?; \
 	test -n "$(EXEEXT)" || exit 0; \
@@ -333,9 +404,21 @@ clean-noinstPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
-basis$(EXEEXT): $(basis_OBJECTS) $(basis_DEPENDENCIES) $(EXTRA_basis_DEPENDENCIES) 
-	@rm -f basis$(EXEEXT)
-	$(AM_V_CCLD)$(basis_LINK) $(basis_OBJECTS) $(basis_LDADD) $(LIBS)
+plex$(EXEEXT): $(plex_OBJECTS) $(plex_DEPENDENCIES) $(EXTRA_plex_DEPENDENCIES) 
+	@rm -f plex$(EXEEXT)
+	$(AM_V_CCLD)$(plex_LINK) $(plex_OBJECTS) $(plex_LDADD) $(LIBS)
+
+pparse$(EXEEXT): $(pparse_OBJECTS) $(pparse_DEPENDENCIES) $(EXTRA_pparse_DEPENDENCIES) 
+	@rm -f pparse$(EXEEXT)
+	$(AM_V_CCLD)$(pparse_LINK) $(pparse_OBJECTS) $(pparse_LDADD) $(LIBS)
+
+ppgram2c$(EXEEXT): $(ppgram2c_OBJECTS) $(ppgram2c_DEPENDENCIES) $(EXTRA_ppgram2c_DEPENDENCIES) 
+	@rm -f ppgram2c$(EXEEXT)
+	$(AM_V_CCLD)$(ppgram2c_LINK) $(ppgram2c_OBJECTS) $(ppgram2c_LDADD) $(LIBS)
+
+pregex$(EXEEXT): $(pregex_OBJECTS) $(pregex_DEPENDENCIES) $(EXTRA_pregex_DEPENDENCIES) 
+	@rm -f pregex$(EXEEXT)
+	$(AM_V_CCLD)$(pregex_LINK) $(pregex_OBJECTS) $(pregex_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -343,7 +426,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/basis-basis.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plex-plex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pparse-pparse.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ppgram2c-ppgram2c.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pregex-pregex.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -366,19 +452,61 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-basis-basis.o: basis.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(basis_CFLAGS) $(CFLAGS) -MT basis-basis.o -MD -MP -MF $(DEPDIR)/basis-basis.Tpo -c -o basis-basis.o `test -f 'basis.c' || echo '$(srcdir)/'`basis.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/basis-basis.Tpo $(DEPDIR)/basis-basis.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='basis.c' object='basis-basis.o' libtool=no @AMDEPBACKSLASH@
+plex-plex.o: plex.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -MT plex-plex.o -MD -MP -MF $(DEPDIR)/plex-plex.Tpo -c -o plex-plex.o `test -f 'plex.c' || echo '$(srcdir)/'`plex.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/plex-plex.Tpo $(DEPDIR)/plex-plex.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='plex.c' object='plex-plex.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(basis_CFLAGS) $(CFLAGS) -c -o basis-basis.o `test -f 'basis.c' || echo '$(srcdir)/'`basis.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -c -o plex-plex.o `test -f 'plex.c' || echo '$(srcdir)/'`plex.c
 
-basis-basis.obj: basis.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(basis_CFLAGS) $(CFLAGS) -MT basis-basis.obj -MD -MP -MF $(DEPDIR)/basis-basis.Tpo -c -o basis-basis.obj `if test -f 'basis.c'; then $(CYGPATH_W) 'basis.c'; else $(CYGPATH_W) '$(srcdir)/basis.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/basis-basis.Tpo $(DEPDIR)/basis-basis.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='basis.c' object='basis-basis.obj' libtool=no @AMDEPBACKSLASH@
+plex-plex.obj: plex.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -MT plex-plex.obj -MD -MP -MF $(DEPDIR)/plex-plex.Tpo -c -o plex-plex.obj `if test -f 'plex.c'; then $(CYGPATH_W) 'plex.c'; else $(CYGPATH_W) '$(srcdir)/plex.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/plex-plex.Tpo $(DEPDIR)/plex-plex.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='plex.c' object='plex-plex.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(basis_CFLAGS) $(CFLAGS) -c -o basis-basis.obj `if test -f 'basis.c'; then $(CYGPATH_W) 'basis.c'; else $(CYGPATH_W) '$(srcdir)/basis.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -c -o plex-plex.obj `if test -f 'plex.c'; then $(CYGPATH_W) 'plex.c'; else $(CYGPATH_W) '$(srcdir)/plex.c'; fi`
+
+pparse-pparse.o: pparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -MT pparse-pparse.o -MD -MP -MF $(DEPDIR)/pparse-pparse.Tpo -c -o pparse-pparse.o `test -f 'pparse.c' || echo '$(srcdir)/'`pparse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pparse-pparse.Tpo $(DEPDIR)/pparse-pparse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pparse.c' object='pparse-pparse.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -c -o pparse-pparse.o `test -f 'pparse.c' || echo '$(srcdir)/'`pparse.c
+
+pparse-pparse.obj: pparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -MT pparse-pparse.obj -MD -MP -MF $(DEPDIR)/pparse-pparse.Tpo -c -o pparse-pparse.obj `if test -f 'pparse.c'; then $(CYGPATH_W) 'pparse.c'; else $(CYGPATH_W) '$(srcdir)/pparse.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pparse-pparse.Tpo $(DEPDIR)/pparse-pparse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pparse.c' object='pparse-pparse.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -c -o pparse-pparse.obj `if test -f 'pparse.c'; then $(CYGPATH_W) 'pparse.c'; else $(CYGPATH_W) '$(srcdir)/pparse.c'; fi`
+
+ppgram2c-ppgram2c.o: ppgram2c.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -MT ppgram2c-ppgram2c.o -MD -MP -MF $(DEPDIR)/ppgram2c-ppgram2c.Tpo -c -o ppgram2c-ppgram2c.o `test -f 'ppgram2c.c' || echo '$(srcdir)/'`ppgram2c.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ppgram2c-ppgram2c.Tpo $(DEPDIR)/ppgram2c-ppgram2c.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ppgram2c.c' object='ppgram2c-ppgram2c.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -c -o ppgram2c-ppgram2c.o `test -f 'ppgram2c.c' || echo '$(srcdir)/'`ppgram2c.c
+
+ppgram2c-ppgram2c.obj: ppgram2c.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -MT ppgram2c-ppgram2c.obj -MD -MP -MF $(DEPDIR)/ppgram2c-ppgram2c.Tpo -c -o ppgram2c-ppgram2c.obj `if test -f 'ppgram2c.c'; then $(CYGPATH_W) 'ppgram2c.c'; else $(CYGPATH_W) '$(srcdir)/ppgram2c.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ppgram2c-ppgram2c.Tpo $(DEPDIR)/ppgram2c-ppgram2c.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ppgram2c.c' object='ppgram2c-ppgram2c.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -c -o ppgram2c-ppgram2c.obj `if test -f 'ppgram2c.c'; then $(CYGPATH_W) 'ppgram2c.c'; else $(CYGPATH_W) '$(srcdir)/ppgram2c.c'; fi`
+
+pregex-pregex.o: pregex.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -MT pregex-pregex.o -MD -MP -MF $(DEPDIR)/pregex-pregex.Tpo -c -o pregex-pregex.o `test -f 'pregex.c' || echo '$(srcdir)/'`pregex.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pregex-pregex.Tpo $(DEPDIR)/pregex-pregex.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pregex.c' object='pregex-pregex.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -c -o pregex-pregex.o `test -f 'pregex.c' || echo '$(srcdir)/'`pregex.c
+
+pregex-pregex.obj: pregex.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -MT pregex-pregex.obj -MD -MP -MF $(DEPDIR)/pregex-pregex.Tpo -c -o pregex-pregex.obj `if test -f 'pregex.c'; then $(CYGPATH_W) 'pregex.c'; else $(CYGPATH_W) '$(srcdir)/pregex.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pregex-pregex.Tpo $(DEPDIR)/pregex-pregex.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pregex.c' object='pregex-pregex.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -c -o pregex-pregex.obj `if test -f 'pregex.c'; then $(CYGPATH_W) 'pregex.c'; else $(CYGPATH_W) '$(srcdir)/pregex.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -472,6 +600,9 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(PROGRAMS)
 installdirs:
+	for dir in "$(DESTDIR)$(bindir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -504,8 +635,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
-	mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -531,7 +661,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-binPROGRAMS
 
 install-html: install-html-am
 
@@ -571,26 +701,30 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am:
+uninstall-am: uninstall-binPROGRAMS
 
 .MAKE: install-am install-strip
 
-.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstPROGRAMS cscopelist-am ctags \
-	ctags-am distclean distclean-compile distclean-generic \
+.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
+	clean-binPROGRAMS clean-generic clean-libtool cscopelist-am \
+	ctags ctags-am distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
+
+#pvm_SOURCES = pvm.c
+#pvm_LDADD = ../src/libphorward.la
+#pvm_CFLAGS = -I$(top_srcdir)/src
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

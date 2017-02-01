@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([Phorward Foundation Toolkit], [1.0])
+AC_INIT([Phorward Toolkit], [0.19])
 AC_PREFIX_DEFAULT([/usr])
 
 AC_CONFIG_SRCDIR([src/phorward.tpl.h])
@@ -80,5 +80,6 @@ AC_CHECK_FUNCS([wcsrchr])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  run/Makefile
+				 tools/Makefile
 				 DEMO/Makefile])
 AC_OUTPUT

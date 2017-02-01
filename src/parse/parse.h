@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	parse.h
-Usage:	Phorward Parsing Library
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Phorward parsing library
 ----------------------------------------------------------------------------- */
 
 typedef struct _ppsym		ppsym;
@@ -15,6 +14,7 @@ typedef struct _ppgram		ppgram;
 typedef struct _ppast		ppast;
 
 /* Flags for grammars and their objects */
+#define PPFLAG_NONE			0
 #define PPFLAG_CALLED		1
 #define PPFLAG_DEFINED		2
 #define PPFLAG_NULLABLE		4
@@ -23,6 +23,8 @@ typedef struct _ppast		ppast;
 #define PPFLAG_WHITESPACE	32
 #define PPFLAG_PREVENTLREC	64
 #define PPFLAG_NAMELESS		128
+#define PPFLAG_GENERATED	256
+#define PPFLAG_FREEEMIT		512
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -31,15 +33,15 @@ typedef struct _ppast		ppast;
 /* Production */
 struct _ppprod
 {
-	/* Primaries */
+	/* Elementary */
 	int						id;
 	ppsym*					lhs;
 	plist*					rhs;
 	int						flags;
+	ppgram*					grm;
 
 	/* AST construction */
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	/* Debug */
 	char*					strval;
@@ -67,6 +69,7 @@ struct _ppsym
 	ppsymtype				type;
 	char*					name;
 	int						flags;
+	ppgram*					grm;
 
 	/* Nonterminal specific */
 	plist*					first;
@@ -79,8 +82,7 @@ struct _ppsym
 	ppsymfunc				sf;			/* Symbol function */
 
 	/* AST construction */
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	/* Debug */
 	char*					strval;
@@ -104,42 +106,32 @@ struct _ppgram
 /* AST */
 struct _ppast
 {
-	int						emit;
-	char*					semit;
+	/* Emit */
+	char*					emit;
 
+	/* Grammar */
 	ppsym*					sym;
 	ppprod*					prod;
 
+	/* Match */
 	char*					start;
 	char*					end;
+	size_t					length;
+
+	/* Source */
 	int						row;
 	int						col;
 
+	/* AST */
 	ppast*					child;
+	ppast*					prev;
 	ppast*					next;
 };
 
-/* Match (an AST entry) */
-typedef struct
-{
-	#define PPMATCH_BEGIN	1
-	#define PPMATCH_END		2
-	int						type;
-
-	int						emit;
-	char*					semit;
-	ppsym*					sym;
-	ppprod*					prod;
-
-	char*					start;
-	char*					end;
-	int						row;
-	int						col;
-} ppmatch;
-
-/* Parser maintainance/runtime object */
+/* Parser runtime object */
 typedef struct
 {
 	int						type;
 	ppgram*					gram;
 } pparse;
+

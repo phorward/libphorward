@@ -185,13 +185,13 @@ long pany_to_long( pany* val )
 	RETURN( (long)0 );
 }
 
-/** Converts the current value of //val// into a ulong value.
+/** Converts the current value of //val// into a unsigned long value.
 
 //val// is the pany-object to convert from.
 
-The function returns the ulong-value of //val//.
+The function returns the unsigned long-value of //val//.
 */
-ulong pany_to_ulong( pany* val )
+unsigned long pany_to_ulong( pany* val )
 {
 	PROC( "pany_to_ulong" );
 	PARMS( "val", "%p", val );
@@ -199,35 +199,35 @@ ulong pany_to_ulong( pany* val )
 	if( !val )
 	{
 		WRONGPARAM;
-		RETURN( (ulong)0 );
+		RETURN( (unsigned long)0 );
 	}
 
 	switch( val->type )
 	{
 		case PANYTYPE_BOOL:
-			RETURN( (ulong)val->val.b );
+			RETURN( (unsigned long)val->val.b );
 		case PANYTYPE_CHAR:
-			RETURN( (ulong)val->val.c );
+			RETURN( (unsigned long)val->val.c );
 		case PANYTYPE_INT:
-			RETURN( (ulong)val->val.i );
+			RETURN( (unsigned long)val->val.i );
 		case PANYTYPE_LONG:
-			RETURN( (ulong)val->val.l );
+			RETURN( (unsigned long)val->val.l );
 		case PANYTYPE_ULONG:
 			RETURN( val->val.ul );
 		case PANYTYPE_FLOAT:
-			RETURN( (ulong)val->val.f );
+			RETURN( (unsigned long)val->val.f );
 		case PANYTYPE_DOUBLE:
-			RETURN( (ulong)val->val.d );
+			RETURN( (unsigned long)val->val.d );
 		case PANYTYPE_STR:
-			RETURN( (ulong)strtol( val->val.s, (char**)NULL, 0 ) );
+			RETURN( (unsigned long)strtol( val->val.s, (char**)NULL, 0 ) );
 		case PANYTYPE_WCS:
-			RETURN( (ulong)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
+			RETURN( (unsigned long)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PANYTYPE_PTR:
-			RETURN( (ulong)val->val.ptr );
+			RETURN( (unsigned long)val->val.ptr );
 	}
 
 	MSG( "Can't convert this type!" );
-	RETURN( (ulong)0 );
+	RETURN( (unsigned long)0 );
 }
 
 /** Converts the current value of //val// into a float value.

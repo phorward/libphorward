@@ -2,113 +2,113 @@
 DESCRIPTION
 ===========
 
-The Phorward Toolkit provides a powerful set of useful functions for C programmers, which heavily focus on the topic of compiler-frontend development, meaning parsing and lexical analysis. The project can be seen as a dynamic generator and executor for lexers and parsers which can be defined and executed immediatelly within the program's sourcecode, making an extra step of generating parse tables or a recursive-descent parser unnecessary.
+The Phorward SDK provides a powerful software development kit for compiler-related development tasks, primarily targetting the C programming language. It mainly focuses on the implementation of parsers to map arbitrary input into logically defined data structures. As the library is hold entirely dynamic, any generation of source code or hand-writing parsers or lexers is unnecessary. Just define a grammar describing the structure of the input data and that's all - the software does the rest of the job!
 
-The following example defines a simple grammar, runs a parser and prints the generated abstract syntax tree:
+The following example programm, written in C, defines a simple expressional grammar, runs a parser on it and prints the generated abstract syntax tree:
 
     #include <phorward.h>
     
     int main()
     {
-        pparse* p;
-        parray* a;
-        char*   s = "1+2*(3+4)+5";
-        char*   e;
+        pparse* parser;
+        ppast*  ast;
+        char*   input = "1+2*(3+4)+5";
+        char*   end;
     
-        p = pp_create( 0,
-    			"%emitall"
-    			"f: /[0-9]+/ | '(' e ')';"
-    			"t: t '*' f | f ;"
-    			"e: e '+' t | t ;" );
+        parser = pp_create( 0,  "@int /[0-9]+/ ;"
+    							"fact : int | '(' expr ')' ;"
+                                "term : @mul( term '*' fact ) | fact ;"
+                                "expr : @add( expr '+' term ) | term ;" );
     
-        if( !pp_parse_to_ast( &a, p, s, &e ) )
+        if( !pp_parse_to_ast( &ast, parser, input, &end ) )
             return 1; /* parse error */
     
-        pp_ast_print( a );
+        pp_ast_dump_short( stdout, ast );
         return 0;
     }
 
-(to compile it, run: gcc -o example example.c -lphorward)
+This program can quickly be compiled with
 
-Additionally, the toolkit also provides useful general-purpose extensions for dynamic data structures (linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
+    $ cc -o example example.c -lphorward
+
+Additionally, the toolkit comes with several handy command-line tools serving testing and prototyping facilities. The following command call yields in an equivalent parse tree, altought some symbol names where shortened.
+
+    $ pparse -e "1+2*(3+4)+5" -g "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;"
+
+The SDK also provides useful general-purpose extensions for C programs, including dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
 
 
 FEATURES
 ========
 
-The Phorward Toolkit provides
+All tools of the Phorward SDK are hold as a part of a library, which can be dynamically invoked or merged together.
+Altought the library is written in C, it provides data objects following a strict object-oriented style.
 
 - Parser development tools
-    - BNF-based grammar definition
-    - generators and executors for LR, LALR and LL grammars
-    - a uniform AST (abstract syntax tree) representation
-    - tools for AST traversal (coming soon!)
-    - tools for parser deployment (coming soon!)
+    - Self-hosted Backus-Naur-Form (BNF) grammar definition language
+    - pparse provides a modular LR(1) and LALR(1) parser generator
+    - ppast is a representation of a browsable abstract syntax tree (ast)
+    - Coming soon: Tools for ast traversal and parser deployment
 - Lexer development tools
     - regular expressions and pattern definition interface
-    - plex for lexical analyzers
-    - pregex for regular expressions
+    - plex provides a lexical analyzer
+    - pregex for definition and execution of regular expression
+    - pccl for unicode-enabled character classes
     - tools for regex and lexer deployment
     - string functions for regular expression matching, splitting and replacement
+- Runtime evaluation tools
+    - construction of dynamic intermediate languages and interpreters
+    - pany for handling different C-data-types in one object
+    - pvm for defining stack-based virtual machine instruction sets
 - Dynamic data structures
     - plist for linked-lists with build-in hash table support,
     - parray for arrays and stacks.
 - Extended string management functions
-    - concat, extend, tokenize, shorthand allocation of strings and wide-character strings
+    - concat, extend, tokenize and  shorthand allocation of strings and wide-character strings
     - consistent byte- and wide-character (unicode) function support
     - unicode support for UTF-8 in byte-character functions
-- Debug und trace facilities
 - Universal system-specific functions for platform-independent C software development
     - Unix-style command-line parser
     - Mapping files to strings
-- Object-oriented fashion for all function interfaces (e.g. plist, parray, pregex, pgram, ...)
+- Debug und trace facilities
+- Consequent object-oriented build-up of all function interfaces (e.g. plist, parray, pregex, pparse, ...)
 - Growing code-base of more and more powerful functions
 
-Please check out http://phorward.phorward-software.com/ from time to time to get the latest news, documentation, updates and support on the Phorward Toolkit.
+Please check out http://phorward.phorward-software.com/ continuously to get latest news, documentation, updates and support on the Phorward Toolkit.
 
 
 BUILDING
 ========
 
-Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
+Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the downloaded release tarball or clone the hg repository into a directory of your choice.
 
 Then, run
 
-    ./configure
+    $ ./configure
 
 to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
 
-    make
+    $ make
 
 and
 
-    make install
+    $ make install
 
 (properly as root), to install the toolkit into your system.
-
-On Windows systems, the usage of http://cygwin.org/ or another Unix shell environment is required. The Phorward Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
-
-To compile into 32-Bit Windows executables, configure with
-
-    ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
-
-To compile into 64-Bit Windows executables, configure with
-
-    ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 
 
 LOCAL DEVELOPMENT BUILD-SYSTEM
 ==============================
 
-Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
+Alternatively there is also a simpler method for setting up a local build system for development and testing purposes locally in the file-system.
 
 Once, type
 
-    make -f Makefile.gnu make_install
+    $ make -f Makefile.gnu make_install
 
 then, a simple run of
 
-    make
+    $ make
 
 can be used to simply build the entire library or parts of it.
 
@@ -120,15 +120,15 @@ AUTHOR
 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
-It is the result of a several years experience in parser development systems, and has been preceded by the parser generators UniCC (http://unicc.phorward-software.com/) and JS/CC (http://jscc.phorward-software.com), and shall be the final step for an ultimate, powerful compiler-frontend toolchain.
+This work is the result of several years experiencing in parser development systems, and has been preceded by the open source parser generators UniCC (http://unicc.phorward-software.com/) and JS/CC (http://jscc.brobston.com). It shall be the final step for an ultimate, powerful compiler toolchain, mainly focusing on compiler-frontends. A sister project is the pynetree parsing library (http://pynetree.org) which is written in and for the Python programming language. It shares the same BNF-syntax for expressing grammars.
 
-Help of any kind to extend and improve this product is always appreciated.
+Help of any kind to extend and improve this software is always appreciated.
 
 
 LICENSE
 =======
 
-This product is an open source software released under the terms and conditions of the 3-clause BSD license.
+This software is an open source project released under the terms and conditions of the 3-clause BSD license. See the LICENSE file for more information.
 
 
 COPYRIGHT

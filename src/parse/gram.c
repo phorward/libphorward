@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	gram.c
-Usage:	Grammar-specific stuff.
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Grammar construction and preparation.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -14,33 +13,7 @@ Usage:	Grammar-specific stuff.
 #define NAMELEN			80
 #define DERIVCHAR		'\''
 
-#define T_CCL			PPSYMTYPE_CCL
-#define T_STRING		PPSYMTYPE_STRING
-#define T_REGEX			PPSYMTYPE_REGEX
-#define T_TOKEN			9
-
-#define T_IDENT			10
-#define T_INT			11
-#define T_FLOAT			12
-
-#define T_FUNCTION		15
-
-#define T_SYMBOL		20
-
-#define T_KLEENE		25
-#define T_POSITIVE		26
-#define T_OPTIONAL		27
-
-#define T_PRODUCTION	30
-#define T_NONTERMDEF	31
-#define T_INLINE		32
-
-#define T_TERMDEF		35
-
-#define T_FLAG			40
-#define T_GFLAG			41
-#define T_EMIT			42
-#define T_SEMIT			43
+static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node );
 
 /* Derive name from basename */
 static char* derive_name( ppgram* g, char* base )
@@ -62,476 +35,310 @@ static char* derive_name( ppgram* g, char* base )
 	return (char*)NULL;
 }
 
-/* Stack machine compiling AST to ppgram. */
-static pboolean ast_to_gram( ppgram* g, parray* ast )
-{
-	typedef struct
-	{
-		int			emit;
-		char*		buf;
-		ppsym*		sym;
-		ppsymfunc	sf;
-		int			i;
-		double		d;
-	} ATT;
+#define NODE_IS( n, s ) 	( !strcmp( (n)->emit, s ) )
 
-	ATT			att;
-	ATT*		attp;
-	parray*		st;
-	parray*		dec;
-	ppmatch*	e;
-	ppsym*		sym;
-	ppsym*		nonterm;
-	ppprod*		p;
-	int			i;
-	pboolean	ignore;
-	pboolean	doemit;
-	pboolean	emitall		= FALSE;
-	int			emit;
-	char*		semit;
-	int			emit_max	= 0;
+static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
+{
+	ppsym*		sym			= (ppsym*)NULL;
+	ppast*		child;
+	int			type		= 0;
 	char		name		[ NAMELEN * 2 + 1 ];
 
-	st = parray_create( sizeof( ATT ), 0 );
-	dec = parray_create( sizeof( ppsym* ), 0 );
+	/* fprintf( stderr, "sym >%s<\n", node->emit ); */
 
-	for( e = (ppmatch*)parray_first( ast );
-			e <= (ppmatch*)parray_last( ast ); e++ )
+	if( NODE_IS( node, "inline") )
 	{
-		doemit = emitall;
-		emit = 0;
-		semit = (char*)NULL;
-		ignore = FALSE;
+		sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+								derive_name( g, lhs->name ),
+									(char*)NULL );
+		sym->flags |= PPFLAG_DEFINED | PPFLAG_GENERATED;
 
-		memset( &att, 0, sizeof( ATT ) );
+		child = node->child;
 
-		if( e->type & PPMATCH_BEGIN )
+		if( NODE_IS( child, "flag_emit" ) )
 		{
-			if( e->emit == T_NONTERMDEF )
+			child = child->next;
+
+			if( NODE_IS( child, "ident" ) )
 			{
-				e++;
+				sym->emit = pstrndup( child->start, child->length );
+				sym->flags |= PPFLAG_FREEEMIT;
 
-				att.buf = pstrndup( e->start, e->end - e->start );
-
-				if( !( nonterm = pp_sym_get_by_name( g, att.buf ) ) )
-					nonterm = pp_sym_create( g, PPSYMTYPE_NONTERM,
-												att.buf, (char*)NULL );
-
-				parray_push( dec, &nonterm );
-				pfree( att.buf );
+				child = child->next;
 			}
-			else if( e->emit == T_INLINE )
-			{
-				sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-							derive_name( g, nonterm->name ), (char*)NULL );
-				sym->flags |= PPFLAG_DEFINED;
-
-				parray_push( dec, &sym );
-			}
-			else if( e->emit == T_PRODUCTION )
-				/* Push an empty sequence delimiter */
-				parray_push( st, &att );
+			else
+				sym->emit = lhs->name;
 		}
 
-		if( !( e->type & PPMATCH_END ) )
-			continue;
-
-		/*
-		fprintf( stderr, "emit %d >%.*s<\n",
-			e->emit, e->end - e->start, e->start );
-		*/
-
-		switch( ( att.emit = e->emit ) )
-		{
-			case T_IDENT:
-				att.buf = pstrndup( e->start, e->end - e->start );
-				break;
-
-			case T_INT:
-				att.i = atoi( e->start );
-				break;
-
-			case T_FLOAT:
-				att.d = atof( e->start );
-				break;
-
-			case T_CCL:
-			case T_STRING:
-			case T_REGEX:
-			case T_TOKEN:
-				att.buf = pstrndup( e->start + 1, e->end - e->start - 2 );
-				break;
-
-			case T_FUNCTION:
-				att.buf = pstrndup( e->start, e->end - e->start - 2 );
-				break;
-
-			case T_INLINE:
-				/* Inline nonterminal */
-				att.sym = *( (ppsym**)parray_pop( dec ) );
-				att.emit = T_SYMBOL;
-				break;
-
-			case T_SYMBOL:
-				/* Symbol */
-				attp = parray_pop( st );
-
-				if( attp->sym )
-					att.sym = attp->sym;
-				else if( attp->buf )
-				{
-					/* Defined symbol */
-					if( attp->emit == T_IDENT )
-					{
-						if( !( att.sym = pp_sym_get_by_name( g, attp->buf ) ) )
-							att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-										attp->buf, (char*)NULL );
-					}
-					/* Inline symbol */
-					else if( !( att.sym = pp_sym_get_nameless_term_by_def(
-												g, attp->buf ) ) )
-					{
-						doemit = emitall;
-
-						/* On Token, create an emittet string */
-						if( attp->emit == T_TOKEN )
-						{
-							attp->emit = PPSYMTYPE_STRING;
-							doemit = TRUE;
-						}
-
-						att.sym = pp_sym_create( g, attp->emit,
-													(char*)NULL,
-														attp->buf );
-						att.sym->flags |= PPFLAG_DEFINED;
-
-						if( doemit )
-							att.sym->emit = ++emit_max;
-					}
-
-					pfree( attp->buf );
-				}
-				else
-				{
-					fprintf( stderr, "CHECK YOUR CODE:\n" );
-					fprintf( stderr, "%s, %d: Can't find symbol.\n",
-										__FILE__, __LINE__ );
-				}
-
-				att.sym->flags |= PPFLAG_CALLED;
-				break;
-
-			case T_KLEENE:
-			case T_POSITIVE:
-			case T_OPTIONAL:
-				attp = parray_pop( st );
-
-				if( e->emit == T_KLEENE || e->emit == T_POSITIVE )
-				{
-					sprintf( name, "%s%c", attp->sym->name, PPMOD_POSITIVE );
-
-					if( !( att.sym = pp_sym_get_by_name( g, name ) ) )
-					{
-						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-														name, (char*)NULL );
-
-						if( g->flags & PPFLAG_PREVENTLREC )
-							pp_prod_create( g, att.sym,
-								attp->sym, att.sym, (ppsym*)NULL );
-						else
-							pp_prod_create( g, att.sym,
-								att.sym, attp->sym, (ppsym*)NULL );
-
-						pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
-					}
-
-					attp->sym = att.sym;
-				}
-
-				if( e->emit == T_OPTIONAL || e->emit == T_KLEENE )
-				{
-					sprintf( name, "%s%c", attp->sym->name, PPMOD_OPTIONAL );
-
-					if( !( att.sym = pp_sym_get_by_name( g, name ) ) )
-					{
-						att.sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
-														name, (char*)NULL );
-
-						pp_prod_create( g, att.sym, attp->sym, (ppsym*)NULL );
-						pp_prod_create( g, att.sym, (ppsym*)NULL );
-					}
-				}
-
-				att.emit = T_SYMBOL;
-				break;
-
-			case T_PRODUCTION:
-				p = pp_prod_create( g, *( (ppsym**)parray_last( dec ) ),
-											(ppsym*)NULL );
-
-				while( ( attp = (ATT*)parray_last( st ) )
-						&& ( attp->emit == T_FLAG
-								|| attp->emit == T_EMIT
-									|| attp->emit == T_SEMIT ) )
-				{
-					parray_pop( st );
-
-					switch( attp->emit )
-					{
-						case T_EMIT:
-							doemit = TRUE;
-							emit = attp->i;
-							break;
-
-						case T_SEMIT:
-							doemit = TRUE;
-							semit = attp->buf;
-							break;
-
-						case T_FLAG:
-							if( strcmp( attp->buf, "noemit" ) == 0 )
-								doemit = FALSE;
-
-							pfree( attp->buf );
-							break;
-
-						default:
-							break;
-					}
-				}
-
-				for( i = 0; ( attp = (ATT*)parray_pop( st ) )
-								&& attp->emit == T_SYMBOL; i++ )
-					;
-
-				while( i-- )
-					pp_prod_append( p, ( ++attp )->sym );
-
-				/* Set emit ID if configured */
-				if( doemit )
-				{
-					if( emit )
-					{
-						p->emit = emit;
-
-						if( emit > emit_max )
-							emit_max = emit;
-					}
-					else
-						p->emit = ++emit_max;
-
-					if( semit )
-						p->semit = semit;
-				}
-
-				att.emit = 0;
-				break;
-
-			case T_FLAG:
-				att.buf = pstrndup( e->start, e->end - e->start );
-				break;
-
-			case T_GFLAG:
-				if( !strncmp( e->start, "emitall", e->end - e->start ) )
-					emitall = TRUE;
-				else if( !strncmp( e->start, "emitnone", e->end - e->start ) )
-					emitall = FALSE;
-				else if( !strncmp( e->start, "lrec", e->end - e->start ) )
-					g->flags &= ~PPFLAG_PREVENTLREC;
-				else if( !strncmp( e->start, "rrec", e->end - e->start ) )
-					g->flags |= PPFLAG_PREVENTLREC;
-
-				att.emit = 0;
-				break;
-
-			case T_EMIT:
-				attp = (ATT*)parray_last( st );
-
-				if( attp && attp->emit == T_INT )
-				{
-					parray_pop( st );
-					att.i = attp->i;
-				}
-				else if( attp && attp->emit == T_IDENT )
-				{
-					att.emit = T_SEMIT;
-					parray_pop( st );
-					att.buf = attp->buf;
-				}
-				break;
-
-			case T_TERMDEF:
-				while( ( attp = (ATT*)parray_last( st ) )
-						&& ( attp->emit == T_FLAG
-								|| attp->emit == T_EMIT
-									|| attp->emit == T_SEMIT ) )
-				{
-					parray_pop( st );
-
-					switch( attp->emit )
-					{
-						case T_EMIT:
-							doemit = TRUE;
-							emit = attp->i;
-							break;
-
-						case T_SEMIT:
-							doemit = TRUE;
-							semit = attp->buf;
-							break;
-
-						case T_FLAG:
-							if( strcmp( attp->buf, "noemit" ) == 0 )
-								doemit = FALSE;
-							else if( strcmp( attp->buf, "ignore" ) == 0
-										|| strcmp( attp->buf, "skip" ) == 0 )
-								ignore = TRUE;
-
-							pfree( attp->buf );
-							break;
-
-						default:
-							break;
-					}
-				}
-
-				attp = parray_pop( st ); 	/* Definition */
-
-				if( parray_last( st )
-						&& ( (ATT*)parray_last( st ) )->emit == T_IDENT )
-				{
-					attp = parray_pop( st );	/* Identifier */
-
-					sym = pp_sym_create( g, ( attp + 1 )->emit,
-										attp->buf, ( attp + 1 )->buf );
-
-					pfree( ( attp + 1 )->buf );
-				}
-				else
-					sym = pp_sym_create( g, attp->emit,
-											(char*)NULL, attp->buf );
-
-				pfree( attp->buf );
-
-				sym->flags |= PPFLAG_DEFINED;
-
-				/* Whitespace now only for terminals */
-				if( ignore )
-				{
-					sym->flags |= PPFLAG_WHITESPACE;
-					plist_push( g->ws, sym );
-				}
-
-				sym->flags |= PPFLAG_DEFINED;
-
-				/* Set emit ID if configured */
-				if( doemit )
-				{
-					if( emit )
-					{
-						sym->emit = emit;
-
-						if( emit > emit_max )
-							emit_max = emit;
-					}
-					else
-						sym->emit = ++emit_max;
-
-					if( semit )
-						sym->semit = semit;
-				}
-
-				att.emit = 0;
-				break;
-
-			case T_NONTERMDEF:
-				while( ( attp = (ATT*)parray_last( st ) )
-						&& ( attp->emit == T_FLAG
-								|| attp->emit == T_EMIT
-									|| attp->emit == T_SEMIT ) )
-				{
-					parray_pop( st );
-
-					switch( attp->emit )
-					{
-						case T_EMIT:
-							doemit = TRUE;
-							emit = attp->i;
-							break;
-
-						case T_SEMIT:
-							doemit = TRUE;
-							semit = attp->buf;
-							break;
-
-
-						case T_FLAG:
-							if( strcmp( attp->buf, "goal" ) == 0 )
-							{
-								if( nonterm && !g->goal ) /* fixme */
-								{
-									g->goal = nonterm;
-									nonterm->flags |= PPFLAG_CALLED;
-								}
-							}
-							else if( strcmp( attp->buf, "noemit" ) == 0 )
-								doemit = FALSE;
-							else if( strcmp( attp->buf, "ignore" ) == 0 )
-								ignore = TRUE;
-							else if( strcmp( attp->buf, "lexem" ) == 0 )
-								nonterm->flags |= PPFLAG_LEXEM;
-
-							pfree( attp->buf );
-							break;
-
-						default:
-							break;
-					}
-				}
-
-				nonterm->flags |= PPFLAG_DEFINED;
-				parray_pop( st ); /* Identifier */
-				parray_pop( dec );
-
-				/* Set emit ID if configured */
-				if( doemit )
-				{
-					if( emit )
-					{
-						nonterm->emit = emit;
-
-						if( emit > emit_max )
-							emit_max = emit;
-					}
-					else
-						nonterm->emit = ++emit_max;
-
-					if( semit )
-						nonterm->semit = semit;
-				}
-
-				att.emit = 0;
-				break;
-		}
-
-		if( att.emit > 0 )
-			parray_push( st, &att );
+		for( ; child; child = child->next )
+			if( !traverse_production( g, sym, child->child ) )
+				return (ppsym*)NULL;
 	}
-
-	if( parray_count( st ) )
+	else
 	{
-		fprintf( stderr, "CHECK YOUR CODE:\n" );
-		fprintf( stderr, "%s, %d: Still %d elements on stack\n",
-			__FILE__, __LINE__, parray_count( st ) );
+		sprintf( name, "%.*s", node->length, node->start );
 
-		while( attp = (ATT*)parray_pop( st ) )
-			fprintf( stderr, "%d\n", attp->emit );
+		if( NODE_IS( node, "ident") )
+		{
+			if( !( sym = pp_sym_get_by_name( g, name ) ) )
+				sym = pp_sym_create( g, PPSYMTYPE_NONTERM, name, (char*)NULL );
+		}
+		else
+		{
+			if( NODE_IS( node, "token") || NODE_IS( node, "string" ) )
+				type = PPSYMTYPE_STRING;
+			else if( NODE_IS( node, "ccl" ) )
+				type = PPSYMTYPE_CCL;
+			else if( NODE_IS( node, "regex" ) )
+				type = PPSYMTYPE_REGEX;
 
-		parray_free( st );
-		return FALSE;
+			name[ pstrlen( name ) - 1 ] = '\0';
+
+			if( !( sym = pp_sym_get_nameless_term_by_def( g, name + 1 ) ) )
+			{
+				sym = pp_sym_create( g, type, (char*)NULL, name + 1 );
+
+				sym->flags |= PPFLAG_DEFINED;
+
+				if( NODE_IS( node, "token") )
+					sym->emit = sym->name;
+			}
+		}
 	}
 
-	parray_free( st );
+	if( sym )
+		sym->flags |= PPFLAG_CALLED;
+
+	return sym;
+}
+
+
+static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
+{
+	ppsym*		sym;
+	ppsym*		csym;
+	ppprod*		prod;
+	ppprod*		popt;
+	ppast*		child;
+	char*		str;
+	char		name		[ NAMELEN * 2 + 1 ];
+	int			i;
+	plistel*	e;
+
+	prod = pp_prod_create( g, lhs, (ppsym*)NULL );
+
+	for( ; node; node = node->next )
+	{
+		/* fprintf( stderr, "prod >%s<\n", node->emit ); */
+
+		if( NODE_IS( node, "symbol" ) )
+		{
+			if( !( sym = traverse_symbol( g, lhs, node->child ) ) )
+				return FALSE;
+
+			pp_prod_append( prod, sym );
+		}
+		else
+		{
+			sym = traverse_symbol( g, lhs, node->child->child );
+			str = sym->name;
+
+			if( NODE_IS( node, "kle" ) || NODE_IS( node, "pos" ) )
+			{
+				sprintf( name, "%s%c", str, PPMOD_POSITIVE );
+
+				if( !( csym = pp_sym_get_by_name( g, name ) ) )
+				{
+					csym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+												name, (char*)NULL );
+					csym->flags |= PPFLAG_DEFINED
+									| PPFLAG_CALLED
+										| PPFLAG_GENERATED;
+
+					if( g->flags & PPFLAG_PREVENTLREC )
+						pp_prod_create( g, csym, sym, csym, (ppsym*)NULL );
+					else
+						pp_prod_create( g, csym, csym, sym, (ppsym*)NULL );
+
+					pp_prod_create( g, csym, sym, (ppsym*)NULL );
+				}
+
+				sym = csym;
+			}
+
+			if( NODE_IS( node, "opt" ) || NODE_IS( node, "kle" ) )
+			{
+				sprintf( name, "%s%c", str, PPMOD_OPTIONAL );
+
+				if( !( csym = pp_sym_get_by_name( g, name ) ) )
+				{
+					csym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+													name, (char*)NULL );
+					csym->flags |= PPFLAG_DEFINED
+									| PPFLAG_CALLED
+										| PPFLAG_GENERATED;
+
+					pp_prod_create( g, csym, sym, (ppsym*)NULL );
+					pp_prod_create( g, csym, (ppsym*)NULL );
+				}
+
+				sym = csym;
+			}
+
+			pp_prod_append( prod, sym );
+		}
+	}
+
+	/*
+		Optimize productions with one generated symbol
+		that was introduced via 'inline'.
+	*/
+	if( ( sym = pp_prod_getfromrhs( prod, 0 ) )
+			&& !pp_prod_getfromrhs( prod, 1 ) )
+	{
+		if( sym->type == PPSYMTYPE_NONTERM
+				&& sym->flags & PPFLAG_GENERATED
+					&& sym->emit && !pp_sym_getprod( sym, 1 ) )
+		{
+			if( sym->flags & PPFLAG_FREEEMIT )
+			{
+				prod->emit = pstrdup( sym->emit );
+				prod->flags |= PPFLAG_FREEEMIT;
+			}
+			else
+				prod->emit = sym->emit;
+
+			pp_prod_remove( prod, sym );
+
+			popt = pp_sym_getprod( sym, 0 );
+
+			for( i = 0; ( csym = pp_prod_getfromrhs( popt, i ) ); i++ )
+				pp_prod_append( prod, csym );
+
+			pp_sym_drop( sym );
+		}
+	}
+
+	return TRUE;
+}
+
+static pboolean ast_to_gram( ppgram* g, ppast* ast )
+{
+	ppsym*		sym;
+	ppsym*		nonterm		= (ppsym*)NULL;
+	ppast* 		node;
+	ppast*		child;
+	char		name		[ NAMELEN * 2 + 1 ];
+	char		def			[ NAMELEN * 2 + 1 ];
+
+	int			type;
+	pboolean	flag_emit;
+	pboolean	flag_ignore;
+
+	/* pp_ast_dump_short( stderr, ast ); */
+
+	for( node = ast; node; node = node->next )
+	{
+		flag_emit = flag_ignore = FALSE;
+
+		/* fprintf( stderr, "gram >%s<\n", node->emit ); */
+
+		if( NODE_IS( node, "nontermdef" ) )
+		{
+			child = node->child;
+
+			if( NODE_IS( child, "flag_emit" ) )
+			{
+				flag_emit = TRUE;
+				child = child->next;
+			}
+
+			sprintf( name, "%.*s", child->length, child->start );
+
+			/* Create the terminal symbol */
+			if( !( nonterm = sym = pp_sym_get_by_name( g, name ) ) )
+				nonterm = sym = pp_sym_create( g, PPSYMTYPE_NONTERM,
+												name, (char*)NULL );
+
+			sym->flags |= PPFLAG_DEFINED;
+
+
+			for( child = node->child->next; child; child = child->next )
+			{
+				if( NODE_IS( child, "flag_goal" ) )
+				{
+					if( !g->goal ) /* fixme */
+					{
+						g->goal = sym;
+						sym->flags |= PPFLAG_CALLED;
+					}
+				}
+				else if( NODE_IS( child, "flag_lexem" ) )
+					sym->flags |= PPFLAG_LEXEM;
+				else if( NODE_IS( child, "alternative" ) )
+				{
+					if( !traverse_production( g, sym, child->child ) )
+						return FALSE;
+				}
+			}
+
+			if( flag_emit )
+				sym->emit = sym->name;
+		}
+		else if( NODE_IS( node, "termdef" ) )
+		{
+			child = node->child;
+
+			if( NODE_IS( child, "flag_ignore" ) )
+			{
+				flag_ignore = TRUE;
+				child = child->next;
+			}
+
+			if( NODE_IS( child, "flag_emit" ) )
+			{
+				flag_emit = TRUE;
+				child = child->next;
+			}
+
+			if( NODE_IS( child, "ident" ) )
+			{
+				sprintf( name, "%.*s", child->length, child->start );
+				child = child->next;
+			}
+			else
+				*name = '\0';
+
+			if( NODE_IS( child, "token") )
+			{
+				flag_emit = TRUE;
+				type = PPSYMTYPE_STRING;
+			}
+			else if( NODE_IS( child, "ccl" ) )
+				type = PPSYMTYPE_CCL;
+			else if( NODE_IS( child, "string" ) )
+				type = PPSYMTYPE_STRING;
+			else if( NODE_IS( child, "regex" ) )
+				type = PPSYMTYPE_REGEX;
+
+			sprintf( def, "%.*s", child->length - 2, child->start + 1 );
+
+			/* Create the terminal symbol */
+			sym = pp_sym_create( g, type, *name ? name : (char*)NULL, def );
+
+			sym->flags |= PPFLAG_DEFINED;
+
+			/* Configure according to flags */
+			if( flag_emit )
+				sym->emit = sym->name;
+
+			if( flag_ignore )
+			{
+				sym->flags |= PPFLAG_WHITESPACE;
+				plist_push( g->ws, sym );
+			}
+		}
+	}
 
 	/* If there is no goal, then the last defined nonterm becomes goal symbol */
 	if( !g->goal )
@@ -547,8 +354,11 @@ static pboolean ast_to_gram( ppgram* g, parray* ast )
 		g->goal = nonterm;
 	}
 
+	/* pp_gram_dump( stderr, g ); */
+
 	return TRUE;
 }
+
 
 /** Prepares the grammar //g// by computing all necessary stuff required for
 runtime and parser generator.
@@ -778,7 +588,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 	ppgram*		bnfgram;
 	char*		s = bnf;
 	char*		e;
-	parray*		a;
+	ppast*		ast;
 
 	if( !( g && bnf ) )
 	{
@@ -791,7 +601,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 	pp_bnf_define( bnfgram );
 	pp_gram_prepare( bnfgram );
 
-	if( !pp_lr_parse( &a, bnfgram, s, &e ) )
+	if( !pp_lr_parse( &ast, bnfgram, s, &e ) )
 	{
 		pp_gram_free( bnfgram );
 		return FALSE;
@@ -799,17 +609,17 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 
 	/* pp_ast_simplify( a ); */
 
-	if( !ast_to_gram( g, a ) )
+	if( !ast_to_gram( g, ast ) )
 		return FALSE;
 
 	pp_gram_free( bnfgram );
-	parray_free( a );
+	pp_ast_free( ast );
 
 	return TRUE;
 }
 
-/** Dumps the grammar //g// to stdout. */
-void pp_gram_print( ppgram* g )
+/** Dumps the grammar //g// to //stream//. */
+void pp_gram_dump( FILE* stream, ppgram* g )
 {
 	plistel*	e;
 	plistel*	f;
@@ -828,8 +638,10 @@ void pp_gram_print( ppgram* g )
 	plist_for( g->prods, e )
 	{
 		p = (ppprod*)plist_access( e );
-		printf( "%2d %s%s%s%s%s %-*s : ",
-			p->lhs->emit,
+		fprintf( stream,
+			"%s%s %s%s%s%s%s %-*s : ",
+			p->emit ? "@" : "",
+			p->emit,
 			g->goal == p->lhs ? "G" : " ",
 			p->flags & PPFLAG_LEFTREC ? "L" : " ",
 			p->flags & PPFLAG_NULLABLE ? "N" : " ",
@@ -842,15 +654,15 @@ void pp_gram_print( ppgram* g )
 			s = (ppsym*)plist_access( f );
 
 			if( f != plist_first( p->rhs ) )
-				printf( " " );
+				fprintf( stream, " " );
 
-			printf( "%s", pp_sym_to_str( s ) );
+			fprintf( stream, "%s", pp_sym_to_str( s ) );
 		}
 
-		printf( "\n" );
+		fprintf( stream, "\n" );
 	}
 
-	printf( "\n" );
+	fprintf( stream, "\n" );
 
 	plist_for( g->symbols, e )
 	{
@@ -858,15 +670,15 @@ void pp_gram_print( ppgram* g )
 		if( s->type != PPSYMTYPE_NONTERM )
 			continue;
 
-		printf( "FIRST %-*s {", maxlhslen, s->name );
+		fprintf( stream, "FIRST %-*s {", maxlhslen, s->name );
 		plist_for( s->first, f )
 		{
 			s = (ppsym*)plist_access( f );
-			printf( " " );
-			printf( "%s", pp_sym_to_str( s ) );
+			fprintf( stream, " " );
+			fprintf( stream, "%s", pp_sym_to_str( s ) );
 		}
 
-		printf( " }\n" );
+		fprintf( stream, " }\n" );
 	}
 }
 

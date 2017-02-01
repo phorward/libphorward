@@ -12,7 +12,7 @@ pboolean pany_to_bool( pany* val );
 char pany_to_char( pany* val );
 int pany_to_int( pany* val );
 long pany_to_long( pany* val );
-ulong pany_to_ulong( pany* val );
+unsigned long pany_to_ulong( pany* val );
 float pany_to_float( pany* val );
 double pany_to_double( pany* val );
 char* pany_to_str( pany* val );
@@ -28,7 +28,7 @@ pboolean pany_get_bool( pany* val );
 char pany_get_char( pany* val );
 int pany_get_int( pany* val );
 long pany_get_long( pany* val );
-ulong pany_get_ulong( pany* val );
+unsigned long pany_get_ulong( pany* val );
 float pany_get_float( pany* val );
 double pany_get_double( pany* val );
 char* pany_get_cstr( pany* val );
@@ -42,7 +42,7 @@ pboolean pany_set_bool( pany* val, pboolean b );
 char pany_set_char( pany* val, char c );
 int pany_set_int( pany* val, int i );
 long pany_set_long( pany* val, long l );
-ulong pany_set_ulong( pany* val, ulong ul );
+unsigned long pany_set_ulong( pany* val, unsigned long ul );
 float pany_set_float( pany* val, float f );
 double pany_set_double( pany* val, double d );
 char* pany_set_cstr( pany* val, char* s );
@@ -152,12 +152,13 @@ void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
 
 /* parse/ast.c */
-ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset );
-ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth );
-ppmatch* pp_ast_pendant( parray* ast, ppmatch* match );
-void pp_ast_print( parray* ast );
-void pp_ast_simplify( parray* ast );
-void pp_ast_tree2svg( parray* ast );
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
+ppast* pp_ast_free( ppast* node );
+int pp_ast_len( ppast* node );
+void pp_ast_dump( FILE* stream, ppast* ast );
+void pp_ast_dump_short( FILE* stream, ppast* ast );
+void pp_ast_dump_json( FILE* stream, ppast* ast );
+void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
 /* parse/bnf.c */
 void pp_bnf_define( ppgram* g );
@@ -166,25 +167,29 @@ void pp_bnf_define( ppgram* g );
 pboolean pp_gram_prepare( ppgram* g );
 ppgram* pp_gram_create( void );
 pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
-void pp_gram_print( ppgram* g );
+void pp_gram_dump( FILE* stream, ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
 
 /* parse/ll.c */
+#if 0
 pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
+#endif
 
 /* parse/lr.c */
 plist* pp_lr_closure( ppgram* gram, pboolean optimize );
-pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
+pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end );
 
 /* parse/parse.c */
 pparse* pp_create( int flags, char* bnf );
 pparse* pp_free( pparse* par );
-pboolean pp_parse_to_ast( parray** ast, pparse* par, char* start, char** end );
+pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end );
 
 /* parse/prod.c */
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
+ppprod* pp_prod_drop( ppprod* p );
 ppprod* pp_prod_get( ppgram* g, int n );
 pboolean pp_prod_append( ppprod* p, ppsym* sym );
+int pp_prod_remove( ppprod* p, ppsym* sym );
 ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
 
@@ -195,9 +200,11 @@ size_t pp_pos_in_input( int* row, int* col, char* start, char* end );
 
 /* parse/sym.c */
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
+ppsym* pp_sym_drop( ppsym* sym );
 ppsym* pp_sym_get( ppgram* g, int n );
 ppsym* pp_sym_get_by_name( ppgram* g, char* name );
 ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
+ppprod* pp_sym_getprod( ppsym* sym, int n );
 char* pp_sym_to_str( ppsym* sym );
 
 /* regex/dfa.c */

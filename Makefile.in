@@ -198,8 +198,8 @@ ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
-am__DIST_COMMON = $(srcdir)/Makefile.in README ar-lib compile \
-	config.guess config.sub depcomp install-sh ltmain.sh missing
+am__DIST_COMMON = $(srcdir)/Makefile.in ar-lib compile config.guess \
+	config.sub depcomp install-sh ltmain.sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -358,10 +358,11 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src run DEMO
+AUTOMAKE_OPTIONS = foreign
+SUBDIRS = src run tools DEMO
 man1_MANS = phorward.man
 phorwarddir = $(datadir)/phorward
-dist_phorward_DATA = LICENSE README CHANGELOG
+dist_phorward_DATA = LICENSE README.md CHANGELOG
 all: all-recursive
 
 .SUFFIXES:
@@ -902,12 +903,9 @@ uninstall-man: uninstall-man1
 # Now documentation generation follows, using txt2tags.
 #
 
-@WITH_TXT2TAGS_TRUE@README: doc/readme.t2t
+@WITH_TXT2TAGS_TRUE@README.md: doc/readme.t2t
 @WITH_TXT2TAGS_TRUE@	-rm -f $@
 @WITH_TXT2TAGS_TRUE@	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@
-
-@WITH_TXT2TAGS_TRUE@README.md: README
-@WITH_TXT2TAGS_TRUE@	cp $? $@
 
 @WITH_TXT2TAGS_TRUE@phorward.man: doc/readme.t2t
 @WITH_TXT2TAGS_TRUE@	txt2tags -o $@ -t man $?

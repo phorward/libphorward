@@ -2,20 +2,19 @@
 
 int main()
 {
-    pparse* p;
-    parray* a;
-    char*   s = "1+2*(3+4)+5";
-    char*   e;
+    pparse* parser;
+    ppast*  ast;
+    char*   input = "1+2*(3+4)+5";
+    char*   end;
 
-    p = pp_create( 0,
-			"%emitall"
-			"f: /[0-9]+/ | '(' e ')';"
-			"t: t '*' f | f ;"
-			"e: e '+' t | t ;" );
+    parser = pp_create( 0,  "@int /[0-9]+/ ;"
+							"fact : int | '(' expr ')' ;"
+                            "term : @mul( term '*' fact ) | fact ;"
+                            "expr : @add( expr '+' term ) | term ;" );
 
-    if( !pp_parse_to_ast( &a, p, s, &e ) )
+    if( !pp_parse_to_ast( &ast, parser, input, &end ) )
         return 1; /* parse error */
 
-    pp_ast_print( a );
+    pp_ast_dump_short( stdout, ast );
     return 0;
 }

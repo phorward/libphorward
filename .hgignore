@@ -16,12 +16,10 @@ config.status
 libtool
 
 DEMO/basis
-DEMO/regex
-DEMO/parse
-DEMO/testvm
 
+run/plex
+run/pparse
+run/pregex
 run/ppgram2c
+run/pvm
 
-tmp
-src/lrtest
-src/lltest

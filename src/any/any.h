@@ -51,7 +51,7 @@ typedef struct
 										brewery of Dortmund,
 											but anyways... ;) */
 	{
-		pboolean	b;
+		pboolean		b;
 		/*type:bool
 			format:%d
 			empty:FALSE
@@ -61,7 +61,7 @@ typedef struct
 			to void*: NULL
 		*/
 
-		char		c;
+		char			c;
 		/*type:char
 			format:%c
 			empty:0
@@ -74,7 +74,7 @@ typedef struct
 			from wchar_t*: (char)( *$from )
 		*/
 
-		int			i;
+		int				i;
 		/*type:int
 			format:%d
 			empty:0
@@ -87,7 +87,7 @@ typedef struct
 			from wchar_t*: (int)wcstol( $from, (wchar_t**)NULL, 0 )
 		*/
 
-		long		l;
+		long			l;
 		/*type:long
 			format:%ld
 			empty:0
@@ -99,7 +99,7 @@ typedef struct
 			from char*: atol( $from )
 		*/
 
-		ulong		ul;
+		unsigned long	ul;
 		/*type:ulong
 			format:%ld
 			empty:0
@@ -110,7 +110,7 @@ typedef struct
 			to void*: val->val.ul
 		*/
 
-		float		f;
+		float			f;
 		/*type:float
 			format:%f
 			empty:0.0
@@ -121,7 +121,7 @@ typedef struct
 			to void*: NULL
 		*/
 
-		double		d;
+		double			d;
 		/*type:double
 			format:%lf
 			empty:0.0
@@ -132,7 +132,7 @@ typedef struct
 			to void*: NULL
 		*/
 
-		char*		s;
+		char*			s;
 		/*type:cstr
 			format:%s
 			empty:NULL
@@ -145,14 +145,14 @@ typedef struct
 			to char: strtol( val->val.s, (char**)NULL, 0 )
 			to int: (same)
 			to long: (same)
-			to ulong: (same)
+			to unsigned long: (same)
 			to float: strtod( val->val.s, (char**)NULL )
 			to double: (same)
 			to wchar_t*: pstr_to_wcs( val->val.s, FALSE )
 			to void*: val->val.s
 		*/
 
-		wchar_t*	ws;
+		wchar_t*		ws;
 		/*type:cwcs
 			format:%ls
 			empty:NULL
@@ -166,14 +166,14 @@ typedef struct
 			to char: wcstol( val->val.ws, (wchar_t**)NULL, 0 )
 			to int: (same)
 			to long: (same)
-			to ulong: (same)
+			to unsigned long: (same)
 			to float: wcstod( val->val.ws, (wchar_t**)NULL )
 			to double: (same)
 			to char*: pwcs_to_str( val->val.ws, FALSE )
 			to void*: val->val.ws
 		*/
 
-		void*		ptr;
+		void*			ptr;
 		/*type:ptr
 			format:%p
 			empty:NULL
@@ -182,7 +182,7 @@ typedef struct
 			to char: 0
 			to int: 0
 			to long: val->val.ptr
-			to ulong: (same)
+			to unsigned long: (same)
 			to float: 0.0
 			to double: 0.0
 			to char*: pasprintf( "%p", val->val.ptr )

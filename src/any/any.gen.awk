@@ -84,6 +84,15 @@ END									{
 											fprint_func()
 									}
 
+/(unsigned|signed) [a-zA-Z_]+\*?[ \t]*[a-zA-Z_]+;/	{
+										if( !within_type )
+										{
+											datatype = $2 " " $3
+											member = $4
+											next
+										}
+									}
+
 /[a-zA-Z_]+\*?[ \t]*[a-zA-Z_]+;/	{
 										if( !within_type )
 										{
@@ -166,33 +175,41 @@ END									{
 										next
 									}
 
-/to [a-zA-Z_]+\*?:/					{
+/to [a-zA-Z_ ]+\*?:/				{
 										if( !within_type )
 											next
 
-										convcode = trim( substr( $0, \
-														index( $0, ":" ) + 1) )
+										line = trim( $0 )
+										col = index( line, ":" )
+										type = substr( line, 4, col - 4 )
+										convcode = trim( substr( \
+															line, col + 1) )
 
 										if( convcode == "(same)" )
 											convcode = lastconvcode
 
-										convert[ $3 SUBSEP datatype ] = convcode
+										convert[ type SUBSEP datatype ] = \
+																		convcode
 
 										lastconvcode = convcode
 										next
 									}
 
-/from [a-zA-Z_]+\*?:/				{
+/from [a-zA-Z_ ]+\*?:/				{
 										if( !within_type )
 											next
 
-										fromcode = trim( substr( $0, \
-														index( $0, ":" ) + 1) )
+										line = trim( $0 )
+										col = index( line, ":" )
+										type = substr( line, 4, col - 4 )
+										fromcode = trim( substr( \
+															line, col + 1 ) )
 
 										if( fromcode == "(same)" )
 											fromcode = lastfromcode
 
-										getfrom[ datatype SUBSEP $3 ] = fromcode
+										getfrom[ datatype SUBSEP type ] = \
+											fromcode
 
 										lastfromcode = fromcode
 										next

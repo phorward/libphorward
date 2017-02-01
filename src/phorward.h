@@ -108,6 +108,9 @@ typedef char 					pboolean;
 
 
 
+#define LIBPHORWARD_VERSION "0.19.0 devel"
+
+
 
 
 #ifndef _DBG_H
@@ -316,37 +319,37 @@ typedef struct
 
 	union							
 	{
-		pboolean	b;
+		pboolean		b;
 		
 
-		char		c;
+		char			c;
 		
 
-		int			i;
+		int				i;
 		
 
-		long		l;
+		long			l;
 		
 
-		ulong		ul;
+		unsigned long	ul;
 		
 
-		float		f;
+		float			f;
 		
 
-		double		d;
+		double			d;
 		
 
-		char*		s;
+		char*			s;
 		
 		
 
-		wchar_t*	ws;
+		wchar_t*		ws;
 		
 
 		
 
-		void*		ptr;
+		void*			ptr;
 		
 	} val;
 } pany;
@@ -584,6 +587,7 @@ typedef struct _ppgram		ppgram;
 typedef struct _ppast		ppast;
 
 
+#define PPFLAG_NONE			0
 #define PPFLAG_CALLED		1
 #define PPFLAG_DEFINED		2
 #define PPFLAG_NULLABLE		4
@@ -592,6 +596,8 @@ typedef struct _ppast		ppast;
 #define PPFLAG_WHITESPACE	32
 #define PPFLAG_PREVENTLREC	64
 #define PPFLAG_NAMELESS		128
+#define PPFLAG_GENERATED	256
+#define PPFLAG_FREEEMIT		512
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -605,10 +611,10 @@ struct _ppprod
 	ppsym*					lhs;
 	plist*					rhs;
 	int						flags;
+	ppgram*					grm;
 
 	
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	
 	char*					strval;
@@ -636,6 +642,7 @@ struct _ppsym
 	ppsymtype				type;
 	char*					name;
 	int						flags;
+	ppgram*					grm;
 
 	
 	plist*					first;
@@ -648,8 +655,7 @@ struct _ppsym
 	ppsymfunc				sf;			
 
 	
-	int						emit;
-	char*					semit;
+	char*					emit;
 
 	
 	char*					strval;
@@ -673,38 +679,27 @@ struct _ppgram
 
 struct _ppast
 {
-	int						emit;
-	char*					semit;
+	
+	char*					emit;
 
+	
 	ppsym*					sym;
 	ppprod*					prod;
 
+	
 	char*					start;
 	char*					end;
+	size_t					length;
+
+	
 	int						row;
 	int						col;
 
+	
 	ppast*					child;
+	ppast*					prev;
 	ppast*					next;
 };
-
-
-typedef struct
-{
-	#define PPMATCH_BEGIN	1
-	#define PPMATCH_END		2
-	int						type;
-
-	int						emit;
-	char*					semit;
-	ppsym*					sym;
-	ppprod*					prod;
-
-	char*					start;
-	char*					end;
-	int						row;
-	int						col;
-} ppmatch;
 
 
 typedef struct
@@ -712,6 +707,7 @@ typedef struct
 	int						type;
 	ppgram*					gram;
 } pparse;
+
 
 
 
@@ -735,7 +731,7 @@ pboolean pany_to_bool( pany* val );
 char pany_to_char( pany* val );
 int pany_to_int( pany* val );
 long pany_to_long( pany* val );
-ulong pany_to_ulong( pany* val );
+unsigned long pany_to_ulong( pany* val );
 float pany_to_float( pany* val );
 double pany_to_double( pany* val );
 char* pany_to_str( pany* val );
@@ -751,7 +747,7 @@ pboolean pany_get_bool( pany* val );
 char pany_get_char( pany* val );
 int pany_get_int( pany* val );
 long pany_get_long( pany* val );
-ulong pany_get_ulong( pany* val );
+unsigned long pany_get_ulong( pany* val );
 float pany_get_float( pany* val );
 double pany_get_double( pany* val );
 char* pany_get_cstr( pany* val );
@@ -765,7 +761,7 @@ pboolean pany_set_bool( pany* val, pboolean b );
 char pany_set_char( pany* val, char c );
 int pany_set_int( pany* val, int i );
 long pany_set_long( pany* val, long l );
-ulong pany_set_ulong( pany* val, ulong ul );
+unsigned long pany_set_ulong( pany* val, unsigned long ul );
 float pany_set_float( pany* val, float f );
 double pany_set_double( pany* val, double d );
 char* pany_set_cstr( pany* val, char* s );
@@ -875,12 +871,13 @@ void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
 
 
-ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset );
-ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth );
-ppmatch* pp_ast_pendant( parray* ast, ppmatch* match );
-void pp_ast_print( parray* ast );
-void pp_ast_simplify( parray* ast );
-void pp_ast_tree2svg( parray* ast );
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
+ppast* pp_ast_free( ppast* node );
+int pp_ast_len( ppast* node );
+void pp_ast_dump( FILE* stream, ppast* ast );
+void pp_ast_dump_short( FILE* stream, ppast* ast );
+void pp_ast_dump_json( FILE* stream, ppast* ast );
+void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
 
 void pp_bnf_define( ppgram* g );
@@ -889,25 +886,29 @@ void pp_bnf_define( ppgram* g );
 pboolean pp_gram_prepare( ppgram* g );
 ppgram* pp_gram_create( void );
 pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
-void pp_gram_print( ppgram* g );
+void pp_gram_dump( FILE* stream, ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
 
 
+#if 0
 pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
+#endif
 
 
 plist* pp_lr_closure( ppgram* gram, pboolean optimize );
-pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end );
+pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end );
 
 
 pparse* pp_create( int flags, char* bnf );
 pparse* pp_free( pparse* par );
-pboolean pp_parse_to_ast( parray** ast, pparse* par, char* start, char** end );
+pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end );
 
 
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
+ppprod* pp_prod_drop( ppprod* p );
 ppprod* pp_prod_get( ppgram* g, int n );
 pboolean pp_prod_append( ppprod* p, ppsym* sym );
+int pp_prod_remove( ppprod* p, ppsym* sym );
 ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
 
@@ -918,9 +919,11 @@ size_t pp_pos_in_input( int* row, int* col, char* start, char* end );
 
 
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
+ppsym* pp_sym_drop( ppsym* sym );
 ppsym* pp_sym_get( ppgram* g, int n );
 ppsym* pp_sym_get_by_name( ppgram* g, char* name );
 ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
+ppprod* pp_sym_getprod( ppsym* sym, int n );
 char* pp_sym_to_str( ppsym* sym );
 
 

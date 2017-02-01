@@ -5,8 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	sym.c
-Usage:	Symbol-related stuff.
-		THIS SOURCE IS UNDER DEVELOPMENT AND EXPERIMENTAL.
+Usage:	Symbol management function.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
@@ -43,6 +42,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	}
 
 	sym->id = -1;
+	sym->grm = g;
 	sym->name = name;
 
 	switch( ( sym->type = type ) )
@@ -106,6 +106,64 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	return sym;
 }
 
+/** Frees a symbol. */
+ppsym* pp_sym_drop( ppsym* sym )
+{
+	plistel* 	e;
+	ppprod*		p;
+
+	if( !sym )
+		return (ppsym*)NULL;
+
+	if( sym->flags & PPFLAG_FREEEMIT )
+		pfree( sym->emit );
+
+	switch( sym->type )
+	{
+		case PPSYMTYPE_NONTERM:
+			/* Drop related productions */
+			while( ( e = plist_first( sym->prods ) ) )
+				pp_prod_drop( (ppprod*)plist_access( e ) );
+
+			plist_free( sym->prods );
+			break;
+
+		case PPSYMTYPE_CCL:
+			p_ccl_free( sym->ccl );
+			break;
+
+		case PPSYMTYPE_STRING:
+			pfree( sym->str );
+			break;
+
+		case PPSYMTYPE_REGEX:
+			pregex_free( sym->re );
+			break;
+
+		default:
+			break;
+	}
+
+	/* Remove all references from productions */
+	plist_for( sym->grm->prods, e )
+	{
+		p = (ppprod*)plist_access( e );
+		pp_prod_remove( p, sym );
+	}
+
+	/* Remove whitespace occurences */
+	if( ( e = plist_get_by_ptr( sym->grm->ws, sym ) ) ) /* fixme */
+		plist_remove( sym->grm->ws, e );
+
+	/* Remove symbol from pool */
+	plist_remove( sym->grm->symbols,
+		plist_get_by_ptr( sym->grm->symbols, sym ) );
+
+	pfree( sym->name );
+
+	return (ppsym*)NULL;
+}
+
 /** Get the //n//th symbol from grammar //g//.
 Returns (ppsym*)NULL if no symbol was found. */
 ppsym* pp_sym_get( ppgram* g, int n )
@@ -154,6 +212,22 @@ ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name )
 	}
 
 	return (ppsym*)NULL;
+}
+
+/** Get the //n//th production from symbol //sym//. //sym// must be of type
+nonterminal.
+
+Returns (ppprod*)NULL if the production is not found or the symbol is
+configured differently. */
+ppprod* pp_sym_getprod( ppsym* sym, int n )
+{
+	if( !( sym && sym->type == PPSYMTYPE_NONTERM && n >= 0 ) )
+	{
+		WRONGPARAM;
+		return (ppprod*)NULL;
+	}
+
+	return (ppprod*)plist_access( plist_get( sym->prods, n ) );
 }
 
 /** Returns the string representation of symbol //p//.

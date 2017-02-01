@@ -109,14 +109,14 @@ long pany_set_long( pany* val, long l )
 	RETURN( val->val.l );
 }
 
-/** Sets the ``ulong``-value and type of //va//.
+/** Sets the ``unsigned long``-value and type of //va//.
 
 //val// is the pany-object to be set.
-//ul// is the ``ulong``-value to be assigned to //val//.
+//ul// is the ``unsigned long``-value to be assigned to //val//.
 
 The function always returns the value //ul//.
 */
-ulong pany_set_ulong( pany* val, ulong ul )
+unsigned long pany_set_ulong( pany* val, unsigned long ul )
 {
 	PROC( "pany_set_ulong" );
 	PARMS( "val", "%p", val );
@@ -125,7 +125,7 @@ ulong pany_set_ulong( pany* val, ulong ul )
 	if( !val )
 	{
 		WRONGPARAM;
-		RETURN( (ulong)0 );
+		RETURN( (unsigned long)0 );
 	}
 
 	pany_reset( val );
