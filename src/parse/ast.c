@@ -17,12 +17,6 @@ ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
 {
 	ppast*	node;
 
-	if( !( emit && *emit && start && end ) )
-	{
-		WRONGPARAM;
-		return (ppast*)NULL;
-	}
-
 	node = (ppast*)pmalloc( sizeof( ppast ) );
 
 	node->emit = emit;
