@@ -14,7 +14,7 @@ SUBDIRS = src tools
 
 man1_MANS = phorward.man
 phorwarddir = $(datadir)/phorward
-dist_phorward_DATA = LICENSE README.md CHANGELOG doc/phorward.html
+dist_phorward_DATA = LICENSE README.md CHANGELOG doc/phorward.html doc/phorward.css doc/phorward.png
 
 if WITH_TXT2TAGS
 # --- Phorward Documentation --------------------------------------------------

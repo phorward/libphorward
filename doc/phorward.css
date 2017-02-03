@@ -1,6 +1,6 @@
 html, body, table
 {
-	font-family: Helvetica, Consolas, sans-serif;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 	font-size: 11pt;
 }
 
@@ -55,9 +55,17 @@ div#header
 	margin-bottom: 5px;
 }
 
+div#header h1:before
+{
+	content: url(phorward.png);
+	display: block;
+	padding: 10px;
+}
+
 div#header h1
 {
 	font-size: 22pt;
+
 }
 
 div#header h2
