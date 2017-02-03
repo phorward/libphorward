@@ -14,7 +14,7 @@ Usage:	A pparse/ppast object demonstration suite.
 
 void help( char** argv )
 {
-	printf( "usage: %s OPTIONS grammar\n\n"
+	printf( "Usage: %s OPTIONS grammar\n\n"
 
 	"   -e  --exec    INPUT       Execute string INPUT on grammar.\n"
 	"   -g  --grammar BNF         Define grammar from BNF.\n"
@@ -25,7 +25,7 @@ void help( char** argv )
 	"   -r  --render  RENDERER    Use AST renderer RENDERER:\n"
 	"                             dump (default), short, json, tree2svg\n"
 	"   -s  --source  FILENAME    Execute input from FILENAME on grammar.\n"
-	"   -v  --version             Show version info and exit.\n"
+	"   -V  --version             Show version info and exit.\n"
 
 	"\n", *argv );
 
@@ -48,7 +48,7 @@ int main( int argc, char** argv )
 	char*		param;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"e:g:Gm:r:s:v",
+						"e:g:Gm:r:s:V",
 						"exec: grammar: mode: renderer: source: version", i ) )
 							== 0; i++ )
 	{
@@ -85,7 +85,7 @@ int main( int argc, char** argv )
 				return 1;
 			}
 		}
-		else if( !strcmp( opt, "version" ) || !strcmp( opt, "v" ) )
+		else if( !strcmp( opt, "version" ) || !strcmp( opt, "V" ) )
 		{
 			version( argv, "Parser construction command-line utility" );
 			return 0;
@@ -163,70 +163,3 @@ int main( int argc, char** argv )
 	return 0;
 }
 
-/* This is an old test program stub */
-#if 0
-int main1( int argc, char** argv )
-{
-	char*		e;
-	char*		s;
-	parray*		a;
-	ppgram*		g;
-	ppgram*		g2		= (ppgram*)NULL;
-	int			i		= 0;
-	char*		str;
-
-	g = pp_gram_create( (char*)NULL );
-	pp_gram2gram( g );
-	pp_gram_prepare( g );
-	pp_gram_print( g );
-
-	if( argc > 1 )
-	{
-		str = argv[ 1 ];
-		while( TRUE )
-		{
-			e = s = str;
-
-			if( pp_lr_parse( &a, g, s, &e ) )
-			{
-				printf( "\nSUCCEED >%.*s<\n", e - s, s );
-
-				pp_ast_simplify( a );
-
-				if( parray_count( a ) )
-				{
-					g2 = pp_ast2gram( a );
-					printf( "\n--- final ---\n" );
-					pp_gram_print( g2 );
-
-					g = g2;
-				}
-
-				i++;
-
-				printf( "BOOTSTRAP %d OK\n", i );
-				if( argc > i + 1 )
-				{
-					if( *argv[ i + 1 ] )
-						str = argv[ i + 1 ];plex_lex
-
-					printf( "EXEC >%s<\n", str );
-				}
-
-				getchar();
-			}
-			else
-			{
-				printf( "\nFAILED\n" );
-				break;
-			}
-
-			parray_free( a );
-		}
-
-		printf( "i = %d\n", i );
-	}
-
-	return 0;
-}
-#endif

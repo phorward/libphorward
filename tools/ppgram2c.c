@@ -8,7 +8,7 @@ File:	ppgram2c.c
 Usage:	ppgram to C-code generator
 ----------------------------------------------------------------------------- */
 
-#include "phorward.h"
+#include "local.h"
 
 char*	emptystr	= "";
 char*	gname		= "g";
@@ -18,12 +18,15 @@ char*	indent;
 
 void help( char** argv )
 {
-	printf( "usage: %s OPTIONS grammar\n\n"
+	printf( "Usage: %s OPTIONS grammar\n\n"
 
-	"   -d  --debug             Print parsed grammar.\n"
-	"   -h  --help              Show this help, and exit.\n"
-	"   -i  --indent NUM        Indent generated code by NUM tabs\n"
-	"   -o  --output FILE       Output to FILE; Default is stdout.\n", *argv );
+	"   -d  --debug               Print parsed grammar.\n"
+	"   -h  --help                Show this help, and exit.\n"
+	"   -i  --indent NUM          Indent generated code by NUM tabs\n"
+	"   -o  --output FILE         Output to FILE; Default is stdout.\n"
+	"   -V  --version             Show version info and exit.\n",
+
+	*argv );
 }
 
 char* cident( char* ident )
@@ -236,19 +239,20 @@ int main( int argc, char** argv )
 	pboolean	debug	= FALSE;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"dhi:o:",
-						"debug help indent: output:", i ) ) == 0; i++ )
+						"dhi:o:V",
+						"debug help indent: output: version:", i ) )
+							== 0; i++ )
 	{
-		if( !strcmp( opt, "debug" ) || *opt == 'd' )
+		if( !strcmp( opt, "debug" ) || !strcmp( opt, "d" ) )
 			debug = TRUE;
-		else if( !strcmp( opt, "help" ) || *opt == 'h' )
+		else if( !strcmp( opt, "help" ) || !strcmp( opt, "h" ) )
 		{
 			help( argv );
 			return 0;
 		}
-		else if( !strcmp( opt, "output" ) || *opt == 'o' )
+		else if( !strcmp( opt, "output" ) || !strcmp( opt, "o" ) )
 			out = param;
-		else if( !strcmp( opt, "indent" ) || *opt == 'i' )
+		else if( !strcmp( opt, "indent" ) || !strcmp( opt, "i" ) )
 		{
 			pfree( indent );
 
@@ -259,6 +263,11 @@ int main( int argc, char** argv )
 				while( j-- )
 					indent[ j ] = '\t';
 			}
+		}
+		else if( !strcmp( opt, "version" ) || !strcmp( opt, "V" ) )
+		{
+			version( argv, "Converts phorward grammars into C code" );
+			return 0;
 		}
 	}
 

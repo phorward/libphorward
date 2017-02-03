@@ -12,7 +12,7 @@ Usage:	A pregex object demonstration suite.
 
 void help( char** argv )
 {
-	printf( "usage: %s OPTIONS {expression-only-if-no-other} [input-file]\n\n"
+	printf( "Usage: %s OPTIONS {expression-only-if-no-other} [input-file]\n\n"
 
 	"   -a  --action    ACTION    Perform regular expression action:\n"
 	"                             match (default), find, split, replace\n"
@@ -24,7 +24,7 @@ void help( char** argv )
 	"   -h  --help                Show this help, and exit.\n"
 	"   -i  --input     INPUT     Use string INPUT as input.\n"
 	"   -r  --replace   STRING    Replacement string for 'replace' action.\n"
-	"   -v  --version             Show version info and exit.\n"
+	"   -V  --version             Show version info and exit.\n"
 
 	"\n", *argv );
 }
@@ -54,7 +54,7 @@ int main( int argc, char** argv )
 
 	/* Analyze command-line parameters */
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"a:d:De:hf:i:r:v",
+						"a:d:De:hf:i:r:V",
 						"action: delimiter: exec: file: help "
 							"input: replace: version", i ) )
 								== 0; i++ )
@@ -104,7 +104,7 @@ int main( int argc, char** argv )
 			input = param;
 		else if( !strcmp( opt, "replace" ) || !strcmp( opt, "r" ) )
 			replace = param;
-		else if( !strcmp( opt, "version" ) || !strcmp( opt, "v" ) )
+		else if( !strcmp( opt, "version" ) || !strcmp( opt, "V" ) )
 		{
 			version( argv, "Regular expression command-line utility" );
 			return 0;
@@ -184,3 +184,4 @@ int main( int argc, char** argv )
 
 	return 0;
 }
+

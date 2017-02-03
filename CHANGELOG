@@ -7,6 +7,9 @@ v0.19.0 (under development)
 ----------------------------------------
 [+] Redesign of the grammar definition language
 [+] Introduced command-line utilies for pparse, pregex, plex and pvm
+[+] Generated documentation added
+[-] Several bugfixes in the build-system
+[-] Cleared build-system from unrequired files
 
 ----------------------------------------
 v0.18.0 (changeset 699)

@@ -8,7 +8,7 @@ int main()
     char*   end;
 
     parser = pp_create( 0,  "@int /[0-9]+/ ;"
-							"fact : int | '(' expr ')' ;"
+                            "fact : int | '(' expr ')' ;"
                             "term : @mul( term '*' fact ) | fact ;"
                             "expr : @add( expr '+' term ) | term ;" );
 

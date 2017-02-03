@@ -15,7 +15,7 @@ void version( char** argv, char* descr )
 	printf( "%s v%s [built %s]\n", *argv, LIBPHORWARD_VERSION, __DATE__ );
 
 	if( descr && *descr )
-		printf( "%s. Part of the Phorward SDK.\n\n", descr );
+		printf( "%s. Part of the Phorward Toolkit.\n\n", descr );
 
 	printf( "Copyright (C) 2006-2017 by Phorward Software Technologies, "
 				"Jan Max Meyer\n"

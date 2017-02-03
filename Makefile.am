@@ -10,11 +10,11 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src run tools DEMO
+SUBDIRS = src tools #DEMO run
 
 man1_MANS = phorward.man
 phorwarddir = $(datadir)/phorward
-dist_phorward_DATA = LICENSE README.md CHANGELOG
+dist_phorward_DATA = LICENSE README.md CHANGELOG doc/phorward.html
 
 if WITH_TXT2TAGS
 # --- Phorward Documentation --------------------------------------------------

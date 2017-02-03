@@ -1,53 +1,47 @@
 Phorward Toolkit
 libphorward 0.19.0
-December 2016
+February 2017
 
 = DESCRIPTION =
 
-The Phorward SDK provides a powerful software development kit for compiler-related development tasks, primarily targetting the C programming language. It mainly focuses on the implementation of parsers to map arbitrary input into logically defined data structures. As the library is hold entirely dynamic, any generation of source code or hand-writing parsers or lexers is unnecessary. Just define a grammar describing the structure of the input data and that's all - the software does the rest of the job!
+//phorward// is a free toolkit for parser development, lexical analysis, regular expressions and more.
 
-The following example programm, written in C, defines a simple expressional grammar, runs a parser on it and prints the generated abstract syntax tree:
+The toolkit is primarily a library, written in C, that provides an interface for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy-to-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
 
 %!include: ``example.c``
 
-This program can quickly be compiled with
+It can easily be compiled with: ``cc -o example example.c -lphorward``
 
-``` $ cc -o example example.c -lphorward
+Furthermore, the toolkit comes with a command-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
 
-Additionally, the toolkit comes with several handy command-line tools serving testing and prototyping facilities. The following command call yields in an equivalent parse tree, altought some symbol names where shortened.
+``` $ pparse -e "1+2*(3+4)+5" -g "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;"
 
-```
-$ pparse -e "1+2*(3+4)+5" -g "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;"
-```
-
-The SDK also provides useful general-purpose extensions for C programs, including dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and some platform-independent, system-specific helper functions.
+phorward also provides useful general-purpose extensions for C programming. This includes dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and platform-independent, system-specific helper functions.
 
 = FEATURES =
 
-All tools of the Phorward SDK are hold as a part of a library, which can be dynamically invoked or merged together.
-Altought the library is written in C, it provides data objects following a strict object-oriented style.
+//phorward// provides the following features:
 
 - Parser development tools
   - Self-hosted Backus-Naur-Form (BNF) grammar definition language
   - //pparse// provides a modular LR(1) and LALR(1) parser generator
-  - //ppast// is a representation of a browsable abstract syntax tree (ast)
-  - Coming soon: Tools for ast traversal and parser deployment
+  - //ppast// is a representation of a browsable abstract syntax tree (AST)
 - Lexer development tools
   - regular expressions and pattern definition interface
   - //plex// provides a lexical analyzer
   - //pregex// for definition and execution of regular expression
   - //pccl// for unicode-enabled character classes
   - tools for regex and lexer deployment
-  - string functions for regular expression matching, splitting and replacement
+  - string functions for regular expression match, split and replace
 - Runtime evaluation tools
   - construction of dynamic intermediate languages and interpreters
-  - //pany// for handling different C-data-types in one object
+  - //pany// is a data object for handling different data-types in one object
   - //pvm// for defining stack-based virtual machine instruction sets
 - Dynamic data structures
   - //plist// for linked-lists with build-in hash table support,
   - //parray// for arrays and stacks.
 - Extended string management functions
-  - concat, extend, tokenize and  shorthand allocation of strings and wide-character strings
+  - concat, extend, tokenize and short-hand allocation of strings and wide-character strings
   - consistent byte- and wide-character (unicode) function support
   - unicode support for UTF-8 in byte-character functions
 - Universal system-specific functions for platform-independent C software development
@@ -59,6 +53,13 @@ Altought the library is written in C, it provides data objects following a stric
 -
 
 Please check out http://phorward.phorward-software.com/ continuously to get latest news, documentation, updates and support on the Phorward Toolkit.
+
+= GETTING STARTED =
+
+//phorward// is under heavy development since a few years. It is kept simple, clear and straightforward.
+Documentation can be found in the file http://www.phorward-software.com/products/phorward/doc/phorward.html, but also locally after installation.
+
+The documentation is currently in an under-development state and incomplete. It contains a generated functions reference and handles all library parts shortly.
 
 = BUILDING =
 

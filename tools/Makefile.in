@@ -99,7 +99,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_plex_OBJECTS = plex-plex.$(OBJEXT)
+am_plex_OBJECTS = plex-plex.$(OBJEXT) plex-util.$(OBJEXT)
 plex_OBJECTS = $(am_plex_OBJECTS)
 plex_DEPENDENCIES = ../src/libphorward.la
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -109,19 +109,20 @@ am__v_lt_1 =
 plex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(plex_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_pparse_OBJECTS = pparse-pparse.$(OBJEXT)
+am_pparse_OBJECTS = pparse-pparse.$(OBJEXT) pparse-util.$(OBJEXT)
 pparse_OBJECTS = $(am_pparse_OBJECTS)
 pparse_DEPENDENCIES = ../src/libphorward.la
 pparse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pparse_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_ppgram2c_OBJECTS = ppgram2c-ppgram2c.$(OBJEXT)
+am_ppgram2c_OBJECTS = ppgram2c-ppgram2c.$(OBJEXT) \
+	ppgram2c-util.$(OBJEXT)
 ppgram2c_OBJECTS = $(am_ppgram2c_OBJECTS)
 ppgram2c_DEPENDENCIES = ../src/libphorward.la
 ppgram2c_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ppgram2c_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_pregex_OBJECTS = pregex-pregex.$(OBJEXT)
+am_pregex_OBJECTS = pregex-pregex.$(OBJEXT) pregex-util.$(OBJEXT)
 pregex_OBJECTS = $(am_pregex_OBJECTS)
 pregex_DEPENDENCIES = ../src/libphorward.la
 pregex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -309,16 +310,16 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 bin_PROGRAMS = plex$(EXEEXT) pparse$(EXEEXT) pregex$(EXEEXT) ppgram2c$(EXEEXT)
 #pvm$(EXEEXT)
-plex_SOURCES = plex.c
+plex_SOURCES = plex.c util.c
 plex_LDADD = ../src/libphorward.la
 plex_CFLAGS = -I$(top_srcdir)/src
-pparse_SOURCES = pparse.c
+pparse_SOURCES = pparse.c util.c
 pparse_LDADD = ../src/libphorward.la
 pparse_CFLAGS = -I$(top_srcdir)/src
-pregex_SOURCES = pregex.c
+pregex_SOURCES = pregex.c util.c
 pregex_LDADD = ../src/libphorward.la
 pregex_CFLAGS = -I$(top_srcdir)/src
-ppgram2c_SOURCES = ppgram2c.c
+ppgram2c_SOURCES = ppgram2c.c util.c
 ppgram2c_LDADD = ../src/libphorward.la
 ppgram2c_CFLAGS = -I$(top_srcdir)/src
 all: all-am
@@ -427,9 +428,13 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plex-plex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plex-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pparse-pparse.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pparse-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ppgram2c-ppgram2c.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ppgram2c-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pregex-pregex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pregex-util.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -466,6 +471,20 @@ plex-plex.obj: plex.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -c -o plex-plex.obj `if test -f 'plex.c'; then $(CYGPATH_W) 'plex.c'; else $(CYGPATH_W) '$(srcdir)/plex.c'; fi`
 
+plex-util.o: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -MT plex-util.o -MD -MP -MF $(DEPDIR)/plex-util.Tpo -c -o plex-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/plex-util.Tpo $(DEPDIR)/plex-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='plex-util.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -c -o plex-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+
+plex-util.obj: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -MT plex-util.obj -MD -MP -MF $(DEPDIR)/plex-util.Tpo -c -o plex-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/plex-util.Tpo $(DEPDIR)/plex-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='plex-util.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(plex_CFLAGS) $(CFLAGS) -c -o plex-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+
 pparse-pparse.o: pparse.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -MT pparse-pparse.o -MD -MP -MF $(DEPDIR)/pparse-pparse.Tpo -c -o pparse-pparse.o `test -f 'pparse.c' || echo '$(srcdir)/'`pparse.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pparse-pparse.Tpo $(DEPDIR)/pparse-pparse.Po
@@ -479,6 +498,20 @@ pparse-pparse.obj: pparse.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pparse.c' object='pparse-pparse.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -c -o pparse-pparse.obj `if test -f 'pparse.c'; then $(CYGPATH_W) 'pparse.c'; else $(CYGPATH_W) '$(srcdir)/pparse.c'; fi`
+
+pparse-util.o: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -MT pparse-util.o -MD -MP -MF $(DEPDIR)/pparse-util.Tpo -c -o pparse-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pparse-util.Tpo $(DEPDIR)/pparse-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='pparse-util.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -c -o pparse-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+
+pparse-util.obj: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -MT pparse-util.obj -MD -MP -MF $(DEPDIR)/pparse-util.Tpo -c -o pparse-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pparse-util.Tpo $(DEPDIR)/pparse-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='pparse-util.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pparse_CFLAGS) $(CFLAGS) -c -o pparse-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
 
 ppgram2c-ppgram2c.o: ppgram2c.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -MT ppgram2c-ppgram2c.o -MD -MP -MF $(DEPDIR)/ppgram2c-ppgram2c.Tpo -c -o ppgram2c-ppgram2c.o `test -f 'ppgram2c.c' || echo '$(srcdir)/'`ppgram2c.c
@@ -494,6 +527,20 @@ ppgram2c-ppgram2c.obj: ppgram2c.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -c -o ppgram2c-ppgram2c.obj `if test -f 'ppgram2c.c'; then $(CYGPATH_W) 'ppgram2c.c'; else $(CYGPATH_W) '$(srcdir)/ppgram2c.c'; fi`
 
+ppgram2c-util.o: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -MT ppgram2c-util.o -MD -MP -MF $(DEPDIR)/ppgram2c-util.Tpo -c -o ppgram2c-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ppgram2c-util.Tpo $(DEPDIR)/ppgram2c-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='ppgram2c-util.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -c -o ppgram2c-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+
+ppgram2c-util.obj: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -MT ppgram2c-util.obj -MD -MP -MF $(DEPDIR)/ppgram2c-util.Tpo -c -o ppgram2c-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ppgram2c-util.Tpo $(DEPDIR)/ppgram2c-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='ppgram2c-util.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ppgram2c_CFLAGS) $(CFLAGS) -c -o ppgram2c-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+
 pregex-pregex.o: pregex.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -MT pregex-pregex.o -MD -MP -MF $(DEPDIR)/pregex-pregex.Tpo -c -o pregex-pregex.o `test -f 'pregex.c' || echo '$(srcdir)/'`pregex.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pregex-pregex.Tpo $(DEPDIR)/pregex-pregex.Po
@@ -507,6 +554,20 @@ pregex-pregex.obj: pregex.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pregex.c' object='pregex-pregex.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -c -o pregex-pregex.obj `if test -f 'pregex.c'; then $(CYGPATH_W) 'pregex.c'; else $(CYGPATH_W) '$(srcdir)/pregex.c'; fi`
+
+pregex-util.o: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -MT pregex-util.o -MD -MP -MF $(DEPDIR)/pregex-util.Tpo -c -o pregex-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pregex-util.Tpo $(DEPDIR)/pregex-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='pregex-util.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -c -o pregex-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+
+pregex-util.obj: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -MT pregex-util.obj -MD -MP -MF $(DEPDIR)/pregex-util.Tpo -c -o pregex-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pregex-util.Tpo $(DEPDIR)/pregex-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='pregex-util.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -c -o pregex-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

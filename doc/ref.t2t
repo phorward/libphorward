@@ -644,19 +644,69 @@ The function returns TRUE on success, FALSE else.
 %FUNCTION:END
 %NEED:13
 %FUNCTION:BEGIN
+=== pany_copy ===[fn_pany_copy]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pany_copy( pany* dest, pany* src )
+%DEFINITION:END
+
+**Usage:**
+
+Copy any value from //src// into //dest//.
+
+//dest// will be reset and stand on its own after copying.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
 === pany_create ===[fn_pany_create]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-pany* pany_create( void )
+pany* pany_create( char* str )
 %DEFINITION:END
 
 **Usage:**
 
 Creates a new pany-object.
 
+It allows for parsing a value from //str//.
+
 This object must be released after usage using [pany_free() #fn_pany_free].
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pany_dup ===[fn_pany_dup]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pany* pany_dup( pany* src )
+%DEFINITION:END
+
+**Usage:**
+
+Duplicate the object //src// into a new object that stands on its own.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_fprint ===[fn_pany_fprint]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pany_fprint( FILE* stream, pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Print the type and value of //val// to //stream//
+without any conversion. This function shall be used for debug only.
+
+//stream// is the stream to write to.
+//val// is the pany-object to be printed.
 %FUNCTION:END
 %NEED:13
 %FUNCTION:BEGIN
@@ -674,7 +724,27 @@ Frees an allocated pany object and all its used memory.
 
 The function always returns (pany*)NULL.
 %FUNCTION:END
-%NEED:19
+%NEED:17
+%FUNCTION:BEGIN
+=== pany_get_bool ===[fn_pany_get_bool]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pany_get_bool( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Returns the ``pboolean``-value of //val//.
+
+//val// is the pointer to the pany-object.
+
+If the pany-object exists in another data type, it will be converted.
+The function returns the value assigned to //val// as pboolean.
+This value could be converted from the original value.
+%FUNCTION:END
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_char ===[fn_pany_get_char]
 
@@ -686,17 +756,15 @@ char pany_get_char( pany* val )
 
 **Usage:**
 
-Returns the char data value if //val//.
+Returns the ``char``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as char.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_cstr ===[fn_pany_get_cstr]
 
@@ -708,17 +776,15 @@ char* pany_get_cstr( pany* val )
 
 **Usage:**
 
-Returns the char* data value if //val//.
+Returns the ``char*``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as char*.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_cwcs ===[fn_pany_get_cwcs]
 
@@ -730,17 +796,15 @@ wchar_t* pany_get_cwcs( pany* val )
 
 **Usage:**
 
-Returns the wchar_t* data value if //val//.
+Returns the ``wchar_t*``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as wchar_t*.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_double ===[fn_pany_get_double]
 
@@ -752,17 +816,15 @@ double pany_get_double( pany* val )
 
 **Usage:**
 
-Returns the double data value if //val//.
+Returns the ``double``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as double.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_float ===[fn_pany_get_float]
 
@@ -774,17 +836,15 @@ float pany_get_float( pany* val )
 
 **Usage:**
 
-Returns the float data value if //val//.
+Returns the ``float``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as float.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_int ===[fn_pany_get_int]
 
@@ -796,17 +856,15 @@ int pany_get_int( pany* val )
 
 **Usage:**
 
-Returns the int data value if //val//.
+Returns the ``int``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as int.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_long ===[fn_pany_get_long]
 
@@ -818,17 +876,15 @@ long pany_get_long( pany* val )
 
 **Usage:**
 
-Returns the long data value if //val//.
+Returns the ``long``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as long.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_ptr ===[fn_pany_get_ptr]
 
@@ -840,17 +896,15 @@ void* pany_get_ptr( pany* val )
 
 **Usage:**
 
-Returns the void* data value if //val//.
+Returns the ``void*``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as void*.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_str ===[fn_pany_get_str]
 
@@ -862,39 +916,35 @@ char* pany_get_str( pany* val )
 
 **Usage:**
 
-Returns the char* data value if //val//.
+Returns the ``char*``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as char*.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_ulong ===[fn_pany_get_ulong]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-ulong pany_get_ulong( pany* val )
+unsigned long pany_get_ulong( pany* val )
 %DEFINITION:END
 
 **Usage:**
 
-Returns the ulong data value if //val//.
+Returns the ``unsigned long``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
-The function returns the value assigned to //val// as ulong.
+If the pany-object exists in another data type, it will be converted.
+The function returns the value assigned to //val// as unsigned long.
 This value could be converted from the original value.
 %FUNCTION:END
-%NEED:19
+%NEED:17
 %FUNCTION:BEGIN
 === pany_get_wcs ===[fn_pany_get_wcs]
 
@@ -906,13 +956,11 @@ wchar_t* pany_get_wcs( pany* val )
 
 **Usage:**
 
-Returns the wchar_t* data value if //val//.
+Returns the ``wchar_t*``-value of //val//.
 
-If the pany contains another data type, it will be converted,
-so use it carefully if data loss is not wanted.
+//val// is the pointer to the pany-object.
 
-//val// is the pointer to the pany structure.
-
+If the pany-object exists in another data type, it will be converted.
 The function returns the value assigned to //val// as wchar_t*.
 This value could be converted from the original value.
 %FUNCTION:END
@@ -931,6 +979,33 @@ pboolean pany_init( pany* val )
 Initializes a pany-element.
 
 //val// is the pointer to the pany-structure to be initialized.
+%FUNCTION:END
+%NEED:24
+%FUNCTION:BEGIN
+=== pany_parse ===[fn_pany_parse]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pany_parse( pany* val, char* str, panytype enforce )
+%DEFINITION:END
+
+**Usage:**
+
+Parse any value from a string.
+
+The function will check and ignore for leading and following whitespace, and
+matches long integer, double values and strings.
+
+If a string is encapsulated between C-styled string or character tokens (", '),
+the content between the delimiters will be taken as a string and ran trough an
+escaping function.
+
+Any other content is taken as string. If the parameter //enforce// is set to
+an desired PANY_-type, this type will be enforced, and no special recognition
+is done.
+
+This function tries to detect
 %FUNCTION:END
 %NEED:16
 %FUNCTION:BEGIN
@@ -953,6 +1028,25 @@ to be of type PANYTYPE_NULL.
 %FUNCTION:END
 %NEED:16
 %FUNCTION:BEGIN
+=== pany_set_bool ===[fn_pany_set_bool]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pany_set_bool( pany* val, pboolean b )
+%DEFINITION:END
+
+**Usage:**
+
+Sets the ``pboolean``-value and type of //va//.
+
+//val// is the pany-object to be set.
+//b// is the ``pboolean``-value to be assigned to //val//.
+
+The function always returns the value //b//.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
 === pany_set_char ===[fn_pany_set_char]
 
 **Definition:**
@@ -963,10 +1057,10 @@ char pany_set_char( pany* val, char c )
 
 **Usage:**
 
-Sets the char data value and type.
-//val// is the pany-object to be set.
+Sets the ``char``-value and type of //va//.
 
-//c// is the char value to be assigned to //val//.
+//val// is the pany-object to be set.
+//c// is the ``char``-value to be assigned to //val//.
 
 The function always returns the value //c//.
 %FUNCTION:END
@@ -982,10 +1076,10 @@ char* pany_set_cstr( pany* val, char* s )
 
 **Usage:**
 
-Sets the char* data value and type.
-//val// is the pany-object to be set.
+Sets the ``char*``-value and type of //va//.
 
-//s// is the char* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//s// is the ``char*``-value to be assigned to //val//.
 
 The function always returns the value //s//.
 %FUNCTION:END
@@ -1001,10 +1095,10 @@ wchar_t* pany_set_cwcs( pany* val, wchar_t* ws )
 
 **Usage:**
 
-Sets the wchar_t* data value and type.
-//val// is the pany-object to be set.
+Sets the ``wchar_t*``-value and type of //va//.
 
-//ws// is the wchar_t* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//ws// is the ``wchar_t*``-value to be assigned to //val//.
 
 The function always returns the value //ws//.
 %FUNCTION:END
@@ -1020,10 +1114,10 @@ double pany_set_double( pany* val, double d )
 
 **Usage:**
 
-Sets the double data value and type.
-//val// is the pany-object to be set.
+Sets the ``double``-value and type of //va//.
 
-//d// is the double value to be assigned to //val//.
+//val// is the pany-object to be set.
+//d// is the ``double``-value to be assigned to //val//.
 
 The function always returns the value //d//.
 %FUNCTION:END
@@ -1039,10 +1133,10 @@ float pany_set_float( pany* val, float f )
 
 **Usage:**
 
-Sets the float data value and type.
-//val// is the pany-object to be set.
+Sets the ``float``-value and type of //va//.
 
-//f// is the float value to be assigned to //val//.
+//val// is the pany-object to be set.
+//f// is the ``float``-value to be assigned to //val//.
 
 The function always returns the value //f//.
 %FUNCTION:END
@@ -1058,10 +1152,10 @@ int pany_set_int( pany* val, int i )
 
 **Usage:**
 
-Sets the int data value and type.
-//val// is the pany-object to be set.
+Sets the ``int``-value and type of //va//.
 
-//i// is the int value to be assigned to //val//.
+//val// is the pany-object to be set.
+//i// is the ``int``-value to be assigned to //val//.
 
 The function always returns the value //i//.
 %FUNCTION:END
@@ -1077,10 +1171,10 @@ long pany_set_long( pany* val, long l )
 
 **Usage:**
 
-Sets the long data value and type.
-//val// is the pany-object to be set.
+Sets the ``long``-value and type of //va//.
 
-//l// is the long value to be assigned to //val//.
+//val// is the pany-object to be set.
+//l// is the ``long``-value to be assigned to //val//.
 
 The function always returns the value //l//.
 %FUNCTION:END
@@ -1096,10 +1190,10 @@ void* pany_set_ptr( pany* val, void* ptr )
 
 **Usage:**
 
-Sets the void* data value and type.
-//val// is the pany-object to be set.
+Sets the ``void*``-value and type of //va//.
 
-//ptr// is the void* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//ptr// is the ``void*``-value to be assigned to //val//.
 
 The function always returns the value //ptr//.
 %FUNCTION:END
@@ -1115,10 +1209,10 @@ char* pany_set_str( pany* val, char* s )
 
 **Usage:**
 
-Sets the char* data value and type.
-//val// is the pany-object to be set.
+Sets the ``char*``-value and type of //va//.
 
-//s// is the char* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//s// is the ``char*``-value to be assigned to //val//.
 
 The function always returns the value //s//.
 %FUNCTION:END
@@ -1129,15 +1223,15 @@ The function always returns the value //s//.
 **Definition:**
 
 %DEFINITION:BEGIN
-ulong pany_set_ulong( pany* val, ulong ul )
+unsigned long pany_set_ulong( pany* val, unsigned long ul )
 %DEFINITION:END
 
 **Usage:**
 
-Sets the ulong data value and type.
-//val// is the pany-object to be set.
+Sets the ``unsigned long``-value and type of //va//.
 
-//ul// is the ulong value to be assigned to //val//.
+//val// is the pany-object to be set.
+//ul// is the ``unsigned long``-value to be assigned to //val//.
 
 The function always returns the value //ul//.
 %FUNCTION:END
@@ -1153,12 +1247,30 @@ wchar_t* pany_set_wcs( pany* val, wchar_t* ws )
 
 **Usage:**
 
-Sets the wchar_t* data value and type.
-//val// is the pany-object to be set.
+Sets the ``wchar_t*``-value and type of //va//.
 
-//ws// is the wchar_t* value to be assigned to //val//.
+//val// is the pany-object to be set.
+//ws// is the ``wchar_t*``-value to be assigned to //val//.
 
 The function always returns the value //ws//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pany_to_bool ===[fn_pany_to_bool]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pany_to_bool( pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Converts the current value of //val// into a pboolean value.
+
+//val// is the pany-object to convert from.
+
+The function returns the pboolean-value of //val//.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -1293,16 +1405,16 @@ The function returns the char*-value of //val//.
 **Definition:**
 
 %DEFINITION:BEGIN
-ulong pany_to_ulong( pany* val )
+unsigned long pany_to_ulong( pany* val )
 %DEFINITION:END
 
 **Usage:**
 
-Converts the current value of //val// into a ulong value.
+Converts the current value of //val// into a unsigned long value.
 
 //val// is the pany-object to convert from.
 
-The function returns the ulong-value of //val//.
+The function returns the unsigned long-value of //val//.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -1552,7 +1664,7 @@ Removes an element from the end of an array.
 
 The function returns the pointer of the popped item. Because dynamic arrays only
 grow and no memory is freed, the returned data pointer is still valid, and will
-only be overwritten with the next push operation.
+only be overidden with the next push operation.
 
 //array// is the pointer to array where to pop an item off.
 
@@ -1724,7 +1836,7 @@ Removes an element from the begin of an array.
 
 The function returns the pointer of the shifted item.
 Because dynamic arrays only grow and no memory is freed, the returned data
-pointer is still valid, and will only be overwritten with the next unshift
+pointer is still valid, and will only be overidden with the next unshift
 operation.
 
 //array// is the pointer to array where to pop an item off.
@@ -2799,103 +2911,138 @@ Duplicates a memory entry onto the heap.
 Returns the new pointer to the memory copy. This should be casted back to the
 type of //ptr// again.
 %FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_ast_create ===[fn_pp_ast_create]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child )
+%DEFINITION:END
+
+**Usage:**
+
+Creates new abstract syntax tree node.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_ast_dump ===[fn_pp_ast_dump]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pp_ast_dump( FILE* stream, ppast* ast )
+%DEFINITION:END
+
+**Usage:**
+
+Dump detailed //ast// to //stream//.
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pp_ast_dump_json ===[fn_pp_ast_dump_json]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pp_ast_dump_json( FILE* stream, ppast* ast )
+%DEFINITION:END
+
+**Usage:**
+
+Dump //ast// to //stream// as JSON-formatted string.
+
+Only opening matches are printed.
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pp_ast_dump_short ===[fn_pp_ast_dump_short]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pp_ast_dump_short( FILE* stream, ppast* ast )
+%DEFINITION:END
+
+**Usage:**
+
+Dump simplified //ast// to //stream//.
+
+Only opening matches are printed.
+%FUNCTION:END
 %NEED:12
+%FUNCTION:BEGIN
+=== pp_ast_dump_tree2svg ===[fn_pp_ast_dump_tree2svg]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
+%DEFINITION:END
+
+**Usage:**
+
+Dump //ast// in notation for the tree2svg tool that generates a
+graphical view of the parse tree.
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pp_ast_free ===[fn_pp_ast_free]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppast* pp_ast_free( ppast* node )
+%DEFINITION:END
+
+**Usage:**
+
+Frees entire //ast// structure and subsequent links.
+
+Always returns (ppast*)NULL.
+%FUNCTION:END
+%NEED:11
 %FUNCTION:BEGIN
 === pp_ast_get ===[fn_pp_ast_get]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-ppmatch* pp_ast_get( parray* ast, ppmatch* from, size_t offset )
+ppast* pp_ast_get( ppast* node, int n )
 %DEFINITION:END
 
 **Usage:**
 
-Retrieves the entry with offset //offset// starting to count from
-entry //from//.
-%FUNCTION:END
-%NEED:13
-%FUNCTION:BEGIN
-=== pp_ast_pendant ===[fn_pp_ast_pendant]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-ppmatch* pp_ast_pendant( parray* ast, ppmatch* match )
-%DEFINITION:END
-
-**Usage:**
-
-Returns the pendant entry of //match//.
-
-If //match// is a match begin, it returns the corresponding end, and reverse.
+Returns the //n//th element of //node//.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
-=== pp_ast_print ===[fn_pp_ast_print]
+=== pp_ast_len ===[fn_pp_ast_len]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-void pp_ast_print( parray* ast )
+int pp_ast_len( ppast* node )
 %DEFINITION:END
 
 **Usage:**
 
-Print detailed //ast// to stdout.
+Returns length of //node// chain.
 %FUNCTION:END
-%NEED:20
+%NEED:11
 %FUNCTION:BEGIN
-=== pp_ast_query ===[fn_pp_ast_query]
+=== pp_ast_select ===[fn_pp_ast_select]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-ppmatch* pp_ast_query( parray* ast, ppmatch* start, int count, int emit, int depth )
+ppast* pp_ast_select( ppast* node, char* emit, int n )
 %DEFINITION:END
 
 **Usage:**
 
-Queries for the //count//-th element that matches //emit// within the
-boundaries of //start//. If //start// is an end-node of a tree item, the
-function searches upwards, else downwards. If //start// is NULL, search
-begins at the first element.
-
-//depth// specifies an optional, maximum depth of levels to dive in, so a
-//depth// of 1 will only match elements in the first level. A //depth// of 0
-ignores the deepness.
-
-The function returns the element found.
-%FUNCTION:END
-%NEED:12
-%FUNCTION:BEGIN
-=== pp_ast_simplify ===[fn_pp_ast_simplify]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-void pp_ast_simplify( parray* ast )
-%DEFINITION:END
-
-**Usage:**
-
-Print simplified //ast// to stdout.
-Only opening matches are printed.
-%FUNCTION:END
-%NEED:12
-%FUNCTION:BEGIN
-=== pp_ast_tree2svg ===[fn_pp_ast_tree2svg]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-void pp_ast_tree2svg( parray* ast )
-%DEFINITION:END
-
-**Usage:**
-
-Print //ast// in notation for the tree2svg tool that generates a
-graphical view of the parse tree.
+Returns the //n//th element matching emit //emit// starting at //node//.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
@@ -2941,6 +3088,20 @@ Creates a new ppgram-object.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
+=== pp_gram_dump ===[fn_pp_gram_dump]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pp_gram_dump( FILE* stream, ppgram* g )
+%DEFINITION:END
+
+**Usage:**
+
+Dumps the grammar //g// to //stream//.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
 === pp_gram_free ===[fn_pp_gram_free]
 
 **Definition:**
@@ -2970,7 +3131,7 @@ Compiles a grammar definition into a grammar.
 //g// is the grammar that receives the result of the parse.
 //bnf// is the BNF definition string that defines the grammar.
 %FUNCTION:END
-%NEED:19
+%NEED:22
 %FUNCTION:BEGIN
 === pp_gram_prepare ===[fn_pp_gram_prepare]
 
@@ -2986,25 +3147,14 @@ Prepares the grammar //g// by computing all necessary stuff required for
 runtime and parser generator.
 
 The preparation process includes:
-- Symbol and productions IDs
-- FIRST-set computation
-- Mark left-recursions
-- Lexem flag pull-trough
+- Setting up final symbol and productions IDs
+- Nonterminals FIRST-set computation
+- Marking of left-recursions
+- The 'lexem'-flag pull-trough the grammar.
 -
-%FUNCTION:END
-%NEED:11
-%FUNCTION:BEGIN
-=== pp_gram_print ===[fn_pp_gram_print]
 
-**Definition:**
-
-%DEFINITION:BEGIN
-void pp_gram_print( ppgram* g )
-%DEFINITION:END
-
-**Usage:**
-
-Dumps the grammar //g// to stdout.
+This function is only run internally.
+Don't call it if you're unsure ;)...
 %FUNCTION:END
 %NEED:18
 %FUNCTION:BEGIN
@@ -3027,19 +3177,20 @@ that describe the prooduced abstract syntax tree.
 //end// receives the position of the last character matched.
 The function returns TRUE if no parse error orccured.
 %FUNCTION:END
-%NEED:18
+%NEED:19
 %FUNCTION:BEGIN
 === pp_lr_parse ===[fn_pp_lr_parse]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-pboolean pp_lr_parse( parray** ast, ppgram* grm, char* start, char** end )
+pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end )
 %DEFINITION:END
 
 **Usage:**
 
 Parses the string //str// using the grammar //grm// with a LALR(1) parser.
+
 Parsing stops at least when reading the zero terminator of //str//.
 
 //ast// receives an allocated parray-object with items of //ppmatch// elements
@@ -3048,20 +3199,6 @@ that describe the produced abstract syntax tree.
 //end// receives the position of the last character matched.
 The function returns TRUE if no parse error occured.
 %FUNCTION:END
-%NEED:11
-%FUNCTION:BEGIN
-=== pp_parse_add_do ===[fn_pp_parse_add_do]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pboolean pp_parse_add_do( pparse* par, char* name, ppdofunc func )
-%DEFINITION:END
-
-**Usage:**
-
-Adds a do command.
-%FUNCTION:END
 %NEED:16
 %FUNCTION:BEGIN
 === pp_parse_to_ast ===[fn_pp_parse_to_ast]
@@ -3069,7 +3206,7 @@ Adds a do command.
 **Definition:**
 
 %DEFINITION:BEGIN
-pboolean pp_parse_to_ast( parray** ast, pparse* par, char* start, char** end )
+pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end )
 %DEFINITION:END
 
 **Usage:**
@@ -3079,7 +3216,7 @@ Run parser //par// with input //start//.
 The function uses the parsing method defined when then parser was created.
 //end// receives a pointer to the position where the parser stopped.
 
-It returns a parse-tree to //ast// on success.
+It returns a parse-tree to //root// on success.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
@@ -3109,6 +3246,20 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 
 Creates a new production on left-hand-side //lhs//
 within the grammar //g//.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_prod_drop ===[fn_pp_prod_drop]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppprod* pp_prod_drop( ppprod* p )
+%DEFINITION:END
+
+**Usage:**
+
+Frees the production object //p// and releases any used memory.
 %FUNCTION:END
 %NEED:12
 %FUNCTION:BEGIN
@@ -3140,6 +3291,21 @@ ppsym* pp_prod_getfromrhs( ppprod* p, int off )
 Returns the //off//s element from the right-hand-side of
 production //p//. Returns (ppsym*)NULL if the requested element does
 not exist.
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== pp_prod_remove ===[fn_pp_prod_remove]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int pp_prod_remove( ppprod* p, ppsym* sym )
+%DEFINITION:END
+
+**Usage:**
+
+Removes all occurences of symbol //sym// from the right-hand-side of
+production //p//.
 %FUNCTION:END
 %NEED:14
 %FUNCTION:BEGIN
@@ -3176,6 +3342,20 @@ Creates a new symbol of the type //type// in the grammar //g//.
 can be left empty.
 //def// contains the definition of the symbol in case of a terminal type.
 It will be ignored else.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_sym_drop ===[fn_pp_sym_drop]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppsym* pp_sym_drop( ppsym* sym )
+%DEFINITION:END
+
+**Usage:**
+
+Frees a symbol.
 %FUNCTION:END
 %NEED:12
 %FUNCTION:BEGIN
@@ -3219,6 +3399,24 @@ ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name )
 **Usage:**
 
 Find a nameless terminal symbol by its pattern.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pp_sym_getprod ===[fn_pp_sym_getprod]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppprod* pp_sym_getprod( ppsym* sym, int n )
+%DEFINITION:END
+
+**Usage:**
+
+Get the //n//th production from symbol //sym//. //sym// must be of type
+nonterminal.
+
+Returns (ppprod*)NULL if the production is not found or the symbol is
+configured differently.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -3738,7 +3936,7 @@ Returns //s//.
 **Definition:**
 
 %DEFINITION:BEGIN
-int pstrncasecmp( char* s1, char* s2, int n )
+int pstrncasecmp( char* s1, char* s2, size_t n )
 %DEFINITION:END
 
 **Usage:**
@@ -3946,6 +4144,49 @@ Removes beginning and trailing whitespace from a string.
 
 Returns //s//.
 %FUNCTION:END
+%NEED:40
+%FUNCTION:BEGIN
+=== pstrunescape ===[fn_pstrunescape]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char* pstrunescape( char* str )
+%DEFINITION:END
+
+**Usage:**
+
+Converts a string with included escape-sequences back into its natural form.
+
+The following table shows escape sequences which are converted.
+
+|| Sequence | is replaced by |
+| \n | newline |
+| \t | tabulator |
+| \r | carriage-return |
+| \b | backspace |
+| \f | form feed |
+| \a | bell / alert |
+| \' | single-quote |
+| \" | double-quote |
+
+
+The replacement is done within the memory bounds of //str// itself, because the
+unescaped version of the character requires lesser space that its previous
+escape sequence.
+
+The function always returns its input pointer.
+
+**Example:**
+```
+char* s = (char*)NULL;
+
+psetstr( &s, "\tHello\nWorld!" );
+printf( ">%s<\n", pstrunescape( s ) );
+
+s = pfree( s );
+```
+%FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
 === pstrupr ===[fn_pstrupr]
@@ -3983,6 +4224,92 @@ Implementation and replacement for vasprintf.
 //...// are the parameters according to the placeholders set in //fmt//.
 
 Returns the number of characters written, or -1 in error case.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_create ===[fn_pvm_create]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pvm* pvm_create( void )
+%DEFINITION:END
+
+**Usage:**
+
+Creates a new virtual machine.
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pvm_define ===[fn_pvm_define]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int pvm_define( pvm* vm, char* mn, pvmop op )
+%DEFINITION:END
+
+**Usage:**
+
+Implements mnemonic //mn// with operational function //op// into //vm//.
+
+Returns the operation's opcode, or a value < 0 on error.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_free ===[fn_pvm_free]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pvm* pvm_free( pvm* vm )
+%DEFINITION:END
+
+**Usage:**
+
+Frees a virtual machine.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_init ===[fn_pvm_init]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pvm* pvm_init( pvm* vm )
+%DEFINITION:END
+
+**Usage:**
+
+Initializes the virtual machine //vm//.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_prog_run ===[fn_pvm_prog_run]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pvm_prog_run( pvmprog* prog )
+%DEFINITION:END
+
+**Usage:**
+
+Run vm
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_reset ===[fn_pvm_reset]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pvm* pvm_reset( pvm* vm )
+%DEFINITION:END
+
+**Usage:**
+
+Resets a virtual machine //vm//.
 %FUNCTION:END
 %NEED:22
 %FUNCTION:BEGIN
@@ -4076,6 +4403,23 @@ must be released with [pfree() #fn_pfree] when its existence is no longer requir
 %FUNCTION:END
 %NEED:14
 %FUNCTION:BEGIN
+=== pwcsget ===[fn_pwcsget]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t* pwcsget( wchar_t* str )
+%DEFINITION:END
+
+**Usage:**
+
+Savely reads a wide-character string.
+
+//str// is the string pointer to be savely read. If //str// is NULL, the
+function returns a pointer to a static address holding an empty string.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
 === pwcslen ===[fn_pwcslen]
 
 **Definition:**
@@ -4143,6 +4487,34 @@ terminator.
 Returns a wchar_t*-pointer to the allocated memory holding the zero-terminated
 wide-character string duplicate. This pointer must be released with [pfree() #fn_pfree]
 when its existence is no longer required.
+%FUNCTION:END
+%NEED:25
+%FUNCTION:BEGIN
+=== pwcsput ===[fn_pwcsput]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t* pwcsput( wchar_t** str, wchar_t* val )
+%DEFINITION:END
+
+**Usage:**
+
+Assign a wide-character string into a dynamically allocated pointer.
+ [pwcsput() #fn_pwcsput] manages the assignment of an dynamically allocated  wide-chararacter
+string.
+
+//str// is a pointer receiving the target pointer to be (re)allocated. If
+//str// already references a wide-character string, this pointer will be freed
+and reassigned to a copy of //val//.
+
+//val// is the the wide-character string to be assigned to //str//
+(as a independent copy).
+
+Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
+This is the same pointer as returned like calling ``*str``. The returned pointer
+must be released with [pfree() #fn_pfree] or another call of [pwcsput() #fn_pwcsput]. Calling [pwcsput() #fn_pwcsput]
+as ``pwcsput( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
 %FUNCTION:END
 %NEED:21
 %FUNCTION:BEGIN

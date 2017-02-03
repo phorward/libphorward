@@ -12,7 +12,7 @@ Usage:	A plex object demonstration suite.
 
 void help( char** argv )
 {
-	printf( "usage: %s OPTIONS patterns...\n\n"
+	printf( "Usage: %s OPTIONS patterns...\n\n"
 
 	"   -b  --begin     STRING    Use STRING as result begin separator\n"
 	"                             (' >' is default)\n"
@@ -22,7 +22,7 @@ void help( char** argv )
 	"   -f  --file      FILENAME  Read input from FILENAME\n"
 	"   -h  --help                Show this help, and exit.\n"
 	"   -i  --input     INPUT     Use string INPUT as input.\n"
-	"   -v  --version             Show version info and exit.\n"
+	"   -V  --version             Show version info and exit.\n"
 
 
 	"\n", *argv );
@@ -48,7 +48,7 @@ int main( int argc, char** argv )
 
 	/* Analyze command-line parameters */
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"d:Df:hi:v",
+						"d:Df:hi:V",
 						"delimiter: file: help input: version", i ) )
 							== 0; i++ )
 	{
@@ -75,7 +75,7 @@ int main( int argc, char** argv )
 		}
 		else if( !strcmp( opt, "input" ) || !strcmp( opt, "i" ) )
 			start = param;
-		else if( !strcmp( opt, "version" ) || !strcmp( opt, "v" ) )
+		else if( !strcmp( opt, "version" ) || !strcmp( opt, "V" ) )
 		{
 			version( argv, "Lexical analysis command-line utility" );
 			return 0;
