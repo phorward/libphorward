@@ -10,7 +10,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src tools #DEMO run
+SUBDIRS = src tools
 
 man1_MANS = phorward.man
 phorwarddir = $(datadir)/phorward

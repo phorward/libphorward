@@ -79,7 +79,5 @@ AC_CHECK_FUNCS([wcsrchr])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-                 run/Makefile
-				 tools/Makefile
-				 DEMO/Makefile])
+				 tools/Makefile])
 AC_OUTPUT

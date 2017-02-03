@@ -13,7 +13,6 @@ syntax: glob
 Makefile
 config.log
 config.status
-libtool
 
 DEMO/basis
 
