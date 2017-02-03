@@ -3,7 +3,7 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
-v0.19.0 (under development)
+v0.19.0 (February 2017)
 ----------------------------------------
 [+] Redesign of the grammar definition language
 [+] Introduced command-line utilies for pparse, pregex, plex and pvm
@@ -12,23 +12,8 @@ v0.19.0 (under development)
 [-] Cleared build-system from unrequired files
 
 ----------------------------------------
-v0.18.0 (changeset 699)
+v0.18.0 (September 2016)
 ----------------------------------------
-The v0.18 release of libphorward was declared on September 2016 as an
-intermediate release after the version 0.18 has been under development since
-2012.
-
-libphorward's purpose now targets to serve a C toolchain for parsing, lexical
-analysis, regular expressions and powerful standard data structures like linked
-lists, hashtables, dynamic arrays and system-independend utility functions.
-
-The v0.18 serves as the base for the next step, an upcoming v0.19 that will be
-inhanced and furnished for better programming experiences.
-
-v0.18 of libphorward was released together with the UniCC LALR(1) parser
-generator v1.1.0, which is now discontinued, so all development capacities are
-going into libphorward now.
-
 [+] Full refactoring of all modules, evolving in the following new modules:
 	- base (plist, parray, pccl) for data structures
 	- string for extended string functions
@@ -45,7 +30,7 @@ going into libphorward now.
 [+] More test programs and tools in DEMO folder
 
 ----------------------------------------
-v0.17.0 (changeset 394)
+v0.17.0 (July 2012)
 ----------------------------------------
 [+] New string functions pstrltrim(), pstrrtrim(), pstrtrim(), pstrndup(),
 	pstrset(), pstrget(). There had also been some renamings on existing
@@ -70,7 +55,7 @@ v0.17.0 (changeset 394)
 	integrated currently.
 
 ----------------------------------------
-v0.16.11 (changeset 329)
+v0.16.11 (October 2010)
 ----------------------------------------
 [-]	pbasis: Bugfix in xml.c, relating the function xml_parse_file()
 	and xml_parse_fd(). Now removed xml_parse_fd(), xml_parse_file()
