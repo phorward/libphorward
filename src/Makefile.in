@@ -145,11 +145,11 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_libphorward_la_OBJECTS = any/any.lo any/any.conv.lo any/any.get.lo \
 	any/any.print.lo any/any.set.lo base/array.lo base/ccl.lo \
 	base/dbg.lo base/list.lo base/memory.lo parse/ast.lo \
-	parse/bnf.lo parse/gram.lo parse/ll.lo parse/lr.lo \
-	parse/parse.lo parse/prod.lo parse/scan.lo parse/sym.lo \
-	regex/dfa.lo regex/direct.lo regex/lex.lo regex/misc.lo \
-	regex/nfa.lo regex/ptn.lo regex/regex.lo string/convert.lo \
-	string/string.lo string/utf8.lo util/system.lo
+	parse/bnf.lo parse/gram.lo parse/lr.lo parse/parse.lo \
+	parse/prod.lo parse/scan.lo parse/sym.lo regex/dfa.lo \
+	regex/direct.lo regex/lex.lo regex/misc.lo regex/nfa.lo \
+	regex/ptn.lo regex/regex.lo string/convert.lo string/string.lo \
+	string/utf8.lo util/system.lo
 libphorward_la_OBJECTS = $(am_libphorward_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -355,7 +355,6 @@ libphorward_la_SOURCES = \
 	parse/ast.c \
 	parse/bnf.c \
 	parse/gram.c \
-	parse/ll.c \
 	parse/lr.c \
 	parse/parse.c \
 	parse/prod.c \
@@ -492,7 +491,6 @@ parse/$(DEPDIR)/$(am__dirstamp):
 parse/ast.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/bnf.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/gram.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
-parse/ll.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/lr.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/parse.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/prod.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
@@ -565,7 +563,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/ast.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/bnf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/gram.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/ll.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/lr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/parse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/prod.Plo@am__quote@

@@ -108,7 +108,7 @@ typedef char 					pboolean;
 
 
 
-#define LIBPHORWARD_VERSION "0.19.0"
+#define LIBPHORWARD_VERSION "0.20.0 devel"
 
 
 
@@ -890,11 +890,6 @@ ppgram* pp_gram_create( void );
 pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
 void pp_gram_dump( FILE* stream, ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
-
-
-#if 0
-pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
-#endif
 
 
 plist* pp_lr_closure( ppgram* gram, pboolean optimize );

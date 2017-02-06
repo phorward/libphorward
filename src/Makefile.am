@@ -31,7 +31,6 @@ libphorward_la_SOURCES = \
 	parse/ast.c \
 	parse/bnf.c \
 	parse/gram.c \
-	parse/ll.c \
 	parse/lr.c \
 	parse/parse.c \
 	parse/prod.c \

@@ -46,20 +46,20 @@ modifier		: @kle( symbol '*' )
 
 sequence		: sequence modifier | modifier ;
 
-production	 	: sequence | ;
+@production	 	: sequence | ;
 
-@alternative	: production ;
-
-alternation		: alternation '|' alternative | alternative ;
+alternation		: alternation '|' production | production ;
 
 @nontermdef		: flag_emit? ident ( flag_goal | flag_lexem )*
-					':' alternation ';'
+					':' alternation
 				;
 
 @termdef		: ( flag_emit? ident | flag_ignore )
-					( ccl | string | regex | function ) ';'
+					( ccl | string | regex | function )
 				;
 
-definition		: nontermdef | termdef ;
+definition		: nontermdef ';'
+				| termdef ';'
+				;
 
 grammar	$		: definition+ ;

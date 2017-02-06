@@ -275,7 +275,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 				}
 				else if( NODE_IS( child, "flag_lexem" ) )
 					sym->flags |= PPFLAG_LEXEM;
-				else if( NODE_IS( child, "alternative" ) )
+				else if( NODE_IS( child, "production" ) )
 				{
 					if( !traverse_production( g, sym, child->child ) )
 						return FALSE;

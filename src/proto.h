@@ -172,11 +172,6 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
 void pp_gram_dump( FILE* stream, ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
 
-/* parse/ll.c */
-#if 0
-pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end );
-#endif
-
 /* parse/lr.c */
 plist* pp_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end );
