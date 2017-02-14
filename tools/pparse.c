@@ -14,17 +14,16 @@ Usage:	A pparse/ppast object demonstration suite.
 
 void help( char** argv )
 {
-	printf( "Usage: %s OPTIONS grammar\n\n"
+	printf( "Usage: %s OPTIONS grammar [input [input ...]]\n\n"
 
-	"   -e  --exec    INPUT       Execute string INPUT on grammar.\n"
-	"   -g  --grammar BNF         Define grammar from BNF.\n"
+	"   grammar                   Grammar to create a parser from.\n"
+	"   input                     Input to be processed by the parser.\n\n"
+
 	"   -G                        Dump constructed grammar\n"
 	"   -h  --help                Show this help, and exit.\n"
-/*	"   -m  --mode    MODE        Use construction mode MODE:\n"
-	"                             lr=bottom-up (default), ll=top-down\n" */
 	"   -r  --render  RENDERER    Use AST renderer RENDERER:\n"
-	"                             dump (default), short, json, tree2svg\n"
-	"   -s  --source  FILENAME    Execute input from FILENAME on grammar.\n"
+	"                             short (default), full, json, tree2svg\n"
+	"   -v  --verbose             Print processing information.\n"
 	"   -V  --version             Show version info and exit.\n"
 
 	"\n", *argv );
@@ -33,58 +32,48 @@ void help( char** argv )
 
 int main( int argc, char** argv )
 {
-	pboolean	lr		= TRUE;
+	pboolean	verbose	= FALSE;
+	pboolean	lm		= FALSE;
 	pboolean	dg		= FALSE;
 	int			r		= 0;
 	ppast*		a		= (ppast*)NULL;
 	ppgram*		g;
+	char*		gfile	= "grammar";
 	char*		gstr	= (char*)NULL;
+	char*		ifile;
+	char*		istr	= (char*)NULL;
 	char*		s		= (char*)NULL;
 	char*		e;
 	int			i;
 	int			rc;
 	int			next;
 	char		opt		[ 20 + 1 ];
+	char		line	[ 1024 + 1 ];
 	char*		param;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"e:g:Gm:r:s:V",
-						"exec: grammar: mode: renderer: source: version", i ) )
+						"Ghr:vV",
+						"renderer: help verbose version", i ) )
 							== 0; i++ )
 	{
-		if( !strcmp( opt, "exec" ) || *opt == 'e' )
-			s = param;
-		else if( !strcmp( opt, "grammar" ) || *opt == 'g' )
-			gstr = param;
-		else if( *opt == 'G' )
+		if( !strcmp(opt, "G" ) )
 			dg = TRUE;
-		else if( !strcmp( opt, "help" ) || *opt == 'h' )
+		else if( !strcmp( opt, "help" ) || !strcmp( opt, "h" ) )
 		{
 			help( argv );
 			return 0;
 		}
-		else if( !strcmp( opt, "mode" ) || *opt == 'm' )
+		else if( !strcmp( opt, "renderer" ) || !strcmp( opt, "r" ) )
 		{
-			if( pstrcasecmp( param, "ll" ) == 0 )
-				lr = FALSE;
-		}
-		else if( !strcmp( opt, "renderer" ) || *opt == 'r' )
-		{
-			if( pstrcasecmp( param, "short" ) == 0 )
+			if( pstrcasecmp( param, "full" ) == 0 )
 				r = 1;
 			else if( pstrcasecmp( param, "json" ) == 0 )
 				r = 2;
 			else if( pstrcasecmp( param, "tree2svg" ) == 0 )
 				r = 3;
 		}
-		else if( !strcmp( opt, "source" ) || *opt == 's' )
-		{
-			if( !pfiletostr( &s, param ) )
-			{
-				fprintf( stderr, "Unable to read source file '%s'\n", param );
-				return 1;
-			}
-		}
+		else if( !strcmp( opt, "verbose" ) || !strcmp( opt, "v" ) )
+			verbose = TRUE;
 		else if( !strcmp( opt, "version" ) || !strcmp( opt, "V" ) )
 		{
 			version( argv, "Parser construction command-line utility" );
@@ -94,11 +83,12 @@ int main( int argc, char** argv )
 
 	if( rc == 1 && param )
 	{
-		if( !pfiletostr( &gstr, param ) )
-		{
-			fprintf( stderr, "Unable to read grammar file '%s'\n", param );
-			return 1;
-		}
+		if( pfiletostr( &gstr, param ) )
+			gfile = param;
+		else
+			gstr = param;
+
+		next++;
 	}
 
 	if( !gstr )
@@ -107,35 +97,72 @@ int main( int argc, char** argv )
 		return 1;
 	}
 
+	if( verbose )
+		printf( "Parsing grammar from '%s'\n", gfile );
+
 	if( !( ( g = pp_gram_create() )
 				&& pp_gram_from_bnf( g, gstr )
 					&& pp_gram_prepare( g ) ) )
 	{
-		fprintf( stderr, "Parse error in >%s<\n", gstr );
+		fprintf( stderr, "%s: Parse error in >%s<\n", gfile, gstr );
 		return 1;
 	}
 
 	if( dg )
 		pp_gram_dump( stdout, g );
 
-	if( s )
-	{
-		e = s;
+	lm = argc == next;
+	i = 0;
 
-		if( pp_lr_parse( &a, g, s, &e ) )
+	while( TRUE )
+	{
+		ifile = (char*)NULL;
+
+		if( lm )
 		{
-			if( !a )
-				printf( "%s SUCCEED >%.*s<\n", lr ? "LR" : "LL", e - s, s );
+			fgets( line, sizeof( line ) - 1, stdin );
+			s = pstrtrim( line );
+
+			if( !*s )
+				break;
+
+		}
+		else
+		{
+			if( next == argc )
+				break;
+
+			if( pfiletostr( &istr, argv[ next ] ) )
+			{
+				ifile = argv[ next ];
+				s = istr;
+			}
 			else
+				s = argv[ next ];
+
+			next++;
+		}
+
+		if( !ifile )
+		{
+			sprintf( opt, "input.%d", i );
+			ifile = opt;
+		}
+
+		if( s )
+		{
+			e = s;
+
+			if( pp_lr_parse( &a, g, s, &e ) )
 			{
 				switch( r )
 				{
 					case 0:
-						pp_ast_dump( stdout, a );
+						pp_ast_dump_short( stdout, a );
 						break;
 
 					case 1:
-						pp_ast_dump_short( stdout, a );
+						pp_ast_dump( stdout, a );
 						break;
 
 					case 2:
@@ -153,11 +180,14 @@ int main( int argc, char** argv )
 						break;
 				}
 			}
-		}
-		else
-			printf( "%s FAILED\n", lr ? "LR" : "LL" );
+			else
+				fprintf( stderr, "%s: Parse error in >%s<\n", ifile, s );
 
-		pp_ast_free( a );
+			a = pp_ast_free( a );
+		}
+
+		istr = pfree( istr );
+		i++;
 	}
 
 	return 0;

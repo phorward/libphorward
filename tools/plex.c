@@ -18,7 +18,6 @@ void help( char** argv )
 	"                             (' >' is default)\n"
 	"   -e  --end       STRING    Use STRING as result end separator\n"
 	"                             ('<\\n' is default)\n"
-	"   -D                        Dump constructed DFA\n"
 	"   -f  --file      FILENAME  Read input from FILENAME\n"
 	"   -h  --help                Show this help, and exit.\n"
 	"   -i  --input     INPUT     Use string INPUT as input.\n"
@@ -35,7 +34,6 @@ int main( int argc, char** argv )
 	char*		end_sep		= "<\n";
 	char*		start		= (char*)NULL;
 	char*		end;
-	pboolean	dump		= FALSE;
 	plex*		lex;
 	int			id;
 
@@ -105,12 +103,14 @@ int main( int argc, char** argv )
 		return 1;
 	}
 
+
 	/* Process */
 	while( start && *start )
 	{
-		if( ( start = plex_next( lex, start, &id, &end ) ) )
-			printf( "%d%s%.*s%s", id, begin_sep, end - start, start, end_sep );
+		if( !( start = plex_next( lex, start, &id, &end ) ) )
+			break;
 
+		printf( "%d%s%.*s%s", id, begin_sep, end - start, start, end_sep );
 		start = end;
 	}
 

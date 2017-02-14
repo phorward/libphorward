@@ -156,7 +156,7 @@ void pp_ast_dump_short( FILE* stream, ppast* ast )
 
 		if( ast->sym->type != PPSYMTYPE_NONTERM
 			|| ast->sym->flags & PPFLAG_LEXEM )
-			fprintf( stream, " >%.*s<\n", ast->length, ast->start );
+			fprintf( stream, " (%.*s)\n", ast->length, ast->start );
 		else
 			fprintf( stream, "\n" );
 
