@@ -1,37 +1,38 @@
+**phorward**: *Free toolkit for parser development, lexical analysis, regular expressions and more.*
 
-DESCRIPTION
-===========
-
-phorward is a free toolkit for parser development, lexical analysis, regular expressions and more.
+ABOUT
+=====
 
 The toolkit is primarily a library, written in C, that provides an interface for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy-to-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
 
     #include <phorward.h>
-    
+
     int main()
     {
         pparse* parser;
         ppast*  ast;
         char*   input = "1+2*(3+4)+5";
         char*   end;
-    
+
         parser = pp_create( 0,  "@int /[0-9]+/ ;"
                                 "fact : int | '(' expr ')' ;"
                                 "term : @mul( term '*' fact ) | fact ;"
                                 "expr : @add( expr '+' term ) | term ;" );
-    
+
         if( !pp_parse_to_ast( &ast, parser, input, &end ) )
             return 1; /* parse error */
-    
+
         pp_ast_dump_short( stdout, ast );
         return 0;
     }
 
-It can easily be compiled with: cc -o example example.c -lphorward
+It can easily be compiled with:
+
+	$ cc -o example example.c -lphorward
 
 Furthermore, the toolkit comes with a command-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
 
-    $ pparse -e "1+2*(3+4)+5" -g "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;"
+    $ pparse "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;" "1+2*(3+4)+5"
 
 phorward also provides useful general-purpose extensions for C programming. This includes dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and platform-independent, system-specific helper functions.
 
@@ -125,9 +126,13 @@ AUTHOR
 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
-This work is the result of several years experiencing in parser development systems, and has been preceded by the open source parser generators UniCC (http://unicc.phorward-software.com/) and JS/CC (http://jscc.brobston.com). It shall be the final step for an ultimate, powerful compiler toolchain, mainly focusing on compiler-frontends. A sister project is the pynetree parsing library (http://pynetree.org) which is written in and for the Python programming language. It shares the same BNF-syntax for expressing grammars.
+This work is the result of several years experiencing in parser development systems. Help of any kind to extend and improve this software is always appreciated.
 
-Help of any kind to extend and improve this software is always appreciated.
+Some other projects by the author are
+
+- *pynetree* (http://www.pynetree.org): A light-weight parsing toolkit written in pure Python.
+- *UniCC* (http://unicc.phorward-software.com): Universal, target-language independent LALR(1) parser generator.
+- *JS/CC* (http://jscc.brobston.com): The JavaScript parser generator.
 
 
 LICENSE
@@ -144,4 +149,3 @@ Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer.
 You may use, modify and distribute this software under the terms and conditions of the 3-clause BSD license. The full license terms can be obtained from the file LICENSE.
 
 THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-

@@ -1,10 +1,10 @@
-.TH "Phorward Toolkit" 1 "February 2017" "libphorward 0.19.0"
+.TH "Phorward Toolkit" 1 "May 2017" "libphorward 0.20.0"
 
-
-.SH DESCRIPTION
 
 .P
-\fIphorward\fR is a free toolkit for parser development, lexical analysis, regular expressions and more.
+\fBphorward\fR: \fIFree toolkit for parser development, lexical analysis, regular expressions and more.\fR
+
+.SH ABOUT
 
 .P
 The toolkit is primarily a library, written in C, that provides an interface for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy\-to\-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
@@ -40,7 +40,7 @@ It can easily be compiled with: cc \-o example example.c \-lphorward
 Furthermore, the toolkit comes with a command\-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
 
 .nf
-$ pparse -e "1+2*(3+4)+5" -g "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;"
+$ pparse "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;" "1+2*(3+4)+5"
 .fi
 
 
@@ -200,10 +200,19 @@ Note, that changes to the build system then must be done in the local Makefile, 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
 .P
-This work is the result of several years experiencing in parser development systems, and has been preceded by the open source parser generators UniCC (http://unicc.phorward\-software.com/) and JS/CC (http://jscc.brobston.com). It shall be the final step for an ultimate, powerful compiler toolchain, mainly focusing on compiler\-frontends. A sister project is the pynetree parsing library (http://pynetree.org) which is written in and for the Python programming language. It shares the same BNF\-syntax for expressing grammars.
+This work is the result of several years experiencing in parser development systems. Help of any kind to extend and improve this software is always appreciated.
 
 .P
-Help of any kind to extend and improve this software is always appreciated.
+Some other projects by the author are
+
+.RS
+.IP \(bu 3
+\fBpynetree\fR (http://www.pynetree.org): A light\-weight parsing toolkit written in pure Python.
+.IP \(bu 3
+\fBUniCC\fR (http://unicc.phorward\-software.com): Universal, target\-language independent LALR(1) parser generator.
+.IP \(bu 3
+\fBJS/CC\fR (http://jscc.brobston.com): The JavaScript parser generator.
+.RE
 
 .SH LICENSE
 
