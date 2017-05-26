@@ -131,8 +131,8 @@ Phorward Software Technologies.
 
 Some other projects by the author are:
 
--   *pynetree* (http://[www.pynetree.org](www.pynetree.org)): A
-    light-weight parsing toolkit written in pure Python.
+-   *pynetree* (http://pynetree.org): A light-weight parsing toolkit
+    written in pure Python.
 -   *UniCC* (http://unicc.phorward-software.com): Universal,
     target-language independent LALR(1) parser generator.
 -   *JS/CC* (http://jscc.brobston.com): The JavaScript parser generator.

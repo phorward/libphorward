@@ -36,8 +36,10 @@ LT_INIT
 AC_PROG_LIBTOOL
 
 # Check if txt2tags is installed here
-AC_CHECK_PROG([TXT2TAGS], [txt2tags], "yes", "no")
-AM_CONDITIONAL([WITH_TXT2TAGS],[test "$TXT2TAGS" = "yes"])
+#AC_CHECK_PROG([TXT2TAGS], [txt2tags], "yes", "no")
+#AM_CONDITIONAL([WITH_TXT2TAGS],[test "$TXT2TAGS" = "yes"])
+AC_CHECK_PROG([PANDOC], [pandoc], "yes", "no")
+AM_CONDITIONAL([WITH_PANDOC],[test "$PANDOC" = "yes"])
 
 # Checks for libraries.
 AC_CHECK_LIB([rt], [sprintf])

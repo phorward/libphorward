@@ -190,8 +190,8 @@ Phorward Software Technologies.
 .PP
 Some other projects by the author are:
 .IP \[bu] 2
-\f[I]pynetree\f[] (http://<www.pynetree.org>): A light\-weight parsing
-toolkit written in pure Python.
+\f[I]pynetree\f[] (http://pynetree.org): A light\-weight parsing toolkit
+written in pure Python.
 .IP \[bu] 2
 \f[I]UniCC\f[] (http://unicc.phorward\-software.com): Universal,
 target\-language independent LALR(1) parser generator.

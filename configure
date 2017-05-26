@@ -634,9 +634,9 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-WITH_TXT2TAGS_FALSE
-WITH_TXT2TAGS_TRUE
-TXT2TAGS
+WITH_PANDOC_FALSE
+WITH_PANDOC_TRUE
+PANDOC
 LT_SYS_LIBRARY_PATH
 OTOOL64
 OTOOL
@@ -12254,15 +12254,17 @@ CC=$lt_save_CC
 
 
 # Check if txt2tags is installed here
-# Extract the first word of "txt2tags", so it can be a program name with args.
-set dummy txt2tags; ac_word=$2
+#AC_CHECK_PROG([TXT2TAGS], [txt2tags], "yes", "no")
+#AM_CONDITIONAL([WITH_TXT2TAGS],[test "$TXT2TAGS" = "yes"])
+# Extract the first word of "pandoc", so it can be a program name with args.
+set dummy pandoc; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_TXT2TAGS+:} false; then :
+if ${ac_cv_prog_PANDOC+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  if test -n "$TXT2TAGS"; then
-  ac_cv_prog_TXT2TAGS="$TXT2TAGS" # Let the user override the test.
+  if test -n "$PANDOC"; then
+  ac_cv_prog_PANDOC="$PANDOC" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
@@ -12271,7 +12273,7 @@ do
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_TXT2TAGS=""yes""
+    ac_cv_prog_PANDOC=""yes""
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -12279,25 +12281,25 @@ done
   done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_prog_TXT2TAGS" && ac_cv_prog_TXT2TAGS=""no""
+  test -z "$ac_cv_prog_PANDOC" && ac_cv_prog_PANDOC=""no""
 fi
 fi
-TXT2TAGS=$ac_cv_prog_TXT2TAGS
-if test -n "$TXT2TAGS"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $TXT2TAGS" >&5
-$as_echo "$TXT2TAGS" >&6; }
+PANDOC=$ac_cv_prog_PANDOC
+if test -n "$PANDOC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PANDOC" >&5
+$as_echo "$PANDOC" >&6; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
 
 
- if test "$TXT2TAGS" = "yes"; then
-  WITH_TXT2TAGS_TRUE=
-  WITH_TXT2TAGS_FALSE='#'
+ if test "$PANDOC" = "yes"; then
+  WITH_PANDOC_TRUE=
+  WITH_PANDOC_FALSE='#'
 else
-  WITH_TXT2TAGS_TRUE='#'
-  WITH_TXT2TAGS_FALSE=
+  WITH_PANDOC_TRUE='#'
+  WITH_PANDOC_FALSE=
 fi
 
 
@@ -12932,8 +12934,8 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${WITH_TXT2TAGS_TRUE}" && test -z "${WITH_TXT2TAGS_FALSE}"; then
-  as_fn_error $? "conditional \"WITH_TXT2TAGS\" was never defined.
+if test -z "${WITH_PANDOC_TRUE}" && test -z "${WITH_PANDOC_FALSE}"; then
+  as_fn_error $? "conditional \"WITH_PANDOC\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

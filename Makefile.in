@@ -298,13 +298,13 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
+PANDOC = @PANDOC@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-TXT2TAGS = @TXT2TAGS@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -360,7 +360,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src tools
-man1_MANS = phorward.man
+man1_MANS = phorward.1.man
 phorwarddir = $(datadir)/phorward
 dist_phorward_DATA = LICENSE README.md CHANGELOG doc/phorward.html doc/phorward.css doc/phorward.png
 all: all-recursive
@@ -900,15 +900,15 @@ uninstall-man: uninstall-man1
 
 # --- Phorward Documentation --------------------------------------------------
 #
-# Now documentation generation follows, using txt2tags.
+# Now documentation generation follows, using pandoc.
 #
 
-@WITH_TXT2TAGS_TRUE@README.md: doc/readme.t2t
-@WITH_TXT2TAGS_TRUE@	-rm -f $@
-@WITH_TXT2TAGS_TRUE@	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@
+@WITH_PANDOC_TRUE@README.md: doc/readme.t2t
+@WITH_PANDOC_TRUE@	-rm -f $@
+@WITH_PANDOC_TRUE@	pandoc -o $@ $?
 
-@WITH_TXT2TAGS_TRUE@phorward.man: doc/readme.t2t
-@WITH_TXT2TAGS_TRUE@	txt2tags -o $@ -t man $?
+@WITH_PANDOC_TRUE@phorward.1.man: doc/readme.t2t
+@WITH_PANDOC_TRUE@	pandoc -o $@ -t man $?
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

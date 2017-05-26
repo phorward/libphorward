@@ -275,13 +275,13 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
+PANDOC = @PANDOC@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-TXT2TAGS = @TXT2TAGS@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -925,10 +925,13 @@ any/any.print.c: any/any.h any/any.gen.awk
 	$(AWK) -f any/any.gen.awk -vwith_fprint=1 any/any.h >$@
 
 # Phorward Foundation Library Documentation
-$(DOCFILE): $(libphorward_la_SOURCES)
-	$(PATHEXT) ../run/pdoc \
-	--tpldir ../doc/tpl --no-sections --full-index \
-		$(libphorward_la_SOURCES) >$@
+../doc/ref.t2t: $(libphorward_la_SOURCES)
+	echo "" >$@
+	echo "" >>$@
+	echo "" >>$@
+	pdoc -d 2 $(libphorward_la_SOURCES) >>$@
+
+ref: ../doc/ref.t2t
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

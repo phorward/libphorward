@@ -110,7 +110,11 @@ any/any.print.c: any/any.h any/any.gen.awk
 	$(AWK) -f any/any.gen.awk -vwith_fprint=1 any/any.h >$@
 
 # Phorward Foundation Library Documentation
-$(DOCFILE): $(libphorward_la_SOURCES)
-	$(PATHEXT) ../run/pdoc \
-	--tpldir ../doc/tpl --no-sections --full-index \
-		$(libphorward_la_SOURCES) >$@
+../doc/ref.t2t: $(libphorward_la_SOURCES)
+	echo "" >$@
+	echo "" >>$@
+	echo "" >>$@
+	pdoc -d 2 $(libphorward_la_SOURCES) >>$@
+
+ref: ../doc/ref.t2t
+

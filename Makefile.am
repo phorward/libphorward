@@ -12,22 +12,22 @@ AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = src tools
 
-man1_MANS = phorward.man
+man1_MANS = phorward.1.man
 phorwarddir = $(datadir)/phorward
 dist_phorward_DATA = LICENSE README.md CHANGELOG doc/phorward.html doc/phorward.css doc/phorward.png
 
-if WITH_TXT2TAGS
+if WITH_PANDOC
 # --- Phorward Documentation --------------------------------------------------
 #
-# Now documentation generation follows, using txt2tags.
+# Now documentation generation follows, using pandoc.
 #
 
 README.md: doc/readme.t2t
 	-rm -f $@
-	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@
+	pandoc -o $@ $?
 
-phorward.man: doc/readme.t2t
-	txt2tags -o $@ -t man $?
+phorward.1.man: doc/readme.t2t
+	pandoc -o $@ -t man $?
 
 endif
 

@@ -1,4 +1,4 @@
-all: README.md phorward.man
+all: README.md phorward.1.man
 	cd src; make -f Makefile.gnu
 	cd tools; make -f Makefile.gnu
 	cd DEMO; make -f Makefile.gnu
@@ -30,6 +30,6 @@ README.md: doc/readme.t2t
 	-rm -f $@
 	pandoc -o $@ $?
 
-phorward.man: doc/readme.t2t
+phorward.1.man: doc/readme.t2t
 	pandoc -o $@ -t man $?
 

@@ -3156,27 +3156,6 @@ The preparation process includes:
 This function is only run internally.
 Don't call it if you're unsure ;)...
 %FUNCTION:END
-%NEED:18
-%FUNCTION:BEGIN
-=== pp_ll_parse ===[fn_pp_ll_parse]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pboolean pp_ll_parse( parray** ast, ppgram* grm, char* start, char** end )
-%DEFINITION:END
-
-**Usage:**
-
-Parses the string //str// using the grammar //grm// using a LL(1) parser.
-Parsing stops at least when reading the zero terminator of //str//.
-
-//ast// receives an allocated parray-object with items of //ppmatch//
-that describe the prooduced abstract syntax tree.
-
-//end// receives the position of the last character matched.
-The function returns TRUE if no parse error orccured.
-%FUNCTION:END
 %NEED:19
 %FUNCTION:BEGIN
 === pp_lr_parse ===[fn_pp_lr_parse]
@@ -4224,92 +4203,6 @@ Implementation and replacement for vasprintf.
 //...// are the parameters according to the placeholders set in //fmt//.
 
 Returns the number of characters written, or -1 in error case.
-%FUNCTION:END
-%NEED:11
-%FUNCTION:BEGIN
-=== pvm_create ===[fn_pvm_create]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pvm* pvm_create( void )
-%DEFINITION:END
-
-**Usage:**
-
-Creates a new virtual machine.
-%FUNCTION:END
-%NEED:13
-%FUNCTION:BEGIN
-=== pvm_define ===[fn_pvm_define]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-int pvm_define( pvm* vm, char* mn, pvmop op )
-%DEFINITION:END
-
-**Usage:**
-
-Implements mnemonic //mn// with operational function //op// into //vm//.
-
-Returns the operation's opcode, or a value < 0 on error.
-%FUNCTION:END
-%NEED:11
-%FUNCTION:BEGIN
-=== pvm_free ===[fn_pvm_free]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pvm* pvm_free( pvm* vm )
-%DEFINITION:END
-
-**Usage:**
-
-Frees a virtual machine.
-%FUNCTION:END
-%NEED:11
-%FUNCTION:BEGIN
-=== pvm_init ===[fn_pvm_init]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pvm* pvm_init( pvm* vm )
-%DEFINITION:END
-
-**Usage:**
-
-Initializes the virtual machine //vm//.
-%FUNCTION:END
-%NEED:11
-%FUNCTION:BEGIN
-=== pvm_prog_run ===[fn_pvm_prog_run]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-void pvm_prog_run( pvmprog* prog )
-%DEFINITION:END
-
-**Usage:**
-
-Run vm
-%FUNCTION:END
-%NEED:11
-%FUNCTION:BEGIN
-=== pvm_reset ===[fn_pvm_reset]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pvm* pvm_reset( pvm* vm )
-%DEFINITION:END
-
-**Usage:**
-
-Resets a virtual machine //vm//.
 %FUNCTION:END
 %NEED:22
 %FUNCTION:BEGIN
