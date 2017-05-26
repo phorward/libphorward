@@ -1,234 +1,226 @@
-.TH "Phorward Toolkit" 1 "May 2017" "libphorward 0.20.0"
-
-
-.P
-\fBphorward\fR: \fIFree toolkit for parser development, lexical analysis, regular expressions and more.\fR
-
-.SH ABOUT
-
-.P
-The toolkit is primarily a library, written in C, that provides an interface for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy\-to\-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
-
+.PP
+\f[I]phorward\f[] is a free toolkit for parser development, lexical
+analysis, regular expressions and more.
+.SH DESCRIPTION
+.PP
+The toolkit is primarily a library, written in C, that provides an
+interface for defining, running and processing parsers, lexical anlyzers
+and regular expressions through a consistent and easy\-to\-use
+interface.
+The following example program defines a simple expressional language,
+runs a parser on it and prints the generated abstract syntax tree.
+.PP
+It can easily be compiled with:
+\f[C]cc\ \-o\ example\ example.c\ \-lphorward\f[]
+.PP
+Furthermore, the toolkit comes with a command\-line tool serving testing
+and prototyping facilities.
+The following command call yields in an equivalent parser and its
+abstract syntax tree, althought some symbol names are shortened.
+.IP
 .nf
-#include <phorward.h>
-
-int main()
-{
-    pparse* parser;
-    ppast*  ast;
-    char*   input = "1+2*(3+4)+5";
-    char*   end;
-
-    parser = pp_create( 0,  "@int /[0-9]+/ ;"
-                            "fact : int | '(' expr ')' ;"
-                            "term : @mul( term '*' fact ) | fact ;"
-                            "expr : @add( expr '+' term ) | term ;" );
-
-    if( !pp_parse_to_ast( &ast, parser, input, &end ) )
-        return 1; /* parse error */
-
-    pp_ast_dump_short( stdout, ast );
-    return 0;
-}
+\f[C]
+$\ pparse\ "\@int\ /[0\-9]+/;\ f:\ int\ |\ \[aq](\[aq]\ e\ \[aq])\[aq];\ t:\ \@mul(\ t\ \[aq]*\[aq]\ f\ )\ |\ f;\ e:\ \@add(\ e\ \[aq]+\[aq]\ t\ )\ |\ t;"\ "1+2*(3+4)+5"
+\f[]
 .fi
-
-
-.P
-It can easily be compiled with: cc \-o example example.c \-lphorward
-
-.P
-Furthermore, the toolkit comes with a command\-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
-
-.nf
-$ pparse "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;" "1+2*(3+4)+5"
-.fi
-
-
-.P
-phorward also provides useful general\-purpose extensions for C programming. This includes dynamic data structures (e.g. linked lists, hash\-tables, stacks and arrays), extended string management functions and platform\-independent, system\-specific helper functions.
-
+.PP
+phorward also provides useful general\-purpose extensions for C
+programming.
+This includes dynamic data structures (e.g.
+linked lists, hash\-tables, stacks and arrays), extended string
+management functions and platform\-independent, system\-specific helper
+functions.
 .SH FEATURES
-
-.P
-\fIphorward\fR provides the following features:
-
-.RS
-.IP \(bu 3
+.PP
+\f[I]phorward\f[] provides the following features:
+.IP \[bu] 2
 Parser development tools
-.RS
-.IP \(bu 3
+.RS 2
+.IP \[bu] 2
 Self\-hosted Backus\-Naur\-Form (BNF) grammar definition language
-.IP \(bu 3
-\fIpparse\fR provides a modular LR(1) and LALR(1) parser generator
-.IP \(bu 3
-\fIppast\fR is a representation of a browsable abstract syntax tree (AST)
+.IP \[bu] 2
+\f[I]pparse\f[] provides a modular LR(1) and LALR(1) parser generator
+.IP \[bu] 2
+\f[I]ppast\f[] is a representation of a browsable abstract syntax tree
+(AST)
 .RE
-.IP \(bu 3
+.IP \[bu] 2
 Lexer development tools
-.RS
-.IP \(bu 3
+.RS 2
+.IP \[bu] 2
 regular expressions and pattern definition interface
-.IP \(bu 3
-\fIplex\fR provides a lexical analyzer
-.IP \(bu 3
-\fIpregex\fR for definition and execution of regular expression
-.IP \(bu 3
-\fIpccl\fR for unicode\-enabled character classes
-.IP \(bu 3
+.IP \[bu] 2
+\f[I]plex\f[] provides a lexical analyzer
+.IP \[bu] 2
+\f[I]pregex\f[] for definition and execution of regular expression
+.IP \[bu] 2
+\f[I]pccl\f[] for unicode\-enabled character classes
+.IP \[bu] 2
 tools for regex and lexer deployment
-.IP \(bu 3
+.IP \[bu] 2
 string functions for regular expression match, split and replace
 .RE
-.IP \(bu 3
+.IP \[bu] 2
 Runtime evaluation tools
-.RS
-.IP \(bu 3
+.RS 2
+.IP \[bu] 2
 construction of dynamic intermediate languages and interpreters
-.IP \(bu 3
-\fIpany\fR is a data object for handling different data\-types in one object
-.IP \(bu 3
-\fIpvm\fR for defining stack\-based virtual machine instruction sets
+.IP \[bu] 2
+\f[I]pany\f[] is a data object for handling different data\-types in one
+object
+.IP \[bu] 2
+\f[I]pvm\f[] for defining stack\-based virtual machine instruction sets
 .RE
-.IP \(bu 3
+.IP \[bu] 2
 Dynamic data structures
-.RS
-.IP \(bu 3
-\fIplist\fR for linked\-lists with build\-in hash table support,
-.IP \(bu 3
-\fIparray\fR for arrays and stacks.
+.RS 2
+.IP \[bu] 2
+\f[I]plist\f[] for linked\-lists with build\-in hash table support,
+.IP \[bu] 2
+\f[I]parray\f[] for arrays and stacks.
 .RE
-.IP \(bu 3
+.IP \[bu] 2
 Extended string management functions
-.RS
-.IP \(bu 3
-concat, extend, tokenize and short\-hand allocation of strings and wide\-character strings
-.IP \(bu 3
+.RS 2
+.IP \[bu] 2
+concat, extend, tokenize and short\-hand allocation of strings and
+wide\-character strings
+.IP \[bu] 2
 consistent byte\- and wide\-character (unicode) function support
-.IP \(bu 3
+.IP \[bu] 2
 unicode support for UTF\-8 in byte\-character functions
 .RE
-.IP \(bu 3
-Universal system\-specific functions for platform\-independent C software development
-.RS
-.IP \(bu 3
+.IP \[bu] 2
+Universal system\-specific functions for platform\-independent C
+software development
+.RS 2
+.IP \[bu] 2
 Unix\-style command\-line parser
-.IP \(bu 3
+.IP \[bu] 2
 Mapping files to strings
 .RE
-.IP \(bu 3
+.IP \[bu] 2
 Debug und trace facilities
-.IP \(bu 3
-Consequent object\-oriented build\-up of all function interfaces (e.g. plist, parray, pregex, pparse, ...)
-.IP \(bu 3
+.IP \[bu] 2
+Consequent object\-oriented build\-up of all function interfaces (e.g.
+plist, parray, pregex, pparse, ...)
+.IP \[bu] 2
 Growing code\-base of more and more powerful functions
-.RE
-
-.P
-Please check out http://phorward.phorward\-software.com/ continuously to get latest news, documentation, updates and support on the Phorward Toolkit.
-
+.PP
+Please check out <http://phorward.phorward-software.com/> continuously
+to get latest news, documentation, updates and support on the Phorward
+Toolkit.
 .SH GETTING STARTED
-
-.P
-\fIphorward\fR is under heavy development since a few years. It is kept simple, clear and straightforward.
-Documentation can be found in the file http://www.phorward\-software.com/products/phorward/doc/phorward.html, but also locally after installation.
-
-.P
-The documentation is currently in an under\-development state and incomplete. It contains a generated functions reference and handles all library parts shortly.
-
+.PP
+\f[I]phorward\f[] is under heavy development since a few years.
+It is kept simple, clear and straightforward.
+Documentation can be found in the file
+<http://www.phorward-software.com/products/phorward/doc/phorward.html,>
+but also locally after installation.
+.PP
+The documentation is currently in an under\-development state and
+incomplete.
+It contains a generated functions reference and handles all library
+parts shortly.
 .SH BUILDING
-
-.P
-Building the Phorward Toolkit is simple as every GNU\-style open source program. Extract the downloaded release tarball or clone the hg repository into a directory of your choice.
-
-.P
+.PP
+Building the Phorward Toolkit is simple as every GNU\-style open source
+program.
+Extract the downloaded release tarball or clone the hg repository into a
+directory of your choice.
+.PP
 Then, run
-
+.IP
 .nf
-$ ./configure
+\f[C]
+$\ ./configure
+\f[]
 .fi
-
-
-.P
-to configure the build\-system and generate the Makefiles for your current platform. After successful configuration, run
-
+.PP
+to configure the build\-system and generate the Makefiles for your
+current platform.
+After successful configuration, run
+.IP
 .nf
-$ make
+\f[C]
+$\ make
+\f[]
 .fi
-
-
-.P
+.PP
 and
-
+.IP
 .nf
-$ make install
+\f[C]
+$\ make\ install
+\f[]
 .fi
-
-
-.P
+.PP
 (properly as root), to install the toolkit into your system.
-
-.SH LOCAL DEVELOPMENT BUILD-SYSTEM
-
-.P
-Alternatively there is also a simpler method for setting up a local build system for development and testing purposes locally in the file\-system.
-
-.P
+.SH LOCAL DEVELOPMENT BUILD\-SYSTEM
+.PP
+Alternatively there is also a simpler method for setting up a local
+build system for development and testing purposes locally in the
+file\-system.
+.PP
 Once, type
-
+.IP
 .nf
-$ make -f Makefile.gnu make_install
+\f[C]
+$\ make\ \-f\ Makefile.gnu\ make_install
+\f[]
 .fi
-
-
-.P
+.PP
 then, a simple run of
-
+.IP
 .nf
-$ make
+\f[C]
+$\ make
+\f[]
 .fi
-
-
-.P
+.PP
 can be used to simply build the entire library or parts of it.
-
-.P
-Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools\-based build system.
-
+.PP
+Note, that changes to the build system then must be done in the local
+Makefile, the local Makefile.gnu as well as the Makefile.am for the
+autotools\-based build system.
 .SH AUTHOR
-
-.P
-The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
-
-.P
-This work is the result of several years experiencing in parser development systems. Help of any kind to extend and improve this software is always appreciated.
-
-.P
-Some other projects by the author are
-
-.RS
-.IP \(bu 3
-\fBpynetree\fR (http://www.pynetree.org): A light\-weight parsing toolkit written in pure Python.
-.IP \(bu 3
-\fBUniCC\fR (http://unicc.phorward\-software.com): Universal, target\-language independent LALR(1) parser generator.
-.IP \(bu 3
-\fBJS/CC\fR (http://jscc.brobston.com): The JavaScript parser generator.
-.RE
-
+.PP
+The Phorward Toolkit is developed and maintained by Jan Max Meyer,
+Phorward Software Technologies.
+.PP
+Some other projects by the author are:
+.IP \[bu] 2
+\f[I]pynetree\f[] (http://<www.pynetree.org>): A light\-weight parsing
+toolkit written in pure Python.
+.IP \[bu] 2
+\f[I]UniCC\f[] (http://unicc.phorward\-software.com): Universal,
+target\-language independent LALR(1) parser generator.
+.IP \[bu] 2
+\f[I]JS/CC\f[] (http://jscc.brobston.com): The JavaScript parser
+generator.
 .SH LICENSE
-
-.P
-This software is an open source project released under the terms and conditions of the 3\-clause BSD license. See the LICENSE file for more information.
-
+.PP
+This software is an open source project released under the terms and
+conditions of the 3\-clause BSD license.
+See the LICENSE file for more information.
 .SH COPYRIGHT
-
-.P
-Copyright (C) 2006\-2017 by Phorward Software Technologies, Jan Max Meyer.
-
-.P
-You may use, modify and distribute this software under the terms and conditions of the 3\-clause BSD license. The full license terms can be obtained from the file LICENSE.
-
-.P
-THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-.\" man code generated by txt2tags 2.6 (http://txt2tags.org)
-.\" cmdline: txt2tags -o phorward.man -t man doc/readme.t2t
+.PP
+Copyright (C) 2006\-2017 by Phorward Software Technologies, Jan Max
+Meyer.
+.PP
+You may use, modify and distribute this software under the terms and
+conditions of the 3\-clause BSD license.
+The full license terms can be obtained from the file LICENSE.
+.PP
+THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE
+TECHNOLOGIES) AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
