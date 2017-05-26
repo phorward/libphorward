@@ -17,17 +17,15 @@ phorwarddir = $(datadir)/phorward
 dist_phorward_DATA = LICENSE README.md CHANGELOG doc/phorward.html doc/phorward.css doc/phorward.png
 
 if WITH_PANDOC
-# --- Phorward Documentation --------------------------------------------------
-#
-# Now documentation generation follows, using pandoc.
-#
-
 README.md: doc/readme.t2t
 	-rm -f $@
-	pandoc -o $@ $?
+	pandoc -t markdown -o - $?  | tail -n+3 >$@
 
+endif
+
+if WITH_TXT2TAGS
 phorward.1.man: doc/readme.t2t
-	pandoc -o $@ -t man $?
+	txt2tags -o $@ -t man $?
 
 endif
 

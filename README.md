@@ -10,7 +10,9 @@ and regular expressions through a consistent and easy-to-use interface.
 The following example program defines a simple expressional language,
 runs a parser on it and prints the generated abstract syntax tree.
 
-It can easily be compiled with: `cc -o example example.c -lphorward`
+It can easily be compiled with:
+
+    $ cc -o example example.c -lphorward
 
 Furthermore, the toolkit comes with a command-line tool serving testing
 and prototyping facilities. The following command call yields in an

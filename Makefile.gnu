@@ -28,8 +28,8 @@ make_uninstall:
 
 README.md: doc/readme.t2t
 	-rm -f $@
-	pandoc -o $@ $?
+	pandoc -t markdown -o - $?  | tail -n+3 >$@
 
 phorward.1.man: doc/readme.t2t
-	pandoc -o $@ -t man $?
+	txt2tags -o $@ -t man $?
 

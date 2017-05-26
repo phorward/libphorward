@@ -1,5 +1,6 @@
-
-
+Phorward Toolkit
+libphorward
+Version 0.20.0
 
 //phorward// is a free toolkit for parser development, lexical analysis, regular expressions and more.
 
@@ -9,7 +10,9 @@ The toolkit is primarily a library, written in C, that provides an interface for
 
 %!include: ``example.c``
 
-It can easily be compiled with: ``cc -o example example.c -lphorward``
+It can easily be compiled with:
+
+``` $ cc -o example example.c -lphorward
 
 Furthermore, the toolkit comes with a command-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
 

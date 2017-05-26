@@ -305,6 +305,7 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+TXT2TAGS = @TXT2TAGS@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -898,17 +899,12 @@ uninstall-man: uninstall-man1
 .PRECIOUS: Makefile
 
 
-# --- Phorward Documentation --------------------------------------------------
-#
-# Now documentation generation follows, using pandoc.
-#
-
 @WITH_PANDOC_TRUE@README.md: doc/readme.t2t
 @WITH_PANDOC_TRUE@	-rm -f $@
-@WITH_PANDOC_TRUE@	pandoc -o $@ $?
+@WITH_PANDOC_TRUE@	pandoc -t markdown -o - $?  | tail -n+3 >$@
 
-@WITH_PANDOC_TRUE@phorward.1.man: doc/readme.t2t
-@WITH_PANDOC_TRUE@	pandoc -o $@ -t man $?
+@WITH_TXT2TAGS_TRUE@phorward.1.man: doc/readme.t2t
+@WITH_TXT2TAGS_TRUE@	txt2tags -o $@ -t man $?
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
