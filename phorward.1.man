@@ -1,4 +1,4 @@
-.TH "Phorward Toolkit" 1 "Version 0.20.0" "libphorward"
+.TH "libphorward" 1 "May 2017" "Version 0.20.0"
 
 
 .P
