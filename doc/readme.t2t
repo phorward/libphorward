@@ -3,6 +3,8 @@ Version 0.20.0
 May 2017
 %!postproc(md): '```(.?)' '```\1'
 %!postproc(md): '^    ([^-$])' '\1'
+%!postproc(md): '^ \* ' '- '
+%!postproc(md): '^  \* ' '  - '
 %!postproc(man): '```.?' ''
 
 **phorward** is a free toolkit for parser development, lexical analysis, regular expressions and more.

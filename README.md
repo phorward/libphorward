@@ -42,34 +42,34 @@ phorward also provides useful general-purpose extensions for C programming. This
 
 *phorward* provides the following features:
 
- * Parser development tools
-  * Self-hosted Backus-Naur-Form (BNF) grammar definition language
-  * *pparse* provides a modular LR(1) and LALR(1) parser generator
-  * *ppast* is a representation of a browsable abstract syntax tree (AST)
- * Lexer development tools
-  * regular expressions and pattern definition interface
-  * *plex* provides a lexical analyzer
-  * *pregex* for definition and execution of regular expression
-  * *pccl* for unicode-enabled character classes
-  * tools for regex and lexer deployment
-  * string functions for regular expression match, split and replace
- * Runtime evaluation tools
-  * construction of dynamic intermediate languages and interpreters
-  * *pany* is a data object for handling different data-types in one object
-  * *pvm* for defining stack-based virtual machine instruction sets
- * Dynamic data structures
-  * *plist* for linked-lists with build-in hash table support,
-  * *parray* for arrays and stacks.
- * Extended string management functions
-  * concat, extend, tokenize and short-hand allocation of strings and wide-character strings
-  * consistent byte- and wide-character (unicode) function support
-  * unicode support for UTF-8 in byte-character functions
- * Universal system-specific functions for platform-independent C software development
-  * Unix-style command-line parser
-  * Mapping files to strings
- * Debug und trace facilities
- * Consequent object-oriented build-up of all function interfaces (e.g. plist, parray, pregex, pparse, ...)
- * Growing code-base of more and more powerful functions
+- Parser development tools
+  - Self-hosted Backus-Naur-Form (BNF) grammar definition language
+  - *pparse* provides a modular LR(1) and LALR(1) parser generator
+  - *ppast* is a representation of a browsable abstract syntax tree (AST)
+- Lexer development tools
+  - regular expressions and pattern definition interface
+  - *plex* provides a lexical analyzer
+  - *pregex* for definition and execution of regular expression
+  - *pccl* for unicode-enabled character classes
+  - tools for regex and lexer deployment
+  - string functions for regular expression match, split and replace
+- Runtime evaluation tools
+  - construction of dynamic intermediate languages and interpreters
+  - *pany* is a data object for handling different data-types in one object
+  - *pvm* for defining stack-based virtual machine instruction sets
+- Dynamic data structures
+  - *plist* for linked-lists with build-in hash table support,
+  - *parray* for arrays and stacks.
+- Extended string management functions
+  - concat, extend, tokenize and short-hand allocation of strings and wide-character strings
+  - consistent byte- and wide-character (unicode) function support
+  - unicode support for UTF-8 in byte-character functions
+- Universal system-specific functions for platform-independent C software development
+  - Unix-style command-line parser
+  - Mapping files to strings
+- Debug und trace facilities
+- Consequent object-oriented build-up of all function interfaces (e.g. plist, parray, pregex, pparse, ...)
+- Growing code-base of more and more powerful functions
 
 Please check out http://phorward.phorward-software.com/ continuously to get latest news, documentation, updates and support on the Phorward Toolkit.
 
@@ -120,9 +120,9 @@ The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Soft
 
 Some other projects by the author are:
 
- * *pynetree* (http://pynetree.org): A light-weight parsing toolkit written in pure Python.
- * *UniCC* (http://unicc.phorward-software.com): Universal, target-language independent LALR(1) parser generator.
- * *JS/CC* (http://jscc.brobston.com): The JavaScript parser generator.
+- *pynetree* (http://pynetree.org): A light-weight parsing toolkit written in pure Python.
+- *UniCC* (http://unicc.phorward-software.com): Universal, target-language independent LALR(1) parser generator.
+- *JS/CC* (http://jscc.brobston.com): The JavaScript parser generator.
 
 # LICENSE 
 
