@@ -28,7 +28,7 @@ make_uninstall:
 
 README.md: doc/readme.t2t
 	-rm -f $@
-	pandoc -t markdown -o - $?  | tail -n+3 >$@
+	txt2tags -t md -H -o $@ $?
 
 phorward.1.man: doc/readme.t2t
 	txt2tags -o $@ -t man $?

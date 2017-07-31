@@ -3,6 +3,11 @@ LEGEND:
 [-] Bugfixes
 
 ----------------------------------------
+v0.20.0 (UNDER DEVELOPMENT)
+----------------------------------------
+[+] Changed behavior of command-line tools to be pynetree compliant.
+
+----------------------------------------
 v0.19.0 (February 2017)
 ----------------------------------------
 [+] Redesign of the grammar definition language
