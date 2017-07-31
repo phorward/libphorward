@@ -122,11 +122,11 @@ Some other projects by the author are:
  * *UniCC* (http://unicc.phorward-software.com): Universal, target-language independent LALR(1) parser generator.
  * *JS/CC* (http://jscc.brobston.com): The JavaScript parser generator.
 
-= LICENSE =
+# LICENSE 
 
 This software is an open source project released under the terms and conditions of the 3-clause BSD license. See the LICENSE file for more information.
 
-= COPYRIGHT =
+# COPYRIGHT 
 
 Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer.
 
