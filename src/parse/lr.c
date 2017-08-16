@@ -28,6 +28,7 @@ typedef struct
 typedef struct
 {
 	int				id;
+
 	plist*			kernel;			/* Kernel items */
 	plist*			epsilon;		/* Empty items */
 
@@ -222,6 +223,7 @@ static pplrcolumn* pp_lrcolumn_create(
 
 static pplrstate* pp_lrstate_create( plist* states, plist* kernel )
 {
+	int			id;
 	plistel*	e;
 	pplrstate*	state;
 
@@ -231,7 +233,10 @@ static pplrstate* pp_lrstate_create( plist* states, plist* kernel )
 		return (pplrstate*)NULL;
 	}
 
+	id = plist_count( states );
 	state = plist_malloc( states );
+
+	state->id = id;
 
 	state->kernel = plist_create( sizeof( pplritem ), PLIST_MOD_NONE );
 	state->epsilon = plist_create( sizeof( pplritem ), PLIST_MOD_NONE );
@@ -271,67 +276,69 @@ static plist* pp_lr_free( plist* states )
 	return plist_free( states );
 }
 
+static void pp_lrstate_print( pplrstate* st )
+{
+	plistel*	e;
+	pplrcolumn*	col;
+
+	fprintf( stderr, "\n-- State %d %p --\n", st->id, st );
+
+	pp_lritems_print( st->kernel, "Kernel" );
+	pp_lritems_print( st->epsilon, "Epsilon" );
+
+	fprintf( stderr, "\n" );
+
+	plist_for( st->actions, e )
+	{
+		col = (pplrcolumn*)plist_access( e );
+
+		if( col->shift && col->reduce )
+			fprintf( stderr, " <- Shift/Reduce on '%s' by "
+								"production '%s'\n",
+						col->symbol->name,
+							pp_prod_to_str( col->reduce ) );
+		else if( col->shift )
+			fprintf( stderr, " -> Shift on '%s', goto state %d\n",
+						col->symbol->name, col->shift->id );
+		else if( col->reduce )
+			fprintf( stderr, " <- Reduce on '%s' by production '%s'\n",
+						col->symbol->name,
+							pp_prod_to_str( col->reduce ) );
+		else
+			fprintf( stderr, " XX Error on '%s'\n", col->symbol->name );
+	}
+
+	if( st->def_prod )
+		fprintf( stderr, " <- Reduce (default) on '%s'\n",
+			pp_prod_to_str( st->def_prod ) );
+
+	plist_for( st->gotos, e )
+	{
+		col = (pplrcolumn*)plist_access( e );
+
+		if( col->shift && col->reduce )
+			fprintf( stderr, " <- Goto/Reduce by production "
+									"'%s' in '%s'\n",
+						pp_prod_to_str( col->reduce ),
+							col->symbol->name );
+		else if( col->shift )
+			fprintf( stderr, " -> Goto state %d on '%s'\n",
+						col->shift->id,
+							col->symbol->name );
+		else
+			MISSINGCASE;
+	}
+}
+
 static void pp_lr_print( plist* states )
 {
 	plistel*	e;
-	plistel*	f;
 	pplrstate*	st;
-	pplrcolumn*	col;
 
 	plist_for( states, e )
 	{
 		st = (pplrstate*)plist_access( e );
-		fprintf( stderr, "\n-- State %d %p --\n",
-			plist_offset( e ), plist_access( e ) );
-
-		pp_lritems_print( st->kernel, "Kernel" );
-		pp_lritems_print( st->epsilon, "Epsilon" );
-
-		fprintf( stderr, "\n" );
-
-		plist_for( st->actions, f )
-		{
-			col = (pplrcolumn*)plist_access( f );
-
-			if( col->shift && col->reduce )
-				fprintf( stderr, " <- Shift/Reduce on '%s' by "
-									"production '%s'\n",
-							col->symbol->name,
-								pp_prod_to_str( col->reduce ) );
-			else if( col->shift )
-				fprintf( stderr, " -> Shift on '%s', goto state %d\n",
-							col->symbol->name,
-								plist_offset( plist_get_by_ptr(
-									states, col->shift ) ) );
-			else if( col->reduce )
-				fprintf( stderr, " <- Reduce on '%s' by production '%s'\n",
-							col->symbol->name,
-								pp_prod_to_str( col->reduce ) );
-			else
-				fprintf( stderr, " XX Error on '%s'\n", col->symbol->name );
-		}
-
-		if( st->def_prod )
-			fprintf( stderr, " <- Reduce (default) on '%s'\n",
-				pp_prod_to_str( st->def_prod ) );
-
-		plist_for( st->gotos, f )
-		{
-			col = (pplrcolumn*)plist_access( f );
-
-			if( col->shift && col->reduce )
-				fprintf( stderr, " <- Goto/Reduce by production "
-										"'%s' in '%s'\n",
-							pp_prod_to_str( col->reduce ),
-								col->symbol->name );
-			else if( col->shift )
-				fprintf( stderr, " -> Goto state %d on '%s'\n",
-							plist_offset(
-								plist_get_by_ptr( states, col->shift ) ),
-								col->symbol->name );
-			else
-				MISSINGCASE;
-		}
+		pp_lrstate_print( st );
 	}
 }
 
@@ -535,6 +542,7 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 	int				cnt;
 	int				prev_cnt;
 	int*			prodcnt;
+	pboolean		printed;
 
 	PROC( "pp_parser_lr_closure" );
 	PARMS( "states", "%p", states );
@@ -827,6 +835,7 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 
 	plist_for( states, e )
 	{
+		printed = FALSE;
 		st = (pplrstate*)plist_access( e );
 
 		/* Reductions */
@@ -862,6 +871,12 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 
 				if( ccol->symbol == col->symbol )
 				{
+					if( !printed )
+					{
+						pp_lrstate_print( (pplrstate*)plist_access( e ) );
+						printed = TRUE;
+					}
+
 					/* TODO Conflict resolution */
 					fprintf( stderr,
 						"State %d encouters %s/reduce-conflict on %s\n",
