@@ -2,4 +2,5 @@ language: C
 sudo: enabled
 
 before_install:
-  - sudo apt-get install automake
+  - sudo apt-get -qq update
+  - sudo apt-get install -y automake
