@@ -1,5 +1,6 @@
 language: C
 sudo: enabled
+script: ./configure && make && sudo make install && pparse -V
 
 before_install:
   - touch *
