@@ -26,7 +26,6 @@ README.md: doc/readme.t2t
 	-rm -f $@
 	txt2tags -t md -H -o $@ $?
 
-if WITH_TXT2TAGS
 phorward.1.man: doc/readme.t2t
 	txt2tags -o $@ -t man $?
 

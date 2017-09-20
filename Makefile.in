@@ -905,9 +905,9 @@ uninstall-man: uninstall-man1
 
 @WITH_TXT2TAGS_TRUE@README.md: doc/readme.t2t
 @WITH_TXT2TAGS_TRUE@	-rm -f $@
-@WITH_TXT2TAGS_TRUE@	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@
+@WITH_TXT2TAGS_TRUE@	txt2tags -t md -H -o $@ $?
 
-@WITH_TXT2TAGS_TRUE@phorward.man: doc/readme.t2t
+@WITH_TXT2TAGS_TRUE@phorward.1.man: doc/readme.t2t
 @WITH_TXT2TAGS_TRUE@	txt2tags -o $@ -t man $?
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
