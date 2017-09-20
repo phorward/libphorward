@@ -1,6 +1,8 @@
 
 **phorward** is a free toolkit for parser development, lexical analysis, regular expressions and more.
 
+[![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward)
+
 # ABOUT 
 
 The toolkit is primarily a library, written in C, that provides an interface for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy-to-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
