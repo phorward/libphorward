@@ -1,1 +1,5 @@
 language: C
+sudo: enabled
+
+before_install:
+  - sudo apt-get install automake
