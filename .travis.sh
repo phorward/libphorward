@@ -1,5 +1,5 @@
 #!/bin/sh
-set -x
+set -ex
 ./configure
 make
 sudo make install
