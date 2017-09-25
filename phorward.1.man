@@ -143,7 +143,7 @@ Documentation can be found in the file http://www.phorward\-software.com/product
 The documentation is currently in an under\-development state and incomplete. It contains a generated functions reference and handles all library parts shortly.
 .SH BUILDING
 .P
-Building the Phorward Toolkit is simple as every GNU\-style open source program. Extract the downloaded release tarball or clone the hg repository into a directory of your choice.
+Building the Phorward Toolkit is simple as every GNU\-style open source program. Extract the downloaded release tarball or clone the source repository into a directory of your choice.
 .P
 Then, run
 

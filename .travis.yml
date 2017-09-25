@@ -1,6 +1,7 @@
 language: C
 sudo: enabled
-script: ./configure && make && sudo make install && pparse -V
+script: ./.travis.sh
 
 before_install:
   - touch *
+ 

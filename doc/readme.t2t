@@ -81,7 +81,7 @@ The documentation is currently in an under-development state and incomplete. It 
 
 = BUILDING =
 
-Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the downloaded release tarball or clone the hg repository into a directory of your choice.
+Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the downloaded release tarball or clone the source repository into a directory of your choice.
 
 Then, run
 
