@@ -13,7 +13,7 @@ Usage:	Internal regular expression pattern
 #include "phorward.h"
 
 /*NO_DOC*/
-/* No documentation for the entire module, all here is only interally used. */
+/* No documentation for the entire module, all here is only internally used. */
 
 /* Local prototypes */
 static pboolean parse_char( pregex_ptn** ptn, char** pstr,

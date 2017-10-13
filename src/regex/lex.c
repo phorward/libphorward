@@ -185,8 +185,12 @@ possible |
 as it where a string-constant. Any regex-specific symbols will be ignored and \
 taken as they where escaped. |
 
+
+Returns a pointer to the pattern object that just has been added. This allows
+for changing e.g. the accept flag later on. In case of an error, the value
+returned is NULL.
 */
-pboolean plex_define( plex* lex, char* pat, int match_id, int flags )
+pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
 {
 	pregex_ptn*	ptn;
 
@@ -196,17 +200,17 @@ pboolean plex_define( plex* lex, char* pat, int match_id, int flags )
 	if( !( lex && pat && match_id > 0 ) )
 	{
 		WRONGPARAM;
-		RETURN( FALSE );
+		RETURN( (pregex_ptn*)NULL );
 	}
 
 	if( !pregex_ptn_parse( &ptn, pat, lex->flags | flags ) )
-		RETURN( FALSE );
+		RETURN( (pregex_ptn*)NULL );
 
 	ptn->accept->accept = match_id;
 	plist_push( lex->ptns, ptn );
 
 	plex_reset( lex );
-	RETURN( TRUE );
+	RETURN( ptn );
 }
 
 

@@ -76,6 +76,9 @@ struct _ppsym
 	plist*					prods;
 
 	/* Terminal specific */
+	char*					def;		/* Definition */
+	pregex_ptn*				ptn;		/* Pattern */
+
 	pccl*					ccl;		/* Character class */
 	char*					str;		/* String */
 	pregex*					re;			/* Regular expression */
@@ -98,6 +101,7 @@ struct _ppgram
 	ppsym*					goal;
 	ppsym*					eof;
 
+	plex*					lex;
 	ppsymfunc 				(*getsymfunc)( char* name );
 
 	int						flags;

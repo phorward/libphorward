@@ -20,6 +20,7 @@ Usage:	Symbol management function.
 ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 {
 	ppsym*	sym;
+	char*	fulldef;
 
 	if( !g )
 	{
@@ -44,6 +45,7 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 	sym->id = -1;
 	sym->grm = g;
 	sym->name = name;
+	sym->def = pstrdup( def );
 
 	switch( ( sym->type = type ) )
 	{
@@ -51,15 +53,24 @@ ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
 			sym->prods = plist_create( 0, PLIST_MOD_PTR  );
 			break;
 
+		/* THIS HAS TO BE REVISED... */
 		case PPSYMTYPE_CCL:
+			fulldef = (char*)pmalloc( pstrlen( def ) + 2 + 1 );
+			sprintf( fulldef, "[%s]", def );
+
 			sym->ccl = p_ccl_create( 0, 255, def ); /* TODO */
+			sym->ptn = plex_define( g->lex, fulldef, 1, 0 );
+
+			pfree( fulldef );
 			break;
 
 		case PPSYMTYPE_STRING:
+			sym->ptn = plex_define( g->lex, def, 1, PREGEX_COMP_STATIC );
 			sym->str = pstrdup( def );
 			break;
 
 		case PPSYMTYPE_REGEX:
+			sym->ptn = plex_define( g->lex, def, 1, 0 );
 			sym->re = pregex_create( def, 0 );
 			break;
 

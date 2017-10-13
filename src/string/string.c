@@ -68,7 +68,7 @@ If this is (char*)NULL, the string is newly allocated.
 
 //append// is the string to be appended at the end of //str//.
 
-//release_append// frees the pointer provided as //append// automatically by
+//freesrc// frees the pointer provided as //append// automatically by
 this function, if set to TRUE. This parameter has only a comfort-function.
 
 Returns a char*-pointer to (possibly re-)allocated and appended string.

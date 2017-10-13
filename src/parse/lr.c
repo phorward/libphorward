@@ -921,7 +921,6 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 		}
 	}
 
-
 	pfree( prodcnt );
 
 	MSG( "Finished" );
@@ -983,15 +982,27 @@ static pplrse* pop( parray* stack, int n, char** start, ppast** node,
 	return (pplrse*)parray_last( stack );
 }
 
-static pboolean get_action( pplrstate** shift, ppprod** reduce, ppsym** on_sym,
-								pplrse* tos, char** end )
+static pboolean get_action( ppgram* grm, pplrstate** shift, ppprod** reduce,
+								ppsym** on_sym, pplrse* tos, char** end )
 {
 	plistel*	e;
 	pplrcolumn*	col;
+	int			la;
+	char*		start	= *end;
 
 	*shift = (pplrstate*)NULL;
 	*reduce = (ppprod*)NULL;
 	*on_sym = (ppsym*)NULL;
+
+	la = plex_lex( grm->lex, start, end );
+
+	if( la <= 0 )
+	{
+		if( *start )
+			return FALSE;
+
+		la = grm->eof->id;
+	}
 
 	plist_for( tos->state->actions, e )
 	{
@@ -1000,7 +1011,7 @@ static pboolean get_action( pplrstate** shift, ppprod** reduce, ppsym** on_sym,
 		#if DEBUGLEVEL > 1
 		fprintf( stderr, "Testing %s on >%s<\n", col->symbol->name, *end );
 		#endif
-		if( pp_sym_in_input( col->symbol, *end, end ) )
+		if( col->symbol->id == la )
 		{
 			*shift = col->shift;
 			*reduce = col->reduce;
@@ -1063,7 +1074,8 @@ static void print_stack( char* title, plist* states, parray* stack )
 
 
 static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
-								char* start, char** end, plist* states )
+								char* start, char** end,
+									plist* states )
 {
 	int			row		= 1;
 	int			col		= 1;
@@ -1127,11 +1139,11 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 		#endif
 
 		/* Action table processing */
-		if( !get_action( &shift, &reduce, &sym, tos, end ) )
+		if( !get_action( grm, &shift, &reduce, &sym, tos, end ) )
 		{
 			/* Parse Error */
 			/* TODO: Error Recovery */
-			fprintf( stderr, "PARSE ERROR %d,%d >%s<\n", row, col, *end );
+			fprintf( stderr, "Parse Error [line:%d col:%d] @ >%s<\n", row, col, *end );
 			return FALSE;
 		}
 
@@ -1245,12 +1257,12 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 
 Parsing stops at least when reading the zero terminator of //str//.
 
-//ast// receives an allocated parray-object with items of //ppmatch// elements
-that describe the produced abstract syntax tree.
+//root// receives the root-node of the constructed abstract syntax tree as
+an ppast object.
 
 //end// receives the position of the last character matched.
-The function returns TRUE if no parse error occured.
-*/
+
+The function returns TRUE if no parse error occured. */
 pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end )
 {
 	pboolean	ret;
@@ -1262,13 +1274,18 @@ pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end )
 		return FALSE;
 	}
 
+	/* Compute LALR(1) states */
 	states = pp_lr_closure( grm, TRUE );
 
 	#if DEBUGLEVEL > 0
+	/* Dump states */
 	pp_lr_print( states );
 	#endif
 
+	/* Run parser */
 	ret = pp_lr_PARSE( root, grm, start, end, states );
+
+	/* Clean-up */
 	pp_lr_free( states );
 
 	return ret;

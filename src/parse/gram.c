@@ -408,6 +408,9 @@ pboolean pp_gram_prepare( ppgram* g )
 		s = (ppsym*)plist_access( e );
 		s->id = id;
 
+		if( s->ptn )
+			s->ptn->accept->accept = s->id;
+
 		if( s->type == PPSYMTYPE_NONTERM )
 		{
 			/* Erase first sets */
@@ -555,6 +558,9 @@ pboolean pp_gram_prepare( ppgram* g )
 	plist_free( call );
 	plist_free( done );
 
+	/* Prepare lexer */
+	plex_prepare( g->lex );
+
 	return TRUE;
 }
 
@@ -574,6 +580,8 @@ ppgram* pp_gram_create( void )
 
 	g->ws = plist_create( sizeof( ppsym* ), PLIST_MOD_PTR );
 	g->eof = pp_sym_create( g, PPSYMTYPE_SPECIAL, "eof", (char*)NULL );
+
+	g->lex = plex_create( 0 );
 
 	return g;
 }
@@ -717,6 +725,9 @@ ppgram* pp_gram_free( ppgram* g )
 	plist_free( g->symbols );
 	plist_free( g->prods );
 	plist_free( g->ws );
+
+	plex_free( g->lex );
+
 	pfree( g );
 
 	return (ppgram*)NULL;
