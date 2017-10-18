@@ -1,4 +1,4 @@
-# phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward)
+\# phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward2
 
 **phorward** is a free toolkit for parser development, lexical analysis, regular expressions and more.
 
@@ -123,7 +123,7 @@ Some other projects by the author are:
 
 - [UniCC](https://unicc.phorward-software.com): Universal, target-language independent LALR(1) parser generator.
 - [pynetree](https://pynetree.org): The light-weight parsing toolkit written in pure Python.
-- [rapidbatch](http://pynetree.org): Scripting Language.
+- [RapidBATCH](http://rapidbatch.com): Scripting Language.
 - [JS/CC](http://jscc.brobston.com): The JavaScript parser generator.
 
 ## License
