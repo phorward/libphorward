@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward)
+# phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward)
 
 **phorward** is a free toolkit for parser development, lexical analysis, regular expressions and more.
 
-# ABOUT 
+## About
 
 The toolkit is primarily a library, written in C, that provides an interface for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy-to-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
 
@@ -39,7 +39,7 @@ Furthermore, the toolkit comes with a command-line tool serving testing and prot
 
 phorward also provides useful general-purpose extensions for C programming. This includes dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and platform-independent, system-specific helper functions.
 
-# FEATURES 
+## Features 
 
 *phorward* provides the following features:
 
@@ -74,14 +74,14 @@ phorward also provides useful general-purpose extensions for C programming. This
 
 Please check out http://phorward.phorward-software.com/ continuously to get latest news, documentation, updates and support on the Phorward Toolkit.
 
-# GETTING STARTED 
+## Getting started
 
 *phorward* is under heavy development since a few years. It is kept simple, clear and straightforward.
 Documentation can be found in the file http://www.phorward-software.com/products/phorward/doc/phorward.html, but also locally after installation.
 
 The documentation is currently in an under-development state and incomplete. It contains a generated functions reference and handles all library parts shortly.
 
-# BUILDING 
+### General building
 
 Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the downloaded release tarball or clone the source repository into a directory of your choice.
 
@@ -99,7 +99,7 @@ and
 
 (properly as root), to install the toolkit into your system.
 
-# LOCAL DEVELOPMENT BUILD-SYSTEM 
+### Local building
 
 Alternatively there is also a simpler method for setting up a local build system for development and testing purposes locally in the file-system.
 
@@ -115,21 +115,20 @@ can be used to simply build the entire library or parts of it.
 
 Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.
 
-# AUTHOR 
+## Credits 
 
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
 
 Some other projects by the author are:
 
-- *pynetree* (http://pynetree.org): A light-weight parsing toolkit written in pure Python.
-- *UniCC* (http://unicc.phorward-software.com): Universal, target-language independent LALR(1) parser generator.
-- *JS/CC* (http://jscc.brobston.com): The JavaScript parser generator.
+- [UniCC](https://unicc.phorward-software.com): Universal, target-language independent LALR(1) parser generator.
+- [pynetree](https://pynetree.org): The light-weight parsing toolkit written in pure Python.
+- [rapidbatch](http://pynetree.org): Scripting Language.
+- [JS/CC](http://jscc.brobston.com): The JavaScript parser generator.
 
-# LICENSE 
+## License
 
 This software is an open source project released under the terms and conditions of the 3-clause BSD license. See the LICENSE file for more information.
-
-# COPYRIGHT 
 
 Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer.
 

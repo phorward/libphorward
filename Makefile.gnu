@@ -1,4 +1,4 @@
-all: README.md phorward.1.man
+all:
 	cd src; make -f Makefile.gnu
 	cd tools; make -f Makefile.gnu
 	cd DEMO; make -f Makefile.gnu
@@ -25,11 +25,4 @@ make_uninstall:
 	-rm src/Makefile
 	-rm tools/Makefile
 	-rm DEMO/Makefile
-
-README.md: doc/readme.t2t
-	-rm -f $@
-	txt2tags -t md -H -o $@ $?
-
-phorward.1.man: doc/readme.t2t
-	txt2tags -o $@ -t man $?
 
