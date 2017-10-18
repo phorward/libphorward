@@ -1,4 +1,4 @@
-\# phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward2
+# phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward
 
 **phorward** is a free toolkit for parser development, lexical analysis, regular expressions and more.
 
