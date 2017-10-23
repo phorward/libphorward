@@ -83,6 +83,15 @@ static int pregex_dfa_sort_trans( plist* list, plistel* el, plistel* er )
 	return p_ccl_compare( l->ccl, r->ccl ) < 0 ? 1 : 0;
 }
 
+/* Sort transitions by characters */
+static int pregex_dfa_sort_classes( plist* list, plistel* el, plistel* er )
+{
+	pccl*	l = (pccl*)plist_access( el );
+	pccl*	r = (pccl*)plist_access( er );
+
+	return p_ccl_compare( l, r ) < 0 ? 1 : 0;
+}
+
 /* Creating a new DFA state */
 static pregex_dfa_st* pregex_dfa_create_state( pregex_dfa* dfa )
 {
@@ -339,7 +348,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 	/* Initialize */
 	classes = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
-	plist_set_sortfn( classes, pregex_dfa_sort_trans );
+	plist_set_sortfn( classes, pregex_dfa_sort_classes );
 
 	transitions = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
@@ -438,6 +447,9 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		}
 		while( changed );
 
+		/* Sort classes */
+		plist_sort( classes );
+
 		MSG( "Make transitions on constructed alphabet" );
 		/* Make transitions on constructed alphabet */
 		plist_for( classes, e )
@@ -473,8 +485,6 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				{
 					/* There is no move on this character! */
 					MSG( "transition set is empty, will continue" );
-
-					p_ccl_free( ccl );
 					continue;
 				}
 				else if( ( st = pregex_dfa_same_transitions(
