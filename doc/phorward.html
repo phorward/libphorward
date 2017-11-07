@@ -11,14 +11,13 @@
 
 <div class="header" id="header">
 <h1>Phorward Toolkit Reference Manual</h1>
-<h2>libphorward 0.19.0</h2>
-<h3>February 2017</h3>
+<h2>libphorward 0.20.0</h2>
+<h3>November 2017</h3>
 </div>
 
 <div class="body" id="body">
 
-<a id="toc1" name="toc1"></a>
-<h1>Table of Contents</h1>
+<h1 id="toc1">Table of Contents</h1>
 
 <div class="toc">
 
@@ -593,6 +592,18 @@
       </li>
       <li><a href="#fn_pvasprintf">pvasprintf</a>
       </li>
+      <li><a href="#fn_pvm_create">pvm_create</a>
+      </li>
+      <li><a href="#fn_pvm_define">pvm_define</a>
+      </li>
+      <li><a href="#fn_pvm_free">pvm_free</a>
+      </li>
+      <li><a href="#fn_pvm_init">pvm_init</a>
+      </li>
+      <li><a href="#fn_pvm_prog_run">pvm_prog_run</a>
+      </li>
+      <li><a href="#fn_pvm_reset">pvm_reset</a>
+      </li>
       <li><a href="#fn_pwcs_to_str">pwcs_to_str</a>
       </li>
       <li><a href="#fn_pwcscatchar">pwcscatchar</a>
@@ -630,11 +641,9 @@
   </ul>
 
 </div>
-<a id="toc2" name="toc2"></a>
-<h1>General</h1>
+<h1 id="toc2">General</h1>
 
-<a id="toc3" name="toc3"></a>
-<h2>Introduction</h2>
+<h2 id="toc3">Introduction</h2>
 
 <p>
 <i>phorward</i> is a free toolkit for parser development, lexical analysis, regular expressions and more.
@@ -681,8 +690,7 @@ $ pparse -e "1+2*(3+4)+5" -g "[int #fn_int] /[0-9]+/; f: int | '(' e ')'; t: [mu
 phorward also provides useful general-purpose extensions for C programming. This includes dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and platform-independent, system-specific helper functions.
 </p>
 
-<a id="toc4" name="toc4"></a>
-<h1>Features</h1>
+<h1 id="toc4">Features</h1>
 
 <p>
 <i>phorward</i> provides the following features:
@@ -763,8 +771,7 @@ phorward also provides useful general-purpose extensions for C programming. This
 Please check out <a href="http://phorward.phorward-software.com/">http://phorward.phorward-software.com/</a> continuously to get latest news, documentation, updates and support on the Phorward Toolkit.
 </p>
 
-<a id="toc5" name="toc5"></a>
-<h2>Building from sources</h2>
+<h2 id="toc5">Building from sources</h2>
 
 <p>
 Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
@@ -797,7 +804,7 @@ $ make install
 (properly as root), to install the toolkit into your system.
 </p>
 <p>
-On Windows systems, the usage of <a href="http://cygwin.org/">http://cygwin.org/</a> or another Unix shell environment is required. The Phorward Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
+On Windows systems, the usage of <a href="#vvvLINK1vvv">Cygwin</a> or another Unix shell environment is required. The Phorward Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
 </p>
 <p>
 To compile into 32-Bit Windows executables, configure with
@@ -815,8 +822,7 @@ To compile into 64-Bit Windows executables, configure with
 $ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 </pre>
 
-<a id="toc6" name="toc6"></a>
-<h2>Alternative local development system</h2>
+<h2 id="toc6">Alternative local development system</h2>
 
 <p>
 Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
@@ -844,8 +850,7 @@ can be used to simply build the entire library or parts of it.
 Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.
 </p>
 
-<a id="toc7" name="toc7"></a>
-<h2>Who develops libphorward?</h2>
+<h2 id="toc7">Who develops libphorward?</h2>
 
 <p>
 The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
@@ -857,8 +862,7 @@ This work is the result of several years experiencing in parser development syst
 Help of any kind to extend and improve this software is always appreciated.
 </p>
 
-<a id="toc8" name="toc8"></a>
-<h2>Copyright</h2>
+<h2 id="toc8">Copyright</h2>
 
 <p>
 Copyright &copy; 2006-2017 by Phorward Software Technologies, Jan Max Meyer.
@@ -870,8 +874,7 @@ You may use, modify and distribute this software under the terms and conditions 
 THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </p>
 
-<a id="toc9" name="toc9"></a>
-<h1>Guidelines</h1>
+<h1 id="toc9">Guidelines</h1>
 
 <p>
 The Phorward Toolkit, or shortly called libphorward, is a well-established C programming library which has its origins in several existing projects, where many features had been modularized and unified for a general purpose usage.
@@ -932,15 +935,13 @@ if( this_would_be_a_long_condition()
 If you don't like our coding style, you still can code on your own style, but please not within libphorward's own sources which are for the general public - these shall be kept clear - Thank you! :)
 </p>
 
-<a id="toc10" name="toc10"></a>
-<h1>General tools</h1>
+<h1 id="toc10">General tools</h1>
 
 <p>
 The Phorward Toolkit provides some extensional general-purpose functions, making C programming a little way easier and simpler. It is not necessary or required to use these functions when creating software that makes use of features from the Phorward Toolchain, but maybe they fit some developer's needs and could be useful.
 </p>
 
-<a id="toc11" name="toc11"></a>
-<h2>Booleans</h2>
+<h2 id="toc11">Booleans</h2>
 
 <p>
 libphorward makes a heavy usage of the self-hosted data-type <b>pboolean</b>, which is also referenced by a define <i>BOOLEAN</i>, and the constants <i>TRUE</i> and <i>FALSE</i>.
@@ -959,8 +960,7 @@ It is known, that several header files and projects define these constants on th
 within phorward.h.
 </p>
 
-<a id="toc12" name="toc12"></a>
-<h2>Replacement for memory functions</h2>
+<h2 id="toc12">Replacement for memory functions</h2>
 
 <p>
 The standard memory allocation functions can be replaced by these pendants:
@@ -981,8 +981,7 @@ The standard memory allocation functions can be replaced by these pendants:
 These functions are entirely used trough libphorward's internal object mapping functions.
 </p>
 
-<a id="toc13" name="toc13"></a>
-<h2>Debug and trace facilities</h2>
+<h2 id="toc13">Debug and trace facilities</h2>
 
 <p>
 Althought this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
@@ -1088,8 +1087,7 @@ yields in a debug log
 20772 (demo.c:  401) }
 </pre>
 
-<a id="toc14" name="toc14"></a>
-<h2>Command-line tools</h2>
+<h2 id="toc14">Command-line tools</h2>
 
 <p>
 libphorward also provides some general-purpose command-line tools which are installed and made available. These tools are heavily used by libphorward's own build process.
@@ -1110,8 +1108,7 @@ libphorward also provides some general-purpose command-line tools which are inst
 The general command-line tools are written as shell scripts in combination with standard Unix command-line utilities like awk, grep and sed.
 </p>
 
-<a id="toc15" name="toc15"></a>
-<h1>String tools</h1>
+<h1 id="toc15">String tools</h1>
 
 <p>
 The libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts, with a preceded "p".
@@ -1186,14 +1183,11 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 Althought the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
 </p>
 
-<a id="toc16" name="toc16"></a>
-<h1>Dynamic data management tools</h1>
+<h1 id="toc16">Dynamic data management tools</h1>
 
-<a id="toc17" name="toc17"></a>
-<h2>parray: Arrays and stacks</h2>
+<h2 id="toc17">parray: Arrays and stacks</h2>
 
-<a id="toc18" name="toc18"></a>
-<h3>Overview</h3>
+<h3 id="toc18">Overview</h3>
 
 <p>
 The <b>parray</b> object is a general-purpose data structure which can be used for several operations.
@@ -1232,8 +1226,7 @@ The <b>parray</b> object brings the following advantages and disadvantages:
 </li>
 </ul>
 
-<a id="toc19" name="toc19"></a>
-<h3>Construction and destruction</h3>
+<h3 id="toc19">Construction and destruction</h3>
 
 <p>
 <b>parray</b> objects are created using <a href="#fn_parray_create">parray_create()</a> or initialized with <a href="#fn_parray_init">parray_init()</a>. The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with <a href="#fn_parray_erase">parray_erase()</a>, respectively cleared and freed with <a href="#fn_parray_free">parray_free()</a>.
@@ -1249,8 +1242,7 @@ a = parray_create( sizeof( usertype ), 0 );
 parray_free( a );
 </pre>
 
-<a id="toc20" name="toc20"></a>
-<h3>Inserting elements</h3>
+<h3 id="toc20">Inserting elements</h3>
 
 <p>
 Elements can be inserted with
@@ -1287,8 +1279,7 @@ tp = (usertype*)parray_rmalloc( a );
 fill_usertype( tp );
 </pre>
 
-<a id="toc21" name="toc21"></a>
-<h3>Accessing and iterating elements</h3>
+<h3 id="toc21">Accessing and iterating elements</h3>
 
 <p>
 Direct access to specific elements is done using
@@ -1334,8 +1325,7 @@ Elements can be replaced with
 Quick access to the first or last elements is gained by <a href="#fn_parray_last">parray_last()</a> and <a href="#fn_parray_first">parray_first()</a>.
 </p>
 
-<a id="toc22" name="toc22"></a>
-<h3>Removing elements</h3>
+<h3 id="toc22">Removing elements</h3>
 
 <p>
 Elements can be removed with
@@ -1360,8 +1350,7 @@ tp = (usertype*)parray_pop( a );
 tp = (usertype*)parray_unshift( a );
 </pre>
 
-<a id="toc23" name="toc23"></a>
-<h3>Additional functions</h3>
+<h3 id="toc23">Additional functions</h3>
 
 <p>
 Other, useful functions are
@@ -1380,11 +1369,9 @@ Other, useful functions are
 </li>
 </ul>
 
-<a id="toc24" name="toc24"></a>
-<h2>plist: Linked lists, hash-tables and queues</h2>
+<h2 id="toc24">plist: Linked lists, hash-tables and queues</h2>
 
-<a id="toc25" name="toc25"></a>
-<h3>Overview</h3>
+<h3 id="toc25">Overview</h3>
 
 <p>
 Next to the <b>parray</b> object, the <b>plist</b> object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
@@ -1459,8 +1446,7 @@ The <b>plist</b> object brings the following advantages and disadvantages:
 </li>
 </ul>
 
-<a id="toc26" name="toc26"></a>
-<h3>Construction and destruction</h3>
+<h3 id="toc26">Construction and destruction</h3>
 
 <p>
 <b>plist</b> objects are created using <a href="#fn_plist_create">plist_create()</a> or initialized with <a href="#fn_plist_init">plist_init()</a>. The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the <b>plist</b> object to a specified behavior.
@@ -1505,8 +1491,7 @@ l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
 plist_free( l );
 </pre>
 
-<a id="toc27" name="toc27"></a>
-<h3>Inserting elements</h3>
+<h3 id="toc27">Inserting elements</h3>
 
 <p>
 Elements can be inserted with
@@ -1549,8 +1534,7 @@ tp = (usertype*)plist_rmalloc( a );
 fill_usertype( tp );
 </pre>
 
-<a id="toc28" name="toc28"></a>
-<h3>Accessing and iterating elements</h3>
+<h3 id="toc28">Accessing and iterating elements</h3>
 
 <p>
 Elements within a <b>plist</b> object are references by <b>plistel</b> items. To access the data element behind a <b>plistel</b> item, the function <a href="#fn_plist_access">plist_access()</a> is used, in combination with element retrival functions, like
@@ -1604,8 +1588,7 @@ for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
 	;
 </pre>
 
-<a id="toc29" name="toc29"></a>
-<h3>Removing elements</h3>
+<h3 id="toc29">Removing elements</h3>
 
 <p>
 To remove elements from a <b>plist</b> object, the following functions can be used.
@@ -1629,8 +1612,7 @@ plist_pop( a, &amp;t );
 plist_unshift( a, &amp;t );
 </pre>
 
-<a id="toc30" name="toc30"></a>
-<h3>Sorting elements</h3>
+<h3 id="toc30">Sorting elements</h3>
 
 <p>
 <b>plist</b> objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertation.
@@ -1681,8 +1663,7 @@ The sorting can be also be performed by invoking the functions
 </li>
 </ul>
 
-<a id="toc31" name="toc31"></a>
-<h3>Interchanging functions</h3>
+<h3 id="toc31">Interchanging functions</h3>
 
 <p>
 <b>plist</b> objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind <b>plist</b>. Both lists must be configured with the same element memory size, else all functions will fail.
@@ -1698,8 +1679,7 @@ To implement these functions, every <b>plist</b> object also refers to a compari
 </li>
 </ul>
 
-<a id="toc32" name="toc32"></a>
-<h3>Additional functions</h3>
+<h3 id="toc32">Additional functions</h3>
 
 <p>
 <b>plist</b> provides these additional functions:
@@ -1714,8 +1694,7 @@ To implement these functions, every <b>plist</b> object also refers to a compari
 </li>
 </ul>
 
-<a id="toc33" name="toc33"></a>
-<h2>pccl: Character-classes</h2>
+<h2 id="toc33">pccl: Character-classes</h2>
 
 <p>
 The <b>pccl</b> object is established on top of the <b>plist</b> object and encapsulates easy-to-handle low-level functions for character-class handling.
@@ -1809,11 +1788,9 @@ Useful, additional functions when working with <b>pccl</b> are:
 </li>
 </ul>
 
-<a id="toc34" name="toc34"></a>
-<h1>pregex, plex: Regular expression tools</h1>
+<h1 id="toc34">pregex, plex: Regular expression tools</h1>
 
-<a id="toc35" name="toc35"></a>
-<h2>Overview</h2>
+<h2 id="toc35">Overview</h2>
 
 <p>
 libphorward provides a powerful set of functions relating to general string pattern matching and lexical analysis using regular expressions.
@@ -1840,8 +1817,7 @@ libphorward provides a powerful set of functions relating to general string patt
 </li>
 </ul>
 
-<a id="toc36" name="toc36"></a>
-<h3>Meta constructs</h3>
+<h3 id="toc36">Meta constructs</h3>
 
 <p>
 In general, regular expressions are made-up of the following elements:
@@ -1886,8 +1862,7 @@ In general, regular expressions are made-up of the following elements:
 All meta-characters can be escaped by backslash, so they are interpretered as usual characters.
 </p>
 
-<a id="toc37" name="toc37"></a>
-<h3>Characters and escape sequences</h3>
+<h3 id="toc37">Characters and escape sequences</h3>
 
 <p>
 Any other character coming up is consumed as one expression to be matched in the input.
@@ -1964,8 +1939,7 @@ Escape sequences (C-style) are supported according to the following table:
 <u><b>Note:</b> When specifying escape-sequences in static strings within C-code, they must be double-escaped, because they are first analyzed by the C compiler and then by libphorward's regex-parser. Therefore, specifiying a backslash <code>\\</code> must become <code>\\\\</code> in the C-Code, which then yields in <code>\\</code> after compiling the C program.</u>
 </p>
 
-<a id="toc38" name="toc38"></a>
-<h3>Shorthand character classes</h3>
+<h3 id="toc38">Shorthand character classes</h3>
 
 <p>
 Pre-defined shorthand character-classes are also supported by libphorward's pregex and plex tools.
@@ -2009,8 +1983,7 @@ Pre-defined shorthand character-classes are also supported by libphorward's preg
 </tr>
 </table>
 
-<a id="toc39" name="toc39"></a>
-<h3>Anchoring</h3>
+<h3 id="toc39">Anchoring</h3>
 
 <p>
 The following anchors are supported, when specified at beginning or ending of an expression:
@@ -2043,8 +2016,7 @@ The following anchors are supported, when specified at beginning or ending of an
 Anchors can be entirely switched off when setting the PREGEX_COMP_NOANCHORS on compile-time, respectively PREGEX_RUN_NOANCHORS on run-time.
 </p>
 
-<a id="toc40" name="toc40"></a>
-<h3>Examples</h3>
+<h3 id="toc40">Examples</h3>
 
 <p>
 Some examples:
@@ -2081,8 +2053,7 @@ Some examples:
 (TODO: more examples)
 </p>
 
-<a id="toc41" name="toc41"></a>
-<h2>pregex: Operating on regular expressions</h2>
+<h2 id="toc41">pregex: Operating on regular expressions</h2>
 
 <p>
 The <b>pregex</b> object is the object-oriented interface for string operations based on regular expressions.
@@ -2109,8 +2080,7 @@ Generally, the actions
 are supported by the compiled pattern.
 </p>
 
-<a id="toc42" name="toc42"></a>
-<h3>Construction and destruction</h3>
+<h3 id="toc42">Construction and destruction</h3>
 
 <p>
 <b>pregex</b> objects are constructed by <a href="#fn_pregex_create">pregex_create()</a>. First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
@@ -2185,8 +2155,7 @@ r = pregex_create( "[_A-Za-z]+", 0 );
 pregex_free( r );
 </pre>
 
-<a id="toc43" name="toc43"></a>
-<h3>Matching</h3>
+<h3 id="toc43">Matching</h3>
 
 <p>
 To immediatelly test if a <b>pregex</b>-object matches on a string, the function <a href="#fn_pregex_match">pregex_match()</a> shall be invoked.
@@ -2238,8 +2207,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 parray_free( a );
 </pre>
 
-<a id="toc44" name="toc44"></a>
-<h3>Splitting</h3>
+<h3 id="toc44">Splitting</h3>
 
 <p>
 Splitting a string by a regular expression can be done with <a href="#fn_pregex_split">pregex_split()</a>. This function takes several parameters, and is designed to be called in a loop.
@@ -2278,8 +2246,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 parray_free( a );
 </pre>
 
-<a id="toc45" name="toc45"></a>
-<h3>Replacing</h3>
+<h3 id="toc45">Replacing</h3>
 
 <p>
 The function <a href="#fn_pregex_replace">pregex_replace()</a> allows for replacing parts of strings by regular expressions.
@@ -2313,8 +2280,7 @@ will return "int[5] and int[6] are the cross sums of int[23] and int[42]." when 
 To disable the backreference replacement features, the regular expression flag PREGEX_RUN_NOREF must be switched.
 </p>
 
-<a id="toc46" name="toc46"></a>
-<h3>Quick-access functions</h3>
+<h3 id="toc46">Quick-access functions</h3>
 
 <p>
 Based on the <b>pregex</b>-object, libphorward provides the shortcut functons
@@ -2333,8 +2299,7 @@ Based on the <b>pregex</b>-object, libphorward provides the shortcut functons
 for immediate use, without creating and destroying a <b>pregex</b>-object. Because this is done within the function calls, multiple calls of these functions result in huger runtime latencies and produce more overhead.
 </p>
 
-<a id="toc47" name="toc47"></a>
-<h2>plex: Lexical analysis using regular expressions</h2>
+<h2 id="toc47">plex: Lexical analysis using regular expressions</h2>
 
 <p>
 The second part of libphorwards regular expression tools is the <b>plex</b>-object, which encapsulates all required features for creating lexical analyzers (in terms of compiler-writers also called "scanners" or "lexers") into one handy object.
@@ -2407,11 +2372,9 @@ ident &gt;x&lt;
 semicolon &gt;;&lt;
 </pre>
 
-<a id="toc48" name="toc48"></a>
-<h1>pparse: Parser development tools</h1>
+<h1 id="toc48">pparse: Parser development tools</h1>
 
-<a id="toc49" name="toc49"></a>
-<h2>Overview</h2>
+<h2 id="toc49">Overview</h2>
 
 <p>
 The libphorward serves as a parser generator and language processing toolchain. It provides a flexible, integrated and consequent solution for any parsing issues.
@@ -2428,8 +2391,7 @@ The libphorward serves as a parser generator and language processing toolchain. 
 </li>
 </ul>
 
-<a id="toc50" name="toc50"></a>
-<h2>Grammars</h2>
+<h2 id="toc50">Grammars</h2>
 
 <p>
 Grammars in the libphorward's <i>pparse</i> module are expressed using the Phorward Grammar Definition Language (GDL), which was itself implemented using the <i>pparse</i> toolchain.
@@ -2441,8 +2403,7 @@ The GDL is a simple but effective implementation of the Backus-Naur-Form (BNF) f
 This language is made up of the fundamental elements: <b>terminals</b>, <b>nonterminals</b> and <b>productions</b>, and implements some special symbol attribution that influences the construction of the resulting abstract syntax tree, which is the result of a successful parse.
 </p>
 
-<a id="toc51" name="toc51"></a>
-<h3>Terminals</h3>
+<h3 id="toc51">Terminals</h3>
 
 <p>
 <b>Terminals</b>, also called <i>terminal symbols</i>, are atomics of the implemented language. They are directly read from the input stream. A terminal can be a single character, a string or a regular expression that matches on a pattern. It is on the language designer's choice how terminal symbols are made up in the particular implementation. Some examples for widely used terminals in programming languages are identifiers for variables and functions, operators, brackets, keywords like <i>if</i> or <i>while</i>, floating point or integer numbers, and so on. The parser will expect these terminals in a valid order according to the position it is during the parse - which is in turn defined by the underlying grammatical rules it follows.
@@ -2474,15 +2435,13 @@ hexchar '0-9A-F';
 Each block is always closed with a semicolon. These blocks associate a named terminal identifier (integer, while_keyword and hexchar) with a particular terminal definition.
 </p>
 
-<a id="toc52" name="toc52"></a>
-<h3>Nonterminals</h3>
+<h3 id="toc52">Nonterminals</h3>
 
 <p>
 <b>Nonterminals</b>, also called <i>nonterminal symbols</i>, can be seen like some sort of variable or "function calls" within a grammar, although they aren't. They reference to one or a bunch of the so called <i>productions</i>, which means that each production is always associated with at least one nonterminal. But one nonterminal may exist of several productions. They form valid sequences of <i>terminals</i> and other <i>nonterminals</i> which are allowed in the current context in they particular order. In other words: Nontermals can be expanded into their productions.
 </p>
 
-<a id="toc53" name="toc53"></a>
-<h3>Productions</h3>
+<h3 id="toc53">Productions</h3>
 
 <p>
 <b>Productions</b>, also called <i>grammar rules</i> or just <i>rules</i>, finally describe the syntax. Its better to say, that productions define a syntactical part of the grammar - which can be replaced by the specific <i>nonterminal</i> each production is associated with. This syntactical description is done by defining a sequence in which terminals and nonterminals may occur to form a valid sentence. This includes, that a nonterminal can reference itself recursively in its own productions, which is a very important aspect in non-regular languages. In other words: Productions can be substituted by their associated nonterminals.
@@ -2500,24 +2459,20 @@ term : term '*' factor | term '/' factor | factor ;
 expr : expr '+' term | expr '-' term | term ;
 </pre>
 
-<a id="toc54" name="toc54"></a>
-<h1>Utility functions</h1>
+<h1 id="toc54">Utility functions</h1>
 
 <p>
 Coming soon.
 </p>
 
-<a id="toc55" name="toc55"></a>
-<h1>Function reference</h1>
+<h1 id="toc55">Function reference</h1>
 
-<a id="toc56" name="toc56"></a>
-<h2>Macros</h2>
+<h2 id="toc56">Macros</h2>
 
 <!-- NEED 20 -->
 <div class='function'>
 
-<a id="fn_PARMS" name="fn_PARMS"></a>
-<h3>PARMS</h3>
+<h3 id="fn_PARMS">PARMS</h3>
 
 <p>
 <b>Definition:</b>
@@ -2548,8 +2503,7 @@ trace, the <a href="#fn_VARS">VARS()</a>-macro shall be used.
 <div class='function'>
 </p>
 
-<a id="fn_PROC" name="fn_PROC"></a>
-<h3>PROC</h3>
+<h3 id="fn_PROC">PROC</h3>
 
 <p>
 <b>Definition:</b>
@@ -2583,8 +2537,7 @@ The parameter <i>func_name</i> is a static string for the function name.
 <div class='function'>
 </p>
 
-<a id="fn_RETURN" name="fn_RETURN"></a>
-<h3>RETURN</h3>
+<h3 id="fn_RETURN">RETURN</h3>
 
 <p>
 <b>Definition:</b>
@@ -2609,8 +2562,7 @@ For void-functions, use the macro VOIDRET.
 <div class='function'>
 </p>
 
-<a id="fn_VARS" name="fn_VARS"></a>
-<h3>VARS</h3>
+<h3 id="fn_VARS">VARS</h3>
 
 <p>
 <b>Definition:</b>
@@ -2639,8 +2591,7 @@ For parameters taken to functions, the <a href="#fn_PARMS">PARMS()</a>-macro sha
 <div class='function'>
 </p>
 
-<a id="fn_VOIDRET" name="fn_VOIDRET"></a>
-<h3>VOIDRET</h3>
+<h3 id="fn_VOIDRET">VOIDRET</h3>
 
 <p>
 <b>Definition:</b>
@@ -2662,14 +2613,12 @@ For typed functions, use the macro <a href="#fn_RETURN">RETURN()</a>.
 </div>
 </p>
 
-<a id="toc62" name="toc62"></a>
-<h2>Functions</h2>
+<h2 id="toc62">Functions</h2>
 
 <!-- NEED 16 -->
 <div class='function'>
 
-<a id="fn_p_ccl_add" name="fn_p_ccl_add"></a>
-<h3>p_ccl_add</h3>
+<h3 id="fn_p_ccl_add">p_ccl_add</h3>
 
 <p>
 <b>Definition:</b>
@@ -2696,8 +2645,7 @@ The function is a shortcut for <a href="#fn_p_ccl_addrange">p_ccl_addrange()</a>
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_addrange" name="fn_p_ccl_addrange"></a>
-<h3>p_ccl_addrange</h3>
+<h3 id="fn_p_ccl_addrange">p_ccl_addrange</h3>
 
 <p>
 <b>Definition:</b>
@@ -2728,8 +2676,7 @@ If <i>begin</i> is greater than <i>end</i>, the values will be swapped.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_compare" name="fn_p_ccl_compare"></a>
-<h3>p_ccl_compare</h3>
+<h3 id="fn_p_ccl_compare">p_ccl_compare</h3>
 
 <p>
 <b>Definition:</b>
@@ -2757,8 +2704,7 @@ equal to <i>right</i> or a value &gt; 0 if <i>left</i> is greater than <i>right<
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_compat" name="fn_p_ccl_compat"></a>
-<h3>p_ccl_compat</h3>
+<h3 id="fn_p_ccl_compat">p_ccl_compat</h3>
 
 <p>
 <b>Definition:</b>
@@ -2779,8 +2725,7 @@ character universe and compatible for operations.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_count" name="fn_p_ccl_count"></a>
-<h3>p_ccl_count</h3>
+<h3 id="fn_p_ccl_count">p_ccl_count</h3>
 
 <p>
 <b>Definition:</b>
@@ -2806,8 +2751,7 @@ Returns the total number of characters the class is holding.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_create" name="fn_p_ccl_create"></a>
-<h3>p_ccl_create</h3>
+<h3 id="fn_p_ccl_create">p_ccl_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -2831,8 +2775,7 @@ released with <a href="#fn_p_ccl_free">p_ccl_free()</a> when its existence is no
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_del" name="fn_p_ccl_del"></a>
-<h3>p_ccl_del</h3>
+<h3 id="fn_p_ccl_del">p_ccl_del</h3>
 
 <p>
 <b>Definition:</b>
@@ -2859,8 +2802,7 @@ The function is a shortcut for <a href="#fn_p_ccl_delrange">p_ccl_delrange()</a>
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_delrange" name="fn_p_ccl_delrange"></a>
-<h3>p_ccl_delrange</h3>
+<h3 id="fn_p_ccl_delrange">p_ccl_delrange</h3>
 
 <p>
 <b>Definition:</b>
@@ -2885,8 +2827,7 @@ Removes a character range from a character-class.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_diff" name="fn_p_ccl_diff"></a>
-<h3>p_ccl_diff</h3>
+<h3 id="fn_p_ccl_diff">p_ccl_diff</h3>
 
 <p>
 <b>Definition:</b>
@@ -2917,8 +2858,7 @@ error.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_dup" name="fn_p_ccl_dup"></a>
-<h3>p_ccl_dup</h3>
+<h3 id="fn_p_ccl_dup">p_ccl_dup</h3>
 
 <p>
 <b>Definition:</b>
@@ -2945,8 +2885,7 @@ in error case.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_erase" name="fn_p_ccl_erase"></a>
-<h3>p_ccl_erase</h3>
+<h3 id="fn_p_ccl_erase">p_ccl_erase</h3>
 
 <p>
 <b>Definition:</b>
@@ -2971,8 +2910,7 @@ object, use <a href="#fn_p_ccl_free">p_ccl_free()</a>.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_free" name="fn_p_ccl_free"></a>
-<h3>p_ccl_free</h3>
+<h3 id="fn_p_ccl_free">p_ccl_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -2995,8 +2933,7 @@ The function always returns (pccl*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_get" name="fn_p_ccl_get"></a>
-<h3>p_ccl_get</h3>
+<h3 id="fn_p_ccl_get">p_ccl_get</h3>
 
 <p>
 <b>Definition:</b>
@@ -3031,8 +2968,7 @@ On success, the function will always return TRUE.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_instest" name="fn_p_ccl_instest"></a>
-<h3>p_ccl_instest</h3>
+<h3 id="fn_p_ccl_instest">p_ccl_instest</h3>
 
 <p>
 <b>Definition:</b>
@@ -3063,8 +2999,7 @@ It returns TRUE, if the character matches the class, and FALSE if not.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_intersect" name="fn_p_ccl_intersect"></a>
-<h3>p_ccl_intersect</h3>
+<h3 id="fn_p_ccl_intersect">p_ccl_intersect</h3>
 
 <p>
 <b>Definition:</b>
@@ -3094,8 +3029,7 @@ the function returns (pccl*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_negate" name="fn_p_ccl_negate"></a>
-<h3>p_ccl_negate</h3>
+<h3 id="fn_p_ccl_negate">p_ccl_negate</h3>
 
 <p>
 <b>Definition:</b>
@@ -3121,8 +3055,7 @@ Returns a pointer to <i>ccl</i>.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_parse" name="fn_p_ccl_parse"></a>
-<h3>p_ccl_parse</h3>
+<h3 id="fn_p_ccl_parse">p_ccl_parse</h3>
 
 <p>
 <b>Definition:</b>
@@ -3159,8 +3092,7 @@ The function returns TRUE on success, and FALSE on an error.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_parsechar" name="fn_p_ccl_parsechar"></a>
-<h3>p_ccl_parsechar</h3>
+<h3 id="fn_p_ccl_parsechar">p_ccl_parsechar</h3>
 
 <p>
 <b>Definition:</b>
@@ -3191,8 +3123,7 @@ Returns the number of bytes that had been read for the character.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_parseshorthand" name="fn_p_ccl_parseshorthand"></a>
-<h3>p_ccl_parseshorthand</h3>
+<h3 id="fn_p_ccl_parseshorthand">p_ccl_parseshorthand</h3>
 
 <p>
 <b>Definition:</b>
@@ -3219,8 +3150,7 @@ untouched.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_print" name="fn_p_ccl_print"></a>
-<h3>p_ccl_print</h3>
+<h3 id="fn_p_ccl_print">p_ccl_print</h3>
 
 <p>
 <b>Definition:</b>
@@ -3259,8 +3189,7 @@ left (FILE*)NULL, so <i>stderr</i> will be used.
 <!-- NEED 17 -->
 <div class='function'>
 
-<a id="fn_p_ccl_size" name="fn_p_ccl_size"></a>
-<h3>p_ccl_size</h3>
+<h3 id="fn_p_ccl_size">p_ccl_size</h3>
 
 <p>
 <b>Definition:</b>
@@ -3289,8 +3218,7 @@ Returns the number of pairs the charclass holds.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_test" name="fn_p_ccl_test"></a>
-<h3>p_ccl_test</h3>
+<h3 id="fn_p_ccl_test">p_ccl_test</h3>
 
 <p>
 <b>Definition:</b>
@@ -3320,8 +3248,7 @@ It returns TRUE, if the character matches the class, and FALSE if not.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_testrange" name="fn_p_ccl_testrange"></a>
-<h3>p_ccl_testrange</h3>
+<h3 id="fn_p_ccl_testrange">p_ccl_testrange</h3>
 
 <p>
 <b>Definition:</b>
@@ -3349,8 +3276,7 @@ Returns TRUE if the entire character range matches the class, and FALSE if not.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_to_str" name="fn_p_ccl_to_str"></a>
-<h3>p_ccl_to_str</h3>
+<h3 id="fn_p_ccl_to_str">p_ccl_to_str</h3>
 
 <p>
 <b>Definition:</b>
@@ -3383,8 +3309,7 @@ character-class handling functions, so it should not be freed manually.
 <div class='function'>
 </p>
 
-<a id="fn_p_ccl_union" name="fn_p_ccl_union"></a>
-<h3>p_ccl_union</h3>
+<h3 id="fn_p_ccl_union">p_ccl_union</h3>
 
 <p>
 <b>Definition:</b>
@@ -3413,8 +3338,7 @@ if <i>ccl</i> and <i>add</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_convert" name="fn_pany_convert"></a>
-<h3>pany_convert</h3>
+<h3 id="fn_pany_convert">pany_convert</h3>
 
 <p>
 <b>Definition:</b>
@@ -3441,8 +3365,7 @@ The function returns TRUE on success, FALSE else.
 <div class='function'>
 </p>
 
-<a id="fn_pany_copy" name="fn_pany_copy"></a>
-<h3>pany_copy</h3>
+<h3 id="fn_pany_copy">pany_copy</h3>
 
 <p>
 <b>Definition:</b>
@@ -3465,8 +3388,7 @@ Copy any value from <i>src</i> into <i>dest</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_create" name="fn_pany_create"></a>
-<h3>pany_create</h3>
+<h3 id="fn_pany_create">pany_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -3492,8 +3414,7 @@ This object must be released after usage using <a href="#fn_pany_free">pany_free
 <div class='function'>
 </p>
 
-<a id="fn_pany_dup" name="fn_pany_dup"></a>
-<h3>pany_dup</h3>
+<h3 id="fn_pany_dup">pany_dup</h3>
 
 <p>
 <b>Definition:</b>
@@ -3513,8 +3434,7 @@ Duplicate the object <i>src</i> into a new object that stands on its own.
 <div class='function'>
 </p>
 
-<a id="fn_pany_fprint" name="fn_pany_fprint"></a>
-<h3>pany_fprint</h3>
+<h3 id="fn_pany_fprint">pany_fprint</h3>
 
 <p>
 <b>Definition:</b>
@@ -3539,8 +3459,7 @@ without any conversion. This function shall be used for debug only.
 <div class='function'>
 </p>
 
-<a id="fn_pany_free" name="fn_pany_free"></a>
-<h3>pany_free</h3>
+<h3 id="fn_pany_free">pany_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -3563,8 +3482,7 @@ The function always returns (pany*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_bool" name="fn_pany_get_bool"></a>
-<h3>pany_get_bool</h3>
+<h3 id="fn_pany_get_bool">pany_get_bool</h3>
 
 <p>
 <b>Definition:</b>
@@ -3592,8 +3510,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_char" name="fn_pany_get_char"></a>
-<h3>pany_get_char</h3>
+<h3 id="fn_pany_get_char">pany_get_char</h3>
 
 <p>
 <b>Definition:</b>
@@ -3621,8 +3538,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_cstr" name="fn_pany_get_cstr"></a>
-<h3>pany_get_cstr</h3>
+<h3 id="fn_pany_get_cstr">pany_get_cstr</h3>
 
 <p>
 <b>Definition:</b>
@@ -3650,8 +3566,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_cwcs" name="fn_pany_get_cwcs"></a>
-<h3>pany_get_cwcs</h3>
+<h3 id="fn_pany_get_cwcs">pany_get_cwcs</h3>
 
 <p>
 <b>Definition:</b>
@@ -3679,8 +3594,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_double" name="fn_pany_get_double"></a>
-<h3>pany_get_double</h3>
+<h3 id="fn_pany_get_double">pany_get_double</h3>
 
 <p>
 <b>Definition:</b>
@@ -3708,8 +3622,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_float" name="fn_pany_get_float"></a>
-<h3>pany_get_float</h3>
+<h3 id="fn_pany_get_float">pany_get_float</h3>
 
 <p>
 <b>Definition:</b>
@@ -3737,8 +3650,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_int" name="fn_pany_get_int"></a>
-<h3>pany_get_int</h3>
+<h3 id="fn_pany_get_int">pany_get_int</h3>
 
 <p>
 <b>Definition:</b>
@@ -3766,8 +3678,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_long" name="fn_pany_get_long"></a>
-<h3>pany_get_long</h3>
+<h3 id="fn_pany_get_long">pany_get_long</h3>
 
 <p>
 <b>Definition:</b>
@@ -3795,8 +3706,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_ptr" name="fn_pany_get_ptr"></a>
-<h3>pany_get_ptr</h3>
+<h3 id="fn_pany_get_ptr">pany_get_ptr</h3>
 
 <p>
 <b>Definition:</b>
@@ -3824,8 +3734,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_str" name="fn_pany_get_str"></a>
-<h3>pany_get_str</h3>
+<h3 id="fn_pany_get_str">pany_get_str</h3>
 
 <p>
 <b>Definition:</b>
@@ -3853,8 +3762,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_ulong" name="fn_pany_get_ulong"></a>
-<h3>pany_get_ulong</h3>
+<h3 id="fn_pany_get_ulong">pany_get_ulong</h3>
 
 <p>
 <b>Definition:</b>
@@ -3882,8 +3790,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_get_wcs" name="fn_pany_get_wcs"></a>
-<h3>pany_get_wcs</h3>
+<h3 id="fn_pany_get_wcs">pany_get_wcs</h3>
 
 <p>
 <b>Definition:</b>
@@ -3911,8 +3818,7 @@ This value could be converted from the original value.
 <div class='function'>
 </p>
 
-<a id="fn_pany_init" name="fn_pany_init"></a>
-<h3>pany_init</h3>
+<h3 id="fn_pany_init">pany_init</h3>
 
 <p>
 <b>Definition:</b>
@@ -3935,8 +3841,7 @@ Initializes a pany-element.
 <div class='function'>
 </p>
 
-<a id="fn_pany_parse" name="fn_pany_parse"></a>
-<h3>pany_parse</h3>
+<h3 id="fn_pany_parse">pany_parse</h3>
 
 <p>
 <b>Definition:</b>
@@ -3973,8 +3878,7 @@ This function tries to detect
 <div class='function'>
 </p>
 
-<a id="fn_pany_reset" name="fn_pany_reset"></a>
-<h3>pany_reset</h3>
+<h3 id="fn_pany_reset">pany_reset</h3>
 
 <p>
 <b>Definition:</b>
@@ -4001,8 +3905,7 @@ to be of type PANYTYPE_NULL.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_bool" name="fn_pany_set_bool"></a>
-<h3>pany_set_bool</h3>
+<h3 id="fn_pany_set_bool">pany_set_bool</h3>
 
 <p>
 <b>Definition:</b>
@@ -4029,8 +3932,7 @@ The function always returns the value <i>b</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_char" name="fn_pany_set_char"></a>
-<h3>pany_set_char</h3>
+<h3 id="fn_pany_set_char">pany_set_char</h3>
 
 <p>
 <b>Definition:</b>
@@ -4057,8 +3959,7 @@ The function always returns the value <i>c</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_cstr" name="fn_pany_set_cstr"></a>
-<h3>pany_set_cstr</h3>
+<h3 id="fn_pany_set_cstr">pany_set_cstr</h3>
 
 <p>
 <b>Definition:</b>
@@ -4085,8 +3986,7 @@ The function always returns the value <i>s</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_cwcs" name="fn_pany_set_cwcs"></a>
-<h3>pany_set_cwcs</h3>
+<h3 id="fn_pany_set_cwcs">pany_set_cwcs</h3>
 
 <p>
 <b>Definition:</b>
@@ -4113,8 +4013,7 @@ The function always returns the value <i>ws</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_double" name="fn_pany_set_double"></a>
-<h3>pany_set_double</h3>
+<h3 id="fn_pany_set_double">pany_set_double</h3>
 
 <p>
 <b>Definition:</b>
@@ -4141,8 +4040,7 @@ The function always returns the value <i>d</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_float" name="fn_pany_set_float"></a>
-<h3>pany_set_float</h3>
+<h3 id="fn_pany_set_float">pany_set_float</h3>
 
 <p>
 <b>Definition:</b>
@@ -4169,8 +4067,7 @@ The function always returns the value <i>f</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_int" name="fn_pany_set_int"></a>
-<h3>pany_set_int</h3>
+<h3 id="fn_pany_set_int">pany_set_int</h3>
 
 <p>
 <b>Definition:</b>
@@ -4197,8 +4094,7 @@ The function always returns the value <i>i</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_long" name="fn_pany_set_long"></a>
-<h3>pany_set_long</h3>
+<h3 id="fn_pany_set_long">pany_set_long</h3>
 
 <p>
 <b>Definition:</b>
@@ -4225,8 +4121,7 @@ The function always returns the value <i>l</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_ptr" name="fn_pany_set_ptr"></a>
-<h3>pany_set_ptr</h3>
+<h3 id="fn_pany_set_ptr">pany_set_ptr</h3>
 
 <p>
 <b>Definition:</b>
@@ -4253,8 +4148,7 @@ The function always returns the value <i>ptr</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_str" name="fn_pany_set_str"></a>
-<h3>pany_set_str</h3>
+<h3 id="fn_pany_set_str">pany_set_str</h3>
 
 <p>
 <b>Definition:</b>
@@ -4281,8 +4175,7 @@ The function always returns the value <i>s</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_ulong" name="fn_pany_set_ulong"></a>
-<h3>pany_set_ulong</h3>
+<h3 id="fn_pany_set_ulong">pany_set_ulong</h3>
 
 <p>
 <b>Definition:</b>
@@ -4309,8 +4202,7 @@ The function always returns the value <i>ul</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_set_wcs" name="fn_pany_set_wcs"></a>
-<h3>pany_set_wcs</h3>
+<h3 id="fn_pany_set_wcs">pany_set_wcs</h3>
 
 <p>
 <b>Definition:</b>
@@ -4337,8 +4229,7 @@ The function always returns the value <i>ws</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_bool" name="fn_pany_to_bool"></a>
-<h3>pany_to_bool</h3>
+<h3 id="fn_pany_to_bool">pany_to_bool</h3>
 
 <p>
 <b>Definition:</b>
@@ -4364,8 +4255,7 @@ The function returns the pboolean-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_char" name="fn_pany_to_char"></a>
-<h3>pany_to_char</h3>
+<h3 id="fn_pany_to_char">pany_to_char</h3>
 
 <p>
 <b>Definition:</b>
@@ -4391,8 +4281,7 @@ The function returns the char-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_double" name="fn_pany_to_double"></a>
-<h3>pany_to_double</h3>
+<h3 id="fn_pany_to_double">pany_to_double</h3>
 
 <p>
 <b>Definition:</b>
@@ -4418,8 +4307,7 @@ The function returns the double-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_float" name="fn_pany_to_float"></a>
-<h3>pany_to_float</h3>
+<h3 id="fn_pany_to_float">pany_to_float</h3>
 
 <p>
 <b>Definition:</b>
@@ -4445,8 +4333,7 @@ The function returns the float-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_int" name="fn_pany_to_int"></a>
-<h3>pany_to_int</h3>
+<h3 id="fn_pany_to_int">pany_to_int</h3>
 
 <p>
 <b>Definition:</b>
@@ -4472,8 +4359,7 @@ The function returns the int-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_long" name="fn_pany_to_long"></a>
-<h3>pany_to_long</h3>
+<h3 id="fn_pany_to_long">pany_to_long</h3>
 
 <p>
 <b>Definition:</b>
@@ -4499,8 +4385,7 @@ The function returns the long-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_ptr" name="fn_pany_to_ptr"></a>
-<h3>pany_to_ptr</h3>
+<h3 id="fn_pany_to_ptr">pany_to_ptr</h3>
 
 <p>
 <b>Definition:</b>
@@ -4526,8 +4411,7 @@ The function returns the void*-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_str" name="fn_pany_to_str"></a>
-<h3>pany_to_str</h3>
+<h3 id="fn_pany_to_str">pany_to_str</h3>
 
 <p>
 <b>Definition:</b>
@@ -4553,8 +4437,7 @@ The function returns the char*-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_ulong" name="fn_pany_to_ulong"></a>
-<h3>pany_to_ulong</h3>
+<h3 id="fn_pany_to_ulong">pany_to_ulong</h3>
 
 <p>
 <b>Definition:</b>
@@ -4580,8 +4463,7 @@ The function returns the unsigned long-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pany_to_wcs" name="fn_pany_to_wcs"></a>
-<h3>pany_to_wcs</h3>
+<h3 id="fn_pany_to_wcs">pany_to_wcs</h3>
 
 <p>
 <b>Definition:</b>
@@ -4607,8 +4489,7 @@ The function returns the wchar_t*-value of <i>val</i>.
 <div class='function'>
 </p>
 
-<a id="fn_parray_count" name="fn_parray_count"></a>
-<h3>parray_count</h3>
+<h3 id="fn_parray_count">parray_count</h3>
 
 <p>
 <b>Definition:</b>
@@ -4628,8 +4509,7 @@ Returns the number of elements in a array.
 <div class='function'>
 </p>
 
-<a id="fn_parray_create" name="fn_parray_create"></a>
-<h3>parray_create</h3>
+<h3 id="fn_parray_create">parray_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -4653,8 +4533,7 @@ The returned memory must be released with <a href="#fn_parray_free">parray_free(
 <div class='function'>
 </p>
 
-<a id="fn_parray_erase" name="fn_parray_erase"></a>
-<h3>parray_erase</h3>
+<h3 id="fn_parray_erase">parray_erase</h3>
 
 <p>
 <b>Definition:</b>
@@ -4680,8 +4559,7 @@ The array must not be reinitialized after destruction, using <a href="#fn_parray
 <div class='function'>
 </p>
 
-<a id="fn_parray_first" name="fn_parray_first"></a>
-<h3>parray_first</h3>
+<h3 id="fn_parray_first">parray_first</h3>
 
 <p>
 <b>Definition:</b>
@@ -4705,8 +4583,7 @@ the array.
 <div class='function'>
 </p>
 
-<a id="fn_parray_free" name="fn_parray_free"></a>
-<h3>parray_free</h3>
+<h3 id="fn_parray_free">parray_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -4729,8 +4606,7 @@ The function always returns (parray*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_parray_get" name="fn_parray_get"></a>
-<h3>parray_get</h3>
+<h3 id="fn_parray_get">parray_get</h3>
 
 <p>
 <b>Definition:</b>
@@ -4762,8 +4638,7 @@ Use <a href="#fn_parray_rget">parray_rget()</a> for access items from the end.
 <div class='function'>
 </p>
 
-<a id="fn_parray_init" name="fn_parray_init"></a>
-<h3>parray_init</h3>
+<h3 id="fn_parray_init">parray_init</h3>
 
 <p>
 <b>Definition:</b>
@@ -4796,8 +4671,7 @@ freed again.
 <div class='function'>
 </p>
 
-<a id="fn_parray_insert" name="fn_parray_insert"></a>
-<h3>parray_insert</h3>
+<h3 id="fn_parray_insert">parray_insert</h3>
 
 <p>
 <b>Definition:</b>
@@ -4822,8 +4696,7 @@ Handle with care!
 <div class='function'>
 </p>
 
-<a id="fn_parray_last" name="fn_parray_last"></a>
-<h3>parray_last</h3>
+<h3 id="fn_parray_last">parray_last</h3>
 
 <p>
 <b>Definition:</b>
@@ -4847,8 +4720,7 @@ the array.
 <div class='function'>
 </p>
 
-<a id="fn_parray_malloc" name="fn_parray_malloc"></a>
-<h3>parray_malloc</h3>
+<h3 id="fn_parray_malloc">parray_malloc</h3>
 
 <p>
 <b>Definition:</b>
@@ -4872,8 +4744,7 @@ and the memory of the pushed element is initialized to zero.
 <div class='function'>
 </p>
 
-<a id="fn_parray_offset" name="fn_parray_offset"></a>
-<h3>parray_offset</h3>
+<h3 id="fn_parray_offset">parray_offset</h3>
 
 <p>
 <b>Definition:</b>
@@ -4899,8 +4770,7 @@ To check if a pointer belongs to an array, call <a href="#fn_parray_partof">parr
 <div class='function'>
 </p>
 
-<a id="fn_parray_partof" name="fn_parray_partof"></a>
-<h3>parray_partof</h3>
+<h3 id="fn_parray_partof">parray_partof</h3>
 
 <p>
 <b>Definition:</b>
@@ -4920,8 +4790,7 @@ Returns TRUE, if <i>ptr</i> is an element of array <i>array</i>.
 <div class='function'>
 </p>
 
-<a id="fn_parray_pop" name="fn_parray_pop"></a>
-<h3>parray_pop</h3>
+<h3 id="fn_parray_pop">parray_pop</h3>
 
 <p>
 <b>Definition:</b>
@@ -4953,8 +4822,7 @@ item could not be popped (e.g. array is empty).
 <div class='function'>
 </p>
 
-<a id="fn_parray_push" name="fn_parray_push"></a>
-<h3>parray_push</h3>
+<h3 id="fn_parray_push">parray_push</h3>
 
 <p>
 <b>Definition:</b>
@@ -4990,8 +4858,7 @@ the item could not be pushed.
 <div class='function'>
 </p>
 
-<a id="fn_parray_put" name="fn_parray_put"></a>
-<h3>parray_put</h3>
+<h3 id="fn_parray_put">parray_put</h3>
 
 <p>
 <b>Definition:</b>
@@ -5022,8 +4889,7 @@ is out of the array bounds.
 <div class='function'>
 </p>
 
-<a id="fn_parray_remove" name="fn_parray_remove"></a>
-<h3>parray_remove</h3>
+<h3 id="fn_parray_remove">parray_remove</h3>
 
 <p>
 <b>Definition:</b>
@@ -5048,8 +4914,7 @@ moved up data part or invalid memory, if on the end).
 <div class='function'>
 </p>
 
-<a id="fn_parray_reserve" name="fn_parray_reserve"></a>
-<h3>parray_reserve</h3>
+<h3 id="fn_parray_reserve">parray_reserve</h3>
 
 <p>
 <b>Definition:</b>
@@ -5073,8 +4938,7 @@ the next <i>n</i> items are inserted/malloced.
 <div class='function'>
 </p>
 
-<a id="fn_parray_rget" name="fn_parray_rget"></a>
-<h3>parray_rget</h3>
+<h3 id="fn_parray_rget">parray_rget</h3>
 
 <p>
 <b>Definition:</b>
@@ -5107,8 +4971,7 @@ Use <a href="#fn_parray_get">parray_get()</a> for access items from the begin.
 <div class='function'>
 </p>
 
-<a id="fn_parray_rmalloc" name="fn_parray_rmalloc"></a>
-<h3>parray_rmalloc</h3>
+<h3 id="fn_parray_rmalloc">parray_rmalloc</h3>
 
 <p>
 <b>Definition:</b>
@@ -5132,8 +4995,7 @@ and the memory of the unshifted element is initialized to zero.
 <div class='function'>
 </p>
 
-<a id="fn_parray_rput" name="fn_parray_rput"></a>
-<h3>parray_rput</h3>
+<h3 id="fn_parray_rput">parray_rput</h3>
 
 <p>
 <b>Definition:</b>
@@ -5165,8 +5027,7 @@ is out of the array bounds.
 <div class='function'>
 </p>
 
-<a id="fn_parray_shift" name="fn_parray_shift"></a>
-<h3>parray_shift</h3>
+<h3 id="fn_parray_shift">parray_shift</h3>
 
 <p>
 <b>Definition:</b>
@@ -5199,8 +5060,7 @@ item could not be popped (e.g. array is empty).
 <div class='function'>
 </p>
 
-<a id="fn_parray_swap" name="fn_parray_swap"></a>
-<h3>parray_swap</h3>
+<h3 id="fn_parray_swap">parray_swap</h3>
 
 <p>
 <b>Definition:</b>
@@ -5220,8 +5080,7 @@ Swap two elements of an array.
 <div class='function'>
 </p>
 
-<a id="fn_parray_unshift" name="fn_parray_unshift"></a>
-<h3>parray_unshift</h3>
+<h3 id="fn_parray_unshift">parray_unshift</h3>
 
 <p>
 <b>Definition:</b>
@@ -5257,8 +5116,7 @@ if the item could not be unshifted.
 <div class='function'>
 </p>
 
-<a id="fn_pasprintf" name="fn_pasprintf"></a>
-<h3>pasprintf</h3>
+<h3 id="fn_pasprintf">pasprintf</h3>
 
 <p>
 <b>Definition:</b>
@@ -5288,8 +5146,7 @@ with inserted values.
 <div class='function'>
 </p>
 
-<a id="fn_pbasename" name="fn_pbasename"></a>
-<h3>pbasename</h3>
+<h3 id="fn_pbasename">pbasename</h3>
 
 <p>
 <b>Definition:</b>
@@ -5315,8 +5172,7 @@ Returns a pointer to the basename, which is a part of <i>path</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pdbl_to_str" name="fn_pdbl_to_str"></a>
-<h3>pdbl_to_str</h3>
+<h3 id="fn_pdbl_to_str">pdbl_to_str</h3>
 
 <p>
 <b>Definition:</b>
@@ -5346,8 +5202,7 @@ by the caller.
 <div class='function'>
 </p>
 
-<a id="fn_pdbl_to_wcs" name="fn_pdbl_to_wcs"></a>
-<h3>pdbl_to_wcs</h3>
+<h3 id="fn_pdbl_to_wcs">pdbl_to_wcs</h3>
 
 <p>
 <b>Definition:</b>
@@ -5377,8 +5232,7 @@ by the caller.
 <div class='function'>
 </p>
 
-<a id="fn_pfileexists" name="fn_pfileexists"></a>
-<h3>pfileexists</h3>
+<h3 id="fn_pfileexists">pfileexists</h3>
 
 <p>
 <b>Definition:</b>
@@ -5404,8 +5258,7 @@ Returns TRUE on success, FALSE if not.
 <div class='function'>
 </p>
 
-<a id="fn_pfiletostr" name="fn_pfiletostr"></a>
-<h3>pfiletostr</h3>
+<h3 id="fn_pfiletostr">pfiletostr</h3>
 
 <p>
 <b>Definition:</b>
@@ -5432,8 +5285,7 @@ The function returns TRUE on success.
 <div class='function'>
 </p>
 
-<a id="fn_pfree" name="fn_pfree"></a>
-<h3>pfree</h3>
+<h3 id="fn_pfree">pfree</h3>
 
 <p>
 <b>Definition:</b>
@@ -5471,8 +5323,7 @@ Returns always (void*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_pgetopt" name="fn_pgetopt"></a>
-<h3>pgetopt</h3>
+<h3 id="fn_pgetopt">pgetopt</h3>
 
 <p>
 <b>Definition:</b>
@@ -5531,8 +5382,7 @@ hold a string to the option that is unknown to <a href="#fn_pgetopt">pgetopt()</
 <div class='function'>
 </p>
 
-<a id="fn_plex_create" name="fn_plex_create"></a>
-<h3>plex_create</h3>
+<h3 id="fn_plex_create">plex_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -5612,19 +5462,18 @@ with special compile-time flags provided for each pattern.
 On success, the function returns the allocated pointer to a plex-object.
 This must be freed later using <a href="#fn_plex_free">plex_free()</a>.
 </div>
-<!-- NEED 29 -->
+<!-- NEED 34 -->
 <div class='function'>
 </p>
 
-<a id="fn_plex_define" name="fn_plex_define"></a>
-<h3>plex_define</h3>
+<h3 id="fn_plex_define">plex_define</h3>
 
 <p>
 <b>Definition:</b>
 </p>
 <div class='definition'>
 <p>
-pboolean plex_define( plex* lex, char* pat, int match_id, int flags )
+pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
 </div>
 </p>
 <p>
@@ -5681,12 +5530,16 @@ compile-time flags of the plex-object provided at <a href="#fn_plex_create">plex
 </tr>
 </table>
 
+<p>
+Returns a pointer to the pattern object that just has been added. This allows
+for changing e.g. the accept flag later on. In case of an error, the value
+returned is NULL.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
+</p>
 
-<a id="fn_plex_free" name="fn_plex_free"></a>
-<h3>plex_free</h3>
+<h3 id="fn_plex_free">plex_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -5712,8 +5565,7 @@ Returns always (plex*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_plex_lex" name="fn_plex_lex"></a>
-<h3>plex_lex</h3>
+<h3 id="fn_plex_lex">plex_lex</h3>
 
 <p>
 <b>Definition:</b>
@@ -5742,8 +5594,7 @@ next matching pattern.
 <div class='function'>
 </p>
 
-<a id="fn_plex_next" name="fn_plex_next"></a>
-<h3>plex_next</h3>
+<h3 id="fn_plex_next">plex_next</h3>
 
 <p>
 <b>Definition:</b>
@@ -5777,8 +5628,7 @@ The function returns (char*)NULL in case that there is no match.
 <div class='function'>
 </p>
 
-<a id="fn_plex_prepare" name="fn_plex_prepare"></a>
-<h3>plex_prepare</h3>
+<h3 id="fn_plex_prepare">plex_prepare</h3>
 
 <p>
 <b>Definition:</b>
@@ -5798,8 +5648,7 @@ Prepares the DFA state machine of a plex-object <i>lex</i> for execution.
 <div class='function'>
 </p>
 
-<a id="fn_plex_reset" name="fn_plex_reset"></a>
-<h3>plex_reset</h3>
+<h3 id="fn_plex_reset">plex_reset</h3>
 
 <p>
 <b>Definition:</b>
@@ -5819,8 +5668,7 @@ Resets the DFA state machine of a plex-object <i>lex</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plex_tokenize" name="fn_plex_tokenize"></a>
-<h3>plex_tokenize</h3>
+<h3 id="fn_plex_tokenize">plex_tokenize</h3>
 
 <p>
 <b>Definition:</b>
@@ -5849,8 +5697,7 @@ items of size prange. It returns the total number of matches.
 <div class='function'>
 </p>
 
-<a id="fn_plist_access" name="fn_plist_access"></a>
-<h3>plist_access</h3>
+<h3 id="fn_plist_access">plist_access</h3>
 
 <p>
 <b>Definition:</b>
@@ -5870,8 +5717,7 @@ Access data-content of the current element <i>e</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_clear" name="fn_plist_clear"></a>
-<h3>plist_clear</h3>
+<h3 id="fn_plist_clear">plist_clear</h3>
 
 <p>
 <b>Definition:</b>
@@ -5896,8 +5742,7 @@ PLIST_MOD_RECYCLE, existing pointers are hold for later usage.
 <div class='function'>
 </p>
 
-<a id="fn_plist_count" name="fn_plist_count"></a>
-<h3>plist_count</h3>
+<h3 id="fn_plist_count">plist_count</h3>
 
 <p>
 <b>Definition:</b>
@@ -5917,8 +5762,7 @@ Return element count of list <i>l</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_create" name="fn_plist_create"></a>
-<h3>plist_create</h3>
+<h3 id="fn_plist_create">plist_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -5970,8 +5814,7 @@ Use <a href="#fn_plist_free">plist_free()</a> to erase and release the returned 
 <div class='function'>
 </p>
 
-<a id="fn_plist_diff" name="fn_plist_diff"></a>
-<h3>plist_diff</h3>
+<h3 id="fn_plist_diff">plist_diff</h3>
 
 <p>
 <b>Definition:</b>
@@ -5997,8 +5840,7 @@ if <i>left</i> is greater <i>right</i> and a value == 0 if <i>left</i> is equal 
 <div class='function'>
 </p>
 
-<a id="fn_plist_dup" name="fn_plist_dup"></a>
-<h3>plist_dup</h3>
+<h3 id="fn_plist_dup">plist_dup</h3>
 
 <p>
 <b>Definition:</b>
@@ -6021,8 +5863,7 @@ All elements of <i>list</i> are duplicated and stand-alone.
 <div class='function'>
 </p>
 
-<a id="fn_plist_erase" name="fn_plist_erase"></a>
-<h3>plist_erase</h3>
+<h3 id="fn_plist_erase">plist_erase</h3>
 
 <p>
 <b>Definition:</b>
@@ -6046,8 +5887,7 @@ using <a href="#fn_plist_init">plist_init()</a>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_first" name="fn_plist_first"></a>
-<h3>plist_first</h3>
+<h3 id="fn_plist_first">plist_first</h3>
 
 <p>
 <b>Definition:</b>
@@ -6067,8 +5907,7 @@ Return first element of list <i>l</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_free" name="fn_plist_free"></a>
-<h3>plist_free</h3>
+<h3 id="fn_plist_free">plist_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -6091,8 +5930,7 @@ The function always returns (plist*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_plist_get" name="fn_plist_get"></a>
-<h3>plist_get</h3>
+<h3 id="fn_plist_get">plist_get</h3>
 
 <p>
 <b>Definition:</b>
@@ -6115,8 +5953,7 @@ The function returns the <i>n</i>th element of the list <i>list</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_get_by_key" name="fn_plist_get_by_key"></a>
-<h3>plist_get_by_key</h3>
+<h3 id="fn_plist_get_by_key">plist_get_by_key</h3>
 
 <p>
 <b>Definition:</b>
@@ -6140,8 +5977,7 @@ with the key <i>key</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_get_by_ptr" name="fn_plist_get_by_ptr"></a>
-<h3>plist_get_by_ptr</h3>
+<h3 id="fn_plist_get_by_ptr">plist_get_by_ptr</h3>
 
 <p>
 <b>Definition:</b>
@@ -6165,8 +6001,7 @@ that is the pointer <i>ptr</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_hashnext" name="fn_plist_hashnext"></a>
-<h3>plist_hashnext</h3>
+<h3 id="fn_plist_hashnext">plist_hashnext</h3>
 
 <p>
 <b>Definition:</b>
@@ -6186,8 +6021,7 @@ Access next element with same hash value of current unit <i>u</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_hashprev" name="fn_plist_hashprev"></a>
-<h3>plist_hashprev</h3>
+<h3 id="fn_plist_hashprev">plist_hashprev</h3>
 
 <p>
 <b>Definition:</b>
@@ -6207,8 +6041,7 @@ Access previous element with same hash value of a current unit <i>u</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_init" name="fn_plist_init"></a>
-<h3>plist_init</h3>
+<h3 id="fn_plist_init">plist_init</h3>
 
 <p>
 <b>Definition:</b>
@@ -6230,8 +6063,7 @@ of the linked list and hash table usage.
 <div class='function'>
 </p>
 
-<a id="fn_plist_insert" name="fn_plist_insert"></a>
-<h3>plist_insert</h3>
+<h3 id="fn_plist_insert">plist_insert</h3>
 
 <p>
 <b>Definition:</b>
@@ -6256,8 +6088,7 @@ into the lists hash table.
 <div class='function'>
 </p>
 
-<a id="fn_plist_key" name="fn_plist_key"></a>
-<h3>plist_key</h3>
+<h3 id="fn_plist_key">plist_key</h3>
 
 <p>
 <b>Definition:</b>
@@ -6277,8 +6108,7 @@ Access key-content of the current element <i>e</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_last" name="fn_plist_last"></a>
-<h3>plist_last</h3>
+<h3 id="fn_plist_last">plist_last</h3>
 
 <p>
 <b>Definition:</b>
@@ -6298,8 +6128,7 @@ Return last element of list <i>l</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_malloc" name="fn_plist_malloc"></a>
-<h3>plist_malloc</h3>
+<h3 id="fn_plist_malloc">plist_malloc</h3>
 
 <p>
 <b>Definition:</b>
@@ -6323,8 +6152,7 @@ The function works as a shortcut for <a href="#fn_plist_access">plist_access()</
 <div class='function'>
 </p>
 
-<a id="fn_plist_next" name="fn_plist_next"></a>
-<h3>plist_next</h3>
+<h3 id="fn_plist_next">plist_next</h3>
 
 <p>
 <b>Definition:</b>
@@ -6344,8 +6172,7 @@ Access next element of current unit <i>u</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_offset" name="fn_plist_offset"></a>
-<h3>plist_offset</h3>
+<h3 id="fn_plist_offset">plist_offset</h3>
 
 <p>
 <b>Definition:</b>
@@ -6365,8 +6192,7 @@ Return the offset of the unit <i>u</i> within the list it belongs to.
 <div class='function'>
 </p>
 
-<a id="fn_plist_pop" name="fn_plist_pop"></a>
-<h3>plist_pop</h3>
+<h3 id="fn_plist_pop">plist_pop</h3>
 
 <p>
 <b>Definition:</b>
@@ -6394,8 +6220,7 @@ be popped off the list and discards.
 <div class='function'>
 </p>
 
-<a id="fn_plist_prev" name="fn_plist_prev"></a>
-<h3>plist_prev</h3>
+<h3 id="fn_plist_prev">plist_prev</h3>
 
 <p>
 <b>Definition:</b>
@@ -6415,8 +6240,7 @@ Access previous element of a current unit <i>u</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_push" name="fn_plist_push"></a>
-<h3>plist_push</h3>
+<h3 id="fn_plist_push">plist_push</h3>
 
 <p>
 <b>Definition:</b>
@@ -6441,8 +6265,7 @@ in use.
 <div class='function'>
 </p>
 
-<a id="fn_plist_remove" name="fn_plist_remove"></a>
-<h3>plist_remove</h3>
+<h3 id="fn_plist_remove">plist_remove</h3>
 
 <p>
 <b>Definition:</b>
@@ -6463,8 +6286,7 @@ it into the unused element chain if PLIST_MOD_RECYCLE is flagged.
 <div class='function'>
 </p>
 
-<a id="fn_plist_rget" name="fn_plist_rget"></a>
-<h3>plist_rget</h3>
+<h3 id="fn_plist_rget">plist_rget</h3>
 
 <p>
 <b>Definition:</b>
@@ -6488,8 +6310,7 @@ from the right.
 <div class='function'>
 </p>
 
-<a id="fn_plist_rmalloc" name="fn_plist_rmalloc"></a>
-<h3>plist_rmalloc</h3>
+<h3 id="fn_plist_rmalloc">plist_rmalloc</h3>
 
 <p>
 <b>Definition:</b>
@@ -6513,8 +6334,7 @@ The function works as a shortcut for <a href="#fn_plist_access">plist_access()</
 <div class='function'>
 </p>
 
-<a id="fn_plist_set_comparefn" name="fn_plist_set_comparefn"></a>
-<h3>plist_set_comparefn</h3>
+<h3 id="fn_plist_set_comparefn">plist_set_comparefn</h3>
 
 <p>
 <b>Definition:</b>
@@ -6534,8 +6354,7 @@ Set compare function
 <div class='function'>
 </p>
 
-<a id="fn_plist_set_printfn" name="fn_plist_set_printfn"></a>
-<h3>plist_set_printfn</h3>
+<h3 id="fn_plist_set_printfn">plist_set_printfn</h3>
 
 <p>
 <b>Definition:</b>
@@ -6555,8 +6374,7 @@ Set an element dump function.
 <div class='function'>
 </p>
 
-<a id="fn_plist_set_sortfn" name="fn_plist_set_sortfn"></a>
-<h3>plist_set_sortfn</h3>
+<h3 id="fn_plist_set_sortfn">plist_set_sortfn</h3>
 
 <p>
 <b>Definition:</b>
@@ -6576,8 +6394,7 @@ Set sort function
 <div class='function'>
 </p>
 
-<a id="fn_plist_shift" name="fn_plist_shift"></a>
-<h3>plist_shift</h3>
+<h3 id="fn_plist_shift">plist_shift</h3>
 
 <p>
 <b>Definition:</b>
@@ -6602,8 +6419,7 @@ in use.
 <div class='function'>
 </p>
 
-<a id="fn_plist_size" name="fn_plist_size"></a>
-<h3>plist_size</h3>
+<h3 id="fn_plist_size">plist_size</h3>
 
 <p>
 <b>Definition:</b>
@@ -6623,8 +6439,7 @@ Return element size of list <i>l</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_sort" name="fn_plist_sort"></a>
-<h3>plist_sort</h3>
+<h3 id="fn_plist_sort">plist_sort</h3>
 
 <p>
 <b>Definition:</b>
@@ -6652,8 +6467,7 @@ the <a href="#fn_memcmp">memcmp()</a> standard function.
 <div class='function'>
 </p>
 
-<a id="fn_plist_subsort" name="fn_plist_subsort"></a>
-<h3>plist_subsort</h3>
+<h3 id="fn_plist_subsort">plist_subsort</h3>
 
 <p>
 <b>Definition:</b>
@@ -6682,8 +6496,7 @@ the <a href="#fn_memcmp">memcmp()</a> standard function.
 <div class='function'>
 </p>
 
-<a id="fn_plist_swap" name="fn_plist_swap"></a>
-<h3>plist_swap</h3>
+<h3 id="fn_plist_swap">plist_swap</h3>
 
 <p>
 <b>Definition:</b>
@@ -6705,8 +6518,7 @@ returns with FALSE.
 <div class='function'>
 </p>
 
-<a id="fn_plist_union" name="fn_plist_union"></a>
-<h3>plist_union</h3>
+<h3 id="fn_plist_union">plist_union</h3>
 
 <p>
 <b>Definition:</b>
@@ -6736,8 +6548,7 @@ The function returns the number of elements added to <i>from</i>.
 <div class='function'>
 </p>
 
-<a id="fn_plist_unshift" name="fn_plist_unshift"></a>
-<h3>plist_unshift</h3>
+<h3 id="fn_plist_unshift">plist_unshift</h3>
 
 <p>
 <b>Definition:</b>
@@ -6765,8 +6576,7 @@ be taken from the list and discards.
 <div class='function'>
 </p>
 
-<a id="fn_pmalloc" name="fn_pmalloc"></a>
-<h3>pmalloc</h3>
+<h3 id="fn_pmalloc">pmalloc</h3>
 
 <p>
 <b>Definition:</b>
@@ -6798,8 +6608,7 @@ address should be freed using <a href="#fn_pfree">pfree()</a> after it is not re
 <div class='function'>
 </p>
 
-<a id="fn_pmemdup" name="fn_pmemdup"></a>
-<h3>pmemdup</h3>
+<h3 id="fn_pmemdup">pmemdup</h3>
 
 <p>
 <b>Definition:</b>
@@ -6827,8 +6636,7 @@ type of <i>ptr</i> again.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_create" name="fn_pp_ast_create"></a>
-<h3>pp_ast_create</h3>
+<h3 id="fn_pp_ast_create">pp_ast_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -6848,8 +6656,7 @@ Creates new abstract syntax tree node.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_dump" name="fn_pp_ast_dump"></a>
-<h3>pp_ast_dump</h3>
+<h3 id="fn_pp_ast_dump">pp_ast_dump</h3>
 
 <p>
 <b>Definition:</b>
@@ -6869,8 +6676,7 @@ Dump detailed <i>ast</i> to <i>stream</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_dump_json" name="fn_pp_ast_dump_json"></a>
-<h3>pp_ast_dump_json</h3>
+<h3 id="fn_pp_ast_dump_json">pp_ast_dump_json</h3>
 
 <p>
 <b>Definition:</b>
@@ -6893,8 +6699,7 @@ Only opening matches are printed.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_dump_short" name="fn_pp_ast_dump_short"></a>
-<h3>pp_ast_dump_short</h3>
+<h3 id="fn_pp_ast_dump_short">pp_ast_dump_short</h3>
 
 <p>
 <b>Definition:</b>
@@ -6917,8 +6722,7 @@ Only opening matches are printed.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_dump_tree2svg" name="fn_pp_ast_dump_tree2svg"></a>
-<h3>pp_ast_dump_tree2svg</h3>
+<h3 id="fn_pp_ast_dump_tree2svg">pp_ast_dump_tree2svg</h3>
 
 <p>
 <b>Definition:</b>
@@ -6939,8 +6743,7 @@ graphical view of the parse tree.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_free" name="fn_pp_ast_free"></a>
-<h3>pp_ast_free</h3>
+<h3 id="fn_pp_ast_free">pp_ast_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -6963,8 +6766,7 @@ Always returns (ppast*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_get" name="fn_pp_ast_get"></a>
-<h3>pp_ast_get</h3>
+<h3 id="fn_pp_ast_get">pp_ast_get</h3>
 
 <p>
 <b>Definition:</b>
@@ -6984,8 +6786,7 @@ Returns the <i>n</i>th element of <i>node</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_len" name="fn_pp_ast_len"></a>
-<h3>pp_ast_len</h3>
+<h3 id="fn_pp_ast_len">pp_ast_len</h3>
 
 <p>
 <b>Definition:</b>
@@ -7005,8 +6806,7 @@ Returns length of <i>node</i> chain.
 <div class='function'>
 </p>
 
-<a id="fn_pp_ast_select" name="fn_pp_ast_select"></a>
-<h3>pp_ast_select</h3>
+<h3 id="fn_pp_ast_select">pp_ast_select</h3>
 
 <p>
 <b>Definition:</b>
@@ -7026,8 +6826,7 @@ Returns the <i>n</i>th element matching emit <i>emit</i> starting at <i>node</i>
 <div class='function'>
 </p>
 
-<a id="fn_pp_create" name="fn_pp_create"></a>
-<h3>pp_create</h3>
+<h3 id="fn_pp_create">pp_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -7047,8 +6846,7 @@ Creates a new parser object with flags <i>flags</i> and the grammar <i>bnf</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_free" name="fn_pp_free"></a>
-<h3>pp_free</h3>
+<h3 id="fn_pp_free">pp_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -7068,8 +6866,7 @@ Free parser <i>par</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_gram_create" name="fn_pp_gram_create"></a>
-<h3>pp_gram_create</h3>
+<h3 id="fn_pp_gram_create">pp_gram_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -7089,8 +6886,7 @@ Creates a new ppgram-object.
 <div class='function'>
 </p>
 
-<a id="fn_pp_gram_dump" name="fn_pp_gram_dump"></a>
-<h3>pp_gram_dump</h3>
+<h3 id="fn_pp_gram_dump">pp_gram_dump</h3>
 
 <p>
 <b>Definition:</b>
@@ -7110,8 +6906,7 @@ Dumps the grammar <i>g</i> to <i>stream</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_gram_free" name="fn_pp_gram_free"></a>
-<h3>pp_gram_free</h3>
+<h3 id="fn_pp_gram_free">pp_gram_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -7131,8 +6926,7 @@ Frees grammar <i>g</i> and all its related memory.
 <div class='function'>
 </p>
 
-<a id="fn_pp_gram_from_bnf" name="fn_pp_gram_from_bnf"></a>
-<h3>pp_gram_from_bnf</h3>
+<h3 id="fn_pp_gram_from_bnf">pp_gram_from_bnf</h3>
 
 <p>
 <b>Definition:</b>
@@ -7156,8 +6950,7 @@ Compiles a grammar definition into a grammar.
 <div class='function'>
 </p>
 
-<a id="fn_pp_gram_prepare" name="fn_pp_gram_prepare"></a>
-<h3>pp_gram_prepare</h3>
+<h3 id="fn_pp_gram_prepare">pp_gram_prepare</h3>
 
 <p>
 <b>Definition:</b>
@@ -7193,12 +6986,11 @@ The preparation process includes:
 This function is only run internally.
 Don't call it if you're unsure ;)...
 </div>
-<!-- NEED 19 -->
+<!-- NEED 20 -->
 <div class='function'>
 </p>
 
-<a id="fn_pp_lr_parse" name="fn_pp_lr_parse"></a>
-<h3>pp_lr_parse</h3>
+<h3 id="fn_pp_lr_parse">pp_lr_parse</h3>
 
 <p>
 <b>Definition:</b>
@@ -7218,19 +7010,20 @@ Parses the string <i>str</i> using the grammar <i>grm</i> with a LALR(1) parser.
 Parsing stops at least when reading the zero terminator of <i>str</i>.
 </p>
 <p>
-<i>ast</i> receives an allocated parray-object with items of <i>ppmatch</i> elements
-that describe the produced abstract syntax tree.
+<i>root</i> receives the root-node of the constructed abstract syntax tree as
+an ppast object.
 </p>
 <p>
 <i>end</i> receives the position of the last character matched.
+</p>
+<p>
 The function returns TRUE if no parse error occured.
 </div>
 <!-- NEED 16 -->
 <div class='function'>
 </p>
 
-<a id="fn_pp_parse_to_ast" name="fn_pp_parse_to_ast"></a>
-<h3>pp_parse_to_ast</h3>
+<h3 id="fn_pp_parse_to_ast">pp_parse_to_ast</h3>
 
 <p>
 <b>Definition:</b>
@@ -7257,8 +7050,7 @@ It returns a parse-tree to <i>root</i> on success.
 <div class='function'>
 </p>
 
-<a id="fn_pp_prod_append" name="fn_pp_prod_append"></a>
-<h3>pp_prod_append</h3>
+<h3 id="fn_pp_prod_append">pp_prod_append</h3>
 
 <p>
 <b>Definition:</b>
@@ -7278,8 +7070,7 @@ Appends the symbol <i>sym</i> to the right-hand-side of production <i>p</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_prod_create" name="fn_pp_prod_create"></a>
-<h3>pp_prod_create</h3>
+<h3 id="fn_pp_prod_create">pp_prod_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -7300,8 +7091,7 @@ within the grammar <i>g</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_prod_drop" name="fn_pp_prod_drop"></a>
-<h3>pp_prod_drop</h3>
+<h3 id="fn_pp_prod_drop">pp_prod_drop</h3>
 
 <p>
 <b>Definition:</b>
@@ -7321,8 +7111,7 @@ Frees the production object <i>p</i> and releases any used memory.
 <div class='function'>
 </p>
 
-<a id="fn_pp_prod_get" name="fn_pp_prod_get"></a>
-<h3>pp_prod_get</h3>
+<h3 id="fn_pp_prod_get">pp_prod_get</h3>
 
 <p>
 <b>Definition:</b>
@@ -7343,8 +7132,7 @@ Returns (ppprod*)NULL if no symbol was found.
 <div class='function'>
 </p>
 
-<a id="fn_pp_prod_getfromrhs" name="fn_pp_prod_getfromrhs"></a>
-<h3>pp_prod_getfromrhs</h3>
+<h3 id="fn_pp_prod_getfromrhs">pp_prod_getfromrhs</h3>
 
 <p>
 <b>Definition:</b>
@@ -7366,8 +7154,7 @@ not exist.
 <div class='function'>
 </p>
 
-<a id="fn_pp_prod_remove" name="fn_pp_prod_remove"></a>
-<h3>pp_prod_remove</h3>
+<h3 id="fn_pp_prod_remove">pp_prod_remove</h3>
 
 <p>
 <b>Definition:</b>
@@ -7388,8 +7175,7 @@ production <i>p</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_prod_to_str" name="fn_pp_prod_to_str"></a>
-<h3>pp_prod_to_str</h3>
+<h3 id="fn_pp_prod_to_str">pp_prod_to_str</h3>
 
 <p>
 <b>Definition:</b>
@@ -7413,8 +7199,7 @@ It may not be freed by the caller.
 <div class='function'>
 </p>
 
-<a id="fn_pp_sym_create" name="fn_pp_sym_create"></a>
-<h3>pp_sym_create</h3>
+<h3 id="fn_pp_sym_create">pp_sym_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -7440,8 +7225,7 @@ It will be ignored else.
 <div class='function'>
 </p>
 
-<a id="fn_pp_sym_drop" name="fn_pp_sym_drop"></a>
-<h3>pp_sym_drop</h3>
+<h3 id="fn_pp_sym_drop">pp_sym_drop</h3>
 
 <p>
 <b>Definition:</b>
@@ -7461,8 +7245,7 @@ Frees a symbol.
 <div class='function'>
 </p>
 
-<a id="fn_pp_sym_get" name="fn_pp_sym_get"></a>
-<h3>pp_sym_get</h3>
+<h3 id="fn_pp_sym_get">pp_sym_get</h3>
 
 <p>
 <b>Definition:</b>
@@ -7483,8 +7266,7 @@ Returns (ppsym*)NULL if no symbol was found.
 <div class='function'>
 </p>
 
-<a id="fn_pp_sym_get_by_name" name="fn_pp_sym_get_by_name"></a>
-<h3>pp_sym_get_by_name</h3>
+<h3 id="fn_pp_sym_get_by_name">pp_sym_get_by_name</h3>
 
 <p>
 <b>Definition:</b>
@@ -7504,8 +7286,7 @@ Get a symbol from grammar <i>g</i> by its <i>name</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pp_sym_get_nameless_term_by_def" name="fn_pp_sym_get_nameless_term_by_def"></a>
-<h3>pp_sym_get_nameless_term_by_def</h3>
+<h3 id="fn_pp_sym_get_nameless_term_by_def">pp_sym_get_nameless_term_by_def</h3>
 
 <p>
 <b>Definition:</b>
@@ -7525,8 +7306,7 @@ Find a nameless terminal symbol by its pattern.
 <div class='function'>
 </p>
 
-<a id="fn_pp_sym_getprod" name="fn_pp_sym_getprod"></a>
-<h3>pp_sym_getprod</h3>
+<h3 id="fn_pp_sym_getprod">pp_sym_getprod</h3>
 
 <p>
 <b>Definition:</b>
@@ -7551,8 +7331,7 @@ configured differently.
 <div class='function'>
 </p>
 
-<a id="fn_pp_sym_to_str" name="fn_pp_sym_to_str"></a>
-<h3>pp_sym_to_str</h3>
+<h3 id="fn_pp_sym_to_str">pp_sym_to_str</h3>
 
 <p>
 <b>Definition:</b>
@@ -7577,8 +7356,7 @@ times. It may not be freed by the caller.
 <div class='function'>
 </p>
 
-<a id="fn_prealloc" name="fn_prealloc"></a>
-<h3>prealloc</h3>
+<h3 id="fn_prealloc">prealloc</h3>
 
 <p>
 <b>Definition:</b>
@@ -7613,8 +7391,7 @@ address should be freed using <a href="#fn_pfree">pfree()</a> after it is not re
 <div class='function'>
 </p>
 
-<a id="fn_pregex_create" name="fn_pregex_create"></a>
-<h3>pregex_create</h3>
+<h3 id="fn_pregex_create">pregex_create</h3>
 
 <p>
 <b>Definition:</b>
@@ -7698,8 +7475,7 @@ This must be freed later using <a href="#fn_pregex_free">pregex_free()</a>.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_find" name="fn_pregex_find"></a>
-<h3>pregex_find</h3>
+<h3 id="fn_pregex_find">pregex_find</h3>
 
 <p>
 <b>Definition:</b>
@@ -7732,8 +7508,7 @@ The function returns (char*)NULL in case that there is no match.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_findall" name="fn_pregex_findall"></a>
-<h3>pregex_findall</h3>
+<h3 id="fn_pregex_findall">pregex_findall</h3>
 
 <p>
 <b>Definition:</b>
@@ -7762,8 +7537,7 @@ prange. It returns the total number of matches.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_free" name="fn_pregex_free"></a>
-<h3>pregex_free</h3>
+<h3 id="fn_pregex_free">pregex_free</h3>
 
 <p>
 <b>Definition:</b>
@@ -7789,8 +7563,7 @@ Returns always (pregex*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_match" name="fn_pregex_match"></a>
-<h3>pregex_match</h3>
+<h3 id="fn_pregex_match">pregex_match</h3>
 
 <p>
 <b>Definition:</b>
@@ -7814,8 +7587,7 @@ the pointer to the last matched character.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_qmatch" name="fn_pregex_qmatch"></a>
-<h3>pregex_qmatch</h3>
+<h3 id="fn_pregex_qmatch">pregex_qmatch</h3>
 
 <p>
 <b>Definition:</b>
@@ -7856,8 +7628,7 @@ returned array <i>matches</i>. If the value is negative, an error occured.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_qreplace" name="fn_pregex_qreplace"></a>
-<h3>pregex_qreplace</h3>
+<h3 id="fn_pregex_qreplace">pregex_qreplace</h3>
 
 <p>
 <b>Definition:</b>
@@ -7898,8 +7669,7 @@ caller using <a href="#fn_pfree">pfree()</a>.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_qsplit" name="fn_pregex_qsplit"></a>
-<h3>pregex_qsplit</h3>
+<h3 id="fn_pregex_qsplit">pregex_qsplit</h3>
 
 <p>
 <b>Definition:</b>
@@ -7939,8 +7709,7 @@ the returned array <i>matches</i>. If the value is negative, an error occured.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_replace" name="fn_pregex_replace"></a>
-<h3>pregex_replace</h3>
+<h3 id="fn_pregex_replace">pregex_replace</h3>
 
 <p>
 <b>Definition:</b>
@@ -7974,8 +7743,7 @@ in error case.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_split" name="fn_pregex_split"></a>
-<h3>pregex_split</h3>
+<h3 id="fn_pregex_split">pregex_split</h3>
 
 <p>
 <b>Definition:</b>
@@ -8011,8 +7779,7 @@ else it returns <i>start</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pregex_splitall" name="fn_pregex_splitall"></a>
-<h3>pregex_splitall</h3>
+<h3 id="fn_pregex_splitall">pregex_splitall</h3>
 
 <p>
 <b>Definition:</b>
@@ -8042,8 +7809,7 @@ prange. It returns the total number of matches.
 <div class='function'>
 </p>
 
-<a id="fn_pstr_to_wcs" name="fn_pstr_to_wcs"></a>
-<h3>pstr_to_wcs</h3>
+<h3 id="fn_pstr_to_wcs">pstr_to_wcs</h3>
 
 <p>
 <b>Definition:</b>
@@ -8079,8 +7845,7 @@ allocated memory.
 <div class='function'>
 </p>
 
-<a id="fn_pstrcasecmp" name="fn_pstrcasecmp"></a>
-<h3>pstrcasecmp</h3>
+<h3 id="fn_pstrcasecmp">pstrcasecmp</h3>
 
 <p>
 <b>Definition:</b>
@@ -8108,8 +7873,7 @@ Returns 0 if both strings are equal. Returns a value &lt;0 if <i>s1</i> is lower
 <div class='function'>
 </p>
 
-<a id="fn_pstrcatchar" name="fn_pstrcatchar"></a>
-<h3>pstrcatchar</h3>
+<h3 id="fn_pstrcatchar">pstrcatchar</h3>
 
 <p>
 <b>Definition:</b>
@@ -8139,8 +7903,7 @@ be released with <a href="#fn_pfree">pfree()</a> when its existence is no longer
 <div class='function'>
 </p>
 
-<a id="fn_pstrcatstr" name="fn_pstrcatstr"></a>
-<h3>pstrcatstr</h3>
+<h3 id="fn_pstrcatstr">pstrcatstr</h3>
 
 <p>
 <b>Definition:</b>
@@ -8164,7 +7927,7 @@ If this is (char*)NULL, the string is newly allocated.
 <i>append</i> is the string to be appended at the end of <i>str</i>.
 </p>
 <p>
-<i>release_append</i> frees the pointer provided as <i>append</i> automatically by
+<i>freesrc</i> frees the pointer provided as <i>append</i> automatically by
 this function, if set to TRUE. This parameter has only a comfort-function.
 </p>
 <p>
@@ -8177,8 +7940,7 @@ automatically returns the pointer <i>src</i>. This pointer must be released with
 <div class='function'>
 </p>
 
-<a id="fn_pstrdup" name="fn_pstrdup"></a>
-<h3>pstrdup</h3>
+<h3 id="fn_pstrdup">pstrdup</h3>
 
 <p>
 <b>Definition:</b>
@@ -8206,8 +7968,7 @@ must be released with <a href="#fn_pfree">pfree()</a> when its existence is no l
 <div class='function'>
 </p>
 
-<a id="fn_pstrget" name="fn_pstrget"></a>
-<h3>pstrget</h3>
+<h3 id="fn_pstrget">pstrget</h3>
 
 <p>
 <b>Definition:</b>
@@ -8231,8 +7992,7 @@ function returns a pointer to a static address holding an empty string.
 <div class='function'>
 </p>
 
-<a id="fn_pstrlen" name="fn_pstrlen"></a>
-<h3>pstrlen</h3>
+<h3 id="fn_pstrlen">pstrlen</h3>
 
 <p>
 <b>Definition:</b>
@@ -8260,8 +8020,7 @@ Returns the length of the string <i>str</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pstrltrim" name="fn_pstrltrim"></a>
-<h3>pstrltrim</h3>
+<h3 id="fn_pstrltrim">pstrltrim</h3>
 
 <p>
 <b>Definition:</b>
@@ -8287,8 +8046,7 @@ Returns <i>s</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pstrlwr" name="fn_pstrlwr"></a>
-<h3>pstrlwr</h3>
+<h3 id="fn_pstrlwr">pstrlwr</h3>
 
 <p>
 <b>Definition:</b>
@@ -8314,8 +8072,7 @@ Returns <i>s</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pstrncasecmp" name="fn_pstrncasecmp"></a>
-<h3>pstrncasecmp</h3>
+<h3 id="fn_pstrncasecmp">pstrncasecmp</h3>
 
 <p>
 <b>Definition:</b>
@@ -8344,8 +8101,7 @@ Returns 0 if both strings are equal. Returns a value &lt;0 if <i>s1</i> is lower
 <div class='function'>
 </p>
 
-<a id="fn_pstrncatstr" name="fn_pstrncatstr"></a>
-<h3>pstrncatstr</h3>
+<h3 id="fn_pstrncatstr">pstrncatstr</h3>
 
 <p>
 <b>Definition:</b>
@@ -8381,8 +8137,7 @@ is no longer required.
 <div class='function'>
 </p>
 
-<a id="fn_pstrndup" name="fn_pstrndup"></a>
-<h3>pstrndup</h3>
+<h3 id="fn_pstrndup">pstrndup</h3>
 
 <p>
 <b>Definition:</b>
@@ -8418,8 +8173,7 @@ is no longer required.
 <div class='function'>
 </p>
 
-<a id="fn_pstrput" name="fn_pstrput"></a>
-<h3>pstrput</h3>
+<h3 id="fn_pstrput">pstrput</h3>
 
 <p>
 <b>Definition:</b>
@@ -8454,8 +8208,7 @@ as <code>pstrput( &amp;p, (char*)NULL );</code> is equivalent to <code>p = pfree
 <div class='function'>
 </p>
 
-<a id="fn_pstrrender" name="fn_pstrrender"></a>
-<h3>pstrrender</h3>
+<h3 id="fn_pstrrender">pstrrender</h3>
 
 <p>
 <b>Definition:</b>
@@ -8502,8 +8255,7 @@ is no longer required.
 <div class='function'>
 </p>
 
-<a id="fn_pstrreplace" name="fn_pstrreplace"></a>
-<h3>pstrreplace</h3>
+<h3 id="fn_pstrreplace">pstrreplace</h3>
 
 <p>
 <b>Definition:</b>
@@ -8533,8 +8285,7 @@ is no longer required.
 <div class='function'>
 </p>
 
-<a id="fn_pstrrtrim" name="fn_pstrrtrim"></a>
-<h3>pstrrtrim</h3>
+<h3 id="fn_pstrrtrim">pstrrtrim</h3>
 
 <p>
 <b>Definition:</b>
@@ -8560,8 +8311,7 @@ Returns <i>s</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pstrsplit" name="fn_pstrsplit"></a>
-<h3>pstrsplit</h3>
+<h3 id="fn_pstrsplit">pstrsplit</h3>
 
 <p>
 <b>Definition:</b>
@@ -8593,8 +8343,7 @@ Returns the number of separated tokens, or -1 on error.
 <div class='function'>
 </p>
 
-<a id="fn_pstrtrim" name="fn_pstrtrim"></a>
-<h3>pstrtrim</h3>
+<h3 id="fn_pstrtrim">pstrtrim</h3>
 
 <p>
 <b>Definition:</b>
@@ -8620,8 +8369,7 @@ Returns <i>s</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pstrunescape" name="fn_pstrunescape"></a>
-<h3>pstrunescape</h3>
+<h3 id="fn_pstrunescape">pstrunescape</h3>
 
 <p>
 <b>Definition:</b>
@@ -8705,8 +8453,7 @@ s = pfree( s );
 <!-- NEED 15 -->
 <div class='function'>
 
-<a id="fn_pstrupr" name="fn_pstrupr"></a>
-<h3>pstrupr</h3>
+<h3 id="fn_pstrupr">pstrupr</h3>
 
 <p>
 <b>Definition:</b>
@@ -8732,8 +8479,7 @@ Returns <i>s</i>.
 <div class='function'>
 </p>
 
-<a id="fn_pvasprintf" name="fn_pvasprintf"></a>
-<h3>pvasprintf</h3>
+<h3 id="fn_pvasprintf">pvasprintf</h3>
 
 <p>
 <b>Definition:</b>
@@ -8757,12 +8503,134 @@ Implementation and replacement for vasprintf.
 <p>
 Returns the number of characters written, or -1 in error case.
 </div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pvm_create">pvm_create</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pvm* pvm_create( void )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Creates a new virtual machine.
+</div>
+<!-- NEED 13 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pvm_define">pvm_define</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+int pvm_define( pvm* vm, char* mn, pvmop op )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Implements mnemonic <i>mn</i> with operational function <i>op</i> into <i>vm</i>.
+</p>
+<p>
+Returns the operation's opcode, or a value &lt; 0 on error.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pvm_free">pvm_free</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pvm* pvm_free( pvm* vm )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Frees a virtual machine.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pvm_init">pvm_init</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pvm* pvm_init( pvm* vm )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Initializes the virtual machine <i>vm</i>.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pvm_prog_run">pvm_prog_run</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void pvm_prog_run( pvmprog* prog )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Run vm
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pvm_reset">pvm_reset</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pvm* pvm_reset( pvm* vm )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Resets a virtual machine <i>vm</i>.
+</div>
 <!-- NEED 22 -->
 <div class='function'>
 </p>
 
-<a id="fn_pwcs_to_str" name="fn_pwcs_to_str"></a>
-<h3>pwcs_to_str</h3>
+<h3 id="fn_pwcs_to_str">pwcs_to_str</h3>
 
 <p>
 <b>Definition:</b>
@@ -8796,8 +8664,7 @@ allocated memory.
 <div class='function'>
 </p>
 
-<a id="fn_pwcscatchar" name="fn_pwcscatchar"></a>
-<h3>pwcscatchar</h3>
+<h3 id="fn_pwcscatchar">pwcscatchar</h3>
 
 <p>
 <b>Definition:</b>
@@ -8826,8 +8693,7 @@ Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 <div class='function'>
 </p>
 
-<a id="fn_pwcscatstr" name="fn_pwcscatstr"></a>
-<h3>pwcscatstr</h3>
+<h3 id="fn_pwcscatstr">pwcscatstr</h3>
 
 <p>
 <b>Definition:</b>
@@ -8859,8 +8725,7 @@ where NULL.
 <div class='function'>
 </p>
 
-<a id="fn_pwcsdup" name="fn_pwcsdup"></a>
-<h3>pwcsdup</h3>
+<h3 id="fn_pwcsdup">pwcsdup</h3>
 
 <p>
 <b>Definition:</b>
@@ -8888,8 +8753,7 @@ must be released with <a href="#fn_pfree">pfree()</a> when its existence is no l
 <div class='function'>
 </p>
 
-<a id="fn_pwcsget" name="fn_pwcsget"></a>
-<h3>pwcsget</h3>
+<h3 id="fn_pwcsget">pwcsget</h3>
 
 <p>
 <b>Definition:</b>
@@ -8913,8 +8777,7 @@ function returns a pointer to a static address holding an empty string.
 <div class='function'>
 </p>
 
-<a id="fn_pwcslen" name="fn_pwcslen"></a>
-<h3>pwcslen</h3>
+<h3 id="fn_pwcslen">pwcslen</h3>
 
 <p>
 <b>Definition:</b>
@@ -8938,8 +8801,7 @@ the function returns 0.
 <div class='function'>
 </p>
 
-<a id="fn_pwcsncatstr" name="fn_pwcsncatstr"></a>
-<h3>pwcsncatstr</h3>
+<h3 id="fn_pwcsncatstr">pwcsncatstr</h3>
 
 <p>
 <b>Definition:</b>
@@ -8971,8 +8833,7 @@ where NULL.
 <div class='function'>
 </p>
 
-<a id="fn_pwcsndup" name="fn_pwcsndup"></a>
-<h3>pwcsndup</h3>
+<h3 id="fn_pwcsndup">pwcsndup</h3>
 
 <p>
 <b>Definition:</b>
@@ -9011,8 +8872,7 @@ when its existence is no longer required.
 <div class='function'>
 </p>
 
-<a id="fn_pwcsput" name="fn_pwcsput"></a>
-<h3>pwcsput</h3>
+<h3 id="fn_pwcsput">pwcsput</h3>
 
 <p>
 <b>Definition:</b>
@@ -9049,8 +8909,7 @@ as <code>pwcsput( &amp;p, (char*)NULL );</code> is equivalent to <code>p = pfree
 <div class='function'>
 </p>
 
-<a id="fn_pwhich" name="fn_pwhich"></a>
-<h3>pwhich</h3>
+<h3 id="fn_pwhich">pwhich</h3>
 
 <p>
 <b>Definition:</b>
@@ -9083,8 +8942,7 @@ as filename, else it will return (char*)NULL.
 <div class='function'>
 </p>
 
-<a id="fn_u8_char" name="fn_u8_char"></a>
-<h3>u8_char</h3>
+<h3 id="fn_u8_char">u8_char</h3>
 
 <p>
 <b>Definition:</b>
@@ -9108,8 +8966,7 @@ character string.
 <div class='function'>
 </p>
 
-<a id="fn_u8_isutf" name="fn_u8_isutf"></a>
-<h3>u8_isutf</h3>
+<h3 id="fn_u8_isutf">u8_isutf</h3>
 
 <p>
 <b>Definition:</b>
@@ -9133,8 +8990,7 @@ character signature, else FALSE.
 <div class='function'>
 </p>
 
-<a id="fn_u8_move" name="fn_u8_move"></a>
-<h3>u8_move</h3>
+<h3 id="fn_u8_move">u8_move</h3>
 
 <p>
 <b>Definition:</b>
@@ -9163,8 +9019,7 @@ pointer to the zero-terminator.
 <div class='function'>
 </p>
 
-<a id="fn_u8_parse_char" name="fn_u8_parse_char"></a>
-<h3>u8_parse_char</h3>
+<h3 id="fn_u8_parse_char">u8_parse_char</h3>
 
 <p>
 <b>Definition:</b>
@@ -9192,8 +9047,7 @@ The function teturns the character code of the parsed character.
 <div class='function'>
 </p>
 
-<a id="fn_u8_seqlen" name="fn_u8_seqlen"></a>
-<h3>u8_seqlen</h3>
+<h3 id="fn_u8_seqlen">u8_seqlen</h3>
 
 <p>
 <b>Definition:</b>
@@ -9218,6 +9072,6 @@ Returns the number of bytes used for the next character.
 </p>
 </div>
 
-<!-- xhtml code generated by txt2tags 2.6 (http://txt2tags.org) -->
-<!-- cmdline: txt2tags -o phorward.html -t xhtml -\-toc -\-css-suggar -\-style=phorward.css phorward.t2t -->
+<!-- xhtml code generated by txt2tags 2.6. (http://txt2tags.org) -->
+<!-- cmdline: txt2tags -o phorward.html -t xhtml -\-toc -\-css-sugar -\-style=phorward.css phorward.t2t -->
 </body></html>

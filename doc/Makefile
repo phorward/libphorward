@@ -16,7 +16,7 @@ SRC 	= 	array.t2t \
 all: $(HTMLOUT)
 
 $(HTMLOUT): $(SRC) Makefile
-	txt2tags -o $@ -t xhtml --toc --css-suggar --style=phorward.css $(MAINSRC)
+	txt2tags -o $@ -t xhtml --toc --css-sugar --style=phorward.css $(MAINSRC)
 
 $(TXTOUT): $(SRC) Makefile
 	txt2tags -t txt -H -o - $? | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@

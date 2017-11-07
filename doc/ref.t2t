@@ -2105,14 +2105,14 @@ with special compile-time flags provided for each pattern.
 On success, the function returns the allocated pointer to a plex-object.
 This must be freed later using [plex_free() #fn_plex_free].
 %FUNCTION:END
-%NEED:29
+%NEED:34
 %FUNCTION:BEGIN
 === plex_define ===[fn_plex_define]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-pboolean plex_define( plex* lex, char* pat, int match_id, int flags )
+pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
 %DEFINITION:END
 
 **Usage:**
@@ -2136,6 +2136,11 @@ compile-time flags of the plex-object provided at [plex_create() #fn_plex_create
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as possible |
 | PREGEX_COMP_INSENSITIVE | Parse regular expressions as case insensitive. |
 | PREGEX_COMP_STATIC | The regular expressions passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped. |
+
+
+Returns a pointer to the pattern object that just has been added. This allows
+for changing e.g. the accept flag later on. In case of an error, the value
+returned is NULL.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -3156,7 +3161,7 @@ The preparation process includes:
 This function is only run internally.
 Don't call it if you're unsure ;)...
 %FUNCTION:END
-%NEED:19
+%NEED:20
 %FUNCTION:BEGIN
 === pp_lr_parse ===[fn_pp_lr_parse]
 
@@ -3172,10 +3177,11 @@ Parses the string //str// using the grammar //grm// with a LALR(1) parser.
 
 Parsing stops at least when reading the zero terminator of //str//.
 
-//ast// receives an allocated parray-object with items of //ppmatch// elements
-that describe the produced abstract syntax tree.
+//root// receives the root-node of the constructed abstract syntax tree as
+an ppast object.
 
 //end// receives the position of the last character matched.
+
 The function returns TRUE if no parse error occured.
 %FUNCTION:END
 %NEED:16
@@ -3807,7 +3813,7 @@ If this is (char*)NULL, the string is newly allocated.
 
 //append// is the string to be appended at the end of //str//.
 
-//release_append// frees the pointer provided as //append// automatically by
+//freesrc// frees the pointer provided as //append// automatically by
 this function, if set to TRUE. This parameter has only a comfort-function.
 
 Returns a char*-pointer to (possibly re-)allocated and appended string.
@@ -4203,6 +4209,92 @@ Implementation and replacement for vasprintf.
 //...// are the parameters according to the placeholders set in //fmt//.
 
 Returns the number of characters written, or -1 in error case.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_create ===[fn_pvm_create]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pvm* pvm_create( void )
+%DEFINITION:END
+
+**Usage:**
+
+Creates a new virtual machine.
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pvm_define ===[fn_pvm_define]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int pvm_define( pvm* vm, char* mn, pvmop op )
+%DEFINITION:END
+
+**Usage:**
+
+Implements mnemonic //mn// with operational function //op// into //vm//.
+
+Returns the operation's opcode, or a value < 0 on error.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_free ===[fn_pvm_free]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pvm* pvm_free( pvm* vm )
+%DEFINITION:END
+
+**Usage:**
+
+Frees a virtual machine.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_init ===[fn_pvm_init]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pvm* pvm_init( pvm* vm )
+%DEFINITION:END
+
+**Usage:**
+
+Initializes the virtual machine //vm//.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_prog_run ===[fn_pvm_prog_run]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pvm_prog_run( pvmprog* prog )
+%DEFINITION:END
+
+**Usage:**
+
+Run vm
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pvm_reset ===[fn_pvm_reset]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pvm* pvm_reset( pvm* vm )
+%DEFINITION:END
+
+**Usage:**
+
+Resets a virtual machine //vm//.
 %FUNCTION:END
 %NEED:22
 %FUNCTION:BEGIN

@@ -15,7 +15,7 @@ clean:
 	-rm pregex.o
 	-rm ppgram2c.o
 	-rm pvm.o
-	-rm utils.o
+	-rm util.o
 	-rm $(PLEX) $(PPARSE) $(PREGEX) $(PPGRAM2C) $(PVM)
 
 $(PLEX): plex.o util.o $(LIBPHORWARD)

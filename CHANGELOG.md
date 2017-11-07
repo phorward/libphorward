@@ -4,7 +4,7 @@ This file is used to document any relevant changes done to libphorward.
 
 ## v0.20
 
-Released on: Outstanding
+Released on: November 7, 2017
 
 - Started use of a lexical analyzer in the build-in LR parser (very unstable!).
 - Changed behavior of command-line tools to be more pynetree compliant.

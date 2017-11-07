@@ -1,1 +1,1 @@
-#define LIBPHORWARD_VERSION "0.20.0 devel"
+#define LIBPHORWARD_VERSION "0.20.0"
