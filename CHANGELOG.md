@@ -1,13 +1,13 @@
 # Changelog
 
-This file is used to document any relevant changes done to UniCC.
+This file is used to document any relevant changes done to libphorward.
 
 ## v0.20
 
 Released on: Outstanding
 
-- Started use of a lexical analyzer in the build-in LR parser.
-- Changed behavior of command-line tools to be pynetree compliant.
+- Started use of a lexical analyzer in the build-in LR parser (very unstable!).
+- Changed behavior of command-line tools to be more pynetree compliant.
 - Fixing an ancient bug in the DFA construction mechanism building arbitrary
   state orders.
 - New README.md and updated CHANGELOG.md
