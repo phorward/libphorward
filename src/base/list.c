@@ -280,7 +280,6 @@ All elements of //list// are duplicated and stand-alone. */
 plist* plist_dup( plist* list )
 {
 	plist*		dup;
-	plistel*	e;
 
 	if( !list )
 	{
@@ -293,8 +292,7 @@ plist* plist_dup( plist* list )
 	dup->sortfn = list->sortfn;
 	dup->printfn = list->printfn;
 
-	for( e = plist_first( list ); e; e = plist_next( e ) )
-		plist_insert( dup, (plistel*)NULL, e->key, plist_access( e ) );
+	plist_concat( dup, list );
 
 	return dup;
 }
@@ -509,6 +507,7 @@ plistel* plist_push( plist* list, void* src )
 	if( !( list ) )
 	{
 		WRONGPARAM;
+		CORE;
 		return (plistel*)NULL;
 	}
 
@@ -802,6 +801,29 @@ plistel* plist_get_by_ptr( plist* list, void* ptr )
 			return e;
 
 	return (plistel*)NULL;
+}
+
+/** Concats the elements of list //src// to the elements of list //dest//.
+
+The function will not run if both lists have different element size settings.
+
+The function returns the number of elements added to //dest//. */
+int plist_concat( plist* dest, plist* src )
+{
+	plistel*	e;
+	int			added;
+
+	if( !( dest && src && dest->size == src->size ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	plist_for( src, e )
+		if( plist_insert( dest, (plistel*)NULL, e->key, plist_access( e ) ) )
+			added++;
+
+	return added;
 }
 
 /** Unions elements from list //from// into list //all//.

@@ -125,6 +125,7 @@ plistel* plist_get( plist* list, size_t n );
 plistel* plist_rget( plist* list, size_t n );
 plistel* plist_get_by_key( plist* list, char* key );
 plistel* plist_get_by_ptr( plist* list, void* ptr );
+int plist_concat( plist* dest, plist* src );
 int plist_union( plist* all, plist* from );
 int plist_diff( plist* left, plist* right );
 pboolean plist_subsort( plist* list, plistel* from, plistel* to );
