@@ -68,9 +68,11 @@ static int plist_hash_index( plist* list, char* key )
 
 	if( list->flags & PLIST_MOD_PTRKEYS )
 		hashval = (long)key;
+	#ifdef UNICODE
 	else if( list->flags & PLIST_MOD_WCHAR )
 		for( len = (long)pwcslen( (wchar_t*)key ); len > 0; len-- )
 			hashval += (long)( (wchar_t*)key )[ len - 1 ];
+	#endif
 	else
 		for( len = (long)pstrlen( key ); len > 0; len-- )
 			hashval += (long)key[ len - 1 ];
@@ -479,8 +481,10 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		if( list->flags & PLIST_MOD_EXTKEYS
 				|| list->flags & PLIST_MOD_PTRKEYS )
 			e->key = key;
+		#if UNICODE
 		else if( list->flags & PLIST_MOD_WCHAR )
 			e->key = (char*)pwcsdup( (wchar_t*)key );
+		#endif
 		else
 			e->key = pstrdup( key );
 

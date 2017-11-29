@@ -20,25 +20,16 @@ Usage:	Phorward Foundation Toolkit Global Header
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 
-#include <stdarg.h>
-
-#ifndef va_copy
-#define va_copy( a, b )	(a) = (b)
+#ifdef UTF8
+#include <wchar.h>
 #endif
 
-#include <limits.h>
-#include <time.h>
-#include <fcntl.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
-
 #ifdef UNICODE
-#include <locale.h>
-#include <wchar.h>
 #include <wctype.h>
 #endif
 
@@ -108,7 +99,7 @@ typedef char 					pboolean;
 
 
 
-#define LIBPHORWARD_VERSION "0.20.0"
+#define LIBPHORWARD_VERSION "0.20.1"
 
 
 

@@ -113,14 +113,14 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 		/* Is case-insensitive flag set? */
 		if( flags & PREGEX_COMP_INSENSITIVE )
 		{
-#ifdef UTF8
-			MSG( "UTF-8 mode, trying to convert" );
+#ifdef UNICODE
+			MSG( "UNICODE mode, trying to convert" );
 			if( iswupper( ch ) )
 				ch = towlower( ch );
 			else
 				ch = towupper( ch );
 #else
-			MSG( "non UTF-8 mode, trying to convert" );
+			MSG( "non UNICODE mode, trying to convert" );
 			if( isupper( ch ) )
 				ch = (char)tolower( (int)ch );
 			else
