@@ -12,8 +12,10 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 #define PLIST_H
 
 /* Typedefs */
-typedef struct Plistel		plistel;
-typedef struct Plist		plist;
+typedef struct Plist		plist;			/* List */
+typedef struct Plistel		plistel;		/* List element */
+typedef void (*plistelfn)	( plistel* );	/* List element callback */
+typedef void (*plistfn)		( void* );		/* List element access callback */
 
 /* Element */
 struct Plistel
@@ -63,7 +65,7 @@ struct Plist
 /* Macros */
 
 /** Macro that expands into a for-loop iterating trough a plist-object
-//l// using and element element variable //e// as walker.
+//l// using and element variable //e// as walker.
 
 This macro expands into a for-loop of the format
 
@@ -74,6 +76,9 @@ where //e// is a walker variable for each element.
 **Example:**
 
 ```
+plist*		my_list;
+plistel*	e;
+
 plist_for( my_list, e )
 {
 	\* Access current element data part *\

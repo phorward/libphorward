@@ -196,6 +196,16 @@ typedef struct
 	size_t	chunk;
 } parray;
 
+typedef void (*parrayfn)	( void* );		
+
+
+
+
+
+#define parray_for( array, ptr )	\
+	for( (ptr) = parray_first( array ); (ptr); \
+			(ptr) = parray_next( array, ptr ) )
+
 #endif
 
 
@@ -204,8 +214,10 @@ typedef struct
 #define PLIST_H
 
 
-typedef struct Plistel		plistel;
-typedef struct Plist		plist;
+typedef struct Plist		plist;			
+typedef struct Plistel		plistel;		
+typedef void (*plistelfn)	( plistel* );	
+typedef void (*plistfn)		( void* );		
 
 
 struct Plistel
@@ -792,8 +804,12 @@ void* parray_get( parray* array, size_t offset );
 void* parray_put( parray* array, size_t offset, void* item );
 void* parray_rget( parray* array, size_t offset );
 void* parray_rput( parray* array, size_t offset, void* item );
-void* parray_last( parray* array );
+void parray_iter( parray* array, parrayfn callback );
+void parray_riter( parray* array, parrayfn callback );
 void* parray_first( parray* array );
+void* parray_last( parray* array );
+void* parray_next( parray* array, void* ptr );
+void* parray_prev( parray* array, void* ptr );
 void* parray_swap( parray* array, size_t pos1, size_t pos2 );
 size_t parray_count( parray* array );
 pboolean parray_partof( parray* array, void* ptr );
@@ -849,6 +865,10 @@ plistel* plist_rget( plist* list, size_t n );
 plistel* plist_get_by_key( plist* list, char* key );
 plistel* plist_get_by_ptr( plist* list, void* ptr );
 int plist_concat( plist* dest, plist* src );
+void plist_iter( plist* list, plistelfn callback );
+void plist_riter( plist* list, plistelfn callback );
+void plist_iter_access( plist* list, plistfn callback );
+void plist_riter_access( plist* list, plistfn callback );
 int plist_union( plist* all, plist* from );
 int plist_diff( plist* left, plist* right );
 pboolean plist_subsort( plist* list, plistel* from, plistel* to );

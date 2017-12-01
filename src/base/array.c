@@ -578,9 +578,79 @@ void* parray_rput( parray* array, size_t offset, void* item )
 	RETURN( parray_put( array, array->last - 1 - offset, item ) );
 }
 
+/** Iterates over //array//.
+
+Iterates over all items of //array// and calls the function //callback// on
+every item. */
+void parray_iter( parray* array, parrayfn callback )
+{
+	void*	ptr;
+
+	PROC( "parray_iter" );
+	PARMS( "array", "%p", array );
+	PARMS( "callback", "%p", callback );
+
+	if( !( array && callback ) )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	for( ptr = parray_first( array ); ptr; ptr = parray_next( array, ptr ) )
+		(*callback)( ptr );
+
+	VOIDRET;
+}
+
+/** Iterates backwards over //array//.
+
+Backwardly iterates over all items of //array// and calls the function
+//callback// on every item. */
+void parray_riter( parray* array, parrayfn callback )
+{
+	void*	ptr;
+
+	PROC( "parray_riter" );
+	PARMS( "array", "%p", array );
+	PARMS( "callback", "%p", callback );
+
+	if( !( array && callback ) )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	for( ptr = parray_last( array ); ptr; ptr = parray_prev( array, ptr ) )
+		(*callback)( ptr );
+
+	VOIDRET;
+}
+
+/** Access first element of the array.
+
+Returns the address of the accessed item, and (void*)NULL if nothing is in
+the array.
+*/
+void* parray_first( parray* array )
+{
+	PROC( "parray_first" );
+	PARMS( "array", "%p", array );
+
+	if( !array )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	if( array->first == array->last )
+		RETURN( (void*)NULL );
+
+	RETURN( (char*)array->array + ( array->first * array->size ) );
+}
+
 /** Access last element of the array.
 
-Returns the address of the accessed item, and (void*)NULL if nothing is on
+Returns the address of the accessed item, and (void*)NULL if nothing is in
 the array.
 */
 void* parray_last( parray* array )
@@ -600,26 +670,50 @@ void* parray_last( parray* array )
 	RETURN( (char*)array->array + ( ( array->last - 1 ) * array->size ) );
 }
 
-/** Access first element of the array.
+/** Access next element from //ptr// in //array//.
 
-Returns the address of the accessed item, and (void*)NULL if nothing is on
-the array.
+Returns the address of the next element, and (void*)NULL if the access gets
+out of bounds.
 */
-void* parray_first( parray* array )
+void* parray_next( parray* array, void* ptr )
 {
-	PROC( "parray_first" );
+	PROC( "parray_next" );
 	PARMS( "array", "%p", array );
 
-	if( !array )
+	if( !( array && ptr ) )
 	{
 		WRONGPARAM;
 		RETURN( (void*)NULL );
 	}
 
-	if( array->first == array->last )
+	ptr += array->size;
+	if( ptr > parray_last( array ) || ptr < parray_first( array ) )
 		RETURN( (void*)NULL );
 
-	RETURN( (char*)array->array + ( array->first * array->size ) );
+	RETURN( ptr );
+}
+
+/** Access previous element from //ptr// in //array//.
+
+Returns the address of the previous element, and (void*)NULL if the access gets
+out of bounds.
+*/
+void* parray_prev( parray* array, void* ptr )
+{
+	PROC( "parray_prev" );
+	PARMS( "array", "%p", array );
+
+	if( !( array && ptr ) )
+	{
+		WRONGPARAM;
+		RETURN( (void*)NULL );
+	}
+
+	ptr -= array->size;
+	if( ptr < parray_first( array ) || ptr > parray_last( array ) )
+		RETURN( (void*)NULL );
+
+	RETURN( ptr );
 }
 
 /** Swap two elements of an array. */

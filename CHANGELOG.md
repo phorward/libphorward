@@ -2,6 +2,14 @@
 
 This file is used to document any relevant changes done to libphorward.
 
+## v0.21
+
+Released on: Under development
+
+- New functions parray_next(), parray_prev(), parray_iter(), parray_riter(),
+  parray_for(), plist_iter(), plist_riter(), plist_iter_access(),
+  plist_riter_access() and plist_concat().
+
 ## v0.20
 
 Released on: November 7, 2017

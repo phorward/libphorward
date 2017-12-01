@@ -826,6 +826,106 @@ int plist_concat( plist* dest, plist* src )
 	return added;
 }
 
+/** Iterates over //list//.
+
+Iterates over all items of //list// and calls the function //callback// on
+every item. The callback function receives the plistel-element pointer of
+the list element. */
+void plist_iter( plist* list, plistelfn callback )
+{
+	plistel*	e;
+
+	PROC( "plist_iter" );
+	PARMS( "list", "%p", list );
+	PARMS( "callback", "%p", callback );
+
+	if( !( list && callback ) )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	plist_for( list, e )
+		(*callback)( e );
+
+	VOIDRET;
+}
+
+/** Iterates backwards over //list//.
+
+Backwardly iterates over all items of //list// and calls the function
+//callback// on every item. The callback function receives the plistel-element
+pointer of the list element. */
+void plist_riter( plist* list, plistelfn callback )
+{
+	plistel*	e;
+
+	PROC( "plist_riter" );
+	PARMS( "list", "%p", list );
+	PARMS( "callback", "%p", callback );
+
+	if( !( list && callback ) )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	for( e = plist_last( list ); e; e = plist_prev( e ) )
+		(*callback)( e );
+
+	VOIDRET;
+}
+
+/** Iterates over //list// and accesses every item.
+
+Iterates over all items of //list// and calls the function //callback// on
+every item's access. The callback function receives a pointer to the accessed
+element. */
+void plist_iter_access( plist* list, plistfn callback )
+{
+	plistel*	e;
+
+	PROC( "plist_iter_access" );
+	PARMS( "list", "%p", list );
+	PARMS( "callback", "%p", callback );
+
+	if( !( list && callback ) )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	plist_for( list, e )
+		(*callback)( plist_access( e ) );
+
+	VOIDRET;
+}
+
+/** Iterates backwards over //list//.
+
+Backwardly iterates over all items of //list// and calls the function
+//callback// on every  item's access. The callback function receives a pointer
+to the accessed element. */
+void plist_riter_access( plist* list, plistfn callback )
+{
+	plistel*	e;
+
+	PROC( "plist_riter_access" );
+	PARMS( "list", "%p", list );
+	PARMS( "callback", "%p", callback );
+
+	if( !( list && callback ) )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	for( e = plist_last( list ); e; e = plist_prev( e ) )
+		(*callback)( plist_access( e ) );
+
+	VOIDRET;
+}
+
 /** Unions elements from list //from// into list //all//.
 
 An element is only added to //all//, if there exists no other

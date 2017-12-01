@@ -23,4 +23,37 @@ typedef struct
 	size_t	chunk;
 } parray;
 
+typedef void (*parrayfn)	( void* );		/* Array element callback */
+
+/* Macros */
+
+/** Macro that expands into a for-loop iterating trough a parray-object
+//array// using and pointer variable //ptr// as walker.
+
+This macro expands into a for-loop in the format
+
+``` for( ptr = parray_first( array ); ptr; ptr = parray_next( array, ptr ) )
+
+where //ptr// is a walker variable of the same type size of the array's size
+for each element.
+
+**Example:**
+
+```
+usertype* 	t;
+parray		a;
+
+parray_init( &a, sizeof( usertype ), 0 );
+
+parray_for( a, t )
+{
+	\* Do something with t *\
+}
+```
+*/
+/*MACRO:parray_for( parray* array, void* ptr )*/
+#define parray_for( array, ptr )	\
+	for( (ptr) = parray_first( array ); (ptr); \
+			(ptr) = parray_next( array, ptr ) )
+
 #endif
