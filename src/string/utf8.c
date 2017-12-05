@@ -29,7 +29,7 @@ Usage:	Some UTF-8 utility functions.
 #define snprintf _snprintf
 #endif
 
-static const wchar_t offsetsFromUTF8[6] = {
+static const size_t offsetsFromUTF8[6] = {
     0x00000000UL, 0x00003080UL, 0x000E2080UL,
     0x03C82080UL, 0xFA082080UL, 0x82082080UL
 };
@@ -232,6 +232,8 @@ int u8_toutf8(char *dest, int sz, wchar_t *src, int srcsz)
             *dest++ = (ch>>6) | 0xC0;
             *dest++ = (ch & 0x3F) | 0x80;
         }
+        #ifndef _WIN32
+        #if UNICODE
         else if (ch < 0x10000) {
             if (dest >= dest_end-2)
                 return i;
@@ -247,6 +249,9 @@ int u8_toutf8(char *dest, int sz, wchar_t *src, int srcsz)
             *dest++ = ((ch>>6) & 0x3F) | 0x80;
             *dest++ = (ch & 0x3F) | 0x80;
         }
+        #endif
+        #endif
+        
         i++;
     }
     if (dest < dest_end)
@@ -265,6 +270,9 @@ int u8_wc_toutf8(char *dest, wchar_t ch)
         dest[1] = (ch & 0x3F) | 0x80;
         return 2;
     }
+    
+    #ifndef _WIN32
+    #if UNICODE
     if (ch < 0x10000) {
         dest[0] = (ch>>12) | 0xE0;
         dest[1] = ((ch>>6) & 0x3F) | 0x80;
@@ -278,6 +286,9 @@ int u8_wc_toutf8(char *dest, wchar_t ch)
         dest[3] = (ch & 0x3F) | 0x80;
         return 4;
     }
+    #endif
+    #endif
+    
     return 0;
 }
 
@@ -465,10 +476,14 @@ int u8_escape_wchar(char *buf, int sz, wchar_t ch)
         return snprintf(buf, sz, "\\\\");
     else if (ch < 32 || ch == 0x7f)
         return snprintf(buf, sz, "\\x%hhX", ch);
+    #ifndef _WIN32
+    #if UNICODE
     else if (ch > 0xFFFF)
         return snprintf(buf, sz, "\\U%.8X", (wchar_t)ch);
     else if (ch >= 0x80 && ch <= 0xFFFF)
         return snprintf(buf, sz, "\\u%.4hX", (unsigned short)ch);
+	#endif
+	#endif
 
     return snprintf(buf, sz, "%c", (char)ch);
 }

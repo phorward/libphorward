@@ -881,7 +881,11 @@ wchar_t* pwcscatchar( wchar_t* str, wchar_t chr )
 		exit( 1 );
 	}
 
+	#if _WIN32
+	_snwprintf( str + pwcslen( str ), 1, L"%lc", chr );
+	#else
 	swprintf( str + pwcslen( str ), 1, L"%lc", chr );
+	#endif
 
 	RETURN( str );
 }

@@ -5,6 +5,7 @@
 */
 
 #include <phorward.h>
+#include <locale.h>
 
 #define DEMO( name )	printf( "\n*** %s ***\n\n", (name) )
 

@@ -621,14 +621,14 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 		/* Is case-insensitive flag set? */
 		if( flags & PREGEX_COMP_INSENSITIVE )
 		{
-#ifdef UTF8
-			MSG( "UTF-8 mode, trying to convert" );
+#ifdef UNICODE
+			MSG( "UNICODE mode, trying to convert" );
 			if( iswupper( ch ) )
 				ch = towlower( ch );
 			else
 				ch = towupper( ch );
 #else
-			MSG( "non UTF-8 mode, trying to convert" );
+			MSG( "non UNICODE mode, trying to convert" );
 			if( isupper( ch ) )
 				ch = (char)tolower( (int)ch );
 			else

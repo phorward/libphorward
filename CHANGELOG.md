@@ -14,6 +14,8 @@ Released on: Under development
 
 Released on: November 7, 2017
 
+- v0.20.2: Removed warnings that came up on Mingw32, issue #1
+- v0.20.1: Purged build system
 - Started use of a lexical analyzer in the build-in LR parser (very unstable!).
 - Changed behavior of command-line tools to be more pynetree compliant.
 - Fixing an ancient bug in the DFA construction mechanism building arbitrary

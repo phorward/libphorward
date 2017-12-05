@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([Phorward Toolkit], [0.20])
+AC_INIT([Phorward Toolkit], [0.20.1])
 AC_PREFIX_DEFAULT([/usr])
 
 AC_CONFIG_SRCDIR([src/phorward.tpl.h])
@@ -44,38 +44,18 @@ AC_CHECK_LIB([rt], [sprintf])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h limits.h unistd.h])
-AC_CHECK_HEADERS([locale.h wchar.h wctype.h],
-	[AC_DEFINE([UNICODE],[1],[Enabling UNICODE build])
-	AC_DEFINE([UTF8],[1],[Enabling UTF8 build])])
+#AC_CHECK_HEADERS([fcntl.h limits.h unistd.h locale.h])
+AC_CHECK_HEADER([wchar.h],[AC_DEFINE([UTF8],[1],[Enabling UTF8 build])])
+AC_CHECK_HEADER([wctype.h],[AC_DEFINE([UNICODE],[1],[Enabling UNICODE build])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_CHECK_FUNCS([memmove])
-AC_CHECK_FUNCS([memset])
-AC_CHECK_FUNCS([strchr])
-AC_CHECK_FUNCS([strrchr])
-AC_CHECK_FUNCS([strstr])
-AC_CHECK_FUNCS([strtol])
-AC_CHECK_FUNCS([strtoul])
-AC_CHECK_FUNCS([strtof])
-AC_CHECK_FUNCS([wctomb])
-AC_CHECK_FUNCS([mbtowc])
-AC_CHECK_FUNCS([vsnprintf])
-AC_CHECK_FUNCS([vswprintf])
-AC_CHECK_FUNCS([wcscpy])
-AC_CHECK_FUNCS([wcscat])
-AC_CHECK_FUNCS([wcsncpy])
-AC_CHECK_FUNCS([wcscmp])
-AC_CHECK_FUNCS([wcsncmp])
-AC_CHECK_FUNCS([wcstol])
-AC_CHECK_FUNCS([wcstoul])
-AC_CHECK_FUNCS([wcstod])
-AC_CHECK_FUNCS([wcsstr])
-AC_CHECK_FUNCS([wcschr])
-AC_CHECK_FUNCS([wcsrchr])
+#AC_CHECK_FUNCS([islower isupper mbtowc memmove memset strchr strlen strrchr strstr strtof strtol strtoul tolower toupper vsnprintf vswprintf wcscat wcschr wcscmp wcscpy wcsncmp wcsncpy wcsrchr wcsstr wcstod wcstol wcstoul wctomb])
+
+#AC_CHECK_FUNCS([iswlower iswupper towlower towupper], [],
+#	[AC_DEFINE([UNICODE],[0],[Disabling UNICODE build])])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
