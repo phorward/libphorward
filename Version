@@ -1,4 +1,4 @@
 #!/bin/sh
-echo "0.20.1"
+echo "0.20.2"
 
 # When changing version number, remove src/version.h to regenerate it!

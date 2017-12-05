@@ -161,7 +161,12 @@ wchar_t* pdbl_to_wcs( double d )
 	PROC( "pdbl_to_wcs" );
 	PARMS( "d", "%lf", d );
 
+	#if _WIN32
+	_snwprintf( str, sizeof( str ), L"%lf", d );
+	#else
 	swprintf( str, sizeof( str ), L"%lf", d );
+	#endif
+	
 	VARS( "str", "%ls", str );
 
 	for( trail = str + wcslen( str ) - 1;
