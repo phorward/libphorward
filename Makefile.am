@@ -13,5 +13,5 @@ AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src tools
 
 phorwarddir = $(datadir)/phorward
-dist_phorward_DATA = LICENSE README.md CHANGELOG.md doc/phorward.html doc/phorward.css doc/phorward.png
+dist_phorward_DATA = LICENSE README.md CHANGELOG.md doc/phorward.html doc/phorward.css doc/phorward.png doc/prism.css doc/prism.js
 

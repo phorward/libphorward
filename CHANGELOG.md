@@ -4,7 +4,7 @@ This file is used to document any relevant changes done to libphorward.
 
 ## v0.21
 
-Released on: Under development
+Released on: December 13, 2017
 
 - Documentation updated and refreshed with some syntax-highlighting
 - New array functions parray_next(), parray_prev(), parray_iter(), parray_riter() and parray_for()
