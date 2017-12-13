@@ -84,7 +84,7 @@ ref: $(SRC)
 	echo "" >$(REF)
 	echo "" >>$(REF)
 	echo "" >>$(REF)
-	pdoc -d 2 $(SRC) >>$(REF)
+	pdoc -d 2 $(SRC) $(HSRC) >>$(REF)
 
 
 # Prototypes Files

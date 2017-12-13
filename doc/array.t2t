@@ -72,6 +72,9 @@ Direct access to specific elements is done using
 
 - @parray_get() - get element by offset from begin, and
 - @parray_rget() - get element by offset from end.
+- @parray_for() - Expands into a for-loop iterating over elements.
+- @parray_iter() - Iterate over all elements and call a function on each element.
+- @parray_riter() - Like @parray_iter(), but backwards.
 -
 
 Iterating over the elements:
@@ -79,6 +82,27 @@ Iterating over the elements:
 ```
 parray* a;
 usertype* tp;
+
+/* Using a pointer ---------------------------------------------------------- */
+
+for( tp = parray_first( a ); tp; tp = parray_next( a, tp ) )
+	;
+
+/* Shortcut */
+parray_for( a, tp )
+	;
+
+/* Using a callback function ------------------------------------------------ */
+
+void tp_callback( usertype* tp )
+{
+	/* ... */
+}
+
+parray_iter( a, (parrayfn)tp_callback ); /* Forwards... */
+parray_riter( a, (parrayfn)tp_callback ); /* Backwards... */
+
+/* Using a counter ---------------------------------------------------------- */
 int i;
 
 /* Iterate from first to last. */
@@ -90,13 +114,11 @@ for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
 	;
 ```
 
-Elements can be replaced with
-
-- @parray_put() - put element by offset from begin, respective
-- @parray_rput() - put element by offset from end.
--
-
 Quick access to the first or last elements is gained by @parray_last() and @parray_first().
+
+To get a predecessor or successor of an element, use @parray_prev() respectively @parray_next().
+
+Elements can be replaced by @parray_put() and @parray_rput() via their index.
 
 === Removing elements ===
 

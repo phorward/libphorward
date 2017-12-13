@@ -117,6 +117,9 @@ Elements within a **plist** object are references by **plistel** items. To acces
 - @plist_last() - get last element,
 - @plist_get_by_key() - retrieve element by key (in a hash table),
 - @plist_get_by_ptr() - retrieve element by its data pointer.
+- @plist_for() - Expands into a for-loop iterating over elements.
+- @plist_iter() - Iterate over all elements and call a function on each element.
+- @plist_riter() - Like @plist_iter(), but backwards.
 -
 
 ```
@@ -207,6 +210,7 @@ The sorting can be also be performed by invoking the functions
 - @plist_sort() - to sort the entire list,
 - @plist_subsort() - to sort only a part of the list (begin- and end-elements required).
 -
+
 
 === Interchanging functions ===
 

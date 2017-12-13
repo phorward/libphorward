@@ -1,6 +1,6 @@
 Phorward Toolkit Reference Manual
-libphorward 0.20.0
-November 2017
+libphorward 0.21.0
+December 2017
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
 %!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
@@ -8,7 +8,11 @@ November 2017
 %!preproc(xhtml): '%FUNCTION:END' "''' </div>"
 %!preproc(xhtml): '%DEFINITION:BEGIN' "''' <div class='definition'>"
 %!preproc(xhtml): '%DEFINITION:END' "''' </div>"
+
 %!postproc(xhtml): '\(C\)' '&copy;'
+%!postproc(xhtml): '(<pre>)' '\1<code class="language-c">'
+%!postproc(xhtml): '(</pre>)' '</code>\1'
+%!postproc(xhtml): '(</head>)' '<link rel="stylesheet" type="text/css" href="prism.css" />\n<script src="prism.js"></script>\n\1'
 
 %-------------------------------------------------------------------------------
 

@@ -6,13 +6,15 @@
 <title>Phorward Toolkit Reference Manual</title>
 <meta name="generator" content="http://txt2tags.org" />
 <link rel="stylesheet" type="text/css" href="phorward.css" />
+<link rel="stylesheet" type="text/css" href="prism.css" />
+<script src="prism.js"></script>
 </head>
 <body>
 
 <div class="header" id="header">
 <h1>Phorward Toolkit Reference Manual</h1>
-<h2>libphorward 0.20.0</h2>
-<h3>November 2017</h3>
+<h2>libphorward 0.21.0</h2>
+<h3>December 2017</h3>
 </div>
 
 <div class="body" id="body">
@@ -166,9 +168,13 @@
       </li>
       <li><a href="#fn_VOIDRET">VOIDRET</a>
       </li>
+      <li><a href="#fn_parray_for">parray_for</a>
+      </li>
+      <li><a href="#fn_plist_for">plist_for</a>
+      </li>
       </ul>
     </li>
-    <li><a href="#toc62">Functions</a>
+    <li><a href="#toc64">Functions</a>
       <ul>
       <li><a href="#fn_p_ccl_add">p_ccl_add</a>
       </li>
@@ -322,15 +328,21 @@
       </li>
       <li><a href="#fn_parray_insert">parray_insert</a>
       </li>
+      <li><a href="#fn_parray_iter">parray_iter</a>
+      </li>
       <li><a href="#fn_parray_last">parray_last</a>
       </li>
       <li><a href="#fn_parray_malloc">parray_malloc</a>
+      </li>
+      <li><a href="#fn_parray_next">parray_next</a>
       </li>
       <li><a href="#fn_parray_offset">parray_offset</a>
       </li>
       <li><a href="#fn_parray_partof">parray_partof</a>
       </li>
       <li><a href="#fn_parray_pop">parray_pop</a>
+      </li>
+      <li><a href="#fn_parray_prev">parray_prev</a>
       </li>
       <li><a href="#fn_parray_push">parray_push</a>
       </li>
@@ -341,6 +353,8 @@
       <li><a href="#fn_parray_reserve">parray_reserve</a>
       </li>
       <li><a href="#fn_parray_rget">parray_rget</a>
+      </li>
+      <li><a href="#fn_parray_riter">parray_riter</a>
       </li>
       <li><a href="#fn_parray_rmalloc">parray_rmalloc</a>
       </li>
@@ -388,6 +402,8 @@
       </li>
       <li><a href="#fn_plist_clear">plist_clear</a>
       </li>
+      <li><a href="#fn_plist_concat">plist_concat</a>
+      </li>
       <li><a href="#fn_plist_count">plist_count</a>
       </li>
       <li><a href="#fn_plist_create">plist_create</a>
@@ -416,6 +432,10 @@
       </li>
       <li><a href="#fn_plist_insert">plist_insert</a>
       </li>
+      <li><a href="#fn_plist_iter">plist_iter</a>
+      </li>
+      <li><a href="#fn_plist_iter_access">plist_iter_access</a>
+      </li>
       <li><a href="#fn_plist_key">plist_key</a>
       </li>
       <li><a href="#fn_plist_last">plist_last</a>
@@ -435,6 +455,10 @@
       <li><a href="#fn_plist_remove">plist_remove</a>
       </li>
       <li><a href="#fn_plist_rget">plist_rget</a>
+      </li>
+      <li><a href="#fn_plist_riter">plist_riter</a>
+      </li>
+      <li><a href="#fn_plist_riter_access">plist_riter_access</a>
       </li>
       <li><a href="#fn_plist_rmalloc">plist_rmalloc</a>
       </li>
@@ -652,7 +676,7 @@
 The toolkit is primarily a library, written in C, that provides an interface for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy-to-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
 </p>
 
-<pre>
+<pre><code class="language-c">
 #include &lt;phorward.h&gt;
 
 int main()
@@ -673,7 +697,7 @@ int main()
     pp_ast_dump_short( stdout, ast );
     return 0;
 }
-</pre>
+</code></pre>
 
 <p>
 It can easily be compiled with: <code>cc -o example example.c -lphorward</code>
@@ -682,9 +706,9 @@ It can easily be compiled with: <code>cc -o example example.c -lphorward</code>
 Furthermore, the toolkit comes with a command-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
 </p>
 
-<pre>
+<pre><code class="language-c">
 $ pparse -e "1+2*(3+4)+5" -g "[int #fn_int] /[0-9]+/; f: int | '(' e ')'; t: [mul #fn_mul]( t '*' f ) | f; e: [add #fn_add]( e '+' t ) | t;"
-</pre>
+</code></pre>
 
 <p>
 phorward also provides useful general-purpose extensions for C programming. This includes dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and platform-independent, system-specific helper functions.
@@ -780,25 +804,25 @@ Building the Phorward Toolkit is simple as every GNU-style open source program. 
 Then, run
 </p>
 
-<pre>
+<pre><code class="language-c">
 $ ./configure
-</pre>
+</code></pre>
 
 <p>
 to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
 </p>
 
-<pre>
+<pre><code class="language-c">
 $ make
-</pre>
+</code></pre>
 
 <p>
 and
 </p>
 
-<pre>
+<pre><code class="language-c">
 $ make install
-</pre>
+</code></pre>
 
 <p>
 (properly as root), to install the toolkit into your system.
@@ -810,17 +834,17 @@ On Windows systems, the usage of <a href="#vvvLINK1vvv">Cygwin</a> or another Un
 To compile into 32-Bit Windows executables, configure with
 </p>
 
-<pre>
+<pre><code class="language-c">
 $ ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
-</pre>
+</code></pre>
 
 <p>
 To compile into 64-Bit Windows executables, configure with
 </p>
 
-<pre>
+<pre><code class="language-c">
 $ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
-</pre>
+</code></pre>
 
 <h2 id="toc6">Alternative local development system</h2>
 
@@ -831,17 +855,17 @@ Alternatively to the autotools build system used for installation, there is also
 Once, type
 </p>
 
-<pre>
+<pre><code class="language-c">
 $ make -f Makefile.gnu make_install
-</pre>
+</code></pre>
 
 <p>
 then, a simple run of
 </p>
 
-<pre>
+<pre><code class="language-c">
 $ make
-</pre>
+</code></pre>
 
 <p>
 can be used to simply build the entire library or parts of it.
@@ -903,7 +927,7 @@ As general C coding style, we don't use ugly K&amp;R style or any other coding s
 The libphorward style (which is only our style within the library) is:
 </p>
 
-<pre>
+<pre><code class="language-c">
 /* Clear, use of spaces behind and before brackets,
 	curly-bracket blocks are _ALWAYS_ written in SINGLE lines: */
 if( a &amp;&amp; !b( c ) )
@@ -929,7 +953,7 @@ if( this_would_be_a_long_condition()
 			&amp;&amp; i &lt; 300
 				&amp;&amp; that_looks_cooler_eh() ? FALSE : TRUE )
 	that_s_libphorward_style( TRUE );
-</pre>
+</code></pre>
 
 <p>
 If you don't like our coding style, you still can code on your own style, but please not within libphorward's own sources which are for the general public - these shall be kept clear - Thank you! :)
@@ -950,11 +974,11 @@ libphorward makes a heavy usage of the self-hosted data-type <b>pboolean</b>, wh
 It is known, that several header files and projects define these constants on their own, so that <b>pboolean</b>, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
 </p>
 
-<pre>
+<pre><code class="language-c">
 #ifndef TRUE
 #define TRUE					1
 #endif
-</pre>
+</code></pre>
 
 <p>
 within phorward.h.
@@ -1009,7 +1033,7 @@ For this, the library provides the following macros:
 So when a function is written like this in libphorward's way:
 </p>
 
-<pre>
+<pre><code class="language-c">
 int faculty( int x )
 {
 	int ret;
@@ -1037,7 +1061,7 @@ int faculty( int x )
 	VARS( "ret", "%d", ret );
 	RETURN( ret );
 }
-</pre>
+</code></pre>
 
 <p>
 Trace is written to stderr, and only will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value &gt; 0.
@@ -1046,15 +1070,15 @@ Trace is written to stderr, and only will be compiled into the executable code i
 Calling this function with
 </p>
 
-<pre>
+<pre><code class="language-c">
 faculty( 3 );
-</pre>
+</code></pre>
 
 <p>
 yields in a debug log
 </p>
 
-<pre>
+<pre><code class="language-c">
 20772 (demo.c:  380) {
 20772 (demo.c:  380) .ENTRY : faculty
 20772 (demo.c:  381) .PARMS : x = &gt;3&lt;
@@ -1085,7 +1109,7 @@ yields in a debug log
 20772 (demo.c:  400) .VARS  : ret = &gt;6&lt;
 20772 (demo.c:  401) .RETURN: faculty
 20772 (demo.c:  401) }
-</pre>
+</code></pre>
 
 <h2 id="toc14">Command-line tools</h2>
 
@@ -1232,7 +1256,7 @@ The <b>parray</b> object brings the following advantages and disadvantages:
 <b>parray</b> objects are created using <a href="#fn_parray_create">parray_create()</a> or initialized with <a href="#fn_parray_init">parray_init()</a>. The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with <a href="#fn_parray_erase">parray_erase()</a>, respectively cleared and freed with <a href="#fn_parray_free">parray_free()</a>.
 </p>
 
-<pre>
+<pre><code class="language-c">
 parray* a;
 
 a = parray_create( sizeof( usertype ), 0 );
@@ -1240,7 +1264,7 @@ a = parray_create( sizeof( usertype ), 0 );
 /* Do something... */
 
 parray_free( a );
-</pre>
+</code></pre>
 
 <h3 id="toc20">Inserting elements</h3>
 
@@ -1261,7 +1285,7 @@ Elements can be inserted with
 </li>
 </ul>
 
-<pre>
+<pre><code class="language-c">
 parray* a;
 usertype t;
 usertype* tp;
@@ -1277,7 +1301,7 @@ tp = (usertype*)parray_malloc( a );
 fill_usertype( tp );
 tp = (usertype*)parray_rmalloc( a );
 fill_usertype( tp );
-</pre>
+</code></pre>
 
 <h3 id="toc21">Accessing and iterating elements</h3>
 
@@ -1290,15 +1314,42 @@ Direct access to specific elements is done using
 </li>
 <li><a href="#fn_parray_rget">parray_rget()</a> - get element by offset from end.
 </li>
+<li><a href="#fn_parray_for">parray_for()</a> - Expands into a for-loop iterating over elements.
+</li>
+<li><a href="#fn_parray_iter">parray_iter()</a> - Iterate over all elements and call a function on each element.
+</li>
+<li><a href="#fn_parray_riter">parray_riter()</a> - Like <a href="#fn_parray_iter">parray_iter()</a>, but backwards.
+</li>
 </ul>
 
 <p>
 Iterating over the elements:
 </p>
 
-<pre>
+<pre><code class="language-c">
 parray* a;
 usertype* tp;
+
+/* Using a pointer ---------------------------------------------------------- */
+
+for( tp = parray_first( a ); tp; tp = parray_next( a, tp ) )
+	;
+
+/* Shortcut */
+parray_for( a, tp )
+	;
+
+/* Using a callback function ------------------------------------------------ */
+
+void tp_callback( usertype* tp )
+{
+	/* ... */
+}
+
+parray_iter( a, (parrayfn)tp_callback ); /* Forwards... */
+parray_riter( a, (parrayfn)tp_callback ); /* Backwards... */
+
+/* Using a counter ---------------------------------------------------------- */
 int i;
 
 /* Iterate from first to last. */
@@ -1308,21 +1359,16 @@ for( i = 0; ( tp = (usertype*)parray_get( a, i ) ); i++ )
 /* Iterate from last to first. */
 for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
 	;
-</pre>
-
-<p>
-Elements can be replaced with
-</p>
-
-<ul>
-<li><a href="#fn_parray_put">parray_put()</a> - put element by offset from begin, respective
-</li>
-<li><a href="#fn_parray_rput">parray_rput()</a> - put element by offset from end.
-</li>
-</ul>
+</code></pre>
 
 <p>
 Quick access to the first or last elements is gained by <a href="#fn_parray_last">parray_last()</a> and <a href="#fn_parray_first">parray_first()</a>.
+</p>
+<p>
+To get a predecessor or successor of an element, use <a href="#fn_parray_prev">parray_prev()</a> respectively <a href="#fn_parray_next">parray_next()</a>.
+</p>
+<p>
+Elements can be replaced by <a href="#fn_parray_put">parray_put()</a> and <a href="#fn_parray_rput">parray_rput()</a> via their index.
 </p>
 
 <h3 id="toc22">Removing elements</h3>
@@ -1340,7 +1386,7 @@ Elements can be removed with
 </li>
 </ul>
 
-<pre>
+<pre><code class="language-c">
 parray* a;
 usertype t;
 usertype* tp;
@@ -1348,7 +1394,7 @@ usertype* tp;
 parray_remove( a, 2, &amp;t );
 tp = (usertype*)parray_pop( a );
 tp = (usertype*)parray_unshift( a );
-</pre>
+</code></pre>
 
 <h3 id="toc23">Additional functions</h3>
 
@@ -1481,7 +1527,7 @@ The mode <b>PLIST_MOD_PTR</b> is automatically set if the elements size is speci
 A <b>plist</b> object must be freed using <a href="#fn_plist_free">plist_free()</a> or cleared with <a href="#fn_plist_clear">plist_clear()</a>.
 </p>
 
-<pre>
+<pre><code class="language-c">
 plist* l;
 
 l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
@@ -1489,7 +1535,7 @@ l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
 /* Do something... */
 
 plist_free( l );
-</pre>
+</code></pre>
 
 <h3 id="toc27">Inserting elements</h3>
 
@@ -1510,7 +1556,7 @@ Elements can be inserted with
 </li>
 </ul>
 
-<pre>
+<pre><code class="language-c">
 plist* l;
 usertype t;
 usertype* tp;
@@ -1532,7 +1578,7 @@ tp = (usertype*)plist_malloc( a );
 fill_usertype( tp );
 tp = (usertype*)plist_rmalloc( a );
 fill_usertype( tp );
-</pre>
+</code></pre>
 
 <h3 id="toc28">Accessing and iterating elements</h3>
 
@@ -1553,9 +1599,15 @@ Elements within a <b>plist</b> object are references by <b>plistel</b> items. To
 </li>
 <li><a href="#fn_plist_get_by_ptr">plist_get_by_ptr()</a> - retrieve element by its data pointer.
 </li>
+<li><a href="#fn_plist_for">plist_for()</a> - Expands into a for-loop iterating over elements.
+</li>
+<li><a href="#fn_plist_iter">plist_iter()</a> - Iterate over all elements and call a function on each element.
+</li>
+<li><a href="#fn_plist_riter">plist_riter()</a> - Like <a href="#fn_plist_iter">plist_iter()</a>, but backwards.
+</li>
 </ul>
 
-<pre>
+<pre><code class="language-c">
 plist* l;
 plistel* e;
 usertype* tp;
@@ -1586,7 +1638,7 @@ for( e = plist_last( l ); e; e = plist_prev( e ) )
 /* Reverse alternative: Using offset */
 for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
 	;
-</pre>
+</code></pre>
 
 <h3 id="toc29">Removing elements</h3>
 
@@ -1603,14 +1655,14 @@ To remove elements from a <b>plist</b> object, the following functions can be us
 </li>
 </ul>
 
-<pre>
+<pre><code class="language-c">
 plist* l;
 usertype t;
 
 plist_remove( l, plist_get( l, 7 ) );
 plist_pop( a, &amp;t );
 plist_unshift( a, &amp;t );
-</pre>
+</code></pre>
 
 <h3 id="toc30">Sorting elements</h3>
 
@@ -1625,7 +1677,7 @@ This function can be individually set using <a href="#fn_plist_set_sortfn">plist
 As prototype and example, the following comparison function:
 </p>
 
-<pre>
+<pre><code class="language-c">
 int my_compare( plist* list, plistel* l, plistel* r )
 {
 	usertype*	tr;
@@ -1641,15 +1693,15 @@ int my_compare( plist* list, plistel* l, plistel* r )
 
 	return 0;
 }
-</pre>
+</code></pre>
 
 <p>
 This can, than, be attached to the <b>plist</b> object with
 </p>
 
-<pre>
+<pre><code class="language-c">
 plist_set_sortfn( l, my_compare );
-</pre>
+</code></pre>
 
 <p>
 To configure a <b>plist</b> object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
@@ -1725,7 +1777,7 @@ It supports a fully-fledged set theory automatism, including construction of int
 </li>
 </ul>
 
-<pre>
+<pre><code class="language-c">
 pccl* ccl;
 
 /* Construct a character-class within a universe of the ASCII-alphabet (0-255):
@@ -1761,7 +1813,7 @@ printf( "My ccl is: %s\n", p_ccl_to_str( ccl, TRUE ) );
 
 /* Drop it! */
 p_ccl_free( ccl );
-</pre>
+</code></pre>
 
 <p>
 Useful, additional functions when working with <b>pccl</b> are:
@@ -2145,7 +2197,7 @@ are supported by the compiled pattern.
 <a href="#fn_pregex_free">pregex_free()</a> destructs and releases a <b>pregex</b> object after its use.
 </p>
 
-<pre>
+<pre><code class="language-c">
 pregex* r;
 
 r = pregex_create( "[_A-Za-z]+", 0 );
@@ -2153,7 +2205,7 @@ r = pregex_create( "[_A-Za-z]+", 0 );
 /* do something with r */
 
 pregex_free( r );
-</pre>
+</code></pre>
 
 <h3 id="toc43">Matching</h3>
 
@@ -2161,7 +2213,7 @@ pregex_free( r );
 To immediatelly test if a <b>pregex</b>-object matches on a string, the function <a href="#fn_pregex_match">pregex_match()</a> shall be invoked.
 </p>
 
-<pre>
+<pre><code class="language-c">
 pregex* r;
 char* s = "a1337b";
 char* e;
@@ -2169,33 +2221,33 @@ char* e;
 r = pregex_create( "[0-9]+", 0 );
 pregex_match( r, s, &amp;e ); /* returns FALSE */
 pregex_match( r, s + 1, &amp;e ); /* returns TRUE, e receives s+5. */
-</pre>
+</code></pre>
 
 <p>
 <a href="#fn_pregex_match">pregex_match()</a> only tests for a string that immediatelly matches the pattern. To find a matching pattern within a string, the function <a href="#fn_pregex_find">pregex_find()</a> shall be invoked, which is called with the same parameters, but returns the position of the match instead of a bool state.
 </p>
 
-<pre>
+<pre><code class="language-c">
 pregex_find( r, s, &amp;e ); /* returns s + 1, e receives s+5. */
-</pre>
+</code></pre>
 
 <p>
 To find all matching patterns, <a href="#fn_pregex_find">pregex_find()</a> must be called in a loop.
 </p>
 
-<pre>
+<pre><code class="language-c">
 while( ( s = pregex_find( r, s, &amp;e ) ) )
 {
 	printf( "&gt;%.*s&lt;\n", e - s, s );
 	s = e;
 }
-</pre>
+</code></pre>
 
 <p>
 The function <a href="#fn_pregex_findall">pregex_findall()</a> can do this with one call, and fills an <i>parray</i> object with <i>prange</i> structures.
 </p>
 
-<pre>
+<pre><code class="language-c">
 parray* a;
 prange* rg;
 
@@ -2205,7 +2257,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 	printf( "&gt;%.*s&lt;\n", rg-&gt;end - rg-&gt;begin, rg-&gt;begin );
 
 parray_free( a );
-</pre>
+</code></pre>
 
 <h3 id="toc44">Splitting</h3>
 
@@ -2213,7 +2265,7 @@ parray_free( a );
 Splitting a string by a regular expression can be done with <a href="#fn_pregex_split">pregex_split()</a>. This function takes several parameters, and is designed to be called in a loop.
 </p>
 
-<pre>
+<pre><code class="language-c">
 pregex* r;
 char* s = "5 and 6 are the cross sums of 23 and 42.";
 char* e;
@@ -2228,13 +2280,13 @@ while( s )
 
 	s = n;
 }
-</pre>
+</code></pre>
 
 <p>
 There is also an one call shortcut <a href="#fn_pregex_splitall">pregex_splitall()</a>, filling an array:
 </p>
 
-<pre>
+<pre><code class="language-c">
 parray* a;
 prange* rg;
 
@@ -2244,7 +2296,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 	printf( "&gt;%.*s&lt;\n", rg-&gt;end - rg-&gt;begin, rg-&gt;begin );
 
 parray_free( a );
-</pre>
+</code></pre>
 
 <h3 id="toc45">Replacing</h3>
 
@@ -2252,11 +2304,11 @@ parray_free( a );
 The function <a href="#fn_pregex_replace">pregex_replace()</a> allows for replacing parts of strings by regular expressions.
 </p>
 
-<pre>
+<pre><code class="language-c">
 char* ns;
 
 ns = pregex_replace( r, s, "int" );
-</pre>
+</code></pre>
 
 <p>
 The result of this function is always an dynamically allocated string that contains the replaces version of the input string, even if there hadn't been any matches. The above example will return "int and int are the cross sums of int and int." when executed on the string of previous chapter. The returned string must always be released with <a href="#fn_pfree">pfree()</a> after its use.
@@ -2268,10 +2320,10 @@ The replacement may also allow backreference-placeholders defined as <code>$&lt;
 This modified version
 </p>
 
-<pre>
+<pre><code class="language-c">
 r = pregex_create( "([0-9]+)", 0 );
 ns = pregex_replace( r, s, "int[$1]" );
-</pre>
+</code></pre>
 
 <p>
 will return "int[5] and int[6] are the cross sums of int[23] and int[42]." when executed on the example string.
@@ -2327,7 +2379,7 @@ A <b>plex</b>-object can be seen as a container, which merges multiple regular e
 To tokenize a C-styled variable assignment, one could write a simple lexical analyzer, like this:
 </p>
 
-<pre>
+<pre><code class="language-c">
 enum
 {
 	IDENT = 1, INTEGER, EQUALS, PLUS_OP, SEMICOLON
@@ -2355,13 +2407,13 @@ while( *s &amp;&amp; ( s = plex_next( l, s, &amp;m, &amp;e ) ) )
 }
 
 plex_free( l );
-</pre>
+</code></pre>
 
 <p>
 When running, this yields in the output:
 </p>
 
-<pre>
+<pre><code class="language-c">
 ident &gt;sum&lt;
 equals &gt;=&lt;
 integer &gt;5&lt;
@@ -2370,7 +2422,7 @@ integer &gt;23&lt;
 plus_op &gt;+&lt;
 ident &gt;x&lt;
 semicolon &gt;;&lt;
-</pre>
+</code></pre>
 
 <h1 id="toc48">pparse: Parser development tools</h1>
 
@@ -2425,11 +2477,11 @@ In GDL, terminals can be expressed inline or as named terminals.
 A named terminal is defined in its own definition block like this:
 </p>
 
-<pre>
+<pre><code class="language-c">
 integer /\d+/;
 while_keyword "while";
 hexchar '0-9A-F';
-</pre>
+</code></pre>
 
 <p>
 Each block is always closed with a semicolon. These blocks associate a named terminal identifier (integer, while_keyword and hexchar) with a particular terminal definition.
@@ -2453,11 +2505,11 @@ Productions are always defined in combination with a nonterminal definition in a
 The full grammar of a four-function calculator (yes, the simples example for a programming language in nearly any compiler construction textbook!) in libphorward's grammar definition languages would be
 </p>
 
-<pre>
+<pre><code class="language-c">
 factor : /\d+/ | '(' expr ')' ;
 term : term '*' factor | term '/' factor | factor ;
 expr : expr '+' term | expr '-' term | term ;
-</pre>
+</code></pre>
 
 <h1 id="toc54">Utility functions</h1>
 
@@ -2611,9 +2663,104 @@ Write void function return to trace.
 VOIDRET can only be used if <a href="#fn_PROC">PROC()</a> is used at the beginning of the function.
 For typed functions, use the macro <a href="#fn_RETURN">RETURN()</a>.
 </div>
+<!-- NEED 32 -->
+<div class='function'>
 </p>
 
-<h2 id="toc62">Functions</h2>
+<h3 id="fn_parray_for">parray_for</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+parray_for( parray* array, void* ptr ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Macro that expands into a for-loop iterating trough a parray-object
+<i>array</i> using and pointer variable <i>ptr</i> as walker.
+</p>
+<p>
+This macro expands into a for-loop in the format
+</p>
+
+<pre><code class="language-c">
+for( ptr = parray_first( array ); ptr; ptr = parray_next( array, ptr ) )
+</code></pre>
+
+<p>
+where <i>ptr</i> is a walker variable of the same type size of the array's size
+for each element.
+</p>
+<p>
+<b>Example:</b>
+</p>
+
+<pre><code class="language-c">
+usertype* 	t;
+parray		a;
+
+parray_init( &amp;a, sizeof( usertype ), 0 );
+
+parray_for( a, t )
+{
+	/* Do something with t *}
+</code></pre>
+
+</div>
+<!-- NEED 31 -->
+<div class='function'>
+
+<h3 id="fn_plist_for">plist_for</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+plist_for( plist* l, plistel* e ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Macro that expands into a for-loop iterating trough a plist-object
+<i>l</i> using and element variable <i>e</i> as walker.
+</p>
+<p>
+This macro expands into a for-loop of the format
+</p>
+
+<pre><code class="language-c">
+for( e = plist_first( l ); e; e = plist_next( e ) )
+</code></pre>
+
+<p>
+where <i>e</i> is a walker variable for each element.
+</p>
+<p>
+<b>Example:</b>
+</p>
+
+<pre><code class="language-c">
+plist*		my_list;
+plistel*	e;
+
+plist_for( my_list, e )
+{
+	/* Access current element data part *	ptr = (cast*)plist_access( e );
+	...
+}
+</code></pre>
+
+</div>
+
+<h2 id="toc64">Functions</h2>
 
 <!-- NEED 16 -->
 <div class='function'>
@@ -4576,7 +4723,7 @@ void* parray_first( parray* array )
 Access first element of the array.
 </p>
 <p>
-Returns the address of the accessed item, and (void*)NULL if nothing is on
+Returns the address of the accessed item, and (void*)NULL if nothing is in
 the array.
 </div>
 <!-- NEED 13 -->
@@ -4696,6 +4843,30 @@ Handle with care!
 <div class='function'>
 </p>
 
+<h3 id="fn_parray_iter">parray_iter</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void parray_iter( parray* array, parrayfn callback )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Iterates over <i>array</i>.
+</p>
+<p>
+Iterates over all items of <i>array</i> and calls the function <i>callback</i> on
+every item.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
 <h3 id="fn_parray_last">parray_last</h3>
 
 <p>
@@ -4713,7 +4884,7 @@ void* parray_last( parray* array )
 Access last element of the array.
 </p>
 <p>
-Returns the address of the accessed item, and (void*)NULL if nothing is on
+Returns the address of the accessed item, and (void*)NULL if nothing is in
 the array.
 </div>
 <!-- NEED 14 -->
@@ -4739,6 +4910,30 @@ Pushes and "allocates" an empty element on the array.
 <p>
 This function is just a shortcut to <code>`parray_push( array, (void*)NULL )`</code>,
 and the memory of the pushed element is initialized to zero.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_parray_next">parray_next</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void* parray_next( parray* array, void* ptr )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Access next element from <i>ptr</i> in <i>array</i>.
+</p>
+<p>
+Returns the address of the next element, and (void*)NULL if the access gets
+out of bounds.
 </div>
 <!-- NEED 16 -->
 <div class='function'>
@@ -4817,6 +5012,30 @@ only be overidden with the next push operation.
 <p>
 The function returns the address of the popped item, and (void*)NULL if the
 item could not be popped (e.g. array is empty).
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_parray_prev">parray_prev</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void* parray_prev( parray* array, void* ptr )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Access previous element from <i>ptr</i> in <i>array</i>.
+</p>
+<p>
+Returns the address of the previous element, and (void*)NULL if the access gets
+out of bounds.
 </div>
 <!-- NEED 23 -->
 <div class='function'>
@@ -4966,6 +5185,30 @@ the array).
 </p>
 <p>
 Use <a href="#fn_parray_get">parray_get()</a> for access items from the begin.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_parray_riter">parray_riter</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void parray_riter( parray* array, parrayfn callback )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Iterates backwards over <i>array</i>.
+</p>
+<p>
+Backwardly iterates over all items of <i>array</i> and calls the function
+<i>callback</i> on every item.
 </div>
 <!-- NEED 14 -->
 <div class='function'>
@@ -5309,9 +5552,9 @@ NULL-pointers and returns a (void*)NULL pointer for direct pointer memory reset.
 It could be used this way to immedatelly reset a pointer to NULL:
 </p>
 
-<pre>
+<pre><code class="language-c">
 ptr = pfree( ptr );
-</pre>
+</code></pre>
 
 <p>
 <i>ptr</i> is the pointer to be freed.
@@ -5738,6 +5981,32 @@ The function has nearly the same purpose as <a href="#fn_plist_erase">plist_eras
 the entire list is only cleared, but if the list was initialized with
 PLIST_MOD_RECYCLE, existing pointers are hold for later usage.
 </div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plist_concat">plist_concat</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+int plist_concat( plist* dest, plist* src )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Concats the elements of list <i>src</i> to the elements of list <i>dest</i>.
+</p>
+<p>
+The function will not run if both lists have different element size settings.
+</p>
+<p>
+The function returns the number of elements added to <i>dest</i>.
+</div>
 <!-- NEED 11 -->
 <div class='function'>
 </p>
@@ -6084,6 +6353,56 @@ If <i>pos</i> is NULL, the new element will be attached to the end of the
 list. If <i>key</i> is not NULL, the element will be additionally engaged
 into the lists hash table.
 </div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plist_iter">plist_iter</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void plist_iter( plist* list, plistelfn callback )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Iterates over <i>list</i>.
+</p>
+<p>
+Iterates over all items of <i>list</i> and calls the function <i>callback</i> on
+every item. The callback function receives the plistel-element pointer of
+the list element.
+</div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plist_iter_access">plist_iter_access</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void plist_iter_access( plist* list, plistfn callback )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Iterates over <i>list</i> and accesses every item.
+</p>
+<p>
+Iterates over all items of <i>list</i> and calls the function <i>callback</i> on
+every item's access. The callback function receives a pointer to the accessed
+element.
+</div>
 <!-- NEED 11 -->
 <div class='function'>
 </p>
@@ -6305,6 +6624,56 @@ Retrieve list element by its index from the end.
 <p>
 The function returns the <i>n</i>th element of the list <i>list</i>
 from the right.
+</div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plist_riter">plist_riter</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void plist_riter( plist* list, plistelfn callback )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Iterates backwards over <i>list</i>.
+</p>
+<p>
+Backwardly iterates over all items of <i>list</i> and calls the function
+<i>callback</i> on every item. The callback function receives the plistel-element
+pointer of the list element.
+</div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plist_riter_access">plist_riter_access</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void plist_riter_access( plist* list, plistfn callback )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Iterates backwards over <i>list</i>.
+</p>
+<p>
+Backwardly iterates over all items of <i>list</i> and calls the function
+<i>callback</i> on every  item's access. The callback function receives a pointer
+to the accessed element.
 </div>
 <!-- NEED 14 -->
 <div class='function'>
@@ -8440,14 +8809,14 @@ The function always returns its input pointer.
 <b>Example:</b>
 </p>
 
-<pre>
+<pre><code class="language-c">
 char* s = (char*)NULL;
 
 psetstr( &amp;s, "\tHello\nWorld!" );
 printf( "&gt;%s&lt;\n", pstrunescape( s ) );
 
 s = pfree( s );
-</pre>
+</code></pre>
 
 </div>
 <!-- NEED 15 -->

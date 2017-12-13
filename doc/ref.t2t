@@ -106,6 +106,75 @@ Write void function return to trace.
 VOIDRET can only be used if [PROC() #fn_PROC] is used at the beginning of the function.
 For typed functions, use the macro [RETURN() #fn_RETURN].
 %FUNCTION:END
+%NEED:32
+%FUNCTION:BEGIN
+=== parray_for ===[fn_parray_for]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+parray_for( parray* array, void* ptr ) - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Macro that expands into a for-loop iterating trough a parray-object
+//array// using and pointer variable //ptr// as walker.
+
+This macro expands into a for-loop in the format
+
+``` for( ptr = parray_first( array ); ptr; ptr = parray_next( array, ptr ) )
+
+where //ptr// is a walker variable of the same type size of the array's size
+for each element.
+
+**Example:**
+
+```
+usertype* 	t;
+parray		a;
+
+parray_init( &a, sizeof( usertype ), 0 );
+
+parray_for( a, t )
+{
+	/* Do something with t *}
+```
+%FUNCTION:END
+%NEED:31
+%FUNCTION:BEGIN
+=== plist_for ===[fn_plist_for]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+plist_for( plist* l, plistel* e ) - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Macro that expands into a for-loop iterating trough a plist-object
+//l// using and element variable //e// as walker.
+
+This macro expands into a for-loop of the format
+
+``` for( e = plist_first( l ); e; e = plist_next( e ) )
+
+where //e// is a walker variable for each element.
+
+**Example:**
+
+```
+plist*		my_list;
+plistel*	e;
+
+plist_for( my_list, e )
+{
+	/* Access current element data part *	ptr = (cast*)plist_access( e );
+	...
+}
+```
+%FUNCTION:END
 == Functions ==
 %NEED:16
 %FUNCTION:BEGIN
@@ -1497,7 +1566,7 @@ void* parray_first( parray* array )
 
 Access first element of the array.
 
-Returns the address of the accessed item, and (void*)NULL if nothing is on
+Returns the address of the accessed item, and (void*)NULL if nothing is in
 the array.
 %FUNCTION:END
 %NEED:13
@@ -1583,6 +1652,23 @@ Handle with care!
 %FUNCTION:END
 %NEED:14
 %FUNCTION:BEGIN
+=== parray_iter ===[fn_parray_iter]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void parray_iter( parray* array, parrayfn callback )
+%DEFINITION:END
+
+**Usage:**
+
+Iterates over //array//.
+
+Iterates over all items of //array// and calls the function //callback// on
+every item.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
 === parray_last ===[fn_parray_last]
 
 **Definition:**
@@ -1595,7 +1681,7 @@ void* parray_last( parray* array )
 
 Access last element of the array.
 
-Returns the address of the accessed item, and (void*)NULL if nothing is on
+Returns the address of the accessed item, and (void*)NULL if nothing is in
 the array.
 %FUNCTION:END
 %NEED:14
@@ -1614,6 +1700,23 @@ Pushes and "allocates" an empty element on the array.
 
 This function is just a shortcut to ```parray_push( array, (void*)NULL )```,
 and the memory of the pushed element is initialized to zero.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_next ===[fn_parray_next]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void* parray_next( parray* array, void* ptr )
+%DEFINITION:END
+
+**Usage:**
+
+Access next element from //ptr// in //array//.
+
+Returns the address of the next element, and (void*)NULL if the access gets
+out of bounds.
 %FUNCTION:END
 %NEED:16
 %FUNCTION:BEGIN
@@ -1670,6 +1773,23 @@ only be overidden with the next push operation.
 
 The function returns the address of the popped item, and (void*)NULL if the
 item could not be popped (e.g. array is empty).
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_prev ===[fn_parray_prev]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void* parray_prev( parray* array, void* ptr )
+%DEFINITION:END
+
+**Usage:**
+
+Access previous element from //ptr// in //array//.
+
+Returns the address of the previous element, and (void*)NULL if the access gets
+out of bounds.
 %FUNCTION:END
 %NEED:23
 %FUNCTION:BEGIN
@@ -1778,6 +1898,23 @@ be accessed (e.g. if the array is empty or offset is beyond the bottom of
 the array).
 
 Use [parray_get() #fn_parray_get] for access items from the begin.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_riter ===[fn_parray_riter]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void parray_riter( parray* array, parrayfn callback )
+%DEFINITION:END
+
+**Usage:**
+
+Iterates backwards over //array//.
+
+Backwardly iterates over all items of //array// and calls the function
+//callback// on every item.
 %FUNCTION:END
 %NEED:14
 %FUNCTION:BEGIN
@@ -2287,6 +2424,24 @@ The function has nearly the same purpose as [plist_erase() #fn_plist_erase], exc
 the entire list is only cleared, but if the list was initialized with
 PLIST_MOD_RECYCLE, existing pointers are hold for later usage.
 %FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_concat ===[fn_plist_concat]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int plist_concat( plist* dest, plist* src )
+%DEFINITION:END
+
+**Usage:**
+
+Concats the elements of list //src// to the elements of list //dest//.
+
+The function will not run if both lists have different element size settings.
+
+The function returns the number of elements added to //dest//.
+%FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
 === plist_count ===[fn_plist_count]
@@ -2527,6 +2682,42 @@ If //pos// is NULL, the new element will be attached to the end of the
 list. If //key// is not NULL, the element will be additionally engaged
 into the lists hash table.
 %FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_iter ===[fn_plist_iter]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void plist_iter( plist* list, plistelfn callback )
+%DEFINITION:END
+
+**Usage:**
+
+Iterates over //list//.
+
+Iterates over all items of //list// and calls the function //callback// on
+every item. The callback function receives the plistel-element pointer of
+the list element.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_iter_access ===[fn_plist_iter_access]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void plist_iter_access( plist* list, plistfn callback )
+%DEFINITION:END
+
+**Usage:**
+
+Iterates over //list// and accesses every item.
+
+Iterates over all items of //list// and calls the function //callback// on
+every item's access. The callback function receives a pointer to the accessed
+element.
+%FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
 === plist_key ===[fn_plist_key]
@@ -2683,6 +2874,42 @@ Retrieve list element by its index from the end.
 
 The function returns the //n//th element of the list //list//
 from the right.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_riter ===[fn_plist_riter]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void plist_riter( plist* list, plistelfn callback )
+%DEFINITION:END
+
+**Usage:**
+
+Iterates backwards over //list//.
+
+Backwardly iterates over all items of //list// and calls the function
+//callback// on every item. The callback function receives the plistel-element
+pointer of the list element.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_riter_access ===[fn_plist_riter_access]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void plist_riter_access( plist* list, plistfn callback )
+%DEFINITION:END
+
+**Usage:**
+
+Iterates backwards over //list//.
+
+Backwardly iterates over all items of //list// and calls the function
+//callback// on every  item's access. The callback function receives a pointer
+to the accessed element.
 %FUNCTION:END
 %NEED:14
 %FUNCTION:BEGIN
