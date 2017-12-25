@@ -459,11 +459,14 @@ int plex_tokenize( plex* lex, char* start, parray** matches )
 	if( matches )
 		*matches = (parray*)NULL;
 
-	while( start )
+	while( start && *start )
 	{
-		if( ( start = plex_next( lex, start, &id, &end ) ) && matches )
+		if( !( start = plex_next( lex, start, &id, &end ) ) )
+			break;
+
+		if( matches )
 		{
-			if( ! *matches )
+			if( !*matches )
 				*matches = parray_create( sizeof( prange ), 0 );
 
 			r = (prange*)parray_malloc( *matches );
@@ -472,8 +475,8 @@ int plex_tokenize( plex* lex, char* start, parray** matches )
 			r->end = end;
 		}
 
-		start = end;
 		count++;
+		start = end;
 	}
 
 	RETURN( count );
