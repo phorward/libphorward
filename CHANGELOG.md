@@ -2,6 +2,12 @@
 
 This file is used to document any relevant changes done to libphorward.
 
+## v0.22
+
+Released on: Not released yet.
+
+- General bugfix in plex_tokenize() which ran into an endless-loop.
+
 ## v0.21
 
 Released on: December 13, 2017
