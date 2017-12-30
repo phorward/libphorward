@@ -38,17 +38,17 @@ int main( int argc, char** argv )
 	int			id;
 
 	int			i;
-	int			j;
 	int			rc;
 	int			next;
-	char		opt		[ 10 + 1 ];
+	char		opt			[ 10 + 1 ];
 	char*		param;
+	size_t		size		= 0;
 
 	/* Analyze command-line parameters */
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"d:Df:hi:V",
-						"delimiter: file: help input: version", i ) )
-							== 0; i++ )
+						"b:e:d:Df:hi:V",
+						"begin: end: delimiter: file: "
+							"help input: version", i ) ) == 0; i++ )
 	{
 		if( !strcmp( opt, "begin" ) || !strcmp( opt, "b" ) )
 			begin_sep = param;
@@ -103,6 +103,12 @@ int main( int argc, char** argv )
 		return 1;
 	}
 
+	/* Read from stdin */
+	if( !start )
+	{
+		getline( &finput, &size, stdin );
+		start = finput;
+	}
 
 	/* Process */
 	while( start && *start )
@@ -110,7 +116,11 @@ int main( int argc, char** argv )
 		if( !( start = plex_next( lex, start, &id, &end ) ) )
 			break;
 
-		printf( "%d%s%.*s%s", id, begin_sep, end - start, start, end_sep );
+		/* Print match ID only when more than one token was defined */
+		if( i > 1 )
+			printf( "%d", id );
+
+		printf( "%s%.*s%s", begin_sep, (int)( end - start ), start, end_sep );
 		start = end;
 	}
 

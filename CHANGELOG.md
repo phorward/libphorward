@@ -6,6 +6,8 @@ This file is used to document any relevant changes done to libphorward.
 
 Released on: Not released yet.
 
+- Improved the plex command-line utility, it now recognizes `-b` and `-e`
+  correctly and can read from stdin.
 - General bugfix in plex_tokenize() which ran into an endless-loop.
 
 ## v0.21
