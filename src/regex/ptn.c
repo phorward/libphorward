@@ -507,7 +507,7 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 		p_ccl_del( ccl, '-' );
 	}
 
-	/* Go through ccl... */
+	/* Iterate ccl... */
 	for( i = 0; p_ccl_get( &cfrom, &cto, ccl, i ); i++ )
 	{
 		pregex_char_to_REGEX( from, (int)sizeof( from ), cfrom, TRUE, range );

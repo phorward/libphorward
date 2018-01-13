@@ -118,8 +118,8 @@ parray_for( parray* array, void* ptr ) - //Macro//
 
 **Usage:**
 
-Macro that expands into a for-loop iterating through a parray-object
-//array// using and pointer variable //ptr// as walker.
+Macro that expands into a for-loop iterating a parray-object //array// using
+and pointer variable //ptr// as walker.
 
 This macro expands into a for-loop in the format
 
@@ -153,8 +153,8 @@ plist_for( plist* l, plistel* e ) - //Macro//
 
 **Usage:**
 
-Macro that expands into a for-loop iterating through a plist-object
-//l// using and element variable //e// as walker.
+Macro that expands into a for-loop iterating a plist-object //l// using
+the element variable //e// as walker.
 
 This macro expands into a for-loop of the format
 

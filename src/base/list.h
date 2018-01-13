@@ -64,8 +64,8 @@ struct Plist
 
 /* Macros */
 
-/** Macro that expands into a for-loop iterating through a plist-object
-//l// using and element variable //e// as walker.
+/** Macro that expands into a for-loop iterating a plist-object //l// using
+the element variable //e// as walker.
 
 This macro expands into a for-loop of the format
 

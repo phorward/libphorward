@@ -27,8 +27,8 @@ typedef void (*parrayfn)	( void* );		/* Array element callback */
 
 /* Macros */
 
-/** Macro that expands into a for-loop iterating through a parray-object
-//array// using and pointer variable //ptr// as walker.
+/** Macro that expands into a for-loop iterating a parray-object //array// using
+and pointer variable //ptr// as walker.
 
 This macro expands into a for-loop in the format
 
