@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.n.
 
@@ -112,7 +112,7 @@ The function will check and ignore for leading and following whitespace, and
 matches long integer, double values and strings.
 
 If a string is encapsulated between C-styled string or character tokens (", '),
-the content between the delimiters will be taken as a string and ran trough an
+the content between the delimiters will be taken as a string and ran through an
 escaping function.
 
 Any other content is taken as string. If the parameter //enforce// is set to

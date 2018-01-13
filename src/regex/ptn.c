@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -507,7 +507,7 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 		p_ccl_del( ccl, '-' );
 	}
 
-	/* Go trough ccl... */
+	/* Go through ccl... */
 	for( i = 0; p_ccl_get( &cfrom, &cto, ccl, i ); i++ )
 	{
 		pregex_char_to_REGEX( from, (int)sizeof( from ), cfrom, TRUE, range );

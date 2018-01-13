@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -367,7 +367,7 @@ The preparation process includes:
 - Setting up final symbol and productions IDs
 - Nonterminals FIRST-set computation
 - Marking of left-recursions
-- The 'lexem'-flag pull-trough the grammar.
+- The 'lexem'-flag pull-through the grammar.
 -
 
 This function is only run internally.
@@ -520,7 +520,7 @@ pboolean pp_gram_prepare( ppgram* g )
 	plist_clear( call );
 	plist_clear( done );
 
-	/* Pull-trough all lexem symbols */
+	/* Pull-through all lexem symbols */
 	plist_for( g->symbols, e )
 	{
 		s = (ppsym*)plist_access( e );

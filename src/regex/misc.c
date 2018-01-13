@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -52,7 +52,7 @@ pboolean pregex_check_anchors( char* all, char* str, size_t len,
 	/* Perform anchor checkings? */
 	if( flags & PREGEX_RUN_NOANCHORS )
 	{
-		MSG( "Anchor checking is disabled trough flags, or not required" );
+		MSG( "Anchor checking is disabled through flags, or not required" );
 		RETURN( TRUE );
 	}
 

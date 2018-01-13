@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -260,7 +260,7 @@ int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to )
 		RETURN( 0 );
 	}
 
-	/* Loop trough the input items */
+	/* Loop through the input items */
 	do
 	{
 		first = plist_first( hits );
@@ -322,7 +322,7 @@ int pregex_nfa_epsilon_closure(
 
 	stack = plist_dup( closure );
 
-	/* Loop trough the items */
+	/* Loop through the items */
 	while( plist_pop( stack, &top ) )
 	{
 		if( accept && top->accept.accept

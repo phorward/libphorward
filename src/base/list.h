@@ -1,6 +1,6 @@
 /* -HEADER----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -64,7 +64,7 @@ struct Plist
 
 /* Macros */
 
-/** Macro that expands into a for-loop iterating trough a plist-object
+/** Macro that expands into a for-loop iterating through a plist-object
 //l// using and element variable //e// as walker.
 
 This macro expands into a for-loop of the format

@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -612,7 +612,7 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 			prev_cnt = cnt;
 			cnt = 0;
 
-			/* Loop trought all items of the current state */
+			/* Loop throught all items of the current state */
 			plist_for( closure, e )
 			{
 				it = (pplritem*)plist_access( e );

@@ -128,7 +128,7 @@ Help of any kind to extend and improve this software is always appreciated.
 
 == Copyright ==
 
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer.
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer.
 
 You may use, modify and distribute this software under the terms and conditions of the 3-clause BSD license. The full license terms can be obtained from the file LICENSE.
 
@@ -188,7 +188,7 @@ The standard memory allocation functions can be replaced by these pendants:
 - @pmemdup() - shorthand for a malloc() with memcpy().
 -
 
-These functions are entirely used trough libphorward's internal object mapping functions.
+These functions are entirely used through libphorward's internal object mapping functions.
 
 == Debug and trace facilities ==
 

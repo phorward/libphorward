@@ -1,6 +1,6 @@
 /* -MODULE----------------------------------------------------------------------
 Phorward Foundation Toolkit
-Copyright (C) 2006-2017 by Phorward Software Technologies, Jan Max Meyer
+Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
 http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
@@ -17,7 +17,7 @@ void version( char** argv, char* descr )
 	if( descr && *descr )
 		printf( "%s. Part of the Phorward Toolkit.\n\n", descr );
 
-	printf( "Copyright (C) 2006-2017 by Phorward Software Technologies, "
+	printf( "Copyright (C) 2006-2018 by Phorward Software Technologies, "
 				"Jan Max Meyer\n"
 			"All rights reserved. See LICENSE for more information.\n" );
 }

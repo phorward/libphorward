@@ -118,7 +118,7 @@ parray_for( parray* array, void* ptr ) - //Macro//
 
 **Usage:**
 
-Macro that expands into a for-loop iterating trough a parray-object
+Macro that expands into a for-loop iterating through a parray-object
 //array// using and pointer variable //ptr// as walker.
 
 This macro expands into a for-loop in the format
@@ -153,7 +153,7 @@ plist_for( plist* l, plistel* e ) - //Macro//
 
 **Usage:**
 
-Macro that expands into a for-loop iterating trough a plist-object
+Macro that expands into a for-loop iterating through a plist-object
 //l// using and element variable //e// as walker.
 
 This macro expands into a for-loop of the format
@@ -1067,7 +1067,7 @@ The function will check and ignore for leading and following whitespace, and
 matches long integer, double values and strings.
 
 If a string is encapsulated between C-styled string or character tokens (", '),
-the content between the delimiters will be taken as a string and ran trough an
+the content between the delimiters will be taken as a string and ran through an
 escaping function.
 
 Any other content is taken as string. If the parameter //enforce// is set to
@@ -3382,7 +3382,7 @@ The preparation process includes:
 - Setting up final symbol and productions IDs
 - Nonterminals FIRST-set computation
 - Marking of left-recursions
-- The 'lexem'-flag pull-trough the grammar.
+- The 'lexem'-flag pull-through the grammar.
 -
 
 This function is only run internally.
