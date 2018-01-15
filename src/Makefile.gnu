@@ -23,12 +23,10 @@ SRC = \
 	base/list.c \
 	base/memory.c \
 	parse/ast.c \
-	parse/bnf.c \
 	parse/gram.c \
 	parse/lr.c \
 	parse/parse.c \
 	parse/prod.c \
-	parse/scan.c \
 	parse/sym.c \
 	regex/dfa.c \
 	regex/direct.c \

@@ -18,7 +18,7 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 	ppsym*	sym;
 	va_list	varg;
 
-	if( !( g && lhs && lhs->type == PPSYMTYPE_NONTERM ) )
+	if( !( g && lhs && PPSYM_IS_NONTERMINAL( lhs ) ) )
 	{
 		WRONGPARAM;
 		return (ppprod*)NULL;
@@ -26,13 +26,11 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 
 	prod = (ppprod*)plist_malloc( g->prods );
 
-	prod->id = -1;
+	prod->id = ++( g->prod_id );
 	prod->grm = g;
 
 	prod->lhs = lhs;
 	prod->rhs = plist_create( 0, PLIST_MOD_PTR );
-
-	plist_push( lhs->prods, prod );
 
 	va_start( varg, lhs );
 
@@ -45,7 +43,7 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 }
 
 /** Frees the production object //p// and releases any used memory. */
-ppprod* pp_prod_drop( ppprod* p )
+ppprod* pp_prod_free( ppprod* p )
 {
 	if( !p )
 		return (ppprod*)NULL;
@@ -57,7 +55,6 @@ ppprod* pp_prod_drop( ppprod* p )
 
 	plist_free( p->rhs );
 
-	plist_remove( p->lhs->prods, plist_get_by_ptr( p->lhs->prods, p ) );
 	plist_remove( p->grm->prods, plist_get_by_ptr( p->grm->prods, p ) );
 
 	return (ppprod*)NULL;
@@ -155,7 +152,7 @@ char* pp_prod_to_str( ppprod* p )
 			if( e != plist_first( p->rhs ) )
 				p->strval = pstrcatstr( p->strval, " ", FALSE );
 
-			if( sym->type != PPSYMTYPE_NONTERM )
+			if( PPSYM_IS_TERMINAL( sym ) )
 				p->strval = pstrcatstr( p->strval, "@", FALSE );
 
 			p->strval = pstrcatstr( p->strval, sym->name, FALSE );

@@ -601,6 +601,7 @@ typedef struct _ppast		ppast;
 #define PPFLAG_NAMELESS		128
 #define PPFLAG_GENERATED	256
 #define PPFLAG_FREEEMIT		512
+#define PPFLAG_SPECIAL		1024
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -624,41 +625,18 @@ struct _ppprod
 };
 
 
-typedef enum
-{
-	PPSYMTYPE_NONTERM,
-	PPSYMTYPE_CCL,
-	PPSYMTYPE_STRING,
-	PPSYMTYPE_REGEX,
-	PPSYMTYPE_FUNCTION,
-	PPSYMTYPE_SPECIAL
-} ppsymtype;
-
-
-typedef pboolean (*ppsymfunc)( char* start, char** end );
-
-
 struct _ppsym
 {
 	
 	int						id;
-	ppsymtype				type;
 	char*					name;
+
 	int						flags;
+
 	ppgram*					grm;
 
-	
-	plist*					first;
-	plist*					prods;
-
-	
-	char*					def;		
-	pregex_ptn*				ptn;		
-
-	pccl*					ccl;		
-	char*					str;		
-	pregex*					re;			
-	ppsymfunc				sf;			
+	plist*					first;		
+	char*					dfn;		
 
 	
 	char*					emit;
@@ -667,18 +645,20 @@ struct _ppsym
 	char*					strval;
 };
 
+#define PPSYM_IS_TERMINAL( sym )	isupper( *( sym )->name )
+#define PPSYM_IS_NONTERMINAL( sym )	!PPSYM_IS_TERMINAL( sym )
+
 
 struct _ppgram
 {
-	plist*					symbols;
-	plist*					prods;
+	int						sym_id;		
+	plist*					symbols;	
 
-	plist*					ws;
-	ppsym*					goal;
-	ppsym*					eof;
+	int						prod_id;	
+	plist*					prods;		
 
-	plex*					lex;
-	ppsymfunc 				(*getsymfunc)( char* name );
+	ppsym*					goal;		
+	ppsym*					eof;		
 
 	int						flags;
 };
@@ -711,8 +691,9 @@ struct _ppast
 
 typedef struct
 {
-	int						type;
 	ppgram*					gram;
+	plex*					lex;
+
 } pparse;
 
 
@@ -898,12 +879,8 @@ void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
 
-void pp_bnf_define( ppgram* g );
-
-
 pboolean pp_gram_prepare( ppgram* g );
 ppgram* pp_gram_create( void );
-pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
 void pp_gram_dump( FILE* stream, ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
 
@@ -918,7 +895,7 @@ pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end );
 
 
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
-ppprod* pp_prod_drop( ppprod* p );
+ppprod* pp_prod_free( ppprod* p );
 ppprod* pp_prod_get( ppgram* g, int n );
 pboolean pp_prod_append( ppprod* p, ppsym* sym );
 int pp_prod_remove( ppprod* p, ppsym* sym );
@@ -926,12 +903,8 @@ ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
 
 
-pboolean pp_sym_in_input( ppsym* sym, char* start, char** end );
-pboolean pp_white_in_input( ppgram* grm, char* start, char** end );
-size_t pp_pos_in_input( int* row, int* col, char* start, char* end );
-
-
-ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def );
+ppsym* pp_sym_create( ppgram* g, char* name );
+ppsym* pp_sym_free( ppsym* sym );
 ppsym* pp_sym_drop( ppsym* sym );
 ppsym* pp_sym_get( ppgram* g, int n );
 ppsym* pp_sym_get_by_name( ppgram* g, char* name );

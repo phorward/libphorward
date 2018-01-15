@@ -162,8 +162,8 @@ static int pp_lritem_lookahead_sort( plist* list, plistel* el, plistel* er )
 	ppsym*	l	= (ppsym*)plist_access( el );
 	ppsym*	r	= (ppsym*)plist_access( er );
 
-	/* Higher type before lower type, then by definition order */
-	if( ( l->type == r->type && l->id < r->id ) || l->type > r->type )
+	/* By id order */
+	if( l->id < r->id )
 		return 1;
 
 	return 0;
@@ -209,7 +209,7 @@ static pplrcolumn* pp_lrcolumn_create(
 {
 	pplrcolumn*		col;
 
-	if( sym->type != PPSYMTYPE_NONTERM )
+	if( PPSYM_IS_TERMINAL( sym ) )
 		col = (pplrcolumn*)plist_malloc( st->actions );
 	else
 		col = (pplrcolumn*)plist_malloc( st->gotos );
@@ -410,10 +410,10 @@ static int pp_lr_to_dfa( int*** act_tab, int*** go_tab, plist* states )
 		if( go_tab )
 		{
 			(*go_tab)[ i ] = (int*)pmalloc(
-									( ( plist_count( st->actions ) * 3 ) + 1 )
+									( ( plist_count( st->gotos ) * 3 ) + 1 )
 										* sizeof( int ) );
 
-			(*go_tab)[ i ][ 0 ] = ( ( plist_count( st->actions ) ) * 3 ) + 1;
+			(*go_tab)[ i ][ 0 ] = ( ( plist_count( st->gotos ) ) * 3 ) + 1;
 
 			for( j = 2, f = plist_first( st->gotos );
 					f; f = plist_next( f ), j += 3 )
@@ -559,9 +559,7 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 
 	MSG( "Creating closure seed" );
 	nst = pp_lrstate_create( states, (plist*)NULL );
-	it = pp_lritem_create( nst->kernel,
-				(ppprod*)plist_access(
-					plist_first( gram->goal->prods ) ), 0 );
+	it = pp_lritem_create( nst->kernel, pp_sym_getprod( gram->goal, 0 ), 0 );
 
 	plist_push( it->lookahead, gram->eof );
 
@@ -618,15 +616,13 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 				it = (pplritem*)plist_access( e );
 
 				/* Check if symbol right to the dot is a nonterminal */
-				if( !( lhs = pp_prod_getfromrhs( it->prod, it->dot ) )
-						|| !( lhs->type == PPSYMTYPE_NONTERM ) )
+				if( !( sym = pp_prod_getfromrhs( it->prod, it->dot ) )
+						|| PPSYM_IS_TERMINAL( sym ) )
 					continue;
 
 				/* Add all prods of the nonterminal to the closure,
 					if not already in */
-				for( i = 0; ( prod = (ppprod*)plist_access(
-										plist_get( lhs->prods, i ) ) );
-						i++ )
+				for( i = 0; ( prod = pp_sym_getprod( sym, i ) ); i++ )
 				{
 					plist_for( closure, f )
 					{
@@ -994,7 +990,8 @@ static pboolean get_action( ppgram* grm, pplrstate** shift, ppprod** reduce,
 	*reduce = (ppprod*)NULL;
 	*on_sym = (ppsym*)NULL;
 
-	la = plex_lex( grm->lex, start, end );
+	/* REWORK! */
+	/* la = plex_lex( grm->lex, start, end ); */
 
 	if( la <= 0 )
 	{

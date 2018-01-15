@@ -154,8 +154,7 @@ void pp_ast_dump_short( FILE* stream, ppast* ast )
 
 		fprintf( stream, "%s", ast->emit );
 
-		if( ast->sym->type != PPSYMTYPE_NONTERM
-			|| ast->sym->flags & PPFLAG_LEXEM )
+		if( PPSYM_IS_TERMINAL( ast->sym ) || ast->sym->flags & PPFLAG_LEXEM )
 			fprintf( stream, " (%.*s)\n", ast->length, ast->start );
 		else
 			fprintf( stream, "\n" );
@@ -201,8 +200,7 @@ void pp_ast_dump_json( FILE* stream, ppast* ast )
 		fputc( '"', stream );
 
 		/* Match */
-		if( node->sym->type != PPSYMTYPE_NONTERM
-			|| node->sym->flags & PPFLAG_LEXEM )
+		if( PPSYM_IS_TERMINAL( ast->sym ) || node->sym->flags & PPFLAG_LEXEM )
 		{
 			fprintf( stream, ",\"match\":" );
 
@@ -244,7 +242,7 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 {
 	while( ast )
 	{
-		if( ast->sym->type == PPSYMTYPE_NONTERM )
+		if( PPSYM_IS_NONTERMINAL( ast->sym ) )
 		{
 			fprintf( stream, "'%s' [ ", ast->emit );
 			pp_ast_dump_tree2svg( stream, ast->child );
