@@ -182,11 +182,59 @@ ppgram* pp_gram_create( void )
 													| PLIST_MOD_EXTKEYS
 														| PLIST_MOD_UNIQUE );
 	g->prods = plist_create( sizeof( ppprod ), PLIST_MOD_RECYCLE );
-	g->eof = pp_sym_create( g, "EOF&" );
+
+	g->eof = pp_sym_create( g, PPSYM_T_EOF );
 	g->eof->flags |= PPFLAG_SPECIAL;
 
 	return g;
 }
+
+/** Compiles a grammar definition into a grammar.
+
+//g// is the grammar that receives the result of the parse.
+//bnf// is the BNF definition string that defines the grammar.
+*/
+pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
+{
+	ppgram*		bnfgram;
+	char*		s = bnf;
+	char*		e;
+	ppast*		ast;
+
+	if( !( g && bnf ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	/* Define grammar for BNF */
+	bnfgram = pp_gram_create();
+	pp_bnf_define( bnfgram );
+	pp_gram_prepare( bnfgram );
+
+	pp_gram_dump( stdout, bnfgram ); /* DEBUG */
+
+	/* fixme
+	if( !pp_lr_parse( &ast, bnfgram, s, &e ) )
+	{
+		pp_gram_free( bnfgram );
+		return FALSE;
+	}
+	*/
+
+	/* pp_ast_simplify( a ); */
+
+	/* fixme
+	if( !ast_to_gram( g, ast ) )
+		return FALSE;
+
+	pp_gram_free( bnfgram );
+	pp_ast_free( ast );
+	*/
+
+	return TRUE;
+}
+
 
 /** Dumps the grammar //g// to //stream//. */
 void pp_gram_dump( FILE* stream, ppgram* g )
@@ -196,7 +244,15 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 
 	ppprod*		p;
 	ppsym*		s;
-	int			maxlhslen	= 0;
+	size_t		maxlhslen	= 0;
+	size_t		maxemitlen	= 0;
+
+	plist_for( g->symbols, e )
+	{
+		s = (ppsym*)plist_access( e );
+		if( pstrlen( s->emit ) > maxlhslen )
+			maxemitlen = pstrlen( s->emit );
+	}
 
 	plist_for( g->symbols, e )
 	{
@@ -209,14 +265,14 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 	{
 		p = (ppprod*)plist_access( e );
 		fprintf( stream,
-			"%s%s %s%s%s%s%s %-*s : ",
-			p->emit ? "@" : "",
-			p->emit,
+			"%s%s%s%s%s%s%-*s %-*s : ",
 			g->goal == p->lhs ? "$" : " ",
 			p->flags & PPFLAG_LEFTREC ? "L" : " ",
 			p->flags & PPFLAG_NULLABLE ? "N" : " ",
 			p->lhs->flags & PPFLAG_LEXEM ? "X" : " ",
 			p->lhs->flags & PPFLAG_WHITESPACE ? "W" : " ",
+			p->emit ? "@" : " ",
+			maxemitlen, p->emit ? p->emit : "",
 			maxlhslen, p->lhs->name );
 
 		plist_for( p->rhs, f )

@@ -171,9 +171,13 @@ void pp_ast_dump_short( FILE* stream, ppast* ast );
 void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
+/* parse/bnf.c */
+void pp_bnf_define( ppgram* g );
+
 /* parse/gram.c */
 pboolean pp_gram_prepare( ppgram* g );
 ppgram* pp_gram_create( void );
+pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
 void pp_gram_dump( FILE* stream, ppgram* g );
 ppgram* pp_gram_free( ppgram* g );
 

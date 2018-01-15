@@ -5,310 +5,89 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	bnf.c
-Usage:	Self-hosted grammar for ppgram, generated from bnf.syn
+Usage:	Self-hosted grammar for ppgram.
 ----------------------------------------------------------------------------- */
-
-/* DO NOT CHANGE THIS FILE MANUALLY. IT WILL GO AWAY! */
 
 #include "phorward.h"
 
 void pp_bnf_define( ppgram* g )
 {
-	ppsym*	sym[ 41 ];
-	ppprod*	prod[ 42 ];
-	/* Symbols */
+	ppsym*	ident;
+	ppsym*	colon;
+	ppsym*	semi;
+	ppsym*	pipe;
+	ppsym*	brop;
+	ppsym*	brcl;
+	ppsym*	star;
+	ppsym*	quest;
+	ppsym*	plus;
 
-	sym[ 1 ] = pp_sym_create( g, PPSYMTYPE_REGEX, (char*)NULL, "[\\t\\n\\r ]+" );
-	sym[ 1 ]->flags |= PPFLAG_WHITESPACE;
+	ppsym*	n_symbol;
+	ppsym*	n_mod;
+	ppsym*	n_seq;
+	ppsym*	n_prod;
+	ppsym*	n_alt;
+	ppsym*	n_nonterm;
+	ppsym*	n_grammar;
 
-	sym[ 2 ] = pp_sym_create( g, PPSYMTYPE_REGEX, (char*)NULL, "//[^\\n]*\\n" );
-	sym[ 2 ]->flags |= PPFLAG_WHITESPACE;
+	ppprod*	p;
 
-	sym[ 3 ] = pp_sym_create( g, PPSYMTYPE_REGEX, (char*)NULL, "/\\*([^*]|\\*[^/])*\\*/" );
-	sym[ 3 ]->flags |= PPFLAG_WHITESPACE;
+	/* Terminals */
+	ident = pp_sym_create( g, "Ident" );
+	ident->emit = "Ident";
 
-	sym[ 4 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "ccl", "\\[(\\\\.|[^\\\\\\]])*\\]" );
-	sym[ 4 ]->emit = sym[ 4 ]->name;
+	colon = pp_sym_create( g, ":" );
+	semi = pp_sym_create( g, ";" );
+	pipe = pp_sym_create( g, "|" );
+	brop = pp_sym_create( g, "(" );
+	brcl = pp_sym_create( g, ")" );
+	star = pp_sym_create( g, "*" );
+	quest = pp_sym_create( g, "?" );
+	plus = pp_sym_create( g, "+" );
 
-	sym[ 5 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "string", "'[^']*'" );
-	sym[ 5 ]->emit = sym[ 5 ]->name;
+	/* Nonterminals */
+	n_symbol = pp_sym_create( g, "symbol" );
+	n_symbol->emit = "symbol";
 
-	sym[ 6 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "token", "\"[^\"]*\"" );
-	sym[ 6 ]->emit = sym[ 6 ]->name;
+	n_mod = pp_sym_create( g, "modifier" );
+	n_seq = pp_sym_create( g, "sequence" );
 
-	sym[ 7 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "regex", "/(\\\\.|[^/\\\\])*/" );
-	sym[ 7 ]->emit = sym[ 7 ]->name;
+	n_prod = pp_sym_create( g, "production" );
+	n_prod->emit = "production";
 
-	sym[ 8 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "ident", "[A-Z_a-z][0-9A-Z_a-z]*" );
-	sym[ 8 ]->emit = sym[ 8 ]->name;
+	n_alt = pp_sym_create( g, "alternation" );
 
-	sym[ 9 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "int", "[0-9]+" );
-	sym[ 9 ]->emit = sym[ 9 ]->name;
+	n_nonterm = pp_sym_create( g, "nonterm" );
+	n_nonterm->emit = "nonterm";
 
-	sym[ 10 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "function", "[A-Z_a-z][0-9A-Z_a-z]*\\(\\)" );
-	sym[ 10 ]->emit = sym[ 10 ]->name;
-
-	sym[ 11 ] = pp_sym_create( g, PPSYMTYPE_STRING, "flag_emit", "@" );
-	sym[ 11 ]->emit = sym[ 11 ]->name;
-
-	sym[ 12 ] = pp_sym_create( g, PPSYMTYPE_STRING, "flag_goal", "$" );
-	sym[ 12 ]->emit = sym[ 12 ]->name;
-
-	sym[ 13 ] = pp_sym_create( g, PPSYMTYPE_STRING, "flag_lexem", "!" );
-	sym[ 13 ]->emit = sym[ 13 ]->name;
-
-	sym[ 14 ] = pp_sym_create( g, PPSYMTYPE_REGEX, "flag_ignore", "%(ignore|skip)" );
-	sym[ 14 ]->emit = sym[ 14 ]->name;
-
-	sym[ 15 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "inline", (char*)NULL );
-	sym[ 15 ]->emit = sym[ 15 ]->name;
-
-	sym[ 16 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "ident?", (char*)NULL );
-
-	sym[ 17 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "(" );
-
-	sym[ 18 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "alternation", (char*)NULL );
-
-	sym[ 19 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, ")" );
-
-	sym[ 20 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "symbol", (char*)NULL );
-	sym[ 20 ]->emit = sym[ 20 ]->name;
-
-	sym[ 21 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "modifier", (char*)NULL );
-
-	sym[ 22 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "*" );
-
-	sym[ 23 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "+" );
-
-	sym[ 24 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "?" );
-
-	sym[ 25 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "sequence", (char*)NULL );
-
-	sym[ 26 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "production", (char*)NULL );
-	sym[ 26 ]->emit = sym[ 26 ]->name;
-
-	sym[ 27 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, "|" );
-
-	sym[ 28 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef", (char*)NULL );
-	sym[ 28 ]->emit = sym[ 28 ]->name;
-
-	sym[ 29 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "flag_emit?", (char*)NULL );
-
-	sym[ 30 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef'", (char*)NULL );
-
-	sym[ 31 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef'+", (char*)NULL );
-
-	sym[ 32 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "nontermdef'?", (char*)NULL );
-
-	sym[ 33 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, ":" );
-
-	sym[ 34 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef", (char*)NULL );
-	sym[ 34 ]->emit = sym[ 34 ]->name;
-
-	sym[ 35 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef'", (char*)NULL );
-
-	sym[ 36 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "termdef''", (char*)NULL );
-
-	sym[ 37 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "definition", (char*)NULL );
-
-	sym[ 38 ] = pp_sym_create( g, PPSYMTYPE_STRING, (char*)NULL, ";" );
-
-	sym[ 39 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "grammar", (char*)NULL );
-	g->goal = sym[ 39 ];
-
-	sym[ 40 ] = pp_sym_create( g, PPSYMTYPE_NONTERM, "definition+", (char*)NULL );
-
+	n_grammar = pp_sym_create( g, "grammar" );
+	g->goal = n_grammar;
 
 	/* Productions */
 
-	prod[ 0 ] = pp_prod_create( g, sym[ 15 ] /* inline */,
-		sym[ 11 ], /* "@" */
-		sym[ 16 ], /* ident? */
-		sym[ 17 ], /* "(" */
-		sym[ 18 ], /* alternation */
-		sym[ 19 ], /* ")" */
-		(ppsym*)NULL );
+	p = pp_prod_create( g, n_symbol, brop, n_alt, brcl, (ppsym*)NULL );
+	p->emit = "inline";
+	p = pp_prod_create( g, n_symbol, ident, (ppsym*)NULL );
 
-	prod[ 1 ] = pp_prod_create( g, sym[ 16 ] /* ident? */,
-		sym[ 8 ], /* /[A-Z_a-z][0-9A-Z_a-z]*\/ */
-		(ppsym*)NULL );
+	p = pp_prod_create( g, n_mod, n_symbol, (ppsym*)NULL );
+	p = pp_prod_create( g, n_mod, n_symbol, star, (ppsym*)NULL );
+	p->emit = "star";
+	p = pp_prod_create( g, n_mod, n_symbol, plus, (ppsym*)NULL );
+	p->emit = "pos";
+	p = pp_prod_create( g, n_mod, n_symbol, quest, (ppsym*)NULL );
+	p->emit = "opt";
 
-	prod[ 2 ] = pp_prod_create( g, sym[ 16 ] /* ident? */,
-		(ppsym*)NULL );
+	pp_prod_create( g, n_seq, n_seq, n_mod, (ppsym*)NULL );
+	pp_prod_create( g, n_seq, n_mod, (ppsym*)NULL );
 
-	prod[ 3 ] = pp_prod_create( g, sym[ 15 ] /* inline */,
-		sym[ 17 ], /* "(" */
-		sym[ 18 ], /* alternation */
-		sym[ 19 ], /* ")" */
-		(ppsym*)NULL );
+	pp_prod_create( g, n_prod, n_seq, (ppsym*)NULL );
+	pp_prod_create( g, n_prod, (ppsym*)NULL );
 
-	prod[ 4 ] = pp_prod_create( g, sym[ 20 ] /* symbol */,
-		sym[ 8 ], /* /[A-Z_a-z][0-9A-Z_a-z]*\/ */
-		(ppsym*)NULL );
+	pp_prod_create( g, n_alt, n_alt, pipe, n_prod, (ppsym*)NULL );
+	pp_prod_create( g, n_alt, n_prod, (ppsym*)NULL );
 
-	prod[ 5 ] = pp_prod_create( g, sym[ 20 ] /* symbol */,
-		sym[ 4 ], /* /\\[(\\\\.|[^\\\\\\]])*\\]/ */
-		(ppsym*)NULL );
+	pp_prod_create( g, n_nonterm, ident, colon, n_alt, semi, (ppsym*)NULL );
 
-	prod[ 6 ] = pp_prod_create( g, sym[ 20 ] /* symbol */,
-		sym[ 5 ], /* /'[^']*'/ */
-		(ppsym*)NULL );
-
-	prod[ 7 ] = pp_prod_create( g, sym[ 20 ] /* symbol */,
-		sym[ 6 ], /* /"[^"]*"/ */
-		(ppsym*)NULL );
-
-	prod[ 8 ] = pp_prod_create( g, sym[ 20 ] /* symbol */,
-		sym[ 7 ], /* /\/(\\\\.|[^\/\\\\])*\// */
-		(ppsym*)NULL );
-
-	prod[ 9 ] = pp_prod_create( g, sym[ 20 ] /* symbol */,
-		sym[ 10 ], /* /[A-Z_a-z][0-9A-Z_a-z]*\\(\\)/ */
-		(ppsym*)NULL );
-
-	prod[ 10 ] = pp_prod_create( g, sym[ 20 ] /* symbol */,
-		sym[ 15 ], /* inline */
-		(ppsym*)NULL );
-
-	prod[ 11 ] = pp_prod_create( g, sym[ 21 ] /* modifier */,
-		sym[ 20 ], /* symbol */
-		sym[ 22 ], /* "*" */
-		(ppsym*)NULL );
-	prod[ 11 ]->emit = "kle";
-
-	prod[ 12 ] = pp_prod_create( g, sym[ 21 ] /* modifier */,
-		sym[ 20 ], /* symbol */
-		sym[ 23 ], /* "+" */
-		(ppsym*)NULL );
-	prod[ 12 ]->emit = "pos";
-
-	prod[ 13 ] = pp_prod_create( g, sym[ 21 ] /* modifier */,
-		sym[ 20 ], /* symbol */
-		sym[ 24 ], /* "?" */
-		(ppsym*)NULL );
-	prod[ 13 ]->emit = "opt";
-
-	prod[ 14 ] = pp_prod_create( g, sym[ 21 ] /* modifier */,
-		sym[ 20 ], /* symbol */
-		(ppsym*)NULL );
-
-	prod[ 15 ] = pp_prod_create( g, sym[ 25 ] /* sequence */,
-		sym[ 25 ], /* sequence */
-		sym[ 21 ], /* modifier */
-		(ppsym*)NULL );
-
-	prod[ 16 ] = pp_prod_create( g, sym[ 25 ] /* sequence */,
-		sym[ 21 ], /* modifier */
-		(ppsym*)NULL );
-
-	prod[ 17 ] = pp_prod_create( g, sym[ 26 ] /* production */,
-		sym[ 25 ], /* sequence */
-		(ppsym*)NULL );
-
-	prod[ 18 ] = pp_prod_create( g, sym[ 26 ] /* production */,
-		(ppsym*)NULL );
-
-	prod[ 19 ] = pp_prod_create( g, sym[ 18 ] /* alternation */,
-		sym[ 18 ], /* alternation */
-		sym[ 27 ], /* "|" */
-		sym[ 26 ], /* production */
-		(ppsym*)NULL );
-
-	prod[ 20 ] = pp_prod_create( g, sym[ 18 ] /* alternation */,
-		sym[ 26 ], /* production */
-		(ppsym*)NULL );
-
-	prod[ 21 ] = pp_prod_create( g, sym[ 28 ] /* nontermdef */,
-		sym[ 29 ], /* flag_emit? */
-		sym[ 8 ], /* /[A-Z_a-z][0-9A-Z_a-z]*\/ */
-		sym[ 32 ], /* nontermdef'? */
-		sym[ 33 ], /* ":" */
-		sym[ 18 ], /* alternation */
-		(ppsym*)NULL );
-
-	prod[ 22 ] = pp_prod_create( g, sym[ 29 ] /* flag_emit? */,
-		sym[ 11 ], /* "@" */
-		(ppsym*)NULL );
-
-	prod[ 23 ] = pp_prod_create( g, sym[ 29 ] /* flag_emit? */,
-		(ppsym*)NULL );
-
-	prod[ 24 ] = pp_prod_create( g, sym[ 30 ] /* nontermdef' */,
-		sym[ 12 ], /* "$" */
-		(ppsym*)NULL );
-
-	prod[ 25 ] = pp_prod_create( g, sym[ 30 ] /* nontermdef' */,
-		sym[ 13 ], /* "!" */
-		(ppsym*)NULL );
-
-	prod[ 26 ] = pp_prod_create( g, sym[ 31 ] /* nontermdef'+ */,
-		sym[ 31 ], /* nontermdef'+ */
-		sym[ 30 ], /* nontermdef' */
-		(ppsym*)NULL );
-
-	prod[ 27 ] = pp_prod_create( g, sym[ 31 ] /* nontermdef'+ */,
-		sym[ 30 ], /* nontermdef' */
-		(ppsym*)NULL );
-
-	prod[ 28 ] = pp_prod_create( g, sym[ 32 ] /* nontermdef'? */,
-		sym[ 31 ], /* nontermdef'+ */
-		(ppsym*)NULL );
-
-	prod[ 29 ] = pp_prod_create( g, sym[ 32 ] /* nontermdef'? */,
-		(ppsym*)NULL );
-
-	prod[ 30 ] = pp_prod_create( g, sym[ 34 ] /* termdef */,
-		sym[ 35 ], /* termdef' */
-		sym[ 36 ], /* termdef'' */
-		(ppsym*)NULL );
-
-	prod[ 31 ] = pp_prod_create( g, sym[ 35 ] /* termdef' */,
-		sym[ 29 ], /* flag_emit? */
-		sym[ 8 ], /* /[A-Z_a-z][0-9A-Z_a-z]*\/ */
-		(ppsym*)NULL );
-
-	prod[ 32 ] = pp_prod_create( g, sym[ 35 ] /* termdef' */,
-		sym[ 14 ], /* /%(ignore|skip)/ */
-		(ppsym*)NULL );
-
-	prod[ 33 ] = pp_prod_create( g, sym[ 36 ] /* termdef'' */,
-		sym[ 4 ], /* /\\[(\\\\.|[^\\\\\\]])*\\]/ */
-		(ppsym*)NULL );
-
-	prod[ 34 ] = pp_prod_create( g, sym[ 36 ] /* termdef'' */,
-		sym[ 5 ], /* /'[^']*'/ */
-		(ppsym*)NULL );
-
-	prod[ 35 ] = pp_prod_create( g, sym[ 36 ] /* termdef'' */,
-		sym[ 7 ], /* /\/(\\\\.|[^\/\\\\])*\// */
-		(ppsym*)NULL );
-
-	prod[ 36 ] = pp_prod_create( g, sym[ 36 ] /* termdef'' */,
-		sym[ 10 ], /* /[A-Z_a-z][0-9A-Z_a-z]*\\(\\)/ */
-		(ppsym*)NULL );
-
-	prod[ 37 ] = pp_prod_create( g, sym[ 37 ] /* definition */,
-		sym[ 28 ], /* nontermdef */
-		sym[ 38 ], /* ";" */
-		(ppsym*)NULL );
-
-	prod[ 38 ] = pp_prod_create( g, sym[ 37 ] /* definition */,
-		sym[ 34 ], /* termdef */
-		sym[ 38 ], /* ";" */
-		(ppsym*)NULL );
-
-	prod[ 39 ] = pp_prod_create( g, sym[ 39 ] /* grammar */,
-		sym[ 40 ], /* definition+ */
-		(ppsym*)NULL );
-
-	prod[ 40 ] = pp_prod_create( g, sym[ 40 ] /* definition+ */,
-		sym[ 40 ], /* definition+ */
-		sym[ 37 ], /* definition */
-		(ppsym*)NULL );
-
-	prod[ 41 ] = pp_prod_create( g, sym[ 40 ] /* definition+ */,
-		sym[ 37 ], /* definition */
-		(ppsym*)NULL );
-
-
+	pp_prod_create( g, n_grammar, n_grammar, n_nonterm, (ppsym*)NULL );
+	pp_prod_create( g, n_grammar, n_nonterm, (ppsym*)NULL );
 }

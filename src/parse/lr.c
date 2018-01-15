@@ -1098,9 +1098,10 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 	*end = start;
 
 	/* Skip over whitespace */
+	/* fixme
 	if( pp_white_in_input( grm, *end, end ) )
 		pp_pos_in_input( &row, &col, start, *end );
-
+	*/
 	do
 	{
 		lend = *end;
@@ -1179,7 +1180,9 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 		}
 
 		/* Update current position */
+		/* fixme
 		pp_pos_in_input( &row, &col, start, *end );
+		*/
 
 		/* Reduce */
 		while( reduce )
@@ -1241,8 +1244,10 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 						tos->symbol->name );
 			#endif
 
+			/*
 			if( pp_white_in_input( grm, ( lstart = *end ), end ) )
 				pp_pos_in_input( &row, &col, lstart, *end );
+			*/
 		}
 	}
 	while( !reduce );

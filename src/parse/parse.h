@@ -54,13 +54,13 @@ struct _ppsym
 	/* Primaries */
 	int						id;
 	char*					name;
+#define PPSYM_T_EOF			"EOF&"
 
 	int						flags;
 
 	ppgram*					grm;
 
 	plist*					first;		/* FIRST sets */
-	char*					dfn;		/* Terminal definition */
 
 	/* AST construction */
 	char*					emit;
@@ -69,7 +69,7 @@ struct _ppsym
 	char*					strval;
 };
 
-#define PPSYM_IS_TERMINAL( sym )	isupper( *( sym )->name )
+#define PPSYM_IS_TERMINAL( sym )	( !islower( *( sym )->name ) )
 #define PPSYM_IS_NONTERMINAL( sym )	!PPSYM_IS_TERMINAL( sym )
 
 /* Grammar */
