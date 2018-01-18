@@ -149,6 +149,7 @@ int main( int argc, char** argv )
 			ifile = opt;
 		}
 
+		/* fixme
 		if( s )
 		{
 			e = s;
@@ -185,6 +186,7 @@ int main( int argc, char** argv )
 
 			a = pp_ast_free( a );
 		}
+		*/
 
 		istr = pfree( istr );
 		i++;

@@ -142,7 +142,7 @@ char* pp_prod_to_str( ppprod* p )
 	if( !p->strval )
 	{
 		if( p->lhs )
-			p->strval = pstrcatstr( p->strval, p->lhs->name, FALSE );
+			p->strval = pstrcatstr( p->strval, pp_sym_to_str( p->lhs ), FALSE );
 
 		p->strval = pstrcatstr( p->strval, " : ", FALSE );
 		plist_for( p->rhs, e )
@@ -152,10 +152,7 @@ char* pp_prod_to_str( ppprod* p )
 			if( e != plist_first( p->rhs ) )
 				p->strval = pstrcatstr( p->strval, " ", FALSE );
 
-			if( PPSYM_IS_TERMINAL( sym ) )
-				p->strval = pstrcatstr( p->strval, "@", FALSE );
-
-			p->strval = pstrcatstr( p->strval, sym->name, FALSE );
+			p->strval = pstrcatstr( p->strval, pp_sym_to_str( sym ), FALSE );
 		}
 	}
 

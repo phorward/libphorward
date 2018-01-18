@@ -63,5 +63,9 @@ pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end )
 		return FALSE;
 	}
 
+	/* fixme
 	return pp_lr_parse( root, par->gram, start, end );
+	*/
+
+	return FALSE;
 }

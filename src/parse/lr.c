@@ -15,6 +15,7 @@ Usage:	LR/LALR/SLR parse table construction and execution.
 #define PPLR_REDUCE		2
 
 #define DEBUGLEVEL		0
+#define ALGORITHM_TRACE	0
 
 /* Closure item */
 typedef struct
@@ -99,7 +100,7 @@ static void pp_lritem_print( pplritem* it )
 	{
 		fprintf( stderr, " ." );
 
-		if( it->lookahead )
+		if( plist_count( it->lookahead ) )
 		{
 			fprintf( stderr, "   { " );
 
@@ -108,7 +109,7 @@ static void pp_lritem_print( pplritem* it )
 				if( e != plist_first( it->lookahead ) )
 					fprintf( stderr, " " );
 
-				fprintf( stderr, "%s",
+				fprintf( stderr, ">%s<",
 					pp_sym_to_str( ( (ppsym*)plist_access( e ) ) ) );
 			}
 
@@ -616,13 +617,13 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 				it = (pplritem*)plist_access( e );
 
 				/* Check if symbol right to the dot is a nonterminal */
-				if( !( sym = pp_prod_getfromrhs( it->prod, it->dot ) )
-						|| PPSYM_IS_TERMINAL( sym ) )
+				if( !( lhs = pp_prod_getfromrhs( it->prod, it->dot ) )
+						|| PPSYM_IS_TERMINAL( lhs ) )
 					continue;
 
 				/* Add all prods of the nonterminal to the closure,
 					if not already in */
-				for( i = 0; ( prod = pp_sym_getprod( sym, i ) ); i++ )
+				for( i = 0; ( prod = pp_sym_getprod( lhs, i ) ); i++ )
 				{
 					plist_for( closure, f )
 					{
@@ -978,42 +979,24 @@ static pplrse* pop( parray* stack, int n, char** start, ppast** node,
 	return (pplrse*)parray_last( stack );
 }
 
-static pboolean get_action( ppgram* grm, pplrstate** shift, ppprod** reduce,
-								ppsym** on_sym, pplrse* tos, char** end )
+static pboolean get_action( pplrstate** shift, ppprod** reduce,
+								pplrse* tos, ppsym* sym )
 {
 	plistel*	e;
 	pplrcolumn*	col;
-	int			la;
-	char*		start	= *end;
 
 	*shift = (pplrstate*)NULL;
 	*reduce = (ppprod*)NULL;
-	*on_sym = (ppsym*)NULL;
-
-	/* REWORK! */
-	/* la = plex_lex( grm->lex, start, end ); */
-
-	if( la <= 0 )
-	{
-		if( *start )
-			return FALSE;
-
-		la = grm->eof->id;
-	}
 
 	plist_for( tos->state->actions, e )
 	{
 		col = (pplrcolumn*)plist_access( e );
 
-		#if DEBUGLEVEL > 1
-		fprintf( stderr, "Testing %s on >%s<\n", col->symbol->name, *end );
-		#endif
-		if( col->symbol->id == la )
+		if( col->symbol == sym )
 		{
 			*shift = col->shift;
 			*reduce = col->reduce;
 
-			*on_sym = col->symbol;
 			return TRUE;
 		}
 	}
@@ -1070,15 +1053,15 @@ static void print_stack( char* title, plist* states, parray* stack )
 #endif
 
 
-static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
+static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 								char* start, char** end,
 									plist* states )
 {
+	int			id;
 	int			row		= 1;
 	int			col		= 1;
 	int			lrow;
 	int			lcol;
-	char*		lend;
 	char*		lstart;
 	ppsym*		lhs;
 	ppsym*		sym;
@@ -1090,27 +1073,33 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 	pboolean	token;
 	ppast*		node;
 
+	*end = start;
+
+	/* Get symbols */
+	if( ( start = plex_next( lex, start, &id, end ) ) )
+		sym = pp_sym_get( grm, id - 1 );
+	else
+		sym = grm->eof;
+
+	#if DEBUGLEVEL > 2
+	fprintf( stderr, "New symbol: '%s' @ >%.*s<\n",
+				sym->name, *end - start, start );
+	#endif
+
+	/* Initialize parser */
+
 	stack = parray_create( sizeof( pplrse ), 0 );
 	tos = push( stack, grm->goal,
 					(pplrstate*)plist_access(
 						plist_first( states ) ), start, start );
 
-	*end = start;
-
-	/* Skip over whitespace */
-	/* fixme
-	if( pp_white_in_input( grm, *end, end ) )
-		pp_pos_in_input( &row, &col, start, *end );
-	*/
 	do
 	{
-		lend = *end;
-		start = *end;
-
 		/* Parse */
 		#if DEBUGLEVEL > 1
-		fprintf( stderr, "State on Top %d\n",
-					plist_offset( plist_get_by_ptr( states, tos->state ) ) );
+		fprintf( stderr, "State %d\n",
+					plist_offset( plist_get_by_ptr(
+									states, tos->state ) ) );
 
 		/* AST construction debug */
 		/*
@@ -1137,7 +1126,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 		#endif
 
 		/* Action table processing */
-		if( !get_action( grm, &shift, &reduce, &sym, tos, end ) )
+		if( !get_action( &shift, &reduce, tos, sym ) )
 		{
 			/* Parse Error */
 			/* TODO: Error Recovery */
@@ -1176,7 +1165,17 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 											(ppprod*)NULL, start, *end,
 												row, col, (ppast*)NULL );
 
-			lend = *end;
+			start = *end;
+
+			if( ( start = plex_next( lex, start, &id, end ) ) )
+				sym = pp_sym_get( grm, id - 1 );
+			else
+				sym = grm->eof;
+
+			#if DEBUGLEVEL > 2
+			fprintf( stderr, "New symbol: '%s' @ >%.*s<\n",
+						sym->name, *end - start, start );
+			#endif
 		}
 
 		/* Update current position */
@@ -1187,13 +1186,11 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 		/* Reduce */
 		while( reduce )
 		{
-			*end = lend;
-
 			#if DEBUGLEVEL > 1
 			fprintf( stderr,
-				"reduce by production %d\n"
+				"reduce by production '%s'\n"
 				"popping %d items off the stack, replacing by %s\n",
-				reduce->id,
+				pp_prod_to_str( reduce ),
 				plist_count( reduce->rhs ),
 				reduce->lhs->name );
 			#endif
@@ -1204,13 +1201,17 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 
 			/* Pop elements off the stack */
 			tos = pop( stack, plist_count( reduce->rhs ),
-							&start, &node, &lrow, &lcol );
+							&lstart, &node, &lrow, &lcol );
 			lhs = reduce->lhs;
 
 			/* Construction of AST node */
 			if( root && reduce->emit )
 				node = pp_ast_create( reduce->emit,
-										lhs, reduce, start, lend,
+										lhs, reduce, lstart, end,
+											row, col, node );
+			else if( root && lhs->emit )
+				node = pp_ast_create( lhs->emit,
+										lhs, reduce, lstart, end,
 											row, col, node );
 
 			/* Goal symbol reduced? */
@@ -1225,7 +1226,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 			/* Push goto state */
 			get_goto( &shift, &reduce, tos, reduce->lhs );
 
-			tos = push( stack, lhs, shift, start, *end );
+			tos = push( stack, lhs, shift, lstart, *end );
 
 			tos->node = node;
 			tos->row = lrow;
@@ -1236,6 +1237,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 			#endif
 		}
 
+		#if 0
 		/* Skip over whitespace */
 		if( !( tos->symbol->flags & PPFLAG_LEXEM ) )
 		{
@@ -1249,6 +1251,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm,
 				pp_pos_in_input( &row, &col, lstart, *end );
 			*/
 		}
+		#endif
 	}
 	while( !reduce );
 
@@ -1265,12 +1268,13 @@ an ppast object.
 //end// receives the position of the last character matched.
 
 The function returns TRUE if no parse error occured. */
-pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end )
+pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex,
+						char* start, char** end )
 {
 	pboolean	ret;
 	plist*		states;
 
-	if( !( grm && start && end ) )
+	if( !( grm && lex && start && end ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -1285,7 +1289,7 @@ pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end )
 	#endif
 
 	/* Run parser */
-	ret = pp_lr_PARSE( root, grm, start, end, states );
+	ret = pp_lr_PARSE( root, grm, lex, start, end, states );
 
 	/* Clean-up */
 	pp_lr_free( states );

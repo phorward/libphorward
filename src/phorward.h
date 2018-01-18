@@ -630,7 +630,7 @@ struct _ppsym
 	
 	int						id;
 	char*					name;
-#define PPSYM_T_EOF			"EOF&"
+#define PPSYM_T_EOF			"&eof"
 
 	int						flags;
 
@@ -879,7 +879,7 @@ void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
 
-void pp_bnf_define( ppgram* g );
+void pp_bnf_define( ppgram* g, plex* l );
 
 
 pboolean pp_gram_prepare( ppgram* g );
@@ -890,7 +890,7 @@ ppgram* pp_gram_free( ppgram* g );
 
 
 plist* pp_lr_closure( ppgram* gram, pboolean optimize );
-pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end );
+pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex, char* start, char** end );
 
 
 pparse* pp_create( int flags, char* bnf );

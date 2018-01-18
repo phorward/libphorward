@@ -54,7 +54,7 @@ struct _ppsym
 	/* Primaries */
 	int						id;
 	char*					name;
-#define PPSYM_T_EOF			"EOF&"
+#define PPSYM_T_EOF			"&eof"
 
 	int						flags;
 

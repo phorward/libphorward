@@ -10,7 +10,7 @@ Usage:	Self-hosted grammar for ppgram.
 
 #include "phorward.h"
 
-void pp_bnf_define( ppgram* g )
+void pp_bnf_define( ppgram* g, plex* l )
 {
 	ppsym*	ident;
 	ppsym*	colon;
@@ -28,6 +28,7 @@ void pp_bnf_define( ppgram* g )
 	ppsym*	n_prod;
 	ppsym*	n_alt;
 	ppsym*	n_nonterm;
+	ppsym*	n_defs;
 	ppsym*	n_grammar;
 
 	ppprod*	p;
@@ -35,6 +36,8 @@ void pp_bnf_define( ppgram* g )
 	/* Terminals */
 	ident = pp_sym_create( g, "Ident" );
 	ident->emit = "Ident";
+
+	plex_define( l, "[A-Za-z_][A-Za-z0-9_]*", ident->id, PREGEX_FLAG_NONE );
 
 	colon = pp_sym_create( g, ":" );
 	semi = pp_sym_create( g, ";" );
@@ -44,6 +47,15 @@ void pp_bnf_define( ppgram* g )
 	star = pp_sym_create( g, "*" );
 	quest = pp_sym_create( g, "?" );
 	plus = pp_sym_create( g, "+" );
+
+	plex_define( l, colon->name, colon->id, PREGEX_COMP_STATIC );
+	plex_define( l, semi->name, semi->id, PREGEX_COMP_STATIC );
+	plex_define( l, pipe->name, pipe->id, PREGEX_COMP_STATIC );
+	plex_define( l, brop->name, brop->id, PREGEX_COMP_STATIC );
+	plex_define( l, brcl->name, brcl->id, PREGEX_COMP_STATIC );
+	plex_define( l, star->name, star->id, PREGEX_COMP_STATIC );
+	plex_define( l, quest->name, quest->id, PREGEX_COMP_STATIC );
+	plex_define( l, plus->name, plus->id, PREGEX_COMP_STATIC );
 
 	/* Nonterminals */
 	n_symbol = pp_sym_create( g, "symbol" );
@@ -59,6 +71,8 @@ void pp_bnf_define( ppgram* g )
 
 	n_nonterm = pp_sym_create( g, "nonterm" );
 	n_nonterm->emit = "nonterm";
+
+	n_defs = pp_sym_create( g, "defs" );
 
 	n_grammar = pp_sym_create( g, "grammar" );
 	g->goal = n_grammar;
@@ -88,6 +102,8 @@ void pp_bnf_define( ppgram* g )
 
 	pp_prod_create( g, n_nonterm, ident, colon, n_alt, semi, (ppsym*)NULL );
 
-	pp_prod_create( g, n_grammar, n_grammar, n_nonterm, (ppsym*)NULL );
-	pp_prod_create( g, n_grammar, n_nonterm, (ppsym*)NULL );
+	pp_prod_create( g, n_defs, n_defs, n_nonterm, (ppsym*)NULL );
+	pp_prod_create( g, n_defs, n_nonterm, (ppsym*)NULL );
+
+	pp_prod_create( g, n_grammar, n_defs, (ppsym*)NULL );
 }

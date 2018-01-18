@@ -54,6 +54,9 @@ pboolean pp_gram_prepare( ppgram* g )
 	{
 		s = (ppsym*)plist_access( e );
 		plist_erase( s->first );
+
+		if( PPSYM_IS_TERMINAL( s ) )
+			plist_push( s->first, s );
 	}
 
 	/* Compute FIRST sets and mark left-recursions */
@@ -196,6 +199,7 @@ ppgram* pp_gram_create( void )
 */
 pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 {
+	plex*		bnflex;
 	ppgram*		bnfgram;
 	char*		s = bnf;
 	char*		e;
@@ -209,20 +213,22 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 
 	/* Define grammar for BNF */
 	bnfgram = pp_gram_create();
-	pp_bnf_define( bnfgram );
+	bnflex = plex_create( 0 );
+
+	pp_bnf_define( bnfgram, bnflex );
+
 	pp_gram_prepare( bnfgram );
+	plex_prepare( bnflex );
 
 	pp_gram_dump( stdout, bnfgram ); /* DEBUG */
 
-	/* fixme
-	if( !pp_lr_parse( &ast, bnfgram, s, &e ) )
+	if( !pp_lr_parse( &ast, bnfgram, bnflex, s, &e ) )
 	{
 		pp_gram_free( bnfgram );
 		return FALSE;
 	}
-	*/
 
-	/* pp_ast_simplify( a ); */
+	pp_ast_dump_short( stdout, ast );
 
 	/* fixme
 	if( !ast_to_gram( g, ast ) )
@@ -241,24 +247,24 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 {
 	plistel*	e;
 	plistel*	f;
-
 	ppprod*		p;
 	ppsym*		s;
 	size_t		maxlhslen	= 0;
 	size_t		maxemitlen	= 0;
+	size_t		maxsymlen	= 0;
 
 	plist_for( g->symbols, e )
 	{
 		s = (ppsym*)plist_access( e );
-		if( pstrlen( s->emit ) > maxlhslen )
+
+		if( pstrlen( s->emit ) > maxemitlen )
 			maxemitlen = pstrlen( s->emit );
-	}
 
-	plist_for( g->symbols, e )
-	{
-		s = (ppsym*)plist_access( e );
 		if( PPSYM_IS_NONTERMINAL( s ) && pstrlen( s->name ) > maxlhslen )
 			maxlhslen = pstrlen( s->name );
+
+		if( pstrlen( s->name ) > maxsymlen )
+			maxsymlen = pstrlen( s->name );
 	}
 
 	plist_for( g->prods, e )
@@ -293,18 +299,26 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 	plist_for( g->symbols, e )
 	{
 		s = (ppsym*)plist_access( e );
-		if( PPSYM_IS_TERMINAL( s ) )
-			continue;
 
-		fprintf( stream, "FIRST %-*s {", maxlhslen, s->name );
-		plist_for( s->first, f )
+		fprintf( stream, "%03d  %-*s  %-*s",
+			s->id, maxemitlen, s->emit ? s->emit : "",
+				maxsymlen, s->name );
+
+		if( PPSYM_IS_NONTERMINAL( s ) )
 		{
-			s = (ppsym*)plist_access( f );
-			fprintf( stream, " " );
-			fprintf( stream, "%s", pp_sym_to_str( s ) );
+			fprintf( stream, " {" );
+
+			plist_for( s->first, f )
+			{
+				s = (ppsym*)plist_access( f );
+				fprintf( stream, " " );
+				fprintf( stream, "%s", pp_sym_to_str( s ) );
+			}
+
+			fprintf( stream, " }" );
 		}
 
-		fprintf( stream, " }\n" );
+		fprintf( stream, "\n" );
 	}
 }
 

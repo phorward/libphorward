@@ -172,7 +172,7 @@ void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
 /* parse/bnf.c */
-void pp_bnf_define( ppgram* g );
+void pp_bnf_define( ppgram* g, plex* l );
 
 /* parse/gram.c */
 pboolean pp_gram_prepare( ppgram* g );
@@ -183,7 +183,7 @@ ppgram* pp_gram_free( ppgram* g );
 
 /* parse/lr.c */
 plist* pp_lr_closure( ppgram* gram, pboolean optimize );
-pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end );
+pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex, char* start, char** end );
 
 /* parse/parse.c */
 pparse* pp_create( int flags, char* bnf );
