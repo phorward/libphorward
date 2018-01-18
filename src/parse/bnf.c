@@ -33,6 +33,21 @@ void pp_bnf_define( ppgram* g, plex* l )
 
 	ppprod*	p;
 
+	/*
+		Ident : [a-z]+;
+
+		symbol : '(' alternation ')' | Ident ;
+		modifier : symbol | symbol '*' | symbol '+' | symbol '?' ;
+		sequence : sequence modifier | modifier ;
+		production : sequence | ;
+		alternation : alternation '|' production | production ;
+
+		nonterm : Ident ':' alternation ';';
+		defs : defs nonterm | nonterm ;
+
+		grammar$ : defs ;
+	*/
+
 	/* Terminals */
 	ident = pp_sym_create( g, "Ident" );
 	ident->emit = "Ident";
