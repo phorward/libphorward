@@ -146,9 +146,9 @@ am_libphorward_la_OBJECTS = any/any.lo any/any.conv.lo any/any.get.lo \
 	any/any.print.lo any/any.set.lo base/array.lo base/ccl.lo \
 	base/dbg.lo base/list.lo base/memory.lo parse/ast.lo \
 	parse/bnf.lo parse/gram.lo parse/lr.lo parse/parse.lo \
-	parse/prod.lo parse/scan.lo parse/sym.lo regex/dfa.lo \
-	regex/direct.lo regex/lex.lo regex/misc.lo regex/nfa.lo \
-	regex/ptn.lo regex/regex.lo string/convert.lo string/string.lo \
+	parse/prod.lo parse/sym.lo regex/dfa.lo regex/direct.lo \
+	regex/lex.lo regex/misc.lo regex/nfa.lo regex/ptn.lo \
+	regex/regex.lo string/convert.lo string/string.lo \
 	string/utf8.lo util/system.lo
 libphorward_la_OBJECTS = $(am_libphorward_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -358,7 +358,6 @@ libphorward_la_SOURCES = \
 	parse/lr.c \
 	parse/parse.c \
 	parse/prod.c \
-	parse/scan.c \
 	parse/sym.c \
 	regex/dfa.c \
 	regex/direct.c \
@@ -494,7 +493,6 @@ parse/gram.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/lr.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/parse.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/prod.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
-parse/scan.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 parse/sym.lo: parse/$(am__dirstamp) parse/$(DEPDIR)/$(am__dirstamp)
 regex/$(am__dirstamp):
 	@$(MKDIR_P) regex
@@ -566,7 +564,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/lr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/parse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/prod.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/sym.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/dfa.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@regex/$(DEPDIR)/direct.Plo@am__quote@

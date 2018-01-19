@@ -34,7 +34,6 @@ libphorward_la_SOURCES = \
 	parse/lr.c \
 	parse/parse.c \
 	parse/prod.c \
-	parse/scan.c \
 	parse/sym.c \
 	regex/dfa.c \
 	regex/direct.c \
