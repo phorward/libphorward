@@ -101,10 +101,18 @@ int main( int argc, char** argv )
 		printf( "Parsing grammar from '%s'\n", gfile );
 
 	if( !( ( g = pp_gram_create() )
-				&& pp_gram_from_bnf( g, gstr )
-					&& pp_gram_prepare( g ) ) )
+				&& pp_gram_from_bnf( g, gstr ) ) )
 	{
 		fprintf( stderr, "%s: Parse error in >%s<\n", gfile, gstr );
+		return 1;
+	}
+
+	printf( "That's all, folks.\n" );
+	return 0;
+
+	if( !pp_gram_prepare( g ) )
+	{
+		fprintf( stderr, "%s: Unable to prepare grammar\n", gfile );
 		return 1;
 	}
 

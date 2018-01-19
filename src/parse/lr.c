@@ -1207,11 +1207,11 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 			/* Construction of AST node */
 			if( root && reduce->emit )
 				node = pp_ast_create( reduce->emit,
-										lhs, reduce, lstart, end,
+										lhs, reduce, lstart, *end,
 											row, col, node );
 			else if( root && lhs->emit )
 				node = pp_ast_create( lhs->emit,
-										lhs, reduce, lstart, end,
+										lhs, reduce, lstart, *end,
 											row, col, node );
 
 			/* Goal symbol reduced? */
