@@ -107,17 +107,17 @@ int main( int argc, char** argv )
 		return 1;
 	}
 
-	printf( "That's all, folks.\n" );
-	return 0;
-
 	if( !pp_gram_prepare( g ) )
 	{
 		fprintf( stderr, "%s: Unable to prepare grammar\n", gfile );
 		return 1;
 	}
 
-	if( dg )
-		pp_gram_dump( stdout, g );
+	/* if( dg ) */
+	pp_gram_dump( stdout, g );
+
+	printf( "That's all, folks.\n" );
+	return 0;
 
 	lm = argc == next;
 	i = 0;

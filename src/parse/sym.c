@@ -61,16 +61,15 @@ ppsym* pp_sym_free( ppsym* sym )
 	if( !sym )
 		return (ppsym*)NULL;
 
+	/* Remove symbol from pool */
+	plist_remove( sym->grm->symbols,
+		plist_get_by_ptr( sym->grm->symbols, sym ) );
+
 	if( sym->flags & PPFLAG_FREEEMIT )
 		pfree( sym->emit );
 
 	pfree( sym->name );
-
 	plist_free( sym->first );
-
-	/* Remove symbol from pool */
-	plist_remove( sym->grm->symbols,
-		plist_get_by_ptr( sym->grm->symbols, sym ) );
 
 	return (ppsym*)NULL;
 }

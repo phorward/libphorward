@@ -192,6 +192,200 @@ ppgram* pp_gram_create( void )
 	return g;
 }
 
+#define NAMELEN			80
+#define DERIVCHAR		'\''
+
+
+static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node );
+
+/* Derive name from basename */
+static char* derive_name( ppgram* g, char* base )
+{
+	int             i;
+	static
+	char    deriv   [ ( NAMELEN * 2 ) + 1 ];
+
+	sprintf( deriv, "%s%c", base, DERIVCHAR );
+
+	for( i = 0; strlen( deriv ) < ( NAMELEN * 2 ); i++ )
+	{
+		if( !pp_sym_get_by_name( g, deriv ) )
+			return deriv;
+
+		sprintf( deriv + strlen( deriv ), "%c", DERIVCHAR );
+	}
+
+	return (char*)NULL;
+}
+
+#define NODE_IS( n, s ) 	( !strcmp( (n)->emit, s ) )
+
+static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
+{
+	ppsym*		sym			= (ppsym*)NULL;
+	ppast*		child;
+	char		name		[ NAMELEN * 2 + 1 ];
+
+	/* fprintf( stderr, "sym >%s<\n", node->emit ); */
+
+	if( NODE_IS( node, "inline") )
+	{
+		sym = pp_sym_create( g, derive_name( g, lhs->name ) );
+		sym->flags |= PPFLAG_DEFINED | PPFLAG_GENERATED;
+
+		for( child = node->child; child; child = child->next )
+			if( !traverse_production( g, sym, child->child ) )
+				return (ppsym*)NULL;
+	}
+	else if( NODE_IS( node, "Ident") )
+	{
+		sprintf( name, "%.*s", node->length, node->start );
+
+		if( !( sym = pp_sym_get_by_name( g, name ) ) )
+			sym = pp_sym_create( g, name );
+	}
+	else
+		MISSINGCASE;
+
+	if( sym )
+		sym->flags |= PPFLAG_CALLED;
+
+	return sym;
+}
+
+
+static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
+{
+	ppsym*		sym;
+	ppsym*		csym;
+	ppprod*		prod;
+	ppprod*		popt;
+	ppast*		child;
+	char*		str;
+	char		name		[ NAMELEN * 2 + 1 ];
+	int			i;
+	plistel*	e;
+
+	prod = pp_prod_create( g, lhs, (ppsym*)NULL );
+
+	for( ; node; node = node->next )
+	{
+		/* fprintf( stderr, "prod >%s<\n", node->emit ); */
+
+		if( NODE_IS( node, "symbol" ) )
+		{
+			if( !( sym = traverse_symbol( g, lhs, node->child ) ) )
+				return FALSE;
+
+			pp_prod_append( prod, sym );
+		}
+		else
+		{
+			sym = traverse_symbol( g, lhs, node->child->child );
+			str = sym->name;
+
+			if( NODE_IS( node, "kle" ) || NODE_IS( node, "pos" ) )
+			{
+				sprintf( name, "%s%c", str, PPMOD_POSITIVE );
+
+				if( !( csym = pp_sym_get_by_name( g, name ) ) )
+				{
+					csym = pp_sym_create( g, name );
+					csym->flags |= PPFLAG_DEFINED
+									| PPFLAG_CALLED
+										| PPFLAG_GENERATED;
+
+					if( g->flags & PPFLAG_PREVENTLREC )
+						pp_prod_create( g, csym, sym, csym, (ppsym*)NULL );
+					else
+						pp_prod_create( g, csym, csym, sym, (ppsym*)NULL );
+
+					pp_prod_create( g, csym, sym, (ppsym*)NULL );
+				}
+
+				sym = csym;
+			}
+
+			if( NODE_IS( node, "opt" ) || NODE_IS( node, "kle" ) )
+			{
+				sprintf( name, "%s%c", str, PPMOD_OPTIONAL );
+
+				if( !( csym = pp_sym_get_by_name( g, name ) ) )
+				{
+					csym = pp_sym_create( g, name );
+					csym->flags |= PPFLAG_DEFINED
+									| PPFLAG_CALLED
+										| PPFLAG_GENERATED;
+
+					pp_prod_create( g, csym, sym, (ppsym*)NULL );
+					pp_prod_create( g, csym, (ppsym*)NULL );
+				}
+
+				sym = csym;
+			}
+
+			pp_prod_append( prod, sym );
+		}
+	}
+
+	return TRUE;
+}
+
+static pboolean ast_to_gram( ppgram* g, ppast* ast )
+{
+	ppsym*		sym			= (ppsym*)NULL;
+	ppast*		child;
+	char		name		[ NAMELEN * 2 + 1 ];
+
+	for( ast; ast; ast = ast->next )
+	{
+		if( NODE_IS( ast, "nonterm" ) )
+		{
+			child = ast->child;
+			sprintf( name, "%.*s", child->length, child->start );
+
+			/* Create the non-terminal symbol */
+			if( !( sym = pp_sym_get_by_name( g, name ) ) )
+			{
+				sym = pp_sym_create( g, name );
+				sym->flags |= PPFLAG_DEFINED;
+			}
+
+
+			for( child = child->next; child; child = child->next )
+			{
+				if( NODE_IS( child, "production" ) )
+				{
+					if( !traverse_production( g, sym, child->child ) )
+						return FALSE;
+				}
+				else
+					MISSINGCASE;
+			}
+		}
+		else
+			MISSINGCASE;
+	}
+
+	/* If there is no goal, then the last defined nonterminal
+		becomes the goal symbol */
+	if( !g->goal )
+		g->goal = sym;
+
+	/* Look for unique goal sequence; if this is not the case, wrap it with
+		another, generated nonterminal. */
+	if( pp_sym_getprod( g->goal, 1 ) )
+	{
+		sym = pp_sym_create( g, derive_name( g, g->goal->name ) );
+		sym->flags |= PPFLAG_DEFINED | PPFLAG_CALLED | PPFLAG_GENERATED;
+
+		pp_prod_create( g, sym, g->goal, (ppsym*)NULL );
+		g->goal = sym;
+	}
+
+	return TRUE;
+}
+
 /** Compiles a grammar definition into a grammar.
 
 //g// is the grammar that receives the result of the parse.
@@ -220,7 +414,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 	pp_gram_prepare( bnfgram );
 	plex_prepare( bnflex );
 
-	pp_gram_dump( stdout, bnfgram ); /* DEBUG */
+	/* pp_gram_dump( stdout, bnfgram ); */ /* DEBUG */
 
 	if( !pp_lr_parse( &ast, bnfgram, bnflex, s, &e ) )
 	{
@@ -228,15 +422,13 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 		return FALSE;
 	}
 
-	pp_ast_dump_short( stdout, ast );
+	/* pp_ast_dump_short( stdout, ast ); */
 
-	/* fixme
 	if( !ast_to_gram( g, ast ) )
 		return FALSE;
 
 	pp_gram_free( bnfgram );
 	pp_ast_free( ast );
-	*/
 
 	return TRUE;
 }
