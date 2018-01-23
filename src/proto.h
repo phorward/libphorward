@@ -186,9 +186,11 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex, char* start, char** end );
 
 /* parse/parse.c */
+#if 0
 pparse* pp_create( int flags, char* bnf );
 pparse* pp_free( pparse* par );
 pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end );
+#endif
 
 /* parse/prod.c */
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
@@ -232,7 +234,7 @@ pboolean plex_prepare( plex* lex );
 pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags );
 int plex_lex( plex* lex, char* start, char** end );
 char* plex_next( plex* lex, char* start, int* id, char** end );
-int plex_tokenize( plex* lex, char* start, parray** matches );
+size_t plex_tokenize( plex* lex, char* start, parray** matches );
 
 /* regex/misc.c */
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );

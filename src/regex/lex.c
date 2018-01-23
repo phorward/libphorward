@@ -438,11 +438,10 @@ to the configuration of the plex-object).
 The function initializes and fills the array //matches//, if provided, with
 items of size prange. It returns the total number of matches.
 */
-int plex_tokenize( plex* lex, char* start, parray** matches )
+size_t plex_tokenize( plex* lex, char* start, parray** matches )
 {
 	char*			end;
-	int				count	= 0;
-	int				id;
+	unsigned int	id;
 	prange*	r;
 
 	PROC( "plex_tokenize" );
@@ -475,9 +474,8 @@ int plex_tokenize( plex* lex, char* start, parray** matches )
 			r->end = end;
 		}
 
-		count++;
 		start = end;
 	}
 
-	RETURN( count );
+	RETURN( *matches ? parray_count( *matches ) : 0 );
 }

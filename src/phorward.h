@@ -610,39 +610,34 @@ typedef struct _ppast		ppast;
 
 struct _ppprod
 {
-	
-	int						id;
-	ppsym*					lhs;
-	plist*					rhs;
-	int						flags;
-	ppgram*					grm;
+	ppgram*					grm;		
 
-	
-	char*					emit;
+	unsigned int			id;			
+	ppsym*					lhs;		
+	plist*					rhs;		
+	unsigned int			flags;		
 
-	
-	char*					strval;
+	char*					emit;		
+
+	char*					strval;		
 };
 
 
 struct _ppsym
 {
-	
-	int						id;
-	char*					name;
+	ppgram*					grm;		
+
+	unsigned int			id;			
+	char*					name;		
 #define PPSYM_T_EOF			"&eof"
 
-	int						flags;
-
-	ppgram*					grm;
+	unsigned int			flags;		
 
 	plist*					first;		
 
-	
-	char*					emit;
+	char*					emit;		
 
-	
-	char*					strval;
+	char*					strval;		
 };
 
 #define PPSYM_IS_TERMINAL( sym )	( !islower( *( sym )->name ) )
@@ -651,50 +646,50 @@ struct _ppsym
 
 struct _ppgram
 {
-	int						sym_id;		
+	unsigned int			sym_id;		
 	plist*					symbols;	
-
-	int						prod_id;	
+	unsigned int			prod_id;	
 	plist*					prods;		
 
 	ppsym*					goal;		
 	ppsym*					eof;		
 
-	int						flags;
+	unsigned int			flags;		
 };
 
 
 struct _ppast
 {
-	
-	char*					emit;
+	char*					emit;		
+
+	ppsym*					sym;		
+	ppprod*					prod;		
 
 	
-	ppsym*					sym;
-	ppprod*					prod;
+	char*					start;		
+	char*					end;		
+	size_t					length;		
 
 	
-	char*					start;
-	char*					end;
-	size_t					length;
+	unsigned long			row;		
+	unsigned long			col;		
 
 	
-	int						row;
-	int						col;
-
-	
-	ppast*					child;
-	ppast*					prev;
-	ppast*					next;
+	ppast*					child;		
+	ppast*					prev;		
+	ppast*					next;		
 };
 
 
 typedef struct
 {
-	ppgram*					gram;
-	plex*					lex;
+	ppgram*					gram;		
 
-} pparse;
+	
+	plex*					lex;		
+	unsigned int			(*lexfn)( char** start, char** end ); 
+
+} pparser;
 
 
 
@@ -893,9 +888,11 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize );
 pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex, char* start, char** end );
 
 
+#if 0
 pparse* pp_create( int flags, char* bnf );
 pparse* pp_free( pparse* par );
 pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end );
+#endif
 
 
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
@@ -939,7 +936,7 @@ pboolean plex_prepare( plex* lex );
 pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags );
 int plex_lex( plex* lex, char* start, char** end );
 char* plex_next( plex* lex, char* start, int* id, char** end );
-int plex_tokenize( plex* lex, char* start, parray** matches );
+size_t plex_tokenize( plex* lex, char* start, parray** matches );
 
 
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );

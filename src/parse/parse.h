@@ -34,39 +34,34 @@ typedef struct _ppast		ppast;
 /* Production */
 struct _ppprod
 {
-	/* Elementary */
-	int						id;
-	ppsym*					lhs;
-	plist*					rhs;
-	int						flags;
-	ppgram*					grm;
+	ppgram*					grm;		/* Grammar */
 
-	/* AST construction */
-	char*					emit;
+	unsigned int			id;			/* Unique id */
+	ppsym*					lhs;		/* Left-hand side */
+	plist*					rhs;		/* Left-hand side items */
+	unsigned int			flags;		/* Configuration flags */
 
-	/* Debug */
-	char*					strval;
+	char*					emit;		/* AST emitting node */
+
+	char*					strval;		/* Debug */
 };
 
 /* Symbol (both terminal and nonterminal for easier access in productions) */
 struct _ppsym
 {
-	/* Primaries */
-	int						id;
-	char*					name;
+	ppgram*					grm;		/* Grammar */
+
+	unsigned int			id;			/* Unique id */
+	char*					name;		/* Unique name */
 #define PPSYM_T_EOF			"&eof"
 
-	int						flags;
+	unsigned int			flags;		/* Configuration flags */
 
-	ppgram*					grm;
+	plist*					first;		/* Set of FIRST() symbols */
 
-	plist*					first;		/* FIRST sets */
+	char*					emit;		/* AST emitting node */
 
-	/* AST construction */
-	char*					emit;
-
-	/* Debug */
-	char*					strval;
+	char*					strval;		/* Debug */
 };
 
 #define PPSYM_IS_TERMINAL( sym )	( !islower( *( sym )->name ) )
@@ -75,48 +70,49 @@ struct _ppsym
 /* Grammar */
 struct _ppgram
 {
-	int						sym_id;		/* Symbol ID */
-	plist*					symbols;	/* Nonterminals and Terminals */
-
-	int						prod_id;	/* Production ID */
+	unsigned int			sym_id;		/* Current symbol id */
+	plist*					symbols;	/* Symbols (both nonterminals
+														and terminals) */
+	unsigned int			prod_id;	/* Current production id */
 	plist*					prods;		/* Productions */
 
 	ppsym*					goal;		/* The start/goal symbol */
 	ppsym*					eof;		/* End-of-input symbol */
 
-	int						flags;
+	unsigned int			flags;		/* Configuration flags */
 };
 
 /* AST */
 struct _ppast
 {
-	/* Emit */
-	char*					emit;
+	char*					emit;		/* AST node name */
 
-	/* Grammar */
-	ppsym*					sym;
-	ppprod*					prod;
+	ppsym*					sym;		/* Emitting symbol */
+	ppprod*					prod;		/* Emitting production */
 
 	/* Match */
-	char*					start;
-	char*					end;
-	size_t					length;
+	char*					start;		/* Begin of fragment */
+	char*					end;		/* End of fragment */
+	size_t					length;		/* Fragment length */
 
 	/* Source */
-	int						row;
-	int						col;
+	unsigned long			row;		/* Appearance in row */
+	unsigned long			col;		/* Appearance in column */
 
 	/* AST */
-	ppast*					child;
-	ppast*					prev;
-	ppast*					next;
+	ppast*					child;		/* First child element */
+	ppast*					prev;		/* Previous element in current scope */
+	ppast*					next;		/* Next element in current scope */
 };
 
 /* Parser runtime object */
 typedef struct
 {
-	ppgram*					gram;
-	plex*					lex;
+	ppgram*					gram;		/* Grammar */
 
-} pparse;
+	/* Lexical analyzer */
+	plex*					lex;		/* plex object */
+	unsigned int			(*lexfn)( char** start, char** end ); /* callback */
+
+} pparser;
 

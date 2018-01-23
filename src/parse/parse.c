@@ -10,6 +10,8 @@ Usage:	Parser maintainance object.
 
 #include "phorward.h"
 
+#if 0
+
 /** Creates a new parser object with flags //flags// and the grammar //bnf//. */
 pparse* pp_create( int flags, char* bnf )
 {
@@ -69,3 +71,4 @@ pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end )
 
 	return FALSE;
 }
+#endif

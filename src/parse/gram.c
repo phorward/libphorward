@@ -175,10 +175,8 @@ pboolean pp_gram_prepare( ppgram* g )
 /** Creates a new ppgram-object. */
 ppgram* pp_gram_create( void )
 {
-	ppsym*		s;
 	ppgram*		g;
 
-	/* Setup grammar description */
 	g = (ppgram*)pmalloc( sizeof( ppgram ) );
 
 	g->symbols = plist_create( sizeof( ppsym ), PLIST_MOD_RECYCLE
@@ -191,6 +189,7 @@ ppgram* pp_gram_create( void )
 
 	return g;
 }
+
 
 #define NAMELEN			80
 #define DERIVCHAR		'\''
