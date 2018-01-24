@@ -54,8 +54,7 @@ typedef struct
 /* LR-Stackitem */
 typedef struct
 {
-	ppsym*			symbol;			/* Symbol */
-	pplrstate*		state;			/* State */
+	int				state;			/* State */
 
 	char*			start;			/* Begin of match */
 	char*			end;			/* End of match */
@@ -343,18 +342,19 @@ static void pp_lr_print( plist* states )
 	}
 }
 
-static int pp_lr_to_dfa( int*** act_tab, int*** go_tab, plist* states )
+static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 {
-	pplrstate*	st;
-	pplrcolumn*	col;
-	int			i;
-	int			j;
-	plistel*	e;
-	plistel*	f;
+	pplrstate*		st;
+	pplrcolumn*		col;
+	int				cnt;
+	int				i;
+	int				j;
+	plistel*		e;
+	plistel*		f;
+	unsigned int**	dfa;
 
 	PROC( "pp_lr_to_dfa" );
-	PARMS( "act_tab", "%p", act_tab );
-	PARMS( "go_tab", "%p", go_tab );
+	PARMS( "dfa", "%p", dfa );
 	PARMS( "states", "%p", states );
 
 	if( !states )
@@ -364,106 +364,89 @@ static int pp_lr_to_dfa( int*** act_tab, int*** go_tab, plist* states )
 	}
 
 	/* Allocate and fill return tables, free states */
-	MSG( "Filling return arrays" );
+	MSG( "Filling return array" );
 
-	if( act_tab )
-		*act_tab = (int**)pmalloc( plist_count( states ) * sizeof( int* ) );
-
-	if( go_tab )
-		*go_tab = (int**)pmalloc( plist_count( states ) * sizeof( int* ) );
+	dfa = (unsigned int**)pmalloc( plist_count( states ) * sizeof( int* ) );
 
 	for( i = 0, e = plist_first( states ); e; e = plist_next( e ), i++ )
 	{
 		st = (pplrstate*)plist_access( e );
 		VARS( "State", "%d", i );
 
-		/* Action table */
-		if( act_tab )
+		cnt = plist_count( st->actions ) * 3
+				+ plist_count( st->gotos ) * 3
+					+ 2;
+
+		dfa[ i ] = (unsigned int*)pmalloc( cnt * sizeof( int ) );
+		dfa[ i ][ 0 ] = cnt;
+		dfa[ i ][ 1 ] = st->def_prod ? st->def_prod->id : 0;
+
+		/* Actions */
+		for( j = 2, f = plist_first( st->actions );
+				f; f = plist_next( f ), j += 3 )
 		{
-			(*act_tab)[ i ] = (int*)pmalloc(
-									( ( plist_count( st->actions ) * 3 ) + 2 )
-										* sizeof( int ) );
+			col = (pplrcolumn*)plist_access( f );
 
-			(*act_tab)[ i ][ 0 ] = ( plist_count( st->actions ) * 3 ) + 2;
-			(*act_tab)[ i ][ 1 ] = st->def_prod ? st->def_prod->id : -1;
+			dfa[ i ][ j ] = col->symbol->id;
 
-			for( j = 2, f = plist_first( st->actions );
-					f; f = plist_next( f ), j += 3 )
+			if( col->shift )
+				dfa[ i ][ j + 1 ] = PPLR_SHIFT;
+
+			if( col->reduce )
 			{
-				col = (pplrcolumn*)plist_access( f );
-
-				(*act_tab)[ i ][ j ] = col->symbol->id;
-
-				if( col->shift )
-					(*act_tab)[ i ][ j + 1 ] = PPLR_SHIFT;
-
-				if( col->reduce )
-				{
-					(*act_tab)[ i ][ j + 1 ] |= PPLR_REDUCE;
-					(*act_tab)[ i ][ j + 2 ] = col->reduce->id;
-				}
-				else
-					(*act_tab)[ i ][ j + 2 ] = col->shift->id;
+				dfa[ i ][ j + 1 ] |= PPLR_REDUCE;
+				dfa[ i ][ j + 2 ] = col->reduce->id;
 			}
+			else
+				dfa[ i ][ j + 2 ] = col->shift->id;
 		}
 
-		/* Goto table */
-		if( go_tab )
+		/* Gotos */
+		for( f = plist_first( st->gotos );
+				f; f = plist_next( f ), j += 3 )
 		{
-			(*go_tab)[ i ] = (int*)pmalloc(
-									( ( plist_count( st->gotos ) * 3 ) + 1 )
-										* sizeof( int ) );
+			col = (pplrcolumn*)plist_access( f );
 
-			(*go_tab)[ i ][ 0 ] = ( ( plist_count( st->gotos ) ) * 3 ) + 1;
+			dfa[ i ][ j ] = col->symbol->id;
 
-			for( j = 2, f = plist_first( st->gotos );
-					f; f = plist_next( f ), j += 3 )
+			if( col->shift )
+				dfa[ i ][ j + 1 ] = PPLR_SHIFT;
+
+			if( col->reduce )
 			{
-				col = (pplrcolumn*)plist_access( f );
-
-				(*go_tab)[ i ][ j ] = col->symbol->id;
-
-				if( col->shift )
-					(*go_tab)[ i ][ j + 1 ] = PPLR_SHIFT;
-
-				if( col->reduce )
-				{
-					(*go_tab)[ i ][ j + 1 ] |= PPLR_REDUCE;
-					(*go_tab)[ i ][ j + 2 ] = col->reduce->id;
-				}
-				else
-					(*go_tab)[ i ][ j + 2 ] = col->shift->id;
+				dfa[ i ][ j + 1 ] |= PPLR_REDUCE;
+				dfa[ i ][ j + 2 ] = col->reduce->id;
 			}
+			else
+				dfa[ i ][ j + 2 ] = col->shift->id;
 		}
 	}
 
-	/* DEBUG */
-	fprintf( stderr, "count = %d\n", plist_count( states ) );
-
-	for( i = 0; i < plist_count( states ); i++ )
+	if( !ret )
 	{
-		fprintf( stderr, "%02d:", i );
+		/* DEBUG */
+		fprintf( stderr, "count = %d\n", plist_count( states ) );
 
-		fprintf( stderr, " def:%02d",  *(act_tab)[ i ][ 1 ] );
+		for( i = 0; i < plist_count( states ); i++ )
+		{
+			fprintf( stderr, "%02d:", i );
 
-		for( j = 2; j < *(act_tab)[ i ][ 0 ]; j += 3 )
-			fprintf( stderr, " %02d:%s%s:%02d",
-				*(act_tab)[ i ][ j ],
-				*(act_tab)[ i ][ j + 1 ] & PPLR_SHIFT ? "s" : "-",
-				*(act_tab)[ i ][ j + 1 ] & PPLR_REDUCE ? "r" : "-",
-				*(act_tab)[ i ][ j + 2 ] );
+			fprintf( stderr, " def:%02d",  dfa[ i ][ 1 ] );
 
-		fprintf( stderr, "\n          " );
+			for( j = 2; j < dfa[ i ][ 0 ]; j += 3 )
+				fprintf( stderr, " %02d:%s%s:%02d",
+					dfa[ i ][ j ],
+					dfa[ i ][ j + 1 ] & PPLR_SHIFT ? "s" : "-",
+					dfa[ i ][ j + 1 ] & PPLR_REDUCE ? "r" : "-",
+					dfa[ i ][ j + 2 ] );
 
-		for( j = 1; j < *(go_tab)[ i ][ 0 ]; j += 3 )
-			fprintf( stderr, " %02d:%s%s:%02d",
-				*(go_tab)[ i ][ j ],
-				*(go_tab)[ i ][ j + 1 ] & PPLR_SHIFT ? "g" : "-",
-				*(go_tab)[ i ][ j + 1 ] & PPLR_REDUCE ? "r" : "-",
-				*(go_tab)[ i ][ j + 2 ] );
+			fprintf( stderr, "\n" );
+		}
 
-		fprintf( stderr, "\n" );
+		pfree( dfa );
 	}
+	else
+		*ret = dfa;
 
 	VARS( "states count", "%d", plist_count( states ) );
 	RETURN( plist_count( states ) );
@@ -926,111 +909,6 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 	RETURN( states );
 }
 
-static pplrse* push( parray* stack, ppsym* symbol,
-						pplrstate* state, char* start, char* end )
-{
-	pplrse	e;
-
-	memset( &e, 0, sizeof( pplrse ) );
-	e.symbol = symbol;
-	e.state = state;
-	e.start = start;
-	e.end = end;
-
-	parray_push( stack, &e );
-	return (pplrse*)parray_last( stack );
-}
-
-static pplrse* pop( parray* stack, int n, char** start, ppast** node,
-						int* row, int* col )
-{
-	ppast*	enode;
-	pplrse*	e;
-
-	*start = (char*)NULL;
-	*node = (ppast*)NULL;
-	*row = 1;
-	*col = 1;
-
-	while( n-- > 0 )
-	{
-		e = (pplrse*)parray_pop( stack );
-
-		*start = e->start;
-
-		/* Connecting nodes, remember last node. */
-		if( ( enode = e->node ) )
-		{
-			if( *node )
-			{
-				while( enode->next )
-					enode = enode->next;
-
-				enode->next = *node;
-				(*node)->prev = enode;
-			}
-
-			*node = e->node;
-			*row = e->row;
-			*col = e->col;
-		}
-	}
-
-	return (pplrse*)parray_last( stack );
-}
-
-static pboolean get_action( pplrstate** shift, ppprod** reduce,
-								pplrse* tos, ppsym* sym )
-{
-	plistel*	e;
-	pplrcolumn*	col;
-
-	*shift = (pplrstate*)NULL;
-	*reduce = (ppprod*)NULL;
-
-	plist_for( tos->state->actions, e )
-	{
-		col = (pplrcolumn*)plist_access( e );
-
-		if( col->symbol == sym )
-		{
-			*shift = col->shift;
-			*reduce = col->reduce;
-
-			return TRUE;
-		}
-	}
-
-	if( ( *reduce = tos->state->def_prod ) )
-		return TRUE;
-
-	return FALSE;
-}
-
-static pboolean get_goto( pplrstate** shift, ppprod** reduce,
-								pplrse* tos, ppsym* lhs )
-{
-	plistel*	e;
-	pplrcolumn*	col;
-
-	*shift = (pplrstate*)NULL;
-	*reduce = (ppprod*)NULL;
-
-	plist_for( tos->state->gotos, e )
-	{
-		col = (pplrcolumn*)plist_access( e );
-
-		if( col->symbol == lhs )
-		{
-			*shift = col->shift;
-			*reduce = col->reduce;
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
 #if DEBUGLEVEL > 2
 /* Function to dump the parse stack content */
 static void print_stack( char* title, plist* states, parray* stack )
@@ -1055,8 +933,9 @@ static void print_stack( char* title, plist* states, parray* stack )
 
 static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 								char* start, char** end,
-									plist* states )
+									unsigned int** dfa )
 {
+	int			i;
 	int			id;
 	int			row		= 1;
 	int			col		= 1;
@@ -1067,9 +946,11 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 	ppsym*		sym;
 	plistel*	e;
 	parray*		stack;
+	pplrse		item;
 	pplrse*		tos;
-	pplrstate*	shift;
-	ppprod*		reduce;
+	int			shift;
+	int			reduce;
+	ppprod*		prod;
 	pboolean	token;
 	ppast*		node;
 
@@ -1077,9 +958,12 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 
 	/* Get symbols */
 	if( ( start = plex_next( lex, start, &id, end ) ) )
-		sym = pp_sym_get( grm, id - 1 );
+		sym = pp_sym_get( grm, id - 1 ); /* fixme!! */
 	else
+	{
+		id = grm->eof->id;
 		sym = grm->eof;
+	}
 
 	#if DEBUGLEVEL > 2
 	fprintf( stderr, "New symbol: '%s' @ >%.*s<\n",
@@ -1087,11 +971,11 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 	#endif
 
 	/* Initialize parser */
-
 	stack = parray_create( sizeof( pplrse ), 0 );
-	tos = push( stack, grm->goal,
-					(pplrstate*)plist_access(
-						plist_first( states ) ), start, start );
+
+	tos = (pplrse*)parray_malloc( stack );
+	tos->start = start;
+	tos->end = *end;
 
 	do
 	{
@@ -1125,13 +1009,30 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		fprintf( stderr, "BEFORE >%s<\n", *end );
 		#endif
 
-		/* Action table processing */
-		if( !get_action( &shift, &reduce, tos, sym ) )
+		/* Check for entries in the parse table */
+		for( i = 2, shift = -1, reduce = 0; i < dfa[tos->state][0]; i += 3 )
 		{
-			/* Parse Error */
-			/* TODO: Error Recovery */
-			fprintf( stderr, "Parse Error [line:%d col:%d] @ >%s<\n", row, col, *end );
-			return FALSE;
+			if( dfa[tos->state][i] == id )
+			{
+				if( dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
+					shift = dfa[tos->state][ i + 2 ];
+
+				if( dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
+					reduce = dfa[tos->state][ i + 2 ];
+
+				break;
+			}
+		}
+
+		if( shift == -1 && reduce == 0 )
+		{
+			if( !( reduce = dfa[tos->state][1] ) )
+			{
+				/* Parse Error */
+				/* TODO: Error Recovery */
+				fprintf( stderr, "Parse Error [line:%d col:%d] @ >%s<\n", row, col, *end );
+				return FALSE;
+			}
 		}
 
 		#if DEBUGLEVEL > 2
@@ -1139,7 +1040,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		#endif
 
 		/* Shift */
-		if( shift )
+		if( shift >= 0 )
 		{
 			#if DEBUGLEVEL > 1
 			if( reduce )
@@ -1154,8 +1055,11 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 						plist_offset( plist_get_by_ptr( states, shift ) ) );
 			#endif
 
-			tos = push( stack, sym, reduce ? (pplrstate*)NULL : shift,
-							start, *end );
+			tos = (pplrse*)parray_malloc( stack );
+
+			tos->state = reduce ? 0 : shift;
+			tos->start = start;
+			tos->end = *end;
 			tos->row = row;
 			tos->col = col;
 
@@ -1168,9 +1072,12 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 			start = *end;
 
 			if( ( start = plex_next( lex, start, &id, end ) ) )
-				sym = pp_sym_get( grm, id - 1 );
+				sym = pp_sym_get( grm, id - 1 ); /* fixme!! */
 			else
+			{
+				id = grm->eof->id;
 				sym = grm->eof;
+			}
 
 			#if DEBUGLEVEL > 2
 			fprintf( stderr, "New symbol: '%s' @ >%.*s<\n",
@@ -1199,23 +1106,51 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 			print_stack( "Before Reduce", states, stack );
 			#endif
 
-			/* Pop elements off the stack */
-			tos = pop( stack, plist_count( reduce->rhs ),
-							&lstart, &node, &lrow, &lcol );
-			lhs = reduce->lhs;
+			prod = pp_prod_get( grm, reduce - 1 ); /* fixme!! */
+			node = (ppast*)NULL;
+
+			for( i = 0; i < plist_count( prod->rhs ); i++ )
+			{
+				tos = (pplrse*)parray_pop( stack );
+
+				lstart = tos->start;
+
+				/* Connecting nodes, remember last node. */
+				if( tos->node )
+				{
+					if( node )
+					{
+						while( tos->node->next )
+							tos->node = tos->node->next;
+
+						tos->node->next = node;
+						node->prev = tos->node;
+					}
+
+					node = tos->node;
+
+					while( node->prev )
+						node = node->prev;
+
+					lrow = tos->row;
+					lcol = tos->col;
+				}
+			}
+
+			tos = (pplrse*)parray_last( stack );
 
 			/* Construction of AST node */
-			if( root && reduce->emit )
-				node = pp_ast_create( reduce->emit,
-										lhs, reduce, lstart, *end,
-											row, col, node );
-			else if( root && lhs->emit )
-				node = pp_ast_create( lhs->emit,
-										lhs, reduce, lstart, *end,
-											row, col, node );
+			if( root && prod->emit )
+				node = pp_ast_create( prod->emit,
+										prod->lhs, prod, lstart, *end,
+											lrow, lcol, node );
+			else if( root && prod->lhs->emit )
+				node = pp_ast_create( prod->lhs->emit,
+										prod->lhs, prod, lstart, *end,
+											lrow, lcol, node );
 
 			/* Goal symbol reduced? */
-			if( lhs == grm->goal && parray_count( stack ) == 1 )
+ 			if( prod->lhs == grm->goal && parray_count( stack ) == 1 )
 			{
 				if( root )
 					*root = node;
@@ -1223,11 +1158,27 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 				break;
 			}
 
-			/* Push goto state */
-			get_goto( &shift, &reduce, tos, reduce->lhs );
+			/* Check for entries in the parse table */
+			for( i = dfa[tos->state][0] - 3, shift = -1, reduce = 0;
+					i >= 2; i -= 3 )
+			{
+				if( dfa[tos->state][i] == prod->lhs->id )
+				{
+					if( dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
+						shift = dfa[tos->state][ i + 2 ];
 
-			tos = push( stack, lhs, shift, lstart, *end );
+					if( dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
+						reduce = dfa[tos->state][ i + 2 ];
 
+					break;
+				}
+			}
+
+			tos = (pplrse*)parray_malloc( stack );
+
+			tos->state = shift;
+			tos->start = lstart;
+			tos->end = *end;
 			tos->node = node;
 			tos->row = lrow;
 			tos->col = lcol;
@@ -1271,8 +1222,10 @@ The function returns TRUE if no parse error occured. */
 pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex,
 						char* start, char** end )
 {
-	pboolean	ret;
-	plist*		states;
+	unsigned int	cnt;
+	unsigned int**	dfa;
+	pboolean		ret;
+	plist*			states;
 
 	if( !( grm && lex && start && end ) )
 	{
@@ -1288,11 +1241,17 @@ pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex,
 	pp_lr_print( states );
 	#endif
 
-	/* Run parser */
-	ret = pp_lr_PARSE( root, grm, lex, start, end, states );
+	/* Convert to DFA */
+	/* pp_lr_to_dfa( NULL, states ); */ /* DEBUG */
+	pp_lr_to_dfa( &dfa, states );
 
 	/* Clean-up */
 	pp_lr_free( states );
+
+	/* Run parser */
+	ret = pp_lr_PARSE( root, grm, lex, start, end, dfa );
+
+	pfree( dfa );
 
 	return ret;
 }
