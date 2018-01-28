@@ -875,9 +875,11 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 		{
 			col = (pplrcolumn*)plist_access( f );
 
-			if( col->reduce && prodcnt[ col->reduce->id ]++ > cnt )
+			/* fixme: id as index? */
+			if( col->reduce && prodcnt[ col->reduce->id - 1 ]++ > cnt )
 			{
-				cnt = prodcnt[ col->reduce->id ];
+				/* fixme: id as index? */
+				cnt = prodcnt[ col->reduce->id - 1 ];
 				st->def_prod = col->reduce;
 			}
 		}

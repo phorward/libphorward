@@ -49,19 +49,19 @@ void pp_bnf_define( ppgram* g, plex* l )
 	*/
 
 	/* Terminals */
-	ident = pp_sym_create( g, "Ident" );
+	ident = pp_sym_create( g, "Ident", PPFLAG_NONE );
 	ident->emit = "Ident";
 
 	plex_define( l, "[A-Za-z_][A-Za-z0-9_]*", ident->id, PREGEX_FLAG_NONE );
 
-	colon = pp_sym_create( g, ":" );
-	semi = pp_sym_create( g, ";" );
-	pipe = pp_sym_create( g, "|" );
-	brop = pp_sym_create( g, "(" );
-	brcl = pp_sym_create( g, ")" );
-	star = pp_sym_create( g, "*" );
-	quest = pp_sym_create( g, "?" );
-	plus = pp_sym_create( g, "+" );
+	colon = pp_sym_create( g, ":", PPFLAG_NONE );
+	semi = pp_sym_create( g, ";", PPFLAG_NONE );
+	pipe = pp_sym_create( g, "|", PPFLAG_NONE );
+	brop = pp_sym_create( g, "(", PPFLAG_NONE );
+	brcl = pp_sym_create( g, ")", PPFLAG_NONE );
+	star = pp_sym_create( g, "*", PPFLAG_NONE );
+	quest = pp_sym_create( g, "?", PPFLAG_NONE );
+	plus = pp_sym_create( g, "+", PPFLAG_NONE );
 
 	plex_define( l, colon->name, colon->id, PREGEX_COMP_STATIC );
 	plex_define( l, semi->name, semi->id, PREGEX_COMP_STATIC );
@@ -73,23 +73,23 @@ void pp_bnf_define( ppgram* g, plex* l )
 	plex_define( l, plus->name, plus->id, PREGEX_COMP_STATIC );
 
 	/* Nonterminals */
-	n_symbol = pp_sym_create( g, "symbol" );
+	n_symbol = pp_sym_create( g, "symbol", PPFLAG_NONE );
 	n_symbol->emit = "symbol";
 
-	n_mod = pp_sym_create( g, "modifier" );
-	n_seq = pp_sym_create( g, "sequence" );
+	n_mod = pp_sym_create( g, "modifier", PPFLAG_NONE );
+	n_seq = pp_sym_create( g, "sequence", PPFLAG_NONE );
 
-	n_prod = pp_sym_create( g, "production" );
+	n_prod = pp_sym_create( g, "production", PPFLAG_NONE );
 	n_prod->emit = "production";
 
-	n_alt = pp_sym_create( g, "alternation" );
+	n_alt = pp_sym_create( g, "alternation", PPFLAG_NONE );
 
-	n_nonterm = pp_sym_create( g, "nonterm" );
+	n_nonterm = pp_sym_create( g, "nonterm", PPFLAG_NONE );
 	n_nonterm->emit = "nonterm";
 
-	n_defs = pp_sym_create( g, "defs" );
+	n_defs = pp_sym_create( g, "defs", PPFLAG_NONE );
 
-	n_grammar = pp_sym_create( g, "grammar" );
+	n_grammar = pp_sym_create( g, "grammar", PPFLAG_NONE );
 	g->goal = n_grammar;
 
 	/* Productions */

@@ -184,8 +184,7 @@ ppgram* pp_gram_create( void )
 														| PLIST_MOD_UNIQUE );
 	g->prods = plist_create( sizeof( ppprod ), PLIST_MOD_RECYCLE );
 
-	g->eof = pp_sym_create( g, PPSYM_T_EOF );
-	g->eof->flags |= PPFLAG_SPECIAL;
+	g->eof = pp_sym_create( g, PPSYM_T_EOF, PPFLAG_SPECIAL );
 
 	return g;
 }
@@ -229,8 +228,8 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
 
 	if( NODE_IS( node, "inline") )
 	{
-		sym = pp_sym_create( g, derive_name( g, lhs->name ) );
-		sym->flags |= PPFLAG_DEFINED | PPFLAG_GENERATED;
+		sym = pp_sym_create( g, derive_name( g, lhs->name ),
+				PPFLAG_FREENAME | PPFLAG_DEFINED | PPFLAG_GENERATED );
 
 		for( child = node->child; child; child = child->next )
 			if( !traverse_production( g, sym, child->child ) )
@@ -241,7 +240,7 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
 		sprintf( name, "%.*s", node->length, node->start );
 
 		if( !( sym = pp_sym_get_by_name( g, name ) ) )
-			sym = pp_sym_create( g, name );
+			sym = pp_sym_create( g, name, PPFLAG_FREENAME );
 	}
 	else
 		MISSINGCASE;
@@ -289,10 +288,9 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 
 				if( !( csym = pp_sym_get_by_name( g, name ) ) )
 				{
-					csym = pp_sym_create( g, name );
-					csym->flags |= PPFLAG_DEFINED
-									| PPFLAG_CALLED
-										| PPFLAG_GENERATED;
+					csym = pp_sym_create( g, name,
+								PPFLAG_FREENAME | PPFLAG_DEFINED
+									| PPFLAG_CALLED | PPFLAG_GENERATED );
 
 					if( g->flags & PPFLAG_PREVENTLREC )
 						pp_prod_create( g, csym, sym, csym, (ppsym*)NULL );
@@ -311,10 +309,9 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 
 				if( !( csym = pp_sym_get_by_name( g, name ) ) )
 				{
-					csym = pp_sym_create( g, name );
-					csym->flags |= PPFLAG_DEFINED
-									| PPFLAG_CALLED
-										| PPFLAG_GENERATED;
+					csym = pp_sym_create( g, name,
+								PPFLAG_FREENAME | PPFLAG_DEFINED
+									| PPFLAG_CALLED | PPFLAG_GENERATED );
 
 					pp_prod_create( g, csym, sym, (ppsym*)NULL );
 					pp_prod_create( g, csym, (ppsym*)NULL );
@@ -345,11 +342,8 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 
 			/* Create the non-terminal symbol */
 			if( !( sym = pp_sym_get_by_name( g, name ) ) )
-			{
-				sym = pp_sym_create( g, name );
-				sym->flags |= PPFLAG_DEFINED;
-			}
-
+				sym = pp_sym_create( g, name,
+						PPFLAG_FREENAME | PPFLAG_DEFINED );
 
 			for( child = child->next; child; child = child->next )
 			{
@@ -375,8 +369,9 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 		another, generated nonterminal. */
 	if( pp_sym_getprod( g->goal, 1 ) )
 	{
-		sym = pp_sym_create( g, derive_name( g, g->goal->name ) );
-		sym->flags |= PPFLAG_DEFINED | PPFLAG_CALLED | PPFLAG_GENERATED;
+		sym = pp_sym_create( g, derive_name( g, g->goal->name ),
+				PPFLAG_FREENAME | PPFLAG_DEFINED
+					| PPFLAG_CALLED | PPFLAG_GENERATED );
 
 		pp_prod_create( g, sym, g->goal, (ppsym*)NULL );
 		g->goal = sym;

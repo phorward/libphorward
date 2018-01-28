@@ -600,8 +600,9 @@ typedef struct _ppast		ppast;
 #define PPFLAG_PREVENTLREC	64
 #define PPFLAG_NAMELESS		128
 #define PPFLAG_GENERATED	256
-#define PPFLAG_FREEEMIT		512
-#define PPFLAG_SPECIAL		1024
+#define PPFLAG_FREENAME		512
+#define PPFLAG_FREEEMIT		1024
+#define PPFLAG_SPECIAL		2048
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -904,7 +905,7 @@ ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
 
 
-ppsym* pp_sym_create( ppgram* g, char* name );
+ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags );
 ppsym* pp_sym_free( ppsym* sym );
 ppsym* pp_sym_drop( ppsym* sym );
 ppsym* pp_sym_get( ppgram* g, int n );

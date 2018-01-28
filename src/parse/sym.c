@@ -14,12 +14,15 @@ Usage:	Symbol management function.
 
 	//name// is the unique name for the symbol. It can be left empty,
 	configuring the symbol as an unnamed symbol.
+
+	//flags// can be a combination of PPFLAG_-flags related to the symbol's
+	configuration.
 */
-ppsym* pp_sym_create( ppgram* g, char* name )
+ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags )
 {
 	ppsym*	sym;
 
-	if( !g )
+	if( !( g && name ) )
 	{
 		WRONGPARAM;
 		return (ppsym*)NULL;
@@ -31,7 +34,8 @@ ppsym* pp_sym_create( ppgram* g, char* name )
 		return (ppsym*)NULL;
 	}
 
-	name = pstrdup( name );
+	if( flags & PPFLAG_FREENAME )
+		name = pstrdup( name );
 
 	/* Insert into symbol table */
 	if( !( sym = (ppsym*)plist_access(
@@ -39,16 +43,16 @@ ppsym* pp_sym_create( ppgram* g, char* name )
 								g->symbols, (plistel*)NULL,
 									name, (void*)NULL ) ) ) )
 	{
-		pfree( name );
+		if( flags & PPFLAG_FREENAME )
+			pfree( name );
+
 		return (ppsym*)NULL;
 	}
 
 	sym->id = ++( g->sym_id );
 	sym->grm = g;
 	sym->name = name;
-
-	if( !sym->name )
-		sym->flags |= PPFLAG_NAMELESS;
+	sym->flags = flags;
 
 	sym->first = plist_create( 0, PLIST_MOD_PTR );
 
@@ -68,7 +72,9 @@ ppsym* pp_sym_free( ppsym* sym )
 	if( sym->flags & PPFLAG_FREEEMIT )
 		pfree( sym->emit );
 
-	pfree( sym->name );
+	if( sym->flags & PPFLAG_FREENAME )
+		pfree( sym->name );
+
 	plist_free( sym->first );
 
 	return (ppsym*)NULL;

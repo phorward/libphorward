@@ -202,7 +202,7 @@ ppsym* pp_prod_getfromrhs( ppprod* p, int off );
 char* pp_prod_to_str( ppprod* p );
 
 /* parse/sym.c */
-ppsym* pp_sym_create( ppgram* g, char* name );
+ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags );
 ppsym* pp_sym_free( ppsym* sym );
 ppsym* pp_sym_drop( ppsym* sym );
 ppsym* pp_sym_get( ppgram* g, int n );
