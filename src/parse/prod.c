@@ -26,7 +26,6 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 
 	prod = (ppprod*)plist_malloc( g->prods );
 
-	prod->id = ++( g->prod_id );
 	prod->grm = g;
 
 	prod->lhs = lhs;
@@ -39,6 +38,8 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 
 	va_end( varg );
 
+	g->flags &= ~PPFLAG_FINALIZED;
+
 	return prod;
 }
 
@@ -47,6 +48,8 @@ ppprod* pp_prod_free( ppprod* p )
 {
 	if( !p )
 		return (ppprod*)NULL;
+
+	p->grm->flags &= ~PPFLAG_FINALIZED;
 
 	if( p->flags & PPFLAG_FREEEMIT )
 		pfree( p->emit );
@@ -83,6 +86,8 @@ pboolean pp_prod_append( ppprod* p, ppsym* sym )
 	}
 
 	plist_push( p->rhs, sym );
+
+	p->grm->flags &= ~PPFLAG_FINALIZED;
 	pfree( p->strval );
 
 	return TRUE;
@@ -100,6 +105,8 @@ int pp_prod_remove( ppprod* p, ppsym* sym )
 		WRONGPARAM;
 		return FALSE;
 	}
+
+	p->grm->flags &= ~PPFLAG_FINALIZED;
 
 	while( ( e = plist_get_by_ptr( p->rhs, sym ) ) )
 	{

@@ -28,7 +28,7 @@ typedef struct
 /* LR-State */
 typedef struct
 {
-	int				id;
+	int				idx;			/* State index */
 
 	plist*			kernel;			/* Kernel items */
 	plist*			epsilon;		/* Empty items */
@@ -162,8 +162,8 @@ static int pp_lritem_lookahead_sort( plist* list, plistel* el, plistel* er )
 	ppsym*	l	= (ppsym*)plist_access( el );
 	ppsym*	r	= (ppsym*)plist_access( er );
 
-	/* By id order */
-	if( l->id < r->id )
+	/* By idx order */
+	if( l->idx < r->idx )
 		return 1;
 
 	return 0;
@@ -223,7 +223,6 @@ static pplrcolumn* pp_lrcolumn_create(
 
 static pplrstate* pp_lrstate_create( plist* states, plist* kernel )
 {
-	int			id;
 	plistel*	e;
 	pplrstate*	state;
 
@@ -233,11 +232,9 @@ static pplrstate* pp_lrstate_create( plist* states, plist* kernel )
 		return (pplrstate*)NULL;
 	}
 
-	id = plist_count( states );
 	state = plist_malloc( states );
 
-	state->id = id;
-
+	state->idx = plist_count( states ) - 1;
 	state->kernel = plist_create( sizeof( pplritem ), PLIST_MOD_NONE );
 	state->epsilon = plist_create( sizeof( pplritem ), PLIST_MOD_NONE );
 
@@ -281,7 +278,7 @@ static void pp_lrstate_print( pplrstate* st )
 	plistel*	e;
 	pplrcolumn*	col;
 
-	fprintf( stderr, "\n-- State %d %p --\n", st->id, st );
+	fprintf( stderr, "\n-- State %d %p --\n", st->idx, st );
 
 	pp_lritems_print( st->kernel, "Kernel" );
 	pp_lritems_print( st->epsilon, "Epsilon" );
@@ -299,7 +296,7 @@ static void pp_lrstate_print( pplrstate* st )
 							pp_prod_to_str( col->reduce ) );
 		else if( col->shift )
 			fprintf( stderr, " -> Shift on '%s', goto state %d\n",
-						col->symbol->name, col->shift->id );
+						col->symbol->name, col->shift->idx );
 		else if( col->reduce )
 			fprintf( stderr, " <- Reduce on '%s' by production '%s'\n",
 						col->symbol->name,
@@ -323,7 +320,7 @@ static void pp_lrstate_print( pplrstate* st )
 							col->symbol->name );
 		else if( col->shift )
 			fprintf( stderr, " -> Goto state %d on '%s'\n",
-						col->shift->id,
+						col->shift->idx,
 							col->symbol->name );
 		else
 			MISSINGCASE;
@@ -379,7 +376,7 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 
 		dfa[ i ] = (unsigned int*)pmalloc( cnt * sizeof( int ) );
 		dfa[ i ][ 0 ] = cnt;
-		dfa[ i ][ 1 ] = st->def_prod ? st->def_prod->id : 0;
+		dfa[ i ][ 1 ] = st->def_prod ? st->def_prod->idx : 0;
 
 		/* Actions */
 		for( j = 2, f = plist_first( st->actions );
@@ -387,7 +384,7 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 		{
 			col = (pplrcolumn*)plist_access( f );
 
-			dfa[ i ][ j ] = col->symbol->id;
+			dfa[ i ][ j ] = col->symbol->idx;
 
 			if( col->shift )
 				dfa[ i ][ j + 1 ] = PPLR_SHIFT;
@@ -395,10 +392,10 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 			if( col->reduce )
 			{
 				dfa[ i ][ j + 1 ] |= PPLR_REDUCE;
-				dfa[ i ][ j + 2 ] = col->reduce->id;
+				dfa[ i ][ j + 2 ] = col->reduce->idx;
 			}
 			else
-				dfa[ i ][ j + 2 ] = col->shift->id;
+				dfa[ i ][ j + 2 ] = col->shift->idx;
 		}
 
 		/* Gotos */
@@ -407,7 +404,7 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 		{
 			col = (pplrcolumn*)plist_access( f );
 
-			dfa[ i ][ j ] = col->symbol->id;
+			dfa[ i ][ j ] = col->symbol->idx;
 
 			if( col->shift )
 				dfa[ i ][ j + 1 ] = PPLR_SHIFT;
@@ -415,10 +412,10 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 			if( col->reduce )
 			{
 				dfa[ i ][ j + 1 ] |= PPLR_REDUCE;
-				dfa[ i ][ j + 2 ] = col->reduce->id;
+				dfa[ i ][ j + 2 ] = col->reduce->idx;
 			}
 			else
-				dfa[ i ][ j + 2 ] = col->shift->id;
+				dfa[ i ][ j + 2 ] = col->shift->idx;
 		}
 	}
 
@@ -875,11 +872,9 @@ plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 		{
 			col = (pplrcolumn*)plist_access( f );
 
-			/* fixme: id as index? */
-			if( col->reduce && prodcnt[ col->reduce->id - 1 ]++ > cnt )
+			if( col->reduce && prodcnt[ col->reduce->idx ]++ > cnt )
 			{
-				/* fixme: id as index? */
-				cnt = prodcnt[ col->reduce->id - 1 ];
+				cnt = prodcnt[ col->reduce->idx ];
 				st->def_prod = col->reduce;
 			}
 		}
@@ -962,13 +957,10 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 	if( ( start = plex_next( lex, start, &id, end ) ) )
 		sym = pp_sym_get( grm, id - 1 ); /* fixme!! */
 	else
-	{
-		id = grm->eof->id;
 		sym = grm->eof;
-	}
 
-	#if DEBUGLEVEL > 2
-	fprintf( stderr, "New symbol: '%s' @ >%.*s<\n",
+	#if DEBUGLEVEL > 1
+	fprintf( stderr, "Next token '%s' @ >%.*s<\n",
 				sym->name, *end - start, start );
 	#endif
 
@@ -983,9 +975,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 	{
 		/* Parse */
 		#if DEBUGLEVEL > 1
-		fprintf( stderr, "State %d\n",
-					plist_offset( plist_get_by_ptr(
-									states, tos->state ) ) );
+		fprintf( stderr, "State %d\n", tos->state );
 
 		/* AST construction debug */
 		/*
@@ -1012,9 +1002,9 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		#endif
 
 		/* Check for entries in the parse table */
-		for( i = 2, shift = -1, reduce = 0; i < dfa[tos->state][0]; i += 3 )
+		for( i = 2, shift = -1, reduce = -1; i < dfa[tos->state][0]; i += 3 )
 		{
-			if( dfa[tos->state][i] == id )
+			if( dfa[tos->state][i] == sym->idx )
 			{
 				if( dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
 					shift = dfa[tos->state][ i + 2 ];
@@ -1026,9 +1016,9 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 			}
 		}
 
-		if( shift == -1 && reduce == 0 )
+		if( shift == -1 && reduce == -1 )
 		{
-			if( !( reduce = dfa[tos->state][1] ) )
+			if( ( reduce = dfa[tos->state][1] ) < 0 )
 			{
 				/* Parse Error */
 				/* TODO: Error Recovery */
@@ -1045,21 +1035,21 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		if( shift >= 0 )
 		{
 			#if DEBUGLEVEL > 1
-			if( reduce )
+			if( reduce >= 0 )
 				fprintf( stderr,
 					"shift on %s and reduce by production %d\n",
 						sym->name,
-						reduce->id );
+						reduce );
 			else
 				fprintf( stderr,
 					"shift on %s to state %d\n",
 						sym->name,
-						plist_offset( plist_get_by_ptr( states, shift ) ) );
+						shift );
 			#endif
 
 			tos = (pplrse*)parray_malloc( stack );
 
-			tos->state = reduce ? 0 : shift;
+			tos->state = reduce >= 0 ? 0 : shift;
 			tos->start = start;
 			tos->end = *end;
 			tos->row = row;
@@ -1076,39 +1066,32 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 			if( ( start = plex_next( lex, start, &id, end ) ) )
 				sym = pp_sym_get( grm, id - 1 ); /* fixme!! */
 			else
-			{
-				id = grm->eof->id;
 				sym = grm->eof;
-			}
 
-			#if DEBUGLEVEL > 2
-			fprintf( stderr, "New symbol: '%s' @ >%.*s<\n",
+			#if DEBUGLEVEL > 1
+			fprintf( stderr, "Next token '%s' @ >%.*s<\n",
 						sym->name, *end - start, start );
 			#endif
 		}
 
-		/* Update current position */
-		/* fixme
-		pp_pos_in_input( &row, &col, start, *end );
-		*/
-
 		/* Reduce */
-		while( reduce )
+		while( reduce >= 0 )
 		{
+			prod = pp_prod_get( grm, reduce );
+
 			#if DEBUGLEVEL > 1
 			fprintf( stderr,
 				"reduce by production '%s'\n"
 				"popping %d items off the stack, replacing by %s\n",
-				pp_prod_to_str( reduce ),
-				plist_count( reduce->rhs ),
-				reduce->lhs->name );
+				pp_prod_to_str( prod ),
+				plist_count( prod->rhs ),
+				prod->lhs->name );
 			#endif
 
 			#if DEBUGLEVEL > 2
 			print_stack( "Before Reduce", states, stack );
 			#endif
 
-			prod = pp_prod_get( grm, reduce - 1 ); /* fixme!! */
 			node = (ppast*)NULL;
 
 			for( i = 0; i < plist_count( prod->rhs ); i++ )
@@ -1161,10 +1144,10 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 			}
 
 			/* Check for entries in the parse table */
-			for( i = dfa[tos->state][0] - 3, shift = -1, reduce = 0;
+			for( i = dfa[tos->state][0] - 3, shift = -1, reduce = -1;
 					i >= 2; i -= 3 )
 			{
-				if( dfa[tos->state][i] == prod->lhs->id )
+				if( dfa[tos->state][i] == prod->lhs->idx )
 				{
 					if( dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
 						shift = dfa[tos->state][ i + 2 ];
@@ -1206,7 +1189,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		}
 		#endif
 	}
-	while( !reduce );
+	while( reduce < 0 );
 
 	return TRUE;
 }
@@ -1232,6 +1215,13 @@ pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex,
 	if( !( grm && lex && start && end ) )
 	{
 		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !( grm->flags & PPFLAG_FINALIZED ) )
+	{
+		fprintf( stderr, "Grammar is not finalized, "
+			"please run pp_gram_prepare() first!\n" );
 		return FALSE;
 	}
 

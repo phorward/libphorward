@@ -24,18 +24,19 @@ This function is only run internally.
 Don't call it if you're unsure ;)... */
 pboolean pp_gram_prepare( ppgram* g )
 {
-	plistel*	e;
-	plistel*	er;
-	plistel*	ep;
-	ppprod*		p;
-	ppprod*		cp;
-	ppsym*		s;
-	pboolean	nullable;
-	plist*		call;
-	plist*		done;
-	int			i;
-	int			cnt;
-	int			pcnt;
+	plistel*		e;
+	plistel*		er;
+	plistel*		ep;
+	ppprod*			prod;
+	ppprod*			cprod;
+	ppsym*			sym;
+	pboolean		nullable;
+	plist*			call;
+	plist*			done;
+	int				i;
+	int				cnt;
+	int				pcnt;
+	unsigned int	idx;
 
 	if( !g )
 	{
@@ -50,13 +51,25 @@ pboolean pp_gram_prepare( ppgram* g )
 	}
 
 	/* Reset symbols */
-	plist_for( g->symbols, e )
+	for( idx = 0, e = plist_first( g->symbols ); e; e = plist_next( e ), idx++ )
 	{
-		s = (ppsym*)plist_access( e );
-		plist_erase( s->first );
+		sym = (ppsym*)plist_access( e );
+		sym->idx = idx;
 
-		if( PPSYM_IS_TERMINAL( s ) )
-			plist_push( s->first, s );
+		if( PPSYM_IS_TERMINAL( sym ) )
+		{
+			if( !plist_first( sym->first ) )
+				plist_push( sym->first, sym );
+		}
+		else
+			plist_erase( sym->first );
+	}
+
+	/* Reset productions */
+	for( idx = 0, e = plist_first( g->prods ); e; e = plist_next( e ), idx++ )
+	{
+		prod = (ppprod*)plist_access( e );
+		prod->idx = idx;
 	}
 
 	/* Compute FIRST sets and mark left-recursions */
@@ -71,45 +84,45 @@ pboolean pp_gram_prepare( ppgram* g )
 
 		plist_for( g->prods, e )
 		{
-			cp = (ppprod*)plist_access( e );
-			plist_push( call, cp );
+			cprod = (ppprod*)plist_access( e );
+			plist_push( call, cprod );
 
-			while( plist_pop( call, &p ) )
+			while( plist_pop( call, &prod ) )
 			{
-				plist_push( done, p );
+				plist_push( done, prod );
 
-				plist_for( p->rhs, er )
+				plist_for( prod->rhs, er )
 				{
-					s = (ppsym*)plist_access( er );
+					sym = (ppsym*)plist_access( er );
 
 					nullable = FALSE;
 
-					if( PPSYM_IS_NONTERMINAL( s ) )
+					if( PPSYM_IS_NONTERMINAL( sym ) )
 					{
 						/* Union first set */
-						plist_union( cp->lhs->first, s->first );
+						plist_union( cprod->lhs->first, sym->first );
 
 						/* Put prods on stack */
-						for( i = 0; ( p = pp_sym_getprod( s, i ) ); i++ )
+						for( i = 0; ( prod = pp_sym_getprod( sym, i ) ); i++ )
 						{
-							if( plist_count( p->rhs ) == 0 )
+							if( plist_count( prod->rhs ) == 0 )
 							{
 								nullable = TRUE;
 								continue;
 							}
 
-							if( p == cp )
+							if( prod == cprod )
 							{
-								p->lhs->flags |= PPFLAG_LEFTREC;
-								p->flags |= PPFLAG_LEFTREC;
+								prod->lhs->flags |= PPFLAG_LEFTREC;
+								prod->flags |= PPFLAG_LEFTREC;
 							}
-							else if( !plist_get_by_ptr( done, p ) )
-								plist_push( call, p );
+							else if( !plist_get_by_ptr( done, prod ) )
+								plist_push( call, prod );
 						}
 					}
 					/* Extend first set if required */
-					else if( !plist_get_by_ptr( cp->lhs->first, s ) )
-						plist_push( cp->lhs->first, s );
+					else if( !plist_get_by_ptr( cprod->lhs->first, sym ) )
+						plist_push( cprod->lhs->first, sym );
 
 					if( !nullable )
 						break;
@@ -118,11 +131,11 @@ pboolean pp_gram_prepare( ppgram* g )
 				/* Flag nullable */
 				if( !er )
 				{
-					cp->flags |= PPFLAG_NULLABLE;
-					cp->lhs->flags |= PPFLAG_NULLABLE;
+					cprod->flags |= PPFLAG_NULLABLE;
+					cprod->lhs->flags |= PPFLAG_NULLABLE;
 				}
 
-				cnt += plist_count( cp->lhs->first );
+				cnt += plist_count( cprod->lhs->first );
 			}
 
 			plist_erase( done );
@@ -136,30 +149,30 @@ pboolean pp_gram_prepare( ppgram* g )
 	/* Pull-through all lexem symbols */
 	plist_for( g->symbols, e )
 	{
-		s = (ppsym*)plist_access( e );
+		sym = (ppsym*)plist_access( e );
 
-		if( PPSYM_IS_TERMINAL( s ) || !( s->flags & PPFLAG_LEXEM ) )
+		if( PPSYM_IS_TERMINAL( sym ) || !( sym->flags & PPFLAG_LEXEM ) )
 			continue;
 
-		plist_push( call, s );
+		plist_push( call, sym );
 	}
 
-	while( plist_pop( call, &s ) )
+	while( plist_pop( call, &sym ) )
 	{
-		plist_push( done, s );
+		plist_push( done, sym );
 
-		for( i = 0; ( p = pp_sym_getprod( s, i ) ); i++ )
+		for( i = 0; ( prod = pp_sym_getprod( sym, i ) ); i++ )
 		{
-			plist_for( p->rhs, er )
+			plist_for( prod->rhs, er )
 			{
-				s = (ppsym*)plist_access( er );
-				s->flags |= PPFLAG_LEXEM;
+				sym = (ppsym*)plist_access( er );
+				sym->flags |= PPFLAG_LEXEM;
 
-				if( PPSYM_IS_NONTERMINAL( s ) )
+				if( PPSYM_IS_NONTERMINAL( sym ) )
 				{
-					if( !plist_get_by_ptr( done, s )
-						&& !plist_get_by_ptr( call, s ) )
-						plist_push( call, s );
+					if( !plist_get_by_ptr( done, sym )
+						&& !plist_get_by_ptr( call, sym ) )
+						plist_push( call, sym );
 				}
 			}
 		}
@@ -169,6 +182,7 @@ pboolean pp_gram_prepare( ppgram* g )
 	plist_free( call );
 	plist_free( done );
 
+	g->flags |= PPFLAG_FINALIZED;
 	return TRUE;
 }
 
@@ -404,10 +418,6 @@ pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
 	bnflex = plex_create( 0 );
 
 	pp_bnf_define( bnfgram, bnflex );
-
-	pp_gram_prepare( bnfgram );
-	plex_prepare( bnflex );
-
 	/* pp_gram_dump( stdout, bnfgram ); */ /* DEBUG */
 
 	if( !pp_lr_parse( &ast, bnfgram, bnflex, s, &e ) )
@@ -487,7 +497,7 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 		s = (ppsym*)plist_access( e );
 
 		fprintf( stream, "%03d  %-*s  %-*s",
-			s->id, maxemitlen, s->emit ? s->emit : "",
+			s->idx, maxemitlen, s->emit ? s->emit : "",
 				maxsymlen, s->name );
 
 		if( PPSYM_IS_NONTERMINAL( s ) )

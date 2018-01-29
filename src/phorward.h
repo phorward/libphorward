@@ -603,6 +603,7 @@ typedef struct _ppast		ppast;
 #define PPFLAG_FREENAME		512
 #define PPFLAG_FREEEMIT		1024
 #define PPFLAG_SPECIAL		2048
+#define PPFLAG_FINALIZED	4096
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -613,7 +614,7 @@ struct _ppprod
 {
 	ppgram*					grm;		
 
-	unsigned int			id;			
+	unsigned int			idx;		
 	ppsym*					lhs;		
 	plist*					rhs;		
 	unsigned int			flags;		
@@ -628,7 +629,7 @@ struct _ppsym
 {
 	ppgram*					grm;		
 
-	unsigned int			id;			
+	unsigned int			idx;		
 	char*					name;		
 #define PPSYM_T_EOF			"&eof"
 
@@ -647,9 +648,7 @@ struct _ppsym
 
 struct _ppgram
 {
-	unsigned int			sym_id;		
 	plist*					symbols;	
-	unsigned int			prod_id;	
 	plist*					prods;		
 
 	ppsym*					goal;		

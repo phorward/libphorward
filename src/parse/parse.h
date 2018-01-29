@@ -27,6 +27,7 @@ typedef struct _ppast		ppast;
 #define PPFLAG_FREENAME		512
 #define PPFLAG_FREEEMIT		1024
 #define PPFLAG_SPECIAL		2048
+#define PPFLAG_FINALIZED	4096
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -37,7 +38,7 @@ struct _ppprod
 {
 	ppgram*					grm;		/* Grammar */
 
-	unsigned int			id;			/* Unique id */
+	unsigned int			idx;		/* Production index */
 	ppsym*					lhs;		/* Left-hand side */
 	plist*					rhs;		/* Left-hand side items */
 	unsigned int			flags;		/* Configuration flags */
@@ -52,7 +53,7 @@ struct _ppsym
 {
 	ppgram*					grm;		/* Grammar */
 
-	unsigned int			id;			/* Unique id */
+	unsigned int			idx;		/* Symbol index */
 	char*					name;		/* Unique name */
 #define PPSYM_T_EOF			"&eof"
 
@@ -71,10 +72,8 @@ struct _ppsym
 /* Grammar */
 struct _ppgram
 {
-	unsigned int			sym_id;		/* Current symbol id */
 	plist*					symbols;	/* Symbols (both nonterminals
 														and terminals) */
-	unsigned int			prod_id;	/* Current production id */
 	plist*					prods;		/* Productions */
 
 	ppsym*					goal;		/* The start/goal symbol */

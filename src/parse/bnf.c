@@ -52,8 +52,6 @@ void pp_bnf_define( ppgram* g, plex* l )
 	ident = pp_sym_create( g, "Ident", PPFLAG_NONE );
 	ident->emit = "Ident";
 
-	plex_define( l, "[A-Za-z_][A-Za-z0-9_]*", ident->id, PREGEX_FLAG_NONE );
-
 	colon = pp_sym_create( g, ":", PPFLAG_NONE );
 	semi = pp_sym_create( g, ";", PPFLAG_NONE );
 	pipe = pp_sym_create( g, "|", PPFLAG_NONE );
@@ -62,15 +60,6 @@ void pp_bnf_define( ppgram* g, plex* l )
 	star = pp_sym_create( g, "*", PPFLAG_NONE );
 	quest = pp_sym_create( g, "?", PPFLAG_NONE );
 	plus = pp_sym_create( g, "+", PPFLAG_NONE );
-
-	plex_define( l, colon->name, colon->id, PREGEX_COMP_STATIC );
-	plex_define( l, semi->name, semi->id, PREGEX_COMP_STATIC );
-	plex_define( l, pipe->name, pipe->id, PREGEX_COMP_STATIC );
-	plex_define( l, brop->name, brop->id, PREGEX_COMP_STATIC );
-	plex_define( l, brcl->name, brcl->id, PREGEX_COMP_STATIC );
-	plex_define( l, star->name, star->id, PREGEX_COMP_STATIC );
-	plex_define( l, quest->name, quest->id, PREGEX_COMP_STATIC );
-	plex_define( l, plus->name, plus->id, PREGEX_COMP_STATIC );
 
 	/* Nonterminals */
 	n_symbol = pp_sym_create( g, "symbol", PPFLAG_NONE );
@@ -121,4 +110,20 @@ void pp_bnf_define( ppgram* g, plex* l )
 	pp_prod_create( g, n_defs, n_nonterm, (ppsym*)NULL );
 
 	pp_prod_create( g, n_grammar, n_defs, (ppsym*)NULL );
+
+	/* Prepare grammar */
+	pp_gram_prepare( g );
+
+	/* Lexer */
+	plex_define( l, "[A-Za-z_][A-Za-z0-9_]*", ident->idx + 1, 0 );
+	plex_define( l, colon->name, colon->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, semi->name, semi->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, pipe->name, pipe->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, brop->name, brop->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, brcl->name, brcl->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, star->name, star->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, quest->name, quest->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, plus->name, plus->idx + 1, PREGEX_COMP_STATIC );
+
+	plex_prepare( l );
 }

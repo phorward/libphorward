@@ -49,12 +49,13 @@ ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags )
 		return (ppsym*)NULL;
 	}
 
-	sym->id = ++( g->sym_id );
 	sym->grm = g;
 	sym->name = name;
 	sym->flags = flags;
 
 	sym->first = plist_create( 0, PLIST_MOD_PTR );
+
+	g->flags &= ~PPFLAG_FINALIZED;
 
 	return sym;
 }
@@ -65,9 +66,7 @@ ppsym* pp_sym_free( ppsym* sym )
 	if( !sym )
 		return (ppsym*)NULL;
 
-	/* Remove symbol from pool */
-	plist_remove( sym->grm->symbols,
-		plist_get_by_ptr( sym->grm->symbols, sym ) );
+	sym->grm->flags &= ~PPFLAG_FINALIZED;
 
 	if( sym->flags & PPFLAG_FREEEMIT )
 		pfree( sym->emit );
@@ -76,6 +75,10 @@ ppsym* pp_sym_free( ppsym* sym )
 		pfree( sym->name );
 
 	plist_free( sym->first );
+
+	/* Remove symbol from pool */
+	plist_remove( sym->grm->symbols,
+		plist_get_by_ptr( sym->grm->symbols, sym ) );
 
 	return (ppsym*)NULL;
 }
@@ -210,7 +213,7 @@ char* pp_sym_to_str( ppsym* sym )
 		else
 			sprintf( sym->strval, "%c:%03d",
 				PPSYM_IS_TERMINAL( sym ) ? 'T' : 'N',
-					sym->id );
+					sym->idx );
 	}
 
 	return sym->strval;
