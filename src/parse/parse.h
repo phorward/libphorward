@@ -33,6 +33,9 @@ typedef struct _ppast		ppast;
 #define PPMOD_POSITIVE		'+'
 #define PPMOD_KLEENE		'*'
 
+#define PPLR_SHIFT			1
+#define PPLR_REDUCE			2
+
 /* Production */
 struct _ppprod
 {

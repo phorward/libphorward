@@ -400,41 +400,155 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 /** Compiles a grammar definition into a grammar.
 
 //g// is the grammar that receives the result of the parse.
-//bnf// is the BNF definition string that defines the grammar.
+//source// is the BNF definition string that defines the grammar.
 */
-pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
+pboolean pp_gram_from_bnf( ppgram* g, char* source )
 {
-	plex*		bnflex;
-	ppgram*		bnfgram;
-	char*		s = bnf;
+	pparser*	par;
+	ppgram*		bnf;
+	char*		s = source;
 	char*		e;
 	ppast*		ast;
 
-	if( !( g && bnf ) )
+	ppsym*		ident;
+	ppsym*		colon;
+	ppsym*		semi;
+	ppsym*		pipe;
+	ppsym*		brop;
+	ppsym*		brcl;
+	ppsym*		star;
+	ppsym*		quest;
+	ppsym*		plus;
+
+	ppsym*		n_symbol;
+	ppsym*		n_mod;
+	ppsym*		n_seq;
+	ppsym*		n_prod;
+	ppsym*		n_alt;
+	ppsym*		n_nonterm;
+	ppsym*		n_defs;
+	ppsym*		n_grammar;
+
+	ppprod*		p;
+
+	if( !( g && source ) )
 	{
 		WRONGPARAM;
 		return FALSE;
 	}
 
-	/* Define grammar for BNF */
-	bnfgram = pp_gram_create();
-	bnflex = plex_create( 0 );
+	/* Define a grammar for BNF */
 
-	pp_bnf_define( bnfgram, bnflex );
-	/* pp_gram_dump( stdout, bnfgram ); */ /* DEBUG */
+	bnf = pp_gram_create();
 
-	if( !pp_lr_parse( &ast, bnfgram, bnflex, s, &e ) )
+	/*
+		Ident : [a-z]+;
+
+		symbol : '(' alternation ')' | Ident ;
+		modifier : symbol | symbol '*' | symbol '+' | symbol '?' ;
+		sequence : sequence modifier | modifier ;
+		production : sequence | ;
+		alternation : alternation '|' production | production ;
+
+		nonterm : Ident ':' alternation ';';
+		defs : defs nonterm | nonterm ;
+
+		grammar$ : defs ;
+	*/
+
+	/* Terminals */
+	ident = pp_sym_create( bnf, "Ident", PPFLAG_NONE );
+	ident->emit = "Ident";
+
+	colon = pp_sym_create( bnf, "Colon", PPFLAG_NONE );
+	semi = pp_sym_create( bnf, "Semi", PPFLAG_NONE );
+	pipe = pp_sym_create( bnf, "Pipe", PPFLAG_NONE );
+	brop = pp_sym_create( bnf, "BrOp", PPFLAG_NONE );
+	brcl = pp_sym_create( bnf, "BrCl", PPFLAG_NONE );
+	star = pp_sym_create( bnf, "Star", PPFLAG_NONE );
+	quest = pp_sym_create( bnf, "Quest", PPFLAG_NONE );
+	plus = pp_sym_create( bnf, "Plus", PPFLAG_NONE );
+
+	/* Nonterminals */
+	n_symbol = pp_sym_create( bnf, "symbol", PPFLAG_NONE );
+	n_symbol->emit = "symbol";
+
+	n_mod = pp_sym_create( bnf, "modifier", PPFLAG_NONE );
+	n_seq = pp_sym_create( bnf, "sequence", PPFLAG_NONE );
+
+	n_prod = pp_sym_create( bnf, "production", PPFLAG_NONE );
+	n_prod->emit = "production";
+
+	n_alt = pp_sym_create( bnf, "alternation", PPFLAG_NONE );
+
+	n_nonterm = pp_sym_create( bnf, "nonterm", PPFLAG_NONE );
+	n_nonterm->emit = "nonterm";
+
+	n_defs = pp_sym_create( bnf, "defs", PPFLAG_NONE );
+
+	n_grammar = pp_sym_create( bnf, "grammar", PPFLAG_NONE );
+	bnf->goal = n_grammar;
+
+	/* Productions */
+
+	p = pp_prod_create( bnf, n_symbol, brop, n_alt, brcl, (ppsym*)NULL );
+	p->emit = "inline";
+	p = pp_prod_create( bnf, n_symbol, ident, (ppsym*)NULL );
+
+	p = pp_prod_create( bnf, n_mod, n_symbol, (ppsym*)NULL );
+	p = pp_prod_create( bnf, n_mod, n_symbol, star, (ppsym*)NULL );
+	p->emit = "star";
+	p = pp_prod_create( bnf, n_mod, n_symbol, plus, (ppsym*)NULL );
+	p->emit = "pos";
+	p = pp_prod_create( bnf, n_mod, n_symbol, quest, (ppsym*)NULL );
+	p->emit = "opt";
+
+	pp_prod_create( bnf, n_seq, n_seq, n_mod, (ppsym*)NULL );
+	pp_prod_create( bnf, n_seq, n_mod, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_prod, n_seq, (ppsym*)NULL );
+	pp_prod_create( bnf, n_prod, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_alt, n_alt, pipe, n_prod, (ppsym*)NULL );
+	pp_prod_create( bnf, n_alt, n_prod, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_nonterm, ident, colon, n_alt, semi, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_defs, n_defs, n_nonterm, (ppsym*)NULL );
+	pp_prod_create( bnf, n_defs, n_nonterm, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_grammar, n_defs, (ppsym*)NULL );
+
+	/* Setup a parser */
+	par = pp_parser_create( bnf );
+
+	/* Lexer */
+	plex_define( par->lex, "[^:;|()*?+ \t\r\n]+", ident->idx + 1, 0 );
+	plex_define( par->lex, ":", colon->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( par->lex, ";", semi->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( par->lex, "|", pipe->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( par->lex, "(", brop->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( par->lex, ")", brcl->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( par->lex, "*", star->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( par->lex, "?", quest->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( par->lex, "+", plus->idx + 1, PREGEX_COMP_STATIC );
+
+	plex_prepare( par->lex );
+
+	if( !pp_parser_parse( &ast, par, s, &e ) )
 	{
-		pp_gram_free( bnfgram );
+		pp_parser_free( par );
+		pp_gram_free( bnf );
 		return FALSE;
 	}
 
-	/* pp_ast_dump_short( stdout, ast ); */
+	/* pp_ast_dump_short( stdout, ast ); */ /* DEBUG! */
 
 	if( !ast_to_gram( g, ast ) )
 		return FALSE;
 
-	pp_gram_free( bnfgram );
+	pp_parser_free( par );
+	pp_gram_free( bnf );
 	pp_ast_free( ast );
 
 	return TRUE;

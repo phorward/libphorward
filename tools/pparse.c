@@ -100,8 +100,7 @@ int main( int argc, char** argv )
 	if( verbose )
 		printf( "Parsing grammar from '%s'\n", gfile );
 
-	if( !( ( g = pp_gram_create() )
-				&& pp_gram_from_bnf( g, gstr ) ) )
+	if( !( ( g = pp_gram_create() ) && pp_gram_from_bnf( g, gstr ) ) )
 	{
 		fprintf( stderr, "%s: Parse error in >%s<\n", gfile, gstr );
 		return 1;

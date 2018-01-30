@@ -171,27 +171,21 @@ void pp_ast_dump_short( FILE* stream, ppast* ast );
 void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
-/* parse/bnf.c */
-void pp_bnf_define( ppgram* g, plex* l );
-
 /* parse/gram.c */
 pboolean pp_gram_prepare( ppgram* g );
 ppgram* pp_gram_create( void );
-pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
+pboolean pp_gram_from_bnf( ppgram* g, char* source );
 void pp_gram_dump( FILE* stream, ppgram* g );
 char* pp_gram_to_str( ppgram* grm );
 ppgram* pp_gram_free( ppgram* g );
 
 /* parse/lr.c */
-plist* pp_lr_closure( ppgram* gram, pboolean optimize );
-pboolean pp_lr_parse( ppast** root, ppgram* grm, plex* lex, char* start, char** end );
+pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 
 /* parse/parse.c */
-#if 0
-pparse* pp_create( int flags, char* bnf );
-pparse* pp_free( pparse* par );
-pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end );
-#endif
+pparser* pp_parser_create( ppgram* g );
+pparser* pp_parser_free( pparser* p );
+pboolean pp_parser_parse( ppast** root, pparser* p, char* start, char** end );
 
 /* parse/prod.c */
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
