@@ -52,14 +52,14 @@ void pp_bnf_define( ppgram* g, plex* l )
 	ident = pp_sym_create( g, "Ident", PPFLAG_NONE );
 	ident->emit = "Ident";
 
-	colon = pp_sym_create( g, ":", PPFLAG_NONE );
-	semi = pp_sym_create( g, ";", PPFLAG_NONE );
-	pipe = pp_sym_create( g, "|", PPFLAG_NONE );
-	brop = pp_sym_create( g, "(", PPFLAG_NONE );
-	brcl = pp_sym_create( g, ")", PPFLAG_NONE );
-	star = pp_sym_create( g, "*", PPFLAG_NONE );
-	quest = pp_sym_create( g, "?", PPFLAG_NONE );
-	plus = pp_sym_create( g, "+", PPFLAG_NONE );
+	colon = pp_sym_create( g, "Colon", PPFLAG_NONE );
+	semi = pp_sym_create( g, "Semi", PPFLAG_NONE );
+	pipe = pp_sym_create( g, "Pipe", PPFLAG_NONE );
+	brop = pp_sym_create( g, "BrOp", PPFLAG_NONE );
+	brcl = pp_sym_create( g, "BrCl", PPFLAG_NONE );
+	star = pp_sym_create( g, "Star", PPFLAG_NONE );
+	quest = pp_sym_create( g, "Quest", PPFLAG_NONE );
+	plus = pp_sym_create( g, "Plus", PPFLAG_NONE );
 
 	/* Nonterminals */
 	n_symbol = pp_sym_create( g, "symbol", PPFLAG_NONE );
@@ -115,15 +115,15 @@ void pp_bnf_define( ppgram* g, plex* l )
 	pp_gram_prepare( g );
 
 	/* Lexer */
-	plex_define( l, "[A-Za-z_][A-Za-z0-9_]*", ident->idx + 1, 0 );
-	plex_define( l, colon->name, colon->idx + 1, PREGEX_COMP_STATIC );
-	plex_define( l, semi->name, semi->idx + 1, PREGEX_COMP_STATIC );
-	plex_define( l, pipe->name, pipe->idx + 1, PREGEX_COMP_STATIC );
-	plex_define( l, brop->name, brop->idx + 1, PREGEX_COMP_STATIC );
-	plex_define( l, brcl->name, brcl->idx + 1, PREGEX_COMP_STATIC );
-	plex_define( l, star->name, star->idx + 1, PREGEX_COMP_STATIC );
-	plex_define( l, quest->name, quest->idx + 1, PREGEX_COMP_STATIC );
-	plex_define( l, plus->name, plus->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, "[^:;|()*?+ \t\r\n]+", ident->idx + 1, 0 );
+	plex_define( l, ":", colon->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, ";", semi->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, "|", pipe->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, "(", brop->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, ")", brcl->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, "*", star->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, "?", quest->idx + 1, PREGEX_COMP_STATIC );
+	plex_define( l, "+", plus->idx + 1, PREGEX_COMP_STATIC );
 
 	plex_prepare( l );
 }

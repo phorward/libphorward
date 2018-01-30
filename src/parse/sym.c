@@ -202,18 +202,14 @@ char* pp_sym_to_str( ppsym* sym )
 
 	if( !sym->strval )
 	{
-		sym->strval = (char*)pmalloc(
-						( pstrlen( sym->name ) + 1 + 3 + 1 + 1 )
-							* sizeof( char ) );
-
 		if( sym->name )
-			sprintf( sym->strval, "%c:%s",
-				PPSYM_IS_TERMINAL( sym ) ? 'T' : 'N',
-					sym->name );
+			sym->strval = pstrdup( sym->name );
 		else
-			sprintf( sym->strval, "%c:%03d",
-				PPSYM_IS_TERMINAL( sym ) ? 'T' : 'N',
-					sym->idx );
+		{
+			sym->strval = (char*)malloc( 4 + 1 * sizeof( char ) );
+			sprintf( sym->strval, "%c%03d",
+				PPSYM_IS_TERMINAL( sym ) ? "T" : "n", sym->idx );
+		}
 	}
 
 	return sym->strval;

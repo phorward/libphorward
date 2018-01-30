@@ -376,7 +376,7 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 
 		dfa[ i ] = (unsigned int*)pmalloc( cnt * sizeof( int ) );
 		dfa[ i ][ 0 ] = cnt;
-		dfa[ i ][ 1 ] = st->def_prod ? st->def_prod->idx : 0;
+		dfa[ i ][ 1 ] = st->def_prod ? st->def_prod->idx + 1 : 0;
 
 		/* Actions */
 		for( j = 2, f = plist_first( st->actions );
@@ -384,7 +384,7 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 		{
 			col = (pplrcolumn*)plist_access( f );
 
-			dfa[ i ][ j ] = col->symbol->idx;
+			dfa[ i ][ j ] = col->symbol->idx + 1;
 
 			if( col->shift )
 				dfa[ i ][ j + 1 ] = PPLR_SHIFT;
@@ -392,10 +392,10 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 			if( col->reduce )
 			{
 				dfa[ i ][ j + 1 ] |= PPLR_REDUCE;
-				dfa[ i ][ j + 2 ] = col->reduce->idx;
+				dfa[ i ][ j + 2 ] = col->reduce->idx + 1;
 			}
 			else
-				dfa[ i ][ j + 2 ] = col->shift->idx;
+				dfa[ i ][ j + 2 ] = col->shift->idx + 1;
 		}
 
 		/* Gotos */
@@ -404,7 +404,7 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 		{
 			col = (pplrcolumn*)plist_access( f );
 
-			dfa[ i ][ j ] = col->symbol->idx;
+			dfa[ i ][ j ] = col->symbol->idx + 1;
 
 			if( col->shift )
 				dfa[ i ][ j + 1 ] = PPLR_SHIFT;
@@ -412,10 +412,10 @@ static unsigned int pp_lr_to_dfa( unsigned int*** ret, plist* states )
 			if( col->reduce )
 			{
 				dfa[ i ][ j + 1 ] |= PPLR_REDUCE;
-				dfa[ i ][ j + 2 ] = col->reduce->idx;
+				dfa[ i ][ j + 2 ] = col->reduce->idx + 1;
 			}
 			else
-				dfa[ i ][ j + 2 ] = col->shift->idx;
+				dfa[ i ][ j + 2 ] = col->shift->idx + 1;
 		}
 	}
 
@@ -1002,29 +1002,34 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		#endif
 
 		/* Check for entries in the parse table */
-		for( i = 2, shift = -1, reduce = -1; i < dfa[tos->state][0]; i += 3 )
+		if( tos->state > -1 )
 		{
-			if( dfa[tos->state][i] == sym->idx )
+			for( i = 2, shift = 0, reduce = 0;
+					i < dfa[tos->state][0]; i += 3 )
 			{
-				if( dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
-					shift = dfa[tos->state][ i + 2 ];
+				if( dfa[tos->state][i] == sym->idx + 1 )
+				{
+					if( dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
+						shift = dfa[tos->state][ i + 2 ];
 
-				if( dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-					reduce = dfa[tos->state][ i + 2 ];
+					if( dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
+						reduce = dfa[tos->state][ i + 2 ];
 
-				break;
+					break;
+				}
 			}
+
+			if( !shift && !reduce )
+				reduce = dfa[ tos->state ][ 1 ];
 		}
 
-		if( shift == -1 && reduce == -1 )
+		if( !shift && !reduce )
 		{
-			if( ( reduce = dfa[tos->state][1] ) < 0 )
-			{
-				/* Parse Error */
-				/* TODO: Error Recovery */
-				fprintf( stderr, "Parse Error [line:%d col:%d] @ >%s<\n", row, col, *end );
-				return FALSE;
-			}
+			/* Parse Error */
+			/* TODO: Error Recovery */
+			fprintf( stderr, "Parse Error [line:%d col:%d] @ >%s<\n",
+				row, col, *end );
+			return FALSE;
 		}
 
 		#if DEBUGLEVEL > 2
@@ -1032,24 +1037,24 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		#endif
 
 		/* Shift */
-		if( shift >= 0 )
+		if( shift )
 		{
 			#if DEBUGLEVEL > 1
-			if( reduce >= 0 )
+			if( reduce )
 				fprintf( stderr,
 					"shift on %s and reduce by production %d\n",
 						sym->name,
-						reduce );
+						reduce - 1 );
 			else
 				fprintf( stderr,
 					"shift on %s to state %d\n",
 						sym->name,
-						shift );
+						shift - 1 );
 			#endif
 
 			tos = (pplrse*)parray_malloc( stack );
 
-			tos->state = reduce >= 0 ? 0 : shift;
+			tos->state = reduce ? 0 : shift - 1;
 			tos->start = start;
 			tos->end = *end;
 			tos->row = row;
@@ -1075,9 +1080,9 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		}
 
 		/* Reduce */
-		while( reduce >= 0 )
+		while( reduce )
 		{
-			prod = pp_prod_get( grm, reduce );
+			prod = pp_prod_get( grm, reduce - 1 );
 
 			#if DEBUGLEVEL > 1
 			fprintf( stderr,
@@ -1144,10 +1149,10 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 			}
 
 			/* Check for entries in the parse table */
-			for( i = dfa[tos->state][0] - 3, shift = -1, reduce = -1;
+			for( i = dfa[tos->state][0] - 3, shift = 0, reduce = 0;
 					i >= 2; i -= 3 )
 			{
-				if( dfa[tos->state][i] == prod->lhs->idx )
+				if( dfa[tos->state][i] == prod->lhs->idx + 1 )
 				{
 					if( dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
 						shift = dfa[tos->state][ i + 2 ];
@@ -1161,7 +1166,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 
 			tos = (pplrse*)parray_malloc( stack );
 
-			tos->state = shift;
+			tos->state = shift - 1;
 			tos->start = lstart;
 			tos->end = *end;
 			tos->node = node;
@@ -1189,7 +1194,7 @@ static pboolean pp_lr_PARSE( ppast** root, ppgram* grm, plex* lex,
 		}
 		#endif
 	}
-	while( reduce < 0 );
+	while( !reduce );
 
 	return TRUE;
 }

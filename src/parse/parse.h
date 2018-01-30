@@ -45,7 +45,7 @@ struct _ppprod
 
 	char*					emit;		/* AST emitting node */
 
-	char*					strval;		/* Debug */
+	char*					strval;		/* String represenation */
 };
 
 /* Symbol (both terminal and nonterminal for easier access in productions) */
@@ -63,7 +63,7 @@ struct _ppsym
 
 	char*					emit;		/* AST emitting node */
 
-	char*					strval;		/* Debug */
+	char*					strval;		/* String represenation */
 };
 
 #define PPSYM_IS_TERMINAL( sym )	( !islower( *( sym )->name ) )
@@ -80,6 +80,8 @@ struct _ppgram
 	ppsym*					eof;		/* End-of-input symbol */
 
 	unsigned int			flags;		/* Configuration flags */
+
+	char*					strval;		/* String representation */
 };
 
 /* AST */
@@ -93,7 +95,7 @@ struct _ppast
 	/* Match */
 	char*					start;		/* Begin of fragment */
 	char*					end;		/* End of fragment */
-	size_t					length;		/* Fragment length */
+	size_t					len;		/* Fragment length */
 
 	/* Source */
 	unsigned long			row;		/* Appearance in row */
@@ -105,14 +107,18 @@ struct _ppast
 	ppast*					next;		/* Next element in current scope */
 };
 
-/* Parser runtime object */
+/* Parser */
 typedef struct
 {
+	/* Grammar */
 	ppgram*					gram;		/* Grammar */
+
+	/* Parser */
+	int						states;		/* States count */
+	unsigned int**			dfa;		/* Parse table */
 
 	/* Lexical analyzer */
 	plex*					lex;		/* plex object */
 	unsigned int			(*lexfn)( char** start, char** end ); /* callback */
 
 } pparser;
-

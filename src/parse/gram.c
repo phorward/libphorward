@@ -182,7 +182,10 @@ pboolean pp_gram_prepare( ppgram* g )
 	plist_free( call );
 	plist_free( done );
 
+	/* Set finalized */
 	g->flags |= PPFLAG_FINALIZED;
+	g->strval = pfree( g->strval );
+
 	return TRUE;
 }
 
@@ -251,7 +254,7 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
 	}
 	else if( NODE_IS( node, "Ident") )
 	{
-		sprintf( name, "%.*s", node->length, node->start );
+		sprintf( name, "%.*s", node->len, node->start );
 
 		if( !( sym = pp_sym_get_by_name( g, name ) ) )
 			sym = pp_sym_create( g, name, PPFLAG_FREENAME );
@@ -352,7 +355,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 		if( NODE_IS( ast, "nonterm" ) )
 		{
 			child = ast->child;
-			sprintf( name, "%.*s", child->length, child->start );
+			sprintf( name, "%.*s", child->len, child->start );
 
 			/* Create the non-terminal symbol */
 			if( !( sym = pp_sym_get_by_name( g, name ) ) )
@@ -500,7 +503,7 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 			s->idx, maxemitlen, s->emit ? s->emit : "",
 				maxsymlen, s->name );
 
-		if( PPSYM_IS_NONTERMINAL( s ) )
+		if( PPSYM_IS_NONTERMINAL( s ) && plist_count( s->first ) )
 		{
 			fprintf( stream, " {" );
 
@@ -516,6 +519,104 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 
 		fprintf( stream, "\n" );
 	}
+}
+
+/** Get grammar string representation */
+char* pp_gram_to_str( ppgram* grm )
+{
+	ppsym*		sym;
+	ppsym*		psym;
+	ppprod*		prod;
+	size_t		maxlhslen	= 0;
+	size_t		maxsymlen	= 0;
+	plistel*	e;
+	plistel*	f;
+	plistel*	g;
+	char		name		[ NAMELEN + 3 + 1 ];
+	char*		symname;
+	pboolean	first;
+
+	if( !grm )
+	{
+		WRONGPARAM;
+		return "";
+	}
+
+	if( !( grm->flags & PPFLAG_FINALIZED ) )
+		pp_gram_prepare( grm );
+
+	if( grm->strval )
+		return grm->strval;
+
+	/* Find longest lhs */
+	plist_for( grm->symbols, e )
+	{
+		sym = (ppsym*)plist_access( e );
+
+		if( PPSYM_IS_NONTERMINAL( sym ) )
+		{
+			if( pstrlen( sym->name ) > maxlhslen )
+				maxlhslen = pstrlen( sym->name );
+			else if( !sym->name && maxlhslen < 4 )
+				maxlhslen = 4;
+		}
+
+		if( pstrlen( sym->name ) > maxsymlen )
+			maxsymlen = pstrlen( sym->name );
+		else if( !sym->name && maxsymlen < 4 )
+			maxsymlen = 4;
+	}
+
+	if( maxlhslen > NAMELEN )
+		maxlhslen = NAMELEN;
+
+	if( maxsymlen > NAMELEN )
+		maxsymlen = NAMELEN;
+
+	/* Generate! */
+	plist_for( grm->symbols, e )
+	{
+		if( PPSYM_IS_TERMINAL( ( sym = (ppsym*)plist_access( e ) ) ) )
+			continue;
+
+		first = TRUE;
+		sprintf( name, "%-*s : ", maxlhslen, pp_sym_to_str( sym ) );
+
+		grm->strval = pstrcatstr( grm->strval, name, FALSE );
+
+		plist_for( grm->prods, f )
+		{
+			prod = (ppprod*)plist_access( f );
+
+			if( prod->lhs != sym )
+				continue;
+
+			if( !first )
+			{
+				sprintf( name, "%-*s | ", maxlhslen, "" );
+				grm->strval = pstrcatstr( grm->strval, name, FALSE );
+			}
+			else
+				first = FALSE;
+
+			if( !plist_first( prod->rhs ) )
+				grm->strval = pstrcatchar( grm->strval, '\n' );
+
+			plist_for( prod->rhs, g )
+			{
+				psym = (ppsym*)plist_access( g );
+
+				sprintf( name, "%.*s%s", maxsymlen, pp_sym_to_str( psym ),
+					g == plist_last( prod->rhs ) ? "\n" : " ");
+				grm->strval = pstrcatstr( grm->strval, name, FALSE );
+			}
+		}
+
+		sprintf( name, "%-*s ;\n", maxlhslen, "" );
+		grm->strval = pstrcatstr( grm->strval, name, FALSE );
+	}
+
+	return grm->strval;
 }
 
 /** Frees grammar //g// and all its related memory. */
@@ -538,6 +639,8 @@ ppgram* pp_gram_free( ppgram* g )
 
 	plist_free( g->symbols );
 	plist_free( g->prods );
+
+	pfree( g->strval );
 
 	pfree( g );
 

@@ -26,7 +26,7 @@ ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
 
 	node->start = start;
 	node->end = end;
-	node->length = end - start;
+	node->len = end - start;
 
 	node->row = row;
 	node->col = col;
@@ -121,7 +121,7 @@ void pp_ast_dump( FILE* stream, ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stream, " " );
 
-		fprintf( stream, "{ %s >%.*s<\n", ast->emit, ast->length, ast->start );
+		fprintf( stream, "{ %s >%.*s<\n", ast->emit, ast->len, ast->start );
 
 		if( ast->child )
 		{
@@ -133,7 +133,7 @@ void pp_ast_dump( FILE* stream, ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stream, " " );
 
-		fprintf( stream, "} %s >%.*s<\n", ast->emit, ast->length, ast->start );
+		fprintf( stream, "} %s >%.*s<\n", ast->emit, ast->len, ast->start );
 
 		ast = ast->next;
 	}
@@ -155,7 +155,7 @@ void pp_ast_dump_short( FILE* stream, ppast* ast )
 		fprintf( stream, "%s", ast->emit );
 
 		if( PPSYM_IS_TERMINAL( ast->sym ) || ast->sym->flags & PPFLAG_LEXEM )
-			fprintf( stream, " (%.*s)\n", ast->length, ast->start );
+			fprintf( stream, " (%.*s)\n", ast->len, ast->start );
 		else
 			fprintf( stream, "\n" );
 
@@ -249,7 +249,7 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 			fprintf( stream, "] " );
 		}
 		else
-			fprintf( stream, "'%.*s' ", ast->length, ast->start );
+			fprintf( stream, "'%.*s' ", ast->len, ast->start );
 
 		ast = ast->next;
 	}

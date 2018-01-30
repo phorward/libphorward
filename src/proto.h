@@ -179,6 +179,7 @@ pboolean pp_gram_prepare( ppgram* g );
 ppgram* pp_gram_create( void );
 pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
 void pp_gram_dump( FILE* stream, ppgram* g );
+char* pp_gram_to_str( ppgram* grm );
 ppgram* pp_gram_free( ppgram* g );
 
 /* parse/lr.c */

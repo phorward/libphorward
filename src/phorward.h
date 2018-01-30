@@ -655,6 +655,8 @@ struct _ppgram
 	ppsym*					eof;		
 
 	unsigned int			flags;		
+
+	char*					strval;		
 };
 
 
@@ -668,7 +670,7 @@ struct _ppast
 	
 	char*					start;		
 	char*					end;		
-	size_t					length;		
+	size_t					len;		
 
 	
 	unsigned long			row;		
@@ -683,14 +685,18 @@ struct _ppast
 
 typedef struct
 {
+	
 	ppgram*					gram;		
+
+	
+	int						states;		
+	unsigned int**			dfa;		
 
 	
 	plex*					lex;		
 	unsigned int			(*lexfn)( char** start, char** end ); 
 
 } pparser;
-
 
 
 
@@ -881,6 +887,7 @@ pboolean pp_gram_prepare( ppgram* g );
 ppgram* pp_gram_create( void );
 pboolean pp_gram_from_bnf( ppgram* g, char* bnf );
 void pp_gram_dump( FILE* stream, ppgram* g );
+char* pp_gram_to_str( ppgram* grm );
 ppgram* pp_gram_free( ppgram* g );
 
 
