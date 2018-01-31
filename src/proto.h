@@ -171,10 +171,12 @@ void pp_ast_dump_short( FILE* stream, ppast* ast );
 void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
-/* parse/gram.c */
-pboolean pp_gram_prepare( ppgram* g );
-ppgram* pp_gram_create( void );
+/* parse/bnf.c */
 pboolean pp_gram_from_bnf( ppgram* g, char* source );
+
+/* parse/gram.c */
+ppgram* pp_gram_create( void );
+pboolean pp_gram_prepare( ppgram* g );
 void pp_gram_dump( FILE* stream, ppgram* g );
 char* pp_gram_to_str( ppgram* grm );
 ppgram* pp_gram_free( ppgram* g );
@@ -185,6 +187,8 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 /* parse/parse.c */
 pparser* pp_parser_create( ppgram* g );
 pparser* pp_parser_free( pparser* p );
+int pp_parser_auto_token( pparser* p );
+pboolean pp_parser_define_token( pparser* p, ppsym* sym, char* pat, int flags );
 pboolean pp_parser_parse( ppast** root, pparser* p, char* start, char** end );
 
 /* parse/prod.c */

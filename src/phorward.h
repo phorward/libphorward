@@ -696,7 +696,9 @@ typedef struct
 	unsigned int**			dfa;		
 
 	
+	parray					tokens;		
 	plex*					lex;		
+
 	unsigned int			(*lexfn)( char** start, char** end ); 
 
 } pparser;
@@ -883,9 +885,11 @@ void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
 
-pboolean pp_gram_prepare( ppgram* g );
-ppgram* pp_gram_create( void );
 pboolean pp_gram_from_bnf( ppgram* g, char* source );
+
+
+ppgram* pp_gram_create( void );
+pboolean pp_gram_prepare( ppgram* g );
 void pp_gram_dump( FILE* stream, ppgram* g );
 char* pp_gram_to_str( ppgram* grm );
 ppgram* pp_gram_free( ppgram* g );
@@ -896,6 +900,8 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 
 pparser* pp_parser_create( ppgram* g );
 pparser* pp_parser_free( pparser* p );
+int pp_parser_auto_token( pparser* p );
+pboolean pp_parser_define_token( pparser* p, ppsym* sym, char* pat, int flags );
 pboolean pp_parser_parse( ppast** root, pparser* p, char* start, char** end );
 
 

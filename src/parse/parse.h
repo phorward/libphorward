@@ -121,7 +121,9 @@ typedef struct
 	unsigned int**			dfa;		/* Parse table */
 
 	/* Lexical analyzer */
-	plex*					lex;		/* plex object */
+	parray					tokens;		/* Token order */
+	plex*					lex;		/* Lexical analyzer */
+
 	unsigned int			(*lexfn)( char** start, char** end ); /* callback */
 
 } pparser;
