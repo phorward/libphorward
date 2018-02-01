@@ -58,6 +58,8 @@ int pp_parser_auto_token( pparser* p )
 	ppsym*		sym;
 	plistel*	e;
 	int			gen = 0;
+	char*		emit;
+	char*		ptr;
 
 	if( !( p ) )
 	{
@@ -68,9 +70,20 @@ int pp_parser_auto_token( pparser* p )
 	plist_for( p->gram->symbols, e )
 	{
 		sym = (ppsym*)plist_access( e );
-		if( PPSYM_IS_TERMINAL( sym ) && !parray_partof( &p->tokens, sym ) )
+
+		if( PPSYM_IS_TERMINAL( sym )
+				&& !parray_partof( &p->tokens, sym )
+					&& ( ptr = sym->name ) )
 		{
+			/* emit = strlen( ptr ) > 1 && *ptr == '@' ? ++ptr : (char*)NULL; */
+
 			pp_parser_define_token( p, sym, sym->name, PREGEX_COMP_STATIC );
+
+			/*
+			if( !sym->emit )
+				sym->emit = emit;
+			*/
+
 			gen++;
 		}
 	}

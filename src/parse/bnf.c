@@ -54,7 +54,7 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
 			if( !traverse_production( g, sym, child->child ) )
 				return (ppsym*)NULL;
 	}
-	else if( NODE_IS( node, "Ident") )
+	else if( NODE_IS( node, "Terminal") || NODE_IS( node, "Nonterminal") )
 	{
 		sprintf( name, "%.*s", node->len, node->start );
 
@@ -156,6 +156,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	{
 		if( NODE_IS( ast, "nonterm" ) )
 		{
+			/* Get nonterminal's name */
 			child = ast->child;
 			sprintf( name, "%.*s", child->len, child->start );
 
@@ -212,7 +213,8 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	char*		e;
 	ppast*		ast;
 
-	ppsym*		ident;
+	ppsym*		terminal;
+	ppsym*		nonterminal;
 	ppsym*		colon;
 	ppsym*		semi;
 	ppsym*		pipe;
@@ -244,23 +246,27 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	bnf = pp_gram_create();
 
 	/*
-		Ident : [a-z]+;
+		Terminal : [^a-z_][a-zA-Z_]*;
+		Nonterminal : [a-z_]+;
 
-		symbol : '(' alternation ')' | Ident ;
+		symbol : '(' alternation ')' | Terminal | Nonterminal ;
 		modifier : symbol | symbol '*' | symbol '+' | symbol '?' ;
 		sequence : sequence modifier | modifier ;
 		production : sequence | ;
 		alternation : alternation '|' production | production ;
 
-		nonterm : Ident ':' alternation ';';
+		nonterm : Nonterminal ':' alternation ';';
 		defs : defs nonterm | nonterm ;
 
 		grammar$ : defs ;
 	*/
 
 	/* Terminals */
-	ident = pp_sym_create( bnf, "Ident", PPFLAG_NONE );
-	ident->emit = "Ident";
+	terminal = pp_sym_create( bnf, "Terminal", PPFLAG_NONE );
+	terminal->emit = "Terminal";
+
+	nonterminal = pp_sym_create( bnf, "Nonterminal", PPFLAG_NONE );
+	nonterminal->emit = "Nonterminal";
 
 	colon = pp_sym_create( bnf, ":", PPFLAG_NONE );
 	semi = pp_sym_create( bnf, ";", PPFLAG_NONE );
@@ -292,10 +298,10 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	bnf->goal = n_grammar;
 
 	/* Productions */
-
 	p = pp_prod_create( bnf, n_symbol, brop, n_alt, brcl, (ppsym*)NULL );
 	p->emit = "inline";
-	p = pp_prod_create( bnf, n_symbol, ident, (ppsym*)NULL );
+	p = pp_prod_create( bnf, n_symbol, terminal, (ppsym*)NULL );
+	p = pp_prod_create( bnf, n_symbol, nonterminal, (ppsym*)NULL );
 
 	p = pp_prod_create( bnf, n_mod, n_symbol, (ppsym*)NULL );
 	p = pp_prod_create( bnf, n_mod, n_symbol, star, (ppsym*)NULL );
@@ -314,7 +320,8 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	pp_prod_create( bnf, n_alt, n_alt, pipe, n_prod, (ppsym*)NULL );
 	pp_prod_create( bnf, n_alt, n_prod, (ppsym*)NULL );
 
-	pp_prod_create( bnf, n_nonterm, ident, colon, n_alt, semi, (ppsym*)NULL );
+	pp_prod_create( bnf, n_nonterm, nonterminal, colon,
+							n_alt, semi, (ppsym*)NULL );
 
 	pp_prod_create( bnf, n_defs, n_defs, n_nonterm, (ppsym*)NULL );
 	pp_prod_create( bnf, n_defs, n_nonterm, (ppsym*)NULL );
@@ -325,7 +332,13 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	par = pp_parser_create( bnf );
 
 	/* Lexer */
-	pp_parser_define_token( par, ident, "[^:;|()*?+ \t\r\n]+", 0 );
+
+	/* |/(\\.|[^\\/])*REM/|\"[^\"]*\"|'[^']*') */
+	pp_parser_define_token( par, terminal,
+		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*", 0 );
+	pp_parser_define_token( par, nonterminal,
+		"[a-z_][^:;|()*?+ \t\r\n]*", 0 );
+
 	pp_parser_auto_token( par );
 
 	if( !pp_parser_parse( &ast, par, s, &e ) )

@@ -18,10 +18,18 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 	ppsym*	sym;
 	va_list	varg;
 
-	if( !( g && lhs && PPSYM_IS_NONTERMINAL( lhs ) ) )
+	if( !( g && lhs ) )
 	{
 		WRONGPARAM;
 		return (ppprod*)NULL;
+	}
+
+	if( !PPSYM_IS_NONTERMINAL( lhs ) )
+	{
+		fprintf( stderr, "%s, %d: Can't create a production; "
+							"'%s' is not a non-terminal symbol\n",
+			__FILE__, __LINE__, pp_sym_to_str( lhs ) );
+		return FALSE;
 	}
 
 	prod = (ppprod*)plist_malloc( g->prods );

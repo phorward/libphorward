@@ -171,9 +171,16 @@ ppprod* pp_sym_getprod( ppsym* sym, int n )
 	plistel*	e;
 	ppprod*		p;
 
-	if( !( sym && PPSYM_IS_NONTERMINAL( sym ) && n >= 0 ) )
+	if( !( sym && n >= 0 ) )
 	{
 		WRONGPARAM;
+		return (ppprod*)NULL;
+	}
+
+	if( !PPSYM_IS_NONTERMINAL( sym ) )
+	{
+		fprintf( stderr, "%s, %d: Symbol '%s' is not a non-terminal symbol\n",
+			__FILE__, __LINE__, pp_sym_to_str( sym ) );
 		return (ppprod*)NULL;
 	}
 
