@@ -35,6 +35,8 @@ pparser* pp_parser_create( ppgram* g )
 	if( !pp_lr_build( &p->states, &p->dfa, p->gram ) )
 		return pp_parser_free( p );
 
+	/* pp_gram_dump( stderr, g ); */ /* DEBUG! */
+
 	return p;
 }
 
@@ -52,7 +54,8 @@ pparser* pp_parser_free( pparser* p )
 	return (pparser*)NULL;
 }
 
-/** Automatically generate tokens */
+/** Automatically generate tokens and generate emit strings by parsing
+	a tiny sub-language on token basis. */
 int pp_parser_auto_token( pparser* p )
 {
 	ppsym*		sym;
@@ -60,6 +63,9 @@ int pp_parser_auto_token( pparser* p )
 	int			gen = 0;
 	char*		emit;
 	char*		ptr;
+	char*		eptr;
+	char		stopch;
+	char		buf		[ BUFSIZ + 1 ];
 
 	if( !( p ) )
 	{
@@ -71,18 +77,64 @@ int pp_parser_auto_token( pparser* p )
 	{
 		sym = (ppsym*)plist_access( e );
 
-		if( PPSYM_IS_TERMINAL( sym )
-				&& !parray_partof( &p->tokens, sym )
-					&& ( ptr = sym->name ) )
+		if( sym->flags & PPFLAG_SPECIAL || !( ptr = sym->name ) )
+			continue;
+
+		if( !sym->emit && !strspn( ptr, "'\"/" ) )
 		{
-			/* emit = strlen( ptr ) > 1 && *ptr == '@' ? ++ptr : (char*)NULL; */
+			eptr = ptr + pstrlen( ptr ) - 1;
 
-			pp_parser_define_token( p, sym, sym->name, PREGEX_COMP_STATIC );
+			while( *eptr != '@' && eptr > ptr )
+				eptr--;
 
-			/*
-			if( !sym->emit )
-				sym->emit = emit;
-			*/
+			if( *eptr == '@' && eptr > ptr )
+			{
+				if( eptr < ptr + pstrlen( ptr ) - 1 )
+					sym->emit = pstrdup( eptr + 1 );
+				else
+					sym->emit = pstrndup( ptr, eptr - ptr );
+
+				sym->flags |= PPFLAG_FREEEMIT;
+			}
+		}
+
+		if( PPSYM_IS_TERMINAL( sym ) && !parray_partof( &p->tokens, sym ) )
+		{
+			if( strspn( ptr, "'\"/" ) )
+			{
+				stopch = *ptr;
+				eptr = ptr + pstrlen( ptr ) - 1;
+
+				while( *eptr != '@' && *eptr != stopch )
+					eptr--;
+
+				if( *eptr == '@' )
+				{
+					if( !sym->emit )
+					{
+						sym->emit = pstrdup( eptr + 1 );
+						sym->flags |= PPFLAG_FREEEMIT;
+					}
+
+					eptr--;
+				}
+
+				if( eptr - ( ptr + 1 ) > BUFSIZ )
+					ptr = pstrndup( ptr + 1, eptr - ( ptr + 1 ) );
+				else
+				{
+					sprintf( buf, "%.*s", eptr - ( ptr + 1 ), ptr + 1 );
+					ptr = buf;
+				}
+
+				pp_parser_define_token( p, sym, ptr,
+					stopch != '/' ? PREGEX_COMP_STATIC : 0 );
+
+				if( ptr != buf )
+					pfree( ptr );
+			}
+			else
+				pp_parser_define_token( p, sym, sym->name, PREGEX_COMP_STATIC );
 
 			gen++;
 		}

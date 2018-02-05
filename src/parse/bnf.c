@@ -333,11 +333,18 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 
 	/* Lexer */
 
-	/* |/(\\.|[^\\/])*REM/|\"[^\"]*\"|'[^']*') */
 	pp_parser_define_token( par, terminal,
-		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*", 0 );
+		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* ident */
+		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
+																expression/ */
+		"|\"[^\"]*\"(@\\w*)?"							/* "double-quoted
+																string" */
+		"|'[^']*'(@\\w*)?",								/* 'single-quoted
+																string' */
+		0 );
 	pp_parser_define_token( par, nonterminal,
-		"[a-z_][^:;|()*?+ \t\r\n]*", 0 );
+		"[a-z_][^:;|()*?+ \t\r\n]*",					/* Ident */
+		0 );
 
 	pp_parser_auto_token( par );
 
