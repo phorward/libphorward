@@ -230,7 +230,7 @@ int plex_lex( plex* lex, char* start, char** end )
 	int		next_state;
 	char*	match		= (char*)NULL;
 	char*	ptr			= start;
-	wchar_t	ch;
+	wchar_t	ch			= ' ';
 	int		id			= 0;
 
 	PROC( "plex_lex" );
@@ -249,7 +249,7 @@ int plex_lex( plex* lex, char* start, char** end )
 
 	memset( lex->ref, 0, PREGEX_MAXREF * sizeof( prange ) );
 
-	while( state >= 0 )
+	while( ch && state >= 0 )
 	{
 		/* State accepts? */
 		if( lex->trans[ state ][ 1 ] )
