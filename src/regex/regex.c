@@ -514,7 +514,6 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 	char*			rprev;
 	char*			rpstr;
 	char*			rbegin;
-	char*			rend;
 	int				ref;
 
 	PROC( "pregex_replace" );

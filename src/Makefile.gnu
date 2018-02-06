@@ -1,7 +1,7 @@
 # This is a plain Makefile for general Phorward Foundation Toolkit development.
 # It compiles libphorward.a quickly and out of the box without autotools.
 
-CFLAGS += -g -DDEBUG -DUNICODE -DUTF8 -I.
+CFLAGS += -g -DDEBUG -DUNICODE -DUTF8 -I. -Wall
 
 AWK=awk
 LIBPHORWARD = libphorward.a

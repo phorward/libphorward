@@ -164,9 +164,7 @@ Returns the number of cycles used for normalization.
 */
 static int p_ccl_normalize( pccl* ccl )
 {
-	pccl*		nccl;
 	plistel*	e;
-	plistel*	f;
 	pcrange*	l;
 	pcrange*	r;
 	int			count		= 0;
@@ -959,11 +957,13 @@ size_t p_ccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq )
 shorthands \w, \W, \d, \D, \s and \S. If it matches, all characters are
 added to //ccl//.
 
-The function returns the number of bytes that had been read for the character.
-If no shorthand sequence could be found, it returns 0, and leaves //ccl//
+The function returns TRUE in case a shorthand has been parsed. If so,
+the pointer //str// is moved the characters consumed.
+
+If no shorthand sequence could be found, it returns FALSE, remaining //ccl//
 untouched.
 */
-size_t p_ccl_parseshorthand( pccl* ccl, char *str )
+pboolean p_ccl_parseshorthand( pccl* ccl, char **str )
 {
 	pccl*		sh;
 	pboolean	neg	= FALSE;
@@ -972,22 +972,22 @@ size_t p_ccl_parseshorthand( pccl* ccl, char *str )
 	wchar_t		end;
 
 	PROC( "p_ccl_parseshorthand" );
-	PARMS( "ccl", "%p", ccl );
-	PARMS( "str", "%s", str );
 
-	if( !ccl )
+	if( !( ccl && str && *str ) )
 	{
 		WRONGPARAM;
 		RETURN( 0 );
 	}
 
-	/* Check for shorthand */
-	if( *str == '\\' )
-	{
-		MSG( "There may be a shorthand..." );
-		VARS( "*( str + 1 )", "%c", *( str + 1 ) );
+	PARMS( "ccl", "%p", ccl );
+	PARMS( "str", "%s", *str );
 
-		switch( *( str + 1 ) )
+	/* Check for shorthand */
+	if( **str == '\\' )
+	{
+		VARS( "ch", "%c", *(*str + 1) );
+
+		switch( *(*str + 1) )
 		{
 			/* This solution is ugly and does not support any Unicode features.
 				So it would be nice to find out a cooler solution in future. */
@@ -1011,7 +1011,7 @@ size_t p_ccl_parseshorthand( pccl* ccl, char *str )
 
 			default:
 				MSG( "Not a shorthand" );
-				RETURN( 0 ); /* Not a shorthand! */
+				RETURN( FALSE ); /* Not a shorthand! */
 		}
 
 		if( neg )
@@ -1022,10 +1022,12 @@ size_t p_ccl_parseshorthand( pccl* ccl, char *str )
 
 		p_ccl_free( sh );
 		p_ccl_normalize( ccl );
-		RETURN( 2 );
+
+		*str += 2;
+		RETURN( TRUE );
 	}
 
-	RETURN( 0 );
+	RETURN( FALSE );
 }
 
 /** Parses the character-class definition provided in //ccldef// and assigns
@@ -1047,10 +1049,8 @@ The function returns TRUE on success, and FALSE on an error.
 pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 {
 	char*		cclptr;
-	pcrange		cr;
 	wchar_t		begin;
 	wchar_t		end;
-	size_t		shift;
 
 	PROC( "p_ccl_parse" );
 	PARMS( "ccl", "%p", ccl );
@@ -1070,7 +1070,7 @@ pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 	{
 		VARS( "cclptr", "%s", cclptr );
 
-		if( cclptr < ( cclptr += p_ccl_parseshorthand( ccl, cclptr ) ) )
+		if( p_ccl_parseshorthand( ccl, &cclptr ) )
 			continue;
 
 		cclptr += p_ccl_parsechar( &begin, cclptr, TRUE );

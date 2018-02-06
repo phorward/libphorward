@@ -399,7 +399,6 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 {
 	int			i;
 	char		gap		[ 100+1 ];
-	char*		ptr;
 	static char	types[][20]	= { "PREGEX_PTN_NULL", "PREGEX_PTN_CHAR",
 								"PREGEX_PTN_SUB", "PREGEX_PTN_REFSUB",
 								"PREGEX_PTN_ALT",
@@ -438,7 +437,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 
 /* Internal function for pregex_ptn_to_regex() */
 static void pregex_char_to_REGEX( char* str, int size,
-				wchar_t ch, pboolean escape, pboolean in_range )
+ 				wchar_t ch, pboolean escape, pboolean in_range )
 {
 	if( ( !in_range && ( strchr( "|()[]*+?", ch ) || ch == '.' ) ) ||
 			( in_range && ch == ']' ) )
@@ -453,7 +452,6 @@ static void pregex_char_to_REGEX( char* str, int size,
 static void p_ccl_to_REGEX( char** str, pccl* ccl )
 {
 	int				i;
-	pcrange*		cr;
 	wchar_t			cfrom;
 	char			from	[ 40 + 1 ];
 	wchar_t			cto;
@@ -639,7 +637,6 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 	pregex_nfa_st*	n_start	= (pregex_nfa_st*)NULL;
 	pregex_nfa_st*	n_end	= (pregex_nfa_st*)NULL;
 	int				ref		= 0;
-	int				i;
 
 	if( !( pattern && nfa && start && end ) )
 	{
@@ -819,7 +816,6 @@ Returns TRUE on success.
 */
 pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
 {
-	int				ret;
 	pregex_nfa_st*	start;
 	pregex_nfa_st*	end;
 	pregex_nfa_st*	first;
@@ -977,7 +973,6 @@ Returns TRUE on success.
 */
 pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 {
-	int				ret;
 	char*			ptr;
 	pregex_accept	accept;
 
@@ -1079,13 +1074,11 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 										pregex_accept* accept, int flags )
 {
 	pccl*		ccl;
-	int			ret;
 	pregex_ptn*	alter;
 	wchar_t		single;
 	char		restore;
 	char*		zero;
 	pboolean	neg		= FALSE;
-	size_t		len;
 
 	PROC( "parse_char" );
 	VARS( "**pstr", "%c", **pstr );
@@ -1182,7 +1175,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 				RETURN( FALSE );
 			}
 
-			if( !( len = p_ccl_parseshorthand( ccl, *pstr ) ) )
+			if( !p_ccl_parseshorthand( ccl, pstr ) )
 			{
 				*pstr += p_ccl_parsechar( &single, *pstr, TRUE );
 
@@ -1195,8 +1188,6 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			}
 			else
 			{
-				*pstr += len;
-
 				MSG( "Shorthand parsed" );
 				VARS( "**pstr", "%c", **pstr );
 			}
