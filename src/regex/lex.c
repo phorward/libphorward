@@ -156,6 +156,9 @@ pboolean plex_prepare( plex* lex )
 		RETURN( FALSE );
 	}
 
+
+	pregex_dfa_to_dfatab( (wchar_t***)NULL, dfa );
+
 	pregex_dfa_free( dfa );
 
 	RETURN( TRUE );
