@@ -10,7 +10,7 @@ Usage:	Parser maintainance object.
 
 #include "phorward.h"
 
-#define DEBUGLEVEL		0
+#define DEBUGLEVEL		2
 
 /** Creates a new parser object with flags //flags// and the grammar //bnf//. */
 pparser* pp_parser_create( ppgram* g )
