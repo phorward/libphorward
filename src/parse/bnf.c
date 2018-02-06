@@ -337,10 +337,8 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* ident */
 		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
 																expression/ */
-		#if 0
 		"|\"[^\"]*\"(@\\w*)?"							/* "double-quoted
 																string" */
-		#endif
 		"|'[^']*'(@\\w*)?",								/* 'single-quoted
 																string' */
 		0 );
