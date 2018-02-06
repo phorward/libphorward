@@ -61,7 +61,7 @@ pregex* pregex_create( char* pat, int flags )
 		RETURN( pregex_free( regex ) );
 
 	/* Print dfatab */
-	/* pregex_ptn_to_dfatab( (wchar_t***)NULL, ptn ); */
+	pregex_ptn_to_dfatab( (wchar_t***)NULL, ptn );
 
 	RETURN( regex );
 }

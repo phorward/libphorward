@@ -156,9 +156,6 @@ pboolean plex_prepare( plex* lex )
 		RETURN( FALSE );
 	}
 
-
-	pregex_dfa_to_dfatab( (wchar_t***)NULL, dfa );
-
 	pregex_dfa_free( dfa );
 
 	RETURN( TRUE );
@@ -261,8 +258,8 @@ int plex_lex( plex* lex, char* start, char** end )
 			match = ptr;
 			id = lex->trans[ state ][ 1 ];
 
-			if( ( lex->flags & PREGEX_RUN_NONGREEDY
-					|| lex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY ) )
+			if( lex->flags & PREGEX_RUN_NONGREEDY
+				|| lex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY )
 				break;
 		}
 

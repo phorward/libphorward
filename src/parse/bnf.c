@@ -335,13 +335,13 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 
 	pp_parser_define_token( par, terminal,
 		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* ident */
-		"|/(\\.|[^\\/])*/(@\\w+)?"						/* /regular
+		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
 																expression/ */
 		#if 0
-		"|\"[^\"]*\"(@\\w+)?"							/* "double-quoted
+		"|\"[^\"]*\"(@\\w*)?"							/* "double-quoted
 																string" */
 		#endif
-		"|'[^']*'(@\\w+)?",								/* 'single-quoted
+		"|'[^']*'(@\\w*)?",								/* 'single-quoted
 																string' */
 		0 );
 	pp_parser_define_token( par, nonterminal,
