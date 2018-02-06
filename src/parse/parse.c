@@ -10,7 +10,7 @@ Usage:	Parser maintainance object.
 
 #include "phorward.h"
 
-#define DEBUGLEVEL		2
+#define DEBUGLEVEL		0
 
 /** Creates a new parser object with flags //flags// and the grammar //bnf//. */
 pparser* pp_parser_create( ppgram* g )
@@ -96,9 +96,6 @@ int pp_parser_auto_token( pparser* p )
 					sym->emit = pstrndup( ptr, eptr - ptr );
 
 				sym->flags |= PPFLAG_FREEEMIT;
-
-
-				fprintf( stderr, "(1) Setting emit '%s' for symbol '%s'\n", sym->emit, sym->name );
 			}
 		}
 
@@ -122,8 +119,6 @@ int pp_parser_auto_token( pparser* p )
 					{
 						sym->emit = pstrdup( eptr + 1 );
 						sym->flags |= PPFLAG_FREEEMIT;
-
-						fprintf( stderr, "(2) Setting emit '%s' for symbol '%s'\n", sym->emit, sym->name );
 					}
 
 					eptr--;
@@ -137,11 +132,6 @@ int pp_parser_auto_token( pparser* p )
 					ptr = buf;
 				}
 
-				if( stopch != '/' )
-					fprintf( stderr, "(3) Creating static string '%s' for symbol '%s'\n", ptr, sym->name );
-				else
-					fprintf( stderr, "(4) Creating regex string '%s' for symbol '%s'\n", ptr, sym->name );
-
 				pp_parser_define_token( p, sym, ptr,
 					stopch != '/' ? PREGEX_COMP_STATIC : 0 );
 
@@ -149,10 +139,7 @@ int pp_parser_auto_token( pparser* p )
 					pfree( ptr );
 			}
 			else
-			{
 				pp_parser_define_token( p, sym, sym->name, PREGEX_COMP_STATIC );
-				fprintf( stderr, "(5) Creating static string '%s' for symbol '%s'\n", sym->name, sym->name );
-			}
 
 			gen++;
 		}
@@ -177,8 +164,6 @@ pboolean pp_parser_define_token( pparser* p, ppsym* sym, char* pat, int flags )
 
 	parray_push( &p->tokens, &sym );
 	plex_define( p->lex, pat, (int)parray_count( &p->tokens ), flags );
-
-
 
 	return TRUE;
 }
