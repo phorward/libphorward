@@ -910,13 +910,11 @@ pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
 
 	pregex_nfa_free( nfa );
 
-	/* travis-bug
 	if( pregex_dfa_minimize( dfa ) < 0 )
 	{
 		pregex_dfa_free( dfa );
 		RETURN( FALSE );
 	}
-	*/
 
 	RETURN( TRUE );
 }
@@ -1088,50 +1086,58 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 	char*		zero;
 	pboolean	neg		= FALSE;
 
+	PROC( "parse_char" );
+	VARS( "**pstr", "%c", **pstr );
+
 	switch( **pstr )
 	{
 		case '(':
+			MSG( "Sub expression" );
 			(*pstr)++;
 
 			if( !parse_alter( &alter, pstr, accept, flags ) )
-				return FALSE;
+				RETURN( FALSE );
 
 			if( flags & PREGEX_COMP_NOREF &&
 					!( *ptn = pregex_ptn_create_sub( alter ) ) )
-				return FALSE;
+				RETURN( FALSE );
 			else if( !( *ptn = pregex_ptn_create_refsub( alter ) ) )
-				return FALSE;
+				RETURN( FALSE );
 
 			/* Report error? */
 			if( **pstr != ')' && !( flags & PREGEX_COMP_NOERRORS ) )
 			{
 				fprintf( stderr, "Missing closing bracket in regex\n" );
-				return FALSE;
+				RETURN( FALSE );
 			}
 
 			(*pstr)++;
 			break;
 
 		case '.':
+			MSG( "Any character" );
+
 			ccl = p_ccl_create( -1, -1, (char*)NULL );
 
 			if( !( ccl && p_ccl_addrange( ccl,
 								PCCL_MIN, PCCL_MAX ) ) )
 			{
 				p_ccl_free( ccl );
-				return FALSE;
+				RETURN( FALSE );
 			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 			{
 				p_ccl_free( ccl );
-				return FALSE;
+				RETURN( FALSE );
 			}
 
 			(*pstr)++;
 			break;
 
 		case '[':
+			MSG( "Character-class definition" );
+
 			/* Find next UNESCAPED! closing bracket! */
 			for( zero = *pstr + 1; *zero && *zero != ']'; zero++ )
 				if( *zero == '\\' && *(zero + 1) )
@@ -1149,7 +1155,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 				}
 
 				if( !( ccl = p_ccl_create( -1, -1, (*pstr) + 1 ) ) )
-					return FALSE;
+					RETURN( FALSE );
 
 				if( neg )
 					p_ccl_negate( ccl );
@@ -1157,7 +1163,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 				if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 				{
 					p_ccl_free( ccl );
-					return FALSE;
+					RETURN( FALSE );
 				}
 
 				*zero = restore;
@@ -1167,37 +1173,54 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			/* No break here! */
 
 		default:
+			MSG( "Default case" );
+
 			if( !( ccl = p_ccl_create( -1, -1, (char*)NULL ) ) )
 			{
 				OUTOFMEM;
-				return FALSE;
+				RETURN( FALSE );
 			}
 
 			if( *pstr == ( *pstr += p_ccl_parseshorthand( ccl, *pstr ) ) )
 			{
 				*pstr += p_ccl_parsechar( &single, *pstr, TRUE );
 
+				MSG( "Singe character" );
+				VARS( "single", "%c", single );
+				VARS( "**pstr", "%c", **pstr );
+
 				if( !p_ccl_add( ccl, single ) )
-					return FALSE;
+					RETURN( FALSE );
 			}
+			else
+			{
+				MSG( "Shorthand parsed" );
+				VARS( "**pstr", "%c", **pstr );
+			}
+
+			VARS( "ccl", "%s", p_ccl_to_str( ccl, TRUE ) );
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 			{
 				p_ccl_free( ccl );
-				return FALSE;
+				RETURN( FALSE );
 			}
 
 			break;
 	}
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
 										pregex_accept* accept, int flags )
 {
+	PROC( "parse_factor" );
+
 	if( !parse_char( ptn, pstr, accept, flags ) )
-		return FALSE;
+		RETURN( FALSE );
+
+	VARS( "**pstr", "%c", **pstr );
 
 	switch( **pstr )
 	{
@@ -1205,15 +1228,20 @@ static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
 		case '+':
 		case '?':
 
+			MSG( "Modifier matched" );
+
 			switch( **pstr )
 			{
 				case '*':
+					MSG( "Kleene star" );
 					*ptn = pregex_ptn_create_kle( *ptn );
 					break;
 				case '+':
+					MSG( "Positive plus" );
 					*ptn = pregex_ptn_create_pos( *ptn );
 					break;
 				case '?':
+					MSG( "Optional quest" );
 					*ptn = pregex_ptn_create_opt( *ptn );
 					break;
 
@@ -1222,7 +1250,7 @@ static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
 			}
 
 			if( ! *ptn )
-				return FALSE;
+				RETURN( FALSE );
 
 			(*pstr)++;
 			break;
@@ -1231,7 +1259,7 @@ static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
 			break;
 	}
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
@@ -1239,8 +1267,10 @@ static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
 {
 	pregex_ptn*	next;
 
+	PROC( "parse_sequence" );
+
 	if( !parse_factor( ptn, pstr, accept, flags ) )
-		return FALSE;
+		RETURN( FALSE );
 
 	while( !( **pstr == '|' || **pstr == ')' || **pstr == '\0' ) )
 	{
@@ -1251,12 +1281,12 @@ static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
 		}
 
 		if( !parse_factor( &next, pstr, accept, flags ) )
-			return FALSE;
+			RETURN( FALSE );
 
 		*ptn = pregex_ptn_create_seq( *ptn, next, (pregex_ptn*)NULL );
 	}
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 static pboolean parse_alter( pregex_ptn** ptn, char** pstr,
@@ -1264,21 +1294,24 @@ static pboolean parse_alter( pregex_ptn** ptn, char** pstr,
 {
 	pregex_ptn*	seq;
 
+	PROC( "parse_alter" );
+
 	if( !parse_sequence( ptn, pstr, accept, flags ) )
-		return FALSE;
+		RETURN( FALSE );
 
 	while( **pstr == '|' )
 	{
+		MSG( "Alternative" );
 		(*pstr)++;
 
 		if( !parse_sequence( &seq, pstr, accept, flags ) )
-			return FALSE;
+			RETURN( FALSE );
 
 		if( !( *ptn = pregex_ptn_create_alt( *ptn, seq, (pregex_ptn*)NULL ) ) )
-			return FALSE;
+			RETURN( FALSE );
 	}
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 /*COD_ON*/

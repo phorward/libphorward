@@ -8,5 +8,5 @@ sudo make install
 #pparse "f: /\\d+/@int;"  "123"
 
 cc -o test test.c -lphorward
-TRACEMODULE="dfa.c" ./test
+TRACEMODULE="ptn.c" ./test
 
