@@ -3,5 +3,4 @@ set -ex
 ./configure
 make
 sudo make install
-pparse "abc: def ghi jkl;"
-#pparse "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;" "1+2*(3+4)+5"
+pparse "f: /\d+/@int | '(' e ')' ; mul@: t '*' f ; t: mul@ | f; add@: e '+' t; e: add@ | t ;"  "1+2*3+4*5"
