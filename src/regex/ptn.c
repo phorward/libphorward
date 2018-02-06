@@ -1085,6 +1085,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 	char		restore;
 	char*		zero;
 	pboolean	neg		= FALSE;
+	size_t		len;
 
 	PROC( "parse_char" );
 	VARS( "**pstr", "%c", **pstr );
@@ -1181,7 +1182,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 				RETURN( FALSE );
 			}
 
-			if( *pstr == ( *pstr += p_ccl_parseshorthand( ccl, *pstr ) ) )
+			if( !( len = p_ccl_parseshorthand( ccl, *pstr ) ) )
 			{
 				*pstr += p_ccl_parsechar( &single, *pstr, TRUE );
 
@@ -1194,6 +1195,8 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			}
 			else
 			{
+				*pstr += len;
+
 				MSG( "Shorthand parsed" );
 				VARS( "**pstr", "%c", **pstr );
 			}
