@@ -60,12 +60,13 @@ int pp_parser_auto_token( pparser* p )
 {
 	ppsym*		sym;
 	plistel*	e;
-	int			gen = 0;
+	int			gen 		= 0;
+	int			i;
 	char*		emit;
 	char*		ptr;
 	char*		eptr;
 	char		stopch;
-	char		buf		[ BUFSIZ + 1 ];
+	char		buf			[ BUFSIZ + 1 ];
 
 	if( !( p ) )
 	{
@@ -101,7 +102,11 @@ int pp_parser_auto_token( pparser* p )
 			}
 		}
 
-		if( PPSYM_IS_TERMINAL( sym ) && !parray_partof( &p->tokens, sym ) )
+		for( i = 0; i < parray_count( &p->tokens ); i++ )
+			if( sym == *((ppsym**)parray_get( &p->tokens, i )) )
+				break;
+
+		if( PPSYM_IS_TERMINAL( sym ) && i == parray_count( &p->tokens ) )
 		{
 			if( strspn( ptr, "'\"/" ) )
 			{

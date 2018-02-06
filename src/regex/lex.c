@@ -331,6 +331,10 @@ int plex_lex( plex* lex, char* start, char** end )
 						state, ch, ch, next_state );
 		}
 
+		fprintf( stderr,
+			"state %d, char %d (>%c<), next state %d\n",
+				state, ch, ch, next_state );
+
 		state = next_state;
 	}
 
