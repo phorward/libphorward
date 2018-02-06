@@ -978,12 +978,15 @@ size_t p_ccl_parseshorthand( pccl* ccl, char *str )
 	if( !ccl )
 	{
 		WRONGPARAM;
-		return 0;
+		RETURN( 0 );
 	}
 
 	/* Check for shorthand */
 	if( *str == '\\' )
 	{
+		MSG( "There may be a shorthand..." );
+		VARS( "*( str + 1 )", "%c", *( str + 1 ) );
+
 		switch( *( str + 1 ) )
 		{
 			/* This solution is ugly and does not support any Unicode features.
@@ -1007,7 +1010,8 @@ size_t p_ccl_parseshorthand( pccl* ccl, char *str )
 				break;
 
 			default:
-				return 0; /* Not a shorthand! */
+				MSG( "Not a shorthand" );
+				RETURN( 0 ); /* Not a shorthand! */
 		}
 
 		if( neg )
@@ -1018,10 +1022,10 @@ size_t p_ccl_parseshorthand( pccl* ccl, char *str )
 
 		p_ccl_free( sh );
 		p_ccl_normalize( ccl );
-		return 2;
+		RETURN( 2 );
 	}
 
-	return 0;
+	RETURN( 0 );
 }
 
 /** Parses the character-class definition provided in //ccldef// and assigns
