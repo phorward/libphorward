@@ -910,7 +910,7 @@ pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
 
 	pregex_nfa_free( nfa );
 
-	/*
+	/* travis-bug
 	if( pregex_dfa_minimize( dfa ) < 0 )
 	{
 		pregex_dfa_free( dfa );
