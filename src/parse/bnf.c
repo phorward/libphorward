@@ -207,7 +207,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 */
 pboolean pp_gram_from_bnf( ppgram* g, char* source )
 {
-	pparser*	par;
+	pppar*	par;
 	ppgram*		bnf;
 	char*		s = source;
 	char*		e;
@@ -329,11 +329,11 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	pp_prod_create( bnf, n_grammar, n_defs, (ppsym*)NULL );
 
 	/* Setup a parser */
-	par = pp_parser_create( bnf );
+	par = pp_par_create( bnf );
 
 	/* Lexer */
 
-	pp_parser_define_token( par, terminal,
+	pp_par_define_token( par, terminal,
 		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* ident */
 		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
 																expression/ */
@@ -342,15 +342,15 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 		"|'[^']*'(@\\w*)?",								/* 'single-quoted
 																string' */
 		0 );
-	pp_parser_define_token( par, nonterminal,
+	pp_par_define_token( par, nonterminal,
 		"[a-z_][^:;|()*?+ \t\r\n]*",					/* Ident */
 		0 );
 
-	pp_parser_auto_token( par );
+	pp_par_auto_token( par );
 
-	if( !pp_parser_parse( &ast, par, s, &e ) )
+	if( !pp_par_parse( &ast, par, s, &e ) )
 	{
-		pp_parser_free( par );
+		pp_par_free( par );
 		pp_gram_free( bnf );
 		return FALSE;
 	}
@@ -360,7 +360,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	if( !ast_to_gram( g, ast ) )
 		return FALSE;
 
-	pp_parser_free( par );
+	pp_par_free( par );
 	pp_gram_free( bnf );
 	pp_ast_free( ast );
 

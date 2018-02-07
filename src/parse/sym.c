@@ -28,6 +28,12 @@ ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags )
 		return (ppsym*)NULL;
 	}
 
+	if( g->flags & PPFLAG_FROZEN )
+	{
+		fprintf( stderr, "Grammar is frozen, can't create symbols\n" );
+		return (ppsym*)NULL;
+	}
+
 	if( name && pp_sym_get_by_name( g, name ) )
 	{
 		fprintf( stderr, "Symbol '%s' already exists in this grammar\n", name );
@@ -88,10 +94,15 @@ ppsym* pp_sym_drop( ppsym* sym )
 {
 	plistel* 	e;
 	ppprod*		p;
-	int			i;
 
 	if( !sym )
 		return (ppsym*)NULL;
+
+	if( sym->grm->flags & PPFLAG_FROZEN )
+	{
+		fprintf( stderr, "Grammar is frozen, can't delete symbol\n" );
+		return sym;
+	}
 
 	/* Remove all references from other productions */
 	for( e = plist_first( sym->grm->prods ); e; )
@@ -114,9 +125,9 @@ ppsym* pp_sym_drop( ppsym* sym )
 
 /** Get the //n//th symbol from grammar //g//.
 Returns (ppsym*)NULL if no symbol was found. */
-ppsym* pp_sym_get( ppgram* g, int n )
+ppsym* pp_sym_get( ppgram* g, unsigned int n )
 {
-	if( !( g && n >= 0 ) )
+	if( !( g ) )
 	{
 		WRONGPARAM;
 		return (ppsym*)NULL;
@@ -166,12 +177,12 @@ ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name )
 
 Returns (ppprod*)NULL if the production is not found or the symbol is
 configured differently. */
-ppprod* pp_sym_getprod( ppsym* sym, int n )
+ppprod* pp_sym_getprod( ppsym* sym, unsigned int n )
 {
 	plistel*	e;
 	ppprod*		p;
 
-	if( !( sym && n >= 0 ) )
+	if( !( sym ) )
 	{
 		WRONGPARAM;
 		return (ppprod*)NULL;
@@ -215,7 +226,7 @@ char* pp_sym_to_str( ppsym* sym )
 		{
 			sym->strval = (char*)malloc( 4 + 1 * sizeof( char ) );
 			sprintf( sym->strval, "%c%03d",
-				PPSYM_IS_TERMINAL( sym ) ? "T" : "n", sym->idx );
+				PPSYM_IS_TERMINAL( sym ) ? 'T' : 'n', sym->idx );
 		}
 	}
 

@@ -397,6 +397,8 @@ ppgram* pp_gram_free( ppgram* g )
 	if( !g )
 		return (ppgram*)NULL;
 
+	g->flags &= ~PPFLAG_FROZEN;
+
 	/* Erase symbols */
 	while( plist_count( g->symbols ) )
 		pp_sym_free( (ppsym*)plist_access( plist_first( g->symbols ) ) );

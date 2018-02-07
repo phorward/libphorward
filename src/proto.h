@@ -185,11 +185,11 @@ ppgram* pp_gram_free( ppgram* g );
 pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 
 /* parse/parse.c */
-pparser* pp_parser_create( ppgram* g );
-pparser* pp_parser_free( pparser* p );
-int pp_parser_auto_token( pparser* p );
-pboolean pp_parser_define_token( pparser* p, ppsym* sym, char* pat, int flags );
-pboolean pp_parser_parse( ppast** root, pparser* p, char* start, char** end );
+pppar* pp_par_create( ppgram* g );
+pppar* pp_par_free( pppar* p );
+int pp_par_auto_token( pppar* p );
+pboolean pp_par_define_token( pppar* p, ppsym* sym, char* pat, int flags );
+pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end );
 
 /* parse/prod.c */
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
@@ -204,10 +204,10 @@ char* pp_prod_to_str( ppprod* p );
 ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags );
 ppsym* pp_sym_free( ppsym* sym );
 ppsym* pp_sym_drop( ppsym* sym );
-ppsym* pp_sym_get( ppgram* g, int n );
+ppsym* pp_sym_get( ppgram* g, unsigned int n );
 ppsym* pp_sym_get_by_name( ppgram* g, char* name );
 ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
-ppprod* pp_sym_getprod( ppsym* sym, int n );
+ppprod* pp_sym_getprod( ppsym* sym, unsigned int n );
 char* pp_sym_to_str( ppsym* sym );
 
 /* regex/dfa.c */

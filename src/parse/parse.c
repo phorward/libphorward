@@ -13,27 +13,30 @@ Usage:	Parser maintainance object.
 #define DEBUGLEVEL		0
 
 /** Creates a new parser object with flags //flags// and the grammar //bnf//. */
-pparser* pp_parser_create( ppgram* g )
+pppar* pp_par_create( ppgram* g )
 {
-	pparser*	p;
+	pppar*	p;
 
 	if( !g )
 	{
 		WRONGPARAM;
-		return (pparser*)NULL;
+		return (pppar*)NULL;
 	}
 
-	p = (pparser*)pmalloc( sizeof( pparser ) );
+	p = (pppar*)pmalloc( sizeof( pppar ) );
 
-	/* Init */
-	parray_init( &p->tokens, sizeof( ppsym* ), 0 );
+	/* Token mapping */
+	p->ntokens = p->tokens = (ppsym**)pmalloc(
+								( plist_count( g->symbols ) + 1 )
+									* sizeof( ppsym* ) );
+	g->flags |= PPFLAG_FROZEN;
 
 	/* Grammar */
 	p->gram = g;
 	pp_gram_prepare( p->gram );
 
 	if( !pp_lr_build( &p->states, &p->dfa, p->gram ) )
-		return pp_parser_free( p );
+		return pp_par_free( p );
 
 	/* pp_gram_dump( stderr, g ); */ /* DEBUG! */
 
@@ -41,28 +44,27 @@ pparser* pp_parser_create( ppgram* g )
 }
 
 /** Free parser //par//. */
-pparser* pp_parser_free( pparser* p )
+pppar* pp_par_free( pppar* p )
 {
 	if( !p )
-		return (pparser*)NULL;
+		return (pppar*)NULL;
 
 	plex_free( p->lex );
 
-	parray_erase( &p->tokens );
+	pfree( p->tokens );
 	pfree( p );
 
-	return (pparser*)NULL;
+	return (pppar*)NULL;
 }
 
 /** Automatically generate tokens and generate emit strings by parsing
 	a tiny sub-language on token basis. */
-int pp_parser_auto_token( pparser* p )
+int pp_par_auto_token( pppar* p )
 {
+	ppsym**		tok;
 	ppsym*		sym;
 	plistel*	e;
 	int			gen 		= 0;
-	int			i;
-	char*		emit;
 	char*		ptr;
 	char*		eptr;
 	char		stopch;
@@ -99,11 +101,11 @@ int pp_parser_auto_token( pparser* p )
 			}
 		}
 
-		for( i = 0; i < parray_count( &p->tokens ); i++ )
-			if( sym == *((ppsym**)parray_get( &p->tokens, i )) )
+		for( tok = p->tokens; tok < p->ntokens; tok++ )
+			if( sym == *tok )
 				break;
 
-		if( PPSYM_IS_TERMINAL( sym ) && i == parray_count( &p->tokens ) )
+		if( PPSYM_IS_TERMINAL( sym ) && tok == p->ntokens )
 		{
 			if( strspn( ptr, "'\"/" ) )
 			{
@@ -128,18 +130,18 @@ int pp_parser_auto_token( pparser* p )
 					ptr = pstrndup( ptr + 1, eptr - ( ptr + 1 ) );
 				else
 				{
-					sprintf( buf, "%.*s", eptr - ( ptr + 1 ), ptr + 1 );
+					sprintf( buf, "%.*s", (int)( eptr - ( ptr + 1 ) ), ptr + 1 );
 					ptr = buf;
 				}
 
-				pp_parser_define_token( p, sym, ptr,
+				pp_par_define_token( p, sym, ptr,
 					stopch != '/' ? PREGEX_COMP_STATIC : 0 );
 
 				if( ptr != buf )
 					pfree( ptr );
 			}
 			else
-				pp_parser_define_token( p, sym, sym->name, PREGEX_COMP_STATIC );
+				pp_par_define_token( p, sym, sym->name, PREGEX_COMP_STATIC );
 
 			gen++;
 		}
@@ -149,10 +151,8 @@ int pp_parser_auto_token( pparser* p )
 }
 
 /** Define token */
-pboolean pp_parser_define_token( pparser* p, ppsym* sym, char* pat, int flags )
+pboolean pp_par_define_token( pppar* p, ppsym* sym, char* pat, int flags )
 {
-	plistel*		e;
-
 	if( !( p && sym && pat ) )
 	{
 		WRONGPARAM;
@@ -162,8 +162,8 @@ pboolean pp_parser_define_token( pparser* p, ppsym* sym, char* pat, int flags )
 	if( !p->lex )
 		p->lex = plex_create( 0 );
 
-	parray_push( &p->tokens, &sym );
-	plex_define( p->lex, pat, (int)parray_count( &p->tokens ), flags );
+	*(p->ntokens++) = sym;
+	plex_define( p->lex, pat, (int)( p->ntokens - p->tokens ), flags );
 
 	return TRUE;
 }
@@ -205,7 +205,7 @@ typedef struct
 } pplrse;
 
 
-static ppsym* pp_parser_scan( pparser* p, char** start, char** end )
+static ppsym* pp_par_scan( pppar* p, char** start, char** end )
 {
 	ppsym*	sym;
 	int		id;
@@ -216,7 +216,7 @@ static ppsym* pp_parser_scan( pparser* p, char** start, char** end )
 
 
 	if( ( *start = plex_next( p->lex, *start, &id, end ) ) )
-		sym = *((ppsym**)parray_get( &p->tokens, id - 1 ));
+		sym = p->tokens[ id - 1 ];
 	else
 		sym = p->gram->eof;
 
@@ -234,25 +234,20 @@ The function uses the parsing method defined when then parser was created.
 //end// receives a pointer to the position where the parser stopped.
 
 It returns an abstract syntax tree to //root// on success. */
-pboolean pp_parser_parse( ppast** root, pparser* p, char* start, char** end )
+pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 {
 	int			i;
-	int			id;
 	int			row		= 1;
 	int			col		= 1;
 	int			lrow;
 	int			lcol;
 	char*		lstart;
-	ppsym*		lhs;
 	ppsym*		sym;
-	plistel*	e;
 	parray*		stack;
-	pplrse		item;
 	pplrse*		tos;
 	int			shift;
 	int			reduce;
 	ppprod*		prod;
-	pboolean	token;
 	ppast*		node;
 
 	if( !( p && start && end ) )
@@ -273,7 +268,7 @@ pboolean pp_parser_parse( ppast** root, pparser* p, char* start, char** end )
 
 	/* Read token */
 	*end = start;
-	sym = pp_parser_scan( p, &start, end );
+	sym = pp_par_scan( p, &start, end );
 
 	do
 	{
@@ -372,7 +367,7 @@ pboolean pp_parser_parse( ppast** root, pparser* p, char* start, char** end )
 
 			/* Read next token */
 			start = *end;
-			sym = pp_parser_scan( p, &start, end );
+			sym = pp_par_scan( p, &start, end );
 		}
 
 		/* Reduce */

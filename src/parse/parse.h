@@ -28,6 +28,7 @@ typedef struct _ppast		ppast;
 #define PPFLAG_FREEEMIT		1024
 #define PPFLAG_SPECIAL		2048
 #define PPFLAG_FINALIZED	4096
+#define PPFLAG_FROZEN		8192
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -117,13 +118,15 @@ typedef struct
 	ppgram*					gram;		/* Grammar */
 
 	/* Parser */
-	int						states;		/* States count */
+	unsigned int			states;		/* States count */
 	unsigned int**			dfa;		/* Parse table */
 
 	/* Lexical analyzer */
-	parray					tokens;		/* Token order */
+	ppsym**					tokens;
+	ppsym**					ntokens;
+
 	plex*					lex;		/* Lexical analyzer */
 
 	unsigned int			(*lexfn)( char** start, char** end ); /* callback */
 
-} pparser;
+} pppar;

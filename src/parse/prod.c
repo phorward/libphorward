@@ -24,12 +24,18 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 		return (ppprod*)NULL;
 	}
 
+	if( g->flags & PPFLAG_FROZEN )
+	{
+		fprintf( stderr, "Grammar is frozen, can't create productions\n" );
+		return (ppprod*)NULL;
+	}
+
 	if( !PPSYM_IS_NONTERMINAL( lhs ) )
 	{
 		fprintf( stderr, "%s, %d: Can't create a production; "
 							"'%s' is not a non-terminal symbol\n",
 			__FILE__, __LINE__, pp_sym_to_str( lhs ) );
-		return FALSE;
+		return (ppprod*)NULL;
 	}
 
 	prod = (ppprod*)plist_malloc( g->prods );
@@ -56,6 +62,13 @@ ppprod* pp_prod_free( ppprod* p )
 {
 	if( !p )
 		return (ppprod*)NULL;
+
+
+	if( p->grm->flags & PPFLAG_FROZEN )
+	{
+		fprintf( stderr, "Grammar is frozen, can't delete production\n" );
+		return p;
+	}
 
 	p->grm->flags &= ~PPFLAG_FINALIZED;
 
@@ -93,6 +106,13 @@ pboolean pp_prod_append( ppprod* p, ppsym* sym )
 		return FALSE;
 	}
 
+
+	if( p->grm->flags & PPFLAG_FROZEN )
+	{
+		fprintf( stderr, "Grammar is frozen, can't add items to production\n" );
+		return FALSE;
+	}
+
 	plist_push( p->rhs, sym );
 
 	p->grm->flags &= ~PPFLAG_FINALIZED;
@@ -112,6 +132,12 @@ int pp_prod_remove( ppprod* p, ppsym* sym )
 	{
 		WRONGPARAM;
 		return FALSE;
+	}
+
+	if( p->grm->flags & PPFLAG_FROZEN )
+	{
+		fprintf( stderr, "Grammar is frozen, can't delete symbol\n" );
+		return -1;
 	}
 
 	p->grm->flags &= ~PPFLAG_FINALIZED;

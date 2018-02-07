@@ -38,7 +38,7 @@ int main( int argc, char** argv )
 	int			r		= 0;
 	ppast*		a		= (ppast*)NULL;
 	ppgram*		g;
-	pparser*	p;
+	pppar*		p;
 	char*		gfile	= "grammar";
 	char*		gstr	= (char*)NULL;
 	char*		ifile;
@@ -116,8 +116,8 @@ int main( int argc, char** argv )
 	if( dg )
 		pp_gram_dump( stdout, g );
 
-	p = pp_parser_create( g );
-	pp_parser_auto_token( p );
+	p = pp_par_create( g );
+	pp_par_auto_token( p );
 
 	lm = argc == next;
 	i = 0;
@@ -161,7 +161,7 @@ int main( int argc, char** argv )
 		{
 			e = s;
 
-			if( pp_parser_parse( &a, p, s, &e ) )
+			if( pp_par_parse( &a, p, s, &e ) )
 			{
 				switch( r )
 				{
