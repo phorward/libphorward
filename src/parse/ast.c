@@ -121,7 +121,8 @@ void pp_ast_dump( FILE* stream, ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stream, " " );
 
-		fprintf( stream, "{ %s >%.*s<\n", ast->emit, ast->len, ast->start );
+		fprintf( stream, "{ %s >%.*s<\n",
+			ast->emit, (int)ast->len, ast->start );
 
 		if( ast->child )
 		{
@@ -133,7 +134,8 @@ void pp_ast_dump( FILE* stream, ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stream, " " );
 
-		fprintf( stream, "} %s >%.*s<\n", ast->emit, ast->len, ast->start );
+		fprintf( stream, "} %s >%.*s<\n",
+			ast->emit, (int)ast->len, ast->start );
 
 		ast = ast->next;
 	}
@@ -155,7 +157,7 @@ void pp_ast_dump_short( FILE* stream, ppast* ast )
 		fprintf( stream, "%s", ast->emit );
 
 		if( PPSYM_IS_TERMINAL( ast->sym ) || ast->sym->flags & PPFLAG_LEXEM )
-			fprintf( stream, " (%.*s)\n", ast->len, ast->start );
+			fprintf( stream, " (%.*s)\n", (int)ast->len, ast->start );
 		else
 			fprintf( stream, "\n" );
 
@@ -217,7 +219,7 @@ void pp_ast_dump_json( FILE* stream, ppast* ast )
 		}
 
 		/* Position */
-		fprintf( stream, ",\"row\":%d,\"column\":%d", node->row, node->col );
+		fprintf( stream, ",\"row\":%ld,\"column\":%ld", node->row, node->col );
 
 		/* Children */
 		if( node->child )
@@ -249,7 +251,7 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 			fprintf( stream, "] " );
 		}
 		else
-			fprintf( stream, "'%.*s' ", ast->len, ast->start );
+			fprintf( stream, "'%.*s' ", (int)ast->len, ast->start );
 
 		ast = ast->next;
 	}

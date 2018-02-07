@@ -56,7 +56,7 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
 	}
 	else if( NODE_IS( node, "Terminal") || NODE_IS( node, "Nonterminal") )
 	{
-		sprintf( name, "%.*s", node->len, node->start );
+		sprintf( name, "%.*s", (int)node->len, node->start );
 
 		if( !( sym = pp_sym_get_by_name( g, name ) ) )
 			sym = pp_sym_create( g, name, PPFLAG_FREENAME );
@@ -76,12 +76,8 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 	ppsym*		sym;
 	ppsym*		csym;
 	ppprod*		prod;
-	ppprod*		popt;
-	ppast*		child;
 	char*		str;
 	char		name		[ NAMELEN * 2 + 1 ];
-	int			i;
-	plistel*	e;
 
 	prod = pp_prod_create( g, lhs, (ppsym*)NULL );
 
@@ -152,13 +148,13 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	ppast*		child;
 	char		name		[ NAMELEN * 2 + 1 ];
 
-	for( ast; ast; ast = ast->next )
+	for( ; ast; ast = ast->next )
 	{
 		if( NODE_IS( ast, "nonterm" ) )
 		{
 			/* Get nonterminal's name */
 			child = ast->child;
-			sprintf( name, "%.*s", child->len, child->start );
+			sprintf( name, "%.*s", (int)child->len, child->start );
 
 			/* Create the non-terminal symbol */
 			if( !( sym = pp_sym_get_by_name( g, name ) ) )

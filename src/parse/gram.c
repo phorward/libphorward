@@ -46,7 +46,6 @@ pboolean pp_gram_prepare( ppgram* g )
 {
 	plistel*		e;
 	plistel*		er;
-	plistel*		ep;
 	ppprod*			prod;
 	ppprod*			cprod;
 	ppsym*			sym;
@@ -216,9 +215,9 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 	plistel*	f;
 	ppprod*		p;
 	ppsym*		s;
-	size_t		maxlhslen	= 0;
-	size_t		maxemitlen	= 0;
-	size_t		maxsymlen	= 0;
+	int			maxlhslen	= 0;
+	int			maxemitlen	= 0;
+	int			maxsymlen	= 0;
 
 	plist_for( g->symbols, e )
 	{
@@ -295,13 +294,12 @@ char* pp_gram_to_str( ppgram* grm )
 	ppsym*		sym;
 	ppsym*		psym;
 	ppprod*		prod;
-	size_t		maxlhslen	= 0;
-	size_t		maxsymlen	= 0;
+	int			maxlhslen	= 0;
+	int			maxsymlen	= 0;
 	plistel*	e;
 	plistel*	f;
 	plistel*	g;
 	char		name		[ NAMELEN + 3 + 1 ];
-	char*		symname;
 	pboolean	first;
 
 	if( !grm )
@@ -390,10 +388,6 @@ char* pp_gram_to_str( ppgram* grm )
 /** Frees grammar //g// and all its related memory. */
 ppgram* pp_gram_free( ppgram* g )
 {
-	plistel*	e;
-	ppsym*		s;
-	ppprod*		p;
-
 	if( !g )
 		return (ppgram*)NULL;
 

@@ -125,20 +125,6 @@ static void pp_lritems_print( plist* items, char* what )
 	}
 }
 
-/* Debug for lookahead */
-static void pp_lritem_lookahead_print( plist* list )
-{
-	plistel*	e;
-	ppsym*		s;
-
-	fprintf( stderr, "[[" );
-
-	plist_for( list, e )
-		fprintf( stderr, " %s", pp_sym_to_str( (ppsym*)plist_access( e ) ) );
-
-	fprintf( stderr, " ]]\n" );
-}
-
 /* Priority sort function for the lookahead-sets */
 static int pp_lritem_lookahead_sort( plist* list, plistel* el, plistel* er )
 {
@@ -310,18 +296,6 @@ static void pp_lrstate_print( pplrstate* st )
 	}
 }
 
-static void pp_lr_print( plist* states )
-{
-	plistel*	e;
-	pplrstate*	st;
-
-	plist_for( states, e )
-	{
-		st = (pplrstate*)plist_access( e );
-		pp_lrstate_print( st );
-	}
-}
-
 static pboolean lr_compare( plist* set1, plist* set2 )
 {
 	plistel*	e;
@@ -390,7 +364,6 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 	plistel*		e;
 	plistel*		f;
 	plistel*		g;
-	plistel*		h;
 	int				i;
 	int				j;
 	int				cnt;
@@ -399,8 +372,8 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 	pboolean		printed;
 
 	PROC( "pp_parser_lr_closure" );
-	PARMS( "states", "%p", states );
 	PARMS( "gram", "%p", gram );
+	PARMS( "optimize", "%s", BOOLEAN_STR( optimize ) );
 
 	if( !( gram ) )
 	{
