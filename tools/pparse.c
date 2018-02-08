@@ -19,6 +19,8 @@ void help( char** argv )
 	"   grammar                   Grammar to create a parser from.\n"
 	"   input                     Input to be processed by the parser.\n\n"
 
+	"   -f  --format  TYPE        Which input type to use, either\n"
+	"                             ebnf (default), bnf\n"
 	"   -G                        Dump constructed grammar\n"
 	"   -h  --help                Show this help, and exit.\n"
 	"   -r  --render  RENDERER    Use AST renderer RENDERER:\n"
@@ -35,6 +37,7 @@ int main( int argc, char** argv )
 	pboolean	verbose	= FALSE;
 	pboolean	lm		= FALSE;
 	pboolean	dg		= FALSE;
+	pboolean	ebnf	= TRUE;
 	int			r		= 0;
 	ppast*		a		= (ppast*)NULL;
 	ppgram*		g;
@@ -53,11 +56,24 @@ int main( int argc, char** argv )
 	char*		param;
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"Ghr:vV",
-						"renderer: help verbose version", i ) )
+						"f:Ghr:vV",
+						"format: renderer: help verbose version", i ) )
 							== 0; i++ )
 	{
-		if( !strcmp(opt, "G" ) )
+		if( !strcmp( opt, "format" ) || !strcmp( opt, "f" ) )
+		{
+			if( pstrcasecmp( param, "ebnf" ) == 0 )
+				ebnf = TRUE;
+			else if( pstrcasecmp( param, "bnf" ) == 0 )
+				ebnf = FALSE;
+			else
+			{
+				fprintf( stderr, "Unknown format specified, "
+									"either 'bnf' or 'ebnf' allowed\n" );
+				return 1;
+			}
+		}
+		else if( !strcmp(opt, "G" ) )
 			dg = TRUE;
 		else if( !strcmp( opt, "help" ) || !strcmp( opt, "h" ) )
 		{
@@ -101,7 +117,10 @@ int main( int argc, char** argv )
 	if( verbose )
 		printf( "Parsing grammar from '%s'\n", gfile );
 
-	if( !( ( g = pp_gram_create() ) && pp_gram_from_bnf( g, gstr ) ) )
+	g = pp_gram_create();
+
+	if( ( ebnf && !pp_gram_from_ebnf( g, gstr ) )
+		|| ( !ebnf && !pp_gram_from_bnf( g, gstr ) ) )
 	{
 		fprintf( stderr, "%s: Parse error in >%s<\n", gfile, gstr );
 		return 1;

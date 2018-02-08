@@ -173,6 +173,7 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
 /* parse/bnf.c */
 pboolean pp_gram_from_bnf( ppgram* g, char* source );
+pboolean pp_gram_from_ebnf( ppgram* g, char* source );
 
 /* parse/gram.c */
 ppgram* pp_gram_create( void );

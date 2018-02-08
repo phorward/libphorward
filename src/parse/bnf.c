@@ -196,15 +196,173 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	return TRUE;
 }
 
-/** Compiles a grammar definition into a grammar.
+/** Compiles a Backus-Naur-Format definition into a grammar.
 
 //g// is the grammar that receives the result of the parse.
+This grammar is extended to new definitions when it already contains symbols.
+
 //source// is the BNF definition string that defines the grammar.
+
+The function returns TRUE in case the grammar could be compiled,
+FALSE otherwise.
+
+**Grammar:**
+```
+symbol : Terminal | Nonterminal ;
+sequence : sequence symbol | symbol ;
+production : sequence | ;
+alternation : alternation '|' production | production ;
+
+nonterm : Nonterminal ':' alternation ';';
+defs : defs nonterm | nonterm ;
+
+grammar$ : defs ;
+```
 */
 pboolean pp_gram_from_bnf( ppgram* g, char* source )
 {
-	pppar*	par;
+	pppar*		par;
 	ppgram*		bnf;
+	char*		s = source;
+	char*		e;
+	ppast*		ast;
+
+	ppsym*		terminal;
+	ppsym*		nonterminal;
+	ppsym*		colon;
+	ppsym*		semi;
+	ppsym*		pipe;
+
+	ppsym*		n_symbol;
+	ppsym*		n_seq;
+	ppsym*		n_prod;
+	ppsym*		n_alt;
+	ppsym*		n_nonterm;
+	ppsym*		n_defs;
+	ppsym*		n_grammar;
+
+	if( !( g && source ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	/* Define a grammar for BNF */
+
+	bnf = pp_gram_create();
+
+	/* Terminals */
+	terminal = pp_sym_create( bnf, "Terminal", PPFLAG_NONE );
+	terminal->emit = "Terminal";
+
+	nonterminal = pp_sym_create( bnf, "Nonterminal", PPFLAG_NONE );
+	nonterminal->emit = "Nonterminal";
+
+	colon = pp_sym_create( bnf, ":", PPFLAG_NONE );
+	semi = pp_sym_create( bnf, ";", PPFLAG_NONE );
+	pipe = pp_sym_create( bnf, "|", PPFLAG_NONE );
+
+	/* Nonterminals */
+	n_symbol = pp_sym_create( bnf, "symbol", PPFLAG_NONE );
+	n_symbol->emit = "symbol";
+
+	n_seq = pp_sym_create( bnf, "sequence", PPFLAG_NONE );
+
+	n_prod = pp_sym_create( bnf, "production", PPFLAG_NONE );
+	n_prod->emit = "production";
+
+	n_alt = pp_sym_create( bnf, "alternation", PPFLAG_NONE );
+
+	n_nonterm = pp_sym_create( bnf, "nonterm", PPFLAG_NONE );
+	n_nonterm->emit = "nonterm";
+
+	n_defs = pp_sym_create( bnf, "defs", PPFLAG_NONE );
+
+	n_grammar = pp_sym_create( bnf, "grammar", PPFLAG_NONE );
+	bnf->goal = n_grammar;
+
+	/* Productions */
+	pp_prod_create( bnf, n_symbol, terminal, (ppsym*)NULL );
+	pp_prod_create( bnf, n_symbol, nonterminal, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_seq, n_seq, n_symbol, (ppsym*)NULL );
+	pp_prod_create( bnf, n_seq, n_symbol, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_prod, n_seq, (ppsym*)NULL );
+	pp_prod_create( bnf, n_prod, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_alt, n_alt, pipe, n_prod, (ppsym*)NULL );
+	pp_prod_create( bnf, n_alt, n_prod, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_nonterm, nonterminal, colon,
+							n_alt, semi, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_defs, n_defs, n_nonterm, (ppsym*)NULL );
+	pp_prod_create( bnf, n_defs, n_nonterm, (ppsym*)NULL );
+
+	pp_prod_create( bnf, n_grammar, n_defs, (ppsym*)NULL );
+
+	/* Setup a parser */
+	par = pp_par_create( bnf );
+
+	/* Lexer */
+
+	pp_par_define_token( par, terminal,
+		"[^a-z_:;| \t\r\n][^:;| \t\r\n]*", 			/* Ident */
+		0 );
+	pp_par_define_token( par, nonterminal,
+		"[a-z_][^:;| \t\r\n]*",						/* ident */
+		0 );
+
+	pp_par_auto_token( par );
+
+	if( !pp_par_parse( &ast, par, s, &e ) )
+	{
+		pp_par_free( par );
+		pp_gram_free( bnf );
+		return FALSE;
+	}
+
+	/* pp_ast_dump_short( stdout, ast ); */ /* DEBUG! */
+
+	if( !ast_to_gram( g, ast ) )
+		return FALSE;
+
+	pp_par_free( par );
+	pp_gram_free( bnf );
+	pp_ast_free( ast );
+
+	return TRUE;
+}
+
+/** Compiles an Extended Backus-Naur-Format definition into a grammar.
+
+//g// is the grammar that receives the result of the parse.
+This grammar is extended to new definitions when it already contains symbols.
+
+//source// is the EBNF definition string that defines the grammar.
+
+The function returns TRUE in case the grammar could be compiled,
+FALSE otherwise.
+
+**Grammar:**
+```
+symbol : '(' alternation ')' | Terminal | Nonterminal ;
+modifier : symbol | symbol '*' | symbol '+' | symbol '?' ;
+sequence : sequence modifier | modifier ;
+production : sequence | ;
+alternation : alternation '|' production | production ;
+
+nonterm : Nonterminal ':' alternation ';';
+defs : defs nonterm | nonterm ;
+
+grammar$ : defs ;
+```
+*/
+pboolean pp_gram_from_ebnf( ppgram* g, char* source )
+{
+	pppar*		par;
+	ppgram*		ebnf;
 	char*		s = source;
 	char*		e;
 	ppast*		ast;
@@ -237,100 +395,84 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 		return FALSE;
 	}
 
-	/* Define a grammar for BNF */
+	/* Define a grammar for EBNF */
 
-	bnf = pp_gram_create();
-
-	/*
-		Terminal : [^a-z_][a-zA-Z_]*;
-		Nonterminal : [a-z_]+;
-
-		symbol : '(' alternation ')' | Terminal | Nonterminal ;
-		modifier : symbol | symbol '*' | symbol '+' | symbol '?' ;
-		sequence : sequence modifier | modifier ;
-		production : sequence | ;
-		alternation : alternation '|' production | production ;
-
-		nonterm : Nonterminal ':' alternation ';';
-		defs : defs nonterm | nonterm ;
-
-		grammar$ : defs ;
-	*/
+	ebnf = pp_gram_create();
 
 	/* Terminals */
-	terminal = pp_sym_create( bnf, "Terminal", PPFLAG_NONE );
+	terminal = pp_sym_create( ebnf, "Terminal", PPFLAG_NONE );
 	terminal->emit = "Terminal";
 
-	nonterminal = pp_sym_create( bnf, "Nonterminal", PPFLAG_NONE );
+	nonterminal = pp_sym_create( ebnf, "Nonterminal", PPFLAG_NONE );
 	nonterminal->emit = "Nonterminal";
 
-	colon = pp_sym_create( bnf, ":", PPFLAG_NONE );
-	semi = pp_sym_create( bnf, ";", PPFLAG_NONE );
-	pipe = pp_sym_create( bnf, "|", PPFLAG_NONE );
-	brop = pp_sym_create( bnf, "(", PPFLAG_NONE );
-	brcl = pp_sym_create( bnf, ")", PPFLAG_NONE );
-	star = pp_sym_create( bnf, "*", PPFLAG_NONE );
-	quest = pp_sym_create( bnf, "?", PPFLAG_NONE );
-	plus = pp_sym_create( bnf, "+", PPFLAG_NONE );
+	colon = pp_sym_create( ebnf, ":", PPFLAG_NONE );
+	semi = pp_sym_create( ebnf, ";", PPFLAG_NONE );
+	pipe = pp_sym_create( ebnf, "|", PPFLAG_NONE );
+	brop = pp_sym_create( ebnf, "(", PPFLAG_NONE );
+	brcl = pp_sym_create( ebnf, ")", PPFLAG_NONE );
+	star = pp_sym_create( ebnf, "*", PPFLAG_NONE );
+	quest = pp_sym_create( ebnf, "?", PPFLAG_NONE );
+	plus = pp_sym_create( ebnf, "+", PPFLAG_NONE );
 
 	/* Nonterminals */
-	n_symbol = pp_sym_create( bnf, "symbol", PPFLAG_NONE );
+	n_symbol = pp_sym_create( ebnf, "symbol", PPFLAG_NONE );
 	n_symbol->emit = "symbol";
 
-	n_mod = pp_sym_create( bnf, "modifier", PPFLAG_NONE );
-	n_seq = pp_sym_create( bnf, "sequence", PPFLAG_NONE );
+	n_mod = pp_sym_create( ebnf, "modifier", PPFLAG_NONE );
+	n_seq = pp_sym_create( ebnf, "sequence", PPFLAG_NONE );
 
-	n_prod = pp_sym_create( bnf, "production", PPFLAG_NONE );
+	n_prod = pp_sym_create( ebnf, "production", PPFLAG_NONE );
 	n_prod->emit = "production";
 
-	n_alt = pp_sym_create( bnf, "alternation", PPFLAG_NONE );
+	n_alt = pp_sym_create( ebnf, "alternation", PPFLAG_NONE );
 
-	n_nonterm = pp_sym_create( bnf, "nonterm", PPFLAG_NONE );
+	n_nonterm = pp_sym_create( ebnf, "nonterm", PPFLAG_NONE );
 	n_nonterm->emit = "nonterm";
 
-	n_defs = pp_sym_create( bnf, "defs", PPFLAG_NONE );
+	n_defs = pp_sym_create( ebnf, "defs", PPFLAG_NONE );
 
-	n_grammar = pp_sym_create( bnf, "grammar", PPFLAG_NONE );
-	bnf->goal = n_grammar;
+	n_grammar = pp_sym_create( ebnf, "grammar", PPFLAG_NONE );
+	ebnf->goal = n_grammar;
 
 	/* Productions */
-	p = pp_prod_create( bnf, n_symbol, brop, n_alt, brcl, (ppsym*)NULL );
+	p = pp_prod_create( ebnf, n_symbol, brop, n_alt, brcl, (ppsym*)NULL );
 	p->emit = "inline";
-	p = pp_prod_create( bnf, n_symbol, terminal, (ppsym*)NULL );
-	p = pp_prod_create( bnf, n_symbol, nonterminal, (ppsym*)NULL );
+	p = pp_prod_create( ebnf, n_symbol, terminal, (ppsym*)NULL );
+	p = pp_prod_create( ebnf, n_symbol, nonterminal, (ppsym*)NULL );
 
-	p = pp_prod_create( bnf, n_mod, n_symbol, (ppsym*)NULL );
-	p = pp_prod_create( bnf, n_mod, n_symbol, star, (ppsym*)NULL );
+	p = pp_prod_create( ebnf, n_mod, n_symbol, (ppsym*)NULL );
+	p = pp_prod_create( ebnf, n_mod, n_symbol, star, (ppsym*)NULL );
 	p->emit = "star";
-	p = pp_prod_create( bnf, n_mod, n_symbol, plus, (ppsym*)NULL );
+	p = pp_prod_create( ebnf, n_mod, n_symbol, plus, (ppsym*)NULL );
 	p->emit = "pos";
-	p = pp_prod_create( bnf, n_mod, n_symbol, quest, (ppsym*)NULL );
+	p = pp_prod_create( ebnf, n_mod, n_symbol, quest, (ppsym*)NULL );
 	p->emit = "opt";
 
-	pp_prod_create( bnf, n_seq, n_seq, n_mod, (ppsym*)NULL );
-	pp_prod_create( bnf, n_seq, n_mod, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_seq, n_seq, n_mod, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_seq, n_mod, (ppsym*)NULL );
 
-	pp_prod_create( bnf, n_prod, n_seq, (ppsym*)NULL );
-	pp_prod_create( bnf, n_prod, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_prod, n_seq, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_prod, (ppsym*)NULL );
 
-	pp_prod_create( bnf, n_alt, n_alt, pipe, n_prod, (ppsym*)NULL );
-	pp_prod_create( bnf, n_alt, n_prod, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_alt, n_alt, pipe, n_prod, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_alt, n_prod, (ppsym*)NULL );
 
-	pp_prod_create( bnf, n_nonterm, nonterminal, colon,
+	pp_prod_create( ebnf, n_nonterm, nonterminal, colon,
 							n_alt, semi, (ppsym*)NULL );
 
-	pp_prod_create( bnf, n_defs, n_defs, n_nonterm, (ppsym*)NULL );
-	pp_prod_create( bnf, n_defs, n_nonterm, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_defs, n_defs, n_nonterm, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_defs, n_nonterm, (ppsym*)NULL );
 
-	pp_prod_create( bnf, n_grammar, n_defs, (ppsym*)NULL );
+	pp_prod_create( ebnf, n_grammar, n_defs, (ppsym*)NULL );
 
 	/* Setup a parser */
-	par = pp_par_create( bnf );
+	par = pp_par_create( ebnf );
 
 	/* Lexer */
 
 	pp_par_define_token( par, terminal,
-		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* ident */
+		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* Ident */
 		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
 																expression/ */
 		"|\"[^\"]*\"(@\\w*)?"							/* "double-quoted
@@ -339,7 +481,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 																string' */
 		0 );
 	pp_par_define_token( par, nonterminal,
-		"[a-z_][^:;|()*?+ \t\r\n]*",					/* Ident */
+		"[a-z_][^:;|()*?+ \t\r\n]*",					/* ident */
 		0 );
 
 	pp_par_auto_token( par );
@@ -347,7 +489,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	if( !pp_par_parse( &ast, par, s, &e ) )
 	{
 		pp_par_free( par );
-		pp_gram_free( bnf );
+		pp_gram_free( ebnf );
 		return FALSE;
 	}
 
@@ -357,7 +499,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 		return FALSE;
 
 	pp_par_free( par );
-	pp_gram_free( bnf );
+	pp_gram_free( ebnf );
 	pp_ast_free( ast );
 
 	return TRUE;
