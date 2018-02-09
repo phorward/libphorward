@@ -176,7 +176,7 @@ int u8_toucs(wchar_t *dest, int sz, char *src, int srcsz)
     int i=0;
 
     while (i < sz-1) {
-        nb = trailingBytesForUTF8[*src];
+        nb = trailingBytesForUTF8[(int)*src];
         if (srcsz == -1) {
             if (*src == 0)
                 goto done_toucs;
@@ -251,7 +251,7 @@ int u8_toutf8(char *dest, int sz, wchar_t *src, int srcsz)
         }
         #endif
         #endif
-        
+
         i++;
     }
     if (dest < dest_end)
@@ -270,7 +270,7 @@ int u8_wc_toutf8(char *dest, wchar_t ch)
         dest[1] = (ch & 0x3F) | 0x80;
         return 2;
     }
-    
+
     #ifndef _WIN32
     #if UNICODE
     if (ch < 0x10000) {
@@ -288,7 +288,7 @@ int u8_wc_toutf8(char *dest, wchar_t ch)
     }
     #endif
     #endif
-    
+
     return 0;
 }
 

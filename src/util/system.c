@@ -47,7 +47,7 @@ char* pwhich( char* filename, char* directories )
 		if( ( end - start ) + pstrlen( filename ) <= BUFSIZ )
 		{
 			sprintf( path, "%.*s%c%s",
-				( end - start ) - ( ( *( end - 1 ) == PPATHSEP ) ? 1 : 0 ),
+				(int)((end - start) - ( (*( end - 1) == PPATHSEP ) ? 1 : 0 )),
 					start, PPATHSEP, filename );
 
 			if( pfileexists( path ) )
@@ -174,13 +174,13 @@ This function is currently under recent development relating to the issues it
 is used for. It can't be seen as compatible or feature-proven, and does not
 follow a clear concept right now.
 
-- //opt// is a pointer to a buffer with enough space to store the requested parameter to. For short parameters, this is only one char, for long-parameters the full name. The string will be zero-terminated.  
-- //param// is a pointer to store a possible parameter value to, if the detected option allows for parameters.  
+- //opt// is a pointer to a buffer with enough space to store the requested parameter to. For short parameters, this is only one char, for long-parameters the full name. The string will be zero-terminated.
+- //param// is a pointer to store a possible parameter value to, if the detected option allows for parameters.
 - //next// receives the index in argv of the next evaluated option. It can be left (int*)NULL. It points to the next valid index in argv[] after all parameters have been evaluated. Check it for < argc, to point to valid data.
 - //argc// is the argument count as taken from the main() function.
 - //argv// are the argument values as taken from the main() function.
 - //optstr// contains the possible short-options. This is a string where each character defines an option. If an option takes a parameter, a colon (:) is submitted. E.g. "abc:def:g". The Options "-c" and "-f" will take a parameter that is
-returned to param. This parameter can be (char*)NULL.  
+returned to param. This parameter can be (char*)NULL.
 - //loptstr// contains the possible long-options. This is a string containing all long option names, each separated by a blank. Long options taking parameters have an attached colon (:) to the name.  E.g. "hello world: next" defines three long options, where option 'world' takes one parameter that is returned to param. This parameter can be (char*)NULL.
 - //idx// is the index of the requested option, 0 for the first option behind argv[0].
 -
@@ -203,7 +203,6 @@ int pgetopt( char* opt, char** param, int* next,
 	char*		str;
 	char*		pos;
 	char*		del;
-	int			cnt		= 0;
 	static char	optinfo	[ 2+1 ];
 
 	PROC( "pgetopt" );
