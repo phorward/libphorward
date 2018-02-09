@@ -83,7 +83,6 @@ static int plist_hash_index( plist* list, char* key )
 /* Insert a plist entry node into the hash-table via its key. */
 static pboolean plist_hash_insert( plist* list, plistel* e )
 {
-	int			idx;
 	plistel*	he;
 	plistel**	bucket;
 
@@ -353,8 +352,6 @@ the entire list is only cleared, but if the list was initialized with
 PLIST_MOD_RECYCLE, existing pointers are hold for later usage. */
 pboolean plist_clear( plist* list )
 {
-	plistel*	e;
-
 	PROC( "plist_clear" );
 
 	if( !( list ) )
@@ -391,7 +388,6 @@ into the lists hash table. */
 plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 {
 	plistel*	e;
-	int			size;
 
 	PROC( "plist_insert" );
 	PARMS( "list", "%p", list );
@@ -750,7 +746,6 @@ with the key //key//.
 */
 plistel* plist_get_by_key( plist* list, char* key )
 {
-	int			i = 0;
 	int			idx;
 	plistel*	e;
 
