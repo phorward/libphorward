@@ -6,8 +6,17 @@ This file is used to document any relevant changes done to libphorward.
 
 Released on: Not released yet.
 
+- Revised parse module, separating the grammar definition entirely from the
+  parsing algorithm, lexer, parser and abstract syntax tree.
+  This allows for a much higher modularity. The ``pppar`` object now represents
+  the internal LALR parser that can be executed on arbitrary input.
+- Evalutation of the TRACEFUNCTION environment variable to switch trace output
+  also on function-level, rather than module level.
 - Improved the plex command-line utility, it now recognizes `-b` and `-e`
   correctly and can read from stdin.
+- Bugfix & refactoring in p_ccl_parseshorthand() that caused invalid dfa state
+  machines generated from regular expressions on some 32-bit machine
+  configurations.
 - General bugfix in plex_tokenize() which ran into an endless-loop.
 
 ## v0.21

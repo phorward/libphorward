@@ -277,6 +277,8 @@ yields in a debug log
 (demo.c:  401) }
 ```
 
+when previously setting the environment variable ``TRACEMODULE="demo.c"`` or ``TRACEFUNCTION="faculty"``.
+
 == Command-line tools ==
 
 libphorward also provides some general-purpose command-line tools which are installed and made available. These tools are heavily used by libphorward's own build process.
