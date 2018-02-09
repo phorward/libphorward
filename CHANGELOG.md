@@ -14,6 +14,7 @@ Released on: Not released yet.
   also on function-level, rather than module level.
 - Improved the plex command-line utility, it now recognizes `-b` and `-e`
   correctly and can read from stdin.
+- Removed warnings and unused static functions from the entire library.
 - Bugfix & refactoring in p_ccl_parseshorthand() that caused invalid dfa state
   machines generated from regular expressions on some 32-bit machine
   configurations.
