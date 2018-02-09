@@ -1,28 +1,50 @@
 # phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward)
 
-**phorward** is a free toolkit for parser development, lexical analysis, regular expressions and more.
+**phorward** is a free C programming toolkit for parser development, lexical analysis, regular expressions and more.
 
 ## About
 
-Basically, **phorward** is a C-library, that provides many tools for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy-to-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
+Basically, **phorward** is a versatile C-library. It is divided into several modules, and mostly focuses on the definint and implementing parsers, recognizers, virtual machines and regular expressions.
+
+- **any** provides a dynamical, extendible C data structure and interface to store, convert and handle variables of different value types,
+- **base** provides tools for dynamic data structures and utility functions used throughout the library,
+- **parse** defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees,
+- **regex** provides tools for regular expression parsing, handling and execution, as well as lexical analysis,
+- **string** is an extended string processing library,
+- **vm** generates stack-based virtual machines and instruction sets aimed to work with the *any* data type
+
+## Examples
+
+### Parsing
+
+The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
 
 ```c
 #include <phorward.h>
 
 int main()
 {
-    pparse* parser;
+	ppgram*	grammar;
+    pppar*  parser;
     ppast*  ast;
     char*   input = "1+2*(3+4)+5";
     char*   end;
 
-    parser = pp_create( 0,  "@int /[0-9]+/ ;"
-                            "fact : int | '(' expr ')' ;"
-                            "term : @mul( term '*' fact ) | fact ;"
-                            "expr : @add( expr '+' term ) | term ;" );
+	/* Define a grammar */
+	grammar = pp_gram_create();
+	pp_gram_from_ebnf( grammar,
+		"f: /[0-9]+/@int | '(' e ')' ;"
+		"mul@: t '*' f ;"
+		"t: mul@ | f;"
+		"add@: e '+' t;"
+		"e: add@ | t ;" );
 
-    if( !pp_parse_to_ast( &ast, parser, input, &end ) )
-        return 1; /* parse error */
+	/* Define a parser and lexer for the grammar */
+	parser = pp_par_create( grammar );
+	pp_par_auto_token( parser );
+
+	if( !pp_par_parse( &ast, parser, input, &end ) )
+		return 1; /* parse error */
 
     pp_ast_dump_short( stdout, ast );
     return 0;
@@ -35,9 +57,7 @@ It can easily be compiled with:
 
 Furthermore, the toolkit comes with a command-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
 
-    $ pparse "@int /[0-9]+/; f: int | '(' e ')'; t: @mul( t '*' f ) | f; e: @add( e '+' t ) | t;" "1+2*(3+4)+5"
-
-phorward also provides useful general-purpose extensions for C programming. This includes dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and platform-independent, system-specific helper functions.
+    $ pparse "f: /[0-9]+/@int | '(' e ')' ; mul@: t '*' f ; t: mul@ | f; add@: e '+' t; e: add@ | t ;"  "1+2*(3+4)*5"
 
 ## Features
 
