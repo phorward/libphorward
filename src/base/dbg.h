@@ -17,7 +17,7 @@ Usage:	Program Trace Facilities
 #ifdef DEBUG
 	#define PROC( name ) \
 		static char*	_dbg_proc_name	= name; \
-		_dbg_trace( __FILE__, __LINE__, "ENTRY", "%s", _dbg_proc_name )
+		_dbg_trace( __FILE__, __LINE__, "ENTRY", _dbg_proc_name, (char*)NULL )
 #else
 	#define PROC( name )
 #endif
@@ -28,7 +28,7 @@ Usage:	Program Trace Facilities
 		do \
 		{ \
 			_dbg_trace( __FILE__, __LINE__, \
-				"RETURN", "%s", _dbg_proc_name ); \
+				"RETURN", _dbg_proc_name, (char*)NULL ); \
 			return val; \
 		} \
 		while( 0 )
@@ -42,7 +42,7 @@ Usage:	Program Trace Facilities
 		do \
 		{ \
 			_dbg_trace( __FILE__, __LINE__, \
-				"RETURN", "%s", _dbg_proc_name ); \
+				"RETURN", _dbg_proc_name, (char*)NULL ); \
 			return; \
 		} \
 		while( 0 )
@@ -53,7 +53,7 @@ Usage:	Program Trace Facilities
 /* Macro: MSG */
 #ifdef DEBUG
 	#define MSG( text ) \
-		_dbg_trace( __FILE__, __LINE__, "MSG", "%s", text )
+		_dbg_trace( __FILE__, __LINE__, "MSG", _dbg_proc_name, "%s", text )
 #else
 	#define MSG( text )
 #endif
@@ -61,7 +61,8 @@ Usage:	Program Trace Facilities
 /* Macro: VARS */
 #ifdef DEBUG
 	#define VARS( name, format, val ) \
-		_dbg_trace( __FILE__, __LINE__, "VARS", "%s = >" format "<", name, val )
+		_dbg_trace( __FILE__, __LINE__, "VARS", _dbg_proc_name, \
+				"%s = >" format "<", name, val )
 #else
 	#define VARS( name, format, val )
 #endif
@@ -69,7 +70,7 @@ Usage:	Program Trace Facilities
 /* Macro: PARMS */
 #ifdef DEBUG
 	#define PARMS( name, format, val ) \
-		_dbg_trace( __FILE__, __LINE__, "PARMS", \
+		_dbg_trace( __FILE__, __LINE__, "PARMS", _dbg_proc_name, \
 			"%s = >" format "<", name, val )
 #else
 	#define PARMS( name, format, val )

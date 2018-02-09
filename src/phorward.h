@@ -111,7 +111,7 @@ typedef char 					pboolean;
 #ifdef DEBUG
 	#define PROC( name ) \
 		static char*	_dbg_proc_name	= name; \
-		_dbg_trace( __FILE__, __LINE__, "ENTRY", "%s", _dbg_proc_name )
+		_dbg_trace( __FILE__, __LINE__, "ENTRY", _dbg_proc_name, (char*)NULL )
 #else
 	#define PROC( name )
 #endif
@@ -122,7 +122,7 @@ typedef char 					pboolean;
 		do \
 		{ \
 			_dbg_trace( __FILE__, __LINE__, \
-				"RETURN", "%s", _dbg_proc_name ); \
+				"RETURN", _dbg_proc_name, (char*)NULL ); \
 			return val; \
 		} \
 		while( 0 )
@@ -136,7 +136,7 @@ typedef char 					pboolean;
 		do \
 		{ \
 			_dbg_trace( __FILE__, __LINE__, \
-				"RETURN", "%s", _dbg_proc_name ); \
+				"RETURN", _dbg_proc_name, (char*)NULL ); \
 			return; \
 		} \
 		while( 0 )
@@ -147,7 +147,7 @@ typedef char 					pboolean;
 
 #ifdef DEBUG
 	#define MSG( text ) \
-		_dbg_trace( __FILE__, __LINE__, "MSG", "%s", text )
+		_dbg_trace( __FILE__, __LINE__, "MSG", _dbg_proc_name, "%s", text )
 #else
 	#define MSG( text )
 #endif
@@ -155,7 +155,8 @@ typedef char 					pboolean;
 
 #ifdef DEBUG
 	#define VARS( name, format, val ) \
-		_dbg_trace( __FILE__, __LINE__, "VARS", "%s = >" format "<", name, val )
+		_dbg_trace( __FILE__, __LINE__, "VARS", _dbg_proc_name, \
+				"%s = >" format "<", name, val )
 #else
 	#define VARS( name, format, val )
 #endif
@@ -163,7 +164,7 @@ typedef char 					pboolean;
 
 #ifdef DEBUG
 	#define PARMS( name, format, val ) \
-		_dbg_trace( __FILE__, __LINE__, "PARMS", \
+		_dbg_trace( __FILE__, __LINE__, "PARMS", _dbg_proc_name, \
 			"%s = >" format "<", name, val )
 #else
 	#define PARMS( name, format, val )
@@ -824,7 +825,7 @@ char* p_ccl_to_str( pccl* ccl, pboolean escape );
 void p_ccl_print( FILE* stream, pccl* ccl, int break_after );
 
 
-void _dbg_trace( char* file, int line, char* type, char* format, ... );
+void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 
 pboolean plist_init( plist* list, size_t size, int flags );

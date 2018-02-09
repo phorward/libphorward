@@ -245,36 +245,36 @@ Calling this function with
 yields in a debug log
 
 ```
-20772 (demo.c:  380) {
-20772 (demo.c:  380) .ENTRY : faculty
-20772 (demo.c:  381) .PARMS : x = >3<
-20772 (demo.c:  395) .MSG   : Calling faculty recursively with:
-20772 (demo.c:  396) .VARS  : x - 1 = >2<
-20772 (demo.c:  380) .{
-20772 (demo.c:  380) ..ENTRY : faculty
-20772 (demo.c:  381) ..PARMS : x = >2<
-20772 (demo.c:  395) ..MSG   : Calling faculty recursively with:
-20772 (demo.c:  396) ..VARS  : x - 1 = >1<
-20772 (demo.c:  380) ..{
-20772 (demo.c:  380) ...ENTRY : faculty
-20772 (demo.c:  381) ...PARMS : x = >1<
-20772 (demo.c:  395) ...MSG   : Calling faculty recursively with:
-20772 (demo.c:  396) ...VARS  : x - 1 = >0<
-20772 (demo.c:  380) ...{
-20772 (demo.c:  380) ....ENTRY : faculty
-20772 (demo.c:  381) ....PARMS : x = >0<
-20772 (demo.c:  390) ....MSG   : x is 0, so faculty is 1
-20772 (demo.c:  391) ....RETURN: faculty
-20772 (demo.c:  391) ...}
-20772 (demo.c:  400) ...VARS  : ret = >1<
-20772 (demo.c:  401) ...RETURN: faculty
-20772 (demo.c:  401) ..}
-20772 (demo.c:  400) ..VARS  : ret = >2<
-20772 (demo.c:  401) ..RETURN: faculty
-20772 (demo.c:  401) .}
-20772 (demo.c:  400) .VARS  : ret = >6<
-20772 (demo.c:  401) .RETURN: faculty
-20772 (demo.c:  401) }
+(demo.c:  380) {
+(demo.c:  380) .ENTRY : faculty
+(demo.c:  381) .PARMS : x = >3<
+(demo.c:  395) .MSG   : Calling faculty recursively with:
+(demo.c:  396) .VARS  : x - 1 = >2<
+(demo.c:  380) .{
+(demo.c:  380) ..ENTRY : faculty
+(demo.c:  381) ..PARMS : x = >2<
+(demo.c:  395) ..MSG   : Calling faculty recursively with:
+(demo.c:  396) ..VARS  : x - 1 = >1<
+(demo.c:  380) ..{
+(demo.c:  380) ...ENTRY : faculty
+(demo.c:  381) ...PARMS : x = >1<
+(demo.c:  395) ...MSG   : Calling faculty recursively with:
+(demo.c:  396) ...VARS  : x - 1 = >0<
+(demo.c:  380) ...{
+(demo.c:  380) ....ENTRY : faculty
+(demo.c:  381) ....PARMS : x = >0<
+(demo.c:  390) ....MSG   : x is 0, so faculty is 1
+(demo.c:  391) ....RETURN: faculty
+(demo.c:  391) ...}
+(demo.c:  400) ...VARS  : ret = >1<
+(demo.c:  401) ...RETURN: faculty
+(demo.c:  401) ..}
+(demo.c:  400) ..VARS  : ret = >2<
+(demo.c:  401) ..RETURN: faculty
+(demo.c:  401) .}
+(demo.c:  400) .VARS  : ret = >6<
+(demo.c:  401) .RETURN: faculty
+(demo.c:  401) }
 ```
 
 == Command-line tools ==

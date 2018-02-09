@@ -108,7 +108,7 @@ char* p_ccl_to_str( pccl* ccl, pboolean escape );
 void p_ccl_print( FILE* stream, pccl* ccl, int break_after );
 
 /* base/dbg.c */
-void _dbg_trace( char* file, int line, char* type, char* format, ... );
+void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 /* base/list.c */
 pboolean plist_init( plist* list, size_t size, int flags );

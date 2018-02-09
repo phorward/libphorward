@@ -115,27 +115,42 @@ static void _dbg_indent( void )
 //file// is the filename (__FILE__).
 //line// is the line number in file (__LINE__).
 //type// is the type of the trace message ("PROC", "RETURN", "VARS" ...).
-//format// is a printf()-like format string.
+//function// is the function name that is currently executed
+//format// is an optional printf()-like format string.
 //...// values according to the format string follow.
 */
-void _dbg_trace( char* file, int line, char* type, char* format, ... )
+void _dbg_trace( char* file, int line, char* type,
+					char* function, char* format, ... )
 {
 	char*		modules;
+	char*		functions;
 	char*		basename;
 	int			maxdepth;
 	va_list		arg;
-
-	/* Find out if this module should be traced */
-	if( !( modules = getenv( "TRACEMODULE" ) ) )
-		return;
 
 	if( !( basename = strrchr( file, PPATHSEP ) ) )
 		basename = file;
 	else
 		basename++;
 
-	if( strcmp( modules, "*" ) != 0
-		&& !strstr( modules, basename ) )
+	/* Find out if this module should be traced */
+	if( ( modules = getenv( "TRACEMODULE" ) ) )
+	{
+		if( strcmp( modules, "*" ) != 0
+			&& !strstr( modules, basename ) )
+			return;
+	}
+
+	/* Find out if this function should be traced */
+	if( ( functions = getenv( "TRACEFUNCTION" ) ) )
+	{
+		if( strcmp( functions, "*" ) != 0
+			&& !strstr( functions, function ) )
+			return;
+	}
+
+	/* One of both configs must be present! */
+	if( !modules && !functions )
 		return;
 
 	if( ( maxdepth = atoi( pstrget( getenv( "TRACEDEPTH" ) ) ) ) > 0
@@ -162,6 +177,8 @@ void _dbg_trace( char* file, int line, char* type, char* format, ... )
 		vfprintf( stderr, format, arg );
 		va_end( arg );
 	}
+	else
+		fprintf( stderr, ": %s", function );
 
 	fprintf( stderr, "\n" );
 
