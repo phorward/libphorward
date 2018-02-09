@@ -158,11 +158,11 @@ static pany* pvm_compute( pany* ret, char op,
 	}
 	/* Prefer for double type */
 	else if( enforce == PANYTYPE_FLOAT
-		|| enforce == PANYTYPE_DOUBLE
-			|| op1->type == PANYTYPE_DOUBLE
-				|| op2->type == PANYTYPE_DOUBLE
-					|| op1->type == PANYTYPE_FLOAT
-						|| op2->type == PANYTYPE_FLOAT )
+				|| enforce == PANYTYPE_DOUBLE
+					|| op1->type == PANYTYPE_DOUBLE
+						|| op2->type == PANYTYPE_DOUBLE
+							|| op1->type == PANYTYPE_FLOAT
+								|| op2->type == PANYTYPE_FLOAT )
 	{
 		switch( op )
 		{
@@ -329,12 +329,14 @@ pvm* pvm_init( pvm* vm )
 	pvm_define( vm, "float", pvm_FLOAT );
 	pvm_define( vm, "addr", pvm_ADDR );
 	pvm_define( vm, "str", pvm_STR );
-	pvm_define( vm, "wstr", pvm_STR );
+	pvm_define( vm, "wstr", pvm_WSTR );
 
 	pvm_define( vm, "add", pvm_ADD );
 	pvm_define( vm, "sub", pvm_SUB );
 	pvm_define( vm, "mul", pvm_MUL );
 	pvm_define( vm, "div", pvm_DIV );
+
+	pvm_define( vm, "join", pvm_JOIN );
 
 	return vm;
 }

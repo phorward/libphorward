@@ -45,27 +45,27 @@ pvmprog* pvm_prog_free( pvmprog* prog )
 /* Assemble a prog */
 pboolean pvm_prog_compile( pvmprog* prog, char* src )
 {
-	char*		start		= src;
-	char*		end;
-	pvmbyte		instr		= PVM_MAXOPS;
-	pvmbyte		n_instr;
-	pvmbyte*	ptr;
-	pvmaddr		addr;
-	pany*		lit;
-	pvmbyte		i;
-	int			tok;
+	char*			start		= src;
+	char*			end;
+	pvmbyte			instr		= PVM_MAXOPS;
+	pvmbyte			n_instr;
+	pvmbyte*		ptr;
+	pvmaddr			addr;
+	pany*			lit;
+	pvmbyte			i;
+	unsigned int	tok;
 
-	char		buf			[ BUFSIZ + 1 ];
-	char*		sbuf;
+	char			buf			[ BUFSIZ + 1 ];
+	char*			sbuf;
 
-	#define 	NEXT		1
-	#define 	LABEL		2
-	#define 	IDENT		3
-	#define 	INT			4
-	#define 	DBL			5
-	#define 	STR			6
-	#define 	WSTR		7
-	#define 	BOOL		8
+	#define 		NEXT		1
+	#define 		LABEL		2
+	#define 		IDENT		3
+	#define 		INT			4
+	#define 		DBL			5
+	#define 		STR			6
+	#define 		WSTR		7
+	#define 		BOOL		8
 
 	if( !( prog ) )
 	{
@@ -140,7 +140,7 @@ pboolean pvm_prog_compile( pvmprog* prog, char* src )
 			default:
 				if( end - start < BUFSIZ )
 				{
-					sprintf( buf, "%.*s", end - start, start );
+					sprintf( buf, "%.*s", (int)( end - start ), start );
 					sbuf = buf;
 				}
 				else

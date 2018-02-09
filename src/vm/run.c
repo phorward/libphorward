@@ -17,7 +17,7 @@ static void dump_stack( parray* stack )
 			any <= (pany*)parray_last( stack );
 				any++ )
 	{
-		fprintf( stderr, "%03d => ", any - (pany*)parray_first( stack ) );
+		fprintf( stderr, "%03ld => ", any - (pany*)parray_first( stack ) );
 		pany_fprint( stderr, any );
 	}
 
