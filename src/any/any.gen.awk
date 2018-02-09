@@ -426,6 +426,9 @@ function convfunc( type )
 		print "			RETURN( (" type ")" conv " );"
 	}
 
+	print ""
+	print "		default:"
+	print "			break;"
 	print "	}\n"
 	print "	MSG( \"Can't convert this type!\" );"
 	print "	RETURN( (" type ")" var_emptyval " );"
@@ -479,6 +482,9 @@ function allconv_func()
 		print "			RETURN( TRUE );\n"
 	}
 
+	print ""
+	print "		default:"
+	print "			break;"
 	print "	}"
 	print ""
 	print "	RETURN( FALSE );"
@@ -524,6 +530,10 @@ function fprint_func()
 
 		print "			break;\n"
 	}
+
+	print ""
+	print "		default:"
+	print "			break;"
 
 	print "	}"
 	print "}\n"

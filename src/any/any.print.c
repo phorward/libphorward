@@ -71,6 +71,9 @@ void pany_fprint( FILE* stream, pany* val )
 					val, pany_get_ptr( val ) );
 			break;
 
+
+		default:
+			break;
 	}
 }
 

@@ -44,6 +44,9 @@ pboolean pany_to_bool( pany* val )
 			RETURN( (pboolean)TRUEBOOLEAN( *pwcsget( val->val.ws ) ) );
 		case PANYTYPE_PTR:
 			RETURN( (pboolean)TRUEBOOLEAN( val->val.ptr ) );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -89,6 +92,9 @@ char pany_to_char( pany* val )
 			RETURN( (char)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PANYTYPE_PTR:
 			RETURN( (char)0 );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -134,6 +140,9 @@ int pany_to_int( pany* val )
 			RETURN( (int)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PANYTYPE_PTR:
 			RETURN( (int)0 );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -179,6 +188,9 @@ long pany_to_long( pany* val )
 			RETURN( (long)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PANYTYPE_PTR:
 			RETURN( (long)val->val.ptr );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -224,6 +236,9 @@ unsigned long pany_to_ulong( pany* val )
 			RETURN( (unsigned long)wcstol( val->val.ws, (wchar_t**)NULL, 0 ) );
 		case PANYTYPE_PTR:
 			RETURN( (unsigned long)val->val.ptr );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -269,6 +284,9 @@ float pany_to_float( pany* val )
 			RETURN( (float)wcstod( val->val.ws, (wchar_t**)NULL ) );
 		case PANYTYPE_PTR:
 			RETURN( (float)0.0 );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -314,6 +332,9 @@ double pany_to_double( pany* val )
 			RETURN( (double)wcstod( val->val.ws, (wchar_t**)NULL ) );
 		case PANYTYPE_PTR:
 			RETURN( (double)0.0 );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -359,6 +380,9 @@ char* pany_to_str( pany* val )
 			RETURN( (char*)pwcs_to_str( val->val.ws, FALSE ) );
 		case PANYTYPE_PTR:
 			RETURN( (char*)pasprintf( "%p", val->val.ptr ) );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -404,6 +428,9 @@ wchar_t* pany_to_wcs( pany* val )
 			RETURN( val->val.ws );
 		case PANYTYPE_PTR:
 			RETURN( (wchar_t*)pawcsprintf( L"%p", val->val.ptr ) );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -449,6 +476,9 @@ void* pany_to_ptr( pany* val )
 			RETURN( (void*)val->val.ws );
 		case PANYTYPE_PTR:
 			RETURN( val->val.ptr );
+
+		default:
+			break;
 	}
 
 	MSG( "Can't convert this type!" );
@@ -519,6 +549,9 @@ pboolean pany_convert( pany* val, panytype type )
 			pany_set_ptr( val, pany_to_ptr( val ) );
 			RETURN( TRUE );
 
+
+		default:
+			break;
 	}
 
 	RETURN( FALSE );
