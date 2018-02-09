@@ -233,7 +233,7 @@ pboolean plex_reset( plex* lex );
 pboolean plex_prepare( plex* lex );
 pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags );
 int plex_lex( plex* lex, char* start, char** end );
-char* plex_next( plex* lex, char* start, int* id, char** end );
+char* plex_next( plex* lex, char* start, unsigned int* id, char** end );
 size_t plex_tokenize( plex* lex, char* start, parray** matches );
 
 /* regex/misc.c */

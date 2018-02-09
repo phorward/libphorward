@@ -15,27 +15,6 @@ Usage:	Internal DFA creation and transformation functions.
 /* No documentation for the entire module, all here is only used internally. */
 
 /* For Debug */
-static void pregex_dfa_print_state(
-	char* name, pregex_dfa* dfa, pregex_dfa_st* st )
-{
-	plistel*		e;
-	pregex_dfa_tr*	tr;
-
-	fprintf( stderr, "%s %d:", name ? name : "state",
-								plist_offset(
-									plist_get_by_ptr( dfa->states, st ) ) );
-
-	plist_for( st->trans, e )
-	{
-		tr = (pregex_dfa_tr*)plist_access( e );
-		fprintf( stderr, " %s => %d",
-			p_ccl_to_str( tr->ccl, TRUE ), tr->go_to );
-	}
-
-	fprintf( stderr, "\n" );
-}
-
-/* For Debug */
 void pregex_dfa_print( pregex_dfa* dfa )
 {
 	plistel*		e;
@@ -166,7 +145,6 @@ The object //dfa// can still be used as fresh, empty object after reset. */
 pboolean pregex_dfa_reset( pregex_dfa* dfa )
 {
 	plistel*		e;
-	pregex_dfa_st*	dfa_st;
 
 	if( !( dfa ) )
 	{
@@ -191,10 +169,6 @@ Always returns (pregex_dfa*)NULL.
 */
 pregex_dfa* pregex_dfa_free( pregex_dfa* dfa )
 {
-	plistel*		e;
-	pregex_dfa_st*	dfa_st;
-	pregex_dfa_tr*	tr;
-
 	if( !( dfa ) )
 		return (pregex_dfa*)NULL;
 
@@ -269,7 +243,6 @@ static pboolean pregex_dfa_collect_ref( pregex_dfa_st* st )
 {
 	plistel*		e;
 	pregex_nfa_st*	nfa_st;
-	int				i;
 
 	PROC( "pregex_dfa_collect_ref" );
 	PARMS( "st", "%p", st );
@@ -581,7 +554,6 @@ static pboolean pregex_dfa_equal_states(
 	plistel*		e;
 	plistel*		f;
 	plistel*		g;
-	plistel*		h;
 	pregex_dfa_tr*	tr	[ 2 ];
 
 	PROC( "pregex_dfa_equal_states" );
@@ -852,7 +824,6 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	char*			pstr		= str;
 	size_t			plen		= 0;
 	wchar_t			ch;
-	int				i;
 
 	PROC( "pregex_dfa_match" );
 	PARMS( "dfa", "%p", dfa );

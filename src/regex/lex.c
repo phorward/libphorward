@@ -366,7 +366,7 @@ can be omitted by providing NULL-pointers.
 
 The function returns (char*)NULL in case that there is no match.
 */
-char* plex_next( plex* lex, char* start, int* id, char** end )
+char* plex_next( plex* lex, char* start, unsigned int* id, char** end )
 {
 	wchar_t		ch;
 	char*		ptr 	= start;

@@ -137,6 +137,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 }
 
 /* Function for deep debugging, not used now. */
+/*
 static void print_nfa_state_list( char* info, pregex_nfa* nfa, plist* list )
 {
 	plistel*		e;
@@ -151,7 +152,7 @@ static void print_nfa_state_list( char* info, pregex_nfa* nfa, plist* list )
 			st->ccl ? p_ccl_to_str( st->ccl, TRUE ) : "EPSILON" );
 	}
 }
-
+*/
 
 /** Allocates an initializes a new pregex_nfa-object for a nondeterministic
 finite state automata that can be used for pattern matching or to construct
@@ -398,12 +399,9 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 		prange** ref, int* ref_count, int flags )
 {
 	plist*			res;
-	plistel*		e;
-	pregex_nfa_st*	st;
 	char*			pstr		= str;
-	size_t			plen		= 0;
+	int				plen		= 0;
 	int				last_accept = 0;
-	int				rc;
 	wchar_t			ch;
 	pregex_accept	accept;
 

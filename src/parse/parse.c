@@ -207,13 +207,12 @@ typedef struct
 
 static ppsym* pp_par_scan( pppar* p, char** start, char** end )
 {
-	ppsym*	sym;
-	int		id;
+	ppsym*			sym;
+	unsigned int	id;
 
 	#if DEBUGLEVEL > 1
 	fprintf( stderr, "Start '%s'\n", *start );
 	#endif
-
 
 	if( ( *start = plex_next( p->lex, *start, &id, end ) ) )
 		sym = p->tokens[ id - 1 ];
