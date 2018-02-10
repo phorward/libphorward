@@ -4,14 +4,14 @@
 
 ## About
 
-Basically, **phorward** is a versatile C-library. It is divided into several modules, and mostly focuses on the definint and implementing parsers, recognizers, virtual machines and regular expressions.
+**phorward** is a versatile C-library. It is divided into several modules, and mostly focuses on the definition and implementation of parsers, recognizers, virtual machines and regular expressions.
 
-- **any** provides a dynamical, extendible C data structure and interface to store, convert and handle variables of different value types,
-- **base** provides tools for dynamic data structures and utility functions used throughout the library,
-- **parse** defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees,
-- **regex** provides tools for regular expression parsing, handling and execution, as well as lexical analysis,
+- **any** provides a dynamical, extendible data structure and interface to store, convert and handle variables of different value types ("variant" data type),
+- **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays,
+- **parse** defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees, integrating perfectly with the tools from *regex* for lexical analysis,
+- **regex** provides tools for lexical analysis and regular expression processing,
 - **string** is an extended string processing library,
-- **vm** generates stack-based virtual machines and instruction sets aimed to work with the *any* data type
+- **vm** can be used to implement and run stack-based virtual machines and instruction sets aimed to work with the *any* data type.
 
 ## Examples
 
@@ -24,27 +24,28 @@ The following example program defines a simple expressional language, runs a par
 
 int main()
 {
-	ppgram*	grammar;
+    ppgram* grammar;
     pppar*  parser;
     ppast*  ast;
     char*   input = "1+2*(3+4)+5";
     char*   end;
 
-	/* Define a grammar */
-	grammar = pp_gram_create();
-	pp_gram_from_ebnf( grammar,
-		"f: /[0-9]+/@int | '(' e ')' ;"
-		"mul@: t '*' f ;"
-		"t: mul@ | f;"
-		"add@: e '+' t;"
-		"e: add@ | t ;" );
+    /* Define a grammar */
+    grammar = pp_gram_create();
+    pp_gram_from_ebnf( grammar,
+        "f      :   /[0-9]+/@int | '(' e ')' ;"
+        "mul@   :   t '*' f ;"
+        "t      :   mul@ | f ;"
+        "add@   :   e '+' t ;"
+        "e      :   add@ | t ;"
+    );
 
-	/* Define a parser and lexer for the grammar */
-	parser = pp_par_create( grammar );
-	pp_par_auto_token( parser );
+    /* Define a parser and lexer for the grammar */
+    parser = pp_par_create( grammar );
+    pp_par_auto_token( parser );
 
-	if( !pp_par_parse( &ast, parser, input, &end ) )
-		return 1; /* parse error */
+    if( !pp_par_parse( &ast, parser, input, &end ) )
+        return 1; /* parse error */
 
     pp_ast_dump_short( stdout, ast );
     return 0;
@@ -53,11 +54,11 @@ int main()
 
 It can easily be compiled with:
 
-    $ cc -o example example.c -lphorward
+	$ cc -o example example.c -lphorward
 
 Furthermore, the toolkit comes with a command-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
 
-    $ pparse "f: /[0-9]+/@int | '(' e ')' ; mul@: t '*' f ; t: mul@ | f; add@: e '+' t; e: add@ | t ;"  "1+2*(3+4)*5"
+	$ pparse "f: /[0-9]+/@int | '(' e ')' ; mul@: t '*' f ; t: mul@ | f; add@: e '+' t; e: add@ | t ;"  "1+2*(3+4)*5"
 
 ## Features
 
@@ -105,11 +106,11 @@ Building the Phorward Toolkit is simple as every GNU-style open source program. 
 
 Then, run
 
-    $ ./configure
+	$ ./configure
 
 to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
 
-    $ make
+	$ make
 
 and
 
@@ -123,11 +124,11 @@ Alternatively there is also a simpler method for setting up a local build system
 
 Once, type
 
-    $ make -f Makefile.gnu make_install
+	$ make -f Makefile.gnu make_install
 
 then, a simple run of
 
-    $ make
+	$ make
 
 can be used to simply build the entire library or parts of it.
 

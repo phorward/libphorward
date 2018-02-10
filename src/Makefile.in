@@ -144,12 +144,12 @@ libphorward_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libphorward_la_OBJECTS = any/any.lo any/any.conv.lo any/any.get.lo \
 	any/any.print.lo any/any.set.lo base/array.lo base/ccl.lo \
-	base/dbg.lo base/list.lo base/memory.lo parse/ast.lo \
-	parse/bnf.lo parse/gram.lo parse/lr.lo parse/parse.lo \
-	parse/prod.lo parse/sym.lo regex/dfa.lo regex/direct.lo \
-	regex/lex.lo regex/misc.lo regex/nfa.lo regex/ptn.lo \
-	regex/regex.lo string/convert.lo string/string.lo \
-	string/utf8.lo util/system.lo
+	base/dbg.lo base/list.lo base/memory.lo base/system.lo \
+	parse/ast.lo parse/bnf.lo parse/gram.lo parse/lr.lo \
+	parse/parse.lo parse/prod.lo parse/sym.lo regex/dfa.lo \
+	regex/direct.lo regex/lex.lo regex/misc.lo regex/nfa.lo \
+	regex/ptn.lo regex/regex.lo string/convert.lo string/string.lo \
+	string/utf8.lo vm/prog.lo vm/run.lo vm/vm.lo
 libphorward_la_OBJECTS = $(am_libphorward_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -352,6 +352,7 @@ libphorward_la_SOURCES = \
 	base/dbg.c \
 	base/list.c \
 	base/memory.c \
+	base/system.c \
 	parse/ast.c \
 	parse/bnf.c \
 	parse/gram.c \
@@ -369,7 +370,9 @@ libphorward_la_SOURCES = \
 	string/convert.c \
 	string/string.c \
 	string/utf8.c \
-	util/system.c
+	vm/prog.c \
+	vm/run.c \
+	vm/vm.c
 
 noinst_HEADERS = \
 	any/any.h \
@@ -481,6 +484,7 @@ base/ccl.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
 base/dbg.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
 base/list.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
 base/memory.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
+base/system.lo: base/$(am__dirstamp) base/$(DEPDIR)/$(am__dirstamp)
 parse/$(am__dirstamp):
 	@$(MKDIR_P) parse
 	@: > parse/$(am__dirstamp)
@@ -519,13 +523,15 @@ string/string.lo: string/$(am__dirstamp) \
 	string/$(DEPDIR)/$(am__dirstamp)
 string/utf8.lo: string/$(am__dirstamp) \
 	string/$(DEPDIR)/$(am__dirstamp)
-util/$(am__dirstamp):
-	@$(MKDIR_P) util
-	@: > util/$(am__dirstamp)
-util/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) util/$(DEPDIR)
-	@: > util/$(DEPDIR)/$(am__dirstamp)
-util/system.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
+vm/$(am__dirstamp):
+	@$(MKDIR_P) vm
+	@: > vm/$(am__dirstamp)
+vm/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) vm/$(DEPDIR)
+	@: > vm/$(DEPDIR)/$(am__dirstamp)
+vm/prog.lo: vm/$(am__dirstamp) vm/$(DEPDIR)/$(am__dirstamp)
+vm/run.lo: vm/$(am__dirstamp) vm/$(DEPDIR)/$(am__dirstamp)
+vm/vm.lo: vm/$(am__dirstamp) vm/$(DEPDIR)/$(am__dirstamp)
 
 libphorward.la: $(libphorward_la_OBJECTS) $(libphorward_la_DEPENDENCIES) $(EXTRA_libphorward_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libphorward_la_OBJECTS) $(libphorward_la_LIBADD) $(LIBS)
@@ -542,8 +548,8 @@ mostlyclean-compile:
 	-rm -f regex/*.lo
 	-rm -f string/*.$(OBJEXT)
 	-rm -f string/*.lo
-	-rm -f util/*.$(OBJEXT)
-	-rm -f util/*.lo
+	-rm -f vm/*.$(OBJEXT)
+	-rm -f vm/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -558,6 +564,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/dbg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/list.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/memory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/system.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/ast.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/bnf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@parse/$(DEPDIR)/gram.Plo@am__quote@
@@ -575,7 +582,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@string/$(DEPDIR)/convert.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@string/$(DEPDIR)/string.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@string/$(DEPDIR)/utf8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/system.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@vm/$(DEPDIR)/prog.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@vm/$(DEPDIR)/run.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@vm/$(DEPDIR)/vm.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -611,7 +620,7 @@ clean-libtool:
 	-rm -rf parse/.libs parse/_libs
 	-rm -rf regex/.libs regex/_libs
 	-rm -rf string/.libs string/_libs
-	-rm -rf util/.libs util/_libs
+	-rm -rf vm/.libs vm/_libs
 install-dist_phorwardDATA: $(dist_phorward_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_phorward_DATA)'; test -n "$(phorwarddir)" || list=; \
@@ -780,8 +789,8 @@ distclean-generic:
 	-rm -f regex/$(am__dirstamp)
 	-rm -f string/$(DEPDIR)/$(am__dirstamp)
 	-rm -f string/$(am__dirstamp)
-	-rm -f util/$(DEPDIR)/$(am__dirstamp)
-	-rm -f util/$(am__dirstamp)
+	-rm -f vm/$(DEPDIR)/$(am__dirstamp)
+	-rm -f vm/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -792,7 +801,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf any/$(DEPDIR) base/$(DEPDIR) parse/$(DEPDIR) regex/$(DEPDIR) string/$(DEPDIR) util/$(DEPDIR)
+	-rm -rf any/$(DEPDIR) base/$(DEPDIR) parse/$(DEPDIR) regex/$(DEPDIR) string/$(DEPDIR) vm/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -838,7 +847,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf any/$(DEPDIR) base/$(DEPDIR) parse/$(DEPDIR) regex/$(DEPDIR) string/$(DEPDIR) util/$(DEPDIR)
+	-rm -rf any/$(DEPDIR) base/$(DEPDIR) parse/$(DEPDIR) regex/$(DEPDIR) string/$(DEPDIR) vm/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

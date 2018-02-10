@@ -121,6 +121,12 @@ pregex_DEPENDENCIES = ../src/libphorward.la
 pregex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pregex_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_pvm_OBJECTS = pvm-pvm.$(OBJEXT)
+pvm_OBJECTS = $(am_pvm_OBJECTS)
+pvm_DEPENDENCIES = ../src/libphorward.la
+pvm_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pvm_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -155,8 +161,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(plex_SOURCES) $(pparse_SOURCES) $(pregex_SOURCES)
-DIST_SOURCES = $(plex_SOURCES) $(pparse_SOURCES) $(pregex_SOURCES)
+SOURCES = $(plex_SOURCES) $(pparse_SOURCES) $(pregex_SOURCES) \
+	$(pvm_SOURCES)
+DIST_SOURCES = $(plex_SOURCES) $(pparse_SOURCES) $(pregex_SOURCES) \
+	$(pvm_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -299,7 +307,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-bin_PROGRAMS = plex$(EXEEXT) pparse$(EXEEXT) pregex$(EXEEXT) #ppgram2c$(EXEEXT) pvm$(EXEEXT)
+bin_PROGRAMS = plex$(EXEEXT) pparse$(EXEEXT) pregex$(EXEEXT) pvm$(EXEEXT)
 plex_SOURCES = plex.c util.c
 plex_LDADD = ../src/libphorward.la
 plex_CFLAGS = -I$(top_srcdir)/src
@@ -309,6 +317,9 @@ pparse_CFLAGS = -I$(top_srcdir)/src
 pregex_SOURCES = pregex.c util.c
 pregex_LDADD = ../src/libphorward.la
 pregex_CFLAGS = -I$(top_srcdir)/src
+pvm_SOURCES = pvm.c
+pvm_LDADD = ../src/libphorward.la
+pvm_CFLAGS = -I$(top_srcdir)/src
 all: all-am
 
 .SUFFIXES:
@@ -404,6 +415,10 @@ pregex$(EXEEXT): $(pregex_OBJECTS) $(pregex_DEPENDENCIES) $(EXTRA_pregex_DEPENDE
 	@rm -f pregex$(EXEEXT)
 	$(AM_V_CCLD)$(pregex_LINK) $(pregex_OBJECTS) $(pregex_LDADD) $(LIBS)
 
+pvm$(EXEEXT): $(pvm_OBJECTS) $(pvm_DEPENDENCIES) $(EXTRA_pvm_DEPENDENCIES) 
+	@rm -f pvm$(EXEEXT)
+	$(AM_V_CCLD)$(pvm_LINK) $(pvm_OBJECTS) $(pvm_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -416,6 +431,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pparse-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pregex-pregex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pregex-util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pvm-pvm.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -521,6 +537,20 @@ pregex-util.obj: util.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='pregex-util.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pregex_CFLAGS) $(CFLAGS) -c -o pregex-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+
+pvm-pvm.o: pvm.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -MT pvm-pvm.o -MD -MP -MF $(DEPDIR)/pvm-pvm.Tpo -c -o pvm-pvm.o `test -f 'pvm.c' || echo '$(srcdir)/'`pvm.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pvm-pvm.Tpo $(DEPDIR)/pvm-pvm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pvm.c' object='pvm-pvm.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -c -o pvm-pvm.o `test -f 'pvm.c' || echo '$(srcdir)/'`pvm.c
+
+pvm-pvm.obj: pvm.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -MT pvm-pvm.obj -MD -MP -MF $(DEPDIR)/pvm-pvm.Tpo -c -o pvm-pvm.obj `if test -f 'pvm.c'; then $(CYGPATH_W) 'pvm.c'; else $(CYGPATH_W) '$(srcdir)/pvm.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pvm-pvm.Tpo $(DEPDIR)/pvm-pvm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pvm.c' object='pvm-pvm.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -c -o pvm-pvm.obj `if test -f 'pvm.c'; then $(CYGPATH_W) 'pvm.c'; else $(CYGPATH_W) '$(srcdir)/pvm.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -735,14 +765,6 @@ uninstall-am: uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
-
-#ppgram2c_SOURCES = ppgram2c.c util.c
-#ppgram2c_LDADD = ../src/libphorward.la
-#ppgram2c_CFLAGS = -I$(top_srcdir)/src
-
-#pvm_SOURCES = pvm.c
-#pvm_LDADD = ../src/libphorward.la
-#pvm_CFLAGS = -I$(top_srcdir)/src
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

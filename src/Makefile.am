@@ -28,6 +28,7 @@ libphorward_la_SOURCES = \
 	base/dbg.c \
 	base/list.c \
 	base/memory.c \
+	base/system.c \
 	parse/ast.c \
 	parse/bnf.c \
 	parse/gram.c \
@@ -45,7 +46,9 @@ libphorward_la_SOURCES = \
 	string/convert.c \
 	string/string.c \
 	string/utf8.c \
-	util/system.c
+	vm/prog.c \
+	vm/run.c \
+	vm/vm.c
 
 noinst_HEADERS = \
 	any/any.h \

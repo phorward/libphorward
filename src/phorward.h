@@ -878,6 +878,13 @@ void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
 
 
+char* pwhich( char* filename, char* directories );
+char* pbasename( char* path );
+pboolean pfileexists( char* filename );
+pboolean pfiletostr( char** cont, char* filename );
+int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx );
+
+
 ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
@@ -1062,13 +1069,6 @@ int u8_escape(char *buf, int sz, char *src, int escape_quotes);
 char *u8_strchr(char *s, wchar_t ch, int *charn);
 char *u8_memchr(char *s, wchar_t ch, size_t sz, int *charn);
 int u8_is_locale_utf8(char *locale);
-
-
-char* pwhich( char* filename, char* directories );
-char* pbasename( char* path );
-pboolean pfileexists( char* filename );
-pboolean pfiletostr( char** cont, char* filename );
-int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx );
 
 
 pvmprog* pvm_prog_create( pvm* vm, char* src );
