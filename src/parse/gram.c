@@ -66,6 +66,7 @@ pboolean pp_gram_prepare( ppgram* g )
 	if( !g->goal )
 	{
 		/* No such goal! */
+		fprintf( stderr, "Grammar has no goal!\n" );
 		return FALSE;
 	}
 

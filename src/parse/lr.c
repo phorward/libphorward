@@ -12,7 +12,7 @@ Usage:	LR/LALR/SLR parse table construction and execution.
 
 /* Defines */
 
-#define DEBUGLEVEL		0
+#define DEBUGLEVEL		1
 
 /* Closure item */
 typedef struct
@@ -247,7 +247,7 @@ static void pp_lrstate_print( pplrstate* st )
 	plistel*	e;
 	pplrcolumn*	col;
 
-	fprintf( stderr, "\n-- State %d %p --\n", st->idx, st );
+	fprintf( stderr, "\n-- State %d --\n", st->idx );
 
 	pp_lritems_print( st->kernel, "Kernel" );
 	pp_lritems_print( st->epsilon, "Epsilon" );
@@ -293,6 +293,18 @@ static void pp_lrstate_print( pplrstate* st )
 							col->symbol->name );
 		else
 			MISSINGCASE;
+	}
+}
+
+static void pp_lr_print( plist* states )
+{
+	plistel*	e;
+	pplrstate*	st;
+
+	plist_for( states, e )
+	{
+		st = (pplrstate*)plist_access( e );
+		pp_lrstate_print( st );
 	}
 }
 
@@ -399,7 +411,7 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 	{
 		st->done = TRUE;
 
-#if DEBUGLEVEL
+#if DEBUGLEVEL > 1
 		fprintf( stderr, "---\nClosing state %d\n",
 					plist_offset( plist_get_by_ptr( states, st ) ) );
 #endif
@@ -412,7 +424,7 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 		cnt = 0;
 		plist_clear( closure );
 
-#if DEBUGLEVEL
+#if DEBUGLEVEL > 1
 		pp_lritems_print( st->kernel, "Kernel" );
 #endif
 
@@ -522,7 +534,7 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 		}
 
 		MSG( "Closure finished!" );
-#if DEBUGLEVEL
+#if DEBUGLEVEL > 2
 		pp_lritems_print( closure, "Closure" );
 #endif
 
@@ -605,7 +617,7 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 			if( !e )
 			{
 				MSG( "No such state, creating new state from current config" );
-#if DEBUGLEVEL
+#if DEBUGLEVEL > 2
 				pp_lritems_print( part, "NEW Kernel" );
 #endif
 				nst = pp_lrstate_create( states, part );
@@ -635,7 +647,7 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 				if( cnt != prev_cnt )
 					nst->done = FALSE;
 
-#if DEBUGLEVEL
+#if DEBUGLEVEL > 2
 				pp_lritems_print( st->kernel, "EXT Kernel" );
 #endif
 			}
@@ -696,6 +708,9 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 				{
 					if( !printed )
 					{
+#if DEBUGLEVEL > 0
+						fprintf( stderr, "\n\n--- CONFLICTS ---\n\n" );
+#endif
 						pp_lrstate_print( (pplrstate*)plist_access( e ) );
 						printed = TRUE;
 					}
@@ -711,6 +726,7 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 		}
 
 		/* Detect default prods */
+		#if 0
 		memset( prodcnt, 0, plist_count( gram->prods ) * sizeof( int ) );
 		cnt = 0;
 
@@ -742,6 +758,7 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 					f = plist_next( f );
 			}
 		}
+		#endif
 	}
 
 	pfree( prodcnt );
@@ -784,9 +801,10 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm )
 	}
 
 	/* Compute LALR(1) states */
-	states = pp_lr_closure( grm, TRUE );
+	states = pp_lr_closure( grm, FALSE ); /* fixme: optimiziation */
 
 	#if DEBUGLEVEL > 0
+	fprintf( stderr, "\n\n--- FINAL GLR STATES ---\n\n" );
 	pp_lr_print( states );
 	#endif
 
