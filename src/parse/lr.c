@@ -12,7 +12,7 @@ Usage:	LR/LALR/SLR parse table construction and execution.
 
 /* Defines */
 
-#define DEBUGLEVEL		1
+#define DEBUGLEVEL		0
 
 /* Closure item */
 typedef struct
@@ -296,6 +296,7 @@ static void pp_lrstate_print( pplrstate* st )
 	}
 }
 
+#if DEBUGLEVEL > 0
 static void pp_lr_print( plist* states )
 {
 	plistel*	e;
@@ -307,6 +308,7 @@ static void pp_lr_print( plist* states )
 		pp_lrstate_print( st );
 	}
 }
+#endif
 
 static pboolean lr_compare( plist* set1, plist* set2 )
 {
