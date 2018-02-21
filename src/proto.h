@@ -267,6 +267,7 @@ pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... );
+pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn );
 void pregex_ptn_print( pregex_ptn* ptn, int rec );
 char* pregex_ptn_to_regex( pregex_ptn* ptn );

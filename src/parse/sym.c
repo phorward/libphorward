@@ -80,6 +80,9 @@ ppsym* pp_sym_free( ppsym* sym )
 	if( sym->flags & PPFLAG_FREENAME )
 		pfree( sym->name );
 
+	if( sym->ptn )
+		pregex_ptn_free( sym->ptn );
+
 	plist_free( sym->first );
 
 	/* Remove symbol from pool */

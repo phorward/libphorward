@@ -5,7 +5,7 @@ http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	bnf.c
-Usage:	Parsing grammars from BNF definitions
+Usage:	Parsing grammars from BNF/EBNF definitions
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"

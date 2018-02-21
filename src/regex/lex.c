@@ -163,7 +163,8 @@ pboolean plex_prepare( plex* lex )
 
 /** Defines and parses a regular expression pattern into the plex-object.
 
-//pat// is the regular expression string.
+//pat// is the regular expression string, or a pointer to a pregex_ptn*
+structure in case PREGEX_COMP_PTN is flagged.
 
 //match_id// must be a token match ID, a value > 0. The lower the match ID is,
 the higher precedence takes the appended expression when there are multiple
@@ -184,6 +185,8 @@ possible |
 | PREGEX_COMP_STATIC | The regular expressions passed should be converted 1:1 \
 as it where a string-constant. Any regex-specific symbols will be ignored and \
 taken as they where escaped. |
+| PREGEX_COMP_PTN | The regular expression passed already is a pattern, and \
+shall be integrated. |
 
 
 Returns a pointer to the pattern object that just has been added. This allows
@@ -196,6 +199,9 @@ pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
 
 	PROC( "plex_define" );
 	PARMS( "lex", "%p", lex );
+	PARMS( "pat", "%s", flags & PREGEX_COMP_PTN ? "(PREGEX_COMP_PTN)" : pat );
+	PARMS( "match_id", "%d", match_id );
+	PARMS( "flags", "%d", flags );
 
 	if( !( lex && pat && match_id > 0 ) )
 	{
@@ -203,7 +209,9 @@ pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
 		RETURN( (pregex_ptn*)NULL );
 	}
 
-	if( !pregex_ptn_parse( &ptn, pat, lex->flags | flags ) )
+	if( flags & PREGEX_COMP_PTN )
+		ptn = pregex_ptn_dup( (pregex_ptn*)pat );
+	else if( !pregex_ptn_parse( &ptn, pat, lex->flags | flags ) )
 		RETURN( (pregex_ptn*)NULL );
 
 	ptn->accept->accept = match_id;

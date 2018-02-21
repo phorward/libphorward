@@ -73,7 +73,7 @@ typedef char 					pboolean;	/* Phorward Boolean */
 										__FILE__, __LINE__ )
 
 #define MISSINGCASE				fprintf( stderr, \
-									"%s, %d: Missing case enganged, " \
+									"%s, %d: Missing case engaged, " \
 									"please check for correctness.\n", \
 									__FILE__, __LINE__ )
 

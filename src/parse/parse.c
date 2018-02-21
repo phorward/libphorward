@@ -83,7 +83,7 @@ int pp_par_auto_token( pppar* p )
 		if( sym->flags & PPFLAG_SPECIAL || !( ptr = sym->name ) )
 			continue;
 
-		if( !sym->emit && !strspn( ptr, "'\"/" ) )
+		if( !sym->ptn && !sym->emit && !strspn( ptr, "'\"/" ) )
 		{
 			eptr = ptr + pstrlen( ptr ) - 1;
 
@@ -107,7 +107,9 @@ int pp_par_auto_token( pppar* p )
 
 		if( PPSYM_IS_TERMINAL( sym ) && tok == p->ntokens )
 		{
-			if( strspn( ptr, "'\"/" ) )
+			if( sym->ptn )
+				pp_par_define_token( p, sym, (char*)sym->ptn, PREGEX_COMP_PTN );
+			else if( strspn( ptr, "'\"/" ) )
 			{
 				stopch = *ptr;
 				eptr = ptr + pstrlen( ptr ) - 1;

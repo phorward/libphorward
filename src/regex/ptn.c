@@ -352,6 +352,44 @@ pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
 	return first;
 }
 
+/** Duplicate pattern in a 1:1 copy. */
+pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
+{
+	pregex_ptn*		start	= (pregex_ptn*)NULL;
+	pregex_ptn*		prev	= (pregex_ptn*)NULL;
+	pregex_ptn*		dup;
+
+	PROC( "pregex_ptn_dup" );
+	PARMS( "ptn", "%p", ptn );
+
+	while( ptn )
+	{
+		dup = pregex_ptn_create( ptn->type );
+
+		if( !start )
+			start = dup;
+		else
+			prev->next = dup;
+
+		if( ptn->type == PREGEX_PTN_CHAR )
+			dup->ccl = p_ccl_dup( ptn->ccl );
+
+		if( ptn->child[0] )
+			dup->child[0] = pregex_ptn_dup( ptn->child[0] );
+
+		if( ptn->child[1] )
+			dup->child[1] = pregex_ptn_dup( ptn->child[1] );
+
+		if( ptn->accept )
+			dup->accept = pmemdup( ptn->accept, sizeof( pregex_accept ) );
+
+		prev = dup;
+		ptn = ptn->next;
+	}
+
+	RETURN( start );
+}
+
 /** Releases memory of a pattern including all its subsequent and following
 patterns.
 

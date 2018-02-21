@@ -66,8 +66,9 @@ struct _ppsym
 	plist*					first;		/* Set of FIRST() symbols */
 
 	char*					emit;		/* AST emitting node */
+	pregex_ptn*				ptn;		/* Pattern definition (terminals!) */
 
-	char*					strval;		/* String represenation */
+	char*					strval;		/* String representation */
 };
 
 #define PPSYM_IS_TERMINAL( sym )	( !islower( *( sym )->name ) )

@@ -31,6 +31,9 @@ Usage:	Header for the pregex object and functions.
 											1:1 as it where a string-constant.
 											Any regex-specific symbols will
 											be ignored. */
+#define PREGEX_COMP_PTN			0x80	/*	The regular expression passed
+											already is a pattern, and shall be
+											integrated. */
 
 /* ---> Part II: Runtime flags */
 #define PREGEX_RUN_WCHAR		0x100	/*	Run regular expression with
