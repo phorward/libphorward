@@ -2,6 +2,11 @@
 
 ./AllSystemsGo
 
-PATH="`pwd`/run:$PATH"
-export PATH
+BINDIR="`pwd`/run"
+
+if [[ $PATH != *"$BINDIR"* ]]
+then
+	PATH="`pwd`/run:$PATH"
+	export PATH
+fi
 
