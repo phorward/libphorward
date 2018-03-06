@@ -12,15 +12,33 @@ Usage:	Parser maintainance object.
 
 #define DEBUGLEVEL		0
 
-/** Creates a new parser object with flags //flags// and the grammar //bnf//. */
+/** Creates a new parser object with the underlying grammar //g//.
+
+The grammar must either be parsed first via one of the BNF parsers
+(pp_gram_from_ebnf(), pp_gram_from_bnf()) or hand-crafted. The provided grammar
+gets "frozen" when a parser is created from it. Modifications on the grammar
+with a parser based on an older grammar state may cause memory corruption and
+crashes.
+
+The function returns a valid parser object on success, or (pppar*)NULL
+in case the grammar is invalid. */
 pppar* pp_par_create( ppgram* g )
 {
 	pppar*	p;
 
+	PROC( "pp_par_create" );
+	PARMS( "g", "%p", g );
+
 	if( !g )
 	{
 		WRONGPARAM;
-		return (pppar*)NULL;
+		RETURN( (pppar*)NULL );
+	}
+
+	if( !pp_gram_prepare( g ) )
+	{
+		MSG( "The provided grammar object is invalid" );
+		RETURN( (pppar*)NULL );
 	}
 
 	p = (pppar*)pmalloc( sizeof( pppar ) );
@@ -33,17 +51,20 @@ pppar* pp_par_create( ppgram* g )
 
 	/* Grammar */
 	p->gram = g;
-	pp_gram_prepare( p->gram );
 
 	if( !pp_lr_build( &p->states, &p->dfa, p->gram ) )
-		return pp_par_free( p );
+	{
+		MSG( "Bulding parse tables failed" );
+
+		pp_par_free( p );
+		RETURN( (pppar*)NULL );
+	}
 
 	/* pp_gram_dump( stderr, g ); */ /* DEBUG! */
-
-	return p;
+	RETURN( p );
 }
 
-/** Free parser //par//. */
+/** Frees the parser object //par//. */
 pppar* pp_par_free( pppar* p )
 {
 	if( !p )
@@ -70,10 +91,13 @@ int pp_par_auto_token( pppar* p )
 	char		stopch;
 	char		buf			[ BUFSIZ + 1 ];
 
+	PROC( "pp_par_auto_token" );
+	PARMS( "p", "%p", p );
+
 	if( !( p ) )
 	{
 		WRONGPARAM;
-		return 0;
+		RETURN( 0 );
 	}
 
 	plist_for( p->gram->symbols, e )
@@ -85,6 +109,8 @@ int pp_par_auto_token( pppar* p )
 
 		if( !sym->ptn && !sym->emit && !strspn( ptr, "'\"/" ) )
 		{
+			VARS( "sym->name", "%s", sym->name );
+
 			eptr = ptr + pstrlen( ptr ) - 1;
 
 			while( *eptr != '@' && eptr > ptr )
@@ -107,6 +133,8 @@ int pp_par_auto_token( pppar* p )
 
 		if( PPSYM_IS_TERMINAL( sym ) && tok == p->ntokens )
 		{
+			MSG( "Symbol not in tokens array, yet." );
+
 			if( sym->ptn )
 				pp_par_define_token( p, sym, (char*)sym->ptn, PREGEX_COMP_PTN );
 			else if( strspn( ptr, "'\"/" ) )
@@ -149,17 +177,25 @@ int pp_par_auto_token( pppar* p )
 		}
 	}
 
-	return gen;
+	VARS( "gen", "%d", gen );
+	RETURN( gen );
 }
 
 /** Define token */
 pboolean pp_par_define_token( pppar* p, ppsym* sym, char* pat, int flags )
 {
+	PROC( "pp_par_define_token" );
+	PARMS( "p", "%p", p );
+
 	if( !( p && sym && pat ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
 	}
+
+	PARMS( "sym->name", "%s", sym->name );
+	PARMS( "pat", "%s", pat );
+	PARMS( "flags", "%d", flags );
 
 	if( !p->lex )
 		p->lex = plex_create( 0 );
@@ -167,35 +203,15 @@ pboolean pp_par_define_token( pppar* p, ppsym* sym, char* pat, int flags )
 	*(p->ntokens++) = sym;
 	plex_define( p->lex, pat, (int)( p->ntokens - p->tokens ), flags );
 
-	return TRUE;
+	RETURN( TRUE );
 }
-
-#if DEBUGLEVEL > 2
-/* Function to dump the parse stack content */
-static void print_stack( char* title, plist* states, parray* stack )
-{
-	pplrse*	e;
-	int		i;
-
-	fprintf( stderr, "STACK DUMP %s\n", title );
-
-	for( i = 0; i < parray_count( stack ); i++ )
-	{
-		e = (pplrse*)parray_get( stack, i );
-		fprintf( stderr, "%02d: %s %d >%.*s<\n",
-			i, e->symbol ? e->symbol->name : "(null)",
-				e->state ?
-					plist_offset( plist_get_by_ptr( states, e->state ) ) : -1,
-			e->end - e->start, e->start );
-	}
-}
-#endif
 
 
 /* LR-Stackitem */
 typedef struct
 {
 	int				state;			/* State */
+	ppsym*			sym;			/* Symbol */
 
 	char*			start;			/* Begin of match */
 	char*			end;			/* End of match */
@@ -206,6 +222,24 @@ typedef struct
 	int				col;			/* Positioning in source */
 } pplrse;
 
+#if DEBUGLEVEL > 2
+/* Function to dump the parse stack content */
+static void print_stack( char* title, parray* stack )
+{
+	pplrse*	e;
+	int		i;
+
+	fprintf( stderr, "STACK DUMP %s\n", title );
+
+	for( i = 0; i < parray_count( stack ); i++ )
+	{
+		e = (pplrse*)parray_get( stack, i );
+		fprintf( stderr, "%02d: %s %d >%.*s<\n",
+			i, e->sym->name, e->state
+				e->end - e->start, e->start );
+	}
+}
+#endif
 
 static ppsym* pp_par_scan( pppar* p, char** start, char** end )
 {
@@ -235,7 +269,7 @@ The function uses the parsing method defined when then parser was created.
 //end// receives a pointer to the position where the parser stopped.
 
 It returns an abstract syntax tree to //root// on success. */
-pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
+pboolean pp_par_parse( ppast** root, pppar* par, char* start, char** end )
 {
 	int			i;
 	int			row		= 1;
@@ -251,25 +285,26 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 	ppprod*		prod;
 	ppast*		node;
 
-	if( !( p && start && end ) )
+	if( !( par && start && end ) )
 	{
 		WRONGPARAM;
 		return FALSE;
 	}
 
 	/* Init */
-	if( p->lex )
-		plex_prepare( p->lex );
+	if( par->lex )
+		plex_prepare( par->lex );
 
 	stack = parray_create( sizeof( pplrse ), 0 );
 
 	tos = (pplrse*)parray_malloc( stack );
+	tos->sym = par->gram->goal;
 	tos->start = start;
 	tos->end = *end;
 
 	/* Read token */
 	*end = start;
-	sym = pp_par_scan( p, &start, end );
+	sym = pp_par_scan( par, &start, end );
 
 	do
 	{
@@ -287,7 +322,7 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 			for( i = 0; i < parray_count( stack ); i++ )
 			{
 				x = parray_get( stack, i );
-				fprintf( stderr, "%d: %p\n", i, x->node );
+				fprintf( stderr, "%d: %par\n", i, x->node );
 				if( x->node )
 					pp_ast_printnew( x->node );
 			}
@@ -305,22 +340,22 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 		if( tos->state > -1 )
 		{
 			for( i = 2, shift = 0, reduce = 0;
-					i < p->dfa[tos->state][0]; i += 3 )
+					i < par->dfa[tos->state][0]; i += 3 )
 			{
-				if( p->dfa[tos->state][i] == sym->idx + 1 )
+				if( par->dfa[tos->state][i] == sym->idx + 1 )
 				{
-					if( p->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
-						shift = p->dfa[tos->state][ i + 2 ];
+					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
+						shift = par->dfa[tos->state][ i + 2 ];
 
-					if( p->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-						reduce = p->dfa[tos->state][ i + 2 ];
+					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
+						reduce = par->dfa[tos->state][ i + 2 ];
 
 					break;
 				}
 			}
 
 			if( !shift && !reduce )
-				reduce = p->dfa[ tos->state ][ 1 ];
+				reduce = par->dfa[ tos->state ][ 1 ];
 		}
 
 		if( !shift && !reduce )
@@ -354,6 +389,7 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 
 			tos = (pplrse*)parray_malloc( stack );
 
+			tos->sym = sym;
 			tos->state = reduce ? 0 : shift - 1;
 			tos->start = start;
 			tos->end = *end;
@@ -368,13 +404,13 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 
 			/* Read next token */
 			start = *end;
-			sym = pp_par_scan( p, &start, end );
+			sym = pp_par_scan( par, &start, end );
 		}
 
 		/* Reduce */
 		while( reduce )
 		{
-			prod = pp_prod_get( p->gram, reduce - 1 );
+			prod = pp_prod_get( par->gram, reduce - 1 );
 
 			#if DEBUGLEVEL > 1
 			fprintf( stderr,
@@ -386,7 +422,7 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 			#endif
 
 			#if DEBUGLEVEL > 2
-			print_stack( "Before Reduce", states, stack );
+			print_stack( "Before Reduce", stack );
 			#endif
 
 			node = (ppast*)NULL;
@@ -432,7 +468,7 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 											lrow, lcol, node );
 
 			/* Goal symbol reduced? */
- 			if( prod->lhs == p->gram->goal && parray_count( stack ) == 1 )
+ 			if( prod->lhs == par->gram->goal && parray_count( stack ) == 1 )
 			{
 				if( root )
 					*root = node;
@@ -441,16 +477,16 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 			}
 
 			/* Check for entries in the parse table */
-			for( i = p->dfa[tos->state][0] - 3, shift = 0, reduce = 0;
+			for( i = par->dfa[tos->state][0] - 3, shift = 0, reduce = 0;
 					i >= 2; i -= 3 )
 			{
-				if( p->dfa[tos->state][i] == prod->lhs->idx + 1 )
+				if( par->dfa[tos->state][i] == prod->lhs->idx + 1 )
 				{
-					if( p->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
-						shift = p->dfa[tos->state][ i + 2 ];
+					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
+						shift = par->dfa[tos->state][ i + 2 ];
 
-					if( p->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-						reduce = p->dfa[tos->state][ i + 2 ];
+					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
+						reduce = par->dfa[tos->state][ i + 2 ];
 
 					break;
 				}
@@ -458,6 +494,7 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 
 			tos = (pplrse*)parray_malloc( stack );
 
+			tos->sym = prod->lhs;
 			tos->state = shift - 1;
 			tos->start = lstart;
 			tos->end = *end;
@@ -466,7 +503,7 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 			tos->col = lcol;
 
 			#if DEBUGLEVEL > 2
-			print_stack( "Behind Reduce", states, stack );
+			print_stack( "Behind Reduce", stack );
 			#endif
 		}
 
@@ -480,7 +517,7 @@ pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end )
 			#endif
 
 			/*
-			if( pp_white_in_input( p->gram, ( lstart = *end ), end ) )
+			if( pp_white_in_input( par->gram, ( lstart = *end ), end ) )
 				pp_pos_in_input( &row, &col, lstart, *end );
 			*/
 		}

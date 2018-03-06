@@ -284,6 +284,8 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 
 			fprintf( stream, " }" );
 		}
+		else if( PPSYM_IS_TERMINAL( s ) && s->ptn )
+			fprintf( stream, " /%s/", pregex_ptn_to_regex( s->ptn ) );
 
 		fprintf( stream, "\n" );
 	}

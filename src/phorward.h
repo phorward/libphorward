@@ -916,7 +916,7 @@ pppar* pp_par_create( ppgram* g );
 pppar* pp_par_free( pppar* p );
 int pp_par_auto_token( pppar* p );
 pboolean pp_par_define_token( pppar* p, ppsym* sym, char* pat, int flags );
-pboolean pp_par_parse( ppast** root, pppar* p, char* start, char** end );
+pboolean pp_par_parse( ppast** root, pppar* par, char* start, char** end );
 
 
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );

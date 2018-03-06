@@ -106,15 +106,21 @@ Building the Phorward Toolkit is simple as every GNU-style open source program. 
 
 Then, run
 
-	$ ./configure
+```bash
+$ ./configure
+```
 
 to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
 
-	$ make
+```bash
+$ make
+```
 
 and
 
-    $ make install
+```bash
+$ make install
+```
 
 (properly as root), to install the toolkit into your system.
 
@@ -124,11 +130,15 @@ Alternatively there is also a simpler method for setting up a local build system
 
 Once, type
 
-	$ make -f Makefile.gnu make_install
+```bash
+$ make -f Makefile.gnu make_install
+```
 
 then, a simple run of
 
-	$ make
+```bash
+$ make
+```
 
 can be used to simply build the entire library or parts of it.
 
@@ -140,7 +150,7 @@ The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Soft
 
 Some other projects by the author are:
 
-- [UniCC](https://github.com/phorward/phorward), the universal parser generator.
+- [UniCC](https://github.com/phorward/unicc), the universal parser generator.
 - [RapidBATCH](https://github.com/phorward/rapidbatch), a scripting language.
 - [pynetree](https://github.com/phorward/pynetree), a light-weight parsing toolkit written in pure Python.
 - [JS/CC](https://jscc.brobston.com), the JavaScript parser generator.
