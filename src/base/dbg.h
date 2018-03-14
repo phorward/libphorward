@@ -76,4 +76,13 @@ Usage:	Program Trace Facilities
 	#define PARMS( name, format, val )
 #endif
 
+/* Macro: LOG */
+#ifdef DEBUG
+	#define LOG( format, ... ) \
+		_dbg_trace( __FILE__, __LINE__, "LOG", _dbg_proc_name, \
+			format, __VA_ARGS__ )
+#else
+	#define LOG( name, ... )
+#endif
+
 #endif

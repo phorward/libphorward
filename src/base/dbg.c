@@ -92,10 +92,19 @@ For parameters taken to functions, the PARMS()-macro shall be used.
 
 /** Write a message to trace.
 
-//param_name// is the name of the parameter
-//format// is the A printf-styled format string.
-//parameter// is the parameter itself.
+//message// is your message!
 */
+/*MACRO:MSG( char* message )*/
+
+/** Write any logging output to trace.
+
+This function is newer than the previous ones, and allows for a printf-like
+format string with variable amount of parameters.
+
+//format// is a printf()-like format-string.
+//...// parameters in the way they occur in the format-string.
+*/
+/*MACRO:LOG( char* format, ... )*/
 
 /*NO_DOC*/
 
@@ -110,6 +119,46 @@ static void _dbg_indent( void )
 		fprintf( stderr, "." );
 }
 
+/** Check if debug output is wanted. */
+pboolean _dbg_trace_enabled( char* file, char* function )
+{
+	char*		modules;
+	char*		functions;
+	char*		basename;
+	int			maxdepth;
+
+	if( !( basename = strrchr( file, PPATHSEP ) ) )
+		basename = file;
+	else
+		basename++;
+
+	/* Find out if this module should be traced */
+	if( ( modules = getenv( "TRACEMODULE" ) ) )
+	{
+		if( strcmp( modules, "*" ) != 0
+			&& !strstr( modules, basename ) )
+			return FALSE;
+	}
+
+	/* Find out if this function should be traced */
+	if( ( functions = getenv( "TRACEFUNCTION" ) ) )
+	{
+		if( strcmp( functions, "*" ) != 0
+			&& !strstr( functions, function ) )
+			return FALSE;
+	}
+
+	/* One of both configs must be present! */
+	if( !modules && !functions )
+		return FALSE;
+
+	if( ( maxdepth = atoi( pstrget( getenv( "TRACEDEPTH" ) ) ) ) > 0
+			&& _dbg_level > maxdepth )
+		return FALSE;
+
+	return TRUE;
+}
+
 /** Output trace message to the error log.
 
 //file// is the filename (__FILE__).
@@ -122,42 +171,13 @@ static void _dbg_indent( void )
 void _dbg_trace( char* file, int line, char* type,
 					char* function, char* format, ... )
 {
-	char*		modules;
-	char*		functions;
-	char*		basename;
-	int			maxdepth;
 	va_list		arg;
 
-	if( !( basename = strrchr( file, PPATHSEP ) ) )
-		basename = file;
-	else
-		basename++;
-
-	/* Find out if this module should be traced */
-	if( ( modules = getenv( "TRACEMODULE" ) ) )
-	{
-		if( strcmp( modules, "*" ) != 0
-			&& !strstr( modules, basename ) )
-			return;
-	}
-
-	/* Find out if this function should be traced */
-	if( ( functions = getenv( "TRACEFUNCTION" ) ) )
-	{
-		if( strcmp( functions, "*" ) != 0
-			&& !strstr( functions, function ) )
-			return;
-	}
-
-	/* One of both configs must be present! */
-	if( !modules && !functions )
+	/* Check if trace is enabled */
+	if( !_dbg_trace_enabled( file, function ) )
 		return;
 
-	if( ( maxdepth = atoi( pstrget( getenv( "TRACEDEPTH" ) ) ) ) > 0
-			&& _dbg_level > maxdepth )
-		return;
-
-	if( strcmp( type, "ENTRY" ) == 0 )
+	if( type && strcmp( type, "ENTRY" ) == 0 )
 	{
 		fprintf( stderr, "(%s:%5d) ", file, line );
 		_dbg_indent();
@@ -168,7 +188,7 @@ void _dbg_trace( char* file, int line, char* type,
 
 	fprintf( stderr, "(%s:%5d) ", file, line );
 	_dbg_indent();
-	fprintf( stderr, "%-6s", type );
+	fprintf( stderr, "%-8s", type ? type : "" );
 
 	if( format && *format )
 	{
@@ -182,7 +202,7 @@ void _dbg_trace( char* file, int line, char* type,
 
 	fprintf( stderr, "\n" );
 
-	if( strcmp( type, "RETURN" ) == 0 )
+	if( type && strcmp( type, "RETURN" ) == 0 )
 	{
 		_dbg_level--;
 
