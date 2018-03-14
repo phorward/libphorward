@@ -201,7 +201,7 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 //g// is the grammar that receives the result of the parse.
 This grammar is extended to new definitions when it already contains symbols.
 
-//source// is the BNF definition string that defines the grammar.
+//src// is the BNF definition string that defines the grammar.
 
 The function returns TRUE in case the grammar could be compiled,
 FALSE otherwise.
@@ -219,12 +219,10 @@ defs : defs nonterm | nonterm ;
 grammar$ : defs ;
 ```
 */
-pboolean pp_gram_from_bnf( ppgram* g, char* source )
+pboolean pp_gram_from_bnf( ppgram* g, char* src )
 {
 	pppar*		par;
 	ppgram*		bnf;
-	char*		s = source;
-	char*		e;
 	ppast*		ast;
 
 	ppsym*		terminal;
@@ -241,11 +239,16 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 	ppsym*		n_defs;
 	ppsym*		n_grammar;
 
-	if( !( g && source ) )
+	PROC( "pp_gram_from_bnf" );
+
+	if( !( g && src ) )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
 	}
+
+	PARMS( "g", "%p", g );
+	PARMS( "src", "%s", src );
 
 	/* Define a grammar for BNF */
 
@@ -304,35 +307,38 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 
 	/* Setup a parser */
 	par = pp_par_create( bnf );
+	PP_GRAM_DUMP( bnf );
 
 	/* Lexer */
 
-	pp_par_define_token( par, terminal,
+	pp_par_lex( par, terminal,
 		"[^a-z_:;| \t\r\n][^:;| \t\r\n]*", 			/* Ident */
 		0 );
-	pp_par_define_token( par, nonterminal,
+	pp_par_lex( par, nonterminal,
 		"[a-z_][^:;| \t\r\n]*",						/* ident */
 		0 );
 
-	pp_par_auto_token( par );
+	pp_par_autolex( par );
 
-	if( !pp_par_parse( &ast, par, s, &e ) )
+	if( !pp_par_parse( &ast, par, src ) )
 	{
 		pp_par_free( par );
 		pp_gram_free( bnf );
-		return FALSE;
+		RETURN( FALSE );
 	}
 
-	/* pp_ast_dump_short( stdout, ast ); */ /* DEBUG! */
+	PP_AST_DUMP( ast );
 
 	if( !ast_to_gram( g, ast ) )
-		return FALSE;
+		RETURN( FALSE );
+
+	PP_GRAM_DUMP( g );
 
 	pp_par_free( par );
 	pp_gram_free( bnf );
 	pp_ast_free( ast );
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 /** Compiles an Extended Backus-Naur-Format definition into a grammar.
@@ -340,7 +346,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* source )
 //g// is the grammar that receives the result of the parse.
 This grammar is extended to new definitions when it already contains symbols.
 
-//source// is the EBNF definition string that defines the grammar.
+//src// is the EBNF definition string that defines the grammar.
 
 The function returns TRUE in case the grammar could be compiled,
 FALSE otherwise.
@@ -359,12 +365,10 @@ defs : defs nonterm | nonterm ;
 grammar$ : defs ;
 ```
 */
-pboolean pp_gram_from_ebnf( ppgram* g, char* source )
+pboolean pp_gram_from_ebnf( ppgram* g, char* src )
 {
 	pppar*		par;
 	ppgram*		ebnf;
-	char*		s = source;
-	char*		e;
 	ppast*		ast;
 
 	ppsym*		terminal;
@@ -389,11 +393,16 @@ pboolean pp_gram_from_ebnf( ppgram* g, char* source )
 
 	ppprod*		p;
 
-	if( !( g && source ) )
+	PROC( "pp_gram_from_ebnf" );
+
+	if( !( g && src ) )
 	{
 		WRONGPARAM;
 		return FALSE;
 	}
+
+	PARMS( "g", "%p", g );
+	PARMS( "src", "%s", src );
 
 	/* Define a grammar for EBNF */
 
@@ -468,10 +477,11 @@ pboolean pp_gram_from_ebnf( ppgram* g, char* source )
 
 	/* Setup a parser */
 	par = pp_par_create( ebnf );
+	PP_GRAM_DUMP( ebnf );
 
 	/* Lexer */
 
-	pp_par_define_token( par, terminal,
+	pp_par_lex( par, terminal,
 		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* Ident */
 		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
 																expression/ */
@@ -480,23 +490,25 @@ pboolean pp_gram_from_ebnf( ppgram* g, char* source )
 		"|'[^']*'(@\\w*)?",								/* 'single-quoted
 																string' */
 		0 );
-	pp_par_define_token( par, nonterminal,
+	pp_par_lex( par, nonterminal,
 		"[a-z_][^:;|()*?+ \t\r\n]*",					/* ident */
 		0 );
 
-	pp_par_auto_token( par );
+	pp_par_autolex( par );
 
-	if( !pp_par_parse( &ast, par, s, &e ) )
+	if( !pp_par_parse( &ast, par, src ) )
 	{
 		pp_par_free( par );
 		pp_gram_free( ebnf );
 		return FALSE;
 	}
 
-	/* pp_ast_dump_short( stdout, ast ); */ /* DEBUG! */
+	PP_AST_DUMP( ast );
 
 	if( !ast_to_gram( g, ast ) )
 		return FALSE;
+
+	PP_GRAM_DUMP( g );
 
 	pp_par_free( par );
 	pp_gram_free( ebnf );

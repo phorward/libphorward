@@ -110,6 +110,22 @@ ppast* pp_ast_select( ppast* node, char* emit, int n )
 	return node;
 }
 
+/** Evaluate //ast// using evaluation function //func//. */
+void pp_ast_eval( ppast* ast, pastevalfn func )
+{
+	ppast* 	node;
+
+	func( PPAST_EVAL_TOPDOWN, ast );
+
+	for( node = ast->child; node; node = node->next )
+	{
+		pp_ast_eval( node, func );
+		func( PPAST_EVAL_PASSOVER, node );
+	}
+
+	func( PPAST_EVAL_BOTTOMUP, ast );
+}
+
 /** Dump detailed //ast// to //stream//. */
 void pp_ast_dump( FILE* stream, ppast* ast )
 {
@@ -170,6 +186,26 @@ void pp_ast_dump_short( FILE* stream, ppast* ast )
 
 		ast = ast->next;
 	}
+}
+
+/** Dump AST to trace.
+
+The PP_AST_DUMP-macro is used to dump all relevant contents of a ppast object
+into the program trace, for debugging purposes.
+
+PP_AST_DUMP() can only be used when the function was trace-enabled by PROC()
+before.
+*/
+/*MACRO:PP_AST_DUMP( ppast* ast )*/
+void _dbg_ast_dump( char* file, int line, char* function,
+						char* name, ppast* ast )
+{
+	if( !_dbg_trace_enabled( file, function ) )
+		return;
+
+	_dbg_trace( file, line, "AST", function, "%s = {", name );
+	pp_ast_dump_short( stdout, ast );
+	_dbg_trace( file, line, "AST", function, "}" );
 }
 
 /** Dump //ast// to //stream// as JSON-formatted string.

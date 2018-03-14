@@ -19,8 +19,8 @@ void help( char** argv )
 	"   grammar                   Grammar to create a parser from.\n"
 	"   input                     Input to be processed by the parser.\n\n"
 
-	"   -f  --format  TYPE        Which input type to use, either\n"
-	"                             ebnf (default), bnf\n"
+	"   -f  --format  TYPE        Which input grammar parser to use, either\n"
+	"                             pbnf (default), ebnf, bnf\n"
 	"   -G                        Dump constructed grammar\n"
 	"   -h  --help                Show this help, and exit.\n"
 	"   -r  --render  RENDERER    Use AST renderer RENDERER:\n"
@@ -37,7 +37,7 @@ int main( int argc, char** argv )
 	pboolean	verbose	= FALSE;
 	pboolean	lm		= FALSE;
 	pboolean	dg		= FALSE;
-	pboolean	ebnf	= TRUE;
+	char*		bnftype	= "pbnf";
 	int			r		= 0;
 	ppast*		a		= (ppast*)NULL;
 	ppgram*		g;
@@ -47,13 +47,14 @@ int main( int argc, char** argv )
 	char*		ifile;
 	char*		istr	= (char*)NULL;
 	char*		s		= (char*)NULL;
-	char*		e;
 	int			i;
 	int			rc;
 	int			next;
 	char		opt		[ 20 + 1 ];
 	char		line	[ 1024 + 1 ];
 	char*		param;
+
+	PROC( "pparse" );
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
 						"f:Ghr:vV",
@@ -62,15 +63,15 @@ int main( int argc, char** argv )
 	{
 		if( !strcmp( opt, "format" ) || !strcmp( opt, "f" ) )
 		{
-			if( pstrcasecmp( param, "ebnf" ) == 0 )
-				ebnf = TRUE;
-			else if( pstrcasecmp( param, "bnf" ) == 0 )
-				ebnf = FALSE;
+			if( !pstrcasecmp( param, "pbnf" )
+				|| !pstrcasecmp( param, "ebnf" )
+					|| !pstrcasecmp( param, "bnf" ) )
+				bnftype = pstrlwr( param );
 			else
 			{
-				fprintf( stderr, "Unknown format specified, "
-									"either 'bnf' or 'ebnf' allowed\n" );
-				return 1;
+				fprintf( stderr, "Unknown format specified, either "
+									"'pbnf', 'ebnf' or 'bnf' allowed\n" );
+				RETURN( 1 );
 			}
 		}
 		else if( !strcmp(opt, "G" ) )
@@ -78,7 +79,7 @@ int main( int argc, char** argv )
 		else if( !strcmp( opt, "help" ) || !strcmp( opt, "h" ) )
 		{
 			help( argv );
-			return 0;
+			RETURN( 0 );
 		}
 		else if( !strcmp( opt, "renderer" ) || !strcmp( opt, "r" ) )
 		{
@@ -94,7 +95,7 @@ int main( int argc, char** argv )
 		else if( !strcmp( opt, "version" ) || !strcmp( opt, "V" ) )
 		{
 			version( argv, "Parser construction command-line utility" );
-			return 0;
+			RETURN( 0 );
 		}
 	}
 
@@ -111,7 +112,7 @@ int main( int argc, char** argv )
 	if( !gstr )
 	{
 		help( argv );
-		return 1;
+		RETURN( 1 );
 	}
 
 	if( verbose )
@@ -119,24 +120,29 @@ int main( int argc, char** argv )
 
 	g = pp_gram_create();
 
-	if( ( ebnf && !pp_gram_from_ebnf( g, gstr ) )
-		|| ( !ebnf && !pp_gram_from_bnf( g, gstr ) ) )
+	if( ( !strcmp( bnftype, "pbnf" ) && !pp_gram_from_pbnf( g, gstr ) )
+			|| ( !strcmp( bnftype, "ebnf" ) && !pp_gram_from_ebnf( g, gstr ) )
+				|| ( !strcmp( bnftype, "bnf" ) && !pp_gram_from_bnf( g, gstr ) )
+			)
 	{
 		fprintf( stderr, "%s: Parse error in >%s<\n", gfile, gstr );
-		return 1;
+		RETURN( 1 );
 	}
 
 	if( !pp_gram_prepare( g ) )
 	{
 		fprintf( stderr, "%s: Unable to prepare grammar\n", gfile );
-		return 1;
+		RETURN( 1 );
 	}
 
 	if( dg )
-		pp_gram_dump( stdout, g );
+	{
+		PP_GRAM_DUMP( g );
+		printf( "%s\n", pp_gram_to_str( g ) );
+	}
 
 	p = pp_par_create( g );
-	pp_par_auto_token( p );
+	pp_par_autolex( p );
 
 	lm = argc == next;
 	i = 0;
@@ -178,9 +184,7 @@ int main( int argc, char** argv )
 
 		if( s )
 		{
-			e = s;
-
-			if( pp_par_parse( &a, p, s, &e ) )
+			if( pp_par_parse( &a, p, s ) )
 			{
 				switch( r )
 				{
@@ -217,6 +221,6 @@ int main( int argc, char** argv )
 		i++;
 	}
 
-	return 0;
+	RETURN( 1 );
 }
 

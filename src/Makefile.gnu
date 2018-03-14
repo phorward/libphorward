@@ -28,6 +28,7 @@ SRC = \
 	parse/gram.c \
 	parse/lr.c \
 	parse/parse.c \
+	parse/pbnf.c \
 	parse/prod.c \
 	parse/sym.c \
 	regex/dfa.c \

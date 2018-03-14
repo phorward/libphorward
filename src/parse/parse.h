@@ -112,6 +112,16 @@ struct _ppast
 	ppast*					next;		/* Next element in current scope */
 };
 
+/* AST traversal */
+typedef enum
+{
+	PPAST_EVAL_TOPDOWN,
+	PPAST_EVAL_PASSOVER,
+	PPAST_EVAL_BOTTOMUP
+} ppasteval;
+
+typedef void (*pastevalfn)( ppasteval type, ppast* node );
+
 /* Parser */
 typedef struct
 {
@@ -131,3 +141,20 @@ typedef struct
 	unsigned int			(*lexfn)( char** start, char** end ); /* callback */
 
 } pppar;
+
+
+/* Macro: PP_GRAM_DUMP */
+#ifdef DEBUG
+	#define PP_GRAM_DUMP( g ) \
+		_dbg_gram_dump( __FILE__, __LINE__, _dbg_proc_name, #g, g )
+#else
+	#define PP_GRAM_DUMP( g )
+#endif
+
+/* Macro: PP_AST_DUMP */
+#ifdef DEBUG
+	#define PP_AST_DUMP( ast ) \
+		_dbg_ast_dump( __FILE__, __LINE__, _dbg_proc_name, #ast, ast )
+#else
+	#define PP_AST_DUMP( ast )
+#endif

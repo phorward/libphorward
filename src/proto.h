@@ -108,6 +108,7 @@ char* p_ccl_to_str( pccl* ccl, pboolean escape );
 void p_ccl_print( FILE* stream, pccl* ccl, int break_after );
 
 /* base/dbg.c */
+pboolean _dbg_trace_enabled( char* file, char* function );
 void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 /* base/list.c */
@@ -173,19 +174,21 @@ ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
 ppast* pp_ast_get( ppast* node, int n );
 ppast* pp_ast_select( ppast* node, char* emit, int n );
+void pp_ast_eval( ppast* ast, pastevalfn func );
 void pp_ast_dump( FILE* stream, ppast* ast );
 void pp_ast_dump_short( FILE* stream, ppast* ast );
+void _dbg_ast_dump( char* file, int line, char* function, char* name, ppast* ast );
 void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
 
 /* parse/bnf.c */
-pboolean pp_gram_from_bnf( ppgram* g, char* source );
-pboolean pp_gram_from_ebnf( ppgram* g, char* source );
+pboolean pp_gram_from_bnf( ppgram* g, char* src );
+pboolean pp_gram_from_ebnf( ppgram* g, char* src );
 
 /* parse/gram.c */
 ppgram* pp_gram_create( void );
 pboolean pp_gram_prepare( ppgram* g );
-void pp_gram_dump( FILE* stream, ppgram* g );
+void _dbg_gram_dump( char* file, int line, char* function, char* name, ppgram* g );
 char* pp_gram_to_str( ppgram* grm );
 ppgram* pp_gram_free( ppgram* g );
 
@@ -195,9 +198,12 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 /* parse/parse.c */
 pppar* pp_par_create( ppgram* g );
 pppar* pp_par_free( pppar* p );
-int pp_par_auto_token( pppar* p );
-pboolean pp_par_define_token( pppar* p, ppsym* sym, char* pat, int flags );
-pboolean pp_par_parse( ppast** root, pppar* par, char* start, char** end );
+int pp_par_autolex( pppar* p );
+pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags );
+pboolean pp_par_parse( ppast** root, pppar* par, char* start );
+
+/* parse/pbnf.c */
+pboolean pp_gram_from_pbnf( ppgram* g, char* src );
 
 /* parse/prod.c */
 ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );

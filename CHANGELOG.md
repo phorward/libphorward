@@ -4,21 +4,36 @@ This file is used to document any relevant changes done to libphorward.
 
 ## v0.22
 
-Released on: Not released yet.
+Current development version.
 
-- Revised parse module, separating the grammar definition entirely from the
-  parsing algorithm, lexer, parser and abstract syntax tree.
-  This allows for a much higher modularity. The ``pppar`` object now represents
-  the internal LALR parser that can be executed on arbitrary input.
-- Evalutation of the TRACEFUNCTION environment variable to switch trace output
-  also on function-level, rather than module level.
-- Improved the plex command-line utility, it now recognizes `-b` and `-e`
-  correctly and can read from stdin.
-- Removed warnings and unused static functions from the entire library.
-- Bugfix & refactoring in p_ccl_parseshorthand() that caused invalid dfa state
-  machines generated from regular expressions on some 32-bit machine
-  configurations.
-- General bugfix in plex_tokenize() which ran into an endless-loop.
+- Parsing tools
+  - Created better definition language called PBNF (Phorward BNF, pbnf.c)
+  - Revised all modules, separating the grammar definition entirely from the
+    parsing algorithm, lexer, parser and abstract syntax tree. This allows for
+    a much higher modularity. The ``pppar`` object now represents the internal
+    LALR parser that can be executed on arbitrary input, with a combined lexical
+    analyzer implemented using ``plex``.
+  - Revised and simplified LR parser driver, now working on state machine, and
+    not the data-structures from lr.c anymore.
+  - Support for a BNF, EBNF and a Phorward-style BNF (PBNF) as input grammars
+    using the functions pp_gram_from_bnf(), pp_gram_from_ebnf() and
+    pp_gram_from_pbnf().
+- Regular expressions
+  - Renamed ``begin`` to ``start`` in the ``prange`` structure.
+  - Flipped default greedyness of expressions into non-greedyness, greedyness
+    can be switched by command-line.
+- Trace facilities
+  - Evalutation of the TRACEFUNCTION environment variable to switch trace output
+    also on function-level, rather than module level.
+  - New LOG macro to allow for printf-style formatted output.
+- Bugfixes
+  - Improved the plex command-line utility, it now recognizes `-b` and `-e`
+    correctly and can read from stdin.
+  - Removed warnings and unused static functions from the entire library.
+  - Fixing & refactoring in p_ccl_parseshorthand() that caused invalid dfa state
+    machines generated from regular expressions on some 32-bit machine
+    configurations.
+  - plex_tokenize() ran under some circumstances into an endless-loop.
 
 ## v0.21
 
@@ -96,102 +111,4 @@ Released on: July 2, 2012
 
 ## v0.16
 
-Released on: October 6, 2011
-
-### v0.16.11
-
-- pbasis: Bugfix in xml.c, relating the function xml_parse_file() and
-  xml_parse_fd(). Now removed xml_parse_fd(), xml_parse_file() uses the
-  map_file() function of util.c now. The problem only existed on the Windows
-  port.
-
-### v0.16.10
-
-- Preparatories for a new build concept, because there are problems on
-  Windows-platform relating the UniCC release soon.
-- Improved mkproto to generate function prototypes with only one script.
-- Removed cproto_all scripts, they are not necessary anymore.
-- Rewrote Makefiles according to use mkproto for now and in future.
-
-
-### v0.16.9
-
-- pregex: Added possibilities to define greedyness of the regular expression
-  execution machine via the NFA/DFA regular expression itself. Greedyness is set
-  TRUE by default, but switched FALSE when any char calls are done.
-
-### v0.16.8
-
-- pbasis: system.c extended to new function pgetopt(), a command-line argument
-  parser supporting short- and long-options including parameters.
-- NEWPROJECT: Extended base project to new pgetopt() function.
-
-### v0.16.6
-
-- pbasis: pbasis.h now defines va_copy-macro on older systems.
-
-### v0.16.5
-
-- pbasis: Memory leaks and overlaps removed from ccl.c
-- pregex: Memory leaks (lost pointers) removed from dfa.c
-
-### v0.16.4
-
-- mkdoc: Documentation generator extended to nicer HTML-output and support for
-  txt2tags templates. Take a look into run/mkdoc.awk and your include/Make.inc,
-  and the /doc-directory in $PHOME.
-
-
-### v0.16.3
-
-Entire development moved from SCCS to the Mercurial SCM, project maintenance
-and repository now entirely hosted on SourceForge.net. Now development is more
-transparent and faster than before. Enjoy!
-
-### v0.16.0
-
-- pregex: Implemented feature to finalize a NFA-stated machine into a DFA, the
-  match-, split- and replace-functions can now also be run with DFA-compiled
-  machine, for testing purposes.
-
-
-## v0.15
-
-### v0.15.23
-
-- pregex: Bugfix in DFA subset construction, now the regular expression with the
-  lowest accepting ID takes place over all other matches.
-
-### v0.15.15
-
-- pregex: Created some source improvements, default-transition matching
-- pbasis: ccl_end()-macro
-
-### v0.15.8
-
-- NEWPROJECT: Added a new directory NEWPROJECT, which serves as a project
-  template directory for new projects hosted within the Phorward Foundation
-  Libraries. Simply copy this directory, change the NEWPROJECT-strings to your
-  desired project name and start coding!
-- DEMO: Extended demo project to new pbasis-library features
-- pbasis/xml: Extended XML-processing functions: xml_count(), xml_count_all(),
-  xml_set_float_attr(), xml_get_float_attr(), xml_set_int_attr(),
-  xml_get_int_attr()
-- pbasis/xml: Removed substitution and memory allocation bugs
-- pbasis/xml: Rewritten output of XML-functions
-- pbasis/xml: Integrated XML-Library (based on ezXML) into pbasis library
-- pbasis/convert: New generalized functions to dynamically convert integers and
-  floats into single- and multi-byte-character strings.
-- pbasis/string: Added new functions pvasprintf(), pasprintf(), Pvasprintf() and
-  Pasprintf()
-- pbasis/var: Added a function generator and several utility functions to
-  build-up a variant data type with automatic type conversion into the Phorward
-  Foundation Libraries; This datatype can hold byte, char, integer, long,
-  unsinged integer, float, double as well as string and wide-character string
-  values in one structure. Check out the sources at pbasis/var.*. The get,
-  set and conv-functions of the pvar-variant datatype are generated by an
-  awk-script var.gen.awk with definitions from var.h
-
-## v0.14.6
-
-Initial Public Release.
+The toolkit's mentionable initial public release was on Sep 16, 2011 as v0.16.3.

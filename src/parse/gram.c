@@ -209,8 +209,17 @@ pboolean pp_gram_prepare( ppgram* g )
 	return TRUE;
 }
 
-/** Dumps the grammar //g// to //stream//. */
-void pp_gram_dump( FILE* stream, ppgram* g )
+/** Dump grammar to trace.
+
+The PP_GRAM_DUMP-macro is used to dump all relevant contents of a ppgram object
+into the program trace, for debugging purposes.
+
+PP_GRAM_DUMP() can only be used when the function was trace-enabled by PROC()
+before.
+*/
+/*MACRO:PP_GRAM_DUMP( ppgram* g )*/
+void _dbg_gram_dump( char* file, int line, char* function,
+						char* name, ppgram* g )
 {
 	plistel*	e;
 	plistel*	f;
@@ -219,6 +228,11 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 	int			maxlhslen	= 0;
 	int			maxemitlen	= 0;
 	int			maxsymlen	= 0;
+
+	if( !_dbg_trace_enabled( file, function ) )
+		return;
+
+	_dbg_trace( file, line, "GRAMMAR", function, "%s = {", name );
 
 	plist_for( g->symbols, e )
 	{
@@ -237,7 +251,7 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 	plist_for( g->prods, e )
 	{
 		p = (ppprod*)plist_access( e );
-		fprintf( stream,
+		fprintf( stderr,
 			"%s%s%s%s%s%s%-*s %-*s : ",
 			g->goal == p->lhs ? "$" : " ",
 			p->flags & PPFLAG_LEFTREC ? "L" : " ",
@@ -253,42 +267,44 @@ void pp_gram_dump( FILE* stream, ppgram* g )
 			s = (ppsym*)plist_access( f );
 
 			if( f != plist_first( p->rhs ) )
-				fprintf( stream, " " );
+				fprintf( stderr, " " );
 
-			fprintf( stream, "%s", pp_sym_to_str( s ) );
+			fprintf( stderr, "%s", pp_sym_to_str( s ) );
 		}
 
-		fprintf( stream, "\n" );
+		fprintf( stderr, "\n" );
 	}
 
-	fprintf( stream, "\n" );
+	fprintf( stderr, "\n" );
 
 	plist_for( g->symbols, e )
 	{
 		s = (ppsym*)plist_access( e );
 
-		fprintf( stream, "%03d  %-*s  %-*s",
+		fprintf( stderr, "%03d  %-*s  %-*s",
 			s->idx, maxemitlen, s->emit ? s->emit : "",
 				maxsymlen, s->name );
 
 		if( PPSYM_IS_NONTERMINAL( s ) && plist_count( s->first ) )
 		{
-			fprintf( stream, " {" );
+			fprintf( stderr, " {" );
 
 			plist_for( s->first, f )
 			{
 				s = (ppsym*)plist_access( f );
-				fprintf( stream, " " );
-				fprintf( stream, "%s", pp_sym_to_str( s ) );
+				fprintf( stderr, " " );
+				fprintf( stderr, "%s", pp_sym_to_str( s ) );
 			}
 
-			fprintf( stream, " }" );
+			fprintf( stderr, " }" );
 		}
 		else if( PPSYM_IS_TERMINAL( s ) && s->ptn )
-			fprintf( stream, " /%s/", pregex_ptn_to_regex( s->ptn ) );
+			fprintf( stderr, " /%s/", pregex_ptn_to_regex( s->ptn ) );
 
-		fprintf( stream, "\n" );
+		fprintf( stderr, "\n" );
 	}
+
+	_dbg_trace( file, line, "GRAMMAR", function, "}" );
 }
 
 /** Get grammar string representation */
