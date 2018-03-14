@@ -214,6 +214,8 @@ pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
 	else if( !pregex_ptn_parse( &ptn, pat, lex->flags | flags ) )
 		RETURN( (pregex_ptn*)NULL );
 
+	PARMS( "ptn->accept", "%p", ptn->accept );
+
 	ptn->accept->accept = match_id;
 	plist_push( lex->ptns, ptn );
 
@@ -278,8 +280,8 @@ int plex_lex( plex* lex, char* start, char** end )
 			{
 				if( lex->trans[ state ][ 3 ] & ( 1 << i ) )
 				{
-					if( !lex->ref[ i ].begin )
-						lex->ref[ i ].begin = ptr;
+					if( !lex->ref[ i ].start )
+						lex->ref[ i ].start = ptr;
 
 					lex->ref[ i ].end = ptr;
 				}
@@ -349,10 +351,10 @@ int plex_lex( plex* lex, char* start, char** end )
 
 		/*
 		for( i = 0; i < PREGEX_MAXREF; i++ )
-			if( lex->ref[ i ].begin )
+			if( lex->ref[ i ].start )
 				fprintf( stderr, "%2d: >%.*s<\n",
-					i, lex->ref[ i ].end - lex->ref[ i ].begin,
-						lex->ref[ i ].begin );
+					i, lex->ref[ i ].end - lex->ref[ i ].start,
+						lex->ref[ i ].start );
 		*/
 
 		RETURN( id );
@@ -478,7 +480,7 @@ size_t plex_tokenize( plex* lex, char* start, parray** matches )
 
 			r = (prange*)parray_malloc( *matches );
 			r->id = id;
-			r->begin = start;
+			r->start = start;
 			r->end = end;
 		}
 

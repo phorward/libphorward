@@ -21,7 +21,7 @@ Usage:	Interface for pregex-objects serving regular expressions.
 | PREGEX_COMP_NOANCHORS | Ignore anchor tokens, handle them as normal \
 characters |
 | PREGEX_COMP_NOREF | Don't compile references. |
-| PREGEX_COMP_NONGREEDY | Compile regex to be forced nongreedy. |
+| PREGEX_COMP_NONGREEDY | Compile regex to be forced non-greedy. |
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as \
 possible |
 | PREGEX_COMP_INSENSITIVE | Parse regular expression as case insensitive. |
@@ -31,7 +31,7 @@ taken as they where escaped. |
 | PREGEX_RUN_WCHAR | Run regular expression with wchar_t as input. |
 | PREGEX_RUN_NOANCHORS | Ignore anchors while processing the regex. |
 | PREGEX_RUN_NOREF | Don't create references. |
-| PREGEX_RUN_NONGREEDY | Force run regular expression nongreedy. |
+| PREGEX_RUN_NONGREEDY | Force run regular expression non-greedy. |
 | PREGEX_RUN_DEBUG | Debug mode; output some debug to stderr. |
 
 
@@ -148,8 +148,8 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 			{
 				if( regex->trans[ state ][ 3 ] & ( 1 << i ) )
 				{
-					if( !regex->ref[ i ].begin )
-						regex->ref[ i ].begin = ptr;
+					if( !regex->ref[ i ].start )
+						regex->ref[ i ].start = ptr;
 
 					regex->ref[ i ].end = ptr;
 				}
@@ -222,10 +222,10 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 
 		/*
 		for( i = 0; i < PREGEX_MAXREF; i++ )
-			if( regex->ref[ i ].begin )
+			if( regex->ref[ i ].start )
 				fprintf( stderr, "%2d: >%.*s<\n",
-					i, regex->ref[ i ].end - regex->ref[ i ].begin,
-						regex->ref[ i ].begin );
+					i, regex->ref[ i ].end - regex->ref[ i ].start,
+						regex->ref[ i ].start );
 		*/
 
 		RETURN( TRUE );
@@ -343,7 +343,7 @@ int pregex_findall( pregex* regex, char* start, parray** matches )
 
 			r = (prange*)parray_malloc( *matches );
 			r->id = 1;
-			r->begin = start;
+			r->start = start;
 			r->end = end;
 		}
 
@@ -477,7 +477,7 @@ int pregex_splitall( pregex* regex, char* start, parray** matches )
 				*matches = parray_create( sizeof( prange ), 0 );
 
 			r = (prange*)parray_malloc( *matches );
-			r->begin = start;
+			r->start = start;
 			r->end = end;
 		}
 
@@ -513,7 +513,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 	char*			replace;
 	char*			rprev;
 	char*			rpstr;
-	char*			rbegin;
+	char*			rstart;
 	int				ref;
 
 	PROC( "pregex_replace" );
@@ -590,7 +590,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 				VARS( "*rpstr", "%c", *rpstr );
 				if( *rpstr == '$' )
 				{
-					rbegin = rpstr;
+					rstart = rpstr;
 
 					if( regex->flags & PREGEX_RUN_WCHAR )
 					{
@@ -612,7 +612,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 							/* Extend first from prev of replacement */
 							if( !( replace = (char*)pwcsncatstr(
 									(wchar_t*)replace, (wchar_t*)rprev,
-										(wchar_t*)rbegin - (wchar_t*)rprev ) ) )
+										(wchar_t*)rstart - (wchar_t*)rprev ) ) )
 							{
 								OUTOFMEM;
 								RETURN( (char*)NULL );
@@ -630,16 +630,16 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 							if( refer )
 							{
 								MSG( "There is a reference!" );
-								VARS( "refer->begin", "%ls",
-										(wchar_t*)refer->begin );
+								VARS( "refer->start", "%ls",
+										(wchar_t*)refer->start );
 								VARS( "refer->end", "%ls",
-										(wchar_t*)refer->begin );
+										(wchar_t*)refer->start );
 
 								if( !( replace = (char*)pwcsncatstr(
 										(wchar_t*)replace,
-											(wchar_t*)refer->begin,
+											(wchar_t*)refer->start,
 												(wchar_t*)refer->end -
-													(wchar_t*)refer->begin ) ) )
+													(wchar_t*)refer->start ) ) )
 								{
 									OUTOFMEM;
 									RETURN( (char*)NULL );
@@ -670,7 +670,7 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 
 							/* Extend first from prev of replacement */
 							if( !( replace = pstrncatstr( replace,
-										rprev, rbegin - rprev ) ) )
+										rprev, rstart - rprev ) ) )
 							{
 								OUTOFMEM;
 								RETURN( (char*)NULL );
@@ -688,14 +688,14 @@ char* pregex_replace( pregex* regex, char* str, char* replacement )
 							if( refer )
 							{
 								MSG( "There is a reference!" );
-								VARS( "refer->begin", "%ls",
-										(wchar_t*)refer->begin );
+								VARS( "refer->start", "%ls",
+										(wchar_t*)refer->start );
 								VARS( "refer->end", "%ls",
 										(wchar_t*)refer->end );
 
 								if( !( replace = (char*)pstrncatstr(
-											replace, refer->begin,
-												refer->end - refer->begin ) ) )
+											replace, refer->start,
+												refer->end - refer->start ) ) )
 								{
 									OUTOFMEM;
 									RETURN( (char*)NULL );

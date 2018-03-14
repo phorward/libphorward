@@ -125,10 +125,9 @@ struct _regex_dfa_tr
 struct _regex_dfa_st
 {
 	plist*			trans;		/* Transition table row for this DFA state */
-	pregex_dfa_tr*	def_trans;	/* If != (pregex_dfa_tr*)NULL, this points
-									to a default dfa transition, which covers
-									the most character of the entire character
-									range */
+	pregex_dfa_tr*	def_trans;	/* If not NULL, this points to a default dfa
+									transition, which covers the most characters
+									of the entire character range */
 
 	pregex_accept	accept;		/* Match parameters */
 	int				refs;		/* References flags */
@@ -152,7 +151,7 @@ struct _regex_ptn
 	pregex_ptntype	type;		/* Pattern state element type */
 	pccl*			ccl;		/* Character-class for PREGEX_PTN_CHAR */
 
-	pregex_ptn*		child[ 2 ];	/* Links to child */
+	pregex_ptn*		child[ 2 ];	/* Links to children pattern(s) */
 	pregex_ptn*		next;		/* Next sequence element */
 
 	pregex_accept*	accept;		/* Optional accepting information */
@@ -167,8 +166,8 @@ struct _regex_ptn
 /* A pattern matching range */
 struct _range
 {
-	int				id;			/* Match ID */
-	char*			begin;		/* Begin pointer */
+	unsigned int	id;			/* Match ID */
+	char*			start;		/* Begin pointer */
 	char*			end;		/* End pointer */
 };
 

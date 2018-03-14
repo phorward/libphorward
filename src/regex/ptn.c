@@ -1151,8 +1151,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 
 			ccl = p_ccl_create( -1, -1, (char*)NULL );
 
-			if( !( ccl && p_ccl_addrange( ccl,
-								PCCL_MIN, PCCL_MAX ) ) )
+			if( !( ccl && p_ccl_addrange( ccl, PCCL_MIN, PCCL_MAX ) ) )
 			{
 				p_ccl_free( ccl );
 				RETURN( FALSE );
