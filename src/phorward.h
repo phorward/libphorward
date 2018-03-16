@@ -428,8 +428,6 @@ enum _regex_ptntype
 };
 
 
-typedef struct	_regex_accept	pregex_accept;
-
 typedef struct	_regex_nfa_st	pregex_nfa_st;
 typedef struct	_regex_nfa		pregex_nfa;
 
@@ -448,20 +446,14 @@ typedef struct	_lex			plex;
 
 
 
-struct _regex_accept
-{
-	int				accept;		
-	int				flags;		
-};
-
-
 struct _regex_nfa_st
 {
 	pccl*			ccl;		
 	pregex_nfa_st*	next;		
 	pregex_nfa_st*	next2;		
 
-	pregex_accept	accept;		
+	unsigned int	accept;		
+	int				flags;		
 	int				refs;		
 };
 
@@ -485,11 +477,9 @@ struct _regex_dfa_st
 	plist*			trans;		
 	pregex_dfa_tr*	def_trans;	
 
-	pregex_accept	accept;		
+	unsigned int	accept;		
+	int				flags;		
 	int				refs;		
-
-	pboolean		done;		
-	plist*			nfa_set;	
 };
 
 
@@ -508,7 +498,9 @@ struct _regex_ptn
 	pregex_ptn*		child[ 2 ];	
 	pregex_ptn*		next;		
 
-	pregex_accept*	accept;		
+	unsigned int	accept;		
+	int				flags;		
+
 	char*			str;		
 };
 
@@ -1014,7 +1006,7 @@ pregex_nfa* pregex_nfa_create( void );
 pboolean pregex_nfa_reset( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa );
 int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to );
-int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, pregex_accept* accept );
+int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, unsigned int* accept, int* flags );
 int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, prange** ref, int* ref_count, int flags );
 pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 

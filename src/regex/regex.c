@@ -50,7 +50,7 @@ pregex* pregex_create( char* pat, int flags )
 	if( !pregex_ptn_parse( &ptn, pat, flags ) )
 		RETURN( (pregex*)NULL );
 
-	ptn->accept->accept = 1;
+	ptn->accept = 1;
 
 	regex = (pregex*)pmalloc( sizeof( pregex ) );
 	regex->ptn = ptn;

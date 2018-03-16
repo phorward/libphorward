@@ -19,9 +19,10 @@ Current development version.
     using the functions pp_gram_from_bnf(), pp_gram_from_ebnf() and
     pp_gram_from_pbnf().
 - Regular expressions
+  - Internal revisions and renamings, cleaning data structures from ephemeral
+    values
+  - Removing ``pregex_accept`` structure
   - Renamed ``begin`` to ``start`` in the ``prange`` structure.
-  - Flipped default greedyness of expressions into non-greedyness, greedyness
-    can be switched by command-line.
 - Trace facilities
   - Evalutation of the TRACEFUNCTION environment variable to switch trace output
     also on function-level, rather than module level.

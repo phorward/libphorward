@@ -117,8 +117,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 			GETOFF( nfa->states, s ),
 			GETOFF( nfa->states, s->next ),
 			GETOFF( nfa->states, s->next2 ),
-			s->accept.accept,
-			s->accept.flags );
+			s->accept, s->flags );
 
 		for( i = 0; i < PREGEX_MAXREF; i++ )
 			if( s->refs & ( 1 << i ) )
@@ -292,14 +291,17 @@ int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to )
 //nfa// is the NFA state machine
 //closure// is a list of input NFA states, which will be extended on the closure
 after the function returned.
-//accept// is the match information structure, which recieves possible
-information about a pattern match. This parameter is optional, and can be
-left empty by providing (pregex_accept*)NULL.
+//accept// is the return pointer which receives possible information about a
+pattern match. This parameter is optional, and can be left empty by providing
+(unsigned int*)NULL.
+//flags// is the return pointer which receives possible flagging about a
+pattern match. This parameter is optional, and can be left empty by providing
+(int*)NULL.
 
 Returns a number of elements in //input//.
 */
-int pregex_nfa_epsilon_closure(
-	pregex_nfa* nfa, plist* closure, pregex_accept* accept )
+int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure,
+									unsigned int* accept, int* flags )
 {
 	pregex_nfa_st*	top;
 	pregex_nfa_st*	next;
@@ -319,16 +321,18 @@ int pregex_nfa_epsilon_closure(
 	}
 
 	if( accept )
-		memset( accept, 0, sizeof( pregex_accept ) );
+		*accept = 0;
+	if( flags )
+		*flags = 0;
 
 	stack = plist_dup( closure );
 
 	/* Loop through the items */
 	while( plist_pop( stack, &top ) )
 	{
-		if( accept && top->accept.accept
-				&& ( !last_accept || last_accept->accept.accept
-											> top->accept.accept ) )
+		if( accept && top->accept
+				&& ( !last_accept
+					|| last_accept->accept > top->accept ) )
 			last_accept = top;
 
 		if( !top->ccl )
@@ -357,11 +361,14 @@ int pregex_nfa_epsilon_closure(
 
 	if( accept && last_accept )
 	{
-		accept->accept = last_accept->accept.accept;
-		VARS( "accept->accept", "%d", accept->accept );
+		*accept = last_accept->accept;
+		VARS( "*accept", "%d", *accept );
+	}
 
-		accept->flags = last_accept->accept.flags;
-		VARS( "accept->flags", "%d", accept->flags );
+	if( flags && last_accept )
+	{
+		*flags = last_accept->flags;
+		VARS( "*flags", "%d", *flags );
 	}
 
 	VARS( "Closed states", "%d", plist_count( closure ) );
@@ -403,7 +410,8 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 	int				plen		= 0;
 	int				last_accept = 0;
 	wchar_t			ch;
-	pregex_accept	accept;
+	unsigned int	accept;
+	int				aflags;
 
 	PROC( "pregex_nfa_match" );
 	PARMS( "nfa", "%p", nfa );
@@ -425,9 +433,6 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 		RETURN( -1 );
 	}
 
-	/* Initialize */
-	memset( &accept, 0, sizeof( pregex_accept ) );
-
 	/*
 	if( !pregex_ref_init( ref, ref_count, nfa->ref_count, flags ) )
 		RETURN( -1 );
@@ -444,7 +449,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 	while( plist_count( res ) )
 	{
 		MSG( "Performing epsilon closure" );
-		if( pregex_nfa_epsilon_closure( nfa, res, &accept ) < 0 )
+		if( pregex_nfa_epsilon_closure( nfa, res, &accept, &aflags ) < 0 )
 		{
 			MSG( "pregex_nfa_epsilon_closure() failed" );
 			break;
@@ -471,30 +476,30 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 		}
 		*/
 
-		VARS( "accept.accept", "%d", accept.accept );
-		if( accept.accept )
+		VARS( "accept", "%d", accept );
+		if( accept )
 		{
 			if( flags & PREGEX_RUN_DEBUG )
 			{
 				if( flags & PREGEX_RUN_WCHAR )
 					fprintf( stderr, "accept %d, len %d >%.*ls<\n",
-						accept.accept, plen, plen, (wchar_t*)str );
+						accept, plen, plen, (wchar_t*)str );
 				else
 					fprintf( stderr, "accept %d, len %d >%.*s<\n",
-						accept.accept, plen, plen, str );
+						accept, plen, plen, str );
 			}
 
 			MSG( "New accepting state takes place!" );
-			last_accept = accept.accept;
+			last_accept = accept;
 			*len = plen;
 
 			if( mflags )
-				*mflags = accept.flags;
+				*mflags = aflags;
 
 			VARS( "last_accept", "%d", last_accept );
 			VARS( "*len", "%d", *len );
 
-			if(	( accept.flags & PREGEX_FLAG_NONGREEDY )
+			if(	( aflags & PREGEX_FLAG_NONGREEDY )
 					|| ( flags & PREGEX_RUN_NONGREEDY ) )
 			{
 				if( flags & PREGEX_RUN_DEBUG )
@@ -649,7 +654,7 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 			(char*)NULL, flags ) ) )
 		RETURN( FALSE );
 
-	nfa_st->accept.accept = acc;
+	nfa_st->accept = acc;
 	prev_nfa_st->next = nfa_st;
 
 	/* Append to existing machine, if required */

@@ -216,7 +216,7 @@ pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
 
 	PARMS( "ptn->accept", "%p", ptn->accept );
 
-	ptn->accept->accept = match_id;
+	ptn->accept = match_id;
 	plist_push( lex->ptns, ptn );
 
 	plex_reset( lex );

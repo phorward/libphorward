@@ -28,7 +28,7 @@ void pregex_dfa_print( pregex_dfa* dfa )
 		s = (pregex_dfa_st*)plist_access( e );
 		fprintf( stderr, "*** STATE %d, accepts %d, flags %d",
 			plist_offset( plist_get_by_ptr( dfa->states, s ) ),
-				s->accept.accept, s->accept.flags );
+				s->accept, s->flags );
 
 		if( s->refs )
 		{
@@ -81,11 +81,6 @@ static pregex_dfa_st* pregex_dfa_create_state( pregex_dfa* dfa )
 	ptr->trans = plist_create( sizeof( pregex_dfa_tr ), PLIST_MOD_RECYCLE );
 	plist_set_sortfn( ptr->trans, pregex_dfa_sort_trans );
 
-	ptr->nfa_set = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_AUTOSORT );
-
-	memset( &( ptr->accept ), 0, sizeof( pregex_accept ) );
-	ptr->done = FALSE;
-
 	return ptr;
 }
 
@@ -102,26 +97,6 @@ static void pregex_dfa_delete_state( pregex_dfa_st* st )
 	}
 
 	st->trans = plist_free( st->trans );
-	st->nfa_set = plist_free( st->nfa_set );
-}
-
-/* Checks the unfinished DFA state machine for states having the done-flag
-	set to FALSE and returns the first occurence. If no more undone states
-	are found, (regex_dfa*)NULL will be returned. */
-static pregex_dfa_st* pregex_dfa_get_undone_state( pregex_dfa* dfa )
-{
-	plistel*		e;
-	pregex_dfa_st*	ptr;
-
-	plist_for( dfa->states, e )
-	{
-		ptr = (pregex_dfa_st*)plist_access( e );
-
-		if( !ptr->done )
-			return ptr;
-	}
-
-	return (pregex_dfa_st*)NULL;
 }
 
 /** Allocates an initializes a new pregex_dfa-object for a deterministic
@@ -239,17 +214,16 @@ into an dynamically allocated array for later re-use.
 
 //st// is the DFA-state, for which references shall be collected.
 */
-static pboolean pregex_dfa_collect_ref( pregex_dfa_st* st )
+static pboolean pregex_dfa_collect_ref( pregex_dfa_st* st, plist* nfa_set )
 {
 	plistel*		e;
 	pregex_nfa_st*	nfa_st;
 
 	PROC( "pregex_dfa_collect_ref" );
-	PARMS( "st", "%p", st );
 
 	/* Find out number of references */
 	MSG( "Searching for references in the NFA transitions" );
-	plist_for( st->nfa_set, e )
+	plist_for( nfa_set, e )
 	{
 		nfa_st = (pregex_nfa_st*)plist_access( e );
 		st->refs |= nfa_st->refs;
@@ -262,16 +236,18 @@ static pboolean pregex_dfa_collect_ref( pregex_dfa_st* st )
 	one within the DFA-state machine. If an equal item is found, the offset of
 		that DFA-state is returned, else -1. */
 static pregex_dfa_st* pregex_dfa_same_transitions(
-							pregex_dfa* dfa, plist* trans )
+							pregex_dfa* dfa, plist* trans, parray* sets )
 {
 	plistel*		e;
 	pregex_dfa_st*	ptr;
+	plist*			nfa_set;
 
 	plist_for( dfa->states, e )
 	{
 		ptr = (pregex_dfa_st*)plist_access( e );
 
-		if( plist_diff( ptr->nfa_set, trans ) == 0 )
+		nfa_set = *( (plist**)parray_get( sets, plist_offset( e ) ) );
+		if( plist_diff( nfa_set, trans ) == 0 )
 			return ptr;
 	}
 
@@ -293,6 +269,12 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 {
 	plist*			transitions;
 	plist*			classes;
+	plist*			done;
+	parray*			sets;
+
+	plist*			nfa_set;
+	plist*			current_nfa_set;
+
 	plistel*		e;
 	plistel*		f;
 	pregex_dfa_tr*	trans;
@@ -325,49 +307,67 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 	transitions = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
 
+	done = plist_create( 0, PLIST_MOD_PTR | PLIST_MOD_RECYCLE );
+
+	sets = parray_create( sizeof( plist* ), 0 );
+
+	/* Starting seed */
+
 	if( !( current = pregex_dfa_create_state( dfa ) ) )
 		RETURN( -1 );
 
-	/* Set starting seed */
-	if( !plist_push( current->nfa_set,
-			plist_access( plist_first( nfa->states ) ) ) )
-		RETURN( -1 );
+	nfa_set = plist_create( 0, PLIST_MOD_PTR );
+	plist_push( nfa_set, plist_access( plist_first( nfa->states ) ) );
+	parray_push( sets, &nfa_set );
 
-	pregex_nfa_epsilon_closure( nfa, current->nfa_set, (pregex_accept*)NULL );
-	pregex_dfa_collect_ref( current );
+	pregex_nfa_epsilon_closure( nfa, nfa_set, (unsigned int*)NULL, (int*)NULL );
+	pregex_dfa_collect_ref( current, nfa_set );
 
 	/* Perform algorithm until all states are done */
-	while( ( current = pregex_dfa_get_undone_state( dfa ) ) )
+	while( TRUE )
 	{
 		MSG( "WHILE" );
 
-		current->done = TRUE;
-		current->accept.accept = 0;
+		/* Get next undone state */
+		plist_for( dfa->states, e )
+		{
+			current = (pregex_dfa_st*)plist_access( e );
+			if( !plist_get_by_ptr( done, current ) )
+				break;
+		}
+
+		if( !e )
+		{
+			MSG( "No more undone states found" );
+			break;
+		}
+
+		plist_push( done, current );
+		current->accept = 0;
+		current_nfa_set = *( (plist**)parray_get( sets, plist_offset( e ) ) );
 
 		/* Assemble all character sets in the alphabet list */
 		plist_erase( classes );
 
-		plist_for( current->nfa_set, e )
+		plist_for( current_nfa_set, e )
 		{
 			nfa_st = (pregex_nfa_st*)plist_access( e );
 
-			if( nfa_st->accept.accept )
+			if( nfa_st->accept )
 			{
 				MSG( "NFA is an accepting state" );
-				if( !current->accept.accept
-						|| current->accept.accept >= nfa_st->accept.accept )
+				if( !current->accept || current->accept >= nfa_st->accept )
 				{
 					MSG( "Copying accept information" );
-					memcpy( &( current->accept ), &( nfa_st->accept ),
-								sizeof( pregex_accept ) );
+					current->accept = nfa_st->accept;
+					current->flags = nfa_st->flags;
 				}
 			}
 
 			/* Generate list of character classes */
 			if( nfa_st->ccl )
 			{
-				VARS( "nfa_st->ccl", "%s",
-						p_ccl_to_str( nfa_st->ccl, TRUE ) );
+				VARS( "nfa_st->ccl", "%s", p_ccl_to_str( nfa_st->ccl, TRUE ) );
 				MSG( "Adding character class to list" );
 				if( !( ccl = p_ccl_dup( nfa_st->ccl ) ) )
 					RETURN( -1 );
@@ -379,7 +379,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 			}
 		}
 
-		VARS( "current->accept", "%d", current->accept.accept );
+		VARS( "current->accept", "%d", current->accept );
 
 		MSG( "Removing intersections within character classes" );
 		do
@@ -435,7 +435,7 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 				VARS( "begin", "%d", begin );
 				VARS( "end", "%d", end );
 
-				plist_for( current->nfa_set, f )
+				plist_for( current_nfa_set, f )
 				{
 					if( !plist_push( transitions, plist_access( f ) ) )
 						RETURN( -1 );
@@ -447,8 +447,8 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					break;
 				}
 
-				if( pregex_nfa_epsilon_closure(
-						nfa, transitions, (pregex_accept*)NULL ) < 0 )
+				if( pregex_nfa_epsilon_closure( nfa, transitions,
+								(unsigned int*)NULL, (int*)NULL ) < 0 )
 				{
 					MSG( "pregex_nfa_epsilon_closure() failed" );
 					break;
@@ -461,16 +461,17 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					continue;
 				}
 				else if( ( st = pregex_dfa_same_transitions(
-									dfa, transitions ) ) )
+									dfa, transitions, sets ) ) )
 				{
 					MSG( "State with same transitions exists" );
 					/* This transition is already existing in the DFA
 						- discard the transition table! */
 					plist_erase( transitions );
-					pregex_dfa_collect_ref( st );
-
 					state_next = plist_offset(
 									plist_get_by_ptr( dfa->states, st ) );
+
+					nfa_set = *( (plist**)parray_get( sets, state_next ) );
+					pregex_dfa_collect_ref( st, nfa_set );
 				}
 				else
 				{
@@ -479,12 +480,14 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 					if( !( st = pregex_dfa_create_state( dfa ) ) )
 						RETURN( -1 );
 
-					st->nfa_set = plist_dup( transitions );
+					state_next = plist_count( dfa->states ) - 1;
+
+					nfa_set = plist_dup( transitions );
 					plist_erase( transitions );
 
-					pregex_dfa_collect_ref( st );
+					pregex_dfa_collect_ref( st, nfa_set );
 
-					state_next = plist_count( dfa->states ) - 1;
+					parray_push( sets, &nfa_set );
 				}
 
 				VARS( "state_next", "%d", state_next );
@@ -522,15 +525,15 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 		}
 	}
 
+	/* Clear temporary allocated memory */
+	plist_free( done );
 	plist_free( classes );
 	plist_free( transitions );
 
-	/* Clear NFA structs */
-	plist_for( dfa->states, e )
-	{
-		st = (pregex_dfa_st*)plist_access( e );
-		st->nfa_set = plist_free( st->nfa_set );
-	}
+	while( parray_count( sets ) )
+		plist_free( *( (plist**)parray_pop( sets ) ) );
+
+	parray_free( sets );
 
 	/* Set default transitions */
 	pregex_dfa_default_trans( dfa );
@@ -649,7 +652,7 @@ int pregex_dfa_minimize( pregex_dfa* dfa )
 			group = (plist*)plist_access( f );
 			grp_dfa_st = (pregex_dfa_st*)plist_access( plist_first( group ) );
 
-			if( grp_dfa_st->accept.accept == dfa_st->accept.accept )
+			if( grp_dfa_st->accept == dfa_st->accept )
 				break;
 		}
 
@@ -861,14 +864,14 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 	{
 		MSG( "At begin of loop" );
 
-		VARS( "dfa_st->accept.accept", "%d", dfa_st->accept.accept );
-		if( dfa_st->accept.accept )
+		VARS( "dfa_st->accept", "%d", dfa_st->accept );
+		if( dfa_st->accept )
 		{
 			MSG( "This state has an accept" );
 			last_accept = dfa_st;
 			*len = plen;
 
-			if(	( last_accept->accept.flags & PREGEX_FLAG_NONGREEDY )
+			if(	( last_accept->flags & PREGEX_FLAG_NONGREEDY )
 					|| ( flags & PREGEX_RUN_NONGREEDY ) )
 			{
 				MSG( "This match is not greedy, so matching will stop now" );
@@ -952,15 +955,15 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 
 	if( mflags && last_accept )
 	{
-		*mflags = last_accept->accept.flags;
+		*mflags = last_accept->flags;
 		VARS( "*mflags", "%d", *mflags );
 	}
 
 	VARS( "*len", "%d", *len );
-	VARS( "last_accept->accept.accept", "%d", ( last_accept ?
-										last_accept->accept.accept : 0 ) );
+	VARS( "last_accept->accept", "%d",
+		( last_accept ? last_accept->accept : 0 ) );
 
-	RETURN( ( last_accept ? last_accept->accept.accept : 0 ) );
+	RETURN( ( last_accept ? last_accept->accept : 0 ) );
 }
 
 /* DFA Table Structure */
@@ -1078,8 +1081,8 @@ int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa )
 		trans[ i ] = (wchar_t*)pmalloc( cnt * sizeof( wchar_t ) );
 
 		trans[ i ][ 0 ] = cnt;
-		trans[ i ][ 1 ] = st->accept.accept;
-		trans[ i ][ 2 ] = st->accept.flags;
+		trans[ i ][ 1 ] = st->accept;
+		trans[ i ][ 2 ] = st->flags;
 		trans[ i ][ 3 ] = st->refs;
 		trans[ i ][ 4 ] = st->def_trans ? st->def_trans->go_to :
 												plist_count( dfa->states );

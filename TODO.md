@@ -9,13 +9,12 @@ This is the location for ideas and modifications with an unspecified roadmap.
 
 ## regex
 
-- Remove ``pregex_accept`` and replace occurences by just ``accept`` and
-  ``flags``, also to enable flags on given contexts only (greedyness)
 - Revise greedyness/non-greedyness handling according to exising implementations
-- Regex-parser implemented using pparse
+- Implement a regex-parser using pparse as parsing engine
 
 ## parse
 
+- Dumping grammars into all supported BNF dialects
 - Precedence and associativity leveling to resolve conflicts
 - Direct traversal from an AST into a
 - GLR parser with on-line conflict resolution (target shall still be one AST!)

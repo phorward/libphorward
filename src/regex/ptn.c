@@ -16,14 +16,7 @@ Usage:	Internal regular expression pattern
 /* No documentation for the entire module, all here is only internally used. */
 
 /* Local prototypes */
-static pboolean parse_char( pregex_ptn** ptn, char** pstr,
-										pregex_accept* accept, int flags );
-static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
-										pregex_accept* accept, int flags );
-static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
-										pregex_accept* accept, int flags );
-static pboolean parse_alter( pregex_ptn** ptn, char** pstr,
-										pregex_accept* accept, int flags );
+static pboolean parse_alter( pregex_ptn** ptn, char** pstr, int flags );
 
 /* Create a pattern object of type //type//; Internal constructor! */
 static pregex_ptn* pregex_ptn_create( pregex_ptntype type )
@@ -380,8 +373,8 @@ pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
 		if( ptn->child[1] )
 			dup->child[1] = pregex_ptn_dup( ptn->child[1] );
 
-		if( ptn->accept )
-			dup->accept = pmemdup( ptn->accept, sizeof( pregex_accept ) );
+		dup->accept = ptn->accept;
+		dup->flags = ptn->flags;
 
 		prev = dup;
 		ptn = ptn->next;
@@ -415,7 +408,6 @@ pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 		if( ptn->child[1] )
 			pregex_ptn_free( ptn->child[1] );
 
-		pfree( ptn->accept );
 		pfree( ptn->str );
 
 		next = ptn->next;
@@ -891,15 +883,8 @@ pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
 		n_first->next2 = first;
 
 	/* end becomes the accepting state */
-	if( ptn->accept )
-	{
-		MSG( "Accepting information available" );
-
-		VARS( "flags", "%d", ptn->accept->flags );
-		VARS( "accept", "%d", ptn->accept->accept );
-
-		memcpy( &( end->accept ), ptn->accept, sizeof( pregex_accept ) );
-	}
+	end->accept = ptn->accept;
+	end->flags = ptn->flags;
 
 	RETURN( TRUE );
 }
@@ -1012,7 +997,7 @@ Returns TRUE on success.
 pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 {
 	char*			ptr;
-	pregex_accept	accept;
+	int				aflags	= 0;
 
 	PROC( "pregex_ptn_parse" );
 	PARMS( "ptn", "%p", ptn );
@@ -1025,16 +1010,14 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 		RETURN( FALSE );
 	}
 
-	/* Set default values into accept structure, except accept member! */
-	memset( &accept, 0, sizeof( pregex_accept ) );
-
 	/* If PREGEX_COMP_STATIC is set, parsing is not required! */
 	if( flags & PREGEX_COMP_STATIC )
 	{
+		MSG( "PREGEX_COMP_STATIC" );
+
 		if( !( *ptn = pregex_ptn_create_string( str, flags ) ) )
 			RETURN( FALSE );
 
-		(*ptn)->accept = pmemdup( &accept, sizeof( pregex_accept ) );
 		RETURN( TRUE );
 	}
 
@@ -1060,13 +1043,13 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 
 		if( *ptr == '^' )
 		{
-			accept.flags |= PREGEX_FLAG_BOL;
+			aflags |= PREGEX_FLAG_BOL;
 			ptr++;
 		}
 		else if( !strncmp( ptr, "\\<", 2 ) )
 			/* This is a GNU-like extension */
 		{
-			accept.flags |= PREGEX_FLAG_BOW;
+			aflags |= PREGEX_FLAG_BOW;
 			ptr += 2;
 		}
 	}
@@ -1075,7 +1058,7 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	MSG( "Starting the parser" );
 	VARS( "ptr", "%s", ptr );
 
-	if( !parse_alter( ptn, &ptr, &accept, flags ) )
+	if( !parse_alter( ptn, &ptr, flags ) )
 		RETURN( FALSE );
 
 	VARS( "ptr", "%s", ptr );
@@ -1085,21 +1068,21 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
 	{
 		MSG( "Anchors at end" );
 		if( !strcmp( ptr, "$" ) )
-			accept.flags |= PREGEX_FLAG_EOL;
+			aflags |= PREGEX_FLAG_EOL;
 		else if( !strcmp( ptr, "\\>" ) )
 			/* This is a GNU-style extension */
-			accept.flags |= PREGEX_FLAG_EOW;
+			aflags |= PREGEX_FLAG_EOW;
 	}
 
 	/* Force nongreedy matching */
 	if( flags & PREGEX_COMP_NONGREEDY )
-		accept.flags |= PREGEX_FLAG_NONGREEDY;
+		aflags |= PREGEX_FLAG_NONGREEDY;
 
 	/* Free duplicated string */
 	pfree( str );
 
-	/* Copy accept structure */
-	(*ptn)->accept = pmemdup( &accept, sizeof( pregex_accept ) );
+	/* Assign flags */
+	(*ptn)->flags = aflags;
 
 	RETURN( TRUE );
 }
@@ -1108,8 +1091,7 @@ pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
  *      RECURSIVE DESCENT PARSER FOR REGULAR EXPRESSIONS FOLLOWS HERE...      *
  ******************************************************************************/
 
-static pboolean parse_char( pregex_ptn** ptn, char** pstr,
-										pregex_accept* accept, int flags )
+static pboolean parse_char( pregex_ptn** ptn, char** pstr, int flags )
 {
 	pccl*		ccl;
 	pregex_ptn*	alter;
@@ -1127,7 +1109,7 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 			MSG( "Sub expression" );
 			(*pstr)++;
 
-			if( !parse_alter( &alter, pstr, accept, flags ) )
+			if( !parse_alter( &alter, pstr, flags ) )
 				RETURN( FALSE );
 
 			if( flags & PREGEX_COMP_NOREF &&
@@ -1243,12 +1225,11 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr,
 	RETURN( TRUE );
 }
 
-static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
-										pregex_accept* accept, int flags )
+static pboolean parse_factor( pregex_ptn** ptn, char** pstr, int flags )
 {
 	PROC( "parse_factor" );
 
-	if( !parse_char( ptn, pstr, accept, flags ) )
+	if( !parse_char( ptn, pstr, flags ) )
 		RETURN( FALSE );
 
 	VARS( "**pstr", "%c", **pstr );
@@ -1293,14 +1274,13 @@ static pboolean parse_factor( pregex_ptn** ptn, char** pstr,
 	RETURN( TRUE );
 }
 
-static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
-										pregex_accept* accept, int flags )
+static pboolean parse_sequence( pregex_ptn** ptn, char** pstr, int flags )
 {
 	pregex_ptn*	next;
 
 	PROC( "parse_sequence" );
 
-	if( !parse_factor( ptn, pstr, accept, flags ) )
+	if( !parse_factor( ptn, pstr, flags ) )
 		RETURN( FALSE );
 
 	while( !( **pstr == '|' || **pstr == ')' || **pstr == '\0' ) )
@@ -1311,7 +1291,7 @@ static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
 				break;
 		}
 
-		if( !parse_factor( &next, pstr, accept, flags ) )
+		if( !parse_factor( &next, pstr, flags ) )
 			RETURN( FALSE );
 
 		*ptn = pregex_ptn_create_seq( *ptn, next, (pregex_ptn*)NULL );
@@ -1320,14 +1300,13 @@ static pboolean parse_sequence( pregex_ptn** ptn, char** pstr,
 	RETURN( TRUE );
 }
 
-static pboolean parse_alter( pregex_ptn** ptn, char** pstr,
-										pregex_accept* accept, int flags )
+static pboolean parse_alter( pregex_ptn** ptn, char** pstr, int flags )
 {
 	pregex_ptn*	seq;
 
 	PROC( "parse_alter" );
 
-	if( !parse_sequence( ptn, pstr, accept, flags ) )
+	if( !parse_sequence( ptn, pstr, flags ) )
 		RETURN( FALSE );
 
 	while( **pstr == '|' )
@@ -1335,7 +1314,7 @@ static pboolean parse_alter( pregex_ptn** ptn, char** pstr,
 		MSG( "Alternative" );
 		(*pstr)++;
 
-		if( !parse_sequence( &seq, pstr, accept, flags ) )
+		if( !parse_sequence( &seq, pstr, flags ) )
 			RETURN( FALSE );
 
 		if( !( *ptn = pregex_ptn_create_alt( *ptn, seq, (pregex_ptn*)NULL ) ) )
