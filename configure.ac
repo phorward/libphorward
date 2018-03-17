@@ -59,5 +59,6 @@ AC_TYPE_SIZE_T
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-				 tools/Makefile])
+				 tools/Makefile
+				 examples/Makefile])
 AC_OUTPUT

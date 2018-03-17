@@ -1,8 +1,0 @@
-
-$digit [0-9] ;
-
-s %goal : a | b | c ;
-
-a : digit+ ;
-b : digit* ;
-c : digit? ;

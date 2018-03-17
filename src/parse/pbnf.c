@@ -320,7 +320,7 @@ static pboolean ast_to_gram( ppgram* gram, ppast* ast )
 
 			child = child->next;
 
-			if( NODE_IS( child, "emits" ) )
+			if( child && NODE_IS( child, "emits" ) )
 			{
 				if( NODE_IS( child->child, "Code" ) )
 					emit = pstrndup( child->child->start + 2,
