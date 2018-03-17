@@ -180,6 +180,7 @@ void pp_ast_dump_short( FILE* stream, ppast* ast );
 void _dbg_ast_dump( char* file, int line, char* function, char* name, ppast* ast );
 void pp_ast_dump_json( FILE* stream, ppast* ast );
 void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
+void pp_ast_dump_pvm( pvmprog* prog, ppast* ast );
 
 /* parse/bnf.c */
 pboolean pp_gram_from_bnf( ppgram* g, char* src );

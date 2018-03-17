@@ -292,3 +292,57 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 		ast = ast->next;
 	}
 }
+
+/** Dump //ast// into pvm program */
+void pp_ast_dump_pvm( pvmprog* prog, ppast* ast )
+{
+	char*	code;
+	char	buf		[ BUFSIZ + 1 ];
+	char*	ptr;
+
+	PROC( "pp_ast_dump_pvm" );
+	PARMS( "prog", "%p", prog );
+	PARMS( "ast", "%p", ast );
+
+	if( !( prog && ast ) )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	while( ast )
+	{
+		if( ast->child )
+			pp_ast_dump_pvm( prog, ast->child );
+
+		if( ast->emit )
+		{
+			VARS( "ast->emit", "%s", ast->emit );
+
+			ptr = buf;
+			if( ast->len < BUFSIZ )
+				sprintf( buf, "%.*s", (int)ast->len, ast->start );
+			else
+				ptr = pstrndup( ast->start, ast->len );
+
+			if( strstr( ast->emit, "$0" ) )
+				code = pstrreplace( ast->emit, "$0", ptr );
+			else
+				code = ast->emit;
+
+			VARS( "code", "%s", code );
+
+			pvm_prog_compile( prog, code );
+
+			if( code != ast->emit )
+				pfree( code );
+
+			if( ptr != buf )
+				pfree( ptr );
+		}
+
+		ast = ast->next;
+	}
+
+	VOIDRET;
+}

@@ -89,6 +89,8 @@ int main( int argc, char** argv )
 				r = 2;
 			else if( pstrcasecmp( param, "tree2svg" ) == 0 )
 				r = 3;
+			else if( pstrcasecmp( param, "pvm" ) == 0 )
+				r = 4;
 		}
 		else if( !strcmp( opt, "verbose" ) || !strcmp( opt, "v" ) )
 			verbose = TRUE;
@@ -204,6 +206,23 @@ int main( int argc, char** argv )
 					case 3:
 						pp_ast_dump_tree2svg( stdout, a );
 						printf( "\n" );
+						break;
+
+					case 4:
+						{
+							pvm*		vm;
+							pvmprog*	prg;
+
+							vm = pvm_create();
+							prg = pvm_prog_create( vm, (char*)NULL );
+							pp_ast_dump_pvm( prg, a );
+
+							pvm_prog_dump( prg );
+							pvm_prog_run( prg );
+
+							pvm_prog_free( prg );
+							pvm_free( vm );
+						}
 						break;
 
 					default:
