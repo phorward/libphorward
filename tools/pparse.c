@@ -221,6 +221,6 @@ int main( int argc, char** argv )
 		i++;
 	}
 
-	RETURN( 1 );
+	RETURN( 0 );
 }
 
