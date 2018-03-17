@@ -22,7 +22,7 @@ ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags )
 {
 	ppsym*	sym;
 
-	if( !( g && name ) )
+	if( !( g ) )
 	{
 		WRONGPARAM;
 		return (ppsym*)NULL;
@@ -56,7 +56,10 @@ ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags )
 	}
 
 	sym->grm = g;
-	sym->name = name;
+
+	if( !( sym->name = name ) )
+		flags |= PPFLAG_NAMELESS;
+
 	sym->flags = flags;
 
 	sym->first = plist_create( 0, PLIST_MOD_PTR );

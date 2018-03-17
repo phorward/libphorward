@@ -214,17 +214,31 @@ static void print_stack( char* title, parray* stack )
 }
 #endif
 
-static ppsym* pp_par_scan( pppar* p, char** start, char** end )
+static ppsym* pp_par_scan( pppar* p, char** start, char** end, pboolean lazy )
 {
 	ppsym*			sym;
 	unsigned int	id;
 
 	PROC( "pp_par_scan" );
 
-	if( ( *start = plex_next( p->lex, *start, &id, end ) ) )
-		sym = p->tokens[ id - 1 ];
-	else
-		sym = p->gram->eof;
+	while( TRUE )
+	{
+		if( ( !lazy && ( id = plex_lex( p->lex, *start, end ) ) )
+			|| ( lazy && ( *start = plex_next( p->lex, *start, &id, end ) ) ) )
+		{
+			sym = p->tokens[ id - 1 ];
+
+			if( sym->flags & PPFLAG_WHITESPACE )
+			{
+				*start = *end;
+				continue;
+			}
+		}
+		else
+			sym = p->gram->eof;
+
+		break;
+	}
 
 	LOG( "Next token '%s' @ >%.*s<\n", sym->name, *end - *start, *start );
 	RETURN( sym );
@@ -253,6 +267,7 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 	int			reduce;
 	ppprod*		prod;
 	ppast*		node;
+	pboolean	lazy	= TRUE;
 
 	PROC( "pp_par_parse" );
 
@@ -268,7 +283,16 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 
 	/* Init */
 	if( par->lex )
+	{
 		plex_prepare( par->lex );
+
+		for( i = 0; ( sym = pp_sym_get( par->gram, i ) ); i++ )
+			if( PPSYM_IS_TERMINAL( sym ) && sym->flags & PPFLAG_WHITESPACE )
+			{
+				lazy = FALSE;
+				break;
+			}
+	}
 
 	stack = parray_create( sizeof( pplrse ), 0 );
 
@@ -278,7 +302,7 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 
 	/* Read token */
 	lend = end = start;
-	sym = pp_par_scan( par, &start, &end );
+	sym = pp_par_scan( par, &start, &end, lazy );
 
 	do
 	{
@@ -348,7 +372,7 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 
 			/* Read next token */
 			lend = start = end;
-			sym = pp_par_scan( par, &start, &end );
+			sym = pp_par_scan( par, &start, &end, lazy );
 		}
 
 		/* Reduce */

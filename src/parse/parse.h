@@ -71,7 +71,8 @@ struct _ppsym
 	char*					strval;		/* String representation */
 };
 
-#define PPSYM_IS_TERMINAL( sym )	( !islower( *( sym )->name ) )
+#define PPSYM_IS_TERMINAL( sym )	( !sym->name || !( *sym->name ) \
+										|| !islower( *( sym )->name ) )
 #define PPSYM_IS_NONTERMINAL( sym )	!PPSYM_IS_TERMINAL( sym )
 
 /* Grammar */

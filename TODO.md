@@ -16,5 +16,5 @@ This is the location for ideas and modifications with an unspecified roadmap.
 
 - Dumping grammars into all supported BNF dialects
 - Precedence and associativity leveling to resolve conflicts
-- Direct traversal from an AST into a
+- Direct traversal from an AST into a pvm program
 - GLR parser with on-line conflict resolution (target shall still be one AST!)

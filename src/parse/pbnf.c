@@ -443,6 +443,9 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	ppgram*			pbnf;
 	ppast*			ast;
 
+	ppsym*			whitespace;
+	ppsym*			comment;
+
 	ppsym*			terminal;
 	ppsym*			nonterminal;
 	ppsym*			colon;
@@ -545,6 +548,9 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	t_token->emit = "Token";
 	t_regex = pp_sym_create( pbnf, "Regex", PPFLAG_NONE );
 	t_regex->emit = "Regex";
+
+	whitespace = pp_sym_create( pbnf, (char*)NULL, PPFLAG_WHITESPACE );
+	comment = pp_sym_create( pbnf, (char*)NULL, PPFLAG_WHITESPACE );
 
 	/* Nonterminals */
 	MSG( "Nonterminals" );
@@ -669,6 +675,9 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	PP_GRAM_DUMP( pbnf );
 
 	/* Lexer */
+	pp_par_lex( ppar, whitespace, "[ \t\r\n]+", 0 );
+	pp_par_lex( ppar, comment, "/\\*([^*]|\\*[^/])*\\*/|//[^\n]*\n", 0 );
+
 	pp_par_lex( ppar, terminal, "[A-Z_][A-Za-z0-9_]*", 0 );
 	pp_par_lex( ppar, nonterminal, "[a-z_][A-Za-z0-9_]*", 0 );
 	pp_par_lex( ppar, code, "{{.*}}", 0 );
