@@ -293,13 +293,42 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 	}
 }
 
+static void eval_emit( pvmprog* prog, char* emit, ppast* ast )
+{
+	static char				buf		[ BUFSIZ + 1 ];
+	static unsigned long	label;
+	char*					ptr;
+	char*					code;
+
+	PROC( "eval_emit" );
+	PARMS( "prog", "%p", prog );
+	PARMS( "emit", "%s", emit );
+
+	ptr = buf;
+	if( ast->len < BUFSIZ )
+		sprintf( buf, "%.*s", (int)ast->len, ast->start );
+	else
+		ptr = pstrndup( ast->start, ast->len );
+
+	if( strstr( emit, "$0" ) )
+		code = pstrreplace( emit, "$0", ptr );
+	else
+		code = emit;
+
+	VARS( "code", "%s", code );
+
+	pvm_prog_compile( prog, code );
+
+	if( code != ast->emit )
+		pfree( code );
+
+	if( ptr != buf )
+		pfree( ptr );
+}
+
 /** Dump //ast// into pvm program */
 void pp_ast_dump_pvm( pvmprog* prog, ppast* ast )
 {
-	char*	code;
-	char	buf		[ BUFSIZ + 1 ];
-	char*	ptr;
-
 	PROC( "pp_ast_dump_pvm" );
 	PARMS( "prog", "%p", prog );
 	PARMS( "ast", "%p", ast );
@@ -312,33 +341,24 @@ void pp_ast_dump_pvm( pvmprog* prog, ppast* ast )
 
 	while( ast )
 	{
+		/*
+		if( ast->emit && pstrncasecmp( ast->emit, "<<" ) )
+			eval_emit( prog, ast->emit + 2 );
+		*/
+
 		if( ast->child )
+		{
 			pp_ast_dump_pvm( prog, ast->child );
 
-		if( ast->emit )
+			/*
+			if( ast->emit && pstrncasecmp( ast->emit, "!!" ) )
+				eval_emit( prog, ast->emit + 2 );
+			*/
+		}
+
+		if( ast->emit /* && (pstrncasecmp( ast->emit, ">>" ) */ )
 		{
-			VARS( "ast->emit", "%s", ast->emit );
-
-			ptr = buf;
-			if( ast->len < BUFSIZ )
-				sprintf( buf, "%.*s", (int)ast->len, ast->start );
-			else
-				ptr = pstrndup( ast->start, ast->len );
-
-			if( strstr( ast->emit, "$0" ) )
-				code = pstrreplace( ast->emit, "$0", ptr );
-			else
-				code = ast->emit;
-
-			VARS( "code", "%s", code );
-
-			pvm_prog_compile( prog, code );
-
-			if( code != ast->emit )
-				pfree( code );
-
-			if( ptr != buf )
-				pfree( ptr );
+			eval_emit( prog, ast->emit, ast );
 		}
 
 		ast = ast->next;

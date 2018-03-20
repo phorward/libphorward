@@ -548,7 +548,7 @@ typedef struct _pvm 	pvm;
 typedef struct _pvmprog	pvmprog;
 typedef struct _pvmexec	pvmexec;
 
-typedef size_t			pvmaddr;
+typedef unsigned long	pvmaddr;
 typedef unsigned char	pvmbyte;
 
 #define PVM_MAXOPS		CHAR_MAX			
@@ -571,6 +571,7 @@ struct _pvmprog
 	pvm*		vm;							
 	parray		prog;						
 	parray		lit;						
+	plist		label;						
 };
 
 

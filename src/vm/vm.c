@@ -35,8 +35,13 @@ static void pvm_DRP( pvmexec* rt )
 
 static void pvm_JMP( pvmexec* rt )
 {
-	rt->ip = rt->cs + *((pvmaddr*)pany_get_ptr(
-							(pany*)parray_pop( rt->stack ) ) );
+	pany*		any;
+
+	any = (pany*)parray_pop( rt->stack );
+
+
+	rt->ip = rt->cs + (pvmaddr)pany_get_ptr( any );
+	fprintf( stderr, "%p %ld\n", rt->ip, pany_get_ptr( any ) );
 }
 
 static void pvm_JPC( pvmexec* rt )

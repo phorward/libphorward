@@ -46,6 +46,7 @@ void pvm_prog_run( pvmprog* prog )
 	while( rt.ip < rt.ecs )
 	{
 		instr = *(rt.ip++);
+
 		fprintf( stderr, "! %d (%s)\n", instr,
 							instr == 0 ? "nop" :
 								instr == 1 ? "push" :

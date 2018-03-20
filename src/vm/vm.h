@@ -13,7 +13,7 @@ typedef struct _pvm 	pvm;
 typedef struct _pvmprog	pvmprog;
 typedef struct _pvmexec	pvmexec;
 
-typedef size_t			pvmaddr;
+typedef unsigned long	pvmaddr;
 typedef unsigned char	pvmbyte;
 
 #define PVM_MAXOPS		CHAR_MAX			/* Max. 256 ops per VM */
@@ -36,6 +36,7 @@ struct _pvmprog
 	pvm*		vm;							/* VM for the program */
 	parray		prog;						/* Program */
 	parray		lit;						/* Literals */
+	plist		label;						/* Labels */
 };
 
 /* VM execution runtime */
