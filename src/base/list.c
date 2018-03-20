@@ -380,11 +380,17 @@ plist* plist_free( plist* list )
 	return (plist*)NULL;
 }
 
-/** Insert //src// as element to the list //list// __before__ positon //pos//.
+/** Insert //src// as element to the list //list// __before__ position //pos//.
 
 If //pos// is NULL, the new element will be attached to the end of the
-list. If //key// is not NULL, the element will be additionally engaged
-into the lists hash table. */
+list.
+
+If //key// is not NULL, the element will be additionally engaged
+into the lists hash table.
+
+If //src// is NULL, a zero-initialized element is inserted into the list for
+further processing.
+*/
 plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 {
 	plistel*	e;

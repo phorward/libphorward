@@ -689,7 +689,7 @@ The function always returns its input pointer.
 ```
 char* s = (char*)NULL;
 
-psetstr( &s, "\tHello\nWorld!" );
+psetstr( &s, "\\tHello\\nWorld!" );
 printf( ">%s<\n", pstrunescape( s ) );
 
 s = pfree( s );

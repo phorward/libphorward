@@ -2,6 +2,10 @@
 
 This is the location for ideas and modifications with an unspecified roadmap.
 
+## general
+
+- Unit tests
+
 ## base
 
 - Info / logging system for status, warning, error messages related to the usage
