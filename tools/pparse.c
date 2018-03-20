@@ -218,7 +218,7 @@ int main( int argc, char** argv )
 							pp_ast_dump_pvm( prg, a );
 
 							pvm_prog_dump( prg );
-							pvm_prog_run( prg );
+							pvm_prog_run( (pany**)NULL, prg );
 
 							pvm_prog_free( prg );
 							pvm_free( vm );

@@ -324,6 +324,8 @@ static void eval_emit( pvmprog* prog, char* emit, ppast* ast )
 
 	if( ptr != buf )
 		pfree( ptr );
+
+	VOIDRET;
 }
 
 /** Dump //ast// into pvm program */

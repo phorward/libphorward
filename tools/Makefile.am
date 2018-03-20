@@ -13,7 +13,7 @@ pregex_SOURCES = pregex.c util.c
 pregex_LDADD = ../src/libphorward.la
 pregex_CFLAGS = -I$(top_srcdir)/src
 
-pvm_SOURCES = pvm.c
+pvm_SOURCES = pvm.c util.c
 pvm_LDADD = ../src/libphorward.la
 pvm_CFLAGS = -I$(top_srcdir)/src
 

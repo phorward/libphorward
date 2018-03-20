@@ -1117,7 +1117,7 @@ pboolean pvm_prog_compile( pvmprog* prog, char* src );
 void pvm_prog_dump( pvmprog* prog );
 
 
-void pvm_prog_run( pvmprog* prog );
+void pvm_prog_run( pany** ret, pvmprog* prog );
 
 
 pvm* pvm_init( pvm* vm );
