@@ -121,7 +121,7 @@ pregex_DEPENDENCIES = ../src/libphorward.la
 pregex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pregex_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_pvm_OBJECTS = pvm-pvm.$(OBJEXT)
+am_pvm_OBJECTS = pvm-pvm.$(OBJEXT) pvm-util.$(OBJEXT)
 pvm_OBJECTS = $(am_pvm_OBJECTS)
 pvm_DEPENDENCIES = ../src/libphorward.la
 pvm_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -317,7 +317,7 @@ pparse_CFLAGS = -I$(top_srcdir)/src
 pregex_SOURCES = pregex.c util.c
 pregex_LDADD = ../src/libphorward.la
 pregex_CFLAGS = -I$(top_srcdir)/src
-pvm_SOURCES = pvm.c
+pvm_SOURCES = pvm.c util.c
 pvm_LDADD = ../src/libphorward.la
 pvm_CFLAGS = -I$(top_srcdir)/src
 all: all-am
@@ -432,6 +432,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pregex-pregex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pregex-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pvm-pvm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pvm-util.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -551,6 +552,20 @@ pvm-pvm.obj: pvm.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pvm.c' object='pvm-pvm.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -c -o pvm-pvm.obj `if test -f 'pvm.c'; then $(CYGPATH_W) 'pvm.c'; else $(CYGPATH_W) '$(srcdir)/pvm.c'; fi`
+
+pvm-util.o: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -MT pvm-util.o -MD -MP -MF $(DEPDIR)/pvm-util.Tpo -c -o pvm-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pvm-util.Tpo $(DEPDIR)/pvm-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='pvm-util.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -c -o pvm-util.o `test -f 'util.c' || echo '$(srcdir)/'`util.c
+
+pvm-util.obj: util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -MT pvm-util.obj -MD -MP -MF $(DEPDIR)/pvm-util.Tpo -c -o pvm-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pvm-util.Tpo $(DEPDIR)/pvm-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='pvm-util.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pvm_CFLAGS) $(CFLAGS) -c -o pvm-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
