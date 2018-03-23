@@ -238,3 +238,144 @@ char* pp_sym_to_str( ppsym* sym )
 
 	return sym->strval;
 }
+
+/** Constructs a positive closure from //sym//.
+
+This helper function constructs the productions and symbol
+```
+pos_sym: sym pos_sym | sym ;
+```
+from //sym//, and returns the symbol //pos_sym//. If //pos_sym// already exists,
+the symbol will be returned without any creation.
+*/
+ppsym* pp_sym_mod_positive( ppsym* sym )
+{
+	ppsym*		ret;
+	char		buf		[ BUFSIZ + 1 ];
+	char*		name	= buf;
+	size_t		len;
+
+	PROC( "pp_sym_mod_positive" );
+	PARMS( "sym", "%p", sym );
+
+	if( !sym )
+	{
+		WRONGPARAM;
+		RETURN( (ppsym*)NULL );
+	}
+
+	len = pstrlen( sym->name ) + 4;
+	if( len > BUFSIZ )
+		name = (char*)pmalloc( ( len + 1 ) * sizeof( char ) );
+
+	sprintf( name, "pos_%s", pstrget( sym->name ) );
+
+	VARS( "name", "%s", name );
+
+	if( !( ret = pp_sym_get_by_name( sym->grm, name ) ) )
+	{
+		MSG( "Symbol does not exist yet, creating" );
+
+		ret = pp_sym_create( sym->grm, name,
+				PPFLAG_DEFINED | PPFLAG_CALLED | PPFLAG_GENERATED
+					| ( name == buf ? PPFLAG_FREENAME : PPFLAG_NONE ) );
+
+		/* Flag config must be done here do avoid pstrdup() previously */
+		if( name != buf )
+			ret->flags |= PPFLAG_FREENAME;
+
+		if( sym->grm->flags & PPFLAG_PREVENTLREC )
+			pp_prod_create( sym->grm, ret, sym, ret, (ppsym*)NULL );
+		else
+			pp_prod_create( sym->grm, ret, ret, sym, (ppsym*)NULL );
+
+		pp_prod_create( sym->grm, ret, sym, (ppsym*)NULL );
+	}
+	else if( name != buf )
+		pfree( name );
+
+	RETURN( ret );
+}
+
+/** Constructs an optional closure from //sym//.
+
+This helper function constructs the productions and symbol
+```
+opt_sym: sym | ;
+```
+from //sym//, and returns the symbol //pos_sym//. If //opt_sym// already exists,
+the symbol will be returned without any creation.
+*/
+ppsym* pp_sym_mod_optional( ppsym* sym )
+{
+	ppsym*		ret;
+	char		buf		[ BUFSIZ + 1 ];
+	char*		name	= buf;
+	size_t		len;
+
+	PROC( "pp_sym_mod_optional" );
+	PARMS( "sym", "%p", sym );
+
+	if( !sym )
+	{
+		WRONGPARAM;
+		RETURN( (ppsym*)NULL );
+	}
+
+	len = pstrlen( sym->name ) + 4;
+	if( len > BUFSIZ )
+		name = (char*)pmalloc( ( len + 1 ) * sizeof( char ) );
+
+	sprintf( name, "opt_%s", pstrget( sym->name ) );
+
+	VARS( "name", "%s", name );
+
+	if( !( ret = pp_sym_get_by_name( sym->grm, name ) ) )
+	{
+		MSG( "Symbol does not exist yet, creating" );
+		ret = pp_sym_create( sym->grm, name,
+				PPFLAG_DEFINED | PPFLAG_CALLED | PPFLAG_GENERATED
+					| ( name == buf ? PPFLAG_FREENAME : PPFLAG_NONE ) );
+
+		/* Flag config must be done here do avoid pstrdup() previously */
+		if( name != buf )
+			ret->flags |= PPFLAG_FREENAME;
+
+		pp_prod_create( sym->grm, ret, sym, (ppsym*)NULL );
+		pp_prod_create( sym->grm, ret, (ppsym*)NULL );
+	}
+	else if( name != buf )
+		pfree( name );
+
+	RETURN( ret );
+}
+
+/** Constructs an optional positive ("kleene") closure from //sym//.
+
+This helper function constructs the productions and symbol
+```
+pos_sym: sym pos_sym | sym ;
+opt_sym: pos_sym | ;
+```
+from //sym//, and returns the symbol //opt_sym//. If any of the given symbols
+already exists, they are directly used. The function is a shortcut for a call
+```
+pp_sym_mod_optional( pp_sym_mod_positive( sym ) )
+```
+*/
+ppsym* pp_sym_mod_kleene( ppsym* sym )
+{
+	PROC( "pp_sym_mod_kleene" );
+	PARMS( "sym", "%p", sym );
+
+	if( !sym )
+	{
+		WRONGPARAM;
+		RETURN( (ppsym*)NULL );
+	}
+
+	sym = pp_sym_mod_positive( sym );
+	sym = pp_sym_mod_optional( sym );
+
+	RETURN( sym );
+}

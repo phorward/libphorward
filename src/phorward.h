@@ -973,6 +973,9 @@ ppsym* pp_sym_get_by_name( ppgram* g, char* name );
 ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
 ppprod* pp_sym_getprod( ppsym* sym, unsigned int n );
 char* pp_sym_to_str( ppsym* sym );
+ppsym* pp_sym_mod_positive( ppsym* sym );
+ppsym* pp_sym_mod_optional( ppsym* sym );
+ppsym* pp_sym_mod_kleene( ppsym* sym );
 
 
 void pregex_dfa_print( pregex_dfa* dfa );

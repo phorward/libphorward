@@ -70,14 +70,10 @@ static ppsym* traverse_symbol( ppgram* g, ppsym* lhs, ppast* node )
 	return sym;
 }
 
-
 static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 {
 	ppsym*		sym;
-	ppsym*		csym;
 	ppprod*		prod;
-	char*		str;
-	char		name		[ NAMELEN * 2 + 1 ];
 
 	prod = pp_prod_create( g, lhs, (ppsym*)NULL );
 
@@ -95,47 +91,15 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 		else
 		{
 			sym = traverse_symbol( g, lhs, node->child->child );
-			str = sym->name;
 
-			if( NODE_IS( node, "kle" ) || NODE_IS( node, "pos" ) )
-			{
-				sprintf( name, "%s%c", str, PPMOD_POSITIVE );
+			if( NODE_IS( node, "pos" ) )
+				sym = pp_sym_mod_positive( sym );
 
-				if( !( csym = pp_sym_get_by_name( g, name ) ) )
-				{
-					csym = pp_sym_create( g, name,
-								PPFLAG_FREENAME | PPFLAG_DEFINED
-									| PPFLAG_CALLED | PPFLAG_GENERATED );
+			else if( NODE_IS( node, "opt" ) )
+				sym = pp_sym_mod_optional( sym );
 
-					if( g->flags & PPFLAG_PREVENTLREC )
-						pp_prod_create( g, csym, sym, csym, (ppsym*)NULL );
-					else
-						pp_prod_create( g, csym, csym, sym, (ppsym*)NULL );
-
-					pp_prod_create( g, csym, sym, (ppsym*)NULL );
-				}
-
-				sym = csym;
-			}
-
-			if( NODE_IS( node, "opt" ) || NODE_IS( node, "kle" ) )
-			{
-				sprintf( name, "%s%c", str, PPMOD_OPTIONAL );
-
-				if( !( csym = pp_sym_get_by_name( g, name ) ) )
-				{
-					csym = pp_sym_create( g, name,
-								PPFLAG_FREENAME | PPFLAG_DEFINED
-									| PPFLAG_CALLED | PPFLAG_GENERATED );
-
-					pp_prod_create( g, csym, sym, (ppsym*)NULL );
-					pp_prod_create( g, csym, (ppsym*)NULL );
-				}
-
-				sym = csym;
-			}
-
-			pp_prod_append( prod, sym );
+			else if( NODE_IS( node, "kle" ) )
+				sym = pp_sym_mod_kleene( sym );
 		}
 	}
 

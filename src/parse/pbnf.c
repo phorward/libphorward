@@ -38,7 +38,7 @@ static char* derive_name( ppgram* gram, char* base )
 
 static ppsym* traverse_symbol( ppgram* gram, ppsym* lhs, ppast* node )
 {
-	pregex_ptn*		ptn;
+	pregex_ptn*		ptn			= (pregex_ptn*)NULL;
 	ppsym*			sym			= (ppsym*)NULL;
 	ppast*			child;
 	char			name		[ NAMELEN * 2 + 1 ];
@@ -114,8 +114,6 @@ static pboolean traverse_production( ppgram* gram, ppsym* lhs, ppast* node )
 	ppsym*			csym;
 	ppprod*			prod;
 	ppprod*			popt;
-	char*			str;
-	char			name		[ NAMELEN * 2 + 1 ];
 	int				i;
 
 	prod = pp_prod_create( gram, lhs, (ppsym*)NULL );
@@ -144,45 +142,15 @@ static pboolean traverse_production( ppgram* gram, ppsym* lhs, ppast* node )
 		else
 		{
 			sym = traverse_symbol( gram, lhs, node->child->child );
-			str = sym->name;
 
-			if( NODE_IS( node, "kle" ) || NODE_IS( node, "pos" ) )
-			{
-				sprintf( name, "pos_%s", str );
+			if( NODE_IS( node, "pos" ) )
+				sym = pp_sym_mod_positive( sym );
 
-				if( !( csym = pp_sym_get_by_name( gram, name ) ) )
-				{
-					csym = pp_sym_create( gram, name,
-							PPFLAG_FREENAME | PPFLAG_DEFINED
-								| PPFLAG_CALLED | PPFLAG_GENERATED );
+			else if( NODE_IS( node, "opt" ) )
+				sym = pp_sym_mod_optional( sym );
 
-					if( gram->flags & PPFLAG_PREVENTLREC )
-						pp_prod_create( gram, csym, sym, csym, (ppsym*)NULL );
-					else
-						pp_prod_create( gram, csym, csym, sym, (ppsym*)NULL );
-
-					pp_prod_create( gram, csym, sym, (ppsym*)NULL );
-				}
-
-				sym = csym;
-			}
-
-			if( NODE_IS( node, "opt" ) || NODE_IS( node, "kle" ) )
-			{
-				sprintf( name, "opt_%s", str );
-
-				if( !( csym = pp_sym_get_by_name( gram, name ) ) )
-				{
-					csym = pp_sym_create( gram, name,
-							PPFLAG_FREENAME | PPFLAG_DEFINED
-								| PPFLAG_CALLED | PPFLAG_GENERATED );
-
-					pp_prod_create( gram, csym, sym, (ppsym*)NULL );
-					pp_prod_create( gram, csym, (ppsym*)NULL );
-				}
-
-				sym = csym;
-			}
+			else if( NODE_IS( node, "kle" ) )
+				sym = pp_sym_mod_kleene( sym );
 
 			pp_prod_append( prod, sym );
 		}
@@ -558,7 +526,7 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	n_emit = pp_sym_create( pbnf, "emit", PPFLAG_NONE );
 	n_emit->emit = "emits";
 
-	n_opt_emit = pp_sym_create( pbnf, "opt_emit", PPFLAG_NONE );
+	n_opt_emit = pp_sym_mod_optional( n_emit );
 
 	n_inline = pp_sym_create( pbnf, "inline", PPFLAG_NONE );
 	n_inline->emit = "inline";
@@ -598,9 +566,6 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	pp_prod_create( pbnf, n_emit, equal, nonterminal, (ppsym*)NULL );
 	pp_prod_create( pbnf, n_emit, equal, terminal, (ppsym*)NULL );
 	pp_prod_create( pbnf, n_emit, equal, code, (ppsym*)NULL );
-
-	pp_prod_create( pbnf, n_opt_emit, n_emit, (ppsym*)NULL );
-	pp_prod_create( pbnf, n_opt_emit, (ppsym*)NULL );
 
 	pp_prod_create( pbnf, n_inline, brop, n_alt, brcl, (ppsym*)NULL );
 
