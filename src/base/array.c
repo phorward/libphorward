@@ -547,7 +547,7 @@ void* parray_rget( parray* array, size_t offset )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( parray_get( array, array->last - 1 - offset ) );
+	RETURN( parray_get( array, array->last - offset ) );
 }
 
 /** Put an element //item// at position //offset// from the right of
@@ -575,7 +575,7 @@ void* parray_rput( parray* array, size_t offset, void* item )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( parray_put( array, array->last - 1 - offset, item ) );
+	RETURN( parray_put( array, array->last - offset, item ) );
 }
 
 /** Iterates over //array//.
