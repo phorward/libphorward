@@ -98,8 +98,10 @@ static pboolean traverse_production( ppgram* g, ppsym* lhs, ppast* node )
 			else if( NODE_IS( node, "opt" ) )
 				sym = pp_sym_mod_optional( sym );
 
-			else if( NODE_IS( node, "kle" ) )
+			else if( NODE_IS( node, "star" ) )
 				sym = pp_sym_mod_kleene( sym );
+
+			pp_prod_append( prod, sym );
 		}
 	}
 
