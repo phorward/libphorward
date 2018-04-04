@@ -639,7 +639,9 @@ struct _ppsym
 
 	unsigned int			idx;		
 	char*					name;		
+#ifndef PPSYM_T_EOF
 #define PPSYM_T_EOF			"&eof"
+#endif
 
 	unsigned int			flags;		
 
@@ -651,9 +653,10 @@ struct _ppsym
 	char*					strval;		
 };
 
+#ifndef PPSYM_IS_TERMINAL
 #define PPSYM_IS_TERMINAL( sym )	( !sym->name || !( *sym->name ) \
 										|| !islower( *( sym )->name ) )
-#define PPSYM_IS_NONTERMINAL( sym )	!PPSYM_IS_TERMINAL( sym )
+#endif
 
 
 struct _ppgram
