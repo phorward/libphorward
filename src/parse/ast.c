@@ -10,7 +10,7 @@ Usage:	Abstract syntax tree construction and traversal functions.
 
 #include "phorward.h"
 
-/** Creates new abstract syntax tree node. */
+/* Creates new abstract syntax tree node. */
 ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
 						char* start, char* end, int row, int col,
 							ppast* child )
@@ -110,7 +110,15 @@ ppast* pp_ast_select( ppast* node, char* emit, int n )
 	return node;
 }
 
-/** Evaluate //ast// using evaluation function //func//. */
+/** Evaluate //ast// using evaluation function //func//.
+
+The evaluation function has the prototype
+
+``` void (*pastevalfn)( ppasteval type, ppast* node )
+
+and retrieves a //type// regarding the position where the evaluation currently
+is positioned, and the node pointer.
+*/
 void pp_ast_eval( ppast* ast, pastevalfn func )
 {
 	ppast* 	node;

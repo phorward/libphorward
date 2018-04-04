@@ -1,7 +1,7 @@
 html, body, table
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
-	font-size: 12pt;
+	font-size: 14pt;
 }
 
 html
@@ -11,7 +11,7 @@ html
 
 body
 {
-	margin: 0 8%;
+	margin: 0 10%;
 	padding: 1%;
 	background-color: #fff;
 }

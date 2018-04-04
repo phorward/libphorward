@@ -35,6 +35,7 @@ Current development version.
     machines generated from regular expressions on some 32-bit machine
     configurations.
   - plex_tokenize() ran under some circumstances into an endless-loop.
+- Documentation updated
 
 ## v0.21
 

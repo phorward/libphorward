@@ -13,7 +13,8 @@ Usage:	Parser maintainance object.
 /** Creates a new parser object with the underlying grammar //g//.
 
 The grammar must either be parsed first via one of the BNF parsers
-(pp_gram_from_pbnf(), pp_gram_from_ebnf(), pp_gram_from_bnf()) or hand-crafted.
+(pp_gram_from_pbnf(), pp_gram_from_ebnf(), pp_gram_from_bnf()) or it
+must be hand-crafted.
 
 The provided grammar gets "frozen" when a parser is created from it.
 Modifications on the grammar with a parser based on an older grammar state may
@@ -246,8 +247,7 @@ static ppsym* pp_par_scan( pppar* p, char** start, char** end, pboolean lazy )
 
 /** Run parser //p// with input //start//.
 
-The function uses the parsing method defined when then parser was created.
-//end// receives a pointer to the position where the parser stopped.
+Currently, the used parsing method is only LALR(1).
 
 It returns an abstract syntax tree to //root// on success. */
 pboolean pp_par_parse( ppast** root, pppar* par, char* start )

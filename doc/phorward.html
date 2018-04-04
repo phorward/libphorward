@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>Phorward Toolkit Reference Manual</title>
+<title>The Phorward Libraries</title>
 <meta name="generator" content="http://txt2tags.org" />
 <link rel="stylesheet" type="text/css" href="phorward.css" />
 <link rel="stylesheet" type="text/css" href="prism.css" />
@@ -12,9 +12,9 @@
 <body>
 
 <div class="header" id="header">
-<h1>Phorward Toolkit Reference Manual</h1>
-<h2>libphorward 0.21.0</h2>
-<h3>December 2017</h3>
+<h1>The Phorward Libraries</h1>
+<h2>libphorward 0.22.0</h2>
+<h3>April 2018</h3>
 </div>
 
 <div class="body" id="body">
@@ -26,43 +26,41 @@
   <ul>
   <li><a href="#toc1">Table of Contents</a>
   </li>
-  <li><a href="#toc2">General</a>
-    <ul>
-    <li><a href="#toc3">Introduction</a>
-    </li>
-    </ul>
+  <li><a href="#toc2">Introduction</a>
   </li>
-  <li><a href="#toc4">Features</a>
+  <li><a href="#toc3">Features</a>
+  </li>
+  <li><a href="#toc4">Installation</a>
     <ul>
     <li><a href="#toc5">Building from sources</a>
     </li>
-    <li><a href="#toc6">Alternative local development system</a>
+    <li><a href="#toc6">Building on Windows</a>
     </li>
-    <li><a href="#toc7">Who develops libphorward?</a>
-    </li>
-    <li><a href="#toc8">Copyright</a>
+    <li><a href="#toc7">Local development build</a>
     </li>
     </ul>
   </li>
-  <li><a href="#toc9">Guidelines</a>
+  <li><a href="#toc8">Intention behind this library</a>
   </li>
-  <li><a href="#toc10">General tools</a>
+  <li><a href="#toc9">Dynamic general-purpose objects</a>
     <ul>
-    <li><a href="#toc11">Booleans</a>
+    <li><a href="#toc10">parray: Arrays and stacks</a>
+      <ul>
+      <li><a href="#toc11">Overview</a>
+      </li>
+      <li><a href="#toc12">Construction and destruction</a>
+      </li>
+      <li><a href="#toc13">Inserting elements</a>
+      </li>
+      <li><a href="#toc14">Accessing and iterating elements</a>
+      </li>
+      <li><a href="#toc15">Removing elements</a>
+      </li>
+      <li><a href="#toc16">Additional functions</a>
+      </li>
+      </ul>
     </li>
-    <li><a href="#toc12">Replacement for memory functions</a>
-    </li>
-    <li><a href="#toc13">Debug and trace facilities</a>
-    </li>
-    <li><a href="#toc14">Command-line tools</a>
-    </li>
-    </ul>
-  </li>
-  <li><a href="#toc15">String tools</a>
-  </li>
-  <li><a href="#toc16">Dynamic data management tools</a>
-    <ul>
-    <li><a href="#toc17">parray: Arrays and stacks</a>
+    <li><a href="#toc17">plist: Linked lists, hash-tables, queues and stacks</a>
       <ul>
       <li><a href="#toc18">Overview</a>
       </li>
@@ -74,91 +72,113 @@
       </li>
       <li><a href="#toc22">Removing elements</a>
       </li>
-      <li><a href="#toc23">Additional functions</a>
+      <li><a href="#toc23">Sorting elements</a>
+      </li>
+      <li><a href="#toc24">Interchanging functions</a>
+      </li>
+      <li><a href="#toc25">Additional functions</a>
       </li>
       </ul>
     </li>
-    <li><a href="#toc24">plist: Linked lists, hash-tables and queues</a>
-      <ul>
-      <li><a href="#toc25">Overview</a>
-      </li>
-      <li><a href="#toc26">Construction and destruction</a>
-      </li>
-      <li><a href="#toc27">Inserting elements</a>
-      </li>
-      <li><a href="#toc28">Accessing and iterating elements</a>
-      </li>
-      <li><a href="#toc29">Removing elements</a>
-      </li>
-      <li><a href="#toc30">Sorting elements</a>
-      </li>
-      <li><a href="#toc31">Interchanging functions</a>
-      </li>
-      <li><a href="#toc32">Additional functions</a>
-      </li>
-      </ul>
-    </li>
-    <li><a href="#toc33">pccl: Character-classes</a>
+    <li><a href="#toc26">pccl: Character-classes</a>
     </li>
     </ul>
   </li>
-  <li><a href="#toc34">pregex, plex: Regular expression tools</a>
+  <li><a href="#toc27">pregex, plex: Regular expression handling and lexical analyzers</a>
     <ul>
-    <li><a href="#toc35">Overview</a>
+    <li><a href="#toc28">Overview</a>
       <ul>
-      <li><a href="#toc36">Meta constructs</a>
+      <li><a href="#toc29">Meta constructs</a>
       </li>
-      <li><a href="#toc37">Characters and escape sequences</a>
+      <li><a href="#toc30">Characters and escape sequences</a>
       </li>
-      <li><a href="#toc38">Shorthand character classes</a>
+      <li><a href="#toc31">Shorthand character classes</a>
       </li>
-      <li><a href="#toc39">Anchoring</a>
+      <li><a href="#toc32">Anchoring</a>
       </li>
-      <li><a href="#toc40">Examples</a>
+      <li><a href="#toc33">Examples</a>
       </li>
       </ul>
     </li>
-    <li><a href="#toc41">pregex: Operating on regular expressions</a>
+    <li><a href="#toc34">pregex: Operating on regular expressions</a>
       <ul>
-      <li><a href="#toc42">Construction and destruction</a>
+      <li><a href="#toc35">Construction and destruction</a>
       </li>
-      <li><a href="#toc43">Matching</a>
+      <li><a href="#toc36">Matching</a>
       </li>
-      <li><a href="#toc44">Splitting</a>
+      <li><a href="#toc37">Splitting</a>
       </li>
-      <li><a href="#toc45">Replacing</a>
+      <li><a href="#toc38">Replacing</a>
       </li>
-      <li><a href="#toc46">Quick-access functions</a>
+      <li><a href="#toc39">Quick-access functions</a>
       </li>
       </ul>
     </li>
-    <li><a href="#toc47">plex: Lexical analysis using regular expressions</a>
+    <li><a href="#toc40">plex: Lexical analysis using regular expressions</a>
     </li>
     </ul>
   </li>
-  <li><a href="#toc48">pparse: Parser development tools</a>
+  <li><a href="#toc41">ppgram, ppar, ppast: Grammars, parsers and abstact-syntax trees</a>
     <ul>
-    <li><a href="#toc49">Overview</a>
+    <li><a href="#toc42">Overview</a>
     </li>
-    <li><a href="#toc50">Grammars</a>
+    <li><a href="#toc43">Grammars</a>
       <ul>
-      <li><a href="#toc51">Terminals</a>
+      <li><a href="#toc44">Hand-crafting a grammar</a>
       </li>
-      <li><a href="#toc52">Nonterminals</a>
+      <li><a href="#toc45">Expressing grammars in Backus-Naur-Form</a>
       </li>
-      <li><a href="#toc53">Productions</a>
+      <li><a href="#toc46">More grammar-related functions</a>
       </li>
       </ul>
     </li>
+    <li><a href="#toc47">Parsers</a>
+    </li>
+    <li><a href="#toc48">Abstract Syntax Tree</a>
+    </li>
     </ul>
   </li>
-  <li><a href="#toc54">Utility functions</a>
-  </li>
-  <li><a href="#toc55">Function reference</a>
+  <li><a href="#toc49">Miscelleanous</a>
     <ul>
-    <li><a href="#toc56">Macros</a>
+    <li><a href="#toc50">Advanced memory management functions</a>
+    </li>
+    <li><a href="#toc51">Extended string processing functions</a>
+    </li>
+    <li><a href="#toc52">System-related functions</a>
+    </li>
+    <li><a href="#toc53">Boolean data type</a>
+    </li>
+    <li><a href="#toc54">Debug and trace facilities</a>
+    </li>
+    <li><a href="#toc55">Command-line tools</a>
       <ul>
+      <li><a href="#toc56">pregex</a>
+      </li>
+      <li><a href="#toc57">plex</a>
+      </li>
+      <li><a href="#toc58">pparse</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#toc59">Other tools</a>
+    </li>
+    </ul>
+  </li>
+  <li><a href="#toc60">Reference</a>
+    <ul>
+    <li><a href="#toc61">Macros</a>
+      <ul>
+      <li><a href="#fn_LOG">LOG</a>
+      </li>
+      <li><a href="#fn_MSG">MSG</a>
+      </li>
       <li><a href="#fn_PARMS">PARMS</a>
+      </li>
+      <li><a href="#fn_PPSYM_IS_TERMINAL">PPSYM_IS_TERMINAL</a>
+      </li>
+      <li><a href="#fn_PP_AST_DUMP">PP_AST_DUMP</a>
+      </li>
+      <li><a href="#fn_PP_GRAM_DUMP">PP_GRAM_DUMP</a>
       </li>
       <li><a href="#fn_PROC">PROC</a>
       </li>
@@ -174,7 +194,7 @@
       </li>
       </ul>
     </li>
-    <li><a href="#toc64">Functions</a>
+    <li><a href="#toc74">Functions</a>
       <ul>
       <li><a href="#fn_p_ccl_add">p_ccl_add</a>
       </li>
@@ -486,15 +506,17 @@
       </li>
       <li><a href="#fn_pmemdup">pmemdup</a>
       </li>
-      <li><a href="#fn_pp_ast_create">pp_ast_create</a>
-      </li>
       <li><a href="#fn_pp_ast_dump">pp_ast_dump</a>
       </li>
       <li><a href="#fn_pp_ast_dump_json">pp_ast_dump_json</a>
       </li>
+      <li><a href="#fn_pp_ast_dump_pvm">pp_ast_dump_pvm</a>
+      </li>
       <li><a href="#fn_pp_ast_dump_short">pp_ast_dump_short</a>
       </li>
       <li><a href="#fn_pp_ast_dump_tree2svg">pp_ast_dump_tree2svg</a>
+      </li>
+      <li><a href="#fn_pp_ast_eval">pp_ast_eval</a>
       </li>
       <li><a href="#fn_pp_ast_free">pp_ast_free</a>
       </li>
@@ -504,29 +526,37 @@
       </li>
       <li><a href="#fn_pp_ast_select">pp_ast_select</a>
       </li>
-      <li><a href="#fn_pp_create">pp_create</a>
-      </li>
-      <li><a href="#fn_pp_free">pp_free</a>
-      </li>
       <li><a href="#fn_pp_gram_create">pp_gram_create</a>
-      </li>
-      <li><a href="#fn_pp_gram_dump">pp_gram_dump</a>
       </li>
       <li><a href="#fn_pp_gram_free">pp_gram_free</a>
       </li>
       <li><a href="#fn_pp_gram_from_bnf">pp_gram_from_bnf</a>
       </li>
+      <li><a href="#fn_pp_gram_from_ebnf">pp_gram_from_ebnf</a>
+      </li>
+      <li><a href="#fn_pp_gram_from_pbnf">pp_gram_from_pbnf</a>
+      </li>
       <li><a href="#fn_pp_gram_prepare">pp_gram_prepare</a>
       </li>
-      <li><a href="#fn_pp_lr_parse">pp_lr_parse</a>
+      <li><a href="#fn_pp_gram_to_str">pp_gram_to_str</a>
       </li>
-      <li><a href="#fn_pp_parse_to_ast">pp_parse_to_ast</a>
+      <li><a href="#fn_pp_lr_build">pp_lr_build</a>
+      </li>
+      <li><a href="#fn_pp_par_autolex">pp_par_autolex</a>
+      </li>
+      <li><a href="#fn_pp_par_create">pp_par_create</a>
+      </li>
+      <li><a href="#fn_pp_par_free">pp_par_free</a>
+      </li>
+      <li><a href="#fn_pp_par_lex">pp_par_lex</a>
+      </li>
+      <li><a href="#fn_pp_par_parse">pp_par_parse</a>
       </li>
       <li><a href="#fn_pp_prod_append">pp_prod_append</a>
       </li>
       <li><a href="#fn_pp_prod_create">pp_prod_create</a>
       </li>
-      <li><a href="#fn_pp_prod_drop">pp_prod_drop</a>
+      <li><a href="#fn_pp_prod_free">pp_prod_free</a>
       </li>
       <li><a href="#fn_pp_prod_get">pp_prod_get</a>
       </li>
@@ -540,6 +570,8 @@
       </li>
       <li><a href="#fn_pp_sym_drop">pp_sym_drop</a>
       </li>
+      <li><a href="#fn_pp_sym_free">pp_sym_free</a>
+      </li>
       <li><a href="#fn_pp_sym_get">pp_sym_get</a>
       </li>
       <li><a href="#fn_pp_sym_get_by_name">pp_sym_get_by_name</a>
@@ -547,6 +579,12 @@
       <li><a href="#fn_pp_sym_get_nameless_term_by_def">pp_sym_get_nameless_term_by_def</a>
       </li>
       <li><a href="#fn_pp_sym_getprod">pp_sym_getprod</a>
+      </li>
+      <li><a href="#fn_pp_sym_mod_kleene">pp_sym_mod_kleene</a>
+      </li>
+      <li><a href="#fn_pp_sym_mod_optional">pp_sym_mod_optional</a>
+      </li>
+      <li><a href="#fn_pp_sym_mod_positive">pp_sym_mod_positive</a>
       </li>
       <li><a href="#fn_pp_sym_to_str">pp_sym_to_str</a>
       </li>
@@ -665,56 +703,28 @@
   </ul>
 
 </div>
-<h1 id="toc2">General</h1>
-
-<h2 id="toc3">Introduction</h2>
+<h1 id="toc2">Introduction</h1>
 
 <p>
-<i>phorward</i> is a free toolkit for parser development, lexical analysis, regular expressions and more.
-</p>
-<p>
-The toolkit is primarily a library, written in C, that provides an interface for defining, running and processing parsers, lexical anlyzers and regular expressions through a consistent and easy-to-use interface. The following example program defines a simple expressional language, runs a parser on it and prints the generated abstract syntax tree.
+<b>phorward</b> is a versatile C-library. It is split into several modules, and mostly focuses on the definition and implementation of parsers, recognizers, virtual machines and regular expressions.
 </p>
 
-<pre><code class="language-c">
-#include &lt;phorward.h&gt;
+<ul>
+<li><b>any</b> provides a dynamical, extendible data structure and interface to store, convert and handle variables of different value types ("variant" data type),
+</li>
+<li><b>base</b> provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays,
+</li>
+<li><b>parse</b> defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees, integrating perfectly with the tools from *regex* for lexical analysis,
+</li>
+<li><b>regex</b> provides tools for lexical analysis and regular expression processing,
+</li>
+<li><b>string</b> is an extended string processing library,
+</li>
+<li><b>vm</b> can be used to implement and run stack-based virtual machines and instruction sets aimed to work with the *any* data type.
+</li>
+</ul>
 
-int main()
-{
-    pparse* parser;
-    ppast*  ast;
-    char*   input = "1+2*(3+4)+5";
-    char*   end;
-
-    parser = pp_create( 0,  "@int /[0-9]+/ ;"
-                            "fact : int | '(' expr ')' ;"
-                            "term : @mul( term '*' fact ) | fact ;"
-                            "expr : @add( expr '+' term ) | term ;" );
-
-    if( !pp_parse_to_ast( &amp;ast, parser, input, &amp;end ) )
-        return 1; /* parse error */
-
-    pp_ast_dump_short( stdout, ast );
-    return 0;
-}
-</code></pre>
-
-<p>
-It can easily be compiled with: <code>cc -o example example.c -lphorward</code>
-</p>
-<p>
-Furthermore, the toolkit comes with a command-line tool serving testing and prototyping facilities. The following command call yields in an equivalent parser and its abstract syntax tree, althought some symbol names are shortened.
-</p>
-
-<pre><code class="language-c">
-$ pparse -e "1+2*(3+4)+5" -g "[int #fn_int] /[0-9]+/; f: int | '(' e ')'; t: [mul #fn_mul]( t '*' f ) | f; e: [add #fn_add]( e '+' t ) | t;"
-</code></pre>
-
-<p>
-phorward also provides useful general-purpose extensions for C programming. This includes dynamic data structures (e.g. linked lists, hash-tables, stacks and arrays), extended string management functions and platform-independent, system-specific helper functions.
-</p>
-
-<h1 id="toc4">Features</h1>
+<h1 id="toc3">Features</h1>
 
 <p>
 <i>phorward</i> provides the following features:
@@ -792,13 +802,15 @@ phorward also provides useful general-purpose extensions for C programming. This
 </ul>
 
 <p>
-Please check out <a href="http://phorward.phorward-software.com/">http://phorward.phorward-software.com/</a> continuously to get latest news, documentation, updates and support on the Phorward Toolkit.
+Please check out <a href="https://phorward.info/">https://phorward.info/</a> continuously to get the latest news, documentation, updates and support on the Phorward Toolkit.
 </p>
+
+<h1 id="toc4">Installation</h1>
 
 <h2 id="toc5">Building from sources</h2>
 
 <p>
-Building the Phorward Toolkit is simple as every GNU-style open source program. Extract the release tarball or clone the Mercurial repository into a directory of your choice.
+Building the Phorward library is simple as every GNU-style open source program. Extract the release tarball or clone the Git repository into a directory of your choice.
 </p>
 <p>
 Then, run
@@ -827,6 +839,9 @@ $ make install
 <p>
 (properly as root), to install the toolkit into your system.
 </p>
+
+<h2 id="toc6">Building on Windows</h2>
+
 <p>
 On Windows systems, the usage of <a href="#vvvLINK1vvv">Cygwin</a> or another Unix shell environment is required. The Phorward Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
 </p>
@@ -846,7 +861,7 @@ To compile into 64-Bit Windows executables, configure with
 $ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 </code></pre>
 
-<h2 id="toc6">Alternative local development system</h2>
+<h2 id="toc7">Local development build</h2>
 
 <p>
 Alternatively to the autotools build system used for installation, there is also a simpler method on setting up a local build system for development and testing purposes.
@@ -874,344 +889,23 @@ can be used to simply build the entire library or parts of it.
 Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.
 </p>
 
-<h2 id="toc7">Who develops libphorward?</h2>
+<h1 id="toc8">Intention behind this library</h1>
 
 <p>
-The Phorward Toolkit is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
+The cornerstone for this library was laid in 2006 during some experimenting with several algorithms and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, mostly unfinished software projects which had their origin at <i>J.M.K S.F. Software Technologies</i>, which was later renamed to <i>Phorward Software Technologies</i>.
 </p>
 <p>
-This work is the result of several years experiencing in parser development systems, and has been preceded by the open source parser generators <a href="http://unicc.phorward-software.com/">UniCC</a> and <a href="http://jscc.brobston.com">JS/CC</a>. It shall be the final step for an ultimate, powerful compiler toolchain, mainly focusing on compiler-frontends. A sister project is the <a href="http://pynetree.org">pynetree parsing library</a> which is written in and for the Python programming language. It shares the same BNF-syntax for expressing grammars.
+The library was then released to the public in 2011, together with the open source parser generator <a href="https://unicc.phorward-software.com/">UniCC</a>. Since then, it was gradually extended to newer and more enhanced features, mostly on tools relating to parser and compiler construction, but also features already known from other projects and remastered in a more generic and powerful way.
 </p>
 <p>
-Help of any kind to extend and improve this software is always appreciated.
+The final destination of the Phorward library is not entirely clear yet. For now, it mostly serves as a kind of playground for different projections, but it is also used by the UniCC parser generator and the meanwhile discontinued RapidBATCH scripting language as its foundation library.
 </p>
 
-<h2 id="toc8">Copyright</h2>
+<h1 id="toc9">Dynamic general-purpose objects</h1>
 
-<p>
-Copyright &copy; 2006-2018 by Phorward Software Technologies, Jan Max Meyer.
-</p>
-<p>
-You may use, modify and distribute this software under the terms and conditions of the 3-clause BSD license. The full license terms can be obtained from the file LICENSE.
-</p>
-<p>
-THIS SOFTWARE IS PROVIDED BY JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JAN MAX MEYER (PHORWARD SOFTWARE TECHNOLOGIES) BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-</p>
+<h2 id="toc10">parray: Arrays and stacks</h2>
 
-<h1 id="toc9">Guidelines</h1>
-
-<p>
-The Phorward Toolkit, or shortly called libphorward, is a well-established C programming library which has its origins in several existing projects, where many features had been modularized and unified for a general purpose usage.
-</p>
-<p>
-The roots of this library go back into the year 2006, where Phorward Software began with the development of a universal programming library shared by several C projects that existed at this time. Since then, the library heavily grew and also had many redesign stages behind.
-</p>
-<p>
-Althought time went on, libphorward still is a state-of-the-art software toolchain for many everyday C programmer's tasks.
-</p>
-<p>
-libphorward has its own function style paradigm and coding standard. Therefore, the following rules and conditions are characteristic when working with libphorward's tools.
-</p>
-
-<ul>
-<li>any functions, data-types and tools provided by libphorward begin with the prefixing character "p", defines and constants begin with an uppercase "P". The only exceptions for this are the boolean constants TRUE and FALSE, and the debug macros.
-</li>
-<li>defines are always written in uppercase-order.
-</li>
-<li>all functions are written in an underscore-style, so like with camel-case, the function <code>pListGet()</code> is written <code>plist_get()</code> in libphorward.
-</li>
-</ul>
-
-<p>
-As general C coding style, we don't use ugly K&amp;R style or any other coding standard style.
-The libphorward style (which is only our style within the library) is:
-</p>
-
-<pre><code class="language-c">
-/* Clear, use of spaces behind and before brackets,
-	curly-bracket blocks are _ALWAYS_ written in SINGLE lines: */
-if( a &amp;&amp; !b( c ) )
-{
-	/* newlines on every block */
-	c = 0;
-	we_like_this_style();
-}
-
-/* Block only where more than one statement is executed */
-if( !c )
-	fuck_yeah();
-else
-{
-	c = 0;
-	this_is_better();
-}
-
-/* Cascading view on multiple lines, never go over 80 chars
-	per line */
-if( this_would_be_a_long_condition()
-		&amp;&amp; i_would_prefer_a_cascading_code_style()
-			&amp;&amp; i &lt; 300
-				&amp;&amp; that_looks_cooler_eh() ? FALSE : TRUE )
-	that_s_libphorward_style( TRUE );
-</code></pre>
-
-<p>
-If you don't like our coding style, you still can code on your own style, but please not within libphorward's own sources which are for the general public - these shall be kept clear - Thank you! :)
-</p>
-
-<h1 id="toc10">General tools</h1>
-
-<p>
-The Phorward Toolkit provides some extensional general-purpose functions, making C programming a little way easier and simpler. It is not necessary or required to use these functions when creating software that makes use of features from the Phorward Toolchain, but maybe they fit some developer's needs and could be useful.
-</p>
-
-<h2 id="toc11">Booleans</h2>
-
-<p>
-libphorward makes a heavy usage of the self-hosted data-type <b>pboolean</b>, which is also referenced by a define <i>BOOLEAN</i>, and the constants <i>TRUE</i> and <i>FALSE</i>.
-</p>
-<p>
-It is known, that several header files and projects define these constants on their own, so that <b>pboolean</b>, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
-</p>
-
-<pre><code class="language-c">
-#ifndef TRUE
-#define TRUE					1
-#endif
-</code></pre>
-
-<p>
-within phorward.h.
-</p>
-
-<h2 id="toc12">Replacement for memory functions</h2>
-
-<p>
-The standard memory allocation functions can be replaced by these pendants:
-</p>
-
-<ul>
-<li><a href="#fn_pmalloc">pmalloc()</a> - allocate and zero-intialize memory, stop on error.
-</li>
-<li><a href="#fn_prealloc">prealloc()</a> - reallocate memory, stop on error.
-</li>
-<li><a href="#fn_pfree">pfree()</a> - free memory and return (void*)NULL pointer.
-</li>
-<li><a href="#fn_pmemdup">pmemdup()</a> - shorthand for a malloc() with memcpy().
-</li>
-</ul>
-
-<p>
-These functions are used throughout libphorward's internal object mapping functions.
-</p>
-
-<h2 id="toc13">Debug and trace facilities</h2>
-
-<p>
-Althought this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
-</p>
-<p>
-For this, the library provides the following macros:
-</p>
-
-<ul>
-<li><a href="#fn_PROC">PROC()</a> - starting macro marking a functions entry point,
-</li>
-<li><a href="#fn_PARMS">PARMS()</a> - log function parameters,
-</li>
-<li><a href="#fn_VARS">VARS()</a> - log variables,
-</li>
-<li><a href="#fn_MSG">MSG()</a> - debug message
-</li>
-<li><a href="#fn_RETURN">RETURN()</a> - return a value
-</li>
-<li><a href="#fn_VOIDRET">VOIDRET</a> - return from a void function.
-</li>
-</ul>
-
-<p>
-So when a function is written like this in libphorward's way:
-</p>
-
-<pre><code class="language-c">
-int faculty( int x )
-{
-	int ret;
-
-	PROC( "faculty" );
-	PARMS( "x", "%d", x );
-
-	if( x &lt; 0 )
-	{
-		WRONGPARAM;
-		RETURN( -1 );
-	}
-	else if( x == 0 )
-	{
-		MSG( "x is 0, so faculty is 1" );
-		RETURN( 1 );
-	}
-	else
-	{
-		MSG( "Calling faculty recursively with:" );
-		VARS( "x - 1", "%d", x - 1 );
-		ret = x * faculty( x - 1 );
-	}
-
-	VARS( "ret", "%d", ret );
-	RETURN( ret );
-}
-</code></pre>
-
-<p>
-Trace is written to stderr, and only will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value &gt; 0.
-</p>
-<p>
-Calling this function with
-</p>
-
-<pre><code class="language-c">
-faculty( 3 );
-</code></pre>
-
-<p>
-yields in a debug log
-</p>
-
-<pre><code class="language-c">
-20772 (demo.c:  380) {
-20772 (demo.c:  380) .ENTRY : faculty
-20772 (demo.c:  381) .PARMS : x = &gt;3&lt;
-20772 (demo.c:  395) .MSG   : Calling faculty recursively with:
-20772 (demo.c:  396) .VARS  : x - 1 = &gt;2&lt;
-20772 (demo.c:  380) .{
-20772 (demo.c:  380) ..ENTRY : faculty
-20772 (demo.c:  381) ..PARMS : x = &gt;2&lt;
-20772 (demo.c:  395) ..MSG   : Calling faculty recursively with:
-20772 (demo.c:  396) ..VARS  : x - 1 = &gt;1&lt;
-20772 (demo.c:  380) ..{
-20772 (demo.c:  380) ...ENTRY : faculty
-20772 (demo.c:  381) ...PARMS : x = &gt;1&lt;
-20772 (demo.c:  395) ...MSG   : Calling faculty recursively with:
-20772 (demo.c:  396) ...VARS  : x - 1 = &gt;0&lt;
-20772 (demo.c:  380) ...{
-20772 (demo.c:  380) ....ENTRY : faculty
-20772 (demo.c:  381) ....PARMS : x = &gt;0&lt;
-20772 (demo.c:  390) ....MSG   : x is 0, so faculty is 1
-20772 (demo.c:  391) ....RETURN: faculty
-20772 (demo.c:  391) ...}
-20772 (demo.c:  400) ...VARS  : ret = &gt;1&lt;
-20772 (demo.c:  401) ...RETURN: faculty
-20772 (demo.c:  401) ..}
-20772 (demo.c:  400) ..VARS  : ret = &gt;2&lt;
-20772 (demo.c:  401) ..RETURN: faculty
-20772 (demo.c:  401) .}
-20772 (demo.c:  400) .VARS  : ret = &gt;6&lt;
-20772 (demo.c:  401) .RETURN: faculty
-20772 (demo.c:  401) }
-</code></pre>
-
-<h2 id="toc14">Command-line tools</h2>
-
-<p>
-libphorward also provides some general-purpose command-line tools which are installed and made available. These tools are heavily used by libphorward's own build process.
-</p>
-
-<ul>
-<li>pproto - is a function prototype generator,
-</li>
-<li>pinclude - is some kind of simple pre-processor to generate one big file from various smaller ones,
-</li>
-<li>premcomments - remove any comments from C sources
-</li>
-<li>pdostounix - Convert DOS-formatted text into Unix format.
-</li>
-</ul>
-
-<p>
-The general command-line tools are written as shell scripts in combination with standard Unix command-line utilities like awk, grep and sed.
-</p>
-
-<h1 id="toc15">String tools</h1>
-
-<p>
-The libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts, with a preceded "p".
-</p>
-<p>
-These function are
-</p>
-
-<ul>
-<li><a href="#fn_pstrcasecmp">pstrcasecmp()</a> - case-insensitive string comparison,
-</li>
-<li><a href="#fn_pstrcatchar">pstrcatchar()</a> - append character to string with dynamic allocation,
-</li>
-<li><a href="#fn_pstrcatstr">pstrcatstr()</a> - append string to string with dynamic allocation,
-</li>
-<li><a href="#fn_pstrdup">pstrdup()</a> - duplicate string, also accepts NULL-pointers,
-</li>
-<li><a href="#fn_pstrget">pstrget()</a> - securely get string from a pointer,
-</li>
-<li><a href="#fn_pstrlen">pstrlen()</a> - return length ot string, also accepts NULL-pointers,
-</li>
-<li><a href="#fn_pstrltrim">pstrltrim()</a> - remove prefixing whitespace,
-</li>
-<li><a href="#fn_pstrlwr">pstrlwr()</a> - convert string to lower-case-order,
-</li>
-<li><a href="#fn_pstrncasecmp">pstrncasecmp()</a> - case-insensitive string comparison over maximum length,
-</li>
-<li><a href="#fn_pstrncatstr">pstrncatstr()</a> - append string to string with dynamic allocation and maximum length,
-</li>
-<li><a href="#fn_pstrndup">pstrndup()</a> - duplicate a string with maximum length,
-</li>
-<li><a href="#fn_pstrput">pstrput()</a> - securely set an allocated string into a pointer,
-</li>
-<li><a href="#fn_pstrrender">pstrrender()</a> - dynamically render a string with placeholder substitution,
-</li>
-<li><a href="#fn_pstrreplace">pstrreplace()</a> - dynamically replace substrings within string,
-</li>
-<li><a href="#fn_pstrrtrim">pstrrtrim()</a> - remove trailing whitespace,
-</li>
-<li><a href="#fn_pstrsplit">pstrsplit()</a> - dynamic tokenizer,
-</li>
-<li><a href="#fn_pstrtrim">pstrtrim()</a> - remove prefixing and trailing whitespace,
-</li>
-<li><a href="#fn_pstrupr">pstrupr()</a> - convert string to lower-case-order.
-</li>
-</ul>
-
-<p>
-Additionally, the following pendants for wide-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
-</p>
-
-<ul>
-<li><a href="#fn_pwcscatchar">pwcscatchar()</a> - append character to wide-character string with dynamic allocation,
-</li>
-<li><a href="#fn_pwcscatstr">pwcscatstr()</a> - append wide-character string to wide-character string with dynamic allocation,
-</li>
-<li><a href="#fn_pwcsdup">pwcsdup()</a> - duplicate wide-character string, also accepts NULL-pointers,
-</li>
-<li><a href="#fn_pwcsget">pwcsget()</a> - securely get wide-character string from a pointer,
-</li>
-<li><a href="#fn_pwcslen">pwcslen()</a> - return length ot wide-character string, also accepts NULL-pointers,
-</li>
-<li><a href="#fn_pwcsncatstr">pwcsncatstr()</a> - append wide-character string to wide-character string with dynamic allocation and maximum length,
-</li>
-<li><a href="#fn_pwcsndup">pwcsndup()</a> - duplicate a wide-character string with maximum length,
-</li>
-<li><a href="#fn_pwcsput">pwcsput()</a> - securely set an allocated wide-character string into a pointer.
-</li>
-</ul>
-
-<p>
-Althought the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
-</p>
-
-<h1 id="toc16">Dynamic data management tools</h1>
-
-<h2 id="toc17">parray: Arrays and stacks</h2>
-
-<h3 id="toc18">Overview</h3>
+<h3 id="toc11">Overview</h3>
 
 <p>
 The <b>parray</b> object is a general-purpose data structure which can be used for several operations.
@@ -1250,7 +944,7 @@ The <b>parray</b> object brings the following advantages and disadvantages:
 </li>
 </ul>
 
-<h3 id="toc19">Construction and destruction</h3>
+<h3 id="toc12">Construction and destruction</h3>
 
 <p>
 <b>parray</b> objects are created using <a href="#fn_parray_create">parray_create()</a> or initialized with <a href="#fn_parray_init">parray_init()</a>. The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with <a href="#fn_parray_erase">parray_erase()</a>, respectively cleared and freed with <a href="#fn_parray_free">parray_free()</a>.
@@ -1266,7 +960,7 @@ a = parray_create( sizeof( usertype ), 0 );
 parray_free( a );
 </code></pre>
 
-<h3 id="toc20">Inserting elements</h3>
+<h3 id="toc13">Inserting elements</h3>
 
 <p>
 Elements can be inserted with
@@ -1303,7 +997,7 @@ tp = (usertype*)parray_rmalloc( a );
 fill_usertype( tp );
 </code></pre>
 
-<h3 id="toc21">Accessing and iterating elements</h3>
+<h3 id="toc14">Accessing and iterating elements</h3>
 
 <p>
 Direct access to specific elements is done using
@@ -1371,7 +1065,7 @@ To get a predecessor or successor of an element, use <a href="#fn_parray_prev">p
 Elements can be replaced by <a href="#fn_parray_put">parray_put()</a> and <a href="#fn_parray_rput">parray_rput()</a> via their index.
 </p>
 
-<h3 id="toc22">Removing elements</h3>
+<h3 id="toc15">Removing elements</h3>
 
 <p>
 Elements can be removed with
@@ -1396,7 +1090,7 @@ tp = (usertype*)parray_pop( a );
 tp = (usertype*)parray_unshift( a );
 </code></pre>
 
-<h3 id="toc23">Additional functions</h3>
+<h3 id="toc16">Additional functions</h3>
 
 <p>
 Other, useful functions are
@@ -1415,9 +1109,9 @@ Other, useful functions are
 </li>
 </ul>
 
-<h2 id="toc24">plist: Linked lists, hash-tables and queues</h2>
+<h2 id="toc17">plist: Linked lists, hash-tables, queues and stacks</h2>
 
-<h3 id="toc25">Overview</h3>
+<h3 id="toc18">Overview</h3>
 
 <p>
 Next to the <b>parray</b> object, the <b>plist</b> object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
@@ -1492,7 +1186,7 @@ The <b>plist</b> object brings the following advantages and disadvantages:
 </li>
 </ul>
 
-<h3 id="toc26">Construction and destruction</h3>
+<h3 id="toc19">Construction and destruction</h3>
 
 <p>
 <b>plist</b> objects are created using <a href="#fn_plist_create">plist_create()</a> or initialized with <a href="#fn_plist_init">plist_init()</a>. The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the <b>plist</b> object to a specified behavior.
@@ -1537,7 +1231,7 @@ l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
 plist_free( l );
 </code></pre>
 
-<h3 id="toc27">Inserting elements</h3>
+<h3 id="toc20">Inserting elements</h3>
 
 <p>
 Elements can be inserted with
@@ -1580,7 +1274,7 @@ tp = (usertype*)plist_rmalloc( a );
 fill_usertype( tp );
 </code></pre>
 
-<h3 id="toc28">Accessing and iterating elements</h3>
+<h3 id="toc21">Accessing and iterating elements</h3>
 
 <p>
 Elements within a <b>plist</b> object are references by <b>plistel</b> items. To access the data element behind a <b>plistel</b> item, the function <a href="#fn_plist_access">plist_access()</a> is used, in combination with element retrival functions, like
@@ -1640,7 +1334,7 @@ for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
 	;
 </code></pre>
 
-<h3 id="toc29">Removing elements</h3>
+<h3 id="toc22">Removing elements</h3>
 
 <p>
 To remove elements from a <b>plist</b> object, the following functions can be used.
@@ -1664,7 +1358,7 @@ plist_pop( a, &amp;t );
 plist_unshift( a, &amp;t );
 </code></pre>
 
-<h3 id="toc30">Sorting elements</h3>
+<h3 id="toc23">Sorting elements</h3>
 
 <p>
 <b>plist</b> objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertation.
@@ -1715,7 +1409,7 @@ The sorting can be also be performed by invoking the functions
 </li>
 </ul>
 
-<h3 id="toc31">Interchanging functions</h3>
+<h3 id="toc24">Interchanging functions</h3>
 
 <p>
 <b>plist</b> objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind <b>plist</b>. Both lists must be configured with the same element memory size, else all functions will fail.
@@ -1731,7 +1425,7 @@ To implement these functions, every <b>plist</b> object also refers to a compari
 </li>
 </ul>
 
-<h3 id="toc32">Additional functions</h3>
+<h3 id="toc25">Additional functions</h3>
 
 <p>
 <b>plist</b> provides these additional functions:
@@ -1746,7 +1440,7 @@ To implement these functions, every <b>plist</b> object also refers to a compari
 </li>
 </ul>
 
-<h2 id="toc33">pccl: Character-classes</h2>
+<h2 id="toc26">pccl: Character-classes</h2>
 
 <p>
 The <b>pccl</b> object is established on top of the <b>plist</b> object and encapsulates easy-to-handle low-level functions for character-class handling.
@@ -1840,9 +1534,9 @@ Useful, additional functions when working with <b>pccl</b> are:
 </li>
 </ul>
 
-<h1 id="toc34">pregex, plex: Regular expression tools</h1>
+<h1 id="toc27">pregex, plex: Regular expression handling and lexical analyzers</h1>
 
-<h2 id="toc35">Overview</h2>
+<h2 id="toc28">Overview</h2>
 
 <p>
 libphorward provides a powerful set of functions relating to general string pattern matching and lexical analysis using regular expressions.
@@ -1869,7 +1563,7 @@ libphorward provides a powerful set of functions relating to general string patt
 </li>
 </ul>
 
-<h3 id="toc36">Meta constructs</h3>
+<h3 id="toc29">Meta constructs</h3>
 
 <p>
 In general, regular expressions are made-up of the following elements:
@@ -1914,7 +1608,7 @@ In general, regular expressions are made-up of the following elements:
 All meta-characters can be escaped by backslash, so they are interpretered as usual characters.
 </p>
 
-<h3 id="toc37">Characters and escape sequences</h3>
+<h3 id="toc30">Characters and escape sequences</h3>
 
 <p>
 Any other character coming up is consumed as one expression to be matched in the input.
@@ -1991,7 +1685,7 @@ Escape sequences (C-style) are supported according to the following table:
 <u><b>Note:</b> When specifying escape-sequences in static strings within C-code, they must be double-escaped, because they are first analyzed by the C compiler and then by libphorward's regex-parser. Therefore, specifiying a backslash <code>\\</code> must become <code>\\\\</code> in the C-Code, which then yields in <code>\\</code> after compiling the C program.</u>
 </p>
 
-<h3 id="toc38">Shorthand character classes</h3>
+<h3 id="toc31">Shorthand character classes</h3>
 
 <p>
 Pre-defined shorthand character-classes are also supported by libphorward's pregex and plex tools.
@@ -2035,7 +1729,7 @@ Pre-defined shorthand character-classes are also supported by libphorward's preg
 </tr>
 </table>
 
-<h3 id="toc39">Anchoring</h3>
+<h3 id="toc32">Anchoring</h3>
 
 <p>
 The following anchors are supported, when specified at beginning or ending of an expression:
@@ -2068,7 +1762,7 @@ The following anchors are supported, when specified at beginning or ending of an
 Anchors can be entirely switched off when setting the PREGEX_COMP_NOANCHORS on compile-time, respectively PREGEX_RUN_NOANCHORS on run-time.
 </p>
 
-<h3 id="toc40">Examples</h3>
+<h3 id="toc33">Examples</h3>
 
 <p>
 Some examples:
@@ -2105,7 +1799,7 @@ Some examples:
 (TODO: more examples)
 </p>
 
-<h2 id="toc41">pregex: Operating on regular expressions</h2>
+<h2 id="toc34">pregex: Operating on regular expressions</h2>
 
 <p>
 The <b>pregex</b> object is the object-oriented interface for string operations based on regular expressions.
@@ -2132,7 +1826,7 @@ Generally, the actions
 are supported by the compiled pattern.
 </p>
 
-<h3 id="toc42">Construction and destruction</h3>
+<h3 id="toc35">Construction and destruction</h3>
 
 <p>
 <b>pregex</b> objects are constructed by <a href="#fn_pregex_create">pregex_create()</a>. First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
@@ -2207,7 +1901,7 @@ r = pregex_create( "[_A-Za-z]+", 0 );
 pregex_free( r );
 </code></pre>
 
-<h3 id="toc43">Matching</h3>
+<h3 id="toc36">Matching</h3>
 
 <p>
 To immediatelly test if a <b>pregex</b>-object matches on a string, the function <a href="#fn_pregex_match">pregex_match()</a> shall be invoked.
@@ -2259,7 +1953,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 parray_free( a );
 </code></pre>
 
-<h3 id="toc44">Splitting</h3>
+<h3 id="toc37">Splitting</h3>
 
 <p>
 Splitting a string by a regular expression can be done with <a href="#fn_pregex_split">pregex_split()</a>. This function takes several parameters, and is designed to be called in a loop.
@@ -2298,7 +1992,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 parray_free( a );
 </code></pre>
 
-<h3 id="toc45">Replacing</h3>
+<h3 id="toc38">Replacing</h3>
 
 <p>
 The function <a href="#fn_pregex_replace">pregex_replace()</a> allows for replacing parts of strings by regular expressions.
@@ -2332,7 +2026,7 @@ will return "int[5] and int[6] are the cross sums of int[23] and int[42]." when 
 To disable the backreference replacement features, the regular expression flag PREGEX_RUN_NOREF must be switched.
 </p>
 
-<h3 id="toc46">Quick-access functions</h3>
+<h3 id="toc39">Quick-access functions</h3>
 
 <p>
 Based on the <b>pregex</b>-object, libphorward provides the shortcut functons
@@ -2351,7 +2045,7 @@ Based on the <b>pregex</b>-object, libphorward provides the shortcut functons
 for immediate use, without creating and destroying a <b>pregex</b>-object. Because this is done within the function calls, multiple calls of these functions result in huger runtime latencies and produce more overhead.
 </p>
 
-<h2 id="toc47">plex: Lexical analysis using regular expressions</h2>
+<h2 id="toc40">plex: Lexical analysis using regular expressions</h2>
 
 <p>
 The second part of libphorwards regular expression tools is the <b>plex</b>-object, which encapsulates all required features for creating lexical analyzers (in terms of compiler-writers also called "scanners" or "lexers") into one handy object.
@@ -2424,105 +2118,710 @@ ident &gt;x&lt;
 semicolon &gt;;&lt;
 </code></pre>
 
-<h1 id="toc48">pparse: Parser development tools</h1>
+<h1 id="toc41">ppgram, ppar, ppast: Grammars, parsers and abstact-syntax trees</h1>
 
-<h2 id="toc49">Overview</h2>
+<h2 id="toc42">Overview</h2>
 
 <p>
-The libphorward serves as a parser generator and language processing toolchain. It provides a flexible, integrated and consequent solution for any parsing issues.
+The libphorward serves as a parser generator and language processing toolchain. It provides a flexible, integrated and consequent solution for many parsing-reated issues.
 </p>
 
 <ul>
-<li>The <b>pparse</b> object encapsulates a parser generator and parser executor for several paradigms into one object.
+<li><b>ppgram</b>, <b>ppsym</b> and <b>ppprod</b> objects provide a way to describe grammars, symbols and productions,
 </li>
-<li>The <b>ppast</b> object is a linked data structure that represents the parse tree generated by the parser, and allows for browsing it in any desired way.
+<li><b>pppar</b> encapsulates a parser with an <i>plex</i>-based lexer,
 </li>
-<li>Parsing of LALR(1) and LR(1) grammars is completely supported. LL(1) is implemented in a very naive implementation, which does not allow for left-recursive grammars.
-</li>
-<li>Grammars can comfortably be expressed in a BNF-styled (Backus-Naur-Form) description language or manually constructed by the objects <b>ppgram</b>, <b>ppsym</b> and <b>ppprod</b>.
-</li>
-</ul>
-
-<h2 id="toc50">Grammars</h2>
-
-<p>
-Grammars in the libphorward's <i>pparse</i> module are expressed using the Phorward Grammar Definition Language (GDL), which was itself implemented using the <i>pparse</i> toolchain.
-</p>
-<p>
-The GDL is a simple but effective implementation of the Backus-Naur-Form (BNF) for expressing grammatical rules, but it does also provide extensions and attributions that influence the construction of the resulting abstract syntax tree. Therefore, it can be seen as a tree-augmented BNF, sometimes called TBNF.
-</p>
-<p>
-This language is made up of the fundamental elements: <b>terminals</b>, <b>nonterminals</b> and <b>productions</b>, and implements some special symbol attribution that influences the construction of the resulting abstract syntax tree, which is the result of a successful parse.
-</p>
-
-<h3 id="toc51">Terminals</h3>
-
-<p>
-<b>Terminals</b>, also called <i>terminal symbols</i>, are atomics of the implemented language. They are directly read from the input stream. A terminal can be a single character, a string or a regular expression that matches on a pattern. It is on the language designer's choice how terminal symbols are made up in the particular implementation. Some examples for widely used terminals in programming languages are identifiers for variables and functions, operators, brackets, keywords like <i>if</i> or <i>while</i>, floating point or integer numbers, and so on. The parser will expect these terminals in a valid order according to the position it is during the parse - which is in turn defined by the underlying grammatical rules it follows.
-</p>
-<p>
-In GDL, terminals can be expressed inline or as named terminals.
-</p>
-
-<ul>
-<li><code>/\d+/</code> and <code>/[0-9]+/</code> both define a regular expression that matches an integer number.
-</li>
-<li><code>"while"</code> defines a string <i>while</i> that is accepted from the input.
-</li>
-<li><code>'+'</code> defines a single character <i>+</i>, but also allows for specification of character-classes, e.g. <code>'0-9A-F'</code> to match any hexadecimal character.
+<li><b>ppast</b> is a linked data structure that represents parse trees generated by the parser, and allows for browsing it in any desired way.
 </li>
 </ul>
 
 <p>
-A named terminal is defined in its own definition block like this:
+We assume that the reader of this section is familiar with the terminology of parsing, grammars and algorithms.
+</p>
+
+<h2 id="toc43">Grammars</h2>
+
+<p>
+Grammars are described using <b>ppgram</b> objects, which in turn are build from <i>terminal</i> and <i>nonterminal</i> symbols, described by <b>ppsym</b>, and productions, described by <b>ppprod</b>.
+</p>
+<p>
+Whether a symbol is a terminal or a nonterminal is defined by its identifying name. Any symbol starting with a lower-case character in its name is identified as a <i>nonterminal</i> symbol. Symbols with an upper-case character or any other non-alphabetic character, as well as symbols entirely without an identifiying name, are treated as <i>terminal</i> symbols.
+</p>
+<p>
+Here are some examples:
+</p>
+
+<ul>
+<li><code>expression</code> is a nonterminal,
+</li>
+<li><code>Identifier</code> is a terminal,
+</li>
+<li><code>_expression</code> is a terminal,
+</li>
+<li><code>!</code> is a terminal,
+</li>
+<li><code>xPRESSION</code> is a nonterminal.
+</li>
+</ul>
+
+<p>
+The distinction rules are defined within the macro <a href="#fn_PPSYM_IS_TERMINAL">PPSYM_IS_TERMINAL()</a>, and may be changed.
+</p>
+
+<h3 id="toc44">Hand-crafting a grammar</h3>
+
+<p>
+Grammars may be hand-crafted using the various construction functions for the
+different objects.
+</p>
+<p>
+Here is the little piece of code for little BNF-rule <code>a: a A | b</code>:
 </p>
 
 <pre><code class="language-c">
-integer /\d+/;
-while_keyword "while";
-hexchar '0-9A-F';
+ppgram* g;
+ppsym*  a;
+ppsym*  A;
+ppsym*  b;
+
+g = pp_gram_create();
+
+a = pp_sym_create( g, "a", 0 );
+A = pp_sym_create( g, "A", 0 );
+b = pp_sym_create( g, "b", 0 );
+
+pp_prod_create( g, a, a, A, NULL );         /* a: a A */
+pp_prod_create( g, a, b, NULL );            /* a: b */
+
+/* Alternatively: */
+pprod*  p;
+
+p = pp_prod_create( g, a, NULL );
+pp_prod_append( p, a );
+pp_prod_append( p, A );                     /* a: a A */
+
+p = pp_prod_create( g, a, NULL );
+pp_prod_append( p, b );                     /* a: b */
 </code></pre>
 
 <p>
-Each block is always closed with a semicolon. These blocks associate a named terminal identifier (integer, while_keyword and hexchar) with a particular terminal definition.
+Indeed, this is nasty and error-prone.
 </p>
 
-<h3 id="toc52">Nonterminals</h3>
+<h3 id="toc45">Expressing grammars in Backus-Naur-Form</h3>
 
 <p>
-<b>Nonterminals</b>, also called <i>nonterminal symbols</i>, can be seen like some sort of variable or "function calls" within a grammar, although they aren't. They reference to one or a bunch of the so called <i>productions</i>, which means that each production is always associated with at least one nonterminal. But one nonterminal may exist of several productions. They form valid sequences of <i>terminals</i> and other <i>nonterminals</i> which are allowed in the current context in they particular order. In other words: Nontermals can be expanded into their productions.
+Grammars are usually expressed in Backus-Naur-Form (BNF).
+</p>
+<p>
+For this case, the Phorward library provides parsers to compile BNF-like input into Phorward grammar objects.
 </p>
 
-<h3 id="toc53">Productions</h3>
+<ul>
+<li><a href="#fn_pp_gram_from_bnf">pp_gram_from_bnf()</a> - Simple parser to compile BNF without any extensions.
+</li>
+<li><a href="#fn_pp_gram_from_ebnf">pp_gram_from_ebnf()</a> - Extended parser to compile extended BNF definitions.
+</li>
+<li><a href="#fn_pp_gram_from_pbnf">pp_gram_from_pbnf()</a> - Full-fledged, Phorward-style BNF parser.
+</li>
+</ul>
+
+<h4>Simple BNF</h4>
 
 <p>
-<b>Productions</b>, also called <i>grammar rules</i> or just <i>rules</i>, finally describe the syntax. Its better to say, that productions define a syntactical part of the grammar - which can be replaced by the specific <i>nonterminal</i> each production is associated with. This syntactical description is done by defining a sequence in which terminals and nonterminals may occur to form a valid sentence. This includes, that a nonterminal can reference itself recursively in its own productions, which is a very important aspect in non-regular languages. In other words: Productions can be substituted by their associated nonterminals.
-</p>
-<p>
-Productions are always defined in combination with a nonterminal definition in a block. The name before the colon (:) is the nonterminal that is defined (its also called <i>left-hand side</i> of a production), the sequences behind the colon define the productions (so they are also called <i>right-hand sides</i>). Several productions can be defined by separating them with a pipe (|) symbol. The block must be closed with a semicolon (;).
-</p>
-<p>
-The full grammar of a four-function calculator (yes, the simples example for a programming language in nearly any compiler construction textbook!) in libphorward's grammar definition languages would be
+Our above example grammar from the hand-crafting example can easily be constructed with the simple BNF parser, by using the function <a href="#fn_pp_gram_from_bnf">pp_gram_from_bnf()</a> on an previously created <i>ppgram</i>-object.
 </p>
 
 <pre><code class="language-c">
-factor : /\d+/ | '(' expr ')' ;
-term : term '*' factor | term '/' factor | factor ;
-expr : expr '+' term | expr '-' term | term ;
+pp_gram_from_bnf( g, "a: a A | b;" );
 </code></pre>
 
-<h1 id="toc54">Utility functions</h1>
-
 <p>
-Coming soon.
+The simple BNF parser allows for any symbol name which consists of any character except whitespace and the meta characters <code>:</code>, <code>|</code> and <code>;</code>. Generally, the rules for the naming of terminals and nonterminals, as described above, apply.
 </p>
 
-<h1 id="toc55">Function reference</h1>
+<ul>
+<li><code>:</code> is the separator between left-hand side and productions,
+</li>
+<li><code>|</code> is the separator between productions,
+</li>
+<li><code>;</code> ends a definition block to start another one.
+</li>
+</ul>
 
-<h2 id="toc56">Macros</h2>
+<h4>Extended BNF</h4>
 
+<p>
+The EBNF parser is the extended version of the simple BNF parser, and allows for further syntactical constructs.
+</p>
+<p>
+These constructs are
+</p>
+
+<ul>
+<li><code>(</code> and <code>)</code> construct inline-nonterminals with an automatically determined name, and allows for multiple productions,
+</li>
+<li><code>?</code> behind a right-hand side symbol defines it as optional (optional closure),
+</li>
+<li><code>+</code> behind a right-hand side symbol defines it as one-or-multiple (positive closure),
+</li>
+<li><code>*</code> behind a right-hand side symbol defines it as none-or-multiple (kleene closure).
+</li>
+</ul>
+
+<p>
+This example defines an (ambigous) grammar for floating-point numbers:
+</p>
+
+<pre><code class="language-c">
+pp_gram_from_ebnf( g, "dig : 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 ;"
+                      "float: dig+ . dig* | dig* . dig+ ;" );
+</code></pre>
+
+<h4>Phorward BNF</h4>
+
+<p>
+The most powerful parser for grammars is the Phorward BNF parser (PBNF). This part of the Phorward library is still under construction and will be enhanced in future to more features and elements.
+</p>
+<p>
+Additional to the EBNF syntax, this dialect enables to define
+</p>
+
+<ul>
+<li>nodes in the resulting AST using the <code>:=</code> and <code>=</code> operators,
+</li>
+<li>lexical recognizers for terminal symbols, using <code>"ast-node generating string"</code>, <code>'string'</code> and <code>/regular expression/</code>,
+</li>
+<li>whitespace symbols via the <code>%skip</code> directive,
+</li>
+<li>a start symbol via <code>$</code>.
+</li>
+</ul>
+
+<p>
+The well known four-function calculator, expressed in pbnf:
+</p>
+
+<pre><code class="language-c">
+%skip   /[\s]+/ ;
+Int     : /[0-9]+/ = int;
+
+factor  : Int
+        | '(' expr ')'
+        ;
+
+term    : term '*' factor = mul
+        | term '/' factor = div
+        | factor
+        ;
+
+expr$   : expr '+' term = add
+        | expr '-' term = sub
+        | term
+        ;
+</code></pre>
+
+<h3 id="toc46">More grammar-related functions</h3>
+
+<p>
+There are some more functions on grammars that need to be mentioned.
+</p>
+
+<ul>
+<li><a href="#fn_pp_gram_prepare">pp_gram_prepare()</a> prepares a grammar by generating additional compile-time-specific information that is required by subsequent tasks,
+</li>
+<li><a href="#fn_pp_gram_to_str">pp_gram_to_str()</a> generates a BNF-like representation of the grammar,
+</li>
+<li><a href="#fn_PP_GRAM_DUMP">PP_GRAM_DUMP()</a> dumps a grammar's productions and symbols into trace,
+</li>
+<li><a href="#fn_pp_gram_free">pp_gram_free()</a> frees a grammar object and all its values.
+</li>
+</ul>
+
+<h2 id="toc47">Parsers</h2>
+
+<p>
+In definitions of the Phorward library, a parser is the union of a grammar, a lexical analyzer and a parsing algorithm.
+</p>
+
+<ul>
+<li>The grammar is the fundamental part of the parser, and is described via <i>ppgram</i>,
+</li>
+<li>as lexical analyzer, a <i>plex</i> object is used and managed, but this can also be changed to any other token emitting process,
+</li>
+<li>as parsing algorithm, so far only LALR(1) is supported, but more algorithms are planned in future.
+</li>
+</ul>
+
+<p>
+Parsers are described and implemented as a <i>pppar</i> object.
+</p>
+
+<ul>
+<li><a href="#fn_pp_par_create">pp_par_create()</a> creates an new parser object that is based on an existing grammar,
+</li>
+<li><a href="#fn_pp_par_lex">pp_par_lex()</a> and <a href="#fn_pp_par_autolex">pp_par_autolex()</a> allow to define tokens to be recognized by the <i>plex</i> object,
+</li>
+<li><a href="#fn_pp_par_parse">pp_par_parse()</a> finally is the parser interpreter, that parses an input string and generates an AST from its structure,
+</li>
+<li><a href="#fn_pp_par_free">pp_par_free()</a> drops the parser object again.
+</li>
+</ul>
+
+<p>
+The current state of Phorward's internal parsing tools runs on strings (char*) only. Later extensions and enhancements may provide facilities to read from files or streams.
+</p>
+
+<h2 id="toc48">Abstract Syntax Tree</h2>
+
+<p>
+The <i>ppast</i> object represents a node in the abstract syntax tree.
+</p>
+
+<pre><code class="language-c">
+typedef struct _ppast       ppast;
+
+/* AST */
+struct _ppast
+{
+    char*                   emit;       /* AST node name */
+
+    ppsym*                  sym;        /* Emitting symbol */
+    ppprod*                 prod;       /* Emitting production */
+
+    /* Match */
+    char*                   start;      /* Begin of fragment */
+    char*                   end;        /* End of fragment */
+    size_t                  len;        /* Fragment length */
+
+    /* Source */
+    unsigned long           row;        /* Appearance in row */
+    unsigned long           col;        /* Appearance in column */
+
+    /* AST */
+    ppast*                  child;      /* First child element */
+    ppast*                  prev;       /* Previous element in current scope */
+    ppast*                  next;       /* Next element in current scope */
+};
+</code></pre>
+
+<p>
+It is usually not constructed by hand, but by parsing functions while or after parsing has completed.
+</p>
+<p>
+The following functions may be interesting:
+</p>
+
+<ul>
+<li><a href="#fn_pp_ast_dump">pp_ast_dump()</a> and <a href="#fn_pp_ast_dump_short">pp_ast_dump_short()</a> dump a <i>ppast</i> as a textual tree into a stream, <a href="#fn_PP_AST_DUMP">PP_AST_DUMP()</a> does so into the trace,
+</li>
+<li><a href="#fn_pp_ast_dump_json">pp_ast_dump_json()</a> dumps a <i>ppast</i> as JSON string into a stream,
+</li>
+<li><a href="#fn_pp_ast_dump_tree2svg">pp_ast_dump_tree2svg()</a> dumps a <i>ppast</i> as a string that can be fed to tree2svg, a free program to visually print trees,
+</li>
+<li><a href="#fn_pp_ast_eval">pp_ast_eval()</a> runs an evaluation on every node,
+</li>
+<li><a href="#fn_pp_ast_get">pp_ast_get()</a> returns element from chain by index,
+</li>
+<li><a href="#fn_pp_ast_len">pp_ast_len()</a> returns the length of a tree chain (by next pointer),
+</li>
+<li><a href="#fn_pp_ast_select">pp_ast_select()</a> like <a href="#fn_pp_ast_get">pp_ast_get()</a>, but checking for same node names,
+</li>
+<li><a href="#fn_pp_ast_free">pp_ast_free()</a> frees a <i>ppast</i> structure and all subsequent links.
+</li>
+</ul>
+
+<h1 id="toc49">Miscelleanous</h1>
+
+<h2 id="toc50">Advanced memory management functions</h2>
+
+<p>
+The standard memory management functions can be replaced by these pendants:
+</p>
+
+<ul>
+<li><a href="#fn_pmalloc">pmalloc()</a> - allocate and zero-intialize memory, stop on error.
+</li>
+<li><a href="#fn_prealloc">prealloc()</a> - reallocate memory, stop on error.
+</li>
+<li><a href="#fn_pfree">pfree()</a> - free memory and return (void*)NULL pointer.
+</li>
+<li><a href="#fn_pmemdup">pmemdup()</a> - shorthand for a malloc() with memcpy().
+</li>
+</ul>
+
+<p>
+These functions are used throughout libphorward's internal object mapping functions.
+</p>
+
+<h2 id="toc51">Extended string processing functions</h2>
+
+<p>
+The libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts, with a preceded "p", or introduce entirely new features.
+</p>
+<p>
+String functions overview:
+</p>
+
+<ul>
+<li><a href="#fn_pstrcasecmp">pstrcasecmp()</a> - case-insensitive string comparison,
+</li>
+<li><a href="#fn_pstrcatchar">pstrcatchar()</a> - append character to string with dynamic allocation,
+</li>
+<li><a href="#fn_pstrcatstr">pstrcatstr()</a> - append string to string with dynamic allocation,
+</li>
+<li><a href="#fn_pstrdup">pstrdup()</a> - duplicate string, also accepts NULL-pointers,
+</li>
+<li><a href="#fn_pstrget">pstrget()</a> - securely get string from a pointer,
+</li>
+<li><a href="#fn_pstrlen">pstrlen()</a> - return length ot string, also accepts NULL-pointers,
+</li>
+<li><a href="#fn_pstrltrim">pstrltrim()</a> - remove prefixing whitespace,
+</li>
+<li><a href="#fn_pstrlwr">pstrlwr()</a> - convert string to lower-case-order,
+</li>
+<li><a href="#fn_pstrncasecmp">pstrncasecmp()</a> - case-insensitive string comparison over maximum length,
+</li>
+<li><a href="#fn_pstrncatstr">pstrncatstr()</a> - append string to string with dynamic allocation and maximum length,
+</li>
+<li><a href="#fn_pstrndup">pstrndup()</a> - duplicate a string with maximum length,
+</li>
+<li><a href="#fn_pstrput">pstrput()</a> - securely set an allocated string into a pointer,
+</li>
+<li><a href="#fn_pstrrender">pstrrender()</a> - dynamically render a string with placeholder substitution,
+</li>
+<li><a href="#fn_pstrreplace">pstrreplace()</a> - dynamically replace substrings within string,
+</li>
+<li><a href="#fn_pstrrtrim">pstrrtrim()</a> - remove trailing whitespace,
+</li>
+<li><a href="#fn_pstrsplit">pstrsplit()</a> - dynamic tokenizer,
+</li>
+<li><a href="#fn_pstrtrim">pstrtrim()</a> - remove prefixing and trailing whitespace,
+</li>
+<li><a href="#fn_pstrupr">pstrupr()</a> - convert string to lower-case-order.
+</li>
+</ul>
+
+<p>
+Additionally, the following pendants for wide-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
+</p>
+
+<ul>
+<li><a href="#fn_pwcscatchar">pwcscatchar()</a> - append character to wide-character string with dynamic allocation,
+</li>
+<li><a href="#fn_pwcscatstr">pwcscatstr()</a> - append wide-character string to wide-character string with dynamic allocation,
+</li>
+<li><a href="#fn_pwcsdup">pwcsdup()</a> - duplicate wide-character string, also accepts NULL-pointers,
+</li>
+<li><a href="#fn_pwcsget">pwcsget()</a> - securely get wide-character string from a pointer,
+</li>
+<li><a href="#fn_pwcslen">pwcslen()</a> - return length ot wide-character string, also accepts NULL-pointers,
+</li>
+<li><a href="#fn_pwcsncatstr">pwcsncatstr()</a> - append wide-character string to wide-character string with dynamic allocation and maximum length,
+</li>
+<li><a href="#fn_pwcsndup">pwcsndup()</a> - duplicate a wide-character string with maximum length,
+</li>
+<li><a href="#fn_pwcsput">pwcsput()</a> - securely set an allocated wide-character string into a pointer.
+</li>
+</ul>
+
+<p>
+Althought the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
+</p>
+
+<h2 id="toc52">System-related functions</h2>
+
+<p>
+The Phorward library provides some useful functions for system-related interactions.
+</p>
+
+<ul>
+<li><a href="#fn_pbasename">pbasename()</a> returns the basename of a path (the last part),
+</li>
+<li><a href="#fn_pfiletostr">pfiletostr()</a> reads the content of an entire file into a dynamically allocated char*,
+</li>
+<li><a href="#fn_pfileexists">pfileexists()</a> checks for file existence,
+</li>
+<li><a href="#fn_pgetopt">pgetopt()</a> provides a simple to use, but effective GNU-style command-line argument parser,
+</li>
+<li><a href="#fn_pwhich">pwhich()</a> checks for a file using <a href="#fn_pfileexists">pfileexists()</a> in a PATH-like, delimited search path definition
+</li>
+</ul>
+
+<h2 id="toc53">Boolean data type</h2>
+
+<p>
+libphorward makes a heavy usage of the self-hosted data-type <b>pboolean</b>, which is also referenced by a define <i>BOOLEAN</i>, and the constants <i>TRUE</i> and <i>FALSE</i>.
+</p>
+<p>
+It is known, that several header files and projects define these constants on their own, so that <b>pboolean</b>, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
+</p>
+
+<pre><code class="language-c">
+#ifndef TRUE
+#define TRUE					1
+#endif
+</code></pre>
+
+<p>
+within <code>phorward.h</code>.
+</p>
+
+<h2 id="toc54">Debug and trace facilities</h2>
+
+<p>
+Althought this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
+</p>
+<p>
+For this, the library provides the following macros:
+</p>
+
+<ul>
+<li><a href="#fn_LOG">LOG()</a> - message logging with printf-style formatting
+</li>
+<li><a href="#fn_MSG">MSG()</a> - message logging (older style)
+</li>
+<li><a href="#fn_PROC">PROC()</a> - starting macro marking a functions entry point,
+</li>
+<li><a href="#fn_PARMS">PARMS()</a> - log function parameters,
+</li>
+<li><a href="#fn_RETURN">RETURN()</a> - return a value
+</li>
+<li><a href="#fn_VARS">VARS()</a> - log variables,
+</li>
+<li><a href="#fn_VOIDRET">VOIDRET</a> - return from a void function.
+</li>
+</ul>
+
+<p>
+So when a function is written like this in libphorward's way:
+</p>
+
+<pre><code class="language-c">
+int faculty( int x )
+{
+	int ret;
+
+	PROC( "faculty" );
+	PARMS( "x", "%d", x );
+
+	if( x &lt; 0 )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+	else if( x == 0 )
+	{
+		MSG( "x is 0, so faculty is 1" );
+		RETURN( 1 );
+	}
+	else
+	{
+		MSG( "Calling faculty recursively with:" );
+		VARS( "x - 1", "%d", x - 1 );
+		ret = x * faculty( x - 1 );
+	}
+
+	VARS( "ret", "%d", ret );
+	RETURN( ret );
+}
+</code></pre>
+
+<p>
+Trace is written to stderr, and only will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value &gt; 0.
+</p>
+<p>
+Calling this function with
+</p>
+
+<pre><code class="language-c">
+faculty( 3 );
+</code></pre>
+
+<p>
+yields in a debug log
+</p>
+
+<pre><code class="language-c">
+(demo.c:  380) {
+(demo.c:  380) .ENTRY : faculty
+(demo.c:  381) .PARMS : x = &gt;3&lt;
+(demo.c:  395) .MSG   : Calling faculty recursively with:
+(demo.c:  396) .VARS  : x - 1 = &gt;2&lt;
+(demo.c:  380) .{
+(demo.c:  380) ..ENTRY : faculty
+(demo.c:  381) ..PARMS : x = &gt;2&lt;
+(demo.c:  395) ..MSG   : Calling faculty recursively with:
+(demo.c:  396) ..VARS  : x - 1 = &gt;1&lt;
+(demo.c:  380) ..{
+(demo.c:  380) ...ENTRY : faculty
+(demo.c:  381) ...PARMS : x = &gt;1&lt;
+(demo.c:  395) ...MSG   : Calling faculty recursively with:
+(demo.c:  396) ...VARS  : x - 1 = &gt;0&lt;
+(demo.c:  380) ...{
+(demo.c:  380) ....ENTRY : faculty
+(demo.c:  381) ....PARMS : x = &gt;0&lt;
+(demo.c:  390) ....MSG   : x is 0, so faculty is 1
+(demo.c:  391) ....RETURN: faculty
+(demo.c:  391) ...}
+(demo.c:  400) ...VARS  : ret = &gt;1&lt;
+(demo.c:  401) ...RETURN: faculty
+(demo.c:  401) ..}
+(demo.c:  400) ..VARS  : ret = &gt;2&lt;
+(demo.c:  401) ..RETURN: faculty
+(demo.c:  401) .}
+(demo.c:  400) .VARS  : ret = &gt;6&lt;
+(demo.c:  401) .RETURN: faculty
+(demo.c:  401) }
+</code></pre>
+
+<p>
+when previously setting the environment variable <code>TRACEMODULE="demo.c"</code> or <code>TRACEFUNCTION="faculty"</code>.
+</p>
+
+<h2 id="toc55">Command-line tools</h2>
+
+<p>
+The Phorward library provides some useful command-line tools which can also be used or forked.
+</p>
+
+<h3 id="toc56">pregex</h3>
+
+<p>
+<b>pregex</b> is a command-line tool for regular expression operations on files and strings. It can be used for match, find, split and replace actions.
+</p>
+
+<pre><code class="language-c">
+Usage: pregex OPTIONS {expression-only-if-no-other} [input-file]
+
+   -a  --action    ACTION    Perform regular expression action:
+                             match (default), find, split, replace
+   -d  --delimiter STRING    Use STRING as result delimiter
+                             (newline is default)
+   -D                        Dump constructed DFA
+   -e  --exec      EXPR      Use string EXPR as expression.
+   -f  --file      FILENAME  Read expression from FILENAME
+   -h  --help                Show this help, and exit.
+   -i  --input     INPUT     Use string INPUT as input.
+   -r  --replace   STRING    Replacement string for 'replace' action.
+   -V  --version             Show version info and exit.
+</code></pre>
+
+<h3 id="toc57">plex</h3>
+
+<p>
+<b>plex</b> is a command-line tool to construct and run lexical analyzers. It returns a list of tokens on success to stdout.
+</p>
+
+<pre><code class="language-c">
+Usage: plex OPTIONS patterns...
+
+   -b  --begin     STRING    Use STRING as result begin separator
+                             (' &gt;' is default)
+   -e  --end       STRING    Use STRING as result end separator
+                             ('&lt;\n' is default)
+   -f  --file      FILENAME  Read input from FILENAME
+   -h  --help                Show this help, and exit.
+   -i  --input     INPUT     Use string INPUT as input.
+   -V  --version             Show version info and exit.
+</code></pre>
+
+<h3 id="toc58">pparse</h3>
+
+<p>
+<b>pparse</b> is a command-line tool to compile and run parsers via command-line. It outputs the parse trees (if any) of the parsed inputs, or just checks for correct syntax.
+</p>
+
+<pre><code class="language-c">
+Usage: pparse OPTIONS grammar [input [input ...]]
+
+   grammar                   Grammar to create a parser from.
+   input                     Input to be processed by the parser.
+
+   -f  --format  TYPE        Which input grammar parser to use, either
+                             pbnf (default), ebnf, bnf
+   -G                        Dump constructed grammar
+   -h  --help                Show this help, and exit.
+   -r  --render  RENDERER    Use AST renderer RENDERER:
+                             short (default), full, json, tree2svg
+   -v  --verbose             Print processing information.
+   -V  --version             Show version info and exit.
+</code></pre>
+
+<h2 id="toc59">Other tools</h2>
+
+<p>
+There are also some more, useful command-line tools for C programmers, which are installed and made available. These tools are heavily used by libphorward's own build process, but may also be interesting to others. These tools are all written using standard GNU utilities like sh, awk, grep and sed.
+</p>
+
+<ul>
+<li>pproto - is a C function prototype generator,
+</li>
+<li>pinclude - is some kind of simple pre-processor to generate one big file from various smaller ones,
+</li>
+<li>premcomments - remove any comments from C sources,
+</li>
+<li>pdostounix - convert DOS-formatted text into Unix format.
+</li>
+</ul>
+
+<h1 id="toc60">Reference</h1>
+
+<h2 id="toc61">Macros</h2>
+
+<!-- NEED 17 -->
+<div class='function'>
+
+<h3 id="fn_LOG">LOG</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+LOG( char* format, ... ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Write any logging output to trace.
+</p>
+<p>
+This function is newer than the previous ones, and allows for a printf-like
+format string with variable amount of parameters.
+</p>
+<p>
+<i>format</i> is a <a href="#fn_printf">printf()</a>-like format-string.
+<i>...</i> parameters in the way they occur in the format-string.
+</div>
+<!-- NEED 13 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_MSG">MSG</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+MSG( char* message ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Write a message to trace.
+</p>
+<p>
+<i>message</i> is your message!
+</div>
 <!-- NEED 20 -->
 <div class='function'>
+</p>
 
 <h3 id="fn_PARMS">PARMS</h3>
 
@@ -2550,6 +2849,82 @@ trace, the <a href="#fn_VARS">VARS()</a>-macro shall be used.
 <i>param_name</i> is the name of the parameter
 <i>format</i> is a printf-styled format placeholder.
 <i>parameter</i> is the parameter itself.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_PPSYM_IS_TERMINAL">PPSYM_IS_TERMINAL</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+PPSYM_IS_TERMINAL( ppsym* sym ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Check for a symbol type, whether it is configured to be a terminal or a
+nonterminal symbol.
+</p>
+<p>
+Returns TRUE in case <i>sym</i> is a terminal symbol, and FALSE otherwise.
+</div>
+<!-- NEED 16 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_PP_AST_DUMP">PP_AST_DUMP</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+PP_AST_DUMP( ppast* ast ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Dump AST to trace.
+</p>
+<p>
+The PP_AST_DUMP-macro is used to dump all relevant contents of a ppast object
+into the program trace, for debugging purposes.
+ <a href="#fn_PP_AST_DUMP">PP_AST_DUMP()</a> can only be used when the function was trace-enabled by <a href="#fn_PROC">PROC()</a>
+before.
+</div>
+<!-- NEED 16 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_PP_GRAM_DUMP">PP_GRAM_DUMP</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+PP_GRAM_DUMP( ppgram* g ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Dump grammar to trace.
+</p>
+<p>
+The PP_GRAM_DUMP-macro is used to dump all relevant contents of a ppgram object
+into the program trace, for debugging purposes.
+ <a href="#fn_PP_GRAM_DUMP">PP_GRAM_DUMP()</a> can only be used when the function was trace-enabled by <a href="#fn_PROC">PROC()</a>
+before.
 </div>
 <!-- NEED 22 -->
 <div class='function'>
@@ -2760,7 +3135,7 @@ plist_for( my_list, e )
 
 </div>
 
-<h2 id="toc64">Functions</h2>
+<h2 id="toc74">Functions</h2>
 
 <!-- NEED 16 -->
 <div class='function'>
@@ -3266,7 +3641,7 @@ them.
 <p>
 Returns the number of bytes that had been read for the character.
 </div>
-<!-- NEED 17 -->
+<!-- NEED 19 -->
 <div class='function'>
 </p>
 
@@ -3277,7 +3652,7 @@ Returns the number of bytes that had been read for the character.
 </p>
 <div class='definition'>
 <p>
-size_t p_ccl_parseshorthand( pccl* ccl, char *str )
+pboolean p_ccl_parseshorthand( pccl* ccl, char **str )
 </div>
 </p>
 <p>
@@ -3289,8 +3664,11 @@ shorthands \w, \W, \d, \D, \s and \S. If it matches, all characters are
 added to <i>ccl</i>.
 </p>
 <p>
-The function returns the number of bytes that had been read for the character.
-If no shorthand sequence could be found, it returns 0, and leaves <i>ccl</i>
+The function returns TRUE in case a shorthand has been parsed. If so,
+the pointer <i>str</i> is moved the characters consumed.
+</p>
+<p>
+If no shorthand sequence could be found, it returns FALSE, remaining <i>ccl</i>
 untouched.
 </div>
 <!-- NEED 22 -->
@@ -5705,7 +6083,7 @@ with special compile-time flags provided for each pattern.
 On success, the function returns the allocated pointer to a plex-object.
 This must be freed later using <a href="#fn_plex_free">plex_free()</a>.
 </div>
-<!-- NEED 34 -->
+<!-- NEED 36 -->
 <div class='function'>
 </p>
 
@@ -5726,7 +6104,8 @@ pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
 Defines and parses a regular expression pattern into the plex-object.
 </p>
 <p>
-<i>pat</i> is the regular expression string.
+<i>pat</i> is the regular expression string, or a pointer to a pregex_ptn*
+structure in case PREGEX_COMP_PTN is flagged.
 </p>
 <p>
 <i>match_id</i> must be a token match ID, a value &gt; 0. The lower the match ID is,
@@ -5770,6 +6149,10 @@ compile-time flags of the plex-object provided at <a href="#fn_plex_create">plex
 <tr>
 <td>PREGEX_COMP_STATIC</td>
 <td>The regular expressions passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped.</td>
+</tr>
+<tr>
+<td>PREGEX_COMP_PTN</td>
+<td>The regular expression passed already is a pattern, and shall be integrated.</td>
 </tr>
 </table>
 
@@ -5844,7 +6227,7 @@ next matching pattern.
 </p>
 <div class='definition'>
 <p>
-char* plex_next( plex* lex, char* start, int* id, char** end )
+char* plex_next( plex* lex, char* start, unsigned int* id, char** end )
 </div>
 </p>
 <p>
@@ -5918,7 +6301,7 @@ Resets the DFA state machine of a plex-object <i>lex</i>.
 </p>
 <div class='definition'>
 <p>
-int plex_tokenize( plex* lex, char* start, parray** matches )
+size_t plex_tokenize( plex* lex, char* start, parray** matches )
 </div>
 </p>
 <p>
@@ -6328,7 +6711,7 @@ Initialize the list <i>list</i> with an element allocation size <i>size</i>.
 <i>flags</i> defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage.
 </div>
-<!-- NEED 15 -->
+<!-- NEED 20 -->
 <div class='function'>
 </p>
 
@@ -6346,12 +6729,19 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 <b>Usage:</b>
 </p>
 <p>
-Insert <i>src</i> as element to the list <i>list</i> <u>before</u> positon <i>pos</i>.
+Insert <i>src</i> as element to the list <i>list</i> <u>before</u> position <i>pos</i>.
 </p>
 <p>
 If <i>pos</i> is NULL, the new element will be attached to the end of the
-list. If <i>key</i> is not NULL, the element will be additionally engaged
+list.
+</p>
+<p>
+If <i>key</i> is not NULL, the element will be additionally engaged
 into the lists hash table.
+</p>
+<p>
+If <i>src</i> is NULL, a zero-initialized element is inserted into the list for
+further processing.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -7005,26 +7395,6 @@ type of <i>ptr</i> again.
 <div class='function'>
 </p>
 
-<h3 id="fn_pp_ast_create">pp_ast_create</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Creates new abstract syntax tree node.
-</div>
-<!-- NEED 11 -->
-<div class='function'>
-</p>
-
 <h3 id="fn_pp_ast_dump">pp_ast_dump</h3>
 
 <p>
@@ -7063,6 +7433,26 @@ Dump <i>ast</i> to <i>stream</i> as JSON-formatted string.
 </p>
 <p>
 Only opening matches are printed.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_ast_dump_pvm">pp_ast_dump_pvm</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void pp_ast_dump_pvm( pvmprog* prog, ppast* ast )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Dump <i>ast</i> into pvm program
 </div>
 <!-- NEED 13 -->
 <div class='function'>
@@ -7107,6 +7497,38 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 <p>
 Dump <i>ast</i> in notation for the tree2svg tool that generates a
 graphical view of the parse tree.
+</div>
+<!-- NEED 18 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_ast_eval">pp_ast_eval</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void pp_ast_eval( ppast* ast, pastevalfn func )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Evaluate <i>ast</i> using evaluation function <i>func</i>.
+</p>
+<p>
+The evaluation function has the prototype
+</p>
+
+<pre><code class="language-c">
+void (*pastevalfn)( ppasteval type, ppast* node )
+</code></pre>
+
+<p>
+and retrieves a <i>type</i> regarding the position where the evaluation currently
+is positioned, and the node pointer.
 </div>
 <!-- NEED 13 -->
 <div class='function'>
@@ -7195,46 +7617,6 @@ Returns the <i>n</i>th element matching emit <i>emit</i> starting at <i>node</i>
 <div class='function'>
 </p>
 
-<h3 id="fn_pp_create">pp_create</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-pparse* pp_create( int flags, char* bnf )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Creates a new parser object with flags <i>flags</i> and the grammar <i>bnf</i>.
-</div>
-<!-- NEED 11 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pp_free">pp_free</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-pparse* pp_free( pparse* par )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Free parser <i>par</i>.
-</div>
-<!-- NEED 11 -->
-<div class='function'>
-</p>
-
 <h3 id="fn_pp_gram_create">pp_gram_create</h3>
 
 <p>
@@ -7250,26 +7632,6 @@ ppgram* pp_gram_create( void )
 </p>
 <p>
 Creates a new ppgram-object.
-</div>
-<!-- NEED 11 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pp_gram_dump">pp_gram_dump</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-void pp_gram_dump( FILE* stream, ppgram* g )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Dumps the grammar <i>g</i> to <i>stream</i>.
 </div>
 <!-- NEED 11 -->
 <div class='function'>
@@ -7291,7 +7653,7 @@ ppgram* pp_gram_free( ppgram* g )
 <p>
 Frees grammar <i>g</i> and all its related memory.
 </div>
-<!-- NEED 14 -->
+<!-- NEED 32 -->
 <div class='function'>
 </p>
 
@@ -7302,22 +7664,183 @@ Frees grammar <i>g</i> and all its related memory.
 </p>
 <div class='definition'>
 <p>
-pboolean pp_gram_from_bnf( ppgram* g, char* bnf )
+pboolean pp_gram_from_bnf( ppgram* g, char* src )
 </div>
 </p>
 <p>
 <b>Usage:</b>
 </p>
 <p>
-Compiles a grammar definition into a grammar.
+Compiles a Backus-Naur-Format definition into a grammar.
 </p>
 <p>
 <i>g</i> is the grammar that receives the result of the parse.
-<i>bnf</i> is the BNF definition string that defines the grammar.
+This grammar is extended to new definitions when it already contains symbols.
+</p>
+<p>
+<i>src</i> is the BNF definition string that defines the grammar.
+</p>
+<p>
+The function returns TRUE in case the grammar could be compiled,
+FALSE otherwise.
+</p>
+<p>
+<b>Grammar:</b>
+</p>
+
+<pre><code class="language-c">
+symbol : Terminal | Nonterminal ;
+sequence : sequence symbol | symbol ;
+production : sequence | ;
+alternation : alternation '|' production | production ;
+
+nonterm : Nonterminal ':' alternation ';';
+defs : defs nonterm | nonterm ;
+
+grammar$ : defs ;
+</code></pre>
+
+</div>
+<!-- NEED 33 -->
+<div class='function'>
+
+<h3 id="fn_pp_gram_from_ebnf">pp_gram_from_ebnf</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pp_gram_from_ebnf( ppgram* g, char* src )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Compiles an Extended Backus-Naur-Format definition into a grammar.
+</p>
+<p>
+<i>g</i> is the grammar that receives the result of the parse.
+This grammar is extended to new definitions when it already contains symbols.
+</p>
+<p>
+<i>src</i> is the EBNF definition string that defines the grammar.
+</p>
+<p>
+The function returns TRUE in case the grammar could be compiled,
+FALSE otherwise.
+</p>
+<p>
+<b>Grammar:</b>
+</p>
+
+<pre><code class="language-c">
+symbol : '(' alternation ')' | Terminal | Nonterminal ;
+modifier : symbol | symbol '*' | symbol '+' | symbol '?' ;
+sequence : sequence modifier | modifier ;
+production : sequence | ;
+alternation : alternation '|' production | production ;
+
+nonterm : Nonterminal ':' alternation ';';
+defs : defs nonterm | nonterm ;
+
+grammar$ : defs ;
+</code></pre>
+
+</div>
+<!-- NEED 77 -->
+<div class='function'>
+
+<h3 id="fn_pp_gram_from_pbnf">pp_gram_from_pbnf</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pp_gram_from_pbnf( ppgram* g, char* src )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Compiles an Phorward Backus-Naur-Format definition into a parser.
+</p>
+<p>
+<i>p</i> is the parser that receives the result of the parse.
+</p>
+<p>
+In difference to <a href="#fn_pp_gram_from_bnf">pp_gram_from_bnf()</a> and <a href="#fn_pp_gram_from_ebnf">pp_gram_from_ebnf()</a>, <a href="#fn_pp_par_from_pbnf">pp_par_from_pbnf()</a> allows for a full-fledged parser definition with
+lexical analyzer-specific definitions, grammar and AST construction features.
+</p>
+<p>
+<b>Grammar:</b>
+</p>
+
+<pre><code class="language-c">
+// Whitespace ------------------------------------------------------------------
+
+%skip			/[ \t\r\n]+/ ;
+%skip			/\/\/[^\n]*/n/ ;
+%skip			/\//*([^*]|/*[^\/])*/*/// ;
+
+// Terminals -------------------------------------------------------------------
+
+[Terminal #fn_Terminal]		/[A-Z][A-Za-z0-9_]*/ ;
+[Nonterminal #fn_Nonterminal]	/[a-z_][A-Za-z0-9_]*/ ;
+
+[CCL #fn_CCL] 			/\[(\\.|[^\\\]])*/]/ ;
+[String #fn_String] 		/'[^']*'/ ;
+[Token #fn_Token]			/"[^"]*"/ ;
+[Regex #fn_Regex] 			/\/(\\.|[^\\\/])*/// ;
+
+[Int #fn_Int]			/[0-9]+/ ;
+[Function #fn_Function]		/[A-Za-z_][A-Za-z0-9_]*/(\)/ ;
+
+[Flag_emit #fn_Flag_emit]		'@([A-Za-z0-9_]+)?' ;
+[Flag_goal #fn_Flag_goal]		'$' ;
+[Flag_lexem #fn_Flag_lexem]		'!' ;
+[Flag_ignore #fn_Flag_ignore]	/%(ignore|skip)/ ;
+
+// Nonterminals ----------------------------------------------------------------
+
+[inline #fn_inline]			: Flag_emit '(' alternation ')'
+				|  '(' alternation ')'
+				;
+
+[symbol #fn_symbol] 		: Terminal | Nonterminal | CCL | String | Token
+					| Regex | Function | inline ;
+
+modifier		: ( symbol '*' )=kle
+				| ( symbol '+' )=pos
+				| ( symbol '?' )=opt
+				| symbol
+				;
+
+sequence		: sequence modifier | modifier ;
+
+[production #fn_production]	 	: sequence | ;
+
+alternation		: alternation '|' production | production ;
+
+[nontermdef #fn_nontermdef]		: Nonterminal ':' alternation ';'
+				;
+
+[termdef #fn_termdef]		: Terminal ':' ( CCL | String | Regex | Function ) ';'
+				;
+
+definition		: nontermdef
+				| termdef
+				;
+
+grammar	$		: definition+ ;
+</code></pre>
+
 </div>
 <!-- NEED 22 -->
 <div class='function'>
-</p>
 
 <h3 id="fn_pp_gram_prepare">pp_gram_prepare</h3>
 
@@ -7355,65 +7878,174 @@ The preparation process includes:
 This function is only run internally.
 Don't call it if you're unsure ;)...
 </div>
-<!-- NEED 20 -->
+<!-- NEED 11 -->
 <div class='function'>
 </p>
 
-<h3 id="fn_pp_lr_parse">pp_lr_parse</h3>
+<h3 id="fn_pp_gram_to_str">pp_gram_to_str</h3>
 
 <p>
 <b>Definition:</b>
 </p>
 <div class='definition'>
 <p>
-pboolean pp_lr_parse( ppast** root, ppgram* grm, char* start, char** end )
+char* pp_gram_to_str( ppgram* grm )
 </div>
 </p>
 <p>
 <b>Usage:</b>
 </p>
 <p>
-Parses the string <i>str</i> using the grammar <i>grm</i> with a LALR(1) parser.
-</p>
-<p>
-Parsing stops at least when reading the zero terminator of <i>str</i>.
-</p>
-<p>
-<i>root</i> receives the root-node of the constructed abstract syntax tree as
-an ppast object.
-</p>
-<p>
-<i>end</i> receives the position of the last character matched.
-</p>
-<p>
-The function returns TRUE if no parse error occured.
+Get grammar string representation
 </div>
-<!-- NEED 16 -->
+<!-- NEED 11 -->
 <div class='function'>
 </p>
 
-<h3 id="fn_pp_parse_to_ast">pp_parse_to_ast</h3>
+<h3 id="fn_pp_lr_build">pp_lr_build</h3>
 
 <p>
 <b>Definition:</b>
 </p>
 <div class='definition'>
 <p>
-pboolean pp_parse_to_ast( ppast** root, pparse* par, char* start, char** end )
+pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm )
 </div>
 </p>
 <p>
 <b>Usage:</b>
 </p>
 <p>
-Run parser <i>par</i> with input <i>start</i>.
+Build parse tables
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_par_autolex">pp_par_autolex</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+int pp_par_autolex( pppar* p )
+</div>
 </p>
 <p>
-The function uses the parsing method defined when then parser was created.
-<i>end</i> receives a pointer to the position where the parser stopped.
+<b>Usage:</b>
 </p>
 <p>
-It returns a parse-tree to <i>root</i> on success.
+Automatically generate lexical analysis for terminal symbols which
+have not been defined with <a href="#fn_pp_par_lex">pp_par_lex()</a>.
+</p>
+<p>
+Returns the number of inserted tokens on success.
+</div>
+<!-- NEED 22 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_par_create">pp_par_create</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pppar* pp_par_create( ppgram* g )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Creates a new parser object with the underlying grammar <i>g</i>.
+</p>
+<p>
+The grammar must either be parsed first via one of the BNF parsers
+ <a href="#fn_pp_gram_from_pbnf">pp_gram_from_pbnf()</a>, <a href="#fn_pp_gram_from_ebnf">pp_gram_from_ebnf()</a>, <a href="#fn_pp_gram_from_bnf">pp_gram_from_bnf()</a>) or it
+must be hand-crafted.
+</p>
+<p>
+The provided grammar gets "frozen" when a parser is created from it.
+Modifications on the grammar with a parser based on an older grammar state may
+cause memory corruption and crashes.
+</p>
+<p>
+The function returns a valid parser object on success, or (pppar*)NULL in case
+the grammar is invalid.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_par_free">pp_par_free</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pppar* pp_par_free( pppar* p )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Frees the parser object <i>par</i>.
+</div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_par_lex">pp_par_lex</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Defines a lexical matcher for <i>sym</i> in parser <i>p</i> from a
+regular expression. <i>sym</i> must be a terminal symbol.
+</p>
+<p>
+Returns TRUE on success, FALSE if the symbol already was defined as a lexing
+token.
+</div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_par_parse">pp_par_parse</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pp_par_parse( ppast** root, pppar* par, char* start )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Run parser <i>p</i> with input <i>start</i>.
+</p>
+<p>
+Currently, the used parsing method is only LALR(1).
+</p>
+<p>
+It returns an abstract syntax tree to <i>root</i> on success.
 </div>
 <!-- NEED 11 -->
 <div class='function'>
@@ -7460,14 +8092,14 @@ within the grammar <i>g</i>.
 <div class='function'>
 </p>
 
-<h3 id="fn_pp_prod_drop">pp_prod_drop</h3>
+<h3 id="fn_pp_prod_free">pp_prod_free</h3>
 
 <p>
 <b>Definition:</b>
 </p>
 <div class='definition'>
 <p>
-ppprod* pp_prod_drop( ppprod* p )
+ppprod* pp_prod_free( ppprod* p )
 </div>
 </p>
 <p>
@@ -7564,7 +8196,7 @@ Returns the string representation of production <i>p</i>.
 The returned pointer is part of <i>p</i> and can be referenced multiple times.
 It may not be freed by the caller.
 </div>
-<!-- NEED 16 -->
+<!-- NEED 17 -->
 <div class='function'>
 </p>
 
@@ -7575,20 +8207,22 @@ It may not be freed by the caller.
 </p>
 <div class='definition'>
 <p>
-ppsym* pp_sym_create( ppgram* g, ppsymtype type, char* name, char* def )
+ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags )
 </div>
 </p>
 <p>
 <b>Usage:</b>
 </p>
 <p>
-Creates a new symbol of the type <i>type</i> in the grammar <i>g</i>.
+Creates a new symbol in the grammar <i>g</i>.
 </p>
 <p>
-<i>name</i> is the name for nonterminal symbols, for terminal symbols it
-can be left empty.
-<i>def</i> contains the definition of the symbol in case of a terminal type.
-It will be ignored else.
+<i>name</i> is the unique name for the symbol. It can be left empty,
+configuring the symbol as an unnamed symbol.
+</p>
+<p>
+<i>flags</i> can be a combination of PPFLAG_-flags related to the symbol's
+configuration.
 </div>
 <!-- NEED 11 -->
 <div class='function'>
@@ -7608,6 +8242,26 @@ ppsym* pp_sym_drop( ppsym* sym )
 <b>Usage:</b>
 </p>
 <p>
+Removes a symbol from its grammar.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_sym_free">pp_sym_free</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppsym* pp_sym_free( ppsym* sym )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
 Frees a symbol.
 </div>
 <!-- NEED 12 -->
@@ -7621,7 +8275,7 @@ Frees a symbol.
 </p>
 <div class='definition'>
 <p>
-ppsym* pp_sym_get( ppgram* g, int n )
+ppsym* pp_sym_get( ppgram* g, unsigned int n )
 </div>
 </p>
 <p>
@@ -7682,19 +8336,121 @@ Find a nameless terminal symbol by its pattern.
 </p>
 <div class='definition'>
 <p>
-ppprod* pp_sym_getprod( ppsym* sym, int n )
+ppprod* pp_sym_getprod( ppsym* sym, unsigned int n )
 </div>
 </p>
 <p>
 <b>Usage:</b>
 </p>
 <p>
-Get the <i>n</i>th production from symbol <i>sym</i>. <i>sym</i> must be of type
-nonterminal.
+Get the <i>n</i>th production from symbol <i>sym</i>.
+<i>sym</i> must be a nonterminal.
 </p>
 <p>
 Returns (ppprod*)NULL if the production is not found or the symbol is
 configured differently.
+</div>
+<!-- NEED 22 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_sym_mod_kleene">pp_sym_mod_kleene</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppsym* pp_sym_mod_kleene( ppsym* sym )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs an optional positive ("kleene") closure from <i>sym</i>.
+</p>
+<p>
+This helper function constructs the productions and symbol
+</p>
+
+<pre><code class="language-c">
+pos_sym: sym pos_sym | sym ;
+opt_sym: pos_sym | ;
+</code></pre>
+
+<p>
+from <i>sym</i>, and returns the symbol <i>opt_sym</i>. If any of the given symbols
+already exists, they are directly used. The function is a shortcut for a call
+</p>
+
+<pre><code class="language-c">
+pp_sym_mod_optional( pp_sym_mod_positive( sym ) )
+</code></pre>
+
+</div>
+<!-- NEED 18 -->
+<div class='function'>
+
+<h3 id="fn_pp_sym_mod_optional">pp_sym_mod_optional</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppsym* pp_sym_mod_optional( ppsym* sym )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs an optional closure from <i>sym</i>.
+</p>
+<p>
+This helper function constructs the productions and symbol
+</p>
+
+<pre><code class="language-c">
+opt_sym: sym | ;
+</code></pre>
+
+<p>
+from <i>sym</i>, and returns the symbol <i>pos_sym</i>. If <i>opt_sym</i> already exists,
+the symbol will be returned without any creation.
+</div>
+<!-- NEED 18 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_sym_mod_positive">pp_sym_mod_positive</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppsym* pp_sym_mod_positive( ppsym* sym )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs a positive closure from <i>sym</i>.
+</p>
+<p>
+This helper function constructs the productions and symbol
+</p>
+
+<pre><code class="language-c">
+pos_sym: sym pos_sym | sym ;
+</code></pre>
+
+<p>
+from <i>sym</i>, and returns the symbol <i>pos_sym</i>. If <i>pos_sym</i> already exists,
+the symbol will be returned without any creation.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -7714,7 +8470,7 @@ char* pp_sym_to_str( ppsym* sym )
 <b>Usage:</b>
 </p>
 <p>
-Returns the string representation of symbol <i>p</i>.
+Returns the string representation of symbol <i>sym</i>.
 </p>
 <p>
 Nonterminals are not expanded, they are just returned as their name.
@@ -7800,7 +8556,7 @@ Constructor function to create a new pregex object.
 </tr>
 <tr>
 <td>PREGEX_COMP_NONGREEDY</td>
-<td>Compile regex to be forced nongreedy.</td>
+<td>Compile regex to be forced non-greedy.</td>
 </tr>
 <tr>
 <td>PREGEX_COMP_NOERRORS</td>
@@ -7828,7 +8584,7 @@ Constructor function to create a new pregex object.
 </tr>
 <tr>
 <td>PREGEX_RUN_NONGREEDY</td>
-<td>Force run regular expression nongreedy.</td>
+<td>Force run regular expression non-greedy.</td>
 </tr>
 <tr>
 <td>PREGEX_RUN_DEBUG</td>
@@ -8812,7 +9568,7 @@ The function always returns its input pointer.
 <pre><code class="language-c">
 char* s = (char*)NULL;
 
-psetstr( &amp;s, "\tHello\nWorld!" );
+psetstr( &amp;s, "\\tHello\\nWorld!" );
 printf( "&gt;%s&lt;\n", pstrunescape( s ) );
 
 s = pfree( s );
@@ -8966,7 +9722,7 @@ Initializes the virtual machine <i>vm</i>.
 </p>
 <div class='definition'>
 <p>
-void pvm_prog_run( pvmprog* prog )
+void pvm_prog_run( pany** ret, pvmprog* prog )
 </div>
 </p>
 <p>

@@ -1,0 +1,240 @@
+
+
+
+== Advanced memory management functions ==
+
+The standard memory management functions can be replaced by these pendants:
+
+- @pmalloc() - allocate and zero-intialize memory, stop on error.
+- @prealloc() - reallocate memory, stop on error.
+- @pfree() - free memory and return (void*)NULL pointer.
+- @pmemdup() - shorthand for a malloc() with memcpy().
+-
+
+These functions are used throughout libphorward's internal object mapping functions.
+
+== Extended string processing functions ==
+
+The libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts, with a preceded "p", or introduce entirely new features.
+
+String functions overview:
+
+- @pstrcasecmp() - case-insensitive string comparison,
+- @pstrcatchar() - append character to string with dynamic allocation,
+- @pstrcatstr() - append string to string with dynamic allocation,
+- @pstrdup() - duplicate string, also accepts NULL-pointers,
+- @pstrget() - securely get string from a pointer,
+- @pstrlen() - return length ot string, also accepts NULL-pointers,
+- @pstrltrim() - remove prefixing whitespace,
+- @pstrlwr() - convert string to lower-case-order,
+- @pstrncasecmp() - case-insensitive string comparison over maximum length,
+- @pstrncatstr() - append string to string with dynamic allocation and maximum length,
+- @pstrndup() - duplicate a string with maximum length,
+- @pstrput() - securely set an allocated string into a pointer,
+- @pstrrender() - dynamically render a string with placeholder substitution,
+- @pstrreplace() - dynamically replace substrings within string,
+- @pstrrtrim() - remove trailing whitespace,
+- @pstrsplit() - dynamic tokenizer,
+- @pstrtrim() - remove prefixing and trailing whitespace,
+- @pstrupr() - convert string to lower-case-order.
+-
+
+Additionally, the following pendants for wide-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
+
+- @pwcscatchar() - append character to wide-character string with dynamic allocation,
+- @pwcscatstr() - append wide-character string to wide-character string with dynamic allocation,
+- @pwcsdup() - duplicate wide-character string, also accepts NULL-pointers,
+- @pwcsget() - securely get wide-character string from a pointer,
+- @pwcslen() - return length ot wide-character string, also accepts NULL-pointers,
+- @pwcsncatstr() - append wide-character string to wide-character string with dynamic allocation and maximum length,
+- @pwcsndup() - duplicate a wide-character string with maximum length,
+- @pwcsput() - securely set an allocated wide-character string into a pointer.
+-
+
+Althought the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
+
+== System-related functions ==
+
+The Phorward library provides some useful functions for system-related interactions.
+
+- @pbasename() returns the basename of a path (the last part),
+- @pfiletostr() reads the content of an entire file into a dynamically allocated char*,
+- @pfileexists() checks for file existence,
+- @pgetopt() provides a simple to use, but effective GNU-style command-line argument parser,
+- @pwhich() checks for a file using @pfileexists() in a PATH-like, delimited search path definition
+-
+
+== Boolean data type ==
+
+libphorward makes a heavy usage of the self-hosted data-type **pboolean**, which is also referenced by a define //BOOLEAN//, and the constants //TRUE// and //FALSE//.
+
+It is known, that several header files and projects define these constants on their own, so that **pboolean**, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
+
+```
+#ifndef TRUE
+#define TRUE					1
+#endif
+```
+
+within ``phorward.h``.
+
+== Debug and trace facilities ==
+
+Althought this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
+
+For this, the library provides the following macros:
+
+- @LOG() - message logging with printf-style formatting
+- @MSG() - message logging (older style)
+- @PROC() - starting macro marking a functions entry point,
+- @PARMS() - log function parameters,
+- @RETURN() - return a value
+- @VARS() - log variables,
+- @VOIDRET - return from a void function.
+-
+
+So when a function is written like this in libphorward's way:
+
+```
+int faculty( int x )
+{
+	int ret;
+
+	PROC( "faculty" );
+	PARMS( "x", "%d", x );
+
+	if( x < 0 )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+	else if( x == 0 )
+	{
+		MSG( "x is 0, so faculty is 1" );
+		RETURN( 1 );
+	}
+	else
+	{
+		MSG( "Calling faculty recursively with:" );
+		VARS( "x - 1", "%d", x - 1 );
+		ret = x * faculty( x - 1 );
+	}
+
+	VARS( "ret", "%d", ret );
+	RETURN( ret );
+}
+```
+
+Trace is written to stderr, and only will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value > 0.
+
+Calling this function with
+
+``` faculty( 3 );
+
+yields in a debug log
+
+```
+(demo.c:  380) {
+(demo.c:  380) .ENTRY : faculty
+(demo.c:  381) .PARMS : x = >3<
+(demo.c:  395) .MSG   : Calling faculty recursively with:
+(demo.c:  396) .VARS  : x - 1 = >2<
+(demo.c:  380) .{
+(demo.c:  380) ..ENTRY : faculty
+(demo.c:  381) ..PARMS : x = >2<
+(demo.c:  395) ..MSG   : Calling faculty recursively with:
+(demo.c:  396) ..VARS  : x - 1 = >1<
+(demo.c:  380) ..{
+(demo.c:  380) ...ENTRY : faculty
+(demo.c:  381) ...PARMS : x = >1<
+(demo.c:  395) ...MSG   : Calling faculty recursively with:
+(demo.c:  396) ...VARS  : x - 1 = >0<
+(demo.c:  380) ...{
+(demo.c:  380) ....ENTRY : faculty
+(demo.c:  381) ....PARMS : x = >0<
+(demo.c:  390) ....MSG   : x is 0, so faculty is 1
+(demo.c:  391) ....RETURN: faculty
+(demo.c:  391) ...}
+(demo.c:  400) ...VARS  : ret = >1<
+(demo.c:  401) ...RETURN: faculty
+(demo.c:  401) ..}
+(demo.c:  400) ..VARS  : ret = >2<
+(demo.c:  401) ..RETURN: faculty
+(demo.c:  401) .}
+(demo.c:  400) .VARS  : ret = >6<
+(demo.c:  401) .RETURN: faculty
+(demo.c:  401) }
+```
+
+when previously setting the environment variable ``TRACEMODULE="demo.c"`` or ``TRACEFUNCTION="faculty"``.
+
+== Command-line tools ==
+
+The Phorward library provides some useful command-line tools which can also be used or forked.
+
+=== pregex ===
+
+**pregex** is a command-line tool for regular expression operations on files and strings. It can be used for match, find, split and replace actions.
+
+```
+Usage: pregex OPTIONS {expression-only-if-no-other} [input-file]
+
+   -a  --action    ACTION    Perform regular expression action:
+                             match (default), find, split, replace
+   -d  --delimiter STRING    Use STRING as result delimiter
+                             (newline is default)
+   -D                        Dump constructed DFA
+   -e  --exec      EXPR      Use string EXPR as expression.
+   -f  --file      FILENAME  Read expression from FILENAME
+   -h  --help                Show this help, and exit.
+   -i  --input     INPUT     Use string INPUT as input.
+   -r  --replace   STRING    Replacement string for 'replace' action.
+   -V  --version             Show version info and exit.
+```
+
+=== plex ===
+
+**plex** is a command-line tool to construct and run lexical analyzers. It returns a list of tokens on success to stdout.
+
+```
+Usage: plex OPTIONS patterns...
+
+   -b  --begin     STRING    Use STRING as result begin separator
+                             (' >' is default)
+   -e  --end       STRING    Use STRING as result end separator
+                             ('<\n' is default)
+   -f  --file      FILENAME  Read input from FILENAME
+   -h  --help                Show this help, and exit.
+   -i  --input     INPUT     Use string INPUT as input.
+   -V  --version             Show version info and exit.
+```
+
+=== pparse ===
+
+**pparse** is a command-line tool to compile and run parsers via command-line. It outputs the parse trees (if any) of the parsed inputs, or just checks for correct syntax.
+
+```
+Usage: pparse OPTIONS grammar [input [input ...]]
+
+   grammar                   Grammar to create a parser from.
+   input                     Input to be processed by the parser.
+
+   -f  --format  TYPE        Which input grammar parser to use, either
+                             pbnf (default), ebnf, bnf
+   -G                        Dump constructed grammar
+   -h  --help                Show this help, and exit.
+   -r  --render  RENDERER    Use AST renderer RENDERER:
+                             short (default), full, json, tree2svg
+   -v  --verbose             Print processing information.
+   -V  --version             Show version info and exit.
+```
+
+== Other tools ==
+
+There are also some more, useful command-line tools for C programmers, which are installed and made available. These tools are heavily used by libphorward's own build process, but may also be interesting to others. These tools are all written using standard GNU utilities like sh, awk, grep and sed.
+
+- pproto - is a C function prototype generator,
+- pinclude - is some kind of simple pre-processor to generate one big file from various smaller ones,
+- premcomments - remove any comments from C sources,
+- pdostounix - convert DOS-formatted text into Unix format.
+-
