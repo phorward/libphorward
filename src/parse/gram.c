@@ -117,7 +117,7 @@ pboolean pp_gram_prepare( ppgram* g )
 
 					nullable = FALSE;
 
-					if( PPSYM_IS_NONTERMINAL( sym ) )
+					if( !PPSYM_IS_TERMINAL( sym ) )
 					{
 						/* Union first set */
 						plist_union( cprod->lhs->first, sym->first );
@@ -188,7 +188,7 @@ pboolean pp_gram_prepare( ppgram* g )
 				sym = (ppsym*)plist_access( er );
 				sym->flags |= PPFLAG_LEXEM;
 
-				if( PPSYM_IS_NONTERMINAL( sym ) )
+				if( !PPSYM_IS_TERMINAL( sym ) )
 				{
 					if( !plist_get_by_ptr( done, sym )
 						&& !plist_get_by_ptr( call, sym ) )
@@ -241,7 +241,7 @@ void _dbg_gram_dump( char* file, int line, char* function,
 		if( pstrlen( s->emit ) > maxemitlen )
 			maxemitlen = pstrlen( s->emit );
 
-		if( PPSYM_IS_NONTERMINAL( s ) && pstrlen( s->name ) > maxlhslen )
+		if( !PPSYM_IS_TERMINAL( s ) && pstrlen( s->name ) > maxlhslen )
 			maxlhslen = pstrlen( s->name );
 
 		if( pstrlen( s->name ) > maxsymlen )
@@ -285,7 +285,7 @@ void _dbg_gram_dump( char* file, int line, char* function,
 			s->idx, maxemitlen, s->emit ? s->emit : "",
 				maxsymlen, s->name );
 
-		if( PPSYM_IS_NONTERMINAL( s ) && plist_count( s->first ) )
+		if( !PPSYM_IS_TERMINAL( s ) && plist_count( s->first ) )
 		{
 			fprintf( stderr, " {" );
 
@@ -338,7 +338,7 @@ char* pp_gram_to_str( ppgram* grm )
 	{
 		sym = (ppsym*)plist_access( e );
 
-		if( PPSYM_IS_NONTERMINAL( sym ) )
+		if( !PPSYM_IS_TERMINAL( sym ) )
 		{
 			if( pstrlen( sym->name ) > maxlhslen )
 				maxlhslen = pstrlen( sym->name );

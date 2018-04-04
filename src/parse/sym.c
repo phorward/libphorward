@@ -10,6 +10,13 @@ Usage:	Symbol management function.
 
 #include "phorward.h"
 
+/** Check for a symbol type, whether it is configured to be a terminal or a
+nonterminal symbol.
+
+Returns TRUE in case //sym// is a terminal symbol, and FALSE otherwise.
+*/
+/*MACRO:PPSYM_IS_TERMINAL( ppsym* sym )*/
+
 /** Creates a new symbol in the grammar //g//.
 
 	//name// is the unique name for the symbol. It can be left empty,
@@ -168,7 +175,7 @@ ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name )
 
 	for( i = 0; ( sym = pp_sym_get( g, i ) ); i++ )
 	{
-		if( PPSYM_IS_NONTERMINAL( sym ) || !( sym->flags & PPFLAG_NAMELESS ) )
+		if( !PPSYM_IS_TERMINAL( sym ) || !( sym->flags & PPFLAG_NAMELESS ) )
 			continue;
 
 		if( sym->name && strcmp( sym->name, name ) == 0 )
@@ -194,7 +201,7 @@ ppprod* pp_sym_getprod( ppsym* sym, unsigned int n )
 		return (ppprod*)NULL;
 	}
 
-	if( !PPSYM_IS_NONTERMINAL( sym ) )
+	if( PPSYM_IS_TERMINAL( sym ) )
 	{
 		fprintf( stderr, "%s, %d: Symbol '%s' is not a non-terminal symbol\n",
 			__FILE__, __LINE__, pp_sym_to_str( sym ) );

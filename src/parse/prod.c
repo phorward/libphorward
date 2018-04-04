@@ -30,7 +30,7 @@ ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... )
 		return (ppprod*)NULL;
 	}
 
-	if( !PPSYM_IS_NONTERMINAL( lhs ) )
+	if( PPSYM_IS_TERMINAL( lhs ) )
 	{
 		fprintf( stderr, "%s, %d: Can't create a production; "
 							"'%s' is not a non-terminal symbol\n",

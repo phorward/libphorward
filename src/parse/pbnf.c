@@ -163,7 +163,7 @@ static pboolean traverse_production( ppgram* gram, ppsym* lhs, ppast* node )
 	if( ( sym = pp_prod_getfromrhs( prod, 0 ) )
 			&& !pp_prod_getfromrhs( prod, 1 ) )
 	{
-		if( PPSYM_IS_NONTERMINAL( sym )
+		if( !PPSYM_IS_TERMINAL( sym )
 				&& sym->flags & PPFLAG_GENERATED
 					&& sym->emit && !pp_sym_getprod( sym, 1 ) )
 		{

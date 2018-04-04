@@ -280,7 +280,7 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 {
 	while( ast )
 	{
-		if( PPSYM_IS_NONTERMINAL( ast->sym ) )
+		if( !PPSYM_IS_TERMINAL( ast->sym ) )
 		{
 			fprintf( stream, "'%s' [ ", ast->emit );
 			pp_ast_dump_tree2svg( stream, ast->child );
@@ -296,7 +296,6 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 static void eval_emit( pvmprog* prog, char* emit, ppast* ast )
 {
 	static char				buf		[ BUFSIZ + 1 ];
-	static unsigned long	label;
 	char*					ptr;
 	char*					code;
 
