@@ -12,7 +12,7 @@ Usage:	A pregex object demonstration suite.
 
 void help( char** argv )
 {
-	printf( "Usage: %s OPTIONS {expression-only-if-no-other} [input-file]\n\n"
+	printf( "Usage: %s OPTIONS {expression} input\n\n"
 
 	"   -a  --action    ACTION    Perform regular expression action:\n"
 	"                             match (default), find, split, replace\n"
@@ -52,6 +52,8 @@ int main( int argc, char** argv )
 	char		opt		[ 10 + 1 ];
 	char*		param;
 
+	PROC( "pregex" );
+
 	/* Analyze command-line parameters */
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
 						"a:d:De:hf:i:r:V",
@@ -59,6 +61,9 @@ int main( int argc, char** argv )
 							"input: replace: version", i ) )
 								== 0; i++ )
 	{
+		VARS( "opt", "%s", opt );
+		VARS( "param", "%s", param );
+
 		if( !strcmp( opt, "action" ) || !strcmp( opt, "a" ) )
 		{
 			action = (char*)NULL;
@@ -74,7 +79,7 @@ int main( int argc, char** argv )
 			{
 				fprintf( stderr, "Invalid action '%s'\n", param );
 				help( argv );
-				return 1;
+				RETURN( 1 );
 			}
 
 		}
@@ -90,7 +95,7 @@ int main( int argc, char** argv )
 			{
 				fprintf( stderr, "Unable to read expression file '%s'\n",
 					param );
-				return 1;
+				RETURN( 1 );
 			}
 
 			expr = fexpr;
@@ -98,7 +103,7 @@ int main( int argc, char** argv )
 		else if( !strcmp( opt, "help" ) || !strcmp( opt, "h" )  )
 		{
 			help( argv );
-			return 0;
+			RETURN( 0 );
 		}
 		else if( !strcmp( opt, "input" ) || !strcmp( opt, "i" ) )
 			input = param;
@@ -107,9 +112,11 @@ int main( int argc, char** argv )
 		else if( !strcmp( opt, "version" ) || !strcmp( opt, "V" ) )
 		{
 			version( argv, "Regular expression command-line utility" );
-			return 0;
+			RETURN( 0 );
 		}
 	}
+
+	VARS( "rc", "%d", rc );
 
 	if( rc == 1 )
 	{
@@ -119,16 +126,16 @@ int main( int argc, char** argv )
 		if( !input && argc > next )
 		{
 			if( !pfiletostr( &finput, argv[next] ) )
-			{
-				fprintf( stderr, "Unable to read input file '%s'\n",
-									argv[next] );
-				return 1;
-			}
+				input = argv[next];
+			else
+				input = finput;
 
-			input = finput;
-			next++;
+			next++; /* <- obsolete, but complete ;-) */
 		}
 	}
+
+	VARS( "expr", "%s", expr );
+	VARS( "input", "%s", input );
 
 	if( !( expr && input ) || ( rc < 0 && param ) )
 	{
@@ -138,13 +145,15 @@ int main( int argc, char** argv )
 			fprintf( stderr, "Too less parameters given.\n" );
 
 		help( argv );
-		return 1;
+		RETURN( 1 );
 	}
 
 	/* Process */
 
 	start = input;
 	re = pregex_create( expr, PREGEX_FLAG_NONE );
+
+	VARS( "action", "%s", action );
 
 	if( strcmp( action, "match" ) == 0 )
 	{
@@ -171,6 +180,8 @@ int main( int argc, char** argv )
 	}
 	else if( strcmp( action, "replace" ) == 0 )
 	{
+		VARS( "replace", "%s", replace );
+
 		start = pregex_replace( re, start, replace );
 		printf( "%s", start );
 
@@ -182,6 +193,6 @@ int main( int argc, char** argv )
 	pfree( finput );
 	pfree( fexpr );
 
-	return 0;
+	RETURN( 0 );
 }
 

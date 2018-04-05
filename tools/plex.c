@@ -51,9 +51,9 @@ int main( int argc, char** argv )
 							"help input: version", i ) ) == 0; i++ )
 	{
 		if( !strcmp( opt, "begin" ) || !strcmp( opt, "b" ) )
-			begin_sep = param;
+			begin_sep = pstrunescape( param );
 		else if( !strcmp( opt, "end" ) || !strcmp( opt, "e" ) )
-			end_sep = param;
+			end_sep = pstrunescape( param );
 		else if( !strcmp( opt, "file" ) || !strcmp( opt, "f" ) )
 		{
 			finput = pfree( finput );

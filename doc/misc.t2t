@@ -177,7 +177,7 @@ The Phorward library provides some useful command-line tools which can also be u
 **pregex** is a command-line tool for regular expression operations on files and strings. It can be used for match, find, split and replace actions.
 
 ```
-Usage: pregex OPTIONS {expression-only-if-no-other} [input-file]
+Usage: pregex OPTIONS {expression} input
 
    -a  --action    ACTION    Perform regular expression action:
                              match (default), find, split, replace
@@ -190,6 +190,17 @@ Usage: pregex OPTIONS {expression-only-if-no-other} [input-file]
    -i  --input     INPUT     Use string INPUT as input.
    -r  --replace   STRING    Replacement string for 'replace' action.
    -V  --version             Show version info and exit.
+```
+
+Example call:
+```
+$ pregex -a find "\d+|[a-z]+" "123 abc456    78xy9"
+123
+abc
+456
+78
+xy
+9
 ```
 
 === plex ===
@@ -207,6 +218,17 @@ Usage: plex OPTIONS patterns...
    -h  --help                Show this help, and exit.
    -i  --input     INPUT     Use string INPUT as input.
    -V  --version             Show version info and exit.
+```
+
+Example call:
+```
+plex -b ":" -e "\n" -i "123 abc456    78xy9" "\d+" "[a-z]+"
+1:123
+2:abc
+1:456
+1:78
+2:xy
+1:9
 ```
 
 === pparse ===
@@ -227,6 +249,21 @@ Usage: pparse OPTIONS grammar [input [input ...]]
                              short (default), full, json, tree2svg
    -v  --verbose             Print processing information.
    -V  --version             Show version info and exit.
+```
+
+Example call:
+
+```
+$ pparse "Int := /[0-9]+/; f : Int | '(' e ')'; t : t '*' f = mul | f ; e : e '+' t = add | t ;" "1+2*3+4*5"
+add
+ add
+  Int (1)
+  mul
+   Int (2)
+   Int (3)
+ mul
+  Int (4)
+  Int (5)
 ```
 
 == Other tools ==

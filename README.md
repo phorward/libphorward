@@ -169,65 +169,58 @@ int main( int argc, char** argv )
 - Consequent object-oriented build-up of all function interfaces (e.g. plist, parray, pregex, pparse, ...)
 - Growing code-base of more and more powerful functions
 
-## Getting started
+## Documentation
 
-*phorward* is under heavy development. It is kept simple, clear and straightforward. Recent documentation can be found [here](https://www.phorward-software.com/products/phorward/doc/phorward.html), but also locally after installation.
+Recently updated, full documentation can be found [here](https://www.phorward-software.com/products/phorward/doc/phorward.html), but also locally after installation. The documentation currently focuses on the stable parts of the library only. Parts which are experimental or under-development not covered or only shortly mentioned.
 
-The documentation is currently in an under-development state and incomplete. It contains a generated functions reference and handles all library parts shortly.
+## Building
 
-### Building
-
-Building *phorward* is simple as every GNU-style open source program. Extract the downloaded release tarball or clone the source repository into a directory of your choice.
-
-Then, run
+Building *phorward* is simple as every GNU-style open source program. Extract the downloaded release tarball or clone the source repository into a directory of your choice. Then, do the steps
 
 ```bash
 $ ./configure
-```
-
-to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
-
-```bash
 $ make
-```
-
-and
-
-```bash
 $ make install
 ```
 
-(properly as root), to install the toolkit into your system.
+And you're ready to go!
 
-### Local building
+### Windows platforms
 
-Alternatively there is also a simpler method for setting up a local build system for development and testing purposes locally in the file-system.
+On Windows, the usage of [Cygwin #http://cygwin.org/] or another Unix shell environment is required. *phorward* also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
 
-Once, type
+To compile into 32-Bit Windows executables, configure with
+
+```bash
+$ ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
+```
+
+To compile into 64-Bit Windows executables, configure with
+
+```bash
+$ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
+```
+
+### Local development build
+
+Alternatively there is also a simpler method for setting up a local build system for development and testing purposes locally in the file-system:
 
 ```bash
 $ make -f Makefile.gnu make_install
-```
-
-then, a simple run of
-
-```bash
 $ make
 ```
 
-can be used to simply build the entire library or parts of it.
-
-Note, that changes to the build system then must be done in the local Makefile, the local Makefile.gnu as well as the Makefile.am for the autotools-based build system.
+This locally compiles the toolkit and parts of it.
 
 ## Credits
 
 *phorward* is developed and maintained by Jan Max Meyer at Phorward Software Technologies.
 
-Some other projects by the author are:
+Some other, related projects by the author are:
 
-- [UniCC](https://github.com/phorward/unicc), the universal parser generator, mostly based on *phorward*,
-- [RapidBATCH](https://github.com/phorward/rapidbatch), a scripting language, also based on *phorward*,
-- [pynetree](https://github.com/phorward/pynetree), a light-weight parsing toolkit written in pure Python.
+- [UniCC](https://github.com/phorward/unicc), the universal parser generator, created on top of *phorward*,
+- [RapidBATCH](https://github.com/phorward/rapidbatch), a scripting language, created on top of *phorward*,
+- [pynetree](https://github.com/phorward/pynetree), a light-weight parsing toolkit written in pure Python,
 - [JS/CC](https://jscc.brobston.com), the JavaScript parser generator.
 
 ## License

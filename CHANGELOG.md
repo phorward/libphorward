@@ -7,7 +7,6 @@ This file is used to document any relevant changes done to libphorward.
 Current development version.
 
 - Parsing tools
-  - Created better definition language called PBNF (Phorward BNF, pbnf.c)
   - Revised all modules, separating the grammar definition entirely from the
     parsing algorithm, lexer, parser and abstract syntax tree. This allows for
     a much higher modularity. The ``pppar`` object now represents the internal
@@ -15,12 +14,13 @@ Current development version.
     analyzer implemented using ``plex``.
   - Revised and simplified LR parser driver, now working on state machine, and
     not the data-structures from lr.c anymore.
+  - Created better definition language called PBNF (Phorward BNF, pbnf.c)
   - Support for a BNF, EBNF and a Phorward-style BNF (PBNF) as input grammars
     using the functions pp_gram_from_bnf(), pp_gram_from_ebnf() and
     pp_gram_from_pbnf().
 - Regular expressions
-  - Internal revisions and renamings, cleaning data structures from ephemeral
-    values
+  - Internal revisions and renamings.
+  - Cleaning data structures from temporal and ephemeral values.
   - Removing ``pregex_accept`` structure
   - Renamed ``begin`` to ``start`` in the ``prange`` structure.
 - Trace facilities
@@ -29,7 +29,9 @@ Current development version.
   - New LOG macro to allow for printf-style formatted output.
 - Bugfixes
   - Improved the plex command-line utility, it now recognizes `-b` and `-e`
-    correctly and can read from stdin.
+    correctly, allows for escape sequences and can read from stdin.
+  - Improved the pregex command-line utility to use the input parameter as is,
+    if the parameter is not the name of a file.
   - Removed warnings and unused static functions from the entire library.
   - Fixing & refactoring in p_ccl_parseshorthand() that caused invalid dfa state
     machines generated from regular expressions on some 32-bit machine
