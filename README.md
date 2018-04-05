@@ -187,7 +187,7 @@ And you're ready to go!
 
 ### Windows platforms
 
-On Windows, the usage of [Cygwin #http://cygwin.org/] or another Unix shell environment is required. *phorward* also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
+On Windows, the usage of [Cygwin](https://cygwin.org/) or another Unix shell environment is required. *phorward* also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
 
 To compile into 32-Bit Windows executables, configure with
 
