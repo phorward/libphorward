@@ -14,21 +14,21 @@ typedef struct _ppgram		ppgram;
 typedef struct _ppast		ppast;
 
 /* Flags for grammars and their objects */
-#define PPFLAG_NONE			0
-#define PPFLAG_CALLED		1
-#define PPFLAG_DEFINED		2
-#define PPFLAG_NULLABLE		4
-#define PPFLAG_LEFTREC		8
-#define PPFLAG_LEXEM		16
-#define PPFLAG_WHITESPACE	32
-#define PPFLAG_PREVENTLREC	64
-#define PPFLAG_NAMELESS		128
-#define PPFLAG_GENERATED	256
-#define PPFLAG_FREENAME		512
-#define PPFLAG_FREEEMIT		1024
-#define PPFLAG_SPECIAL		2048
-#define PPFLAG_FINALIZED	4096
-#define PPFLAG_FROZEN		8192
+#define PPFLAG_NONE			0x00
+#define PPFLAG_CALLED		0x01
+#define PPFLAG_DEFINED		0x02
+#define PPFLAG_NULLABLE		0x04
+#define PPFLAG_LEFTREC		0x08
+#define PPFLAG_LEXEM		0x10
+#define PPFLAG_WHITESPACE	0x20
+#define PPFLAG_PREVENTLREC	0x40
+#define PPFLAG_NAMELESS		0x80
+#define PPFLAG_GENERATED	0x100
+#define PPFLAG_FREENAME		0x200
+#define PPFLAG_FREEEMIT		0x400
+#define PPFLAG_SPECIAL		0x800
+#define PPFLAG_FINALIZED	0x1000
+#define PPFLAG_FROZEN		0x2000
 
 #define PPMOD_OPTIONAL		'?'
 #define PPMOD_POSITIVE		'+'
@@ -36,6 +36,15 @@ typedef struct _ppast		ppast;
 
 #define PPLR_SHIFT			1
 #define PPLR_REDUCE			2
+
+/* Associativity */
+typedef enum
+{
+	PPASSOC_NONE,
+	PPASSOC_NOT,
+	PPASSOC_LEFT,
+	PPASSOC_RIGHT
+} ppassoc;
 
 /* Production */
 struct _ppprod
@@ -46,6 +55,9 @@ struct _ppprod
 	ppsym*					lhs;		/* Left-hand side */
 	plist*					rhs;		/* Left-hand side items */
 	unsigned int			flags;		/* Configuration flags */
+
+	ppassoc					assoc;		/* LR associativity */
+	unsigned int			prec;		/* LR precedence level */
 
 	char*					emit;		/* AST emitting node */
 
@@ -64,6 +76,9 @@ struct _ppsym
 #endif
 
 	unsigned int			flags;		/* Configuration flags */
+
+	ppassoc					assoc;		/* LR associativity */
+	unsigned int			prec;		/* LR precedence level */
 
 	plist*					first;		/* Set of FIRST() symbols */
 

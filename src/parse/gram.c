@@ -45,7 +45,7 @@ Don't call it if you're unsure ;)... */
 pboolean pp_gram_prepare( ppgram* g )
 {
 	plistel*		e;
-	plistel*		er;
+	plistel*		f;
 	ppprod*			prod;
 	ppprod*			cprod;
 	ppsym*			sym;
@@ -111,9 +111,9 @@ pboolean pp_gram_prepare( ppgram* g )
 			{
 				plist_push( done, prod );
 
-				plist_for( prod->rhs, er )
+				plist_for( prod->rhs, f )
 				{
-					sym = (ppsym*)plist_access( er );
+					sym = (ppsym*)plist_access( f );
 
 					nullable = FALSE;
 
@@ -149,7 +149,7 @@ pboolean pp_gram_prepare( ppgram* g )
 				}
 
 				/* Flag nullable */
-				if( !er )
+				if( !f )
 				{
 					cprod->flags |= PPFLAG_NULLABLE;
 					cprod->lhs->flags |= PPFLAG_NULLABLE;
@@ -183,9 +183,9 @@ pboolean pp_gram_prepare( ppgram* g )
 
 		for( i = 0; ( prod = pp_sym_getprod( sym, i ) ); i++ )
 		{
-			plist_for( prod->rhs, er )
+			plist_for( prod->rhs, f )
 			{
-				sym = (ppsym*)plist_access( er );
+				sym = (ppsym*)plist_access( f );
 				sym->flags |= PPFLAG_LEXEM;
 
 				if( !PPSYM_IS_TERMINAL( sym ) )
@@ -201,6 +201,25 @@ pboolean pp_gram_prepare( ppgram* g )
 	/* Clear all lists */
 	plist_free( call );
 	plist_free( done );
+
+	/* Inherit precedences */
+	plist_for( g->prods, e )
+	{
+		prod = (ppprod*)plist_access( e );
+
+		if( prod->prec < prod->lhs->prec )
+			prod->prec = prod->lhs->prec;
+
+		for( f = plist_last( prod->rhs ); f; f = plist_prev( f ) )
+		{
+			sym = (ppsym*)plist_access( f );
+			if( sym->prec > prod->prec )
+			{
+				prod->prec = sym->prec;
+				break;
+			}
+		}
+	}
 
 	/* Set finalized */
 	g->flags |= PPFLAG_FINALIZED;

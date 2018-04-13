@@ -360,7 +360,7 @@ static pplrstate* lr_get_undone( plist* states )
 	return (pplrstate*)NULL;
 }
 
-static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
+static plist* pp_lr_closure( ppgram* gram, pboolean optimize, pboolean resolve )
 {
 	plist*			states;
 	pplrstate*		st;
@@ -385,9 +385,10 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 	int*			prodcnt;
 	pboolean		printed;
 
-	PROC( "pp_parser_lr_closure" );
+	PROC( "pp_lr_closure" );
 	PARMS( "gram", "%p", gram );
 	PARMS( "optimize", "%s", BOOLEAN_STR( optimize ) );
+	PARMS( "resolve", "%s", BOOLEAN_STR( resolve ) );
 
 	if( !( gram ) )
 	{
@@ -413,10 +414,8 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 	{
 		st->done = TRUE;
 
-#if DEBUGLEVEL > 1
-		fprintf( stderr, "---\nClosing state %d\n",
-					plist_offset( plist_get_by_ptr( states, st ) ) );
-#endif
+		LOG( "--- Closing state %d",
+				plist_offset( plist_get_by_ptr( states, st ) ) );
 
 		MSG( "Closing state" );
 		VARS( "State", "%d", plist_offset(
@@ -675,6 +674,8 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 		printed = FALSE;
 		st = (pplrstate*)plist_access( e );
 
+		LOG( "State %d", plist_offset( plist_get_by_ptr( states, st ) ) );
+
 		/* Reductions */
 		for( part = st->kernel; part;
 				part = ( part == st->kernel ? st->epsilon : (plist*)NULL ) )
@@ -696,18 +697,100 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 			}
 		}
 
-		/* Detect and report conflicts */
-		plist_for( st->actions, f )
+		MSG( "Detect and report, or resolve conflicts" );
+
+		for( f = plist_first( st->actions ); f; )
 		{
 			col = (pplrcolumn*)plist_access( f );
-			sym = (ppsym*)NULL;
 
 			for( g = plist_next( f ); g; g = plist_next( g ) )
 			{
 				ccol = (pplrcolumn*)plist_access( g );
 
-				if( ccol->symbol == col->symbol )
+				if( ccol->symbol == col->symbol
+						&& ccol->reduce ) /* Assertion: Shift-shift entries
+														are never possible! */
 				{
+					LOG( "State %d encounters %s/reduce-conflict on %s",
+							plist_offset( e ),
+								col->reduce ? "reduce" : "shift",
+									col->symbol->name );
+
+					if( resolve )
+					{
+						/* Try to resolve reduce-reduce conflict */
+						if( col->reduce )
+						{
+							/* Resolve by lower production! */
+							if( col->reduce->idx > ccol->reduce->idx )
+							{
+								MSG( "Conflict resolved in favor of "
+										"lower production" );
+								col->reduce = ccol->reduce;
+
+								LOG( "Conflict resolved by lower production %d",
+										ccol->reduce );
+							}
+
+							plist_remove( st->actions, g );
+
+							/* Clear non-associative entry! */
+							if( col->symbol->assoc == PPASSOC_NOT )
+							{
+								LOG( "Symbol '%s' is non-associative, "
+										"removing entry",
+										pp_sym_to_str( col->symbol ) );
+
+								plist_remove( st->actions, f );
+								f = g = (plistel*)NULL;
+							}
+
+							break; /* Restart search! */
+						}
+						/* Try to resolve shift-reduce conflict */
+						else
+						{
+							/* In case there are precedences,
+								resolving is possible */
+							if( col->symbol->prec && ccol->reduce->prec )
+							{
+								/* Resolve by symbol/production precedence,
+									or by associativity */
+								if( col->symbol->prec < ccol->reduce->prec
+									|| ( col->symbol->prec == ccol->reduce->prec
+										&& col->symbol->assoc == PPASSOC_LEFT )
+										)
+								{
+									MSG( "Conflict resolved "
+											"in favor of reduce" );
+									col->reduce = ccol->reduce;
+									col->shift = (pplrstate*)NULL;
+								}
+								/* Clear non-associative entry! */
+								else if( col->symbol->assoc == PPASSOC_NOT )
+								{
+									LOG( "Symbol '%s' is non-associative, "
+											"removing entry",
+											pp_sym_to_str( col->symbol ) );
+
+									plist_remove( st->actions, f );
+									f = g = (plistel*)NULL;
+									break;
+								}
+								else
+								{
+									MSG( "Conflict resolved in favor"
+											"of shift" );
+								}
+
+								plist_remove( st->actions, g );
+								break;
+							}
+						}
+					}
+
+					/* If no resolution is possible or wanted,
+						report conflict */
 					if( !printed )
 					{
 #if DEBUGLEVEL > 0
@@ -717,18 +800,26 @@ static plist* pp_lr_closure( ppgram* gram, pboolean optimize )
 						printed = TRUE;
 					}
 
-					/* TODO Conflict resolution */
 					fprintf( stderr,
-						"State %d encouters %s/reduce-conflict on %s\n",
+						"State %d encounters %s/reduce-conflict on %s\n",
 							plist_offset( e ),
 								col->reduce ? "reduce" : "shift",
 									col->symbol->name );
 				}
 			}
+
+			if( g )
+				continue;
+
+			if( f )
+				f = plist_next( f );
+			else
+				f = plist_first( st->actions );
 		}
 
-		/* Detect default prods */
 		#if 0
+		MSG( "Detect default productions" );
+
 		memset( prodcnt, 0, plist_count( gram->prods ) * sizeof( int ) );
 		cnt = 0;
 
@@ -803,7 +894,7 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm )
 	}
 
 	/* Compute LALR(1) states */
-	states = pp_lr_closure( grm, FALSE ); /* fixme: optimiziation */
+	states = pp_lr_closure( grm, TRUE, TRUE );
 
 	#if DEBUGLEVEL > 0
 	fprintf( stderr, "\n\n--- FINAL GLR STATES ---\n\n" );
