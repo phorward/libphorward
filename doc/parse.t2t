@@ -142,6 +142,34 @@ expr$   : expr '+' term = add
         ;
 ```
 
+===== Associativity and precedence operators =====
+
+With //pbnf//, and in combination with the LALR parser, precedence and associativity can also be used to resolve conflicts and write shorter grammars. Thus, the following version of the four-function calculator yields in the same parser.
+
+```
+%skip   /[\s]+/ ;
+Int     : /[0-9]+/ = int;
+
+<<      '+' '-';
+<<      '*' '/';
+
+expr$   : expr '*' expr = mul
+        | expr '/' expr = div
+        | expr '+' expr = add
+        | expr '-' expr = sub
+        | '(' expr ')'
+        | Int
+        ;
+```
+
+Here is a short table for reference.
+
+|| Operator | Meaning |
+| << | Left-associative configuration |
+| >> | Right-associative configuration |
+| ^^ | Non-associative configuration |
+
+
 === More grammar-related functions ===
 
 There are some more functions on grammars that need to be mentioned.

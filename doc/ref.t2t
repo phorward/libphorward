@@ -3496,7 +3496,7 @@ defs : defs nonterm | nonterm ;
 grammar$ : defs ;
 ```
 %FUNCTION:END
-%NEED:77
+%NEED:84
 %FUNCTION:BEGIN
 === pp_gram_from_pbnf ===[fn_pp_gram_from_pbnf]
 
@@ -3526,51 +3526,58 @@ lexical analyzer-specific definitions, grammar and AST construction features.
 
 // Terminals -------------------------------------------------------------------
 
-@Terminal		/[A-Z][A-Za-z0-9_]*/ ;
-@Nonterminal	/[a-z_][A-Za-z0-9_]*/ ;
+Terminal		:= /[A-Z][A-Za-z0-9_]*/ ;
+Nonterminal		:= /[a-z_][A-Za-z0-9_]*/ ;
 
-@CCL 			/\[(\\.|[^\\\]])*/]/ ;
-@String 		/'[^']*'/ ;
-@Token			/"[^"]*"/ ;
-@Regex 			/\/(\\.|[^\\\/])*/// ;
+CCL 			:= /\[(\\.|[^\\\]])*/]/ ;
+String 			:= /'[^']*'/ ;
+Token			:= /"[^"]*"/ ;
+Regex 			:= /\/(\\.|[^\\\/])*/// ;
 
-@Int			/[0-9]+/ ;
-@Function		/[A-Za-z_][A-Za-z0-9_]*/(\)/ ;
+Int				:= /[0-9]+/ ;
+Function		:= /[A-Za-z_][A-Za-z0-9_]*/(\)/ ;
 
-@Flag_emit		'@([A-Za-z0-9_]+)?' ;
-@Flag_goal		'$' ;
-@Flag_lexem		'!' ;
-@Flag_ignore	/%(ignore|skip)/ ;
+Flag_emit		:= '@([A-Za-z0-9_]+)?' ;
+Flag_goal		:= '$' ;
+Flag_lexem		:= '!' ;
+Flag_ignore		:= /%(ignore|skip)/ ;
 
 // Nonterminals ----------------------------------------------------------------
 
-@inline			: Flag_emit '(' alternation ')'
+inline			:= Flag_emit '(' alternation ')'
 				|  '(' alternation ')'
 				;
 
-@symbol 		: Terminal | Nonterminal | CCL | String | Token
-					| Regex | Function | inline ;
+terminal		: CCL | String | Token | Regex | Function ;
 
-modifier		: ( symbol '*' )=kle
-				| ( symbol '+' )=pos
-				| ( symbol '?' )=opt
+symbol 			:= Terminal | Nonterminal | terminal | inline  ;
+
+modifier		: symbol '*' = kle
+				| symbol '+' = pos
+				| symbol '?' = opt
 				| symbol
 				;
 
 sequence		: sequence modifier | modifier ;
 
-@production	 	: sequence | ;
+production	 	:= sequence | ;
 
 alternation		: alternation '|' production | production ;
 
-@nontermdef		: Nonterminal ':' alternation ';'
+nontermdef		:= Nonterminal ':' alternation ';'
 				;
 
-@termdef		: Terminal ':' ( CCL | String | Regex | Function ) ';'
+termdef			:= Terminal ':' terminal ';'
+				;
+
+assocdef		:= '<<' terminal+ ';'	= assoc_left
+				| '>>' terminal+ ';'	= assoc_right
+				| '^^' terminal+ ';'	= assoc_none
 				;
 
 definition		: nontermdef
 				| termdef
+				| assocdef
 				;
 
 grammar	$		: definition+ ;

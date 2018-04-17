@@ -3,9 +3,9 @@
 
 === Overview ===
 
-Next to the **parray** object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
+Next to the [parray #parray] object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
 
-**plist** can be seen as a superset of the **parray** object, because it features nearly the same operations but with other underlying data management methods.
+**plist** can be seen as a superset of the [parray #parray] object, because it features nearly the same operations but with other underlying data management methods.
 
 The **plist** object implements:
 
@@ -30,7 +30,7 @@ The **plist** object brings the following advantages and disadvantages:
   - Allows pointer-mode and entity-mode configuration (PLIST_MOD_PTR)
   - Additionally find objects using a hash-table
   - Provides element recycling methods (PLIST_MOD_RECYCLE)
-  - Elements are chained and can be re-arraged
+  - Elements are chained, can be re-arraged and have persistent pointers
   - Automatical sorting using individual sort-functions
   - Simple set-theory functions (union, diff)
   -
@@ -38,7 +38,7 @@ The **plist** object brings the following advantages and disadvantages:
   - High memory consumption, especially in case when used with hash-tables
   - Iteration over elements is much slower
   - List elements are chained as **plistel** data structures, while the data members must be called separately
-  - All operations require more computing power in comparison to **parray**
+  - All operations require more computing power in comparison to [parray #parray]
   -
 -
 

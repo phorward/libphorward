@@ -22,7 +22,11 @@ April 2018
 
 = Introduction =
 
+Welcome to the Phorward library on-line documentation!
+
 **phorward** is a versatile C-library. It is split into several modules, and mostly focuses on the definition and implementation of parsers, recognizers, virtual machines and regular expressions.
+
+The library is made up of several modules. These are:
 
 - **any** provides a dynamical, extendible data structure and interface to store, convert and handle variables of different value types ("variant" data type),
 - **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays,
@@ -128,15 +132,15 @@ The final destination of the Phorward library is not entirely clear yet. For now
 
 = Dynamic general-purpose objects =
 
-== parray: Arrays and stacks ==
+== parray: Arrays and stacks ==[parray]
 
 %!include: array.t2t
 
-== plist: Linked lists, hash-tables, queues and stacks ==
+== plist: Linked lists, hash-tables, queues and stacks ==[plist]
 
 %!include: list.t2t
 
-== pccl: Character-classes ==
+== pccl: Character-classes ==[pccl]
 
 %!include: ccl.t2t
 

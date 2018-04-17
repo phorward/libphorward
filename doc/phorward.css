@@ -1,24 +1,34 @@
-html, body, table
+html, body
 {
-	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	font-family: Atlas, "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 	font-size: 14pt;
-}
 
-html
-{
-	background-color: #333;
+	background-color: #000055;
 }
 
 body
 {
-	margin: 0 10%;
-	padding: 1%;
-	background-color: #fff;
+    margin: 0 5%;
+    padding: 3%;
+
+    background-color: #fff;
+}
+
+table
+{
+    border-collapse: collapse;
+    border-color: #ccc;
+    width: 100%;
+}
+
+tr, td
+{
+	border-color: #ccc;
 }
 
 pre, code
 {
-	font-family: "Lucida Console", Monaco, monospace;
+	font-family: Monaco, monospace;
 }
 
 pre
@@ -114,15 +124,6 @@ div#body h3
 	padding: 0;
 }
 
-
-@media print
-{
-	a.back_to_top
-	{
-		visible: none;
-	}
-}
-
 table.ref
 {
 }
@@ -158,3 +159,39 @@ td.refreturns
 {
 }
 
+@media print
+{
+	html, body, table
+	{
+		font-size: 10.5pt;
+		background-color: initial;
+	}
+
+	body
+	{
+		margin: initial;
+		padding: initial;
+		background-color: initial;
+	}
+
+	h1
+	{
+		page-break-before: left;
+	}
+
+	.header h1
+	{
+		page-break-before: avoid;
+		margin-top: 8cm;
+	}
+
+	div.function
+	{
+		page-break-inside: avoid;
+	}
+
+	#toc1, div.toc
+	{
+		display: none;
+	}
+}

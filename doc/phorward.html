@@ -44,7 +44,7 @@
   </li>
   <li><a href="#toc9">Dynamic general-purpose objects</a>
     <ul>
-    <li><a href="#toc10">parray: Arrays and stacks</a>
+    <li><a href="#parray">parray: Arrays and stacks</a>
       <ul>
       <li><a href="#toc11">Overview</a>
       </li>
@@ -60,7 +60,7 @@
       </li>
       </ul>
     </li>
-    <li><a href="#toc17">plist: Linked lists, hash-tables, queues and stacks</a>
+    <li><a href="#plist">plist: Linked lists, hash-tables, queues and stacks</a>
       <ul>
       <li><a href="#toc18">Overview</a>
       </li>
@@ -80,7 +80,7 @@
       </li>
       </ul>
     </li>
-    <li><a href="#toc26">pccl: Character-classes</a>
+    <li><a href="#pccl">pccl: Character-classes</a>
     </li>
     </ul>
   </li>
@@ -706,7 +706,13 @@
 <h1 id="toc2">Introduction</h1>
 
 <p>
+Welcome to the Phorward library on-line documentation!
+</p>
+<p>
 <b>phorward</b> is a versatile C-library. It is split into several modules, and mostly focuses on the definition and implementation of parsers, recognizers, virtual machines and regular expressions.
+</p>
+<p>
+The library is made up of several modules. These are:
 </p>
 
 <ul>
@@ -903,7 +909,7 @@ The final destination of the Phorward library is not entirely clear yet. For now
 
 <h1 id="toc9">Dynamic general-purpose objects</h1>
 
-<h2 id="toc10">parray: Arrays and stacks</h2>
+<h2 id="parray">parray: Arrays and stacks</h2>
 
 <h3 id="toc11">Overview</h3>
 
@@ -920,7 +926,7 @@ The <b>parray</b> object brings the following advantages and disadvantages:
 <ul>
 <li><u>Advantages</u>
   <ul>
-  <li>Chunk allocation requires lesser <a href="#fn_pmalloc">pmalloc()</a>/<a href="#fn_prealloc">prealloc()</a> operations than with <b>plist</b>
+  <li>Chunk allocation requires lesser <a href="#fn_pmalloc">pmalloc()</a>/<a href="#fn_prealloc">prealloc()</a> operations than with <a href="#plist">plist</a>
   </li>
   <li>Dynamic and quick implementation for huger data structures
   </li>
@@ -934,7 +940,7 @@ The <b>parray</b> object brings the following advantages and disadvantages:
 </li>
 <li><u>Disadvantages</u>
   <ul>
-  <li>Not so flexible like <b>plist</b>
+  <li>Less flexible then <a href="#plist">plist</a>
   </li>
   <li>No hashable entries
   </li>
@@ -1109,15 +1115,15 @@ Other, useful functions are
 </li>
 </ul>
 
-<h2 id="toc17">plist: Linked lists, hash-tables, queues and stacks</h2>
+<h2 id="plist">plist: Linked lists, hash-tables, queues and stacks</h2>
 
 <h3 id="toc18">Overview</h3>
 
 <p>
-Next to the <b>parray</b> object, the <b>plist</b> object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
+Next to the <a href="#parray">parray</a> object, the <b>plist</b> object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
 </p>
 <p>
-<b>plist</b> can be seen as a superset of the <b>parray</b> object, because it features nearly the same operations but with other underlying data management methods.
+<b>plist</b> can be seen as a superset of the <a href="#parray">parray</a> object, because it features nearly the same operations but with other underlying data management methods.
 </p>
 <p>
 The <b>plist</b> object implements:
@@ -1164,7 +1170,7 @@ The <b>plist</b> object brings the following advantages and disadvantages:
   </li>
   <li>Provides element recycling methods (PLIST_MOD_RECYCLE)
   </li>
-  <li>Elements are chained and can be re-arraged
+  <li>Elements are chained, can be re-arraged and have persistent pointers
   </li>
   <li>Automatical sorting using individual sort-functions
   </li>
@@ -1180,7 +1186,7 @@ The <b>plist</b> object brings the following advantages and disadvantages:
   </li>
   <li>List elements are chained as <b>plistel</b> data structures, while the data members must be called separately
   </li>
-  <li>All operations require more computing power in comparison to <b>parray</b>
+  <li>All operations require more computing power in comparison to <a href="#parray">parray</a>
   </li>
   </ul>
 </li>
@@ -1440,7 +1446,7 @@ To implement these functions, every <b>plist</b> object also refers to a compari
 </li>
 </ul>
 
-<h2 id="toc26">pccl: Character-classes</h2>
+<h2 id="pccl">pccl: Character-classes</h2>
 
 <p>
 The <b>pccl</b> object is established on top of the <b>plist</b> object and encapsulates easy-to-handle low-level functions for character-class handling.
@@ -2321,6 +2327,51 @@ expr$   : expr '+' term = add
         ;
 </code></pre>
 
+<h5>Associativity and precedence operators</h5>
+
+<p>
+With <i>pbnf</i>, and in combination with the LALR parser, precedence and associativity can also be used to resolve conflicts and write shorter grammars. Thus, the following version of the four-function calculator yields in the same parser.
+</p>
+
+<pre><code class="language-c">
+%skip   /[\s]+/ ;
+Int     : /[0-9]+/ = int;
+
+&lt;&lt;      '+' '-';
+&lt;&lt;      '*' '/';
+
+expr$   : expr '*' expr = mul
+        | expr '/' expr = div
+        | expr '+' expr = add
+        | expr '-' expr = sub
+        | '(' expr ')'
+        | Int
+        ;
+</code></pre>
+
+<p>
+Here is a short table for reference.
+</p>
+
+<table border="1">
+<tr>
+<th>Operator</th>
+<th>Meaning</th>
+</tr>
+<tr>
+<td>&lt;&lt;</td>
+<td>Left-associative configuration</td>
+</tr>
+<tr>
+<td>&gt;&gt;</td>
+<td>Right-associative configuration</td>
+</tr>
+<tr>
+<td>^^</td>
+<td>Non-associative configuration</td>
+</tr>
+</table>
+
 <h3 id="toc46">More grammar-related functions</h3>
 
 <p>
@@ -2692,7 +2743,7 @@ The Phorward library provides some useful command-line tools which can also be u
 </p>
 
 <pre><code class="language-c">
-Usage: pregex OPTIONS {expression-only-if-no-other} [input-file]
+Usage: pregex OPTIONS {expression} input
 
    -a  --action    ACTION    Perform regular expression action:
                              match (default), find, split, replace
@@ -2705,6 +2756,20 @@ Usage: pregex OPTIONS {expression-only-if-no-other} [input-file]
    -i  --input     INPUT     Use string INPUT as input.
    -r  --replace   STRING    Replacement string for 'replace' action.
    -V  --version             Show version info and exit.
+</code></pre>
+
+<p>
+Example call:
+</p>
+
+<pre><code class="language-c">
+$ pregex -a find "\d+|[a-z]+" "123 abc456    78xy9"
+123
+abc
+456
+78
+xy
+9
 </code></pre>
 
 <h3 id="toc57">plex</h3>
@@ -2724,6 +2789,20 @@ Usage: plex OPTIONS patterns...
    -h  --help                Show this help, and exit.
    -i  --input     INPUT     Use string INPUT as input.
    -V  --version             Show version info and exit.
+</code></pre>
+
+<p>
+Example call:
+</p>
+
+<pre><code class="language-c">
+plex -b ":" -e "\n" -i "123 abc456    78xy9" "\d+" "[a-z]+"
+1:123
+2:abc
+1:456
+1:78
+2:xy
+1:9
 </code></pre>
 
 <h3 id="toc58">pparse</h3>
@@ -2746,6 +2825,23 @@ Usage: pparse OPTIONS grammar [input [input ...]]
                              short (default), full, json, tree2svg
    -v  --verbose             Print processing information.
    -V  --version             Show version info and exit.
+</code></pre>
+
+<p>
+Example call:
+</p>
+
+<pre><code class="language-c">
+$ pparse "Int := /[0-9]+/; f : Int | '(' e ')'; t : t '*' f = mul | f ; e : e '+' t = add | t ;" "1+2*3+4*5"
+add
+ add
+  Int (1)
+  mul
+   Int (2)
+   Int (3)
+ mul
+  Int (4)
+  Int (5)
 </code></pre>
 
 <h2 id="toc59">Other tools</h2>
@@ -7749,7 +7845,7 @@ grammar$ : defs ;
 </code></pre>
 
 </div>
-<!-- NEED 77 -->
+<!-- NEED 84 -->
 <div class='function'>
 
 <h3 id="fn_pp_gram_from_pbnf">pp_gram_from_pbnf</h3>
@@ -7788,51 +7884,58 @@ lexical analyzer-specific definitions, grammar and AST construction features.
 
 // Terminals -------------------------------------------------------------------
 
-[Terminal #fn_Terminal]		/[A-Z][A-Za-z0-9_]*/ ;
-[Nonterminal #fn_Nonterminal]	/[a-z_][A-Za-z0-9_]*/ ;
+Terminal		:= /[A-Z][A-Za-z0-9_]*/ ;
+Nonterminal		:= /[a-z_][A-Za-z0-9_]*/ ;
 
-[CCL #fn_CCL] 			/\[(\\.|[^\\\]])*/]/ ;
-[String #fn_String] 		/'[^']*'/ ;
-[Token #fn_Token]			/"[^"]*"/ ;
-[Regex #fn_Regex] 			/\/(\\.|[^\\\/])*/// ;
+CCL 			:= /\[(\\.|[^\\\]])*/]/ ;
+String 			:= /'[^']*'/ ;
+Token			:= /"[^"]*"/ ;
+Regex 			:= /\/(\\.|[^\\\/])*/// ;
 
-[Int #fn_Int]			/[0-9]+/ ;
-[Function #fn_Function]		/[A-Za-z_][A-Za-z0-9_]*/(\)/ ;
+Int				:= /[0-9]+/ ;
+Function		:= /[A-Za-z_][A-Za-z0-9_]*/(\)/ ;
 
-[Flag_emit #fn_Flag_emit]		'@([A-Za-z0-9_]+)?' ;
-[Flag_goal #fn_Flag_goal]		'$' ;
-[Flag_lexem #fn_Flag_lexem]		'!' ;
-[Flag_ignore #fn_Flag_ignore]	/%(ignore|skip)/ ;
+Flag_emit		:= '@([A-Za-z0-9_]+)?' ;
+Flag_goal		:= '$' ;
+Flag_lexem		:= '!' ;
+Flag_ignore		:= /%(ignore|skip)/ ;
 
 // Nonterminals ----------------------------------------------------------------
 
-[inline #fn_inline]			: Flag_emit '(' alternation ')'
+inline			:= Flag_emit '(' alternation ')'
 				|  '(' alternation ')'
 				;
 
-[symbol #fn_symbol] 		: Terminal | Nonterminal | CCL | String | Token
-					| Regex | Function | inline ;
+terminal		: CCL | String | Token | Regex | Function ;
 
-modifier		: ( symbol '*' )=kle
-				| ( symbol '+' )=pos
-				| ( symbol '?' )=opt
+symbol 			:= Terminal | Nonterminal | terminal | inline  ;
+
+modifier		: symbol '*' = kle
+				| symbol '+' = pos
+				| symbol '?' = opt
 				| symbol
 				;
 
 sequence		: sequence modifier | modifier ;
 
-[production #fn_production]	 	: sequence | ;
+production	 	:= sequence | ;
 
 alternation		: alternation '|' production | production ;
 
-[nontermdef #fn_nontermdef]		: Nonterminal ':' alternation ';'
+nontermdef		:= Nonterminal ':' alternation ';'
 				;
 
-[termdef #fn_termdef]		: Terminal ':' ( CCL | String | Regex | Function ) ';'
+termdef			:= Terminal ':' terminal ';'
+				;
+
+assocdef		:= '&lt;&lt;' terminal+ ';'	= assoc_left
+				| '&gt;&gt;' terminal+ ';'	= assoc_right
+				| '^^' terminal+ ';'	= assoc_none
 				;
 
 definition		: nontermdef
 				| termdef
+				| assocdef
 				;
 
 grammar	$		: definition+ ;

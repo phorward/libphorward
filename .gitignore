@@ -20,3 +20,6 @@ run/pregex
 run/ppgram2c
 run/pvm
 
+examples/parsing
+examples/lexing
+examples/regex

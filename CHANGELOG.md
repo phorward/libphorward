@@ -4,7 +4,7 @@ This file is used to document any relevant changes done to libphorward.
 
 ## v0.22
 
-Current development version.
+Released on: April 17, 2018
 
 - Parsing tools
   - Revised all modules, separating the grammar definition entirely from the
@@ -15,9 +15,12 @@ Current development version.
   - Revised and simplified LR parser driver, now working on state machine, and
     not the data-structures from lr.c anymore.
   - Created better definition language called PBNF (Phorward BNF, pbnf.c)
-  - Support for a BNF, EBNF and a Phorward-style BNF (PBNF) as input grammars
+  - Frontends for BNF, EBNF and a Phorward-style BNF (PBNF) as input grammars
     using the functions pp_gram_from_bnf(), pp_gram_from_ebnf() and
     pp_gram_from_pbnf().
+  - Implied precedence & associativity for LALR conflict resolution, which can
+    be used via ``<<`` (left-associative), ``>>`` (right-associative) and
+    ``^^`` (non-associative) in the pbnf language.
 - Regular expressions
   - Internal revisions and renamings.
   - Cleaning data structures from temporal and ephemeral values.
