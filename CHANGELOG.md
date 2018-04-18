@@ -6,6 +6,7 @@ This file is used to document any relevant changes done to libphorward.
 
 Released on: April 17, 2018
 
+- v0.22.1: pgetline() function as POSIX compatiblity layer
 - Parsing tools
   - Revised all modules, separating the grammar definition entirely from the
     parsing algorithm, lexer, parser and abstract syntax tree. This allows for

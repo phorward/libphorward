@@ -99,7 +99,7 @@ typedef char 					pboolean;
 
 
 
-#define LIBPHORWARD_VERSION "0.22.0"
+#define LIBPHORWARD_VERSION "0.22.1"
 
 
 
@@ -934,6 +934,7 @@ char* pbasename( char* path );
 pboolean pfileexists( char* filename );
 pboolean pfiletostr( char** cont, char* filename );
 int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx );
+size_t pgetline( char** lineptr, size_t* n, FILE* stream );
 
 
 ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
