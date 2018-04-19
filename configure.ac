@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([Phorward Toolkit], [0.22.0])
+AC_INIT([Phorward Toolkit], [0.22.1])
 AC_PREFIX_DEFAULT([/usr])
 
 AC_CONFIG_SRCDIR([src/phorward.tpl.h])
@@ -32,7 +32,7 @@ AC_PROG_MAKE_SET
 AM_PROG_AR
 AM_PROG_CC_C_O
 
-LT_INIT
+LT_INIT([win32-dll])
 AC_PROG_LIBTOOL
 
 # Check if txt2tags is installed here

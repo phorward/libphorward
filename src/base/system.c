@@ -381,7 +381,7 @@ size_t pgetline( char** lineptr, size_t* n, FILE* stream )
     size_t	size;
     int 	c;
 
-    if( !( lineptr && stream && n )
+    if( !( lineptr && stream && n ) )
         return -1;
 
     bufptr = *lineptr;

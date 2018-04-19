@@ -17,6 +17,8 @@ PATHEXT = PATH="../run:$(PATH)"
 
 lib_LTLIBRARIES = libphorward.la
 
+libphorward_la_LDFLAGS = -no-undefined
+
 libphorward_la_SOURCES = \
 	any/any.c \
 	any/any.conv.c \
