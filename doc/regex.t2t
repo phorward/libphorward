@@ -189,7 +189,7 @@ prange* rg;
 pregex_findall( r, s, &a );
 
 while( ( rg = (prange*)parray_shift( a ) ) )
-	printf( ">%.*s<\n", rg->end - rg->begin, rg->begin );
+	printf( ">%.*s<\n", rg->end - rg->start, rg->start );
 
 parray_free( a );
 ```
@@ -224,7 +224,7 @@ prange* rg;
 pregex_splitall( r, s, &a );
 
 while( ( rg = (prange*)parray_shift( a ) ) )
-	printf( ">%.*s<\n", rg->end - rg->begin, rg->begin );
+	printf( ">%.*s<\n", rg->end - rg->start, rg->start );
 
 parray_free( a );
 ```
