@@ -106,7 +106,7 @@ int main( int argc, char** argv )
 	/* Read from stdin */
 	if( !start )
 	{
-		getline( &finput, &size, stdin );
+		pgetline( &finput, &size, stdin );
 		start = finput;
 	}
 

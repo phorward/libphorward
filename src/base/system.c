@@ -364,3 +364,61 @@ int pgetopt( char* opt, char** param, int* next,
 	RETURN( -1 );
 }
 
+/** Reads an entire line from //stream//, storing the address of the buffer
+	containing the text into //lineptr//. The buffer is zero-terminated and
+	includes the newline character, if one was found.
+
+	This function serves as a platform-independent implementation for POSIX
+	getline(), which is wrapped in case of POSIX.
+*/
+size_t pgetline( char** lineptr, size_t* n, FILE* stream )
+{
+	#ifndef _WIN32
+	return getline( lineptr, n, stream );
+	#else
+    char*	bufptr = (char*)NULL;
+    char*	p = bufptr;
+    size_t	size;
+    int 	c;
+
+    if( !( lineptr && stream && n ) )
+        return -1;
+
+    bufptr = *lineptr;
+    size = *n;
+
+    c = fgetc(stream);
+    if( c == EOF )
+        return -1;
+
+    if( !bufptr )
+    {
+        bufptr = (char*)pmalloc( 128 );
+        size = 128;
+    }
+
+    p = bufptr;
+
+    while( c != EOF )
+    {
+        if( ( p - bufptr ) > ( size - 1 ) )
+        {
+            size = size + 128;
+            bufptr = prealloc(bufptr, size);
+        }
+
+        *p++ = c;
+
+        if( c == '\n' )
+            break;
+
+        c = fgetc(stream);
+    }
+
+    *p++ = '\0';
+    *lineptr = bufptr;
+    *n = size;
+
+    return p - bufptr - 1;
+    #endif
+}
