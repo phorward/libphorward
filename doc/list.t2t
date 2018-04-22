@@ -3,7 +3,7 @@
 
 === Overview ===
 
-Next to the [parray #parray] object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
+Next to the [parray #parray] object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
 
 **plist** can be seen as a superset of the [parray #parray] object, because it features nearly the same operations but with other underlying data management methods.
 
@@ -49,12 +49,12 @@ The **plist** object brings the following advantages and disadvantages:
 Possible flags are listed below, and can be combined using bitwise or (|).
 
 - **PLIST_MOD_NONE** no flags, this can also be just 0.
-- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each element contains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
+- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each element contains only a pointer to an object in memory and returns this, instead of copying from or into pointers.
 - **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later, which reduces dynamic memory consumption.
 - **PLIST_MOD_AUTOSORT** to automatically sort the list on insert operations.
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
 - **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
-- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
+- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exists in the object will be rejected.
 - **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
 -
 
@@ -95,7 +95,7 @@ plist_insert( l, plist_get( l, 2 ), (char*)NULL, &t );
 /* Insert to end, with key value */
 plist_insert( l, (plistel*)NULL, "hello", &t );
 
-/* Insert and end and begin */
+/* Insert to end and begin */
 fill_usertype( &t );
 plist_push( a, &t );
 plist_shift( a, &t );
@@ -109,7 +109,7 @@ fill_usertype( tp );
 
 === Accessing and iterating elements ===
 
-Elements within a **plist** object are references by **plistel** items. To access the data element behind a **plistel** item, the function @plist_access() is used, in combination with element retrival functions, like
+Elements within a **plist** object are referenced by **plistel** items. To access the data element behind a **plistel** item, the function @plist_access() is used, in combination with element retrival functions, like
 
 - @plist_get() - get element by offset,
 - @plist_rget() - get element by offset from the end,
@@ -175,10 +175,10 @@ plist_unshift( a, &t );
 
 === Sorting elements ===
 
-**plist** objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertation.
+**plist** objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertion.
 
 The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like strcmp() does.
-This function can be individually set using @plist_set_sortfn(), and defaultly points to a callback function that uses memcmp() as the element comparison function.
+This function can be individually set using @plist_set_sortfn(), and by default points to a callback function that uses memcmp() as the element comparison function.
 
 As prototype and example, the following comparison function:
 
@@ -200,12 +200,12 @@ int my_compare( plist* list, plistel* l, plistel* r )
 }
 ```
 
-This can, than, be attached to the **plist** object with
+This can then be attached to the **plist** object with
 
 ``` plist_set_sortfn( l, my_compare );
 
 To configure a **plist** object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
-The sorting can be also be performed by invoking the functions
+Sorting can also be performed by invoking the functions
 
 - @plist_sort() - to sort the entire list,
 - @plist_subsort() - to sort only a part of the list (begin- and end-elements required).
