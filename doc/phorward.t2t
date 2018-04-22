@@ -56,7 +56,7 @@ The library is made up of several modules. These are:
   - //pany// is a data object for handling different data-types in one object
   - //pvm// for defining stack-based virtual machine instruction sets
 - Dynamic data structures
-  - //plist// for linked-lists with build-in hash table support,
+  - //plist// for linked-lists with built-in hash table support,
   - //parray// for arrays and stacks.
 - Extended string management functions
   - concat, extend, tokenize and short-hand allocation of strings and wide-character strings
