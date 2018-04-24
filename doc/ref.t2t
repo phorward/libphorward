@@ -2260,6 +2260,24 @@ It could be used this way to immedatelly reset a pointer to NULL:
 
 Returns always (void*)NULL.
 %FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== pgetline ===[fn_pgetline]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+size_t pgetline( char** lineptr, size_t* n, FILE* stream )
+%DEFINITION:END
+
+**Usage:**
+
+Reads an entire line from //stream//, storing the address of the buffer
+containing the text into //lineptr//. The buffer is zero-terminated and
+includes the newline character, if one was found.
+
+This function serves as a platform-independent implementation for POSIX [getline() #fn_getline], which is wrapped in case of POSIX.
+%FUNCTION:END
 %NEED:37
 %FUNCTION:BEGIN
 === pgetopt ===[fn_pgetopt]

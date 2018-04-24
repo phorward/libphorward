@@ -13,7 +13,7 @@
 
 <div class="header" id="header">
 <h1>The Phorward Libraries</h1>
-<h2>libphorward 0.22.0</h2>
+<h2>libphorward 0.22.1</h2>
 <h3>April 2018</h3>
 </div>
 
@@ -399,6 +399,8 @@
       <li><a href="#fn_pfiletostr">pfiletostr</a>
       </li>
       <li><a href="#fn_pfree">pfree</a>
+      </li>
+      <li><a href="#fn_pgetline">pgetline</a>
       </li>
       <li><a href="#fn_pgetopt">pgetopt</a>
       </li>
@@ -1954,7 +1956,7 @@ prange* rg;
 pregex_findall( r, s, &amp;a );
 
 while( ( rg = (prange*)parray_shift( a ) ) )
-	printf( "&gt;%.*s&lt;\n", rg-&gt;end - rg-&gt;begin, rg-&gt;begin );
+	printf( "&gt;%.*s&lt;\n", rg-&gt;end - rg-&gt;start, rg-&gt;start );
 
 parray_free( a );
 </code></pre>
@@ -1993,7 +1995,7 @@ prange* rg;
 pregex_splitall( r, s, &amp;a );
 
 while( ( rg = (prange*)parray_shift( a ) ) )
-	printf( "&gt;%.*s&lt;\n", rg-&gt;end - rg-&gt;begin, rg-&gt;begin );
+	printf( "&gt;%.*s&lt;\n", rg-&gt;end - rg-&gt;start, rg-&gt;start );
 
 parray_free( a );
 </code></pre>
@@ -6035,6 +6037,31 @@ ptr = pfree( ptr );
 </p>
 <p>
 Returns always (void*)NULL.
+</div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pgetline">pgetline</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+size_t pgetline( char** lineptr, size_t* n, FILE* stream )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Reads an entire line from <i>stream</i>, storing the address of the buffer
+containing the text into <i>lineptr</i>. The buffer is zero-terminated and
+includes the newline character, if one was found.
+</p>
+<p>
+This function serves as a platform-independent implementation for POSIX <a href="#fn_getline">getline()</a>, which is wrapped in case of POSIX.
 </div>
 <!-- NEED 37 -->
 <div class='function'>

@@ -1,5 +1,5 @@
 The Phorward Libraries
-libphorward 0.22.0
+libphorward 0.22.1
 April 2018
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
