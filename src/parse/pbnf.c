@@ -151,7 +151,7 @@ static pboolean traverse_production( ppgram* gram, ppsym* lhs, ppast* node )
 		}
 		else
 		{
-			sym = traverse_symbol( gram, lhs, node->child->child );
+			sym = traverse_symbol( gram, lhs, node->child );
 
 			if( NODE_IS( node, "pos" ) )
 				sym = pp_sym_mod_positive( sym );
@@ -405,13 +405,12 @@ Flag_ignore		:= /%(ignore|skip)/ ;
 
 // Nonterminals ----------------------------------------------------------------
 
-inline			:= Flag_emit '(' alternation ')'
-				|  '(' alternation ')'
-				;
-
 terminal		: CCL | String | Token | Regex | Function ;
 
-symbol 			:= Terminal | Nonterminal | terminal | inline  ;
+symbol 			:= Terminal
+				| Nonterminal
+				| terminal
+				| '(' alternation ')' = inline ;
 
 modifier		: symbol '*' = kle
 				| symbol '+' = pos
@@ -482,7 +481,6 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	ppsym*			n_opt_emit;
 	ppsym*			n_terminal;
 	ppsym*			n_pos_terminal;
-	ppsym*			n_inline;
 	ppsym*			n_symbol;
 	ppsym*			n_mod;
 	ppsym*			n_seq;
@@ -579,9 +577,6 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	n_terminal = pp_sym_create( pbnf, "terminal", PPFLAG_NONE );
 	n_pos_terminal = pp_sym_create( pbnf, "pos_terminal", PPFLAG_NONE );
 
-	n_inline = pp_sym_create( pbnf, "inline", PPFLAG_NONE );
-	n_inline->emit = "inline";
-
 	n_symbol = pp_sym_create( pbnf, "symbol", PPFLAG_NONE );
 	n_symbol->emit = "symbol";
 
@@ -620,9 +615,6 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	pp_prod_create( pbnf, n_emit, equal, terminal, (ppsym*)NULL );
 	pp_prod_create( pbnf, n_emit, equal, code, (ppsym*)NULL );
 
-		/* inline */
-	pp_prod_create( pbnf, n_inline, brop, n_alt, brcl, (ppsym*)NULL );
-
 		/* terminal */
 
 	pp_prod_create( pbnf, n_terminal, t_ccl, (ppsym*)NULL );
@@ -637,6 +629,9 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	pp_prod_create( pbnf, n_pos_terminal, n_terminal, (ppsym*)NULL );
 
 		/* symbol */
+
+	p = pp_prod_create( pbnf, n_symbol, brop, n_alt, brcl, (ppsym*)NULL );
+	p->emit = "inline";
 
 	pp_prod_create( pbnf, n_symbol, terminal, (ppsym*)NULL );
 	pp_prod_create( pbnf, n_symbol, nonterminal, (ppsym*)NULL );
