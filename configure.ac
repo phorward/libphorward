@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([Phorward Toolkit], [0.22.1])
+AC_INIT([Phorward Toolkit], [0.22.2])
 AC_PREFIX_DEFAULT([/usr])
 
 AC_CONFIG_SRCDIR([src/phorward.tpl.h])
