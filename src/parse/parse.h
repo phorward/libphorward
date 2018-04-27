@@ -141,6 +141,15 @@ typedef enum
 
 typedef void (*pastevalfn)( ppasteval type, ppast* node );
 
+/* Parser states */
+typedef enum
+{
+	PPPAR_STATE_INITIAL,
+	PPPAR_STATE_DONE,
+	PPPAR_STATE_NEXT,
+	PPPAR_STATE_ERROR
+} ppparstate;
+
 /* Parser */
 typedef struct
 {
@@ -159,7 +168,13 @@ typedef struct
 
 	unsigned int			(*lexfn)( char** start, char** end ); /* callback */
 
+	/* Context */
+	ppparstate				state;		/* State */
+	int						reduce;		/* Reduce */
+	parray*					stack;		/* Stack */
+	ppast*					root;		/* AST */
 } pppar;
+
 
 
 /* Macro: PP_GRAM_DUMP */

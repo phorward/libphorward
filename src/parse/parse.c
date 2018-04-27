@@ -467,3 +467,246 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 	MSG( "Parsing succeeded" );
 	RETURN( TRUE );
 }
+
+/** Run pushed parser //par// on token //sym//.
+
+//start// and //end// are positional arguments to obtain a string from the
+token.
+
+Currently, the used parsing method is only LALR(1).
+
+The function returns:
+
+- PPPAR_STATE_DONE when the parse succeeded,
+- PPPAR_STATE_NEXT when the partial parse succeeded, and next token is wanted,
+- PPPAR_STATE_ERROR when an error was encountered.
+-
+*/
+ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end )
+{
+	int			i;
+	int			row		= 1;
+	int			col		= 1;
+	int			lrow;
+	int			lcol;
+	char*		lstart;
+	char*		lend;
+	pplrse*		tos;
+	int			shift;
+	int			reduce;
+	ppprod*		prod;
+	ppast*		node;
+
+	PROC( "pp_par_pushparse" );
+
+	if( !( par && sym ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	PARMS( "par", "%p", par );
+	PARMS( "sym", "%p", sym );
+
+	/*
+	PARMS( "start", "%s", start );
+	PARMS( "end", "%s", end );
+	*/
+
+	/* Init */
+	/*
+	fixme: Lexer handling?
+	if( par->lex )
+	{
+		plex_prepare( par->lex );
+
+		for( i = 0; ( sym = pp_sym_get( par->gram, i ) ); i++ )
+			if( PPSYM_IS_TERMINAL( sym ) && sym->flags & PPFLAG_WHITESPACE )
+			{
+				lazy = FALSE;
+				break;
+			}
+	}
+	*/
+
+	VARS( "par->stack", "%p", par->stack );
+
+	if( !par->stack )
+	{
+		par->stack = parray_create( sizeof( pplrse ), 0 );
+		par->state = PPPAR_STATE_INITIAL;
+	}
+
+	if( par->state == PPPAR_STATE_INITIAL )
+	{
+		MSG( "Initial state" );
+		parray_erase( par->stack );
+
+		tos = (pplrse*)parray_malloc( par->stack );
+		tos->sym = par->gram->goal;
+		tos->start = start;
+	}
+	else
+		tos = (pplrse*)parray_last( par->stack );
+
+	lstart = lend = (char*)NULL; /* fixme */
+
+	do
+	{
+		/* Reduce */
+		while( par->reduce )
+		{
+			VARS( "par->reduce", "%d", par->reduce );
+
+			prod = pp_prod_get( par->gram, par->reduce - 1 );
+
+			LOG( "reduce by production '%s'", pp_prod_to_str( prod ) );
+			LOG( "popping %d items off the stack, replacing by %s\n",
+						plist_count( prod->rhs ),
+							prod->lhs->name );
+
+			node = (ppast*)NULL;
+
+			for( i = 0; i < plist_count( prod->rhs ); i++ )
+			{
+				tos = (pplrse*)parray_pop( par->stack );
+
+				lstart = tos->start;
+
+				/* Connecting nodes, remember last node. */
+				if( tos->node )
+				{
+					if( node )
+					{
+						while( tos->node->next )
+							tos->node = tos->node->next;
+
+						tos->node->next = node;
+						node->prev = tos->node;
+					}
+
+					node = tos->node;
+
+					while( node->prev )
+						node = node->prev;
+
+					lrow = tos->row;
+					lcol = tos->col;
+				}
+			}
+
+			tos = (pplrse*)parray_last( par->stack );
+
+			/* Construction of AST node */
+			if( prod->emit )
+				node = pp_ast_create( prod->emit,
+										prod->lhs, prod, lstart, lend,
+											lrow, lcol, node );
+			else if( prod->lhs->emit )
+				node = pp_ast_create( prod->lhs->emit,
+										prod->lhs, prod, lstart, lend,
+											lrow, lcol, node );
+
+			/* Goal symbol reduced? */
+			if( prod->lhs == par->gram->goal
+					&& parray_count( par->stack ) == 1 )
+			{
+				par->root = node;
+				MSG( "Parsing succeeded!" );
+				RETURN( ( par->state = PPPAR_STATE_DONE ) );
+			}
+
+			/* Check for entries in the parse table */
+			for( i = par->dfa[tos->state][0] - 3, shift = 0, par->reduce = 0;
+					i >= 2; i -= 3 )
+			{
+				if( par->dfa[tos->state][i] == prod->lhs->idx + 1 )
+				{
+					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
+						shift = par->dfa[tos->state][ i + 2 ];
+
+					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
+						par->reduce = par->dfa[tos->state][ i + 2 ];
+
+					break;
+				}
+			}
+
+			tos = (pplrse*)parray_malloc( par->stack );
+
+			tos->sym = prod->lhs;
+			tos->state = shift - 1;
+			tos->start = lstart;
+			tos->node = node;
+			tos->row = lrow;
+			tos->col = lcol;
+
+			LOG( "New top state is %d", tos->state );
+		}
+
+		VARS( "State", "%d", tos->state );
+
+		/* Check for entries in the parse table */
+		if( tos->state > -1 )
+		{
+			for( i = 2, shift = 0, par->reduce = 0;
+					i < par->dfa[tos->state][0]; i += 3 )
+			{
+				if( par->dfa[tos->state][i] == sym->idx + 1 )
+				{
+					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
+						shift = par->dfa[tos->state][ i + 2 ];
+
+					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
+						par->reduce = par->dfa[tos->state][ i + 2 ];
+
+					break;
+				}
+			}
+
+			if( !shift && !par->reduce )
+				par->reduce = par->dfa[ tos->state ][ 1 ];
+		}
+
+		VARS( "shift", "%d", shift );
+		VARS( "par->reduce", "%d", par->reduce );
+
+		if( !shift && !par->reduce )
+		{
+			/* Parse Error */
+			/* TODO: Error Recovery */
+			fprintf( stderr, "Parse Error [line:%d col:%d] @ >%s<\n",
+				row, col, end );
+
+			MSG( "Parsing failed" );
+			RETURN( ( par->state = PPPAR_STATE_ERROR ) );
+		}
+	}
+	while( !shift && par->reduce );
+
+	if( par->reduce )
+		LOG( "shift on %s and reduce by production %d\n",
+					sym->name, par->reduce - 1 );
+	else
+		LOG( "shift on %s to state %d\n", sym->name, shift - 1 );
+
+	tos = (pplrse*)parray_malloc( par->stack );
+
+	tos->sym = sym;
+	tos->state = par->reduce ? 0 : shift - 1;
+	tos->start = start;
+	tos->row = row;
+	tos->col = col;
+
+	/* Shifted symbol becomes AST node? */
+	if( sym->emit )
+	{
+		lend = end;
+		tos->node = pp_ast_create( sym->emit, sym,
+									(ppprod*)NULL, start, end,
+										row, col, (ppast*)NULL );
+	}
+
+	MSG( "Next token required" );
+	RETURN( ( par->state = PPPAR_STATE_NEXT ) );
+}

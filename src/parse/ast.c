@@ -24,6 +24,9 @@ ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
 	node->sym = sym;
 	node->prod = prod;
 
+	if( start && !end )
+		end = start + pstrlen( start );
+
 	node->start = start;
 	node->end = end;
 	node->len = end - start;

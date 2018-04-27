@@ -203,6 +203,7 @@ pppar* pp_par_free( pppar* p );
 int pp_par_autolex( pppar* p );
 pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags );
 pboolean pp_par_parse( ppast** root, pppar* par, char* start );
+ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end );
 
 /* parse/pbnf.c */
 pboolean pp_gram_from_pbnf( ppgram* g, char* src );
