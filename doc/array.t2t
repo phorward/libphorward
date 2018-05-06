@@ -12,7 +12,7 @@ The **parray** object brings the following advantages and disadvantages:
 - __Advantages__
   - Chunk allocation requires less @pmalloc()/@prealloc() operations than with [plist #plist]
   - Dynamic and quick implementation for huge data structures
-  - Elements are hld in a real array on the heap
+  - Elements are held in a real array on the heap
   - Low memory consumption
   - Fast iteration over elements
   -
