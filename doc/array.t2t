@@ -5,14 +5,14 @@
 
 The **parray** object is a general-purpose data structure which can be used for several operations.
 
-**parray** forms a data management container for handling homogenious elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
+**parray** forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
 
 The **parray** object brings the following advantages and disadvantages:
 
 - __Advantages__
-  - Chunk allocation requires lesser @pmalloc()/@prealloc() operations than with [plist #plist]
-  - Dynamic and quick implementation for huger data structures
-  - Elements are hold in a real array on the heap
+  - Chunk allocation requires less @pmalloc()/@prealloc() operations than with [plist #plist]
+  - Dynamic and quick implementation for huge data structures
+  - Elements are held in a real array on the heap
   - Low memory consumption
   - Fast iteration over elements
   -
@@ -114,7 +114,7 @@ for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
 	;
 ```
 
-Quick access to the first or last elements is gained by @parray_last() and @parray_first().
+Quick access to the first or last element is gained by @parray_last() and @parray_first().
 
 To get a predecessor or successor of an element, use @parray_prev() respectively @parray_next().
 

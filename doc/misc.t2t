@@ -15,7 +15,7 @@ These functions are used throughout libphorward's internal object mapping functi
 
 == Extended string processing functions ==
 
-The libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts, with a preceded "p", or introduce entirely new features.
+libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
 
 String functions overview:
 
@@ -24,7 +24,7 @@ String functions overview:
 - @pstrcatstr() - append string to string with dynamic allocation,
 - @pstrdup() - duplicate string, also accepts NULL-pointers,
 - @pstrget() - securely get string from a pointer,
-- @pstrlen() - return length ot string, also accepts NULL-pointers,
+- @pstrlen() - return length of string, also accepts NULL-pointers,
 - @pstrltrim() - remove prefixing whitespace,
 - @pstrlwr() - convert string to lower-case-order,
 - @pstrncasecmp() - case-insensitive string comparison over maximum length,
@@ -51,7 +51,7 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 - @pwcsput() - securely set an allocated wide-character string into a pointer.
 -
 
-Althought the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
+Although the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
 
 == System-related functions ==
 
@@ -66,7 +66,7 @@ The Phorward library provides some useful functions for system-related interacti
 
 == Boolean data type ==
 
-libphorward makes a heavy usage of the self-hosted data-type **pboolean**, which is also referenced by a define //BOOLEAN//, and the constants //TRUE// and //FALSE//.
+libphorward makes heavy usage of the self-hosted data-type **pboolean**, which is also referenced by a define //BOOLEAN//, and the constants //TRUE// and //FALSE//.
 
 It is known, that several header files and projects define these constants on their own, so that **pboolean**, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
 
@@ -80,7 +80,7 @@ within ``phorward.h``.
 
 == Debug and trace facilities ==
 
-Althought this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
+Although this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules to detect bugs or view the program trace.
 
 For this, the library provides the following macros:
 
@@ -125,7 +125,7 @@ int faculty( int x )
 }
 ```
 
-Trace is written to stderr, and only will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value > 0.
+Trace is written to stderr, and will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value > 0.
 
 Calling this function with
 
