@@ -1,3 +1,5 @@
+/* cc -o pushparse -I ../src pushparse.c  ../src/libphorward.a */
+
 #include "phorward.h"
 
 int main()

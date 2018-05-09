@@ -749,7 +749,7 @@ typedef struct
 
 	
 	ppparstate				state;		
-	int						reduce;
+	int						reduce;		
 	parray*					stack;		
 	ppast*					root;		
 } pppar;
