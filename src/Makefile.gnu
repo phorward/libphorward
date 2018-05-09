@@ -81,7 +81,8 @@ clean_all: clean
 	-rm any/any.set.c
 
 ref: $(SRC)
-	echo "" >$(REF)
+	echo "% --- DON'T EDIT THIS FILE, IT IS GENERATED FROM SRC/ ---" >$(REF)
+	echo "" >>$(REF)
 	echo "" >>$(REF)
 	echo "" >>$(REF)
 	pdoc -d 2 $(SRC) $(HSRC) >>$(REF)
