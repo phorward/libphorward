@@ -121,7 +121,7 @@ pboolean pp_prod_append( ppprod* p, ppsym* sym )
 	return TRUE;
 }
 
-/** Removes all occurences of symbol //sym// from the right-hand-side of
+/** Removes all occurrences of symbol //sym// from the right-hand-side of
 	production //p//. */
 int pp_prod_remove( ppprod* p, ppsym* sym )
 {

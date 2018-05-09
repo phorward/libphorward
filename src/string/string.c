@@ -18,7 +18,7 @@ Usage:	Some extended functions for zero-terminated byte- and wide-character
 /** Dynamically appends a character to a string.
 
 //str// is the pointer to a string to be appended. If this is (char*)NULL,
-the string will be newly allocated. //chr// is the the character to be appended
+the string will be newly allocated. //chr// is the character to be appended
 to str.
 
 Returns a char*-pointer to the (possibly re-)allocated and appended string.
@@ -69,11 +69,11 @@ If this is (char*)NULL, the string is newly allocated.
 //append// is the string to be appended at the end of //str//.
 
 //freesrc// frees the pointer provided as //append// automatically by
-this function, if set to TRUE. This parameter has only a comfort-function.
+this function, if set to TRUE.
 
 Returns a char*-pointer to (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated, or both strings
-where NULL. If //dest// is NULL and //freesrc// is FALSE, the function
+were NULL. If //dest// is NULL and //freesrc// is FALSE, the function
 automatically returns the pointer //src//. This pointer must be released with
 pfree() when its existence is no longer required.
 */
@@ -111,8 +111,7 @@ char* pstrcatstr( char* dest, char* src, pboolean freesrc )
 	RETURN( dest );
 }
 
-/** Dynamicaly appends a number of n-characters from one string to another
-string.
+/** Dynamicaly appends n-characters from one string to another string.
 
 The function works similar to pstrcatstr(), but allows to copy only a maximum
 of //n// characters from //append//.
@@ -123,7 +122,7 @@ be appended. //n// is the number of characters to be appended to //str//.
 
 Returns a char*-pointer to (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated, or both strings
-where NULL. This pointer must be released with pfree() when its existence
+were NULL. This pointer must be released with pfree() when its existence
 is no longer required.
 */
 char* pstrncatstr( char* str, char* append, size_t n )
@@ -161,12 +160,14 @@ char* pstrncatstr( char* str, char* append, size_t n )
 /** Replace a substring sequence within a string.
 
 //str// is the string to be replaced in. //find// is the substring to be
-matched. //replace// is the the string to be inserted for each match of the
+matched. //replace// is the string to be inserted for each match of the
 substring //find//.
 
-Returns a pointer to char* containing the allocated string which is the
-resulting source. This pointer must be released with pfree() when its existence
-is no longer required.
+Returns a char* containing the allocated string which is the result of replacing
+all occurences of //find// with //replace// in //str//.
+
+This pointer must be released with pfree() when its existence is no longer
+required.
 */
 char* pstrreplace( char* str, char* find, char* replace )
 {
@@ -260,7 +261,7 @@ The resulting string will be zero-terminated.
 
 //str// is the parameter string to be duplicated. If this is provided as
 (char*)NULL, the function will also return (char*)NULL.
-//n// is the the number of characters to be copied and duplicated from //str//.
+//n// is the number of characters to be copied and duplicated from //str//.
 If //n// is greater than the length of //str//, copying will stop at the zero
 terminator.
 
@@ -288,7 +289,7 @@ char* pstrndup( char* str, size_t len )
 /** Return length of a string.
 
 //str// is the parameter string to be evaluated. If (char*)NULL, the function
-returns 0. pstrlen() is much more saver than strlen() because it returns 0 when
+returns 0. pstrlen() is much safer than strlen() because it returns 0 when
 a NULL-pointer is provided.
 
 Returns the length of the string //str//.
@@ -301,18 +302,18 @@ size_t pstrlen( char* str )
 	return strlen( (char*)str );
 }
 
-/** Assign a string into a dynamically allocated pointer.
+/** Assign a string to a dynamically allocated pointer.
 
-pstrput() manages the assignment of an dynamically allocated string.
+pstrput() manages the assignment of a dynamically allocated string.
 
 //str// is a pointer receiving the target pointer to be (re)allocated. If
 //str// already references a string, this pointer will be freed and reassigned
 to a copy of //val//.
 
-//val// is the the string to be assigned to //str// (as a independent copy).
+//val// is the string to be assigned to //str// (as a independent copy).
 
 Returns a pointer to the allocated heap memory on success, (char*)NULL else.
-This is the same pointer as returned like calling ``*str``. The returned pointer
+This is the same pointer as returned when calling ``*str``. The returned pointer
 must be released with pfree() or another call of pstrput(). Calling pstrput()
 as ``pstrput( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
 */
@@ -330,9 +331,9 @@ char* pstrput( char** str, char* val )
 	return *str;
 }
 
-/** Savely reads a string.
+/** Safely reads a string.
 
-//str// is the string pointer to be savely read. If //str// is NULL, the
+//str// is the string pointer to be safely read. If //str// is NULL, the
 function returns a pointer to a static address holding an empty string.
 */
 char* pstrget( char* str )
@@ -360,9 +361,9 @@ These consist of three values each:
 - //pboolean freeflag// defines if //value// shall be freed after processing
 -
 
-Returns an allocated string which is the resulting source. This string must be
-release by pfree() or another function releasing heap memory when its existence
-is no longer required.
+Returns an allocated string which is the result of rendering. This string must
+be released by pfree() or another function releasing heap memory when its
+existence is no longer required.
 */
 char* pstrrender( char* tpl, ... )
 {
@@ -520,12 +521,12 @@ char* pstrtrim( char* s )
 /** Splits a string at a delimiting token and returns an allocated array of
 token reference pointers.
 
-//tokens// is the an allocated array of tokenized array values.
+//tokens// is an allocated array of tokenized array values.
 Requires a pointer to char**.
 //str// is the input string to be tokenized.
 //sep// is the token separation substring.
-//limit// is the token limit; If set to 0, there is no token limit available, so
-that as much as possible tokens are read.
+//limit// is the token limit; If set to 0, there is no token limit available,
+in which case as many as possible tokens are read.
 
 Returns the number of separated tokens, or -1 on error.
 */
@@ -580,9 +581,9 @@ int pstrsplit( char*** tokens, char* str, char* sep, int limit )
 	RETURN( cnt );
 }
 
-/** Convert a string to upper-case order.
+/** Convert a string to upper-case.
 
-//s// is the acts both as input and output-string.
+//s// acts both as input- and output string.
 
 Returns //s//.
 */
@@ -600,7 +601,7 @@ char* pstrupr( char* s )
 	return s;
 }
 
-/** Convert a string to lower-case order.
+/** Convert a string to lower-case.
 
 //s// is the acts both as input and output-string.
 
@@ -620,7 +621,7 @@ char* pstrlwr( char* s )
 	return s;
 }
 
-/** Compare a string by ignoring case-order.
+/** Compare a string ignoring case-order.
 
 //s1// is the string to compare with //s2//.
 //s2// is the string to compare with //s1//.
@@ -639,13 +640,13 @@ int	pstrcasecmp( char* s1, char* s2 )
 	return (int)( toupper( *s1 ) - toupper( *s2 ) );
 }
 
-/** Compare a string by ignoring case-order about a maximum of //n// bytes.
+/** Compare two strings ignoring case-order up to a maximum of //n// bytes.
 
 //s1// is the string to compare with //s2//.
 //s2// is the string to compare with //s1//.
 //n// is the number of bytes to compare.
 
-Returns 0 if both strings are equal. Returns a value <0 if //s1// is lower than
+Returns 0 if both strings are equal. Returns a value <0 if //s1// is less than
 //s2// or a value >0 if //s1// is greater than //s2//.
 */
 int	pstrncasecmp( char* s1, char* s2, size_t n )
@@ -680,8 +681,8 @@ The following table shows escape sequences which are converted.
 
 
 The replacement is done within the memory bounds of //str// itself, because the
-unescaped version of the character requires lesser space that its previous
-escape sequence.
+unescaped version of the character requires less space than its previous escape
+sequence.
 
 The function always returns its input pointer.
 
@@ -729,11 +730,11 @@ char* pstrunescape( char* str )
 /*REMOVE?*/
 /** Implementation and replacement for vasprintf.
 
-//str// is the pointer receiving the resultung, allocated string pointer.
-//fmt// is the the format string.
+//str// is the pointer receiving the result, allocated string pointer.
+//fmt// is the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
-Returns the number of characters written, or -1 in error case.
+Returns the number of characters written, or -1 in case of an error.
 */
 int pvasprintf( char** str, char* fmt, va_list ap )
 {
@@ -800,7 +801,7 @@ later on.
 //fmt// is the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
-Returns a char* Returns the allocated string which cointains the format string
+Returns a char* Returns the allocated string which contains the format string
 with inserted values.
 */
 char* pasprintf( char* fmt, ... )
@@ -895,12 +896,12 @@ wide-character string.
 
 //str// is the pointer to a wchar_t-string to be appended. If this is
 (wchar_t*)NULL, the string is newly allocated.
-//append// is the the string to be appended.
+//append// is the string to be appended.
 //freesrc// if true, //append// is free'd automatically by this function.
 
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
-where NULL.
+were NULL.
 */
 wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc )
 {
@@ -936,17 +937,16 @@ wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc )
 	RETURN( dest );
 }
 
-/** Appends a number of N characters from one wide-character string to a dynamic
-string.
+/** Appends //n// characters from one wide-character string to a dynamic string.
 
 //str// is the pointer to a wchar_t-string to be appended. If this is
 (wchar_t*)NULL, the string is newly allocated.
 //append// is the begin of character sequence to be appended.
-//n// is the amount of characters to be appended to str.
+//n// is the number of characters to be appended to str.
 
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
-where NULL.
+were NULL.
 */
 wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n )
 {
@@ -986,7 +986,7 @@ wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n )
 	RETURN( str );
 }
 
-/** Saver strlen replacement for wide-character.
+/** Safe strlen replacement for wide-character.
 
 //str// is the parameter string to be evaluated. If (wchar_t*)NULL,
 the function returns 0. */
@@ -998,7 +998,7 @@ size_t pwcslen( wchar_t* str )
 	return wcslen( str );
 }
 
-/** Assign a wide-character string into a dynamically allocated pointer.
+/** Assign a wide-character string to a dynamically allocated pointer.
 
 pwcsput() manages the assignment of an dynamically allocated  wide-chararacter
 string.
@@ -1008,10 +1008,10 @@ string.
 and reassigned to a copy of //val//.
 
 //val// is the the wide-character string to be assigned to //str//
-(as a independent copy).
+(as an independent copy).
 
 Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
-This is the same pointer as returned like calling ``*str``. The returned pointer
+This is the same pointer as returned when calling ``*str``. The returned pointer
 must be released with pfree() or another call of pwcsput(). Calling pwcsput()
 as ``pwcsput( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
 */
@@ -1029,9 +1029,9 @@ wchar_t* pwcsput( wchar_t** str, wchar_t* val )
 	return *str;
 }
 
-/** Savely reads a wide-character string.
+/** Safely reads a wide-character string.
 
-//str// is the string pointer to be savely read. If //str// is NULL, the
+//str// is the string pointer to be safely read. If //str// is NULL, the
 function returns a pointer to a static address holding an empty string.
 */
 wchar_t* pwcsget( wchar_t* str )

@@ -14,7 +14,7 @@ Usage:	Memory management functions / malloc replacements
 /** Dynamically allocate heap memory.
 
 The function is a wrapper for the system function malloc(), but with memory
-initialization to zero, and immediatelly stops the program if no more memory
+initialization to zero, and immediately stops the program if no more memory
 can be allocated.
 
 //size// is the size of memory to be allocated, in bytes.
@@ -38,9 +38,9 @@ void* pmalloc( size_t size )
 
 /** Dynamically (re)allocate memory on the heap.
 
-The function is a wrapper to the system-function realloc(), but always
-accepts a NULL-pointer and immediatelly stops the program if no more memory
-can be allocated.
+The function wraps the system-function realloc(), but always accepts a
+NULL-pointer and immediately stops the program if no more memory can be
+allocated.
 
 //oldptr// is the pointer to be reallocated. If this is (void*)NULL,
 prealloc() works like a normal call to pmalloc().
@@ -48,7 +48,7 @@ prealloc() works like a normal call to pmalloc().
 //size// is the size of memory to be reallocated, in bytes.
 
 The function returns the allocated heap memory pointer. The returned memory
-address should be freed using pfree() after it is not required anymore.
+address should be freed using pfree() after it is not required any more.
 */
 void* prealloc( void* oldptr, size_t size )
 {
@@ -71,13 +71,13 @@ void* prealloc( void* oldptr, size_t size )
 The function is a wrapper for the system-function free(), but accepts
 NULL-pointers and returns a (void*)NULL pointer for direct pointer memory reset.
 
-It could be used this way to immedatelly reset a pointer to NULL:
+It could be used this way to immediately reset a pointer to NULL:
 
 ``` ptr = pfree( ptr );
 
 //ptr// is the pointer to be freed.
 
-Returns always (void*)NULL.
+Always returns (void*)NULL.
 */
 void* pfree( void* ptr )
 {
@@ -92,7 +92,7 @@ void* pfree( void* ptr )
 //ptr// is the pointer to the memory to be duplicated.
 //size// is the size of pointer's data storage.
 
-Returns the new pointer to the memory copy. This should be casted back to the
+Returns the new pointer to the memory copy. This should be cast back to the
 type of //ptr// again.
 */
 void* pmemdup( void* ptr, size_t size )

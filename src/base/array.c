@@ -20,10 +20,10 @@ Usage:	Universal, dynamic array management functions.
 //size// defines the size of one array element, in bytes.
 This should be evaluated using the sizeof()-macro.
 
-//chunk// defines the chunk size, where an array-(re)allocation will be performed.
-If, e.g. this is set to 128, then, if the 128th item is created within the
-array, a realloction is done. Once allocated memory remains until the array is
-freed again.
+//chunk// defines the chunk size, when an array-(re)allocation will be
+performed. If, e.g. this is set to 128, then, if the 128th item is created
+within the array, a realloction is done. Once allocated memory remains until
+the array is freed again.
 */
 pboolean parray_init( parray* array, size_t size, size_t chunk )
 {
@@ -333,7 +333,7 @@ void* parray_remove( parray* array, size_t offset, void** item )
 
 The function returns the pointer of the popped item. Because dynamic arrays only
 grow and no memory is freed, the returned data pointer is still valid, and will
-only be overidden with the next push operation.
+only be overridden with the next push operation.
 
 //array// is the pointer to array where to pop an item off.
 
@@ -371,7 +371,7 @@ memory size as used at array initialization.
 array. The caller should cast his type into void, or wrap the push-operation
 with a macro. It can be left (void*)NULL, so no memory will be copied.
 
-The function returns the address of the newly unhshifted item, and (void*)NULL
+The function returns the address of the newly unshifted item, and (void*)NULL
 if the item could not be unshifted.
 */
 void* parray_unshift( parray* array, void* item )
@@ -419,7 +419,7 @@ void* parray_unshift( parray* array, void* item )
 
 The function returns the pointer of the shifted item.
 Because dynamic arrays only grow and no memory is freed, the returned data
-pointer is still valid, and will only be overidden with the next unshift
+pointer is still valid, and will only be overridden with the next unshift
 operation.
 
 //array// is the pointer to array where to pop an item off.
@@ -533,7 +533,7 @@ Returns the address of the accessed item, and (void*)NULL if the item could not
 be accessed (e.g. if the array is empty or offset is beyond the bottom of
 the array).
 
-Use parray_get() for access items from the begin.
+Use parray_get() to access items from the begin.
 */
 void* parray_rget( parray* array, size_t offset )
 {

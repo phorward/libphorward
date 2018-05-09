@@ -5,8 +5,8 @@
 
 #include "phorward.h"
 
-/** Print the type and value of //val// to //stream//
-without any conversion. This function shall be used for debug only.
+/** Print the type and value of //val// to //stream// without any conversion.
+This function shall be used for debugging purposes only.
 
 //stream// is the stream to write to.
 //val// is the pany-object to be printed.

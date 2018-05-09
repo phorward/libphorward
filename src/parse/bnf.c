@@ -162,10 +162,10 @@ static pboolean ast_to_gram( ppgram* g, ppast* ast )
 	return TRUE;
 }
 
-/** Compiles a Backus-Naur-Format definition into a grammar.
+/** Compiles a Backus-Naur form definition into a grammar.
 
 //g// is the grammar that receives the result of the parse.
-This grammar is extended to new definitions when it already contains symbols.
+This grammar gets extended with new definitions if it already contains symbols.
 
 //src// is the BNF definition string that defines the grammar.
 
@@ -307,7 +307,7 @@ pboolean pp_gram_from_bnf( ppgram* g, char* src )
 	RETURN( TRUE );
 }
 
-/** Compiles an Extended Backus-Naur-Format definition into a grammar.
+/** Compiles an Extended Backus-Naur form definition into a grammar.
 
 //g// is the grammar that receives the result of the parse.
 This grammar is extended to new definitions when it already contains symbols.

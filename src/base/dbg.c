@@ -70,7 +70,7 @@ For typed functions, use the macro RETURN().
 
 The PARMS-macro is used to write parameter names and values to the program
 trace. PARMS() should - by definition - only be used right behind PROC().
-If the logging of variable values is wanted during a function exection to
+If the logging of variable values is wanted during a function execution to
 trace, the VARS()-macro shall be used.
 
 //param_name// is the name of the parameter
@@ -86,7 +86,7 @@ For parameters taken to functions, the PARMS()-macro shall be used.
 
 //var_name// is the name of the variable
 //format// is a printf-styled format placeholder.
-//variable// is the the parameter itself.
+//variable// is the parameter itself.
 */
 /*MACRO:VARS( char* var_name, char* format, var_type variable )*/
 

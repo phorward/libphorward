@@ -17,8 +17,9 @@ Usage:	System functions for various usages.
 
 //directories// is a string specifying the directories to search in.
 If this is (char*)NULL, the environment variable PATH will be used and
-evaluated by using getenv(). The path can be split with multiple pathes
-by a character that depends on the current platform (Unix: ":", Windows: ";").
+evaluated by using [getenv() #fn_getenv]. The path can be split with multiple
+paths by a character that depends on the current platform
+(Unix: ":", Windows: ";").
 
 Returns a static pointer to the absolute path that contains the file specified
 as filename, else it will return (char*)NULL.

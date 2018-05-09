@@ -34,7 +34,7 @@ ppgram* pp_gram_create( void )
 runtime and parser generator.
 
 The preparation process includes:
-- Setting up final symbol and productions IDs
+- Setting up final symbol and production IDs
 - Nonterminals FIRST-set computation
 - Marking of left-recursions
 - The 'lexem'-flag pull-through the grammar.

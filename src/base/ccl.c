@@ -250,7 +250,7 @@ pboolean p_ccl_testrange( pccl* ccl, wchar_t begin, wchar_t end )
 	return FALSE;
 }
 
-/** Tests a character-class if it cointains a character.
+/** Tests a character-class if it contains a character.
 
 //ccl// is the pointer to character-class to be tested.
 //ch// is the character to be tested.
@@ -537,14 +537,15 @@ pccl* p_ccl_negate( pccl* ccl )
 	RETURN( ccl );
 }
 
-/** Unions two character-classes into a new, normalized one.
+/** Creates the union of two character-classes and returns the newly created,
+normalized character-class.
 
 //ccl// is the pointer to the character-class that will be extended to all
-ranges contained in //add//.
-//add// is character-class that will be unioned with //ccl//.
+ranges contained in //add//. //add// is the character-class that will be joined
+with //ccl//.
 
 The function creates and returns a new character-class that is the union
-if //ccl// and //add//.
+of //ccl// and //add//.
 */
 pccl* p_ccl_union( pccl* ccl, pccl* add )
 {
@@ -691,7 +692,7 @@ provided character-classes.
 //ccl// is the pointer to the first character-class.
 //within// is the pointer to the second character-class.
 
-Returns a new character-class containing the insersections from //ccl//
+Returns a new character-class containing the intersection of //ccl//
 and //within//. If there is no intersection between both character-classes,
 the function returns (pccl*)NULL.
 */
@@ -829,7 +830,7 @@ pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset )
 	RETURN( FALSE );
 }
 
-/** Reads a character from a string. The character may exist of one single
+/** Reads a character from a string. The character may consist of one single
 character or it may be made up of an escape sequence or UTF-8 character.
 The function returns the number of bytes read.
 
@@ -960,7 +961,7 @@ added to //ccl//.
 The function returns TRUE in case a shorthand has been parsed. If so,
 the pointer //str// is moved the characters consumed.
 
-If no shorthand sequence could be found, it returns FALSE, remaining //ccl//
+If no shorthand sequence could be found, it returns FALSE, leaving //ccl//
 untouched.
 */
 pboolean p_ccl_parseshorthand( pccl* ccl, char **str )
@@ -1032,7 +1033,7 @@ pboolean p_ccl_parseshorthand( pccl* ccl, char **str )
 
 /** Parses the character-class definition provided in //ccldef// and assigns
 this definition to the character-class //ccl//. //ccldef// may contain
-UTF-8 formatted input. Escape-sequences will be interpretered to their correct
+UTF-8 formatted input. Escape-sequences will be interpreted to their correct
 character representations.
 
 A typical character-class definition simply exists of single characters and
@@ -1101,7 +1102,7 @@ pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 
 /** Erases a character-class //ccl//.
 
-The function sets a character-class to zero, as it continas no character range
+The function sets a character-class to zero, as it contains no character range
 definitions. The object //ccl// will be still alive. To delete the entire
 object, use p_ccl_free().
 */

@@ -18,7 +18,7 @@ The function wraps the system function wcstombs(), so set_locale() must be
 called before this function works properly.
 
 //str// is the zero-terminated string to be converted to UTF-8.
-//freestr// defines if the input-string shall be freed after successfull
+//freestr// defines if the input-string shall be freed after successful
 conversion, if set to TRUE.
 
 Returns the UTF-8 character pendant of //str// as pointer to dynamically
@@ -60,17 +60,16 @@ char* pwcs_to_str( wchar_t* str, pboolean freestr )
 	RETURN( retstr );
 }
 
-/** This functions converts an UTF-8-multi-byte string into an Unicode
+/** This functions converts an UTF-8-multi-byte string into a Unicode
 wide-character string.
 
-The string conversion is performed into dynamically allocated memory.
 The function wraps mbstowcs(), so set_locale() must be done before this
 function works properly.
 
 //str// is the zero-terminated multi-byte-character string to be converted
 into a wide-character string.
-//freestr// defines if the input-string shall be freed after successfull
-conversion, if set to TRUE.
+//freestr// if value equals TRUE then //str// will be freed after successfull
+conversion.
 
 Returns the wide-character pendant of //str// as pointer to dynamically
 allocated memory.
@@ -166,7 +165,7 @@ wchar_t* pdbl_to_wcs( double d )
 	#else
 	swprintf( str, sizeof( str ), L"%lf", d );
 	#endif
-	
+
 	VARS( "str", "%ls", str );
 
 	for( trail = str + wcslen( str ) - 1;

@@ -123,9 +123,9 @@ char* u8_move( char* str, int count )
 This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
 
 //chr// is the input- and output-pointer (the pointer is replaced by the pointer
-to the next character or escape-sequence within the string.
+to the next character or escape-sequence within the string).
 
-The function teturns the character code of the parsed character.
+The function returns the character code of the parsed character.
 */
 wchar_t u8_parse_char( char** ch )
 {

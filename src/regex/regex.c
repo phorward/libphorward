@@ -25,8 +25,8 @@ characters |
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as \
 possible |
 | PREGEX_COMP_INSENSITIVE | Parse regular expression as case insensitive. |
-| PREGEX_COMP_STATIC | The regular expression passed should be converted 1:1 as\
-it where a string-constant. Any regex-specific symbols will be ignored and \
+| PREGEX_COMP_STATIC | The regular expression passed should be converted 1:1 \
+as it where a string-constant. Any regex-specific symbols will be ignored and \
 taken as they where escaped. |
 | PREGEX_RUN_WCHAR | Run regular expression with wchar_t as input. |
 | PREGEX_RUN_NOANCHORS | Ignore anchors while processing the regex. |
@@ -366,8 +366,8 @@ to the configuration of the pregex-object).
 substring, so //next// should become the next //start// when pregex_split() is
 called in a loop.
 
-The function returns (char*)NULL in case that there is no more string to split,
-else it returns //start//.
+The function returns (char*)NULL in case there is no more string to split, else
+it returns //start//.
 */
 char* pregex_split( pregex* regex, char* start, char** end, char** next )
 {
@@ -439,7 +439,7 @@ char* pregex_split( pregex* regex, char* start, char** end, char** next )
 }
 
 /** Split a string at all matches of the regular expression //regex// from
-begin of pointer //start//, and optionally return the splitted matches as an
+begin of pointer //start//, and optionally returns the substrings found as an
 array.
 
 //start// has to be a zero-terminated string or wide-character string (according
@@ -501,7 +501,7 @@ backreferences, where x is the offset of opening brackets in the pattern,
 beginning at 1.
 
 The function returns the string with the replaced elements, or (char*)NULL
-in error case.
+in case of an error.
 */
 char* pregex_replace( pregex* regex, char* str, char* replacement )
 {
