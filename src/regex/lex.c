@@ -25,13 +25,13 @@ characters |
 possible |
 | PREGEX_COMP_INSENSITIVE | Parse regular expressions as case insensitive. |
 | PREGEX_COMP_STATIC | The regular expressions passed should be converted 1:1 \
-as it where a string-constant. Any regex-specific symbols will be ignored and \
-taken as they where escaped. |
+as if it were a string-constant. Any regex-specific symbols will be ignored \
+and taken as if escaped. |
 | PREGEX_RUN_WCHAR | Run regular expressions with wchar_t as input. |
 | PREGEX_RUN_NOANCHORS | Ignore anchors while processing the lexer. |
 | PREGEX_RUN_NOREF | Don't create references. |
 | PREGEX_RUN_NONGREEDY | Force run lexer nongreedy. |
-| PREGEX_RUN_DEBUG | Debug mode; output some debug to stderr. |
+| PREGEX_RUN_DEBUG | Debug mode; output some debug info to stderr. |
 
 
 On success, the function returns the allocated pointer to a plex-object.
@@ -55,7 +55,7 @@ plex* plex_create( int flags )
 
 //lex// is the pointer to a plex-structure that will be released.
 
-Returns always (plex*)NULL.
+Always returns (plex*)NULL.
 */
 plex* plex_free( plex* lex )
 {
@@ -183,8 +183,8 @@ characters |
 possible |
 | PREGEX_COMP_INSENSITIVE | Parse regular expressions as case insensitive. |
 | PREGEX_COMP_STATIC | The regular expressions passed should be converted 1:1 \
-as it where a string-constant. Any regex-specific symbols will be ignored and \
-taken as they where escaped. |
+as if it were a string-constant. Any regex-specific symbols will be ignored \
+and taken as if escaped. |
 | PREGEX_COMP_PTN | The regular expression passed already is a pattern, and \
 shall be integrated. |
 
@@ -370,7 +370,7 @@ the next matching token.
 to the configuration of the plex-object).
 
 If a token can be matched, the function returns the pointer to the position
-where the match starts at. //id// receives the id of the matching patternn,
+where the match starts at. //id// receives the id of the matching pattern,
 //end// receives the end pointer of the match, when provided. //id// and //end//
 can be omitted by providing NULL-pointers.
 

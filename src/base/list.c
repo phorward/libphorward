@@ -243,19 +243,19 @@ bitwise or (|).
 Possible flags are:
 - **PLIST_MOD_NONE** for no special flagging.
 - **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each \
-plistel-element cointains only a pointer to an object in the memory and returns\
-this, instead of copying from or into pointers.
-- **PLIST_MOD_RECYCLE** to configure that elements that are removed during list\
-usage will be reused later.
+plistel-element cointains only a pointer to an object in the memory and \
+returns this, instead of copying from or into pointers.
+- **PLIST_MOD_RECYCLE** to configure that elements that are removed during \
+list usage will be reused later.
 - **PLIST_MOD_AUTOSORT** to automatically sort elements on insert operations.
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key\
-values are stored elsewhere, so the plist-module only uses the original\
+values are stored elsewhere, so the plist-module only uses the original \
 pointers instead of copying them.
-- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value\
+- **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value \
 provided as key directly.
-- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with\
+- **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with \
 a key that already exist in the object will be rejected.
-- **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
+- **PLIST_MOD_WCHAR** to handle all key values as wide-character strings.
 -
 
 Use plist_free() to erase and release the returned list object. */
@@ -349,7 +349,7 @@ pboolean plist_erase( plist* list )
 
 The function has nearly the same purpose as plist_erase(), except that
 the entire list is only cleared, but if the list was initialized with
-PLIST_MOD_RECYCLE, existing pointers are hold for later usage. */
+PLIST_MOD_RECYCLE, existing pointers are held for later usage. */
 pboolean plist_clear( plist* list )
 {
 	PROC( "plist_clear" );
@@ -385,8 +385,7 @@ plist* plist_free( plist* list )
 If //pos// is NULL, the new element will be attached to the end of the
 list.
 
-If //key// is not NULL, the element will be additionally engaged
-into the lists hash table.
+If //key// is not NULL, the element will also be added to the lists hash table.
 
 If //src// is NULL, a zero-initialized element is inserted into the list for
 further processing.
@@ -522,7 +521,7 @@ plistel* plist_push( plist* list, void* src )
 
 /** Shift //src// at begin of //list//.
 
-Like //list// would be a queue, //src// is shifted at the begin of the list.
+Like //list// would be a queue, //src// is shifted at the beginning of the list.
 This function can only be used for linked lists without the hash-table feature
 in use. */
 plistel* plist_shift( plist* list, void* src )
@@ -570,7 +569,7 @@ void* plist_rmalloc( plist* list )
 	return plist_access( plist_shift( list, (void*)NULL ) );
 }
 
-/** Removes the element //e// from the the //list// and frees it or puts
+/** Removes the element //e// from the //list// and frees it or puts
  it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
 pboolean plist_remove( plist* list, plistel* e )
 {
@@ -624,7 +623,7 @@ pboolean plist_remove( plist* list, plistel* e )
 
 /** Pop last element to //dest// off the list //list//.
 
-Like //list// would be a stack, the last element of the list is poppend and
+Like //list// would be a stack, the last element of the list is popped and
 its content is written to //dest//, if provided at the end of the list.
 
 //dest// can be omitted and given as (void*)NULL, so the last element will
@@ -663,13 +662,13 @@ pboolean plist_pop( plist* list, void* dest )
 	return TRUE;
 }
 
-/** Take first element to //dest// from the list //list//.
+/** Take first element of //list// and write it to //dest//.
 
 Like //list// would be a queue, the first element of the list is taken and
 its content is written to //dest//.
 
-//dest// can be omitted and given as (void*)NULL, so the first element will
-be taken from the list and discards. */
+//dest// can be omitted and given as (void*)NULL, so the first element from
+//list// will be taken and discarded. */
 pboolean plist_unshift( plist* list, void* dest )
 {
 	if( !( list ) )
@@ -1030,8 +1029,9 @@ sort-function that was set for the list.
 To sort the entire list, use plist_sort().
 
 The sort-function can be modified by using plist_set_sortfn().
-The default sort function sorts the list by they contents, internally by using
-the memcmp() standard function. */
+
+The default sort function sorts the list by content using the memcmp()
+standard function. */
 pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 {
 	plistel*	a	= from;
@@ -1117,8 +1117,9 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 To sort only parts of a list, use plist_subsort().
 
 The sort-function can be modified by using plist_set_sortfn().
-The default sort function sorts the list by they contents, internally by using
-the memcmp() standard function. */
+
+The default sort function sorts the list by content using the memcmp()
+standard function. */
 pboolean plist_sort( plist* list )
 {
 	pboolean	ret;
@@ -1232,7 +1233,7 @@ plistel* plist_next( plistel* u )
 	return u->next;
 }
 
-/** Access previous element of a current unit //u//. */
+/** Access previous element of current unit //u//. */
 plistel* plist_prev( plistel* u )
 {
 	if( !( u ) )
@@ -1273,9 +1274,9 @@ int plist_offset( plistel* u )
 	return off;
 }
 
-/** Swaps the positions of the list elemements //a// and //b// with each
+/** Swaps the positions of the list elements //a// and //b// with each
 other. The elements must be in the same plist object, else the function
-returns with FALSE. */
+returns FALSE. */
 pboolean plist_swap( plistel* a, plistel* b )
 {
 	plist*		l;

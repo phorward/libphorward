@@ -116,7 +116,7 @@ the content between the delimiters will be taken as a string and ran through an
 escaping function.
 
 Any other content is taken as string. If the parameter //enforce// is set to
-an desired PANY_-type, this type will be enforced, and no special recognition
+a desired PANY_-type, this type will be enforced, and no special recognition
 is done.
 
 This function tries to detect*/

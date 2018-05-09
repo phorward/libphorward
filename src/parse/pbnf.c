@@ -368,7 +368,7 @@ static pboolean ast_to_gram( ppgram* gram, ppast* ast )
 }
 
 
-/** Compiles an Phorward Backus-Naur-Format definition into a parser.
+/** Compiles an Phorward Backus-Naur form definition into a parser.
 
 //p// is the parser that receives the result of the parse.
 

@@ -18,7 +18,7 @@ end-addresses of all matches.
 
 //regex// is the regular expression pattern to be processed.
 
-//str// is the string on which the pattern will be executed on.
+//str// is the string on which the pattern will be executed.
 
 //flags// are for regular expression compile- and runtime-mode switching.
 Several of them can be used with the bitwise or-operator (|).
@@ -27,8 +27,8 @@ Several of them can be used with the bitwise or-operator (|).
 provided as parray-object existing of one prange-object for every match.
 It is optional. //matches// must be released with parray_free() after its usage.
 
-Returns the number of matches, which is the amount of result entries in the
-returned array //matches//. If the value is negative, an error occured.
+Returns the number of matches, which is the number of result entries in the
+returned array //matches//. If the value is negative, an error occurred.
 */
 int pregex_qmatch( char* regex, char* str, int flags, parray** matches )
 {
@@ -62,7 +62,7 @@ separator; All strings that where split are returned as //matches//-array.
 
 //regex// is the regular expression pattern to be processed.
 
-//str// is the string on which the pattern will be executed on.
+//str// is the string on which the pattern will be executed.
 
 //flags// are for regular expression compile- and runtime-mode switching.
 Several of them can be used with the bitwise or-operator (|).
@@ -71,7 +71,7 @@ Several of them can be used with the bitwise or-operator (|).
 provided as parray-object existing of one prange-object for every match.
 It is optional. //matches// must be released with parray_free() after its usage.
 
-Returns the number of split substrings, which is the amount of result entries in
+Returns the number of split substrings, which is the number of result entries in
 the returned array //matches//. If the value is negative, an error occured.
 */
 int pregex_qsplit( char* regex, char* str, int flags, parray** matches )
@@ -107,7 +107,7 @@ within the regular expression.
 
 //regex// is the regular expression pattern to be processed.
 
-//str// is the string on which the pattern will be executed on.
+//str// is the string on which the pattern will be executed.
 
 //replace// is the string that will be inserted as replacement for each pattern
 match. ``$x`` back-references can be used.
