@@ -1,3 +1,4 @@
+% --- DON'T EDIT THIS FILE, IT IS GENERATED FROM SRC/ ---
 
 
 
@@ -650,7 +651,7 @@ added to //ccl//.
 The function returns TRUE in case a shorthand has been parsed. If so,
 the pointer //str// is moved the characters consumed.
 
-If no shorthand sequence could be found, it returns FALSE,  leaving //ccl//
+If no shorthand sequence could be found, it returns FALSE, leaving //ccl//
 untouched.
 %FUNCTION:END
 %NEED:22
@@ -764,7 +765,7 @@ Returns a pointer to the generated string that represents the charclass.
 The returned pointer belongs to the //ccl// and is managed by the
 character-class handling functions, so it should not be freed manually.
 %FUNCTION:END
-%NEED:18
+%NEED:19
 %FUNCTION:BEGIN
 === p_ccl_union ===[fn_p_ccl_union]
 
@@ -776,11 +777,12 @@ pccl* p_ccl_union( pccl* ccl, pccl* add )
 
 **Usage:**
 
-Creates the union of two character-classes and returns the newly created, normalized character-class.
+Creates the union of two character-classes and returns the newly created,
+normalized character-class.
 
 //ccl// is the pointer to the character-class that will be extended to all
-ranges contained in //add//.
-//add// is the character-class that will be joined with //ccl//.
+ranges contained in //add//. //add// is the character-class that will be joined
+with //ccl//.
 
 The function creates and returns a new character-class that is the union
 of //ccl// and //add//.
@@ -864,8 +866,8 @@ void pany_fprint( FILE* stream, pany* val )
 
 **Usage:**
 
-Print the type and value of //val// to //stream//
-without any conversion. This function shall be used for debugging purposes only.
+Print the type and value of //val// to //stream// without any conversion.
+This function shall be used for debugging purposes only.
 
 //stream// is the stream to write to.
 //val// is the pany-object to be printed.
@@ -1720,10 +1722,10 @@ Performs an array initialization.
 //size// defines the size of one array element, in bytes.
 This should be evaluated using the [sizeof() #fn_sizeof]-macro.
 
-//chunk// defines the chunk size, when an array-(re)allocation will be performed.
-If, e.g. this is set to 128, then, if the 128th item is created within the
-array, a reallocation is performed. Once allocated memory remains until the array is
-freed again.
+//chunk// defines the chunk size, when an array-(re)allocation will be
+performed. If, e.g. this is set to 128, then, if the 128th item is created
+within the array, a realloction is done. Once allocated memory remains until
+the array is freed again.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -2408,7 +2410,7 @@ Destructor function for a plex-object.
 
 //lex// is the pointer to a plex-structure that will be released.
 
-Alway returns (plex*)NULL.
+Always returns (plex*)NULL.
 %FUNCTION:END
 %NEED:18
 %FUNCTION:BEGIN
@@ -2590,7 +2592,7 @@ bitwise or (|).
 
 Possible flags are:
 - **PLIST_MOD_NONE** for no special flagging.
-- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in memory and returns this, instead of copying from or into pointers.
+- **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
 - **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later.
 - **PLIST_MOD_AUTOSORT** to automatically sort elements on insert operations.
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table keyvalues are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
@@ -2777,7 +2779,7 @@ Initialize the list //list// with an element allocation size //size//.
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage.
 %FUNCTION:END
-%NEED:20
+%NEED:19
 %FUNCTION:BEGIN
 === plist_insert ===[fn_plist_insert]
 
@@ -3119,7 +3121,7 @@ int plist_size( plist* l )
 
 Return element size of list //l//.
 %FUNCTION:END
-%NEED:17
+%NEED:18
 %FUNCTION:BEGIN
 === plist_sort ===[fn_plist_sort]
 
@@ -3136,9 +3138,11 @@ Sorts //list// according to the sort-function that was set for the list.
 To sort only parts of a list, use [plist_subsort() #fn_plist_subsort].
 
 The sort-function can be modified by using [plist_set_sortfn() #fn_plist_set_sortfn].
-The default sort function sorts the list by content using the [memcmp() #fn_memcmp] standard function.
+
+The default sort function sorts the list by content using the [memcmp() #fn_memcmp]
+standard function.
 %FUNCTION:END
-%NEED:18
+%NEED:19
 %FUNCTION:BEGIN
 === plist_subsort ===[fn_plist_subsort]
 
@@ -3156,7 +3160,9 @@ sort-function that was set for the list.
 To sort the entire list, use [plist_sort() #fn_plist_sort].
 
 The sort-function can be modified by using [plist_set_sortfn() #fn_plist_set_sortfn].
-The default sort function sorts the list by content using the [memcmp() #fn_memcmp] standard function.
+
+The default sort function sorts the list by content using the [memcmp() #fn_memcmp]
+standard function.
 %FUNCTION:END
 %NEED:13
 %FUNCTION:BEGIN
@@ -3511,7 +3517,7 @@ defs : defs nonterm | nonterm ;
 grammar$ : defs ;
 ```
 %FUNCTION:END
-%NEED:84
+%NEED:83
 %FUNCTION:BEGIN
 === pp_gram_from_pbnf ===[fn_pp_gram_from_pbnf]
 
@@ -3559,13 +3565,12 @@ Flag_ignore		:= /%(ignore|skip)/ ;
 
 // Nonterminals ----------------------------------------------------------------
 
-inline			:= Flag_emit '(' alternation ')'
-				|  '(' alternation ')'
-				;
-
 terminal		: CCL | String | Token | Regex | Function ;
 
-symbol 			:= Terminal | Nonterminal | terminal | inline  ;
+symbol 			:= Terminal
+				| Nonterminal
+				| terminal
+				| '(' alternation ')' = inline ;
 
 modifier		: symbol '*' = kle
 				| symbol '+' = pos
@@ -4057,9 +4062,9 @@ void* prealloc( void* oldptr, size_t size )
 
 Dynamically (re)allocate memory on the heap.
 
-The function wraps the system-function [realloc() #fn_realloc], but always
-accepts a NULL-pointer and immediately stops the program if no more memory
-can be allocated.
+The function wraps the system-function [realloc() #fn_realloc], but always accepts a
+NULL-pointer and immediately stops the program if no more memory can be
+allocated.
 
 //oldptr// is the pointer to be reallocated. If this is (void*)NULL, [prealloc() #fn_prealloc] works like a normal call to [pmalloc() #fn_pmalloc].
 
@@ -4092,7 +4097,7 @@ Constructor function to create a new pregex object.
 | PREGEX_COMP_NONGREEDY | Compile regex to be forced non-greedy. |
 | PREGEX_COMP_NOERRORS | Don't report errors, and try to compile as much as possible |
 | PREGEX_COMP_INSENSITIVE | Parse regular expression as case insensitive. |
-| PREGEX_COMP_STATIC | The regular expression passed should be converted 1:1 as if it were a string-constant. Any regex-specific symbols will be ignored and taken as if escaped. |
+| PREGEX_COMP_STATIC | The regular expression passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped. |
 | PREGEX_RUN_WCHAR | Run regular expression with wchar_t as input. |
 | PREGEX_RUN_NOANCHORS | Ignore anchors while processing the regex. |
 | PREGEX_RUN_NOREF | Don't create references. |
@@ -4256,7 +4261,7 @@ int pregex_qsplit( char* regex, char* str, int flags, parray** matches )
 **Usage:**
 
 Performs a regular expression search on a string and uses the expression as
-separator; All strings that were split are returned as //matches//-array.
+separator; All strings that where split are returned as //matches//-array.
 
 //regex// is the regular expression pattern to be processed.
 
@@ -4322,8 +4327,8 @@ to the configuration of the pregex-object).
 substring, so //next// should become the next //start// when [pregex_split() #fn_pregex_split] is
 called in a loop.
 
-The function returns (char*)NULL in case there is no more string to split,
-else it returns //start//.
+The function returns (char*)NULL in case there is no more string to split, else
+it returns //start//.
 %FUNCTION:END
 %NEED:19
 %FUNCTION:BEGIN
@@ -4347,7 +4352,7 @@ to the configuration of the pregex-object).
 The function fills the array //matches//, if provided, with items of size
 prange. It returns the total number of matches.
 %FUNCTION:END
-%NEED:24
+%NEED:23
 %FUNCTION:BEGIN
 === pstr_to_wcs ===[fn_pstr_to_wcs]
 
@@ -4529,9 +4534,9 @@ char* pstrlwr( char* s )
 
 **Usage:**
 
-Convert a string to lower-case order.
+Convert a string to lower-case.
 
-//s// acts both as input- and output string.
+//s// is the acts both as input and output-string.
 
 Returns //s//.
 %FUNCTION:END
@@ -4556,7 +4561,7 @@ Compare two strings ignoring case-order up to a maximum of //n// bytes.
 Returns 0 if both strings are equal. Returns a value <0 if //s1// is less than
 //s2// or a value >0 if //s1// is greater than //s2//.
 %FUNCTION:END
-%NEED:24
+%NEED:23
 %FUNCTION:BEGIN
 === pstrncatstr ===[fn_pstrncatstr]
 
@@ -4663,11 +4668,11 @@ These consist of three values each:
 - //pboolean freeflag// defines if //value// shall be freed after processing
 -
 
-Returns an allocated string which is the result of rendering. This string must be
-released by [pfree() #fn_pfree] or another function releasing heap memory when its existence
-is no longer required.
+Returns an allocated string which is the result of rendering. This string must
+be released by [pfree() #fn_pfree] or another function releasing heap memory when its
+existence is no longer required.
 %FUNCTION:END
-%NEED:19
+%NEED:21
 %FUNCTION:BEGIN
 === pstrreplace ===[fn_pstrreplace]
 
@@ -4685,10 +4690,11 @@ Replace a substring sequence within a string.
 matched. //replace// is the string to be inserted for each match of the
 substring //find//.
 
-Returns a char* containing the allocated string which is the
-result of replacing all occurences of //find// with //replace// in //str//. 
-This pointer must be released with [pfree() #fn_pfree] when its existence
-is no longer required.
+Returns a char* containing the allocated string which is the result of replacing
+all occurences of //find// with //replace// in //str//.
+
+This pointer must be released with [pfree() #fn_pfree] when its existence is no longer
+required.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -4727,8 +4733,8 @@ token reference pointers.
 Requires a pointer to char**.
 //str// is the input string to be tokenized.
 //sep// is the token separation substring.
-//limit// is the token limit; If set to 0, there is no token limit available, in which
-case as many as possible tokens are read.
+//limit// is the token limit; If set to 0, there is no token limit available,
+in which case as many as possible tokens are read.
 
 Returns the number of separated tokens, or -1 on error.
 %FUNCTION:END
@@ -4778,8 +4784,8 @@ The following table shows escape sequences which are converted.
 
 
 The replacement is done within the memory bounds of //str// itself, because the
-unescaped version of the character requires less space than its previous
-escape sequence.
+unescaped version of the character requires less space than its previous escape
+sequence.
 
 The function always returns its input pointer.
 
@@ -4807,7 +4813,7 @@ char* pstrupr( char* s )
 
 Convert a string to upper-case.
 
-//s// is the acts both as input and output-string.
+//s// acts both as input- and output string.
 
 Returns //s//.
 %FUNCTION:END
@@ -5021,7 +5027,7 @@ wchar_t* pwcsget( wchar_t* str )
 
 Safely reads a wide-character string.
 
-//str// is the string pointer to be read safely. If //str// is NULL, the
+//str// is the string pointer to be safely read. If //str// is NULL, the
 function returns a pointer to a static address holding an empty string.
 %FUNCTION:END
 %NEED:14
@@ -5041,7 +5047,7 @@ Safe strlen replacement for wide-character.
 //str// is the parameter string to be evaluated. If (wchar_t*)NULL,
 the function returns 0.
 %FUNCTION:END
-%NEED:21
+%NEED:20
 %FUNCTION:BEGIN
 === pwcsncatstr ===[fn_pwcsncatstr]
 
@@ -5053,8 +5059,7 @@ wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n )
 
 **Usage:**
 
-Appends //n// characters from one wide-character string to a dynamic
-string.
+Appends //n// characters from one wide-character string to a dynamic string.
 
 //str// is the pointer to a wchar_t-string to be appended. If this is
 (wchar_t*)NULL, the string is newly allocated.
@@ -5114,7 +5119,7 @@ string.
 //str// already references a wide-character string, this pointer will be freed
 and reassigned to a copy of //val//.
 
-//val// is the wide-character string to be assigned to //str//
+//val// is the the wide-character string to be assigned to //str//
 (as an independent copy).
 
 Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
@@ -5122,7 +5127,7 @@ This is the same pointer as returned when calling ``*str``. The returned pointer
 must be released with [pfree() #fn_pfree] or another call of [pwcsput() #fn_pwcsput]. Calling [pwcsput() #fn_pwcsput]
 as ``pwcsput( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
 %FUNCTION:END
-%NEED:21
+%NEED:22
 %FUNCTION:BEGIN
 === pwhich ===[fn_pwhich]
 
@@ -5140,8 +5145,9 @@ Figures out a filepath by searching in a PATH definition.
 
 //directories// is a string specifying the directories to search in.
 If this is (char*)NULL, the environment variable PATH will be used and
-evaluated by using [getenv() #fn_getenv]. The path can be split with multiple paths
-by a character that depends on the current platform (Unix: ":", Windows: ";").
+evaluated by using  [getenv() #fn_getenv] #fn_getenv]. The path can be split with multiple
+paths by a character that depends on the current platform
+(Unix: ":", Windows: ";").
 
 Returns a static pointer to the absolute path that contains the file specified
 as filename, else it will return (char*)NULL.
