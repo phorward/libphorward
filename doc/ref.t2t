@@ -341,8 +341,8 @@ pboolean p_ccl_compat( pccl* l, pccl* r )
 
 **Usage:**
 
-Checks if the character-classes //l// and //r// are in the same
-character universe and compatible for operations.
+Checks if the character-classes //l// and //r// are configured
+to be in the same character universe and compatible for operations.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -362,7 +362,7 @@ Returns the number of characters within a character-class.
 
 Returns the total number of characters the class is holding.
 %FUNCTION:END
-%NEED:15
+%NEED:17
 %FUNCTION:BEGIN
 === p_ccl_create ===[fn_p_ccl_create]
 
@@ -376,6 +376,8 @@ pccl* p_ccl_create( int min, int max, char* ccldef )
 
 Constructor function to create a new character-class.
 
+//min// and //max// can either be specified as -1, so the configured default
+constants PCCL_MIN and PCCL_MAX will be used. The values can also be inverted.
 
 Returns a pointer to the newly created character-class. This pointer should be
 released with [p_ccl_free() #fn_p_ccl_free] when its existence is no longer required.

@@ -13,8 +13,8 @@
 
 <div class="header" id="header">
 <h1>The Phorward Libraries</h1>
-<h2>libphorward 0.22.1</h2>
-<h3>April 2018</h3>
+<h2>libphorward 0.22.3</h2>
+<h3>May 2018</h3>
 </div>
 
 <div class="body" id="body">
@@ -722,7 +722,7 @@ The library is made up of several modules. These are:
 </li>
 <li><b>base</b> provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays,
 </li>
-<li><b>parse</b> defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees, integrating perfectly with the tools from *regex* for lexical analysis,
+<li><b>parse</b> defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees, integrating perfectly with the tools from <i>regex</i> for lexical analysis,
 </li>
 <li><b>regex</b> provides tools for lexical analysis and regular expression processing,
 </li>
@@ -777,7 +777,7 @@ The library is made up of several modules. These are:
 </li>
 <li>Dynamic data structures
   <ul>
-  <li><i>plist</i> for linked-lists with build-in hash table support,
+  <li><i>plist</i> for linked-lists with built-in hash table support,
   </li>
   <li><i>parray</i> for arrays and stacks.
   </li>
@@ -919,7 +919,7 @@ The final destination of the Phorward library is not entirely clear yet. For now
 The <b>parray</b> object is a general-purpose data structure which can be used for several operations.
 </p>
 <p>
-<b>parray</b> forms a data management container for handling homogenious elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given <b>parray</b> object.
+<b>parray</b> forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given <b>parray</b> object.
 </p>
 <p>
 The <b>parray</b> object brings the following advantages and disadvantages:
@@ -928,11 +928,11 @@ The <b>parray</b> object brings the following advantages and disadvantages:
 <ul>
 <li><u>Advantages</u>
   <ul>
-  <li>Chunk allocation requires lesser <a href="#fn_pmalloc">pmalloc()</a>/<a href="#fn_prealloc">prealloc()</a> operations than with <a href="#plist">plist</a>
+  <li>Chunk allocation requires less <a href="#fn_pmalloc">pmalloc()</a>/<a href="#fn_prealloc">prealloc()</a> operations than with <a href="#plist">plist</a>
   </li>
-  <li>Dynamic and quick implementation for huger data structures
+  <li>Dynamic and quick implementation for huge data structures
   </li>
-  <li>Elements are hold in a real array on the heap
+  <li>Elements are held in a real array on the heap
   </li>
   <li>Low memory consumption
   </li>
@@ -1064,7 +1064,7 @@ for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
 </code></pre>
 
 <p>
-Quick access to the first or last elements is gained by <a href="#fn_parray_last">parray_last()</a> and <a href="#fn_parray_first">parray_first()</a>.
+Quick access to the first or last element is gained by <a href="#fn_parray_last">parray_last()</a> and <a href="#fn_parray_first">parray_first()</a>.
 </p>
 <p>
 To get a predecessor or successor of an element, use <a href="#fn_parray_prev">parray_prev()</a> respectively <a href="#fn_parray_next">parray_next()</a>.
@@ -1122,7 +1122,7 @@ Other, useful functions are
 <h3 id="toc18">Overview</h3>
 
 <p>
-Next to the <a href="#parray">parray</a> object, the <b>plist</b> object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogenious elements of the same size in a dynamic way, and can be used for many tasks.
+Next to the <a href="#parray">parray</a> object, the <b>plist</b> object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
 </p>
 <p>
 <b>plist</b> can be seen as a superset of the <a href="#parray">parray</a> object, because it features nearly the same operations but with other underlying data management methods.
@@ -1206,7 +1206,7 @@ Possible flags are listed below, and can be combined using bitwise or (|).
 <ul>
 <li><b>PLIST_MOD_NONE</b> no flags, this can also be just 0.
 </li>
-<li><b>PLIST_MOD_PTR</b> to use the plist-object in pointer-mode: Each element contains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
+<li><b>PLIST_MOD_PTR</b> to use the plist-object in pointer-mode: Each element contains only a pointer to an object in memory and returns this, instead of copying from or into pointers.
 </li>
 <li><b>PLIST_MOD_RECYCLE</b> to configure that elements that are removed during list usage will be reused later, which reduces dynamic memory consumption.
 </li>
@@ -1216,7 +1216,7 @@ Possible flags are listed below, and can be combined using bitwise or (|).
 </li>
 <li><b>PLIST_MOD_PTRKEYS</b> disables string keys and uses the pointer/value provided as key directly.
 </li>
-<li><b>PLIST_MOD_UNIQUE</b> to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
+<li><b>PLIST_MOD_UNIQUE</b> to disallow hash-table-key collisions, so elements with a key that already exists in the object will be rejected.
 </li>
 <li><b>PLIST_MOD_WCHAR</b> to let all key values handle as wide-character strings.
 </li>
@@ -1270,7 +1270,7 @@ plist_insert( l, plist_get( l, 2 ), (char*)NULL, &amp;t );
 /* Insert to end, with key value */
 plist_insert( l, (plistel*)NULL, "hello", &amp;t );
 
-/* Insert and end and begin */
+/* Insert to end and begin */
 fill_usertype( &amp;t );
 plist_push( a, &amp;t );
 plist_shift( a, &amp;t );
@@ -1285,7 +1285,7 @@ fill_usertype( tp );
 <h3 id="toc21">Accessing and iterating elements</h3>
 
 <p>
-Elements within a <b>plist</b> object are references by <b>plistel</b> items. To access the data element behind a <b>plistel</b> item, the function <a href="#fn_plist_access">plist_access()</a> is used, in combination with element retrival functions, like
+Elements within a <b>plist</b> object are referenced by <b>plistel</b> items. To access the data element behind a <b>plistel</b> item, the function <a href="#fn_plist_access">plist_access()</a> is used, in combination with element retrival functions, like
 </p>
 
 <ul>
@@ -1369,11 +1369,11 @@ plist_unshift( a, &amp;t );
 <h3 id="toc23">Sorting elements</h3>
 
 <p>
-<b>plist</b> objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertation.
+<b>plist</b> objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertion.
 </p>
 <p>
 The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like strcmp() does.
-This function can be individually set using <a href="#fn_plist_set_sortfn">plist_set_sortfn()</a>, and defaultly points to a callback function that uses memcmp() as the element comparison function.
+This function can be individually set using <a href="#fn_plist_set_sortfn">plist_set_sortfn()</a>, and by default points to a callback function that uses memcmp() as the element comparison function.
 </p>
 <p>
 As prototype and example, the following comparison function:
@@ -1398,7 +1398,7 @@ int my_compare( plist* list, plistel* l, plistel* r )
 </code></pre>
 
 <p>
-This can, than, be attached to the <b>plist</b> object with
+This can then be attached to the <b>plist</b> object with
 </p>
 
 <pre><code class="language-c">
@@ -1407,7 +1407,7 @@ plist_set_sortfn( l, my_compare );
 
 <p>
 To configure a <b>plist</b> object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
-The sorting can be also be performed by invoking the functions
+Sorting can also be performed by invoking the functions
 </p>
 
 <ul>
@@ -1457,7 +1457,7 @@ The <b>pccl</b> object is established on top of the <b>plist</b> object and enca
 These functions are heavily used by the library's regular expressions and parser implementations, but may also be helpful for other related projects. The <b>pccl</b> can handle character classes, by chaining ranges.
 </p>
 <p>
-It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. <b>pccl</b> objects are designed to work on huge alphabets with a low memory consumption. By default, characters are specified as <b>wchar_t</b> (wide-character unicode) values.
+It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. <b>pccl</b> objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as <b>wchar_t</b> (wide-character unicode) values.
 </p>
 
 <ul>
@@ -1475,7 +1475,7 @@ It supports a fully-fledged set theory automatism, including construction of int
 </li>
 <li><a href="#fn_p_ccl_to_str">p_ccl_to_str()</a> - convert a character-class into a string,
 </li>
-<li><a href="#fn_p_ccl_free">p_ccl_free()</a> - detroy a previously created character-class,
+<li><a href="#fn_p_ccl_free">p_ccl_free()</a> - destroy a previously created character-class,
 </li>
 </ul>
 
@@ -2131,13 +2131,13 @@ semicolon &gt;;&lt;
 <h2 id="toc42">Overview</h2>
 
 <p>
-The libphorward serves as a parser generator and language processing toolchain. It provides a flexible, integrated and consequent solution for many parsing-reated issues.
+libphorward serves as a parser generator and language processing toolchain. It provides a flexible, integrated and consequent solution for many parsing-related issues.
 </p>
 
 <ul>
 <li><b>ppgram</b>, <b>ppsym</b> and <b>ppprod</b> objects provide a way to describe grammars, symbols and productions,
 </li>
-<li><b>pppar</b> encapsulates a parser with an <i>plex</i>-based lexer,
+<li><b>pppar</b> encapsulates a parser with a <i>plex</i>-based lexer,
 </li>
 <li><b>ppast</b> is a linked data structure that represents parse trees generated by the parser, and allows for browsing it in any desired way.
 </li>
@@ -2150,7 +2150,7 @@ We assume that the reader of this section is familiar with the terminology of pa
 <h2 id="toc43">Grammars</h2>
 
 <p>
-Grammars are described using <b>ppgram</b> objects, which in turn are build from <i>terminal</i> and <i>nonterminal</i> symbols, described by <b>ppsym</b>, and productions, described by <b>ppprod</b>.
+Grammars are described using <b>ppgram</b> objects, which in turn are built from <i>terminal</i> and <i>nonterminal</i> symbols, described by <b>ppsym</b>, and productions, described by <b>ppprod</b>.
 </p>
 <p>
 Whether a symbol is a terminal or a nonterminal is defined by its identifying name. Any symbol starting with a lower-case character in its name is identified as a <i>nonterminal</i> symbol. Symbols with an upper-case character or any other non-alphabetic character, as well as symbols entirely without an identifiying name, are treated as <i>terminal</i> symbols.
@@ -2278,7 +2278,7 @@ These constructs are
 </ul>
 
 <p>
-This example defines an (ambigous) grammar for floating-point numbers:
+This example defines an (ambiguous) grammar for floating-point numbers:
 </p>
 
 <pre><code class="language-c">
@@ -2289,10 +2289,10 @@ pp_gram_from_ebnf( g, "dig : 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 ;"
 <h4>Phorward BNF</h4>
 
 <p>
-The most powerful parser for grammars is the Phorward BNF parser (PBNF). This part of the Phorward library is still under construction and will be enhanced in future to more features and elements.
+The most powerful parser for grammars is the Phorward BNF parser (PBNF). This part of the Phorward library is still under construction and will be enhanced in the future to more features and elements.
 </p>
 <p>
-Additional to the EBNF syntax, this dialect enables to define
+In addition to the EBNF syntax, this dialect enables to define
 </p>
 
 <ul>
@@ -2332,7 +2332,7 @@ expr$   : expr '+' term = add
 <h5>Associativity and precedence operators</h5>
 
 <p>
-With <i>pbnf</i>, and in combination with the LALR parser, precedence and associativity can also be used to resolve conflicts and write shorter grammars. Thus, the following version of the four-function calculator yields in the same parser.
+With <i>pbnf</i>, in combination with the LALR parser, precedence and associativity can also be used to resolve conflicts and write shorter grammars. Thus, the following version of the four-function calculator yields the same parser.
 </p>
 
 <pre><code class="language-c">
@@ -2402,7 +2402,7 @@ In definitions of the Phorward library, a parser is the union of a grammar, a le
 </li>
 <li>as lexical analyzer, a <i>plex</i> object is used and managed, but this can also be changed to any other token emitting process,
 </li>
-<li>as parsing algorithm, so far only LALR(1) is supported, but more algorithms are planned in future.
+<li>as parsing algorithm, so far only LALR(1) is supported, but more algorithms are planned in the future.
 </li>
 </ul>
 
@@ -2422,7 +2422,7 @@ Parsers are described and implemented as a <i>pppar</i> object.
 </ul>
 
 <p>
-The current state of Phorward's internal parsing tools runs on strings (char*) only. Later extensions and enhancements may provide facilities to read from files or streams.
+The current state of Phorward's internal parsing tools run on strings (char*) only. Later extensions and enhancements may provide facilities to read from files or streams.
 </p>
 
 <h2 id="toc48">Abstract Syntax Tree</h2>
@@ -2459,7 +2459,7 @@ struct _ppast
 </code></pre>
 
 <p>
-It is usually not constructed by hand, but by parsing functions while or after parsing has completed.
+It is usually not constructed by hand, but by parsing functions during parsing or when parsing has completed.
 </p>
 <p>
 The following functions may be interesting:
@@ -2510,7 +2510,7 @@ These functions are used throughout libphorward's internal object mapping functi
 <h2 id="toc51">Extended string processing functions</h2>
 
 <p>
-The libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts, with a preceded "p", or introduce entirely new features.
+libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
 </p>
 <p>
 String functions overview:
@@ -2527,7 +2527,7 @@ String functions overview:
 </li>
 <li><a href="#fn_pstrget">pstrget()</a> - securely get string from a pointer,
 </li>
-<li><a href="#fn_pstrlen">pstrlen()</a> - return length ot string, also accepts NULL-pointers,
+<li><a href="#fn_pstrlen">pstrlen()</a> - return length of string, also accepts NULL-pointers,
 </li>
 <li><a href="#fn_pstrltrim">pstrltrim()</a> - remove prefixing whitespace,
 </li>
@@ -2579,7 +2579,7 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 </ul>
 
 <p>
-Althought the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
+Although the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
 </p>
 
 <h2 id="toc52">System-related functions</h2>
@@ -2604,7 +2604,7 @@ The Phorward library provides some useful functions for system-related interacti
 <h2 id="toc53">Boolean data type</h2>
 
 <p>
-libphorward makes a heavy usage of the self-hosted data-type <b>pboolean</b>, which is also referenced by a define <i>BOOLEAN</i>, and the constants <i>TRUE</i> and <i>FALSE</i>.
+libphorward makes heavy usage of the self-hosted data-type <b>pboolean</b>, which is also referenced by a define <i>BOOLEAN</i>, and the constants <i>TRUE</i> and <i>FALSE</i>.
 </p>
 <p>
 It is known, that several header files and projects define these constants on their own, so that <b>pboolean</b>, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
@@ -2623,7 +2623,7 @@ within <code>phorward.h</code>.
 <h2 id="toc54">Debug and trace facilities</h2>
 
 <p>
-Althought this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules for detecting bugs or view the program trace.
+Although this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules to detect bugs or view the program trace.
 </p>
 <p>
 For this, the library provides the following macros:
@@ -2681,7 +2681,7 @@ int faculty( int x )
 </code></pre>
 
 <p>
-Trace is written to stderr, and only will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value &gt; 0.
+Trace is written to stderr, and will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value &gt; 0.
 </p>
 <p>
 Calling this function with
@@ -2940,7 +2940,7 @@ Write parameter content to trace.
 <p>
 The PARMS-macro is used to write parameter names and values to the program
 trace. <a href="#fn_PARMS">PARMS()</a> should - by definition - only be used right behind <a href="#fn_PROC">PROC()</a>.
-If the logging of variable values is wanted during a function exection to
+If the logging of variable values is wanted during a function execution to
 trace, the <a href="#fn_VARS">VARS()</a>-macro shall be used.
 </p>
 <p>
@@ -3110,7 +3110,7 @@ For parameters taken to functions, the <a href="#fn_PARMS">PARMS()</a>-macro sha
 <p>
 <i>var_name</i> is the name of the variable
 <i>format</i> is a printf-styled format placeholder.
-<i>variable</i> is the the parameter itself.
+<i>variable</i> is the parameter itself.
 </div>
 <!-- NEED 14 -->
 <div class='function'>
@@ -3338,8 +3338,8 @@ pboolean p_ccl_compat( pccl* l, pccl* r )
 <b>Usage:</b>
 </p>
 <p>
-Checks if the character-classes <i>l</i> and <i>r</i> are in the same
-character universe and compatible for operations.
+Checks if the character-classes <i>l</i> and <i>r</i> are configured
+to be in the same character universe and compatible for operations.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -3367,7 +3367,7 @@ Returns the number of characters within a character-class.
 <p>
 Returns the total number of characters the class is holding.
 </div>
-<!-- NEED 15 -->
+<!-- NEED 17 -->
 <div class='function'>
 </p>
 
@@ -3386,6 +3386,10 @@ pccl* p_ccl_create( int min, int max, char* ccldef )
 </p>
 <p>
 Constructor function to create a new character-class.
+</p>
+<p>
+<i>min</i> and <i>max</i> can either be specified as -1, so the configured default
+constants PCCL_MIN and PCCL_MAX will be used. The values can also be inverted.
 </p>
 <p>
 Returns a pointer to the newly created character-class. This pointer should be
@@ -3522,7 +3526,7 @@ pboolean p_ccl_erase( pccl* ccl )
 Erases a character-class <i>ccl</i>.
 </p>
 <p>
-The function sets a character-class to zero, as it continas no character range
+The function sets a character-class to zero, as it contains no character range
 definitions. The object <i>ccl</i> will be still alive. To delete the entire
 object, use <a href="#fn_p_ccl_free">p_ccl_free()</a>.
 </div>
@@ -3641,7 +3645,7 @@ provided character-classes.
 <i>within</i> is the pointer to the second character-class.
 </p>
 <p>
-Returns a new character-class containing the insersections from <i>ccl</i>
+Returns a new character-class containing the intersection of <i>ccl</i>
 and <i>within</i>. If there is no intersection between both character-classes,
 the function returns (pccl*)NULL.
 </div>
@@ -3691,7 +3695,7 @@ pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 <p>
 Parses the character-class definition provided in <i>ccldef</i> and assigns
 this definition to the character-class <i>ccl</i>. <i>ccldef</i> may contain
-UTF-8 formatted input. Escape-sequences will be interpretered to their correct
+UTF-8 formatted input. Escape-sequences will be interpreted to their correct
 character representations.
 </p>
 <p>
@@ -3726,7 +3730,7 @@ size_t p_ccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq )
 <b>Usage:</b>
 </p>
 <p>
-Reads a character from a string. The character may exist of one single
+Reads a character from a string. The character may consist of one single
 character or it may be made up of an escape sequence or UTF-8 character.
 The function returns the number of bytes read.
 </p>
@@ -3766,7 +3770,7 @@ The function returns TRUE in case a shorthand has been parsed. If so,
 the pointer <i>str</i> is moved the characters consumed.
 </p>
 <p>
-If no shorthand sequence could be found, it returns FALSE, remaining <i>ccl</i>
+If no shorthand sequence could be found, it returns FALSE, leaving <i>ccl</i>
 untouched.
 </div>
 <!-- NEED 22 -->
@@ -3855,7 +3859,7 @@ pboolean p_ccl_test( pccl* ccl, wchar_t ch )
 <b>Usage:</b>
 </p>
 <p>
-Tests a character-class if it cointains a character.
+Tests a character-class if it contains a character.
 </p>
 <p>
 <i>ccl</i> is the pointer to character-class to be tested.
@@ -3928,7 +3932,7 @@ Returns a pointer to the generated string that represents the charclass.
 The returned pointer belongs to the <i>ccl</i> and is managed by the
 character-class handling functions, so it should not be freed manually.
 </div>
-<!-- NEED 18 -->
+<!-- NEED 19 -->
 <div class='function'>
 </p>
 
@@ -3946,16 +3950,17 @@ pccl* p_ccl_union( pccl* ccl, pccl* add )
 <b>Usage:</b>
 </p>
 <p>
-Unions two character-classes into a new, normalized one.
+Creates the union of two character-classes and returns the newly created,
+normalized character-class.
 </p>
 <p>
 <i>ccl</i> is the pointer to the character-class that will be extended to all
-ranges contained in <i>add</i>.
-<i>add</i> is character-class that will be unioned with <i>ccl</i>.
+ranges contained in <i>add</i>. <i>add</i> is the character-class that will be joined
+with <i>ccl</i>.
 </p>
 <p>
 The function creates and returns a new character-class that is the union
-if <i>ccl</i> and <i>add</i>.
+of <i>ccl</i> and <i>add</i>.
 </div>
 <!-- NEED 16 -->
 <div class='function'>
@@ -4071,8 +4076,8 @@ void pany_fprint( FILE* stream, pany* val )
 <b>Usage:</b>
 </p>
 <p>
-Print the type and value of <i>val</i> to <i>stream</i>
-without any conversion. This function shall be used for debug only.
+Print the type and value of <i>val</i> to <i>stream</i> without any conversion.
+This function shall be used for debugging purposes only.
 </p>
 <p>
 <i>stream</i> is the stream to write to.
@@ -4491,7 +4496,7 @@ escaping function.
 </p>
 <p>
 Any other content is taken as string. If the parameter <i>enforce</i> is set to
-an desired PANY_-type, this type will be enforced, and no special recognition
+a desired PANY_-type, this type will be enforced, and no special recognition
 is done.
 </p>
 <p>
@@ -5285,10 +5290,10 @@ Performs an array initialization.
 This should be evaluated using the <a href="#fn_sizeof">sizeof()</a>-macro.
 </p>
 <p>
-<i>chunk</i> defines the chunk size, where an array-(re)allocation will be performed.
-If, e.g. this is set to 128, then, if the 128th item is created within the
-array, a realloction is done. Once allocated memory remains until the array is
-freed again.
+<i>chunk</i> defines the chunk size, when an array-(re)allocation will be
+performed. If, e.g. this is set to 128, then, if the 128th item is created
+within the array, a realloction is done. Once allocated memory remains until
+the array is freed again.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -5480,7 +5485,7 @@ Removes an element from the end of an array.
 <p>
 The function returns the pointer of the popped item. Because dynamic arrays only
 grow and no memory is freed, the returned data pointer is still valid, and will
-only be overidden with the next push operation.
+only be overridden with the next push operation.
 </p>
 <p>
 <i>array</i> is the pointer to array where to pop an item off.
@@ -5660,7 +5665,7 @@ be accessed (e.g. if the array is empty or offset is beyond the bottom of
 the array).
 </p>
 <p>
-Use <a href="#fn_parray_get">parray_get()</a> for access items from the begin.
+Use <a href="#fn_parray_get">parray_get()</a> to access items from the begin.
 </div>
 <!-- NEED 14 -->
 <div class='function'>
@@ -5765,7 +5770,7 @@ Removes an element from the begin of an array.
 <p>
 The function returns the pointer of the shifted item.
 Because dynamic arrays only grow and no memory is freed, the returned data
-pointer is still valid, and will only be overidden with the next unshift
+pointer is still valid, and will only be overridden with the next unshift
 operation.
 </p>
 <p>
@@ -5828,7 +5833,7 @@ array. The caller should cast his type into void, or wrap the push-operation
 with a macro. It can be left (void*)NULL, so no memory will be copied.
 </p>
 <p>
-The function returns the address of the newly unhshifted item, and (void*)NULL
+The function returns the address of the newly unshifted item, and (void*)NULL
 if the item could not be unshifted.
 </div>
 <!-- NEED 19 -->
@@ -5858,7 +5863,7 @@ later on.
 <i>...</i> are the parameters according to the placeholders set in <i>fmt</i>.
 </p>
 <p>
-Returns a char* Returns the allocated string which cointains the format string
+Returns a char* Returns the allocated string which contains the format string
 with inserted values.
 </div>
 <!-- NEED 15 -->
@@ -6025,7 +6030,7 @@ The function is a wrapper for the system-function <a href="#fn_free">free()</a>,
 NULL-pointers and returns a (void*)NULL pointer for direct pointer memory reset.
 </p>
 <p>
-It could be used this way to immedatelly reset a pointer to NULL:
+It could be used this way to immediately reset a pointer to NULL:
 </p>
 
 <pre><code class="language-c">
@@ -6036,7 +6041,7 @@ ptr = pfree( ptr );
 <i>ptr</i> is the pointer to be freed.
 </p>
 <p>
-Returns always (void*)NULL.
+Always returns (void*)NULL.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -6178,7 +6183,7 @@ with special compile-time flags provided for each pattern.
 </tr>
 <tr>
 <td>PREGEX_COMP_STATIC</td>
-<td>The regular expressions passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped.</td>
+<td>The regular expressions passed should be converted 1:1 as if it were a string-constant. Any regex-specific symbols will be ignored and taken as if escaped.</td>
 </tr>
 <tr>
 <td>PREGEX_RUN_WCHAR</td>
@@ -6198,7 +6203,7 @@ with special compile-time flags provided for each pattern.
 </tr>
 <tr>
 <td>PREGEX_RUN_DEBUG</td>
-<td>Debug mode; output some debug to stderr.</td>
+<td>Debug mode; output some debug info to stderr.</td>
 </tr>
 </table>
 
@@ -6271,7 +6276,7 @@ compile-time flags of the plex-object provided at <a href="#fn_plex_create">plex
 </tr>
 <tr>
 <td>PREGEX_COMP_STATIC</td>
-<td>The regular expressions passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped.</td>
+<td>The regular expressions passed should be converted 1:1 as if it were a string-constant. Any regex-specific symbols will be ignored and taken as if escaped.</td>
 </tr>
 <tr>
 <td>PREGEX_COMP_PTN</td>
@@ -6308,7 +6313,7 @@ Destructor function for a plex-object.
 <i>lex</i> is the pointer to a plex-structure that will be released.
 </p>
 <p>
-Returns always (plex*)NULL.
+Always returns (plex*)NULL.
 </div>
 <!-- NEED 18 -->
 <div class='function'>
@@ -6366,7 +6371,7 @@ to the configuration of the plex-object).
 </p>
 <p>
 If a token can be matched, the function returns the pointer to the position
-where the match starts at. <i>id</i> receives the id of the matching patternn,
+where the match starts at. <i>id</i> receives the id of the matching pattern,
 <i>end</i> receives the end pointer of the match, when provided. <i>id</i> and <i>end</i>
 can be omitted by providing NULL-pointers.
 </p>
@@ -6485,7 +6490,7 @@ Clear content of the list <i>list</i>.
 <p>
 The function has nearly the same purpose as <a href="#fn_plist_erase">plist_erase()</a>, except that
 the entire list is only cleared, but if the list was initialized with
-PLIST_MOD_RECYCLE, existing pointers are hold for later usage.
+PLIST_MOD_RECYCLE, existing pointers are held for later usage.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -6566,19 +6571,19 @@ Possible flags are:
 <ul>
 <li><b>PLIST_MOD_NONE</b> for no special flagging.
 </li>
-<li><b>PLIST_MOD_PTR</b> to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in the memory and returnsthis, instead of copying from or into pointers.
+<li><b>PLIST_MOD_PTR</b> to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
 </li>
-<li><b>PLIST_MOD_RECYCLE</b> to configure that elements that are removed during listusage will be reused later.
+<li><b>PLIST_MOD_RECYCLE</b> to configure that elements that are removed during list usage will be reused later.
 </li>
 <li><b>PLIST_MOD_AUTOSORT</b> to automatically sort elements on insert operations.
 </li>
-<li><b>PLIST_MOD_EXTKEYS</b> to configure that string pointers to hash-table keyvalues are stored elsewhere, so the plist-module only uses the originalpointers instead of copying them.
+<li><b>PLIST_MOD_EXTKEYS</b> to configure that string pointers to hash-table keyvalues are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
 </li>
-<li><b>PLIST_MOD_PTRKEYS</b> disables string keys and uses the pointer/valueprovided as key directly.
+<li><b>PLIST_MOD_PTRKEYS</b> disables string keys and uses the pointer/value provided as key directly.
 </li>
-<li><b>PLIST_MOD_UNIQUE</b> to disallow hash-table-key collisions, so elements witha key that already exist in the object will be rejected.
+<li><b>PLIST_MOD_UNIQUE</b> to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
 </li>
-<li><b>PLIST_MOD_WCHAR</b> to let all key values handle as wide-character strings.
+<li><b>PLIST_MOD_WCHAR</b> to handle all key values as wide-character strings.
 </li>
 </ul>
 
@@ -6834,7 +6839,7 @@ Initialize the list <i>list</i> with an element allocation size <i>size</i>.
 <i>flags</i> defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage.
 </div>
-<!-- NEED 20 -->
+<!-- NEED 19 -->
 <div class='function'>
 </p>
 
@@ -6859,8 +6864,7 @@ If <i>pos</i> is NULL, the new element will be attached to the end of the
 list.
 </p>
 <p>
-If <i>key</i> is not NULL, the element will be additionally engaged
-into the lists hash table.
+If <i>key</i> is not NULL, the element will also be added to the lists hash table.
 </p>
 <p>
 If <i>src</i> is NULL, a zero-initialized element is inserted into the list for
@@ -7041,7 +7045,7 @@ pboolean plist_pop( plist* list, void* dest )
 Pop last element to <i>dest</i> off the list <i>list</i>.
 </p>
 <p>
-Like <i>list</i> would be a stack, the last element of the list is poppend and
+Like <i>list</i> would be a stack, the last element of the list is popped and
 its content is written to <i>dest</i>, if provided at the end of the list.
 </p>
 <p>
@@ -7066,7 +7070,7 @@ plistel* plist_prev( plistel* u )
 <b>Usage:</b>
 </p>
 <p>
-Access previous element of a current unit <i>u</i>.
+Access previous element of current unit <i>u</i>.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -7111,7 +7115,7 @@ pboolean plist_remove( plist* list, plistel* e )
 <b>Usage:</b>
 </p>
 <p>
-Removes the element <i>e</i> from the the <i>list</i> and frees it or puts
+Removes the element <i>e</i> from the <i>list</i> and frees it or puts
 it into the unused element chain if PLIST_MOD_RECYCLE is flagged.
 </div>
 <!-- NEED 14 -->
@@ -7293,7 +7297,7 @@ plistel* plist_shift( plist* list, void* src )
 Shift <i>src</i> at begin of <i>list</i>.
 </p>
 <p>
-Like <i>list</i> would be a queue, <i>src</i> is shifted at the begin of the list.
+Like <i>list</i> would be a queue, <i>src</i> is shifted at the beginning of the list.
 This function can only be used for linked lists without the hash-table feature
 in use.
 </div>
@@ -7317,7 +7321,7 @@ int plist_size( plist* l )
 <p>
 Return element size of list <i>l</i>.
 </div>
-<!-- NEED 17 -->
+<!-- NEED 18 -->
 <div class='function'>
 </p>
 
@@ -7342,10 +7346,12 @@ To sort only parts of a list, use <a href="#fn_plist_subsort">plist_subsort()</a
 </p>
 <p>
 The sort-function can be modified by using <a href="#fn_plist_set_sortfn">plist_set_sortfn()</a>.
-The default sort function sorts the list by they contents, internally by using
-the <a href="#fn_memcmp">memcmp()</a> standard function.
+</p>
+<p>
+The default sort function sorts the list by content using the <a href="#fn_memcmp">memcmp()</a>
+standard function.
 </div>
-<!-- NEED 18 -->
+<!-- NEED 19 -->
 <div class='function'>
 </p>
 
@@ -7371,8 +7377,10 @@ To sort the entire list, use <a href="#fn_plist_sort">plist_sort()</a>.
 </p>
 <p>
 The sort-function can be modified by using <a href="#fn_plist_set_sortfn">plist_set_sortfn()</a>.
-The default sort function sorts the list by they contents, internally by using
-the <a href="#fn_memcmp">memcmp()</a> standard function.
+</p>
+<p>
+The default sort function sorts the list by content using the <a href="#fn_memcmp">memcmp()</a>
+standard function.
 </div>
 <!-- NEED 13 -->
 <div class='function'>
@@ -7392,9 +7400,9 @@ pboolean plist_swap( plistel* a, plistel* b )
 <b>Usage:</b>
 </p>
 <p>
-Swaps the positions of the list elemements <i>a</i> and <i>b</i> with each
+Swaps the positions of the list elements <i>a</i> and <i>b</i> with each
 other. The elements must be in the same plist object, else the function
-returns with FALSE.
+returns FALSE.
 </div>
 <!-- NEED 18 -->
 <div class='function'>
@@ -7444,15 +7452,15 @@ pboolean plist_unshift( plist* list, void* dest )
 <b>Usage:</b>
 </p>
 <p>
-Take first element to <i>dest</i> from the list <i>list</i>.
+Take first element of <i>list</i> and write it to <i>dest</i>.
 </p>
 <p>
 Like <i>list</i> would be a queue, the first element of the list is taken and
 its content is written to <i>dest</i>.
 </p>
 <p>
-<i>dest</i> can be omitted and given as (void*)NULL, so the first element will
-be taken from the list and discards.
+<i>dest</i> can be omitted and given as (void*)NULL, so the first element from
+<i>list</i> will be taken and discarded.
 </div>
 <!-- NEED 20 -->
 <div class='function'>
@@ -7476,7 +7484,7 @@ Dynamically allocate heap memory.
 </p>
 <p>
 The function is a wrapper for the system function <a href="#fn_malloc">malloc()</a>, but with memory
-initialization to zero, and immediatelly stops the program if no more memory
+initialization to zero, and immediately stops the program if no more memory
 can be allocated.
 </p>
 <p>
@@ -7511,7 +7519,7 @@ Duplicates a memory entry onto the heap.
 <i>size</i> is the size of pointer's data storage.
 </p>
 <p>
-Returns the new pointer to the memory copy. This should be casted back to the
+Returns the new pointer to the memory copy. This should be cast back to the
 type of <i>ptr</i> again.
 </div>
 <!-- NEED 11 -->
@@ -7794,11 +7802,11 @@ pboolean pp_gram_from_bnf( ppgram* g, char* src )
 <b>Usage:</b>
 </p>
 <p>
-Compiles a Backus-Naur-Format definition into a grammar.
+Compiles a Backus-Naur form definition into a grammar.
 </p>
 <p>
 <i>g</i> is the grammar that receives the result of the parse.
-This grammar is extended to new definitions when it already contains symbols.
+This grammar gets extended with new definitions if it already contains symbols.
 </p>
 <p>
 <i>src</i> is the BNF definition string that defines the grammar.
@@ -7841,7 +7849,7 @@ pboolean pp_gram_from_ebnf( ppgram* g, char* src )
 <b>Usage:</b>
 </p>
 <p>
-Compiles an Extended Backus-Naur-Format definition into a grammar.
+Compiles an Extended Backus-Naur form definition into a grammar.
 </p>
 <p>
 <i>g</i> is the grammar that receives the result of the parse.
@@ -7872,7 +7880,7 @@ grammar$ : defs ;
 </code></pre>
 
 </div>
-<!-- NEED 84 -->
+<!-- NEED 83 -->
 <div class='function'>
 
 <h3 id="fn_pp_gram_from_pbnf">pp_gram_from_pbnf</h3>
@@ -7889,7 +7897,7 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 <b>Usage:</b>
 </p>
 <p>
-Compiles an Phorward Backus-Naur-Format definition into a parser.
+Compiles an Phorward Backus-Naur form definition into a parser.
 </p>
 <p>
 <i>p</i> is the parser that receives the result of the parse.
@@ -7929,13 +7937,12 @@ Flag_ignore		:= /%(ignore|skip)/ ;
 
 // Nonterminals ----------------------------------------------------------------
 
-inline			:= Flag_emit '(' alternation ')'
-				|  '(' alternation ')'
-				;
-
 terminal		: CCL | String | Token | Regex | Function ;
 
-symbol 			:= Terminal | Nonterminal | terminal | inline  ;
+symbol 			:= Terminal
+				| Nonterminal
+				| terminal
+				| '(' alternation ')' = inline ;
 
 modifier		: symbol '*' = kle
 				| symbol '+' = pos
@@ -7994,7 +8001,7 @@ The preparation process includes:
 </p>
 
 <ul>
-<li>Setting up final symbol and productions IDs
+<li>Setting up final symbol and production IDs
 </li>
 <li>Nonterminals FIRST-set computation
 </li>
@@ -8090,7 +8097,7 @@ pppar* pp_par_create( ppgram* g )
 <b>Usage:</b>
 </p>
 <p>
-Creates a new parser object with the underlying grammar <i>g</i>.
+Creates a new parser object using the underlying grammar <i>g</i>.
 </p>
 <p>
 The grammar must either be parsed first via one of the BNF parsers
@@ -8099,7 +8106,7 @@ must be hand-crafted.
 </p>
 <p>
 The provided grammar gets "frozen" when a parser is created from it.
-Modifications on the grammar with a parser based on an older grammar state may
+Modification of the grammar with a parser based on an older grammar state may
 cause memory corruption and crashes.
 </p>
 <p>
@@ -8169,13 +8176,13 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 <b>Usage:</b>
 </p>
 <p>
-Run parser <i>p</i> with input <i>start</i>.
+Run parser <i>par</i> with input <i>start</i>.
 </p>
 <p>
-Currently, the used parsing method is only LALR(1).
+Currently, the used parsing method is LALR(1).
 </p>
 <p>
-It returns an abstract syntax tree to <i>root</i> on success.
+It returns an abstract syntax tree in <i>root</i> on success.
 </div>
 <!-- NEED 11 -->
 <div class='function'>
@@ -8299,7 +8306,7 @@ int pp_prod_remove( ppprod* p, ppsym* sym )
 <b>Usage:</b>
 </p>
 <p>
-Removes all occurences of symbol <i>sym</i> from the right-hand-side of
+Removes all occurrences of symbol <i>sym</i> from the right-hand-side of
 production <i>p</i>.
 </div>
 <!-- NEED 14 -->
@@ -8628,9 +8635,9 @@ void* prealloc( void* oldptr, size_t size )
 Dynamically (re)allocate memory on the heap.
 </p>
 <p>
-The function is a wrapper to the system-function <a href="#fn_realloc">realloc()</a>, but always
-accepts a NULL-pointer and immediatelly stops the program if no more memory
-can be allocated.
+The function wraps the system-function <a href="#fn_realloc">realloc()</a>, but always accepts a
+NULL-pointer and immediately stops the program if no more memory can be
+allocated.
 </p>
 <p>
 <i>oldptr</i> is the pointer to be reallocated. If this is (void*)NULL, <a href="#fn_prealloc">prealloc()</a> works like a normal call to <a href="#fn_pmalloc">pmalloc()</a>.
@@ -8640,7 +8647,7 @@ can be allocated.
 </p>
 <p>
 The function returns the allocated heap memory pointer. The returned memory
-address should be freed using <a href="#fn_pfree">pfree()</a> after it is not required anymore.
+address should be freed using <a href="#fn_pfree">pfree()</a> after it is not required any more.
 </div>
 <!-- NEED 32 -->
 <div class='function'>
@@ -8698,7 +8705,7 @@ Constructor function to create a new pregex object.
 </tr>
 <tr>
 <td>PREGEX_COMP_STATIC</td>
-<td>The regular expression passed should be converted 1:1 asit where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped.</td>
+<td>The regular expression passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped.</td>
 </tr>
 <tr>
 <td>PREGEX_RUN_WCHAR</td>
@@ -8864,7 +8871,7 @@ end-addresses of all matches.
 <i>regex</i> is the regular expression pattern to be processed.
 </p>
 <p>
-<i>str</i> is the string on which the pattern will be executed on.
+<i>str</i> is the string on which the pattern will be executed.
 </p>
 <p>
 <i>flags</i> are for regular expression compile- and runtime-mode switching.
@@ -8876,8 +8883,8 @@ provided as parray-object existing of one prange-object for every match.
 It is optional. <i>matches</i> must be released with <a href="#fn_parray_free">parray_free()</a> after its usage.
 </p>
 <p>
-Returns the number of matches, which is the amount of result entries in the
-returned array <i>matches</i>. If the value is negative, an error occured.
+Returns the number of matches, which is the number of result entries in the
+returned array <i>matches</i>. If the value is negative, an error occurred.
 </div>
 <!-- NEED 27 -->
 <div class='function'>
@@ -8905,7 +8912,7 @@ within the regular expression.
 <i>regex</i> is the regular expression pattern to be processed.
 </p>
 <p>
-<i>str</i> is the string on which the pattern will be executed on.
+<i>str</i> is the string on which the pattern will be executed.
 </p>
 <p>
 <i>replace</i> is the string that will be inserted as replacement for each pattern
@@ -8945,7 +8952,7 @@ separator; All strings that where split are returned as <i>matches</i>-array.
 <i>regex</i> is the regular expression pattern to be processed.
 </p>
 <p>
-<i>str</i> is the string on which the pattern will be executed on.
+<i>str</i> is the string on which the pattern will be executed.
 </p>
 <p>
 <i>flags</i> are for regular expression compile- and runtime-mode switching.
@@ -8957,7 +8964,7 @@ provided as parray-object existing of one prange-object for every match.
 It is optional. <i>matches</i> must be released with <a href="#fn_parray_free">parray_free()</a> after its usage.
 </p>
 <p>
-Returns the number of split substrings, which is the amount of result entries in
+Returns the number of split substrings, which is the number of result entries in
 the returned array <i>matches</i>. If the value is negative, an error occured.
 </div>
 <!-- NEED 23 -->
@@ -8992,7 +8999,7 @@ beginning at 1.
 </p>
 <p>
 The function returns the string with the replaced elements, or (char*)NULL
-in error case.
+in case of an error.
 </div>
 <!-- NEED 24 -->
 <div class='function'>
@@ -9027,8 +9034,8 @@ substring, so <i>next</i> should become the next <i>start</i> when <a href="#fn_
 called in a loop.
 </p>
 <p>
-The function returns (char*)NULL in case that there is no more string to split,
-else it returns <i>start</i>.
+The function returns (char*)NULL in case there is no more string to split, else
+it returns <i>start</i>.
 </div>
 <!-- NEED 19 -->
 <div class='function'>
@@ -9049,7 +9056,7 @@ int pregex_splitall( pregex* regex, char* start, parray** matches )
 </p>
 <p>
 Split a string at all matches of the regular expression <i>regex</i> from
-begin of pointer <i>start</i>, and optionally return the splitted matches as an
+begin of pointer <i>start</i>, and optionally returns the substrings found as an
 array.
 </p>
 <p>
@@ -9060,7 +9067,7 @@ to the configuration of the pregex-object).
 The function fills the array <i>matches</i>, if provided, with items of size
 prange. It returns the total number of matches.
 </div>
-<!-- NEED 24 -->
+<!-- NEED 23 -->
 <div class='function'>
 </p>
 
@@ -9078,19 +9085,18 @@ wchar_t* pstr_to_wcs( char* str, pboolean freestr )
 <b>Usage:</b>
 </p>
 <p>
-This functions converts an UTF-8-multi-byte string into an Unicode
+This functions converts an UTF-8-multi-byte string into a Unicode
 wide-character string.
 </p>
 <p>
-The string conversion is performed into dynamically allocated memory.
 The function wraps <a href="#fn_mbstowcs">mbstowcs()</a>, so <a href="#fn_set_locale">set_locale()</a> must be done before this
 function works properly.
 </p>
 <p>
 <i>str</i> is the zero-terminated multi-byte-character string to be converted
 into a wide-character string.
-<i>freestr</i> defines if the input-string shall be freed after successfull
-conversion, if set to TRUE.
+<i>freestr</i> if value equals TRUE then <i>str</i> will be freed after successfull
+conversion.
 </p>
 <p>
 Returns the wide-character pendant of <i>str</i> as pointer to dynamically
@@ -9114,7 +9120,7 @@ int pstrcasecmp( char* s1, char* s2 )
 <b>Usage:</b>
 </p>
 <p>
-Compare a string by ignoring case-order.
+Compare a string ignoring case-order.
 </p>
 <p>
 <i>s1</i> is the string to compare with <i>s2</i>.
@@ -9146,7 +9152,7 @@ Dynamically appends a character to a string.
 </p>
 <p>
 <i>str</i> is the pointer to a string to be appended. If this is (char*)NULL,
-the string will be newly allocated. <i>chr</i> is the the character to be appended
+the string will be newly allocated. <i>chr</i> is the character to be appended
 to str.
 </p>
 <p>
@@ -9183,12 +9189,12 @@ If this is (char*)NULL, the string is newly allocated.
 </p>
 <p>
 <i>freesrc</i> frees the pointer provided as <i>append</i> automatically by
-this function, if set to TRUE. This parameter has only a comfort-function.
+this function, if set to TRUE.
 </p>
 <p>
 Returns a char*-pointer to (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated, or both strings
-where NULL. If <i>dest</i> is NULL and <i>freesrc</i> is FALSE, the function
+were NULL. If <i>dest</i> is NULL and <i>freesrc</i> is FALSE, the function
 automatically returns the pointer <i>src</i>. This pointer must be released with <a href="#fn_pfree">pfree()</a> when its existence is no longer required.
 </div>
 <!-- NEED 17 -->
@@ -9237,10 +9243,10 @@ char* pstrget( char* str )
 <b>Usage:</b>
 </p>
 <p>
-Savely reads a string.
+Safely reads a string.
 </p>
 <p>
-<i>str</i> is the string pointer to be savely read. If <i>str</i> is NULL, the
+<i>str</i> is the string pointer to be safely read. If <i>str</i> is NULL, the
 function returns a pointer to a static address holding an empty string.
 </div>
 <!-- NEED 17 -->
@@ -9265,7 +9271,7 @@ Return length of a string.
 </p>
 <p>
 <i>str</i> is the parameter string to be evaluated. If (char*)NULL, the function
-returns 0. <a href="#fn_pstrlen">pstrlen()</a> is much more saver than <a href="#fn_strlen">strlen()</a> because it returns 0 when
+returns 0. <a href="#fn_pstrlen">pstrlen()</a> is much safer than <a href="#fn_strlen">strlen()</a> because it returns 0 when
 a NULL-pointer is provided.
 </p>
 <p>
@@ -9315,7 +9321,7 @@ char* pstrlwr( char* s )
 <b>Usage:</b>
 </p>
 <p>
-Convert a string to lower-case order.
+Convert a string to lower-case.
 </p>
 <p>
 <i>s</i> is the acts both as input and output-string.
@@ -9341,7 +9347,7 @@ int pstrncasecmp( char* s1, char* s2, size_t n )
 <b>Usage:</b>
 </p>
 <p>
-Compare a string by ignoring case-order about a maximum of <i>n</i> bytes.
+Compare two strings ignoring case-order up to a maximum of <i>n</i> bytes.
 </p>
 <p>
 <i>s1</i> is the string to compare with <i>s2</i>.
@@ -9349,10 +9355,10 @@ Compare a string by ignoring case-order about a maximum of <i>n</i> bytes.
 <i>n</i> is the number of bytes to compare.
 </p>
 <p>
-Returns 0 if both strings are equal. Returns a value &lt;0 if <i>s1</i> is lower than
+Returns 0 if both strings are equal. Returns a value &lt;0 if <i>s1</i> is less than
 <i>s2</i> or a value &gt;0 if <i>s1</i> is greater than <i>s2</i>.
 </div>
-<!-- NEED 24 -->
+<!-- NEED 23 -->
 <div class='function'>
 </p>
 
@@ -9370,8 +9376,7 @@ char* pstrncatstr( char* str, char* append, size_t n )
 <b>Usage:</b>
 </p>
 <p>
-Dynamicaly appends a number of n-characters from one string to another
-string.
+Dynamicaly appends n-characters from one string to another string.
 </p>
 <p>
 The function works similar to <a href="#fn_pstrcatstr">pstrcatstr()</a>, but allows to copy only a maximum
@@ -9385,7 +9390,7 @@ be appended. <i>n</i> is the number of characters to be appended to <i>str</i>.
 <p>
 Returns a char*-pointer to (possibly re-)allocated and appended string.
 (char*)NULL is returned if no memory could be (re)allocated, or both strings
-where NULL. This pointer must be released with <a href="#fn_pfree">pfree()</a> when its existence
+were NULL. This pointer must be released with <a href="#fn_pfree">pfree()</a> when its existence
 is no longer required.
 </div>
 <!-- NEED 24 -->
@@ -9415,7 +9420,7 @@ The resulting string will be zero-terminated.
 <p>
 <i>str</i> is the parameter string to be duplicated. If this is provided as
 (char*)NULL, the function will also return (char*)NULL.
-<i>n</i> is the the number of characters to be copied and duplicated from <i>str</i>.
+<i>n</i> is the number of characters to be copied and duplicated from <i>str</i>.
 If <i>n</i> is greater than the length of <i>str</i>, copying will stop at the zero
 terminator.
 </p>
@@ -9442,8 +9447,8 @@ char* pstrput( char** str, char* val )
 <b>Usage:</b>
 </p>
 <p>
-Assign a string into a dynamically allocated pointer.
- <a href="#fn_pstrput">pstrput()</a> manages the assignment of an dynamically allocated string.
+Assign a string to a dynamically allocated pointer.
+ <a href="#fn_pstrput">pstrput()</a> manages the assignment of a dynamically allocated string.
 </p>
 <p>
 <i>str</i> is a pointer receiving the target pointer to be (re)allocated. If
@@ -9451,11 +9456,11 @@ Assign a string into a dynamically allocated pointer.
 to a copy of <i>val</i>.
 </p>
 <p>
-<i>val</i> is the the string to be assigned to <i>str</i> (as a independent copy).
+<i>val</i> is the string to be assigned to <i>str</i> (as a independent copy).
 </p>
 <p>
 Returns a pointer to the allocated heap memory on success, (char*)NULL else.
-This is the same pointer as returned like calling <code>*str</code>. The returned pointer
+This is the same pointer as returned when calling <code>*str</code>. The returned pointer
 must be released with <a href="#fn_pfree">pfree()</a> or another call of <a href="#fn_pstrput">pstrput()</a>. Calling <a href="#fn_pstrput">pstrput()</a>
 as <code>pstrput( &amp;p, (char*)NULL );</code> is equivalent to <code>p = pfree( &amp;p )</code>.
 </div>
@@ -9502,11 +9507,11 @@ These consist of three values each:
 </ul>
 
 <p>
-Returns an allocated string which is the resulting source. This string must be
-release by <a href="#fn_pfree">pfree()</a> or another function releasing heap memory when its existence
-is no longer required.
+Returns an allocated string which is the result of rendering. This string must
+be released by <a href="#fn_pfree">pfree()</a> or another function releasing heap memory when its
+existence is no longer required.
 </div>
-<!-- NEED 19 -->
+<!-- NEED 21 -->
 <div class='function'>
 </p>
 
@@ -9528,13 +9533,16 @@ Replace a substring sequence within a string.
 </p>
 <p>
 <i>str</i> is the string to be replaced in. <i>find</i> is the substring to be
-matched. <i>replace</i> is the the string to be inserted for each match of the
+matched. <i>replace</i> is the string to be inserted for each match of the
 substring <i>find</i>.
 </p>
 <p>
-Returns a pointer to char* containing the allocated string which is the
-resulting source. This pointer must be released with <a href="#fn_pfree">pfree()</a> when its existence
-is no longer required.
+Returns a char* containing the allocated string which is the result of replacing
+all occurences of <i>find</i> with <i>replace</i> in <i>str</i>.
+</p>
+<p>
+This pointer must be released with <a href="#fn_pfree">pfree()</a> when its existence is no longer
+required.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -9584,12 +9592,12 @@ Splits a string at a delimiting token and returns an allocated array of
 token reference pointers.
 </p>
 <p>
-<i>tokens</i> is the an allocated array of tokenized array values.
+<i>tokens</i> is an allocated array of tokenized array values.
 Requires a pointer to char**.
 <i>str</i> is the input string to be tokenized.
 <i>sep</i> is the token separation substring.
-<i>limit</i> is the token limit; If set to 0, there is no token limit available, so
-that as much as possible tokens are read.
+<i>limit</i> is the token limit; If set to 0, there is no token limit available,
+in which case as many as possible tokens are read.
 </p>
 <p>
 Returns the number of separated tokens, or -1 on error.
@@ -9685,8 +9693,8 @@ The following table shows escape sequences which are converted.
 
 <p>
 The replacement is done within the memory bounds of <i>str</i> itself, because the
-unescaped version of the character requires lesser space that its previous
-escape sequence.
+unescaped version of the character requires less space than its previous escape
+sequence.
 </p>
 <p>
 The function always returns its input pointer.
@@ -9722,10 +9730,10 @@ char* pstrupr( char* s )
 <b>Usage:</b>
 </p>
 <p>
-Convert a string to upper-case order.
+Convert a string to upper-case.
 </p>
 <p>
-<i>s</i> is the acts both as input and output-string.
+<i>s</i> acts both as input- and output string.
 </p>
 <p>
 Returns <i>s</i>.
@@ -9751,12 +9759,12 @@ int pvasprintf( char** str, char* fmt, va_list ap )
 Implementation and replacement for vasprintf.
 </p>
 <p>
-<i>str</i> is the pointer receiving the resultung, allocated string pointer.
-<i>fmt</i> is the the format string.
+<i>str</i> is the pointer receiving the result, allocated string pointer.
+<i>fmt</i> is the format string.
 <i>...</i> are the parameters according to the placeholders set in <i>fmt</i>.
 </p>
 <p>
-Returns the number of characters written, or -1 in error case.
+Returns the number of characters written, or -1 in case of an error.
 </div>
 <!-- NEED 11 -->
 <div class='function'>
@@ -9908,7 +9916,7 @@ called before this function works properly.
 </p>
 <p>
 <i>str</i> is the zero-terminated string to be converted to UTF-8.
-<i>freestr</i> defines if the input-string shall be freed after successfull
+<i>freestr</i> defines if the input-string shall be freed after successful
 conversion, if set to TRUE.
 </p>
 <p>
@@ -9968,13 +9976,13 @@ wide-character string.
 <p>
 <i>str</i> is the pointer to a wchar_t-string to be appended. If this is
 (wchar_t*)NULL, the string is newly allocated.
-<i>append</i> is the the string to be appended.
+<i>append</i> is the string to be appended.
 <i>freesrc</i> if true, <i>append</i> is free'd automatically by this function.
 </p>
 <p>
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
-where NULL.
+were NULL.
 </div>
 <!-- NEED 17 -->
 <div class='function'>
@@ -10022,10 +10030,10 @@ wchar_t* pwcsget( wchar_t* str )
 <b>Usage:</b>
 </p>
 <p>
-Savely reads a wide-character string.
+Safely reads a wide-character string.
 </p>
 <p>
-<i>str</i> is the string pointer to be savely read. If <i>str</i> is NULL, the
+<i>str</i> is the string pointer to be safely read. If <i>str</i> is NULL, the
 function returns a pointer to a static address holding an empty string.
 </div>
 <!-- NEED 14 -->
@@ -10046,13 +10054,13 @@ size_t pwcslen( wchar_t* str )
 <b>Usage:</b>
 </p>
 <p>
-Saver strlen replacement for wide-character.
+Safe strlen replacement for wide-character.
 </p>
 <p>
 <i>str</i> is the parameter string to be evaluated. If (wchar_t*)NULL,
 the function returns 0.
 </div>
-<!-- NEED 21 -->
+<!-- NEED 20 -->
 <div class='function'>
 </p>
 
@@ -10070,19 +10078,18 @@ wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n )
 <b>Usage:</b>
 </p>
 <p>
-Appends a number of N characters from one wide-character string to a dynamic
-string.
+Appends <i>n</i> characters from one wide-character string to a dynamic string.
 </p>
 <p>
 <i>str</i> is the pointer to a wchar_t-string to be appended. If this is
 (wchar_t*)NULL, the string is newly allocated.
 <i>append</i> is the begin of character sequence to be appended.
-<i>n</i> is the amount of characters to be appended to str.
+<i>n</i> is the number of characters to be appended to str.
 </p>
 <p>
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
-where NULL.
+were NULL.
 </div>
 <!-- NEED 26 -->
 <div class='function'>
@@ -10141,7 +10148,7 @@ wchar_t* pwcsput( wchar_t** str, wchar_t* val )
 <b>Usage:</b>
 </p>
 <p>
-Assign a wide-character string into a dynamically allocated pointer.
+Assign a wide-character string to a dynamically allocated pointer.
  <a href="#fn_pwcsput">pwcsput()</a> manages the assignment of an dynamically allocated  wide-chararacter
 string.
 </p>
@@ -10152,15 +10159,15 @@ and reassigned to a copy of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the the wide-character string to be assigned to <i>str</i>
-(as a independent copy).
+(as an independent copy).
 </p>
 <p>
 Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
-This is the same pointer as returned like calling <code>*str</code>. The returned pointer
+This is the same pointer as returned when calling <code>*str</code>. The returned pointer
 must be released with <a href="#fn_pfree">pfree()</a> or another call of <a href="#fn_pwcsput">pwcsput()</a>. Calling <a href="#fn_pwcsput">pwcsput()</a>
 as <code>pwcsput( &amp;p, (char*)NULL );</code> is equivalent to <code>p = pfree( &amp;p )</code>.
 </div>
-<!-- NEED 21 -->
+<!-- NEED 22 -->
 <div class='function'>
 </p>
 
@@ -10186,8 +10193,9 @@ Figures out a filepath by searching in a PATH definition.
 <p>
 <i>directories</i> is a string specifying the directories to search in.
 If this is (char*)NULL, the environment variable PATH will be used and
-evaluated by using <a href="#fn_getenv">getenv()</a>. The path can be split with multiple pathes
-by a character that depends on the current platform (Unix: ":", Windows: ";").
+evaluated by using  <a href="#fn_getenv">getenv()</a> #fn_getenv]. The path can be split with multiple
+paths by a character that depends on the current platform
+(Unix: ":", Windows: ";").
 </p>
 <p>
 Returns a static pointer to the absolute path that contains the file specified
@@ -10293,10 +10301,10 @@ This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
 </p>
 <p>
 <i>chr</i> is the input- and output-pointer (the pointer is replaced by the pointer
-to the next character or escape-sequence within the string.
+to the next character or escape-sequence within the string).
 </p>
 <p>
-The function teturns the character code of the parsed character.
+The function returns the character code of the parsed character.
 </div>
 <!-- NEED 15 -->
 <div class='function'>

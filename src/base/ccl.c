@@ -23,6 +23,8 @@ static int ccl_SORTFUNC( plist* list, plistel* el, plistel* er )
 
 /** Constructor function to create a new character-class.
 
+//min// and //max// can either be specified as -1, so the configured default
+constants PCCL_MIN and PCCL_MAX will be used. The values can also be inverted.
 
 Returns a pointer to the newly created character-class. This pointer should be
 released with p_ccl_free() when its existence is no longer required.
@@ -64,8 +66,8 @@ pccl* p_ccl_create( int min, int max, char* ccldef )
 	RETURN( ccl );
 }
 
-/** Checks if the character-classes //l// and //r// are in the same
-character universe and compatible for operations. */
+/** Checks if the character-classes //l// and //r// are configured
+to be in the same character universe and compatible for operations. */
 pboolean p_ccl_compat( pccl* l, pccl* r )
 {
 	if( !( l && r ) )
