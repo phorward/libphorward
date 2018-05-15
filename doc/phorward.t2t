@@ -1,6 +1,6 @@
 The Phorward Libraries
-libphorward 0.22.1
-April 2018
+libphorward 0.22.3
+May 2018
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
 %!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
@@ -30,7 +30,7 @@ The library is made up of several modules. These are:
 
 - **any** provides a dynamical, extendible data structure and interface to store, convert and handle variables of different value types ("variant" data type),
 - **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays,
-- **parse** defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees, integrating perfectly with the tools from *regex* for lexical analysis,
+- **parse** defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees, integrating perfectly with the tools from //regex// for lexical analysis,
 - **regex** provides tools for lexical analysis and regular expression processing,
 - **string** is an extended string processing library,
 - **vm** can be used to implement and run stack-based virtual machines and instruction sets aimed to work with the *any* data type.

@@ -941,7 +941,8 @@ any/any.print.c: any/any.h any/any.gen.awk
 
 # Phorward Foundation Library Documentation
 ../doc/ref.t2t: $(libphorward_la_SOURCES) $(noinst_HEADERS)
-	echo "" >$@
+	echo "% --- DON'T EDIT THIS FILE, IT IS GENERATED FROM SRC/ ---" >$@
+	echo "" >>$@
 	echo "" >>$@
 	echo "" >>$@
 	pdoc -d 2 $(libphorward_la_SOURCES) $(noinst_HEADERS) >>$@
