@@ -160,19 +160,11 @@ typedef struct
 	unsigned int			states;		/* States count */
 	unsigned int**			dfa;		/* Parse table */
 
-	/* Lexical analyzer */
-	ppsym**					tokens;
-	ppsym**					ntokens;
-
-	plex*					lex;		/* Lexical analyzer */
-
-	unsigned int			(*lexfn)( char** start, char** end ); /* callback */
-
 	/* Context */
 	ppparstate				state;		/* State */
 	int						reduce;		/* Reduce */
 	parray*					stack;		/* Stack */
-	ppast*					root;		/* AST */
+	ppast*					ast;		/* AST */
 } pppar;
 
 

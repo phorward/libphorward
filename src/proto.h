@@ -199,11 +199,12 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 
 /* parse/parse.c */
 pppar* pp_par_create( ppgram* g );
-pppar* pp_par_free( pppar* p );
-int pp_par_autolex( pppar* p );
-pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags );
+pppar* pp_par_free( pppar* par );
+plex* pp_par_autolex( pppar* p );
+ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end );
+ppparstate pp_par_next_by_name( pppar* par, char* name, char* start, char* end );
+ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx, char* start, char* end );
 pboolean pp_par_parse( ppast** root, pppar* par, char* start );
-ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end );
 
 /* parse/pbnf.c */
 pboolean pp_gram_from_pbnf( ppgram* g, char* src );

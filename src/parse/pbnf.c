@@ -718,22 +718,21 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	PP_GRAM_DUMP( pbnf );
 
 	/* Lexer */
-	pp_par_lex( ppar, whitespace, "[ \t\r\n]+", 0 );
-	pp_par_lex( ppar, comment, "/\\*([^*]|\\*[^/])*\\*/|//[^\n]*\n", 0 );
+	pregex_ptn_parse( &whitespace->ptn, "[ \t\r\n]+", 0 );
+	pregex_ptn_parse( &comment->ptn, "/\\*([^*]|\\*[^/])*\\*/|//[^\n]*\n", 0 );
 
-	pp_par_lex( ppar, terminal, "[A-Z_][A-Za-z0-9_]*", 0 );
-	pp_par_lex( ppar, nonterminal, "[a-z_][A-Za-z0-9_]*", 0 );
-	pp_par_lex( ppar, code, "{{.*}}", 0 );
+	pregex_ptn_parse( &terminal->ptn, "[A-Z_][A-Za-z0-9_]*", 0 );
+	pregex_ptn_parse( &nonterminal->ptn, "[a-z_][A-Za-z0-9_]*", 0 );
+	pregex_ptn_parse( &code->ptn, "{{.*}}", 0 );
 
-	pp_par_lex( ppar, t_ccl, "\\[(\\.|[^\\\\\\]])*\\]", 0 );
-	pp_par_lex( ppar, t_string, "'[^']*'", 0 );
-	pp_par_lex( ppar, t_token, "\"[^\"]*\"", 0 );
-	pp_par_lex( ppar, t_regex, "/(\\.|[^\\/])*/", 0 );
+	pregex_ptn_parse( &t_ccl->ptn, "\\[(\\.|[^\\\\\\]])*\\]", 0 );
+	pregex_ptn_parse( &t_string->ptn, "'[^']*'", 0 );
+	pregex_ptn_parse( &t_token->ptn, "\"[^\"]*\"", 0 );
+	pregex_ptn_parse( &t_regex->ptn, "/(\\.|[^\\/])*/", 0 );
 
-	pp_par_lex( ppar, flag_ignore, "%(ignore|skip)", 0 );
+	pregex_ptn_parse( &flag_ignore->ptn, "%(ignore|skip)", 0 );
 
-	pp_par_autolex( ppar );
-
+	/* Parse */
 	if( !pp_par_parse( &ast, ppar, src ) )
 	{
 		pp_par_free( ppar );

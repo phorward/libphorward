@@ -43,14 +43,9 @@ pppar* pp_par_create( ppgram* g )
 
 	p = (pppar*)pmalloc( sizeof( pppar ) );
 
-	/* Lexer token mappings */
-	p->ntokens = p->tokens = (ppsym**)pmalloc(
-								( plist_count( g->symbols ) + 1 )
-									* sizeof( ppsym* ) );
-	g->flags |= PPFLAG_FROZEN;
-
 	/* Grammar */
 	p->gram = g;
+	g->flags |= PPFLAG_FROZEN;
 
 	if( !pp_lr_build( &p->states, &p->dfa, p->gram ) )
 	{
@@ -65,29 +60,29 @@ pppar* pp_par_create( ppgram* g )
 }
 
 /** Frees the parser object //par//. */
-pppar* pp_par_free( pppar* p )
+pppar* pp_par_free( pppar* par )
 {
-	if( !p )
+	if( !par )
 		return (pppar*)NULL;
 
-	plex_free( p->lex );
+	parray_free( par->stack );
+	pp_ast_free( par->ast );
 
-	pfree( p->tokens );
-	pfree( p );
+	pfree( par );
 
 	return (pppar*)NULL;
 }
 
-/** Automatically generate lexical analysis for terminal symbols which
-have not been defined with pp_par_lex().
+/** Automatically generate lexical analyzer from terminal symbols
+defined in the grammar.
 
-Returns the number of inserted tokens on success. */
-int pp_par_autolex( pppar* p )
+The lexical analyzer is constructed as a plex scanner and must be freed
+after usage with plex_free(). */
+plex* pp_par_autolex( pppar* p )
 {
-	ppsym**		ptr;
 	ppsym*		sym;
 	plistel*	e;
-	int			gen 		= 0;
+	plex*		lex				= (plex*)NULL;
 
 	PROC( "pp_par_autolex" );
 	PARMS( "p", "%p", p );
@@ -107,78 +102,28 @@ int pp_par_autolex( pppar* p )
 				|| !sym->name )
 			continue;
 
-		/* Check if symbol was not already defined previously */
-		for( ptr = p->tokens; ptr < p->ntokens; ptr++ )
-			if( sym == *ptr )
-				break;
+		VARS( "sym->idx", "%d", sym->idx );
 
-		if( ptr == p->ntokens )
+		if( !lex )
 		{
-			MSG( "Creating auto lexer" );
-			VARS( "sym->name", "%s", sym->name ? sym->name : "(null)" );
+			MSG( "OK, its time to create a lexer" );
+			lex = plex_create( PREGEX_FLAG_NONE );
+		}
+
+		if( sym->ptn )
+		{
 			VARS( "sym->ptn", "%p", sym->ptn );
-
-			if( sym->ptn )
-				pp_par_lex( p, sym, (char*)sym->ptn, PREGEX_COMP_PTN );
-			else
-				pp_par_lex( p, sym, sym->name, PREGEX_COMP_STATIC );
-
-			gen++;
+			plex_define( lex, (char*)sym->ptn, (int)sym->idx, PREGEX_COMP_PTN );
 		}
-	}
-
-	VARS( "gen", "%d", gen );
-	RETURN( gen );
-}
-
-/** Defines a lexical matcher for //sym// in parser //p// from a
-regular expression. //sym// must be a terminal symbol.
-
-Returns TRUE on success, FALSE if the symbol already was defined as a lexing
-token. */
-pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags )
-{
-	ppsym**	ptr;
-
-	PROC( "pp_par_lex" );
-	PARMS( "p", "%p", p );
-
-	if( !( p && sym && pat ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
-	PARMS( "sym->name", "%s", sym->name );
-	PARMS( "pat", "%s", pat );
-	PARMS( "flags", "%d", flags );
-
-	if( !PPSYM_IS_TERMINAL( sym ) )
-	{
-		fprintf( stderr, "'%s' is not a terminal\n", sym->name );
-		MSG( "Cannot create lexical recognition for nonterminal symbols" );
-		RETURN( FALSE );
-	}
-
-	/* Check if symbol was not already defined previously */
-	for( ptr = p->tokens; ptr < p->ntokens; ptr++ )
-	{
-		if( sym == *ptr )
+		else
 		{
-			MSG( "Symbol was already defined previously" );
-			RETURN( FALSE );
+			VARS( "sym->name", "%s", sym->name ? sym->name : "(null)" );
+			plex_define( lex, sym->name, (int)sym->idx, PREGEX_COMP_STATIC );
 		}
 	}
 
-	/* Once construct a lexer */
-	if( !p->lex )
-		p->lex = plex_create( 0 );
-
-	/* Insert symbol */
-	*(p->ntokens++) = sym;
-	plex_define( p->lex, pat, (int)( p->ntokens - p->tokens ), flags );
-
-	RETURN( TRUE );
+	VARS( "lex", "%p", lex );
+	RETURN( lex );
 }
 
 
@@ -215,265 +160,16 @@ static void print_stack( char* title, parray* stack )
 }
 #endif
 
-static ppsym* pp_par_scan( pppar* p, char** start, char** end, pboolean lazy )
-{
-	ppsym*			sym;
-	unsigned int	id;
 
-	PROC( "pp_par_scan" );
+/** Let parser //par// run on next token //sym//.
 
-	while( TRUE )
-	{
-		if( ( !lazy && ( id = plex_lex( p->lex, *start, end ) ) )
-			|| ( lazy && ( *start = plex_next( p->lex, *start, &id, end ) ) ) )
-		{
-			sym = p->tokens[ id - 1 ];
-
-			if( sym->flags & PPFLAG_WHITESPACE )
-			{
-				*start = *end;
-				continue;
-			}
-		}
-		else
-			sym = p->gram->eof;
-
-		break;
-	}
-
-	LOG( "Next token '%s' @ >%.*s<\n", sym->name, *end - *start, *start );
-	RETURN( sym );
-}
-
-/** Run parser //par// with input //start//.
-
-Currently, the used parsing method is LALR(1).
-
-It returns an abstract syntax tree in //root// on success. */
-pboolean pp_par_parse( ppast** root, pppar* par, char* start )
-{
-	int			i;
-	int			row		= 1;
-	int			col		= 1;
-	char*		end;
-	int			lrow;
-	int			lcol;
-	char*		lstart;
-	char*		lend;
-	ppsym*		sym;
-	parray*		stack;
-	pplrse*		tos;
-	int			shift;
-	int			reduce;
-	ppprod*		prod;
-	ppast*		node;
-	pboolean	lazy	= TRUE;
-
-	PROC( "pp_par_parse" );
-
-	if( !( par && start ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
-	PARMS( "root", "%p", root );
-	PARMS( "par", "%p", par );
-	PARMS( "start", "%s", start );
-
-	/* Init */
-	if( par->lex )
-	{
-		plex_prepare( par->lex );
-
-		for( i = 0; ( sym = pp_sym_get( par->gram, i ) ); i++ )
-			if( PPSYM_IS_TERMINAL( sym ) && sym->flags & PPFLAG_WHITESPACE )
-			{
-				lazy = FALSE;
-				break;
-			}
-	}
-
-	stack = parray_create( sizeof( pplrse ), 0 );
-
-	tos = (pplrse*)parray_malloc( stack );
-	tos->sym = par->gram->goal;
-	tos->start = start;
-
-	/* Read token */
-	lend = end = start;
-	sym = pp_par_scan( par, &start, &end, lazy );
-
-	do
-	{
-		VARS( "State", "%d", tos->state );
-
-		/* Check for entries in the parse table */
-		if( tos->state > -1 )
-		{
-			for( i = 2, shift = 0, reduce = 0;
-					i < par->dfa[tos->state][0]; i += 3 )
-			{
-				if( par->dfa[tos->state][i] == sym->idx + 1 )
-				{
-					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
-						shift = par->dfa[tos->state][ i + 2 ];
-
-					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-						reduce = par->dfa[tos->state][ i + 2 ];
-
-					break;
-				}
-			}
-
-			if( !shift && !reduce )
-				reduce = par->dfa[ tos->state ][ 1 ];
-		}
-
-		VARS( "shift", "%d", shift );
-		VARS( "reduce", "%d", reduce );
-
-		if( !shift && !reduce )
-		{
-			/* Parse Error */
-			/* TODO: Error Recovery */
-			fprintf( stderr, "Parse Error [line:%d col:%d] @ >%s<\n",
-				row, col, end );
-
-			MSG( "Parsing failed" );
-			RETURN( FALSE );
-		}
-
-		/* Shift */
-		if( shift )
-		{
-			if( reduce )
-				LOG( "shift on %s and reduce by production %d\n",
-							sym->name, reduce - 1 );
-			else
-				LOG( "shift on %s to state %d\n", sym->name, shift - 1 );
-
-			tos = (pplrse*)parray_malloc( stack );
-
-			tos->sym = sym;
-			tos->state = reduce ? 0 : shift - 1;
-			tos->start = start;
-			tos->row = row;
-			tos->col = col;
-
-			/* Shifted symbol becomes AST node? */
-			if( root && sym->emit )
-			{
-				lend = end;
-				tos->node = pp_ast_create( sym->emit, sym,
-											(ppprod*)NULL, start, end,
-												row, col, (ppast*)NULL );
-			}
-
-			/* Read next token */
-			lend = start = end;
-			sym = pp_par_scan( par, &start, &end, lazy );
-		}
-
-		/* Reduce */
-		while( reduce )
-		{
-			prod = pp_prod_get( par->gram, reduce - 1 );
-
-			LOG( "reduce by production '%s'", pp_prod_to_str( prod ) );
-			LOG( "popping %d items off the stack, replacing by %s\n",
-						plist_count( prod->rhs ),
-							prod->lhs->name );
-
-			node = (ppast*)NULL;
-
-			for( i = 0; i < plist_count( prod->rhs ); i++ )
-			{
-				tos = (pplrse*)parray_pop( stack );
-
-				lstart = tos->start;
-
-				/* Connecting nodes, remember last node. */
-				if( tos->node )
-				{
-					if( node )
-					{
-						while( tos->node->next )
-							tos->node = tos->node->next;
-
-						tos->node->next = node;
-						node->prev = tos->node;
-					}
-
-					node = tos->node;
-
-					while( node->prev )
-						node = node->prev;
-
-					lrow = tos->row;
-					lcol = tos->col;
-				}
-			}
-
-			tos = (pplrse*)parray_last( stack );
-
-			/* Construction of AST node */
-			if( root && prod->emit )
-				node = pp_ast_create( prod->emit,
-										prod->lhs, prod, lstart, lend,
-											lrow, lcol, node );
-			else if( root && prod->lhs->emit )
-				node = pp_ast_create( prod->lhs->emit,
-										prod->lhs, prod, lstart, lend,
-											lrow, lcol, node );
-
-			/* Goal symbol reduced? */
- 			if( prod->lhs == par->gram->goal && parray_count( stack ) == 1 )
-			{
-				if( root )
-					*root = node;
-
-				break;
-			}
-
-			/* Check for entries in the parse table */
-			for( i = par->dfa[tos->state][0] - 3, shift = 0, reduce = 0;
-					i >= 2; i -= 3 )
-			{
-				if( par->dfa[tos->state][i] == prod->lhs->idx + 1 )
-				{
-					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
-						shift = par->dfa[tos->state][ i + 2 ];
-
-					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-						reduce = par->dfa[tos->state][ i + 2 ];
-
-					break;
-				}
-			}
-
-			tos = (pplrse*)parray_malloc( stack );
-
-			tos->sym = prod->lhs;
-			tos->state = shift - 1;
-			tos->start = lstart;
-			tos->node = node;
-			tos->row = lrow;
-			tos->col = lcol;
-		}
-	}
-	while( !reduce );
-
-	MSG( "Parsing succeeded" );
-	RETURN( TRUE );
-}
-
-/** Run pushed parser //par// on token //sym//.
+This method is called a push-parsing algorithm, where the scanner calls the
+parser to perform the next parsing steps.
 
 //start// and //end// are positional arguments to obtain a string from the
-token.
+token. These parameters may become obsolete in future.
 
-Currently, the used parsing method is only LALR(1).
+Currently, the used parsing method is LALR(1).
 
 The function returns:
 
@@ -482,7 +178,7 @@ The function returns:
 - PPPAR_STATE_ERROR when an error was encountered.
 -
 */
-ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end )
+ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 {
 	int			i;
 	int			row		= 1;
@@ -493,16 +189,15 @@ ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end )
 	char*		lend;
 	pplrse*		tos;
 	int			shift;
-	int			reduce;
 	ppprod*		prod;
 	ppast*		node;
 
-	PROC( "pp_par_pushparse" );
+	PROC( "pp_par_next" );
 
 	if( !( par && sym ) )
 	{
 		WRONGPARAM;
-		RETURN( FALSE );
+		RETURN( PPPAR_STATE_ERROR );
 	}
 
 	PARMS( "par", "%p", par );
@@ -513,22 +208,7 @@ ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end )
 	PARMS( "end", "%s", end );
 	*/
 
-	/* Init */
-	/*
-	fixme: Lexer handling?
-	if( par->lex )
-	{
-		plex_prepare( par->lex );
-
-		for( i = 0; ( sym = pp_sym_get( par->gram, i ) ); i++ )
-			if( PPSYM_IS_TERMINAL( sym ) && sym->flags & PPFLAG_WHITESPACE )
-			{
-				lazy = FALSE;
-				break;
-			}
-	}
-	*/
-
+	/* Set up stack if necessary */
 	VARS( "par->stack", "%p", par->stack );
 
 	if( !par->stack )
@@ -537,14 +217,18 @@ ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end )
 		par->state = PPPAR_STATE_INITIAL;
 	}
 
+	/* Initialize parser on first call */
 	if( par->state == PPPAR_STATE_INITIAL )
 	{
 		MSG( "Initial state" );
 		parray_erase( par->stack );
+		par->ast = pp_ast_free( par->ast );
 
 		tos = (pplrse*)parray_malloc( par->stack );
 		tos->sym = par->gram->goal;
 		tos->start = start;
+
+
 	}
 	else
 		tos = (pplrse*)parray_last( par->stack );
@@ -611,8 +295,10 @@ ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end )
 			if( prod->lhs == par->gram->goal
 					&& parray_count( par->stack ) == 1 )
 			{
-				par->root = node;
 				MSG( "Parsing succeeded!" );
+
+				par->ast = node;
+
 				RETURN( ( par->state = PPPAR_STATE_DONE ) );
 			}
 
@@ -675,8 +361,8 @@ ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end )
 		{
 			/* Parse Error */
 			/* TODO: Error Recovery */
-			fprintf( stderr, "Parse Error [line:%d col:%d] @ >%s<\n",
-				row, col, end );
+			fprintf( stderr, "Parse Error [line:%d col:%d] @ %s\n",
+				row, col, sym->name );
 
 			MSG( "Parsing failed" );
 			RETURN( ( par->state = PPPAR_STATE_ERROR ) );
@@ -709,4 +395,135 @@ ppparstate pp_par_pushparse( pppar* par, ppsym* sym, char* start, char* end )
 
 	MSG( "Next token required" );
 	RETURN( ( par->state = PPPAR_STATE_NEXT ) );
+}
+
+/** Let parser //par// run on next token identified by //name//.
+
+The function is a wrapper for pp_par_next() with same behavior.
+*/
+ppparstate pp_par_next_by_name( pppar* par, char* name, char* start, char* end )
+{
+	ppsym*		sym;
+
+	PROC( "pp_par_next_by_name" );
+	PARMS( "par", "%p", par );
+	PARMS( "name", "%s", name );
+
+	if( !( par && name && *name ) )
+	{
+		WRONGPARAM;
+		RETURN( PPPAR_STATE_ERROR );
+	}
+
+	if( !( sym = pp_sym_get_by_name( par->gram, name ) ) )
+	{
+		WRONGPARAM;
+
+		LOG( "Token named '%s' does not exist in the grammar", name );
+		RETURN( PPPAR_STATE_ERROR );
+	}
+
+	if( !PPSYM_IS_TERMINAL( sym ) )
+	{
+		WRONGPARAM;
+
+		LOG( "Symbol named '%s' is not a terminal symbol", name );
+		RETURN( PPPAR_STATE_ERROR );
+	}
+
+	RETURN( pp_par_next( par, sym, start, end ) );
+}
+
+
+/** Let parser //par// run on next token identified by //idx//.
+
+The function is a wrapper for pp_par_next() with same behavior.
+*/
+ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx,
+									char* start, char* end )
+{
+	ppsym*		sym;
+
+	PROC( "pp_par_next_by_idx" );
+	PARMS( "par", "%p", par );
+	PARMS( "idx", "%d", idx );
+
+	if( !( par ) )
+	{
+		WRONGPARAM;
+		RETURN( PPPAR_STATE_ERROR );
+	}
+
+	if( !( sym = pp_sym_get( par->gram, idx ) ) )
+	{
+		WRONGPARAM;
+
+		LOG( "Token with index %d does not exist in the grammar", idx );
+		RETURN( PPPAR_STATE_ERROR );
+	}
+
+	LOG( "Token = %s", sym->name );
+
+	if( !PPSYM_IS_TERMINAL( sym ) )
+	{
+		WRONGPARAM;
+
+		LOG( "Symbol with index %d is not a terminal symbol", idx );
+		RETURN( PPPAR_STATE_ERROR );
+	}
+
+	RETURN( pp_par_next( par, sym, start, end ) );
+}
+
+/** Parse string with lexer. */
+pboolean pp_par_parse( ppast** root, pppar* par, char* start )
+{
+	plex*			lex;
+	char*			end;
+	unsigned int	tok;
+
+	PROC( "pp_par_parse" );
+	PARMS( "root", "%p", root );
+	PARMS( "par", "%p", par );
+
+	if( !( par && start ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !( lex = pp_par_autolex( par ) ) )
+	{
+		MSG( "Unable to create a lexer from this parser" );
+		WRONGPARAM;
+
+		RETURN( FALSE );
+	}
+
+	while( ( start = plex_next( lex, start, &tok, &end ) ) )
+	{
+		LOG( "Token = %d", tok );
+
+		if( pp_par_next_by_idx( par, tok, start, end ) != PPPAR_STATE_NEXT )
+			break;
+
+		start = end;
+	}
+
+	plex_free( lex );
+
+	if( !start && pp_par_next_by_idx( par, 0, (char*)NULL, (char*)NULL )
+					== PPPAR_STATE_DONE )
+	{
+		MSG( "We have a successful parse!" );
+		if( root )
+		{
+			*root = par->ast;
+			par->ast = (ppast*)NULL;
+		}
+
+		RETURN( TRUE );
+	}
+
+	RETURN( FALSE );
 }
