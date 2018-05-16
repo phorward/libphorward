@@ -144,7 +144,6 @@ int main( int argc, char** argv )
 	}
 
 	p = pp_par_create( g );
-	pp_par_autolex( p );
 
 	lm = argc == next;
 	i = 0;
