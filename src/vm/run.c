@@ -13,14 +13,15 @@ Usage:	Dynamic virtual machine execution.
 static void dump_stack( parray* stack )
 {
 	pany*	any;
+
+	PROC( "dump_stack" );
+
 	for( any = (pany*)parray_first( stack );
 			any <= (pany*)parray_last( stack );
 				any++ )
-	{
-		fprintf( stderr, "%03ld => ", any - (pany*)parray_first( stack ) );
-		pany_fprint( stderr, any );
-	}
+		PANY_DUMP( any );
 
+	VOIDRET;
 }
 
 /** Run vm */

@@ -8,11 +8,6 @@ File:	any.c
 Author:	Jan Max Meyer
 Usage:	pany implements a universal data type object, which can hold any of
 		generic C type.
-
-		The functions in any.conv.c, any.get.c and any.set.c are generated
-		by an awk-script reading its definitions from any.h, so the supported
-		data types can easily be extended without writing any convert/get/set
-		functions.
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"

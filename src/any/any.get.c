@@ -24,7 +24,7 @@ pboolean pany_get_bool( pany* val )
 		RETURN( (pboolean)FALSE );
 	}
 
-	if( val->type != PANYTYPE_BOOL)
+	if( val->type != PANYTYPE_BOOL )
 	{
 		if( !pany_convert( val, PANYTYPE_BOOL ) )
 			RETURN( (pboolean)FALSE );
@@ -52,7 +52,7 @@ char pany_get_char( pany* val )
 		RETURN( (char)0 );
 	}
 
-	if( val->type != PANYTYPE_CHAR)
+	if( val->type != PANYTYPE_CHAR )
 	{
 		if( !pany_convert( val, PANYTYPE_CHAR ) )
 			RETURN( (char)0 );
@@ -80,7 +80,7 @@ int pany_get_int( pany* val )
 		RETURN( (int)0 );
 	}
 
-	if( val->type != PANYTYPE_INT)
+	if( val->type != PANYTYPE_INT )
 	{
 		if( !pany_convert( val, PANYTYPE_INT ) )
 			RETURN( (int)0 );
@@ -108,7 +108,7 @@ long pany_get_long( pany* val )
 		RETURN( (long)0 );
 	}
 
-	if( val->type != PANYTYPE_LONG)
+	if( val->type != PANYTYPE_LONG )
 	{
 		if( !pany_convert( val, PANYTYPE_LONG ) )
 			RETURN( (long)0 );
@@ -136,7 +136,7 @@ unsigned long pany_get_ulong( pany* val )
 		RETURN( (unsigned long)0 );
 	}
 
-	if( val->type != PANYTYPE_ULONG)
+	if( val->type != PANYTYPE_ULONG )
 	{
 		if( !pany_convert( val, PANYTYPE_ULONG ) )
 			RETURN( (unsigned long)0 );
@@ -164,7 +164,7 @@ float pany_get_float( pany* val )
 		RETURN( (float)0.0 );
 	}
 
-	if( val->type != PANYTYPE_FLOAT)
+	if( val->type != PANYTYPE_FLOAT )
 	{
 		if( !pany_convert( val, PANYTYPE_FLOAT ) )
 			RETURN( (float)0.0 );
@@ -192,7 +192,7 @@ double pany_get_double( pany* val )
 		RETURN( (double)0.0 );
 	}
 
-	if( val->type != PANYTYPE_DOUBLE)
+	if( val->type != PANYTYPE_DOUBLE )
 	{
 		if( !pany_convert( val, PANYTYPE_DOUBLE ) )
 			RETURN( (double)0.0 );
@@ -220,7 +220,7 @@ char* pany_get_cstr( pany* val )
 		RETURN( (char*)NULL );
 	}
 
-	if( val->type != PANYTYPE_CSTR)
+	if( val->type != PANYTYPE_CSTR )
 	{
 		if( !pany_convert( val, PANYTYPE_CSTR ) )
 			RETURN( (char*)NULL );
@@ -248,7 +248,7 @@ char* pany_get_str( pany* val )
 		RETURN( (char*)NULL );
 	}
 
-	if( val->type != PANYTYPE_STR)
+	if( val->type != PANYTYPE_STR )
 	{
 		if( !pany_convert( val, PANYTYPE_STR ) )
 			RETURN( (char*)NULL );
@@ -276,7 +276,7 @@ wchar_t* pany_get_cwcs( pany* val )
 		RETURN( (wchar_t*)NULL );
 	}
 
-	if( val->type != PANYTYPE_CWCS)
+	if( val->type != PANYTYPE_CWCS )
 	{
 		if( !pany_convert( val, PANYTYPE_CWCS ) )
 			RETURN( (wchar_t*)NULL );
@@ -304,7 +304,7 @@ wchar_t* pany_get_wcs( pany* val )
 		RETURN( (wchar_t*)NULL );
 	}
 
-	if( val->type != PANYTYPE_WCS)
+	if( val->type != PANYTYPE_WCS )
 	{
 		if( !pany_convert( val, PANYTYPE_WCS ) )
 			RETURN( (wchar_t*)NULL );
@@ -332,7 +332,7 @@ void* pany_get_ptr( pany* val )
 		RETURN( (void*)NULL );
 	}
 
-	if( val->type != PANYTYPE_PTR)
+	if( val->type != PANYTYPE_PTR )
 	{
 		if( !pany_convert( val, PANYTYPE_PTR ) )
 			RETURN( (void*)NULL );
