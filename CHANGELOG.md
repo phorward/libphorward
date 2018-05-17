@@ -2,6 +2,21 @@
 
 This file is used to document any relevant changes done to libphorward.
 
+## v0.23
+
+Unreleased.
+
+- //pregex_ptn// function API white-listed for documentation generator
+- New function `pregex_ptn_create()` as an object-oriented shortcut
+  for `pregex_ptn_parse()`
+- Implemented push-parsing and further modularizations
+  - Push-parsing allows to run the parser token-by-token from the scanner,
+    so that more flexibility on input processing is achieved.
+  - New functions `pp_par_next()`, `pp_par_next_by_name()`,
+    `pp_par_next_by_idx()`.
+  - Entirely revised functions `pp_par_autolex()` and `pp_par_parse()`
+  - Fixed BNF parsers to work with new push-parsing-based approach
+
 ## v0.22
 
 Released on: April 17, 2018

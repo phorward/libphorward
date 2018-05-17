@@ -217,17 +217,14 @@ pboolean pp_gram_from_bnf( ppgram* g, char* src )
 	PARMS( "src", "%s", src );
 
 	/* Define a grammar for BNF */
-
 	bnf = pp_gram_create();
 
 	/* Terminals */
 	terminal = pp_sym_create( bnf, "Terminal", PPFLAG_NONE );
 	terminal->emit = "Terminal";
-	pregex_ptn_parse( &terminal->ptn, "[^a-z_:;| \t\r\n][^:;| \t\r\n]*", 0 );
 
 	nonterminal = pp_sym_create( bnf, "Nonterminal", PPFLAG_NONE );
 	nonterminal->emit = "Nonterminal";
-	pregex_ptn_parse( &nonterminal->ptn, "[a-z_][^:;| \t\r\n]*", 0 );
 
 	colon = pp_sym_create( bnf, ":", PPFLAG_NONE );
 	semi = pp_sym_create( bnf, ";", PPFLAG_NONE );
@@ -276,6 +273,10 @@ pboolean pp_gram_from_bnf( ppgram* g, char* src )
 	/* Setup a parser */
 	par = pp_par_create( bnf );
 	PP_GRAM_DUMP( bnf );
+
+	/* Lexer */
+	terminal->ptn = pregex_ptn_create( "[^a-z_:;| \t\r\n][^:;| \t\r\n]*", 0 );
+	nonterminal->ptn = pregex_ptn_create( "[a-z_][^:;| \t\r\n]*", 0 );
 
 	/* Parse */
 	if( !pp_par_parse( &ast, par, src ) )
@@ -369,21 +370,9 @@ pboolean pp_gram_from_ebnf( ppgram* g, char* src )
 	/* Terminals */
 	terminal = pp_sym_create( ebnf, "Terminal", PPFLAG_NONE );
 	terminal->emit = "Terminal";
-	pregex_ptn_parse( &terminal->ptn,
-		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* Ident */
-		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
-																expression/ */
-		"|\"[^\"]*\"(@\\w*)?"							/* "double-quoted
-																string" */
-		"|'[^']*'(@\\w*)?",								/* 'single-quoted
-																string' */
-		0 );
 
 	nonterminal = pp_sym_create( ebnf, "Nonterminal", PPFLAG_NONE );
 	nonterminal->emit = "Nonterminal";
-	pregex_ptn_parse( &nonterminal->ptn,
-		"[a-z_][^:;|()*?+ \t\r\n]*",					/* ident */
-		0 );
 
 	colon = pp_sym_create( ebnf, ":", PPFLAG_NONE );
 	semi = pp_sym_create( ebnf, ";", PPFLAG_NONE );
@@ -448,6 +437,21 @@ pboolean pp_gram_from_ebnf( ppgram* g, char* src )
 	/* Setup a parser */
 	par = pp_par_create( ebnf );
 	PP_GRAM_DUMP( ebnf );
+
+	/* Lexer */
+	terminal->ptn = pregex_ptn_create(
+		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* Ident */
+		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
+																expression/ */
+		"|\"[^\"]*\"(@\\w*)?"							/* "double-quoted
+																string" */
+		"|'[^']*'(@\\w*)?",								/* 'single-quoted
+																string' */
+		0 );
+
+	nonterminal->ptn = pregex_ptn_create(
+		"[a-z_][^:;|()*?+ \t\r\n]*",					/* ident */
+		0 );
 
 	/* Parse */
 	if( !pp_par_parse( &ast, par, src ) )

@@ -48,17 +48,16 @@ static ppsym* traverse_terminal( ppgram* gram, ppast* node )
 	if( !( sym = pp_sym_get_by_name( gram, name ) ) )
 	{
 		if( NODE_IS( node, "CCL" ) )
-			pregex_ptn_parse( &ptn, name, PREGEX_COMP_NOERRORS );
+			ptn = pregex_ptn_create( name, PREGEX_COMP_NOERRORS );
 		else if( !NODE_IS( node, "Terminal" ) )
 		{
 			ch = name[ pstrlen( name ) - 1 ];
 			name[ pstrlen( name ) - 1 ] = '\0';
 
 			if( NODE_IS( node, "Token") || NODE_IS( node, "String" ) )
-				pregex_ptn_parse( &ptn, name + 1, PREGEX_COMP_STATIC );
+				ptn = pregex_ptn_create( name + 1, PREGEX_COMP_STATIC );
 			else if( NODE_IS( node, "Regex" ) )
-				pregex_ptn_parse( &ptn, name + 1,
-					PREGEX_COMP_NOERRORS );
+				ptn = pregex_ptn_create( name + 1, PREGEX_COMP_NOERRORS );
 			else
 				MISSINGCASE;
 
@@ -281,7 +280,7 @@ static pboolean ast_to_gram( ppgram* gram, ppast* ast )
 			if( NODE_IS( child, "CCL" ) )
 			{
 				sprintf( def, "%.*s", (int)child->len, child->start );
-				pregex_ptn_parse( &ptn, def, PREGEX_COMP_NOERRORS );
+				ptn = pregex_ptn_create( def, PREGEX_COMP_NOERRORS );
 			}
 			else
 			{
@@ -291,9 +290,9 @@ static pboolean ast_to_gram( ppgram* gram, ppast* ast )
 					sprintf( name, "%.*s", (int)child->len, child->start );
 
 				if( NODE_IS( child, "Token") || NODE_IS( child, "String" ) )
-					pregex_ptn_parse( &ptn, def, PREGEX_COMP_STATIC );
+					ptn = pregex_ptn_create( def, PREGEX_COMP_STATIC );
 				else if( NODE_IS( child, "Regex" ) )
-					pregex_ptn_parse( &ptn, def, PREGEX_COMP_NOERRORS );
+					ptn = pregex_ptn_create( def, PREGEX_COMP_NOERRORS );
 				else
 					MISSINGCASE;
 			}
@@ -718,19 +717,19 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	PP_GRAM_DUMP( pbnf );
 
 	/* Lexer */
-	pregex_ptn_parse( &whitespace->ptn, "[ \t\r\n]+", 0 );
-	pregex_ptn_parse( &comment->ptn, "/\\*([^*]|\\*[^/])*\\*/|//[^\n]*\n", 0 );
+	whitespace->ptn = pregex_ptn_create( "[ \t\r\n]+", 0 );
+	comment->ptn = pregex_ptn_create( "/\\*([^*]|\\*[^/])*\\*/|//[^\n]*\n", 0 );
 
-	pregex_ptn_parse( &terminal->ptn, "[A-Z_][A-Za-z0-9_]*", 0 );
-	pregex_ptn_parse( &nonterminal->ptn, "[a-z_][A-Za-z0-9_]*", 0 );
-	pregex_ptn_parse( &code->ptn, "{{.*}}", 0 );
+	terminal->ptn = pregex_ptn_create( "[A-Z_][A-Za-z0-9_]*", 0 );
+	nonterminal->ptn = pregex_ptn_create( "[a-z_][A-Za-z0-9_]*", 0 );
+	code->ptn = pregex_ptn_create( "{{.*}}", 0 );
 
-	pregex_ptn_parse( &t_ccl->ptn, "\\[(\\.|[^\\\\\\]])*\\]", 0 );
-	pregex_ptn_parse( &t_string->ptn, "'[^']*'", 0 );
-	pregex_ptn_parse( &t_token->ptn, "\"[^\"]*\"", 0 );
-	pregex_ptn_parse( &t_regex->ptn, "/(\\.|[^\\/])*/", 0 );
+	t_ccl->ptn = pregex_ptn_create( "\\[(\\.|[^\\\\\\]])*\\]", 0 );
+	t_string->ptn = pregex_ptn_create( "'[^']*'", 0 );
+	t_token->ptn = pregex_ptn_create( "\"[^\"]*\"", 0 );
+	t_regex->ptn = pregex_ptn_create( "/(\\.|[^\\/])*/", 0 );
 
-	pregex_ptn_parse( &flag_ignore->ptn, "%(ignore|skip)", 0 );
+	flag_ignore->ptn = pregex_ptn_create( "%(ignore|skip)", 0 );
 
 	/* Parse */
 	if( !pp_par_parse( &ast, ppar, src ) )
