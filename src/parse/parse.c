@@ -163,30 +163,23 @@ static void print_stack( char* title, parray* stack )
 
 /** Let parser //par// run on next token //sym//.
 
+//val// is an optional parameter that holds a semantic value. It will be
+assigned to an AST tree node when provided. Set it NULL if the value is not
+used or required.
+
 This method is called a push-parsing algorithm, where the scanner calls the
-parser to perform the next parsing steps.
+parser to perform the next parsing steps. The used parsing method is LALR(1).
 
-//start// and //end// are positional arguments to obtain a string from the
-token. These parameters may become obsolete in future.
-
-Currently, the used parsing method is LALR(1).
-
-The function returns:
+The function returns one of the following values:
 
 - PPPAR_STATE_DONE when the parse succeeded,
 - PPPAR_STATE_NEXT when the partial parse succeeded, and next token is wanted,
 - PPPAR_STATE_ERROR when an error was encountered.
 -
 */
-ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
+ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
 {
 	int			i;
-	int			row		= 1;
-	int			col		= 1;
-	int			lrow;
-	int			lcol;
-	char*		lstart;
-	char*		lend;
 	pplrse*		tos;
 	int			shift;
 	ppprod*		prod;
@@ -203,16 +196,15 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 	PARMS( "par", "%p", par );
 	PARMS( "sym", "%p", sym );
 
-	/*
-	PARMS( "start", "%s", start );
-	PARMS( "end", "%s", end );
-	*/
+	if( val )
+		PANY_DUMP( val );
 
 	/* Set up stack if necessary */
 	VARS( "par->stack", "%p", par->stack );
 
 	if( !par->stack )
 	{
+		MSG( "Setting up new stack" );
 		par->stack = parray_create( sizeof( pplrse ), 0 );
 		par->state = PPPAR_STATE_INITIAL;
 	}
@@ -220,21 +212,17 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 	/* Initialize parser on first call */
 	if( par->state == PPPAR_STATE_INITIAL )
 	{
-		MSG( "Initial state" );
+		MSG( "Initial call" );
 		parray_erase( par->stack );
 		par->ast = pp_ast_free( par->ast );
 
 		tos = (pplrse*)parray_malloc( par->stack );
 		tos->sym = par->gram->goal;
-		tos->start = start;
-
-
 	}
 	else
 		tos = (pplrse*)parray_last( par->stack );
 
-	lstart = lend = (char*)NULL; /* fixme */
-
+	/* Until all reductions are performed... */
 	do
 	{
 		/* Reduce */
@@ -255,8 +243,6 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 			{
 				tos = (pplrse*)parray_pop( par->stack );
 
-				lstart = tos->start;
-
 				/* Connecting nodes, remember last node. */
 				if( tos->node )
 				{
@@ -273,9 +259,6 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 
 					while( node->prev )
 						node = node->prev;
-
-					lrow = tos->row;
-					lcol = tos->col;
 				}
 			}
 
@@ -283,13 +266,9 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 
 			/* Construction of AST node */
 			if( prod->emit )
-				node = pp_ast_create( prod->emit,
-										prod->lhs, prod, lstart, lend,
-											lrow, lcol, node );
+				node = pp_ast_create( prod->emit, prod->lhs, prod, node );
 			else if( prod->lhs->emit )
-				node = pp_ast_create( prod->lhs->emit,
-										prod->lhs, prod, lstart, lend,
-											lrow, lcol, node );
+				node = pp_ast_create( prod->lhs->emit, prod->lhs, prod, node );
 
 			/* Goal symbol reduced? */
 			if( prod->lhs == par->gram->goal
@@ -322,10 +301,7 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 
 			tos->sym = prod->lhs;
 			tos->state = shift - 1;
-			tos->start = lstart;
 			tos->node = node;
-			tos->row = lrow;
-			tos->col = lcol;
 
 			LOG( "New top state is %d", tos->state );
 		}
@@ -361,8 +337,7 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 		{
 			/* Parse Error */
 			/* TODO: Error Recovery */
-			fprintf( stderr, "Parse Error [line:%d col:%d] @ %s\n",
-				row, col, sym->name );
+			fprintf( stderr, "Parse Error @ %s\n", sym->name );
 
 			MSG( "Parsing failed" );
 			RETURN( ( par->state = PPPAR_STATE_ERROR ) );
@@ -380,17 +355,21 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 
 	tos->sym = sym;
 	tos->state = par->reduce ? 0 : shift - 1;
-	tos->start = start;
-	tos->row = row;
-	tos->col = col;
 
 	/* Shifted symbol becomes AST node? */
 	if( sym->emit )
 	{
-		lend = end;
-		tos->node = pp_ast_create( sym->emit, sym,
-									(ppprod*)NULL, start, end,
-										row, col, (ppast*)NULL );
+		tos->node = pp_ast_create( sym->emit ? sym->emit : sym->name, sym,
+									(ppprod*)NULL, (ppast*)NULL );
+
+		if( val && val->type == PANYTYPE_STR )
+		{
+			tos->node->val = val;
+
+			tos->node->start = pany_get_str( val );
+			tos->node->len = strlen( tos->node->start );
+			tos->node->end = tos->node->start + tos->node->len;
+		}
 	}
 
 	MSG( "Next token required" );
@@ -401,13 +380,16 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, char* start, char* end )
 
 The function is a wrapper for pp_par_next() with same behavior.
 */
-ppparstate pp_par_next_by_name( pppar* par, char* name, char* start, char* end )
+ppparstate pp_par_next_by_name( pppar* par, char* name, pany* val )
 {
 	ppsym*		sym;
 
 	PROC( "pp_par_next_by_name" );
 	PARMS( "par", "%p", par );
 	PARMS( "name", "%s", name );
+
+	if( val )
+		PANY_DUMP( val );
 
 	if( !( par && name && *name ) )
 	{
@@ -431,7 +413,7 @@ ppparstate pp_par_next_by_name( pppar* par, char* name, char* start, char* end )
 		RETURN( PPPAR_STATE_ERROR );
 	}
 
-	RETURN( pp_par_next( par, sym, start, end ) );
+	RETURN( pp_par_next( par, sym, val ) );
 }
 
 
@@ -439,14 +421,16 @@ ppparstate pp_par_next_by_name( pppar* par, char* name, char* start, char* end )
 
 The function is a wrapper for pp_par_next() with same behavior.
 */
-ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx,
-									char* start, char* end )
+ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx, pany* val )
 {
 	ppsym*		sym;
 
 	PROC( "pp_par_next_by_idx" );
 	PARMS( "par", "%p", par );
 	PARMS( "idx", "%d", idx );
+
+	if( val )
+		PANY_DUMP( val );
 
 	if( !( par ) )
 	{
@@ -472,7 +456,7 @@ ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx,
 		RETURN( PPPAR_STATE_ERROR );
 	}
 
-	RETURN( pp_par_next( par, sym, start, end ) );
+	RETURN( pp_par_next( par, sym, val ) );
 }
 
 /** Parse string with lexer. */
@@ -481,6 +465,7 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 	plex*			lex;
 	char*			end;
 	unsigned int	tok;
+	pany*			val;
 
 	PROC( "pp_par_parse" );
 	PARMS( "root", "%p", root );
@@ -502,9 +487,13 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 
 	while( ( start = plex_next( lex, start, &tok, &end ) ) )
 	{
-		LOG( "Token = %d", tok );
+		val = pany_create( (char*)NULL );
+		pany_set_strndup( val, start, end - start );
 
-		if( pp_par_next_by_idx( par, tok, start, end ) != PPPAR_STATE_NEXT )
+		LOG( "token = %d", tok );
+		LOG( "match = >%s<", pany_get_str( val ) );
+
+		if( pp_par_next_by_idx( par, tok, val ) != PPPAR_STATE_NEXT )
 			break;
 
 		start = end;
@@ -512,7 +501,7 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 
 	plex_free( lex );
 
-	if( !start && pp_par_next_by_idx( par, 0, (char*)NULL, (char*)NULL )
+	if( !start && pp_par_next_by_idx( par, 0, (pany*)NULL )
 					== PPPAR_STATE_DONE )
 	{
 		MSG( "We have a successful parse!" );

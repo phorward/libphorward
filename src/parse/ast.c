@@ -10,12 +10,22 @@ Usage:	Abstract syntax tree construction and traversal functions.
 
 #include "phorward.h"
 
-/* Creates new abstract syntax tree node. */
-ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
-						char* start, char* end, int row, int col,
-							ppast* child )
+/** Creates a new abstract syntax tree node //emit// associated with //sym//. */
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, ppast* child )
 {
 	ppast*	node;
+
+	PROC( "pp_ast_create" );
+	PARMS( "emit", "%s", emit );
+	PARMS( "sym", "%p", sym );
+	PARMS( "prod", "%p", prod );
+	PARMS( "child", "%p", child );
+
+	if( !( emit && sym ) )
+	{
+		WRONGPARAM;
+		RETURN( (ppast*)NULL );
+	}
 
 	node = (ppast*)pmalloc( sizeof( ppast ) );
 
@@ -24,19 +34,9 @@ ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod,
 	node->sym = sym;
 	node->prod = prod;
 
-	if( start && !end )
-		end = start + pstrlen( start );
-
-	node->start = start;
-	node->end = end;
-	node->len = end - start;
-
-	node->row = row;
-	node->col = col;
-
 	node->child = child;
 
-	return node;
+	RETURN( node );
 }
 
 /** Frees entire //ast// structure and subsequent links.
@@ -59,6 +59,8 @@ ppast* pp_ast_free( ppast* node )
 
 		pp_ast_free( child );
 	}
+
+	pany_free( node->val );
 
 	return (ppast*)pfree( node );
 }
@@ -148,8 +150,14 @@ void pp_ast_dump( FILE* stream, ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stream, " " );
 
-		fprintf( stream, "{ %s >%.*s<\n",
-			ast->emit, (int)ast->len, ast->start );
+		fprintf( stream, "{ %s ", ast->emit );
+
+		if( ast->val )
+			fprintf( stream, ">%s<", pany_get_str( ast->val ) );
+		else if( ast->start && ast->len )
+			fprintf( stream, ">%.*s<", (int)ast->len, ast->start );
+
+		fprintf( stream, "\n" );
 
 		if( ast->child )
 		{
@@ -161,8 +169,14 @@ void pp_ast_dump( FILE* stream, ppast* ast )
 		for( i = 0; i < lev; i++ )
 			fprintf( stream, " " );
 
-		fprintf( stream, "} %s >%.*s<\n",
-			ast->emit, (int)ast->len, ast->start );
+		fprintf( stream, "{ %s ", ast->emit );
+
+		if( ast->val )
+			fprintf( stream, ">%s<", pany_get_str( ast->val ) );
+		else if( ast->start && ast->len )
+			fprintf( stream, ">%.*s<", (int)ast->len, ast->start );
+
+		fprintf( stream, "\n" );
 
 		ast = ast->next;
 	}
@@ -184,9 +198,14 @@ void pp_ast_dump_short( FILE* stream, ppast* ast )
 		fprintf( stream, "%s", ast->emit );
 
 		if( PPSYM_IS_TERMINAL( ast->sym ) || ast->sym->flags & PPFLAG_LEXEM )
-			fprintf( stream, " (%.*s)\n", (int)ast->len, ast->start );
-		else
-			fprintf( stream, "\n" );
+		{
+			if( ast->val )
+				fprintf( stream, " (%s)", pany_get_str( ast->val ) );
+			else if( ast->start && ast->len )
+				fprintf( stream, " (%.*s)", (int)ast->len, ast->start );
+		}
+
+		fprintf( stream, "\n" );
 
 		if( ast->child )
 		{
@@ -225,6 +244,7 @@ Only opening matches are printed. */
 void pp_ast_dump_json( FILE* stream, ppast* ast )
 {
 	char*	ptr;
+	char*	eptr;
 	ppast*	node	= ast;
 
 	if( ast && ast->next )
@@ -256,11 +276,27 @@ void pp_ast_dump_json( FILE* stream, ppast* ast )
 			/* Matched string */
 			fputc( '"', stream );
 
-			for( ptr = node->start; *ptr && ptr < node->end; ptr++ )
-				if( *ptr == '\"' )
-					fprintf( stream, "\\\"" );
-				else
-					fputc( *ptr, stream );
+			if( node->val )
+			{
+				ptr = pany_get_str( node->val );
+				eptr = ptr + strlen( ptr );
+			}
+			else if( node->start && node->end )
+			{
+				ptr = node->start;
+				eptr = node->end;
+			}
+			else
+				ptr = eptr = (char*)NULL;
+
+			if( ptr && eptr && ptr < eptr )
+			{
+				for( ; *ptr && ptr < eptr; ptr++ )
+					if( *ptr == '\"' )
+						fprintf( stream, "\\\"" );
+					else
+						fputc( *ptr, stream );
+			}
 
 			fputc( '"', stream );
 		}
@@ -297,8 +333,12 @@ void pp_ast_dump_tree2svg( FILE* stream, ppast* ast )
 			pp_ast_dump_tree2svg( stream, ast->child );
 			fprintf( stream, "] " );
 		}
-		else
+		else if( ast->start )
 			fprintf( stream, "'%.*s' ", (int)ast->len, ast->start );
+		else if( ast->val )
+			fprintf( stream, "'%s' ", pany_get_str( ast->val ) );
+		else
+			fprintf( stream, "'%s' ", ast->emit );
 
 		ast = ast->next;
 	}

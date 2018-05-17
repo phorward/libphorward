@@ -116,6 +116,9 @@ struct _ppast
 	ppsym*					sym;		/* Emitting symbol */
 	ppprod*					prod;		/* Emitting production */
 
+	/* Semantics */
+	pany*					val;		/* Value */
+
 	/* Match */
 	char*					start;		/* Begin of fragment */
 	char*					end;		/* End of fragment */
@@ -161,6 +164,11 @@ typedef struct
 	unsigned int**			dfa;		/* Parse table */
 
 	/* Context */
+	char*					start;		/* Current start */
+	char*					end;		/* Current end */
+	int						row;		/* Current row */
+	int						col;		/* Current column */
+
 	ppparstate				state;		/* State */
 	int						reduce;		/* Reduce */
 	parray*					stack;		/* Stack */
