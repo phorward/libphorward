@@ -654,6 +654,16 @@
       </li>
       <li><a href="#fn_pstrupr">pstrupr</a>
       </li>
+      <li><a href="#fn_putf8_char">putf8_char</a>
+      </li>
+      <li><a href="#fn_putf8_isutf">putf8_isutf</a>
+      </li>
+      <li><a href="#fn_putf8_move">putf8_move</a>
+      </li>
+      <li><a href="#fn_putf8_parse_char">putf8_parse_char</a>
+      </li>
+      <li><a href="#fn_putf8_seqlen">putf8_seqlen</a>
+      </li>
       <li><a href="#fn_pvasprintf">pvasprintf</a>
       </li>
       <li><a href="#fn_pvm_create">pvm_create</a>
@@ -687,16 +697,6 @@
       <li><a href="#fn_pwcsput">pwcsput</a>
       </li>
       <li><a href="#fn_pwhich">pwhich</a>
-      </li>
-      <li><a href="#fn_u8_char">u8_char</a>
-      </li>
-      <li><a href="#fn_u8_isutf">u8_isutf</a>
-      </li>
-      <li><a href="#fn_u8_move">u8_move</a>
-      </li>
-      <li><a href="#fn_u8_parse_char">u8_parse_char</a>
-      </li>
-      <li><a href="#fn_u8_seqlen">u8_seqlen</a>
       </li>
       </ul>
     </li>
@@ -9738,6 +9738,137 @@ Convert a string to upper-case.
 <p>
 Returns <i>s</i>.
 </div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_putf8_char">putf8_char</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+wchar_t putf8_char( char* str )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Return single character (as wide-character value) from UTF-8 multi-byte
+character string.
+</p>
+<p>
+<i>str</i> is the pointer to character sequence begin.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_putf8_isutf">putf8_isutf</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean putf8_isutf( unsigned char c )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Check for UTF-8 character sequence signature.
+</p>
+<p>
+The function returns TRUE, if the character <i>c</i> is the beginning of a UTF-8
+character signature, else FALSE.
+</div>
+<!-- NEED 18 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_putf8_move">putf8_move</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+char* putf8_move( char* str, int count )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Moves <i>count</i> characters ahead in an UTF-8 multi-byte character sequence.
+</p>
+<p>
+<i>str</i> is the pointer to UTF-8 string to begin moving.
+<i>count</i> is the number of characters to move left.
+</p>
+<p>
+The function returns the address of the next UTF-8 character sequence after
+<i>count</i> characters. If the string's end is reached, it will return a
+pointer to the zero-terminator.
+</div>
+<!-- NEED 17 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_putf8_parse_char">putf8_parse_char</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+wchar_t putf8_parse_char( char** ch )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Read one character from an UTF-8 input sequence.
+This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
+</p>
+<p>
+<i>chr</i> is the input- and output-pointer (the pointer is replaced by the pointer
+to the next character or escape-sequence within the string).
+</p>
+<p>
+The function returns the character code of the parsed character.
+</div>
+<!-- NEED 15 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_putf8_seqlen">putf8_seqlen</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+int putf8_seqlen(char *s)
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Returns length of next UTF-8 sequence in a multi-byte character string.
+</p>
+<p>
+<i>s</i> is the pointer to begin of UTF-8 sequence.
+</p>
+<p>
+Returns the number of bytes used for the next character.
+</div>
 <!-- NEED 17 -->
 <div class='function'>
 </p>
@@ -10200,137 +10331,6 @@ paths by a character that depends on the current platform
 <p>
 Returns a static pointer to the absolute path that contains the file specified
 as filename, else it will return (char*)NULL.
-</div>
-<!-- NEED 14 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_u8_char">u8_char</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-wchar_t u8_char( char* str )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Return single character (as wide-character value) from UTF-8 multi-byte
-character string.
-</p>
-<p>
-<i>str</i> is the pointer to character sequence begin.
-</div>
-<!-- NEED 14 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_u8_isutf">u8_isutf</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-pboolean u8_isutf( unsigned char c )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Check for UTF-8 character sequence signature.
-</p>
-<p>
-The function returns TRUE, if the character <i>c</i> is the beginning of a UTF-8
-character signature, else FALSE.
-</div>
-<!-- NEED 18 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_u8_move">u8_move</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char* u8_move( char* str, int count )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Moves <i>count</i> characters ahead in an UTF-8 multi-byte character sequence.
-</p>
-<p>
-<i>str</i> is the pointer to UTF-8 string to begin moving.
-<i>count</i> is the number of characters to move left.
-</p>
-<p>
-The function returns the address of the next UTF-8 character sequence after
-<i>count</i> characters. If the string's end is reached, it will return a
-pointer to the zero-terminator.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_u8_parse_char">u8_parse_char</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-wchar_t u8_parse_char( char** ch )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Read one character from an UTF-8 input sequence.
-This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
-</p>
-<p>
-<i>chr</i> is the input- and output-pointer (the pointer is replaced by the pointer
-to the next character or escape-sequence within the string).
-</p>
-<p>
-The function returns the character code of the parsed character.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_u8_seqlen">u8_seqlen</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-int u8_seqlen(char *s)
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns length of next UTF-8 sequence in a multi-byte character string.
-</p>
-<p>
-<i>s</i> is the pointer to begin of UTF-8 sequence.
-</p>
-<p>
-Returns the number of bytes used for the next character.
 </div>
 </p>
 </div>

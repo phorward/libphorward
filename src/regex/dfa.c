@@ -913,8 +913,8 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 		{
 			VARS( "pstr", "%s", pstr );
 #ifdef UTF8
-			ch = u8_char( pstr );
-			pstr += u8_seqlen( pstr );
+			ch = putf8_char( pstr );
+			pstr += putf8_seqlen( pstr );
 #else
 			ch = *pstr++;
 #endif

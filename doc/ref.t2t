@@ -4819,6 +4819,99 @@ Convert a string to upper-case.
 
 Returns //s//.
 %FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== putf8_char ===[fn_putf8_char]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t putf8_char( char* str )
+%DEFINITION:END
+
+**Usage:**
+
+Return single character (as wide-character value) from UTF-8 multi-byte
+character string.
+
+//str// is the pointer to character sequence begin.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== putf8_isutf ===[fn_putf8_isutf]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean putf8_isutf( unsigned char c )
+%DEFINITION:END
+
+**Usage:**
+
+Check for UTF-8 character sequence signature.
+
+The function returns TRUE, if the character //c// is the beginning of a UTF-8
+character signature, else FALSE.
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== putf8_move ===[fn_putf8_move]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char* putf8_move( char* str, int count )
+%DEFINITION:END
+
+**Usage:**
+
+Moves //count// characters ahead in an UTF-8 multi-byte character sequence.
+
+//str// is the pointer to UTF-8 string to begin moving.
+//count// is the number of characters to move left.
+
+The function returns the address of the next UTF-8 character sequence after
+//count// characters. If the string's end is reached, it will return a
+pointer to the zero-terminator.
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== putf8_parse_char ===[fn_putf8_parse_char]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t putf8_parse_char( char** ch )
+%DEFINITION:END
+
+**Usage:**
+
+Read one character from an UTF-8 input sequence.
+This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
+
+//chr// is the input- and output-pointer (the pointer is replaced by the pointer
+to the next character or escape-sequence within the string).
+
+The function returns the character code of the parsed character.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== putf8_seqlen ===[fn_putf8_seqlen]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int putf8_seqlen(char *s)
+%DEFINITION:END
+
+**Usage:**
+
+Returns length of next UTF-8 sequence in a multi-byte character string.
+
+//s// is the pointer to begin of UTF-8 sequence.
+
+Returns the number of bytes used for the next character.
+%FUNCTION:END
 %NEED:17
 %FUNCTION:BEGIN
 === pvasprintf ===[fn_pvasprintf]
@@ -5153,97 +5246,4 @@ paths by a character that depends on the current platform
 
 Returns a static pointer to the absolute path that contains the file specified
 as filename, else it will return (char*)NULL.
-%FUNCTION:END
-%NEED:14
-%FUNCTION:BEGIN
-=== u8_char ===[fn_u8_char]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-wchar_t u8_char( char* str )
-%DEFINITION:END
-
-**Usage:**
-
-Return single character (as wide-character value) from UTF-8 multi-byte
-character string.
-
-//str// is the pointer to character sequence begin.
-%FUNCTION:END
-%NEED:14
-%FUNCTION:BEGIN
-=== u8_isutf ===[fn_u8_isutf]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pboolean u8_isutf( unsigned char c )
-%DEFINITION:END
-
-**Usage:**
-
-Check for UTF-8 character sequence signature.
-
-The function returns TRUE, if the character //c// is the beginning of a UTF-8
-character signature, else FALSE.
-%FUNCTION:END
-%NEED:18
-%FUNCTION:BEGIN
-=== u8_move ===[fn_u8_move]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-char* u8_move( char* str, int count )
-%DEFINITION:END
-
-**Usage:**
-
-Moves //count// characters ahead in an UTF-8 multi-byte character sequence.
-
-//str// is the pointer to UTF-8 string to begin moving.
-//count// is the number of characters to move left.
-
-The function returns the address of the next UTF-8 character sequence after
-//count// characters. If the string's end is reached, it will return a
-pointer to the zero-terminator.
-%FUNCTION:END
-%NEED:17
-%FUNCTION:BEGIN
-=== u8_parse_char ===[fn_u8_parse_char]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-wchar_t u8_parse_char( char** ch )
-%DEFINITION:END
-
-**Usage:**
-
-Read one character from an UTF-8 input sequence.
-This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
-
-//chr// is the input- and output-pointer (the pointer is replaced by the pointer
-to the next character or escape-sequence within the string).
-
-The function returns the character code of the parsed character.
-%FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== u8_seqlen ===[fn_u8_seqlen]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-int u8_seqlen(char *s)
-%DEFINITION:END
-
-**Usage:**
-
-Returns length of next UTF-8 sequence in a multi-byte character string.
-
-//s// is the pointer to begin of UTF-8 sequence.
-
-Returns the number of bytes used for the next character.
 %FUNCTION:END

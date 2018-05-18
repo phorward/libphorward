@@ -304,8 +304,8 @@ int plex_lex( plex* lex, char* start, char** end )
 			else
 			{
 #ifdef UTF8
-				ch = u8_char( ptr );
-				ptr += u8_seqlen( ptr );
+				ch = putf8_char( ptr );
+				ptr += putf8_seqlen( ptr );
 #else
 				ch = *ptr++;
 #endif
@@ -411,8 +411,8 @@ char* plex_next( plex* lex, char* start, unsigned int* id, char** end )
 		else
 		{
 #ifdef UTF8
-			ch = u8_char( ptr );
-			ptr += u8_seqlen( ptr );
+			ch = putf8_char( ptr );
+			ptr += putf8_seqlen( ptr );
 #else
 			ch = *ptr++;
 #endif

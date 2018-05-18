@@ -91,7 +91,7 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 	for( ptr = str; *ptr; )
 	{
 		VARS( "ptr", "%s", ptr );
-		ch = u8_parse_char( &ptr );
+		ch = putf8_parse_char( &ptr );
 
 		VARS( "ch", "%d", ch );
 
@@ -473,9 +473,9 @@ static void pregex_char_to_REGEX( char* str, int size,
 			( in_range && ch == ']' ) )
 		sprintf( str, "\\%c", (char)ch );
 	else if( escape )
-		u8_escape_wchar( str, size, ch );
+		putf8_escape_wchar( str, size, ch );
 	else
-		u8_toutf8( str, size, &ch, 1 );
+		putf8_toutf8( str, size, &ch, 1 );
 }
 
 /* Internal function for pregex_ptn_to_regex() */

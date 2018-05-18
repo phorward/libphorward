@@ -930,8 +930,8 @@ size_t pccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq )
 				else
 				{
 #ifdef UTF8
-					ch = u8_char( p );
-					p += u8_seqlen( p );
+					ch = putf8_char( p );
+					p += putf8_seqlen( p );
 #else
 					ch = *( p++ );
 #endif
@@ -942,8 +942,8 @@ size_t pccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq )
 	else
 	{
 #ifdef UTF8
-		ch = u8_char( p );
-		p += u8_seqlen( p );
+		ch = putf8_char( p );
+		p += putf8_seqlen( p );
 #else
 		ch = *( p++ );
 #endif
@@ -1173,16 +1173,16 @@ char* pccl_to_str( pccl* ccl, pboolean escape )
 		r = (pcrange*)plist_access( e );
 
 		if( escape )
-			u8_escape_wchar( from, sizeof( from ), r->begin );
+			putf8_escape_wchar( from, sizeof( from ), r->begin );
 		else
-			u8_toutf8( from, sizeof( from ), &( r->begin ), 1 );
+			putf8_toutf8( from, sizeof( from ), &( r->begin ), 1 );
 
 		if( r->begin != r->end )
 		{
 			if( escape )
-				u8_escape_wchar( to, sizeof( to ), r->end );
+				putf8_escape_wchar( to, sizeof( to ), r->end );
 			else
-				u8_toutf8( to, sizeof( to ), &( r->end ), 1 );
+				putf8_toutf8( to, sizeof( to ), &( r->end ), 1 );
 
 			sprintf( from + strlen( from ), "-%s", to );
 		}
@@ -1228,11 +1228,11 @@ void pccl_print( FILE* stream, pccl* ccl, int break_after )
 	{
 		r = (pcrange*)plist_access( e );
 
-		u8_toutf8( outstr[0], sizeof( outstr[0] ), &( r->begin ), 1 );
+		putf8_toutf8( outstr[0], sizeof( outstr[0] ), &( r->begin ), 1 );
 
 		if( r->begin != r->end )
 		{
-			u8_toutf8( outstr[1], sizeof( outstr[1] ), &( r->end ), 1 );
+			putf8_toutf8( outstr[1], sizeof( outstr[1] ), &( r->end ), 1 );
 			fprintf( stream, "'%s' [%d] to '%s' [%d] ",
 				outstr[0], (int)r->begin, outstr[1], (int)r->end );
 		}

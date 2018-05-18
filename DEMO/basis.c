@@ -77,15 +77,15 @@ void utf8_demo( void )
 	/*             123456789012345678901234567890
 	               0        1         2         3
 	*/
-	printf( "%ld %d\n", pstrlen( str ), u8_strlen( str ) );
-	for( ptr = str; *ptr; ptr += u8_seqlen( ptr ) )
-		printf( ">%s< %d\n", ptr, u8_char( ptr ) );
+	printf( "%ld %d\n", pstrlen( str ), putf8_strlen( str ) );
+	for( ptr = str; *ptr; ptr += putf8_seqlen( ptr ) )
+		printf( ">%s< %d\n", ptr, putf8_char( ptr ) );
 
 	for( ptr = str; *ptr; ptr++ )
 		printf( ">%s< >%c< %x %d\n", ptr, *ptr, *ptr, *ptr );
 
-	u8_unescape( str, sizeof( str ), "\\u20AC" );
-	printf( ">%s< %d\n", str, u8_char( str ) );
+	putf8_unescape( str, sizeof( str ), "\\u20AC" );
+	printf( ">%s< %d\n", str, putf8_char( str ) );
 }
 
 /* Unicode-Function replacements */

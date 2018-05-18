@@ -526,8 +526,8 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags,
 			MSG( "using char" );
 			VARS( "pstr", "%s", pstr );
 #ifdef UTF8
-			ch = u8_char( pstr );
-			pstr += u8_seqlen( pstr );
+			ch = putf8_char( pstr );
+			pstr += putf8_seqlen( pstr );
 #else
 			ch = *pstr++;
 #endif
@@ -613,7 +613,7 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 				nfa, (char*)NULL, flags ) ) )
 			RETURN( FALSE );
 
-		ch = u8_parse_char( &pstr );
+		ch = putf8_parse_char( &pstr );
 		VARS( "ch", "%d", ch );
 
 		nfa_st->ccl = pccl_create( -1, -1, (char*)NULL );
