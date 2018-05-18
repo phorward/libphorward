@@ -44,7 +44,7 @@ pregex_nfa_st* pregex_nfa_create_state(
 		MSG( "Required to parse chardef" );
 		VARS( "chardef", "%s", chardef );
 
-		if( !( ptr->ccl = p_ccl_create( -1, -1, chardef ) ) )
+		if( !( ptr->ccl = pccl_create( -1, -1, chardef ) ) )
 		{
 			MSG( "Out of memory error" );
 			RETURN( (pregex_nfa_st*)NULL );
@@ -58,10 +58,10 @@ pregex_nfa_st* pregex_nfa_create_state(
 			wchar_t		ch;
 			wchar_t		cch;
 
-			iccl = p_ccl_dup( ptr->ccl );
+			iccl = pccl_dup( ptr->ccl );
 
 			MSG( "PREGEX_COMP_INSENSITIVE set" );
-			for( i = 0; p_ccl_get( &ch, (wchar_t*)NULL, ptr->ccl, i ); i++ )
+			for( i = 0; pccl_get( &ch, (wchar_t*)NULL, ptr->ccl, i ); i++ )
 			{
 				VARS( "ch", "%d", ch );
 #ifdef UNICODE
@@ -79,11 +79,11 @@ pregex_nfa_st* pregex_nfa_create_state(
 				if( ch == cch )
 					continue;
 
-				if( !p_ccl_add( iccl, cch ) )
+				if( !pccl_add( iccl, cch ) )
 					RETURN( (pregex_nfa_st*)NULL );
 			}
 
-			p_ccl_free( ptr->ccl );
+			pccl_free( ptr->ccl );
 			ptr->ccl = iccl;
 		}
 
@@ -127,7 +127,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 #undef GETOFF
 
 		if( s->ccl )
-			p_ccl_print( stderr, s->ccl, 0 );
+			pccl_print( stderr, s->ccl, 0 );
 
 		fprintf( stderr, "\n\n" );
 	}
@@ -148,7 +148,7 @@ static void print_nfa_state_list( char* info, pregex_nfa* nfa, plist* list )
 		fprintf( stderr, "%s: #%d %s\n",
 			info,
 			plist_offset( plist_get_by_ptr( nfa->states, st ) ),
-			st->ccl ? p_ccl_to_str( st->ccl, TRUE ) : "EPSILON" );
+			st->ccl ? pccl_to_str( st->ccl, TRUE ) : "EPSILON" );
 	}
 }
 */
@@ -188,7 +188,7 @@ pboolean pregex_nfa_reset( pregex_nfa* nfa )
 	while( plist_first( nfa->states ) )
 	{
 		st = (pregex_nfa_st*)plist_access( plist_first( nfa->states ) );
-		p_ccl_free( st->ccl );
+		pccl_free( st->ccl );
 
 		plist_remove( nfa->states, plist_first( nfa->states ) );
 	}
@@ -271,7 +271,7 @@ int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to )
 		if( st->ccl )
 		{
 			/* Fine, test for range! */
-			if( p_ccl_testrange( st->ccl, from, to ) )
+			if( pccl_testrange( st->ccl, from, to ) )
 			{
 				MSG( "State matches range!" );
 				plist_push( hits, st->next );
@@ -616,9 +616,9 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 		ch = u8_parse_char( &pstr );
 		VARS( "ch", "%d", ch );
 
-		nfa_st->ccl = p_ccl_create( -1, -1, (char*)NULL );
+		nfa_st->ccl = pccl_create( -1, -1, (char*)NULL );
 
-		if( !( nfa_st->ccl && p_ccl_add( nfa_st->ccl, ch ) ) )
+		if( !( nfa_st->ccl && pccl_add( nfa_st->ccl, ch ) ) )
 			RETURN( FALSE );
 
 		/* Is case-insensitive flag set? */
@@ -640,7 +640,7 @@ pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc 
 
 			MSG( "Case-insensity set, new character evaluated is:" );
 			VARS( "ch", "%d", ch );
-			if( !p_ccl_add( nfa_st->ccl, ch ) )
+			if( !pccl_add( nfa_st->ccl, ch ) )
 				RETURN( FALSE );
 		}
 

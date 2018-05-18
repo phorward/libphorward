@@ -7,14 +7,14 @@ These functions are heavily used by the library's regular expressions and parser
 
 It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. **pccl** objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as **wchar_t** (wide-character unicode) values.
 
-- @p_ccl_create() - create and optionally parse a new character-class,
-- @p_ccl_parse() - parse characters and ranges from a string into a character-class,
-- @p_ccl_negate() - negate a character-class over the character universe,
-- @p_ccl_add(), @p_ccl_addrange() - add single characters or ranges to the class,
-- @p_ccl_del(), @p_ccl_delrange() - delete single characters or ranges from the class,
-- @p_ccl_test(), @p_ccl_tesrange() - test if a character or range matches a class,
-- @p_ccl_to_str() - convert a character-class into a string,
-- @p_ccl_free() - destroy a previously created character-class,
+- @pccl_create() - create and optionally parse a new character-class,
+- @pccl_parse() - parse characters and ranges from a string into a character-class,
+- @pccl_negate() - negate a character-class over the character universe,
+- @pccl_add(), @pccl_addrange() - add single characters or ranges to the class,
+- @pccl_del(), @pccl_delrange() - delete single characters or ranges from the class,
+- @pccl_test(), @pccl_tesrange() - test if a character or range matches a class,
+- @pccl_to_str() - convert a character-class into a string,
+- @pccl_free() - destroy a previously created character-class,
 -
 
 ```
@@ -23,47 +23,47 @@ pccl* ccl;
 /* Construct a character-class within a universe of the ASCII-alphabet (0-255):
 	"-0123456789ABCDEFGHIJKLMNOQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
 */
-ccl = p_ccl_create( 0, 255, "A-Za-z0-9_-" );
+ccl = pccl_create( 0, 255, "A-Za-z0-9_-" );
 
 /* Invert character class */
-p_ccl_negate( ccl );
+pccl_negate( ccl );
 
 /* Remove system chars */
-p_ccl_delrange( ccl, 0, 31 );
+pccl_delrange( ccl, 0, 31 );
 
 /* Oh, and delete the "z" */
-p_ccl_del( ccl, 'z' );
+pccl_del( ccl, 'z' );
 
 /* But add tab again! */
-p_ccl_add( ccl, '\t' );
+pccl_add( ccl, '\t' );
 
 /* Enable all from 32 to 126  */
-p_ccl_addrange( ccl, ' ', '~' );
+pccl_addrange( ccl, ' ', '~' );
 
 /* Alternative way: */
-p_ccl_parse( ccl, " -~", TRUE );
+pccl_parse( ccl, " -~", TRUE );
 
 /* Test for characters */
-printf( "A is in? %s\n", BOOLEAN_STR( p_ccl_test( ccl, 'A' ) );
-printf( "a-z are in? %s\n", BOOLEAN_STR( p_ccl_testrange( ccl, 'a', 'z' ) );
-printf( "\\n is in? %s\n", BOOLEAN_STR( p_ccl_test( ccl, '\n' ) );
+printf( "A is in? %s\n", BOOLEAN_STR( pccl_test( ccl, 'A' ) );
+printf( "a-z are in? %s\n", BOOLEAN_STR( pccl_testrange( ccl, 'a', 'z' ) );
+printf( "\\n is in? %s\n", BOOLEAN_STR( pccl_test( ccl, '\n' ) );
 
 /* Generate string */
-printf( "My ccl is: %s\n", p_ccl_to_str( ccl, TRUE ) );
+printf( "My ccl is: %s\n", pccl_to_str( ccl, TRUE ) );
 
 /* Drop it! */
-p_ccl_free( ccl );
+pccl_free( ccl );
 ```
 
 Useful, additional functions when working with **pccl** are:
 
-- @p_ccl_compare() - compare character-classes,
-- @p_ccl_diff() - create differencing character-class of two classes,
-- @p_ccl_erase() - clear character-class,
-- @p_ccl_get() - retrieve characters or ranges by offset,
-- @p_ccl_instest() - like @p_ccl_test(), but with insensitve-character check,
-- @p_ccl_intersect() - create intersection character-class of two classes,
-- @p_ccl_print() - print character-class (for debug),
-- @p_ccl_parsechar() - parse an escaped character sequence into a wide-character,
-- @p_ccl_parseshorthand() - parse a typical shorthand (\d, \w) into a character-class.
+- @pccl_compare() - compare character-classes,
+- @pccl_diff() - create differencing character-class of two classes,
+- @pccl_erase() - clear character-class,
+- @pccl_get() - retrieve characters or ranges by offset,
+- @pccl_instest() - like @pccl_test(), but with insensitve-character check,
+- @pccl_intersect() - create intersection character-class of two classes,
+- @pccl_print() - print character-class (for debug),
+- @pccl_parsechar() - parse an escaped character sequence into a wide-character,
+- @pccl_parseshorthand() - parse a typical shorthand (\d, \w) into a character-class.
 -

@@ -121,40 +121,40 @@ void unicode_demo( void )
 	pfree( mydynamicstr );
 }
 
-void p_ccl_demo( void )
+void pccl_demo( void )
 {
 	pccl*		c;
 	pccl*		d;
 	pccl*		e;
 	char* 		x;
 
-	DEMO( "p_ccl_demo" );
+	DEMO( "pccl_demo" );
 
-	/* c = p_ccl_create( "\\1-\\n€A-ZX-dÄÜÖ" ); */
-	c = p_ccl_create( PCCL_MIN, PCCL_MAX, "^ €A-Z\n" );
-	d = p_ccl_create( PCCL_MIN, PCCL_MAX, "A-NXYZ\n" );
+	/* c = pccl_create( "\\1-\\n€A-ZX-dÄÜÖ" ); */
+	c = pccl_create( PCCL_MIN, PCCL_MAX, "^ €A-Z\n" );
+	d = pccl_create( PCCL_MIN, PCCL_MAX, "A-NXYZ\n" );
 
-	d = p_ccl_create( PCCL_MIN, PCCL_MAX,
+	d = pccl_create( PCCL_MIN, PCCL_MAX,
 							"^alles richtig! :)" );
-	p_ccl_print( stderr, c, -1 );
-	p_ccl_print( stderr, d, -1 );
+	pccl_print( stderr, c, -1 );
+	pccl_print( stderr, d, -1 );
 
-	e = p_ccl_union( c, d );
-	p_ccl_print( stderr, e, -1 );
+	e = pccl_union( c, d );
+	pccl_print( stderr, e, -1 );
 
-	p_ccl_negate( e );
-	p_ccl_print( stderr, e, -1 );
+	pccl_negate( e );
+	pccl_print( stderr, e, -1 );
 
-	p_ccl_negate( e );
-	p_ccl_print( stderr, e, -1 );
+	pccl_negate( e );
+	pccl_print( stderr, e, -1 );
 
-	/* e = p_ccl_intersect( c, d ); */
-	p_ccl_delrange( d, '\0', PCCL_MAX );
-	printf( "e = >%s<\n", p_ccl_to_str( d, TRUE ) );
+	/* e = pccl_intersect( c, d ); */
+	pccl_delrange( d, '\0', PCCL_MAX );
+	printf( "e = >%s<\n", pccl_to_str( d, TRUE ) );
 
-	p_ccl_free( c );
-	p_ccl_free( d );
-	p_ccl_free( e );
+	pccl_free( c );
+	pccl_free( d );
+	pccl_free( e );
 }
 
 static void plist_demo_print( plist* list )

@@ -95,11 +95,11 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 
 		VARS( "ch", "%d", ch );
 
-		ccl = p_ccl_create( -1, -1, (char*)NULL );
+		ccl = pccl_create( -1, -1, (char*)NULL );
 
-		if( !( ccl && p_ccl_add( ccl, ch ) ) )
+		if( !( ccl && pccl_add( ccl, ch ) ) )
 		{
-			p_ccl_free( ccl );
+			pccl_free( ccl );
 			RETURN( (pregex_ptn*)NULL );
 		}
 
@@ -123,16 +123,16 @@ pregex_ptn* pregex_ptn_create_string( char* str, int flags )
 			MSG( "Case-insensity set, new character evaluated is:" );
 			VARS( "ch", "%d", ch );
 
-			if( !p_ccl_add( ccl, ch ) )
+			if( !pccl_add( ccl, ch ) )
 			{
-				p_ccl_free( ccl );
+				pccl_free( ccl );
 				RETURN( (pregex_ptn*)NULL );
 			}
 		}
 
 		if( !( chr = pregex_ptn_create_char( ccl ) ) )
 		{
-			p_ccl_free( ccl );
+			pccl_free( ccl );
 			RETURN( (pregex_ptn*)NULL );
 		}
 
@@ -365,7 +365,7 @@ pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
 			prev->next = dup;
 
 		if( ptn->type == PREGEX_PTN_CHAR )
-			dup->ccl = p_ccl_dup( ptn->ccl );
+			dup->ccl = pccl_dup( ptn->ccl );
 
 		if( ptn->child[0] )
 			dup->child[0] = pregex_ptn_dup( ptn->child[0] );
@@ -400,7 +400,7 @@ pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
 	do
 	{
 		if( ptn->type == PREGEX_PTN_CHAR )
-			p_ccl_free( ptn->ccl );
+			pccl_free( ptn->ccl );
 
 		if( ptn->child[0] )
 			pregex_ptn_free( ptn->child[0] );
@@ -445,7 +445,7 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 		fprintf( stderr, "%s%s", gap, types[ ptn->type ] );
 
 		if( ptn->type == PREGEX_PTN_CHAR )
-			fprintf( stderr, " %s", p_ccl_to_str( ptn->ccl, FALSE ) );
+			fprintf( stderr, " %s", pccl_to_str( ptn->ccl, FALSE ) );
 
 		fprintf( stderr, "\n" );
 
@@ -479,7 +479,7 @@ static void pregex_char_to_REGEX( char* str, int size,
 }
 
 /* Internal function for pregex_ptn_to_regex() */
-static void p_ccl_to_REGEX( char** str, pccl* ccl )
+static void pccl_to_REGEX( char** str, pccl* ccl )
 {
 	int				i;
 	wchar_t			cfrom;
@@ -494,24 +494,24 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 	 * If this caracter class contains PCCL_MAX characters, then simply
 	 * print a dot.
 	 */
-	if( p_ccl_count( ccl ) > PCCL_MAX )
+	if( pccl_count( ccl ) > PCCL_MAX )
 	{
 		*str = pstrcatchar( *str, '.' );
 		return;
 	}
 
 	/* Better negate if more than 128 chars */
-	if( p_ccl_count( ccl ) > 128 )
+	if( pccl_count( ccl ) > 128 )
 	{
-		ccl = p_ccl_dup( ccl );
+		ccl = pccl_dup( ccl );
 		is_dup = TRUE;
 
 		neg = TRUE;
-		p_ccl_negate( ccl );
+		pccl_negate( ccl );
 	}
 
 	/* Char-class or single char? */
-	if( neg || p_ccl_count( ccl ) > 1 )
+	if( neg || pccl_count( ccl ) > 1 )
 	{
 		range = TRUE;
 		*str = pstrcatchar( *str, '[' );
@@ -523,20 +523,20 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 	 * If ccl contains a dash,
 	 * this must be printed first!
 	 */
-	if( p_ccl_test( ccl, '-' ) )
+	if( pccl_test( ccl, '-' ) )
 	{
 		if( !is_dup )
 		{
-			ccl = p_ccl_dup( ccl );
+			ccl = pccl_dup( ccl );
 			is_dup = TRUE;
 		}
 
 		*str = pstrcatchar( *str, '-' );
-		p_ccl_del( ccl, '-' );
+		pccl_del( ccl, '-' );
 	}
 
 	/* Iterate ccl... */
-	for( i = 0; p_ccl_get( &cfrom, &cto, ccl, i ); i++ )
+	for( i = 0; pccl_get( &cfrom, &cto, ccl, i ); i++ )
 	{
 		pregex_char_to_REGEX( from, (int)sizeof( from ), cfrom, TRUE, range );
 
@@ -554,7 +554,7 @@ static void p_ccl_to_REGEX( char** str, pccl* ccl )
 		*str = pstrcatchar( *str, ']' );
 
 	if( is_dup )
-		p_ccl_free( ccl );
+		pccl_free( ccl );
 }
 
 /* Internal function for pregex_ptn_to_regex() */
@@ -574,7 +574,7 @@ static pboolean pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 				return TRUE;
 
 			case PREGEX_PTN_CHAR:
-				p_ccl_to_REGEX( regex, ptn->ccl );
+				pccl_to_REGEX( regex, ptn->ccl );
 				break;
 
 			case PREGEX_PTN_SUB:
@@ -687,7 +687,7 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_start = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
 				n_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
 
-				n_start->ccl = p_ccl_dup( pattern->ccl );
+				n_start->ccl = pccl_dup( pattern->ccl );
 				n_start->next = n_end;
 				break;
 
@@ -1131,17 +1131,17 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr, int flags )
 		case '.':
 			MSG( "Any character" );
 
-			ccl = p_ccl_create( -1, -1, (char*)NULL );
+			ccl = pccl_create( -1, -1, (char*)NULL );
 
-			if( !( ccl && p_ccl_addrange( ccl, PCCL_MIN, PCCL_MAX ) ) )
+			if( !( ccl && pccl_addrange( ccl, PCCL_MIN, PCCL_MAX ) ) )
 			{
-				p_ccl_free( ccl );
+				pccl_free( ccl );
 				RETURN( FALSE );
 			}
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 			{
-				p_ccl_free( ccl );
+				pccl_free( ccl );
 				RETURN( FALSE );
 			}
 
@@ -1167,15 +1167,15 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr, int flags )
 					(*pstr)++;
 				}
 
-				if( !( ccl = p_ccl_create( -1, -1, (*pstr) + 1 ) ) )
+				if( !( ccl = pccl_create( -1, -1, (*pstr) + 1 ) ) )
 					RETURN( FALSE );
 
 				if( neg )
-					p_ccl_negate( ccl );
+					pccl_negate( ccl );
 
 				if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 				{
-					p_ccl_free( ccl );
+					pccl_free( ccl );
 					RETURN( FALSE );
 				}
 
@@ -1188,21 +1188,21 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr, int flags )
 		default:
 			MSG( "Default case" );
 
-			if( !( ccl = p_ccl_create( -1, -1, (char*)NULL ) ) )
+			if( !( ccl = pccl_create( -1, -1, (char*)NULL ) ) )
 			{
 				OUTOFMEM;
 				RETURN( FALSE );
 			}
 
-			if( !p_ccl_parseshorthand( ccl, pstr ) )
+			if( !pccl_parseshorthand( ccl, pstr ) )
 			{
-				*pstr += p_ccl_parsechar( &single, *pstr, TRUE );
+				*pstr += pccl_parsechar( &single, *pstr, TRUE );
 
 				MSG( "Singe character" );
 				VARS( "single", "%c", single );
 				VARS( "**pstr", "%c", **pstr );
 
-				if( !p_ccl_add( ccl, single ) )
+				if( !pccl_add( ccl, single ) )
 					RETURN( FALSE );
 			}
 			else
@@ -1211,11 +1211,11 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr, int flags )
 				VARS( "**pstr", "%c", **pstr );
 			}
 
-			VARS( "ccl", "%s", p_ccl_to_str( ccl, TRUE ) );
+			VARS( "ccl", "%s", pccl_to_str( ccl, TRUE ) );
 
 			if( !( *ptn = pregex_ptn_create_char( ccl ) ) )
 			{
-				p_ccl_free( ccl );
+				pccl_free( ccl );
 				RETURN( FALSE );
 			}
 

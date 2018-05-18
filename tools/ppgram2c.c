@@ -65,7 +65,7 @@ void gen_sym( FILE* f, ppgram* g )
 				continue;
 
 			case PPSYMTYPE_CCL:
-				def = p_ccl_to_str( sym->ccl, TRUE );
+				def = pccl_to_str( sym->ccl, TRUE );
 				break;
 
 			case PPSYMTYPE_STRING:
@@ -156,7 +156,7 @@ void gen_prods( FILE* f, ppgram* g )
 			switch( sym->type )
 			{
 				case PPSYMTYPE_CCL:
-					def = p_ccl_to_str( sym->ccl, TRUE );
+					def = pccl_to_str( sym->ccl, TRUE );
 					s = "\'";
 					break;
 
