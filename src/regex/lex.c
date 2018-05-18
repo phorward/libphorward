@@ -489,3 +489,124 @@ size_t plex_tokenize( plex* lex, char* start, parray** matches )
 
 	RETURN( *matches ? parray_count( *matches ) : 0 );
 }
+
+/* plex to dot */
+
+static void write_edge( FILE* stream, wchar_t from, wchar_t to )
+{
+	if( iswprint( from ) )
+		fprintf( stream, "&#x%x;", from );
+	else
+		fprintf( stream, "0x%x", from );
+
+	if( to != from )
+	{
+		if( iswprint( to ) )
+			fprintf( stream, " - &#x%x;",to);
+		else
+			fprintf( stream, " - 0x%x",to);
+	}
+}
+
+/** Dumps the DFA of a //lex// lexer object into a DOT-formatted graph output.
+
+The graph can be made visible with tools like Graphviz
+(http://www.graphviz.org/) and similar.
+
+//stream// is the output stream to be used. This is stdout when NULL is
+provided.
+
+//lex// is the plex object, which DFA shall be dumped.
+ */
+void plex_dump_dot( FILE* stream, plex* lex )
+{
+	int i, j, dst;
+
+	PROC( "plex_dump_dot" );
+	PARMS( "stream", "%p", stream );
+	PARMS( "lex", "%p", lex );
+
+	if( !stream )
+		stream = stderr;
+
+	if( !lex )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	/* write start of graph */
+	fprintf( stream,"digraph {\n" );
+	fprintf( stream, "  rankdir=LR;\n" );
+	fprintf( stream, "  node [shape = circle];\n" );
+
+	for( i = 0; i < lex->trans_cnt; i++ )
+	{
+		/* size = lex->trans[i][0]; */
+		fprintf( stream, "  n%d [", i );
+
+		/* change shape and label of node if state is a final state */
+		if( lex->trans[i][1] > 0 )
+			fprintf( stream, "shape=doublecircle," );
+
+		fprintf( stream,
+					"label = \" n%d\\nmatch_flags = %d\\nref_flags = %d\\n",
+						i, lex->trans[i][2], lex->trans[i][3] );
+
+		if( lex->trans[i][1] > 0 )
+			fprintf( stream, "id = %d\\n", lex->trans[i][1] );
+
+		fprintf( stream, "\"];\n" );
+
+		/* default transition */
+		if( lex->trans[i][4] != lex->trans_cnt )
+			fprintf( stream, "  n%d -> n%d [style=bold];\n",
+									i, lex->trans[i][4] );
+
+		/* a state with size < 5 is a final state:
+				it has no outgoing transitions */
+		if( lex->trans[i][0] > 5 )
+		{
+			j = 5;
+
+			while( TRUE )
+			{
+				fprintf( stream, "  n%d -> n%d [label = <",
+										i, lex->trans[i][j+2] );
+
+				write_edge( stream, lex->trans[i][j], lex->trans[i][j+1] );
+				dst = lex->trans[i][j+2];
+
+				j += 3;
+
+				while( TRUE )
+				{
+					/*  no more transitions to write */
+					if( j >= lex->trans[i][0] )
+					{
+						fprintf( stream, ">];\n" );
+						break;
+					}
+					else if( lex->trans[i][j+2] == dst )
+					{
+						fprintf( stream, "<br/>" );
+						write_edge( stream, lex->trans[i][j],
+												lex->trans[i][j+1] );
+						j += 3;
+						continue;
+					}
+
+					/* no more transitions to write */
+					fprintf( stream, ">];\n" );
+					break;
+				}
+
+				if( j >= lex->trans[i][0] )
+					break;
+			}
+		}
+	}
+
+	fprintf( stream, "}\n" );
+	VOIDRET;
+};

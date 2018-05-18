@@ -253,6 +253,7 @@ pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags );
 int plex_lex( plex* lex, char* start, char** end );
 char* plex_next( plex* lex, char* start, unsigned int* id, char** end );
 size_t plex_tokenize( plex* lex, char* start, parray** matches );
+void plex_dump_dot( FILE* stream, plex* lex );
 
 /* regex/misc.c */
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );
