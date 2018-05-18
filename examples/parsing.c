@@ -30,7 +30,6 @@ int main()
          "expr : expr '+' term = add | term ;" );
 
     par = pp_par_create( grm );                     /* Construct parser on it */
-    pp_par_autolex( par );                          /* Auto-construct a lexer */
 
     if( !pp_par_parse( &ast, par, "1+2*(3+4)+8" ) ) /* Parse an input string, */
         return 1;                                   /* exit on parse error */
