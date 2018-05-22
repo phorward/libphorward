@@ -116,6 +116,9 @@ struct _ppast
 	ppsym*					sym;		/* Emitting symbol */
 	ppprod*					prod;		/* Emitting production */
 
+	/* Semantics */
+	pany*					val;		/* Value */
+
 	/* Match */
 	char*					start;		/* Begin of fragment */
 	char*					end;		/* End of fragment */
@@ -141,6 +144,15 @@ typedef enum
 
 typedef void (*pastevalfn)( ppasteval type, ppast* node );
 
+/* Parser states */
+typedef enum
+{
+	PPPAR_STATE_INITIAL,
+	PPPAR_STATE_DONE,
+	PPPAR_STATE_NEXT,
+	PPPAR_STATE_ERROR
+} ppparstate;
+
 /* Parser */
 typedef struct
 {
@@ -151,15 +163,18 @@ typedef struct
 	unsigned int			states;		/* States count */
 	unsigned int**			dfa;		/* Parse table */
 
-	/* Lexical analyzer */
-	ppsym**					tokens;
-	ppsym**					ntokens;
+	/* Context */
+	char*					start;		/* Current start */
+	char*					end;		/* Current end */
+	int						row;		/* Current row */
+	int						col;		/* Current column */
 
-	plex*					lex;		/* Lexical analyzer */
-
-	unsigned int			(*lexfn)( char** start, char** end ); /* callback */
-
+	ppparstate				state;		/* State */
+	int						reduce;		/* Reduce */
+	parray*					stack;		/* Stack */
+	ppast*					ast;		/* AST */
 } pppar;
+
 
 
 /* Macro: PP_GRAM_DUMP */

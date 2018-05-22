@@ -217,7 +217,6 @@ pboolean pp_gram_from_bnf( ppgram* g, char* src )
 	PARMS( "src", "%s", src );
 
 	/* Define a grammar for BNF */
-
 	bnf = pp_gram_create();
 
 	/* Terminals */
@@ -276,16 +275,10 @@ pboolean pp_gram_from_bnf( ppgram* g, char* src )
 	PP_GRAM_DUMP( bnf );
 
 	/* Lexer */
+	terminal->ptn = pregex_ptn_create( "[^a-z_:;| \t\r\n][^:;| \t\r\n]*", 0 );
+	nonterminal->ptn = pregex_ptn_create( "[a-z_][^:;| \t\r\n]*", 0 );
 
-	pp_par_lex( par, terminal,
-		"[^a-z_:;| \t\r\n][^:;| \t\r\n]*", 			/* Ident */
-		0 );
-	pp_par_lex( par, nonterminal,
-		"[a-z_][^:;| \t\r\n]*",						/* ident */
-		0 );
-
-	pp_par_autolex( par );
-
+	/* Parse */
 	if( !pp_par_parse( &ast, par, src ) )
 	{
 		pp_par_free( par );
@@ -446,8 +439,7 @@ pboolean pp_gram_from_ebnf( ppgram* g, char* src )
 	PP_GRAM_DUMP( ebnf );
 
 	/* Lexer */
-
-	pp_par_lex( par, terminal,
+	terminal->ptn = pregex_ptn_create(
 		"[^a-z_:;|()*?+ \t\r\n][^:;|()*?+ \t\r\n]*" 	/* Ident */
 		"|/(\\.|[^\\/])*/(@\\w*)?"						/* /regular
 																expression/ */
@@ -456,12 +448,12 @@ pboolean pp_gram_from_ebnf( ppgram* g, char* src )
 		"|'[^']*'(@\\w*)?",								/* 'single-quoted
 																string' */
 		0 );
-	pp_par_lex( par, nonterminal,
+
+	nonterminal->ptn = pregex_ptn_create(
 		"[a-z_][^:;|()*?+ \t\r\n]*",					/* ident */
 		0 );
 
-	pp_par_autolex( par );
-
+	/* Parse */
 	if( !pp_par_parse( &ast, par, src ) )
 	{
 		pp_par_free( par );

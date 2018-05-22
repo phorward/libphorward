@@ -966,7 +966,8 @@ the pointer //str// is moved the characters consumed.
 If no shorthand sequence could be found, it returns FALSE, leaving //ccl//
 untouched.
 */
-pboolean pccl_parseshorthand( pccl* ccl, char **str )
+
+pboolean pccl_parseshorthand( pccl* ccl, char** str )
 {
 	pccl*		sh;
 	pboolean	neg	= FALSE;

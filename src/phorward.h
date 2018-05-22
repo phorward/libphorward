@@ -302,6 +302,8 @@ typedef struct
 
 
 
+
+
 typedef enum
 {
 	PANYTYPE_NULL,
@@ -375,8 +377,16 @@ typedef struct
 
 #define pany_set_wcsdup( val, wcs ) \
 			pany_set_wcs( val, pwcsdup( wcs ) )
-#define pany_set_wcsndup( val, wcs ) \
-			pany_set_wcs( val, pwcnsdup( wcs ) )
+#define pany_set_wcsndup( val, wcs, n ) \
+			pany_set_wcs( val, pwcnsdup( wcs, n ) )
+
+
+#ifdef DEBUG
+	#define PANY_DUMP( val ) \
+		_dbg_any_dump( __FILE__, __LINE__, _dbg_proc_name, #val, val )
+#else
+	#define PANY_DUMP( val )
+#endif
 
 
 
@@ -696,6 +706,9 @@ struct _ppast
 	ppprod*					prod;		
 
 	
+	pany*					val;		
+
+	
 	char*					start;		
 	char*					end;		
 	size_t					len;		
@@ -721,6 +734,15 @@ typedef enum
 typedef void (*pastevalfn)( ppasteval type, ppast* node );
 
 
+typedef enum
+{
+	PPPAR_STATE_INITIAL,
+	PPPAR_STATE_DONE,
+	PPPAR_STATE_NEXT,
+	PPPAR_STATE_ERROR
+} ppparstate;
+
+
 typedef struct
 {
 	
@@ -731,14 +753,17 @@ typedef struct
 	unsigned int**			dfa;		
 
 	
-	ppsym**					tokens;
-	ppsym**					ntokens;
+	char*					start;		
+	char*					end;		
+	int						row;		
+	int						col;		
 
-	plex*					lex;		
-
-	unsigned int			(*lexfn)( char** start, char** end ); 
-
+	ppparstate				state;		
+	int						reduce;		
+	parray*					stack;		
+	ppast*					ast;		
 } pppar;
+
 
 
 
@@ -788,6 +813,7 @@ void* pany_to_ptr( pany* val );
 pboolean pany_convert( pany* val, panytype type );
 
 
+void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
 void pany_fprint( FILE* stream, pany* val );
 
 
@@ -937,7 +963,7 @@ int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* op
 size_t pgetline( char** lineptr, size_t* n, FILE* stream );
 
 
-ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
 ppast* pp_ast_get( ppast* node, int n );
@@ -966,9 +992,11 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 
 
 pppar* pp_par_create( ppgram* g );
-pppar* pp_par_free( pppar* p );
-int pp_par_autolex( pppar* p );
-pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags );
+pppar* pp_par_free( pppar* par );
+plex* pp_par_autolex( pppar* p );
+ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val );
+ppparstate pp_par_next_by_name( pppar* par, char* name, pany* val );
+ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx, pany* val );
 pboolean pp_par_parse( ppast** root, pppar* par, char* start );
 
 
@@ -1037,6 +1065,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, pran
 pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
 
+pregex_ptn* pregex_ptn_create( char* pat, int flags );
 pregex_ptn* pregex_ptn_create_char( pccl* ccl );
 pregex_ptn* pregex_ptn_create_string( char* str, int flags );
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn );

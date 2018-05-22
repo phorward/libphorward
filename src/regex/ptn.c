@@ -6,27 +6,60 @@ All rights reserved. See LICENSE for more information.
 
 File:	ptn.c
 Author:	Jan Max Meyer
-Usage:	Internal regular expression pattern
-		construction and conversion functions
+Usage:	Functions for low-level regular expression pattern processing
 ----------------------------------------------------------------------------- */
 
 #include "phorward.h"
-
-/*NO_DOC*/
-/* No documentation for the entire module, all here is only internally used. */
 
 /* Local prototypes */
 static pboolean parse_alter( pregex_ptn** ptn, char** pstr, int flags );
 
 /* Create a pattern object of type //type//; Internal constructor! */
-static pregex_ptn* pregex_ptn_create( pregex_ptntype type )
+static pregex_ptn* pregex_ptn_CREATE( pregex_ptntype type )
 {
-	pregex_ptn*		pattern;
+	pregex_ptn*		ptn;
 
-	pattern = pmalloc( sizeof( pregex_ptn ) );
-	pattern->type = type;
+	ptn = (pregex_ptn*)pmalloc( sizeof( pregex_ptn ) );
+	ptn->type = type;
 
-	return pattern;
+	return ptn;
+}
+
+/** Constructs and parses a new pregex_ptn-structure from //pat//.
+
+This function is a shortcut for a call to pregex_ptn_parse().
+pregex_ptn_create() directly takes //pat// as its input and returns the parsed
+pregex_ptn structure which represents the internal representation of the
+regular expression //pat//.
+
+//flags// provides a combination of compile-time modifier flags
+(PREGEX_COMP_...) if wanted, or 0 (PREGEX_FLAG_NONE) if no flags should be
+used.
+
+Returns an allocated pregex_ptn-node which must be freed using pregex_ptn_free()
+when it is not used anymore.
+*/
+pregex_ptn* pregex_ptn_create( char* pat, int flags )
+{
+	pregex_ptn*		ptn;
+
+	PROC( "pregex_ptn_create" );
+	PARMS( "pat", "%s", pat );
+	PARMS( "flags", "%d", flags );
+
+	if( !( pat && *pat ) )
+	{
+		WRONGPARAM;
+		RETURN( (pregex_ptn*)NULL );
+	}
+
+	if( !pregex_ptn_parse( &ptn, pat, flags ) )
+	{
+		MSG( "Parse error" );
+		RETURN( (pregex_ptn*)NULL );
+	}
+
+	RETURN( ptn );
 }
 
 /** Constructs a character-class pattern.
@@ -47,7 +80,7 @@ pregex_ptn* pregex_ptn_create_char( pccl* ccl )
 		return (pregex_ptn*)NULL;
 	}
 
-	pattern = pregex_ptn_create( PREGEX_PTN_CHAR );
+	pattern = pregex_ptn_CREATE( PREGEX_PTN_CHAR );
 	pattern->ccl = ccl;
 
 	return pattern;
@@ -166,7 +199,7 @@ pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
 		return (pregex_ptn*)NULL;
 	}
 
-	pattern = pregex_ptn_create( PREGEX_PTN_SUB );
+	pattern = pregex_ptn_CREATE( PREGEX_PTN_SUB );
 	pattern->child[0] = ptn;
 
 	return pattern;
@@ -189,7 +222,7 @@ pregex_ptn* pregex_ptn_create_refsub( pregex_ptn* ptn )
 		return (pregex_ptn*)NULL;
 	}
 
-	pattern = pregex_ptn_create( PREGEX_PTN_REFSUB );
+	pattern = pregex_ptn_CREATE( PREGEX_PTN_REFSUB );
 	pattern->child[0] = ptn;
 
 	return pattern;
@@ -221,7 +254,7 @@ pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ...  )
 
 	while( ( alter = va_arg( alt, pregex_ptn* ) ) )
 	{
-		pattern = pregex_ptn_create( PREGEX_PTN_ALT );
+		pattern = pregex_ptn_CREATE( PREGEX_PTN_ALT );
 		pattern->child[0] = left;
 		pattern->child[1] = alter;
 
@@ -251,7 +284,7 @@ pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
 		return (pregex_ptn*)NULL;
 	}
 
-	pattern = pregex_ptn_create( PREGEX_PTN_KLE );
+	pattern = pregex_ptn_CREATE( PREGEX_PTN_KLE );
 	pattern->child[0] = ptn;
 
 	return pattern;
@@ -275,7 +308,7 @@ pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
 		return (pregex_ptn*)NULL;
 	}
 
-	pattern = pregex_ptn_create( PREGEX_PTN_POS );
+	pattern = pregex_ptn_CREATE( PREGEX_PTN_POS );
 	pattern->child[0] = ptn;
 
 	return pattern;
@@ -298,7 +331,7 @@ pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
 		return (pregex_ptn*)NULL;
 	}
 
-	pattern = pregex_ptn_create( PREGEX_PTN_OPT );
+	pattern = pregex_ptn_CREATE( PREGEX_PTN_OPT );
 	pattern->child[0] = ptn;
 
 	return pattern;
@@ -306,10 +339,9 @@ pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
 
 /** Constructs a sequence of multiple patterns.
 
-//first// is the beginning pattern of the sequence.
-//...// follows as parameter list of multiple patterns that become part of the
-sequence. The last pointer must be specified as (pregex_ptn*)NULL to mark the
-end of the list.
+//first// is the beginning pattern of the sequence. //...// follows as parameter
+list of multiple patterns that become part of the sequence. The last pointer
+must be specified as (pregex_ptn*)NULL to mark the end of the list.
 
 Always returns the pointer to //first//.
 */
@@ -345,7 +377,7 @@ pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
 	return first;
 }
 
-/** Duplicate pattern in a 1:1 copy. */
+/** Duplicate //ptn// into a stand-alone 1:1 copy. */
 pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
 {
 	pregex_ptn*		start	= (pregex_ptn*)NULL;
@@ -357,7 +389,7 @@ pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
 
 	while( ptn )
 	{
-		dup = pregex_ptn_create( ptn->type );
+		dup = pregex_ptn_CREATE( ptn->type );
 
 		if( !start )
 			start = dup;
@@ -660,7 +692,7 @@ char* pregex_ptn_to_regex( pregex_ptn* ptn )
 	return ptn->str;
 }
 
-/* Internal function for pregex_ptn_to_nfa() */
+/* Internal recursive processing function for pregex_ptn_to_nfa() */
 static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 	pregex_nfa_st** start, pregex_nfa_st** end, int* ref_count )
 {
@@ -835,7 +867,7 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 
 //nfa// is the NFA state machine structure that receives the compiled result of
 the pattern. This machine will be extended to the pattern if it already contains
-states. //nfa// must be initialized!
+states. //nfa// must be previously initialized!
 
 //ptn// is the pattern structure that will be converted and extended into
 the NFA state machine.
@@ -938,7 +970,7 @@ pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
 	RETURN( TRUE );
 }
 
-/** Converts a pattern-structure into a DFA state machine dfatab.
+/** Converts a pattern-structure into a DFA state machine //dfatab//.
 
 //dfatab// receives the allocated dfa content. Its made-up the same way
 as described in the documentation of the function pregex_dfa_to_dfatab().
@@ -1324,4 +1356,3 @@ static pboolean parse_alter( pregex_ptn** ptn, char** pstr, int flags )
 	RETURN( TRUE );
 }
 
-/*COD_ON*/

@@ -7,16 +7,19 @@ All rights reserved. See LICENSE for more information.
 File:	any.h
 Author:	Jan Max Meyer
 Usage:	Structures and definitions for a variant-style data storage type pany.
-
-		The only hand-written modules of the pany variant data type exists in
-		any.h and any.c.
-
-		The files any.get.c, any.set.c and any.conv.c are automatically
-		generated from the definitions below, using any.gen.awk. Due this
-		automatic generation of the get/set/conversion functions, the pany
-		data type can easily be changed and extended to new data types without
-		huger code changes.
 ----------------------------------------------------------------------------- */
+
+/*
+	The only hand-written modules of the pany variant data type exists in any.h
+	and any.c.
+
+	The files any.get.c, any.set.c, any.conv.c and any.print.c are automatically
+	generated from the definitions below, using any.gen.awk.
+
+	Due this automatic generation of the get/set/conversion functions, the pany
+	data type can easily be changed and extended to new data types without huger
+	code changes.
+*/
 
 /* Types */
 typedef enum
@@ -199,6 +202,14 @@ typedef struct
 
 #define pany_set_wcsdup( val, wcs ) \
 			pany_set_wcs( val, pwcsdup( wcs ) )
-#define pany_set_wcsndup( val, wcs ) \
-			pany_set_wcs( val, pwcnsdup( wcs ) )
+#define pany_set_wcsndup( val, wcs, n ) \
+			pany_set_wcs( val, pwcnsdup( wcs, n ) )
+
+/* Macro: PP_GRAM_DUMP */
+#ifdef DEBUG
+	#define PANY_DUMP( val ) \
+		_dbg_any_dump( __FILE__, __LINE__, _dbg_proc_name, #val, val )
+#else
+	#define PANY_DUMP( val )
+#endif
 

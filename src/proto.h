@@ -21,6 +21,7 @@ void* pany_to_ptr( pany* val );
 pboolean pany_convert( pany* val, panytype type );
 
 /* any/any.print.c */
+void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
 void pany_fprint( FILE* stream, pany* val );
 
 /* any/any.get.c */
@@ -81,31 +82,31 @@ pboolean parray_partof( parray* array, void* ptr );
 size_t parray_offset( parray* array, void* ptr );
 
 /* base/ccl.c */
-pccl* pccl_create( int min, int max, char* ccldef );
-pboolean pccl_compat( pccl* l, pccl* r );
-int pccl_size( pccl* ccl );
-int pccl_count( pccl* ccl );
-pccl* pccl_dup( pccl* ccl );
-pboolean pccl_testrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean pccl_test( pccl* ccl, wchar_t ch );
-pboolean pccl_instest( pccl* ccl, wchar_t ch );
-pboolean pccl_addrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean pccl_add( pccl* ccl, wchar_t ch );
-pboolean pccl_delrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean pccl_del( pccl* ccl, wchar_t ch );
-pccl* pccl_negate( pccl* ccl );
-pccl* pccl_union( pccl* ccl, pccl* add );
-pccl* pccl_diff( pccl* ccl, pccl* rem );
-int pccl_compare( pccl* left, pccl* right );
-pccl* pccl_intersect( pccl* ccl, pccl* within );
-pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
-size_t pccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq );
-pboolean pccl_parseshorthand( pccl* ccl, char **str );
-pboolean pccl_parse( pccl* ccl, char* ccldef, pboolean extend );
-pboolean pccl_erase( pccl* ccl );
-pccl* pccl_free( pccl* ccl );
-char* pccl_to_str( pccl* ccl, pboolean escape );
-void pccl_print( FILE* stream, pccl* ccl, int break_after );
+pccl* p_ccl_create( int min, int max, char* ccldef );
+pboolean p_ccl_compat( pccl* l, pccl* r );
+int p_ccl_size( pccl* ccl );
+int p_ccl_count( pccl* ccl );
+pccl* p_ccl_dup( pccl* ccl );
+pboolean p_ccl_testrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_test( pccl* ccl, wchar_t ch );
+pboolean p_ccl_instest( pccl* ccl, wchar_t ch );
+pboolean p_ccl_addrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_add( pccl* ccl, wchar_t ch );
+pboolean p_ccl_delrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean p_ccl_del( pccl* ccl, wchar_t ch );
+pccl* p_ccl_negate( pccl* ccl );
+pccl* p_ccl_union( pccl* ccl, pccl* add );
+pccl* p_ccl_diff( pccl* ccl, pccl* rem );
+int p_ccl_compare( pccl* left, pccl* right );
+pccl* p_ccl_intersect( pccl* ccl, pccl* within );
+pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
+size_t p_ccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq );
+pboolean p_ccl_parseshorthand( pccl* ccl, char** str );
+pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend );
+pboolean p_ccl_erase( pccl* ccl );
+pccl* p_ccl_free( pccl* ccl );
+char* p_ccl_to_str( pccl* ccl, pboolean escape );
+void p_ccl_print( FILE* stream, pccl* ccl, int break_after );
 
 /* base/dbg.c */
 pboolean _dbg_trace_enabled( char* file, char* function );
@@ -170,7 +171,7 @@ int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* op
 size_t pgetline( char** lineptr, size_t* n, FILE* stream );
 
 /* parse/ast.c */
-ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, char* start, char* end, int row, int col, ppast* child );
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, ppast* child );
 ppast* pp_ast_free( ppast* node );
 int pp_ast_len( ppast* node );
 ppast* pp_ast_get( ppast* node, int n );
@@ -199,9 +200,11 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 
 /* parse/parse.c */
 pppar* pp_par_create( ppgram* g );
-pppar* pp_par_free( pppar* p );
-int pp_par_autolex( pppar* p );
-pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags );
+pppar* pp_par_free( pppar* par );
+plex* pp_par_autolex( pppar* p );
+ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val );
+ppparstate pp_par_next_by_name( pppar* par, char* name, pany* val );
+ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx, pany* val );
 pboolean pp_par_parse( ppast** root, pppar* par, char* start );
 
 /* parse/pbnf.c */
@@ -270,6 +273,7 @@ int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, pran
 pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
 
 /* regex/ptn.c */
+pregex_ptn* pregex_ptn_create( char* pat, int flags );
 pregex_ptn* pregex_ptn_create_char( pccl* ccl );
 pregex_ptn* pregex_ptn_create_string( char* str, int flags );
 pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn );

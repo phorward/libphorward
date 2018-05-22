@@ -258,7 +258,7 @@ END									{
 function setfunc()
 {
 	# Comment
-	print "/** Sets the ``" datatype "``-value and type of //va//."
+	print "/** Sets the ``" datatype "``-value and type of //val//."
 	print ""
 	print "//val// is the pany-object to be set."
 	print "//" member "// is the ``" datatype "``-value to be assigned to" \
@@ -318,7 +318,7 @@ function getfunc()
 	print "		RETURN( (" datatype ")" var_emptyval " );"
 	print "	}"
 	print ""
-	print "	if( val->type != " var_define ")"
+	print "	if( val->type != " var_define " )"
 	print "	{"
 	print "		if( !pany_convert( val, " var_define " ) )"
 	print "			RETURN( (" datatype ")" var_emptyval " );"
@@ -493,6 +493,46 @@ function allconv_func()
 
 function fprint_func()
 {
+	# Dump ---------------------------------------------------------------------
+	print "/** Dump pany object to trace. */"
+	print "/*MACRO:PANY_DUMP( pany* any )*/"
+	print "void _dbg_any_dump( char* file, int line, char* function,"
+	print "						char* name, pany* val )"
+	print "{"
+	print "	switch( val->type )"
+	print "	{"
+
+	for( i = 1; i <= variants_cnt; i++ )
+	{
+		if( okdone[ variants[i] ] )
+			continue
+
+		okdone[ variants[i] ] = 1
+
+		print "		case " members[ variants[i] SUBSEP "var_define" ] ":"
+		print "			_dbg_trace( file, line, " \
+							"\"ANY\", function, \"%s (" \
+							members[ variants[i] SUBSEP "var_type" ] \
+							") = >" \
+							members[ variants[i] SUBSEP "var_format" ] \
+							"<\",\n\t\t\t\t\t\t\tname, pany_get_" \
+							members[ variants[i] SUBSEP "var_type" ] \
+								"( val ) );"
+
+		print "			break;\n"
+	}
+
+	print ""
+	print "		default:"
+	print "			break;"
+
+	print "	}"
+	print "}\n"
+
+	# Print --------------------------------------------------------------------
+	for( i = 1; i <= variants_cnt; i++ )
+		okdone[ variants[i] ] = 0
+
 	# Comment
 	print "/** Print the type and value of //val// to //stream//"
 	print "without any conversion. This function shall be used for debug only."
