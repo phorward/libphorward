@@ -893,7 +893,7 @@ int pccl_compare( pccl* left, pccl* right );
 pccl* pccl_intersect( pccl* ccl, pccl* within );
 pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
 size_t pccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq );
-pboolean pccl_parseshorthand( pccl* ccl, char **str );
+pboolean pccl_parseshorthand( pccl* ccl, char** str );
 pboolean pccl_parse( pccl* ccl, char* ccldef, pboolean extend );
 pboolean pccl_erase( pccl* ccl );
 pccl* pccl_free( pccl* ccl );
