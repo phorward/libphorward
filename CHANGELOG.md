@@ -55,7 +55,7 @@ Released on: April 17, 2018
   - Improved the pregex command-line utility to use the input parameter as is,
     if the parameter is not the name of a file.
   - Removed warnings and unused static functions from the entire library.
-  - Fixing & refactoring in p_ccl_parseshorthand() that caused invalid dfa state
+  - Fixing & refactoring in pccl_parseshorthand() that caused invalid dfa state
     machines generated from regular expressions on some 32-bit machine
     configurations.
   - plex_tokenize() ran under some circumstances into an endless-loop.

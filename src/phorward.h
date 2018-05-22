@@ -874,31 +874,31 @@ pboolean parray_partof( parray* array, void* ptr );
 size_t parray_offset( parray* array, void* ptr );
 
 
-pccl* p_ccl_create( int min, int max, char* ccldef );
-pboolean p_ccl_compat( pccl* l, pccl* r );
-int p_ccl_size( pccl* ccl );
-int p_ccl_count( pccl* ccl );
-pccl* p_ccl_dup( pccl* ccl );
-pboolean p_ccl_testrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean p_ccl_test( pccl* ccl, wchar_t ch );
-pboolean p_ccl_instest( pccl* ccl, wchar_t ch );
-pboolean p_ccl_addrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean p_ccl_add( pccl* ccl, wchar_t ch );
-pboolean p_ccl_delrange( pccl* ccl, wchar_t begin, wchar_t end );
-pboolean p_ccl_del( pccl* ccl, wchar_t ch );
-pccl* p_ccl_negate( pccl* ccl );
-pccl* p_ccl_union( pccl* ccl, pccl* add );
-pccl* p_ccl_diff( pccl* ccl, pccl* rem );
-int p_ccl_compare( pccl* left, pccl* right );
-pccl* p_ccl_intersect( pccl* ccl, pccl* within );
-pboolean p_ccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
-size_t p_ccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq );
-pboolean p_ccl_parseshorthand( pccl* ccl, char** str );
-pboolean p_ccl_parse( pccl* ccl, char* ccldef, pboolean extend );
-pboolean p_ccl_erase( pccl* ccl );
-pccl* p_ccl_free( pccl* ccl );
-char* p_ccl_to_str( pccl* ccl, pboolean escape );
-void p_ccl_print( FILE* stream, pccl* ccl, int break_after );
+pccl* pccl_create( int min, int max, char* ccldef );
+pboolean pccl_compat( pccl* l, pccl* r );
+int pccl_size( pccl* ccl );
+int pccl_count( pccl* ccl );
+pccl* pccl_dup( pccl* ccl );
+pboolean pccl_testrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean pccl_test( pccl* ccl, wchar_t ch );
+pboolean pccl_instest( pccl* ccl, wchar_t ch );
+pboolean pccl_addrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean pccl_add( pccl* ccl, wchar_t ch );
+pboolean pccl_delrange( pccl* ccl, wchar_t begin, wchar_t end );
+pboolean pccl_del( pccl* ccl, wchar_t ch );
+pccl* pccl_negate( pccl* ccl );
+pccl* pccl_union( pccl* ccl, pccl* add );
+pccl* pccl_diff( pccl* ccl, pccl* rem );
+int pccl_compare( pccl* left, pccl* right );
+pccl* pccl_intersect( pccl* ccl, pccl* within );
+pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
+size_t pccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq );
+pboolean pccl_parseshorthand( pccl* ccl, char **str );
+pboolean pccl_parse( pccl* ccl, char* ccldef, pboolean extend );
+pboolean pccl_erase( pccl* ccl );
+pccl* pccl_free( pccl* ccl );
+char* pccl_to_str( pccl* ccl, pboolean escape );
+void pccl_print( FILE* stream, pccl* ccl, int break_after );
 
 
 pboolean _dbg_trace_enabled( char* file, char* function );
@@ -1048,6 +1048,7 @@ pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags );
 int plex_lex( plex* lex, char* start, char** end );
 char* plex_next( plex* lex, char* start, unsigned int* id, char** end );
 size_t plex_tokenize( plex* lex, char* start, parray** matches );
+void plex_dump_dot( FILE* stream, plex* lex );
 
 
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );
@@ -1137,29 +1138,29 @@ wchar_t* pawcsprintf( wchar_t* fmt, ... );
 #endif 
 
 
-pboolean u8_isutf( unsigned char c );
-int u8_seqlen(char *s);
-wchar_t u8_char( char* str );
-char* u8_move( char* str, int count );
-wchar_t u8_parse_char( char** ch );
-int u8_toucs(wchar_t *dest, int sz, char *src, int srcsz);
-int u8_toutf8(char *dest, int sz, wchar_t *src, int srcsz);
-int u8_wc_toutf8(char *dest, wchar_t ch);
-int u8_offset(char *str, int charnum);
-int u8_charnum(char *s, int offset);
-int u8_strlen(char *s);
-wchar_t u8_nextchar(char *s, int *i);
-void u8_inc(char *s, int *i);
-void u8_dec(char *s, int *i);
+pboolean putf8_isutf( unsigned char c );
+int putf8_seqlen(char *s);
+wchar_t putf8_char( char* str );
+char* putf8_move( char* str, int count );
+wchar_t putf8_parse_char( char** ch );
+int putf8_toucs(wchar_t *dest, int sz, char *src, int srcsz);
+int putf8_toutf8(char *dest, int sz, wchar_t *src, int srcsz);
+int putf8_wc_toutf8(char *dest, wchar_t ch);
+int putf8_offset(char *str, int charnum);
+int putf8_charnum(char *s, int offset);
+int putf8_strlen(char *s);
+wchar_t putf8_nextchar(char *s, int *i);
+void putf8_inc(char *s, int *i);
+void putf8_dec(char *s, int *i);
 int octal_digit(char c);
 int hex_digit(char c);
-int u8_read_escape_sequence(char *str, wchar_t *dest);
-int u8_unescape(char *buf, int sz, char *src);
-int u8_escape_wchar(char *buf, int sz, wchar_t ch);
-int u8_escape(char *buf, int sz, char *src, int escape_quotes);
-char *u8_strchr(char *s, wchar_t ch, int *charn);
-char *u8_memchr(char *s, wchar_t ch, size_t sz, int *charn);
-int u8_is_locale_utf8(char *locale);
+int putf8_read_escape_sequence(char *str, wchar_t *dest);
+int putf8_unescape(char *buf, int sz, char *src);
+int putf8_escape_wchar(char *buf, int sz, wchar_t ch);
+int putf8_escape(char *buf, int sz, char *src, int escape_quotes);
+char *putf8_strchr(char *s, wchar_t ch, int *charn);
+char *putf8_memchr(char *s, wchar_t ch, size_t sz, int *charn);
+int putf8_is_locale_utf8(char *locale);
 
 
 pvmprog* pvm_prog_create( pvm* vm, char* src );

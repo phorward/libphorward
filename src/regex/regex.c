@@ -172,8 +172,8 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 			else
 			{
 #ifdef UTF8
-				ch = u8_char( ptr );
-				ptr += u8_seqlen( ptr );
+				ch = putf8_char( ptr );
+				ptr += putf8_seqlen( ptr );
 #else
 				ch = *ptr++;
 #endif
@@ -281,8 +281,8 @@ char* pregex_find( pregex* regex, char* start, char** end )
 			else
 			{
 #ifdef UTF8
-				ch = u8_char( ptr );
-				ptr += u8_seqlen( ptr );
+				ch = putf8_char( ptr );
+				ptr += putf8_seqlen( ptr );
 #else
 				ch = *ptr++;
 #endif
@@ -407,8 +407,8 @@ char* pregex_split( pregex* regex, char* start, char** end, char** next )
 			else
 			{
 #ifdef UTF8
-				ch = u8_char( ptr );
-				ptr += u8_seqlen( ptr );
+				ch = putf8_char( ptr );
+				ptr += putf8_seqlen( ptr );
 #else
 				ch = *ptr++;
 #endif

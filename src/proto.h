@@ -256,6 +256,7 @@ pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags );
 int plex_lex( plex* lex, char* start, char** end );
 char* plex_next( plex* lex, char* start, unsigned int* id, char** end );
 size_t plex_tokenize( plex* lex, char* start, parray** matches );
+void plex_dump_dot( FILE* stream, plex* lex );
 
 /* regex/misc.c */
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );
@@ -345,29 +346,29 @@ wchar_t* pawcsprintf( wchar_t* fmt, ... );
 #endif 
 
 /* string/utf8.c */
-pboolean u8_isutf( unsigned char c );
-int u8_seqlen(char *s);
-wchar_t u8_char( char* str );
-char* u8_move( char* str, int count );
-wchar_t u8_parse_char( char** ch );
-int u8_toucs(wchar_t *dest, int sz, char *src, int srcsz);
-int u8_toutf8(char *dest, int sz, wchar_t *src, int srcsz);
-int u8_wc_toutf8(char *dest, wchar_t ch);
-int u8_offset(char *str, int charnum);
-int u8_charnum(char *s, int offset);
-int u8_strlen(char *s);
-wchar_t u8_nextchar(char *s, int *i);
-void u8_inc(char *s, int *i);
-void u8_dec(char *s, int *i);
+pboolean putf8_isutf( unsigned char c );
+int putf8_seqlen(char *s);
+wchar_t putf8_char( char* str );
+char* putf8_move( char* str, int count );
+wchar_t putf8_parse_char( char** ch );
+int putf8_toucs(wchar_t *dest, int sz, char *src, int srcsz);
+int putf8_toutf8(char *dest, int sz, wchar_t *src, int srcsz);
+int putf8_wc_toutf8(char *dest, wchar_t ch);
+int putf8_offset(char *str, int charnum);
+int putf8_charnum(char *s, int offset);
+int putf8_strlen(char *s);
+wchar_t putf8_nextchar(char *s, int *i);
+void putf8_inc(char *s, int *i);
+void putf8_dec(char *s, int *i);
 int octal_digit(char c);
 int hex_digit(char c);
-int u8_read_escape_sequence(char *str, wchar_t *dest);
-int u8_unescape(char *buf, int sz, char *src);
-int u8_escape_wchar(char *buf, int sz, wchar_t ch);
-int u8_escape(char *buf, int sz, char *src, int escape_quotes);
-char *u8_strchr(char *s, wchar_t ch, int *charn);
-char *u8_memchr(char *s, wchar_t ch, size_t sz, int *charn);
-int u8_is_locale_utf8(char *locale);
+int putf8_read_escape_sequence(char *str, wchar_t *dest);
+int putf8_unescape(char *buf, int sz, char *src);
+int putf8_escape_wchar(char *buf, int sz, wchar_t ch);
+int putf8_escape(char *buf, int sz, char *src, int escape_quotes);
+char *putf8_strchr(char *s, wchar_t ch, int *charn);
+char *putf8_memchr(char *s, wchar_t ch, size_t sz, int *charn);
+int putf8_is_locale_utf8(char *locale);
 
 /* vm/prog.c */
 pvmprog* pvm_prog_create( pvm* vm, char* src );
