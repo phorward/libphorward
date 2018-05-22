@@ -140,7 +140,7 @@ pboolean plex_prepare( plex* lex )
 	dfa = pregex_dfa_create();
 
 	if( pregex_dfa_from_nfa( dfa, nfa ) <= 0
-			&& pregex_dfa_minimize( dfa ) <= 0 )
+			|| pregex_dfa_minimize( dfa ) <= 0 )
 	{
 		pregex_nfa_free( nfa );
 		pregex_dfa_free( dfa );
