@@ -98,10 +98,10 @@ plex* pp_par_autolex( pppar* p )
 		sym = (ppsym*)plist_access( e );
 
 		if( !PPSYM_IS_TERMINAL( sym )
-			|| sym->flags & PPFLAG_SPECIAL
-				|| !sym->name )
+			|| sym->flags & PPFLAG_SPECIAL )
 			continue;
 
+		VARS( "sym->name", "%s", sym->name ? sym->name : "(null)" );
 		VARS( "sym->idx", "%d", sym->idx );
 
 		if( !lex )
@@ -459,13 +459,50 @@ ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx, pany* val )
 	RETURN( pp_par_next( par, sym, val ) );
 }
 
+/* Helper for pp_par_parse() */
+static ppsym* pp_par_scan( pppar* par, plex* lex,
+							char** start, char** end, pboolean lazy )
+{
+	unsigned int	tok;
+	ppsym*			sym;
+
+	PROC( "pp_par_scan" );
+
+	while( TRUE )
+	{
+		if( ( !lazy && ( tok = plex_lex( lex, *start, end ) ) )
+			|| ( lazy && ( *start = plex_next( lex, *start, &tok, end ) ) ) )
+		{
+			VARS( "tok", "%d", tok );
+
+			if( !( sym = pp_sym_get( par->gram, tok ) )
+				|| sym->flags & PPFLAG_WHITESPACE )
+			{
+				*start = *end;
+				continue;
+			}
+		}
+		else
+			sym	= par->gram->eof;
+
+		break;
+	}
+
+	if( sym )
+		LOG( "Next token '%s' @ >%.*s<\n", sym->name, *end - *start, *start );
+
+	RETURN( sym );
+}
+
 /** Parse string with lexer. */
 pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 {
 	plex*			lex;
 	char*			end;
-	unsigned int	tok;
 	pany*			val;
+	pboolean		lazy	= TRUE;
+	unsigned int	i;
+	ppsym*			sym;
 
 	PROC( "pp_par_parse" );
 	PARMS( "root", "%p", root );
@@ -485,34 +522,59 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 		RETURN( FALSE );
 	}
 
-	while( ( start = plex_next( lex, start, &tok, &end ) ) )
+	for( i = 0; ( sym = pp_sym_get( par->gram, i ) ); i++ )
 	{
-		val = pany_create( (char*)NULL );
-		pany_set_strndup( val, start, end - start );
-
-		LOG( "token = %d", tok );
-		LOG( "match = >%s<", pany_get_str( val ) );
-
-		if( pp_par_next_by_idx( par, tok, val ) != PPPAR_STATE_NEXT )
+		if( PPSYM_IS_TERMINAL( sym ) && sym->flags & PPFLAG_WHITESPACE )
+		{
+			lazy = FALSE;
 			break;
-
-		start = end;
+		}
 	}
+
+	VARS( "lazy", "%s", BOOLEAN_STR( lazy ) );
+
+	do
+	{
+		sym = pp_par_scan( par, lex, &start, &end, lazy );
+
+		LOG( "symbol %d, %s", sym->idx, sym->name );
+
+		if( end > start )
+		{
+			val = pany_create( (char*)NULL );
+			pany_set_strndup( val, start, end - start );
+
+			LOG( "val = >%s<", pany_get_str( val ) );
+		}
+		else
+			val = (pany*)NULL;
+
+		switch( pp_par_next( par, sym, val ) )
+		{
+			case PPPAR_STATE_NEXT:
+				MSG( "Next symbol requested" );
+				start = end;
+				break;
+
+			case PPPAR_STATE_DONE:
+				MSG( "We have a successful parse!" );
+
+				if( root )
+				{
+					*root = par->ast;
+					par->ast = (ppast*)NULL;
+				}
+
+				RETURN( TRUE );
+
+			default:
+				sym = (ppsym*)NULL;
+				break;
+		}
+	}
+	while( sym );
 
 	plex_free( lex );
-
-	if( !start && pp_par_next_by_idx( par, 0, (pany*)NULL )
-					== PPPAR_STATE_DONE )
-	{
-		MSG( "We have a successful parse!" );
-		if( root )
-		{
-			*root = par->ast;
-			par->ast = (ppast*)NULL;
-		}
-
-		RETURN( TRUE );
-	}
 
 	RETURN( FALSE );
 }

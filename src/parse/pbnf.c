@@ -517,6 +517,9 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 
 	MSG( "Defining terminals" );
 
+	whitespace = pp_sym_create( pbnf, (char*)NULL, PPFLAG_WHITESPACE );
+	comment = pp_sym_create( pbnf, (char*)NULL, PPFLAG_WHITESPACE );
+
 	terminal = pp_sym_create( pbnf, "Terminal", PPFLAG_NONE );
 	terminal->emit = "Terminal";
 
@@ -561,9 +564,6 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 	assoc_left = pp_sym_create( pbnf, "<<", PPFLAG_NONE );
 	assoc_right = pp_sym_create( pbnf, ">>", PPFLAG_NONE );
 	assoc_not = pp_sym_create( pbnf, "^^", PPFLAG_NONE );
-
-	whitespace = pp_sym_create( pbnf, (char*)NULL, PPFLAG_WHITESPACE );
-	comment = pp_sym_create( pbnf, (char*)NULL, PPFLAG_WHITESPACE );
 
 	/* Nonterminals */
 	MSG( "Nonterminals" );
@@ -718,7 +718,9 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 
 	/* Lexer */
 	whitespace->ptn = pregex_ptn_create( "[ \t\r\n]+", 0 );
-	comment->ptn = pregex_ptn_create( "/\\*([^*]|\\*[^/])*\\*/|//[^\n]*\n", 0 );
+	comment->ptn = pregex_ptn_create( "/\\*([^*]|\\*[^/])*\\*/"
+										"|//[^\n]*\n"
+										"|#[^\n]*\n", 0 );
 
 	terminal->ptn = pregex_ptn_create( "[A-Z_][A-Za-z0-9_]*", 0 );
 	nonterminal->ptn = pregex_ptn_create( "[a-z_][A-Za-z0-9_]*", 0 );
