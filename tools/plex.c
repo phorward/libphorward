@@ -16,6 +16,8 @@ void help( char** argv )
 
 	"   -b  --begin     STRING    Use STRING as result begin separator\n"
 	"                             (' >' is default)\n"
+	"   -d  --dot                 Dump scanner as graph for visualizations in\n"
+	"                             Graphviz dot-format\n"
 	"   -e  --end       STRING    Use STRING as result end separator\n"
 	"                             ('<\\n' is default)\n"
 	"   -f  --file      FILENAME  Read input from FILENAME\n"
@@ -36,6 +38,7 @@ int main( int argc, char** argv )
 	char*		end;
 	plex*		lex;
 	int			id;
+	pboolean	dot			= FALSE;
 
 	int			i;
 	int			rc;
@@ -46,12 +49,14 @@ int main( int argc, char** argv )
 
 	/* Analyze command-line parameters */
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"b:e:d:Df:hi:V",
-						"begin: end: delimiter: file: "
+						"b:de:Df:hi:V",
+						"begin: dot end: file: "
 							"help input: version", i ) ) == 0; i++ )
 	{
 		if( !strcmp( opt, "begin" ) || !strcmp( opt, "b" ) )
 			begin_sep = pstrunescape( param );
+		else if( !strcmp( opt, "dot" ) || !strcmp( opt, "d" ) )
+			dot = TRUE;
 		else if( !strcmp( opt, "end" ) || !strcmp( opt, "e" ) )
 			end_sep = pstrunescape( param );
 		else if( !strcmp( opt, "file" ) || !strcmp( opt, "f" ) )
@@ -101,6 +106,15 @@ int main( int argc, char** argv )
 
 		help( argv );
 		return 1;
+	}
+
+	/* Dump to dot */
+	if( dot )
+	{
+		plex_dump_dot( stdout, lex );
+		plex_free( lex );
+
+		return 0;
 	}
 
 	/* Read from stdin */

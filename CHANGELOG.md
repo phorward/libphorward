@@ -6,11 +6,14 @@ This file is used to document any relevant changes done to libphorward.
 
 Unreleased.
 
-- //pregex_ptn// function API white-listed for documentation generator
+- `plex_dump_dot()` allows to dump plex-scanners in dot-formatted
+  GraphViz format; This can also be triggered with plex command-line tool,
+  `--dot` switch.
+- *pregex_ptn* function API white-listed for documentation generator
 - New function `pregex_ptn_create()` as an object-oriented shortcut
   for `pregex_ptn_parse()`
 - Implemented push-parsing and further modularizations
-  - Push-parsing allows to run the parser token-by-token from the scanner,
+  - Push-parsing allows to call the parser on token-base from the scanner,
     so that more flexibility on input processing is achieved.
   - New functions `pp_par_next()`, `pp_par_next_by_name()`,
     `pp_par_next_by_idx()`.

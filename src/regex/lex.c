@@ -535,6 +535,9 @@ void plex_dump_dot( FILE* stream, plex* lex )
 		VOIDRET;
 	}
 
+	if( !lex->trans_cnt )
+		plex_prepare( lex );
+
 	/* write start of graph */
 	fprintf( stream,"digraph {\n" );
 	fprintf( stream, "  rankdir=LR;\n" );
