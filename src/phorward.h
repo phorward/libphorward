@@ -451,7 +451,7 @@ typedef struct	_regex_ptn		pregex_ptn;
 typedef struct	_range			prange;
 typedef struct	_regex			pregex;
 typedef struct	_lex			plex;
-
+typedef struct	_lexctx			plexctx;
 
 
 
@@ -549,6 +549,13 @@ struct _lex
 	prange			ref			[ PREGEX_MAXREF ];
 };
 
+
+struct _lexctx
+{
+	int				handle;		
+	int				state;		
+	prange			ref			[ PREGEX_MAXREF ];
+};
 
 
 
@@ -1046,6 +1053,7 @@ pboolean plex_reset( plex* lex );
 pboolean plex_prepare( plex* lex );
 pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags );
 int plex_lex( plex* lex, char* start, char** end );
+pboolean plex_pushlex( plex* lex, plexctx* ctx, wchar_t ch );
 char* plex_next( plex* lex, char* start, unsigned int* id, char** end );
 size_t plex_tokenize( plex* lex, char* start, parray** matches );
 void plex_dump_dot( FILE* stream, plex* lex );

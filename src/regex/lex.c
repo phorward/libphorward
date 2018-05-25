@@ -363,6 +363,94 @@ int plex_lex( plex* lex, char* start, char** end )
 	RETURN( 0 );
 }
 
+/** Performs a lexical analysis using the object //lex// using context //ctx//
+and character //ch//. */
+pboolean plex_pushlex( plex* lex, plexctx* ctx, wchar_t ch )
+{
+	int		i;
+	int		next_state;
+
+	PROC( "plex_pushlex" );
+	PARMS( "lex", "%p", lex );
+	PARMS( "ctx", "%p", ctx );
+	PARMS( "ch", "%d", ch );
+
+	if( !( lex && ctx ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !lex->trans_cnt )
+		plex_prepare( lex );
+
+	if( !( ctx->state >= 0 && ctx->state < lex->trans_cnt ) )
+	{
+		MSG( "Invalid state" );
+		RETURN( FALSE );
+	}
+
+	/* State accepts? */
+	if( lex->trans[ ctx->state ][ 1 ] )
+	{
+		MSG( "This state accepts the input" );
+		ctx->handle = lex->trans[ ctx->state ][ 1 ];
+
+		if( lex->flags & PREGEX_RUN_NONGREEDY
+			|| lex->trans[ ctx->state ][ 2 ] & PREGEX_FLAG_NONGREEDY )
+			RETURN( FALSE );
+	}
+
+	/* References */
+	/* todo
+	if( lex->trans[ ctx->state ][ 3 ] )
+	{
+		for( i = 0; i < PREGEX_MAXREF; i++ )
+		{
+			if( lex->trans[ ctx->state ][ 3 ] & ( 1 << i ) )
+			{
+				if( !ctx->ref[ i ].start )
+					ctx->ref[ i ].start = ptr;
+
+				lex->ref[ i ].end = ptr;
+			}
+		}
+	}
+	*/
+
+	/* Initialize default transition */
+	next_state = lex->trans[ ctx->state ][ 4 ];
+
+	/* Find transition according to current character */
+	for( i = 5; i < lex->trans[ ctx->state ][ 0 ]; i += 3 )
+	{
+		if( lex->trans[ ctx->state  ][ i ] <= ch
+				&& lex->trans[ ctx->state  ][ i + 1 ] >= ch )
+		{
+			next_state = lex->trans[ ctx->state ][ i + 2 ];
+			break;
+		}
+	}
+
+	if( next_state < lex->trans_cnt )
+	{
+		MSG( "Having transition" );
+
+		if( lex->flags & PREGEX_RUN_WCHAR )
+			LOG( "state %d, wchar_t %d (>%lc<), next state %d\n",
+					ctx->state, ch, ch, next_state );
+		else
+			LOG( "state %d, char %d (>%c<), next state %d\n",
+					ctx->state, ch, ch, next_state );
+	}
+	else
+		MSG( "No more transitions" );
+
+	ctx->state = next_state;
+
+	RETURN( TRUEBOOLEAN( ctx->state < lex->trans_cnt ) );
+}
+
 /** Performs lexical analysis using //lex// from begin of pointer //start//, to
 the next matching token.
 
