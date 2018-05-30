@@ -10,6 +10,21 @@ Usage:	Parser maintainance object.
 
 #include "phorward.h"
 
+/* LR-Stackitem */
+typedef struct
+{
+	int				state;			/* State */
+	ppsym*			sym;			/* Symbol */
+
+	char*			start;			/* Start */
+
+	ppast*			node;			/* AST construction */
+
+	int				row;			/* Positioning in source */
+	int				col;			/* Positioning in source */
+} pplrse;
+
+
 /** Creates a new parser object using the underlying grammar //g//.
 
 The grammar must either be parsed first via one of the BNF parsers
@@ -64,9 +79,6 @@ pppar* pp_par_free( pppar* par )
 {
 	if( !par )
 		return (pppar*)NULL;
-
-	parray_free( par->stack );
-	pp_ast_free( par->ast );
 
 	pfree( par );
 
@@ -126,20 +138,80 @@ plex* pp_par_autolex( pppar* p )
 	RETURN( lex );
 }
 
+/** Initializes a parser context //ctx// for parser //par//.
 
-/* LR-Stackitem */
-typedef struct
+Parser contexts are objects holding state and semantics information on a
+current parsing process. */
+ppparctx* pp_parctx_init( ppparctx* ctx, pppar* par )
 {
-	int				state;			/* State */
-	ppsym*			sym;			/* Symbol */
+	PROC( "pp_parctx_init" );
+	PARMS( "ctx", "%p", ctx );
+	PARMS( "par", "%p", par );
 
-	char*			start;			/* Start */
+	if( !( ctx && par ) )
+	{
+		WRONGPARAM;
+		RETURN( (ppparctx*)NULL );
+	}
 
-	ppast*			node;			/* AST construction */
+	memset( ctx, 0, sizeof( ppparctx ) );
 
-	int				row;			/* Positioning in source */
-	int				col;			/* Positioning in source */
-} pplrse;
+	ctx->par = par;
+	ctx->state = PPPAR_STATE_INITIAL;
+
+	parray_init( &ctx->stack, sizeof( pplrse ), 0 );
+
+	RETURN( ctx );
+}
+
+/** Creates a new parser context for parser //par//.
+
+Parser contexts are objects holding state and semantics information on a
+current parsing process. */
+ppparctx* pp_parctx_create( pppar* par )
+{
+	ppparctx*	ctx;
+
+	PROC( "pp_parctx_create" );
+	PARMS( "par", "%p", par );
+
+	if( !par )
+	{
+		WRONGPARAM;
+		RETURN( (ppparctx*)NULL );
+	}
+
+	ctx = (ppparctx*)pmalloc( sizeof( ppparctx ) );
+	pp_parctx_init( ctx, par );
+
+	RETURN( ctx );
+}
+
+/** Resets the parser context object //ctx//. */
+ppparctx* pp_parctx_reset( ppparctx* ctx )
+{
+	if( !ctx )
+		return (ppparctx*)NULL;
+
+	parray_erase( &ctx->stack );
+	ctx->ast = pp_ast_free( ctx->ast );
+
+	ctx->state = PPPAR_STATE_INITIAL;
+
+	return ctx;
+}
+
+/** Frees the parser context object //ctx//. */
+ppparctx* pp_parctx_free( ppparctx* ctx )
+{
+	if( !ctx )
+		return (ppparctx*)NULL;
+
+	pp_parctx_reset( ctx );
+	pfree( ctx );
+
+	return (ppparctx*)NULL;
+}
 
 #if 0
 /* Function to dump the parse stack content */
@@ -161,7 +233,7 @@ static void print_stack( char* title, parray* stack )
 #endif
 
 
-/** Let parser //par// run on next token //sym//.
+/** Let parser and context //ctx// run on next token //sym//.
 
 //val// is an optional parameter that holds a semantic value. It will be
 assigned to an AST tree node when provided. Set it NULL if the value is not
@@ -177,60 +249,52 @@ The function returns one of the following values:
 - PPPAR_STATE_ERROR when an error was encountered.
 -
 */
-ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
+ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 {
 	int			i;
 	pplrse*		tos;
 	int			shift;
 	ppprod*		prod;
+	pppar*		par;
 	ppast*		node;
 
-	PROC( "pp_par_next" );
+	PROC( "pp_parctx_next" );
 
-	if( !( par && sym ) )
+	if( !( ctx && sym ) )
 	{
 		WRONGPARAM;
 		RETURN( PPPAR_STATE_ERROR );
 	}
 
-	PARMS( "par", "%p", par );
+	PARMS( "ctx", "%p", ctx );
 	PARMS( "sym", "%p", sym );
 
 	if( val )
 		PANY_DUMP( val );
 
-	/* Set up stack if necessary */
-	VARS( "par->stack", "%p", par->stack );
-
-	if( !par->stack )
-	{
-		MSG( "Setting up new stack" );
-		par->stack = parray_create( sizeof( pplrse ), 0 );
-		par->state = PPPAR_STATE_INITIAL;
-	}
+	par = ctx->par;
 
 	/* Initialize parser on first call */
-	if( par->state == PPPAR_STATE_INITIAL )
+	if( ctx->state == PPPAR_STATE_INITIAL )
 	{
 		MSG( "Initial call" );
-		parray_erase( par->stack );
-		par->ast = pp_ast_free( par->ast );
+		pp_parctx_reset( ctx );
 
-		tos = (pplrse*)parray_malloc( par->stack );
+		tos = (pplrse*)parray_malloc( &ctx->stack );
 		tos->sym = par->gram->goal;
 	}
 	else
-		tos = (pplrse*)parray_last( par->stack );
+		tos = (pplrse*)parray_last( &ctx->stack );
 
 	/* Until all reductions are performed... */
 	do
 	{
 		/* Reduce */
-		while( par->reduce )
+		while( ctx->reduce )
 		{
-			VARS( "par->reduce", "%d", par->reduce );
+			VARS( "ctx->reduce", "%d", ctx->reduce );
 
-			prod = pp_prod_get( par->gram, par->reduce - 1 );
+			prod = pp_prod_get( par->gram, ctx->reduce - 1 );
 
 			LOG( "reduce by production '%s'", pp_prod_to_str( prod ) );
 			LOG( "popping %d items off the stack, replacing by %s\n",
@@ -241,7 +305,7 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
 
 			for( i = 0; i < plist_count( prod->rhs ); i++ )
 			{
-				tos = (pplrse*)parray_pop( par->stack );
+				tos = (pplrse*)parray_pop( &ctx->stack );
 
 				/* Connecting nodes, remember last node. */
 				if( tos->node )
@@ -262,7 +326,7 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
 				}
 			}
 
-			tos = (pplrse*)parray_last( par->stack );
+			tos = (pplrse*)parray_last( &ctx->stack );
 
 			/* Construction of AST node */
 			if( prod->emit )
@@ -272,17 +336,17 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
 
 			/* Goal symbol reduced? */
 			if( prod->lhs == par->gram->goal
-					&& parray_count( par->stack ) == 1 )
+					&& parray_count( &ctx->stack ) == 1 )
 			{
 				MSG( "Parsing succeeded!" );
 
-				par->ast = node;
+				ctx->ast = node;
 
-				RETURN( ( par->state = PPPAR_STATE_DONE ) );
+				RETURN( ( ctx->state = PPPAR_STATE_DONE ) );
 			}
 
 			/* Check for entries in the parse table */
-			for( i = par->dfa[tos->state][0] - 3, shift = 0, par->reduce = 0;
+			for( i = par->dfa[tos->state][0] - 3, shift = 0, ctx->reduce = 0;
 					i >= 2; i -= 3 )
 			{
 				if( par->dfa[tos->state][i] == prod->lhs->idx + 1 )
@@ -291,13 +355,13 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
 						shift = par->dfa[tos->state][ i + 2 ];
 
 					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-						par->reduce = par->dfa[tos->state][ i + 2 ];
+						ctx->reduce = par->dfa[tos->state][ i + 2 ];
 
 					break;
 				}
 			}
 
-			tos = (pplrse*)parray_malloc( par->stack );
+			tos = (pplrse*)parray_malloc( &ctx->stack );
 
 			tos->sym = prod->lhs;
 			tos->state = shift - 1;
@@ -311,7 +375,7 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
 		/* Check for entries in the parse table */
 		if( tos->state > -1 )
 		{
-			for( i = 2, shift = 0, par->reduce = 0;
+			for( i = 2, shift = 0, ctx->reduce = 0;
 					i < par->dfa[tos->state][0]; i += 3 )
 			{
 				if( par->dfa[tos->state][i] == sym->idx + 1 )
@@ -320,41 +384,41 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
 						shift = par->dfa[tos->state][ i + 2 ];
 
 					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-						par->reduce = par->dfa[tos->state][ i + 2 ];
+						ctx->reduce = par->dfa[tos->state][ i + 2 ];
 
 					break;
 				}
 			}
 
-			if( !shift && !par->reduce )
-				par->reduce = par->dfa[ tos->state ][ 1 ];
+			if( !shift && !ctx->reduce )
+				ctx->reduce = par->dfa[ tos->state ][ 1 ];
 		}
 
 		VARS( "shift", "%d", shift );
-		VARS( "par->reduce", "%d", par->reduce );
+		VARS( "ctx->reduce", "%d", ctx->reduce );
 
-		if( !shift && !par->reduce )
+		if( !shift && !ctx->reduce )
 		{
 			/* Parse Error */
 			/* TODO: Error Recovery */
 			fprintf( stderr, "Parse Error @ %s\n", sym->name );
 
 			MSG( "Parsing failed" );
-			RETURN( ( par->state = PPPAR_STATE_ERROR ) );
+			RETURN( ( ctx->state = PPPAR_STATE_ERROR ) );
 		}
 	}
-	while( !shift && par->reduce );
+	while( !shift && ctx->reduce );
 
-	if( par->reduce )
+	if( ctx->reduce )
 		LOG( "shift on %s and reduce by production %d\n",
-					sym->name, par->reduce - 1 );
+					sym->name, ctx->reduce - 1 );
 	else
 		LOG( "shift on %s to state %d\n", sym->name, shift - 1 );
 
-	tos = (pplrse*)parray_malloc( par->stack );
+	tos = (pplrse*)parray_malloc( &ctx->stack );
 
 	tos->sym = sym;
-	tos->state = par->reduce ? 0 : shift - 1;
+	tos->state = ctx->reduce ? 0 : shift - 1;
 
 	/* Shifted symbol becomes AST node? */
 	if( sym->emit )
@@ -373,31 +437,31 @@ ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val )
 	}
 
 	MSG( "Next token required" );
-	RETURN( ( par->state = PPPAR_STATE_NEXT ) );
+	RETURN( ( ctx->state = PPPAR_STATE_NEXT ) );
 }
 
-/** Let parser //par// run on next token identified by //name//.
+/** Let parser //ctx// run on next token identified by //name//.
 
-The function is a wrapper for pp_par_next() with same behavior.
+The function is a wrapper for pp_parctx_next() with same behavior.
 */
-ppparstate pp_par_next_by_name( pppar* par, char* name, pany* val )
+ppparstate pp_parctx_next_by_name( ppparctx* ctx, char* name, pany* val )
 {
 	ppsym*		sym;
 
-	PROC( "pp_par_next_by_name" );
-	PARMS( "par", "%p", par );
+	PROC( "pp_parctx_next_by_name" );
+	PARMS( "ctx", "%p", ctx );
 	PARMS( "name", "%s", name );
 
 	if( val )
 		PANY_DUMP( val );
 
-	if( !( par && name && *name ) )
+	if( !( ctx && name && *name ) )
 	{
 		WRONGPARAM;
 		RETURN( PPPAR_STATE_ERROR );
 	}
 
-	if( !( sym = pp_sym_get_by_name( par->gram, name ) ) )
+	if( !( sym = pp_sym_get_by_name( ctx->par->gram, name ) ) )
 	{
 		WRONGPARAM;
 
@@ -413,32 +477,32 @@ ppparstate pp_par_next_by_name( pppar* par, char* name, pany* val )
 		RETURN( PPPAR_STATE_ERROR );
 	}
 
-	RETURN( pp_par_next( par, sym, val ) );
+	RETURN( pp_parctx_next( ctx, sym, val ) );
 }
 
 
-/** Let parser //par// run on next token identified by //idx//.
+/** Let parser //ctx// run on next token identified by //idx//.
 
-The function is a wrapper for pp_par_next() with same behavior.
+The function is a wrapper for pp_parctx_next() with same behavior.
 */
-ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx, pany* val )
+ppparstate pp_parctx_next_by_idx( ppparctx* ctx, unsigned int idx, pany* val )
 {
 	ppsym*		sym;
 
-	PROC( "pp_par_next_by_idx" );
-	PARMS( "par", "%p", par );
+	PROC( "pp_parctx_next_by_idx" );
+	PARMS( "ctx", "%p", ctx );
 	PARMS( "idx", "%d", idx );
 
 	if( val )
 		PANY_DUMP( val );
 
-	if( !( par ) )
+	if( !( ctx ) )
 	{
 		WRONGPARAM;
 		RETURN( PPPAR_STATE_ERROR );
 	}
 
-	if( !( sym = pp_sym_get( par->gram, idx ) ) )
+	if( !( sym = pp_sym_get( ctx->par->gram, idx ) ) )
 	{
 		WRONGPARAM;
 
@@ -456,7 +520,7 @@ ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx, pany* val )
 		RETURN( PPPAR_STATE_ERROR );
 	}
 
-	RETURN( pp_par_next( par, sym, val ) );
+	RETURN( pp_parctx_next( ctx, sym, val ) );
 }
 
 /* Helper for pp_par_parse() */
@@ -501,8 +565,10 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 	char*			end;
 	pany*			val;
 	pboolean		lazy	= TRUE;
+	pboolean		ret		= FALSE;
 	unsigned int	i;
 	ppsym*			sym;
+	ppparctx		ctx;
 
 	PROC( "pp_par_parse" );
 	PARMS( "root", "%p", root );
@@ -533,6 +599,8 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 
 	VARS( "lazy", "%s", BOOLEAN_STR( lazy ) );
 
+	pp_parctx_init( &ctx, par );
+
 	do
 	{
 		sym = pp_par_scan( par, lex, &start, &end, lazy );
@@ -549,7 +617,7 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 		else
 			val = (pany*)NULL;
 
-		switch( pp_par_next( par, sym, val ) )
+		switch( pp_parctx_next( &ctx, sym, val ) )
 		{
 			case PPPAR_STATE_NEXT:
 				MSG( "Next symbol requested" );
@@ -561,11 +629,14 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 
 				if( root )
 				{
-					*root = par->ast;
-					par->ast = (ppast*)NULL;
+					*root = ctx.ast;
+					ctx.ast = (ppast*)NULL;
 				}
 
-				RETURN( TRUE );
+				sym = (ppsym*)NULL;
+				ret = TRUE;
+
+				break;
 
 			default:
 				sym = (ppsym*)NULL;
@@ -574,7 +645,8 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 	}
 	while( sym );
 
+	pp_parctx_reset( &ctx );
 	plex_free( lex );
 
-	RETURN( FALSE );
+	RETURN( ret );
 }

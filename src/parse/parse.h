@@ -163,19 +163,18 @@ typedef struct
 	unsigned int			states;		/* States count */
 	unsigned int**			dfa;		/* Parse table */
 
-	/* Context */
-	char*					start;		/* Current start */
-	char*					end;		/* Current end */
-	int						row;		/* Current row */
-	int						col;		/* Current column */
+} pppar;
+
+/* Parser context */
+typedef struct
+{
+	pppar*					par;		/* Parser */
 
 	ppparstate				state;		/* State */
 	int						reduce;		/* Reduce */
-	parray*					stack;		/* Stack */
+	parray					stack;		/* Stack */
 	ppast*					ast;		/* AST */
-} pppar;
-
-
+} ppparctx;
 
 /* Macro: PP_GRAM_DUMP */
 #ifdef DEBUG
