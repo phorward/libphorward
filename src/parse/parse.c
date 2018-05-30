@@ -301,6 +301,12 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 						plist_count( prod->rhs ),
 							prod->lhs->name );
 
+			if( ctx->reducefn )
+			{
+				LOG( "Calling reduce function %p", ctx->reducefn );
+				(*ctx->reducefn)( ctx, prod );
+			}
+
 			node = (ppast*)NULL;
 
 			for( i = 0; i < plist_count( prod->rhs ); i++ )

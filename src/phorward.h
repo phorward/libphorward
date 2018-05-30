@@ -603,6 +603,8 @@ typedef struct _ppprod		ppprod;
 typedef struct _ppgram		ppgram;
 typedef struct _ppast		ppast;
 
+typedef struct _ppparctx	ppparctx;
+
 
 #define PPFLAG_NONE			0x00
 #define PPFLAG_CALLED		0x01
@@ -755,7 +757,9 @@ typedef struct
 } pppar;
 
 
-typedef struct
+typedef void (*ppreducefn)( ppparctx* ctx, ppprod* reduce );
+
+struct _ppparctx
 {
 	pppar*					par;		
 
@@ -763,7 +767,9 @@ typedef struct
 	int						reduce;		
 	parray					stack;		
 	ppast*					ast;		
-} ppparctx;
+
+	ppreducefn				reducefn;	
+} ;
 
 
 #ifdef DEBUG
