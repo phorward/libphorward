@@ -43,7 +43,11 @@ static ppsym* traverse_terminal( ppgram* gram, ppast* node )
 	char			name		[ NAMELEN * 2 + 1 ];
 	char			ch;
 
+	PROC( "traverse_terminal" );
+	VARS( "node->emit", "%s", node->emit );
+
 	sprintf( name, "%.*s", (int)node->len, node->start );
+	VARS( "name", "%s", name );
 
 	if( !( sym = pp_sym_get_by_name( gram, name ) ) )
 	{
@@ -76,7 +80,7 @@ static ppsym* traverse_terminal( ppgram* gram, ppast* node )
 		}
 	}
 
-	return sym;
+	RETURN( sym );
 }
 
 static ppsym* traverse_symbol( ppgram* gram, ppsym* lhs, ppast* node )
@@ -85,9 +89,10 @@ static ppsym* traverse_symbol( ppgram* gram, ppsym* lhs, ppast* node )
 	ppast*			child;
 	char			name		[ NAMELEN * 2 + 1 ];
 
-	/* fprintf( stderr, "sym >%s<\n", node->emit ); */
+	PROC( "traverse_symbol" );
+	PARMS( "node->emit", "%s", node->emit );
 
-	if( NODE_IS( node, "inline") )
+	if( NODE_IS( node, "inline" ) )
 	{
 		sym = pp_sym_create( gram, derive_name( gram, lhs->name ),
 									PPFLAG_FREENAME | PPFLAG_DEFINED
@@ -95,11 +100,11 @@ static ppsym* traverse_symbol( ppgram* gram, ppsym* lhs, ppast* node )
 
 		for( child = node->child; child; child = child->next )
 			if( !traverse_production( gram, sym, child->child ) )
-				return (ppsym*)NULL;
+				RETURN( (ppsym*)NULL );
 	}
 	else
 	{
-		if( NODE_IS( node, "Nonterminal") )
+		if( NODE_IS( node, "Nonterminal" ) )
 		{
 			sprintf( name, "%.*s", (int)node->len, node->start );
 
@@ -113,7 +118,7 @@ static ppsym* traverse_symbol( ppgram* gram, ppsym* lhs, ppast* node )
 	if( sym )
 		sym->flags |= PPFLAG_CALLED;
 
-	return sym;
+	RETURN( sym );
 }
 
 
@@ -125,16 +130,18 @@ static pboolean traverse_production( ppgram* gram, ppsym* lhs, ppast* node )
 	ppprod*			popt;
 	int				i;
 
+	PROC( "traverse_production" );
+
 	prod = pp_prod_create( gram, lhs, (ppsym*)NULL );
 
 	for( ; node; node = node->next )
 	{
-		/* fprintf( stderr, "prod >%s<\n", node->emit ); */
+		VARS( "node->emit", "%s", node->emit );
 
 		if( NODE_IS( node, "symbol" ) )
 		{
 			if( !( sym = traverse_symbol( gram, lhs, node->child ) ) )
-				return FALSE;
+				RETURN( FALSE );
 
 			pp_prod_append( prod, sym );
 		}
@@ -150,7 +157,7 @@ static pboolean traverse_production( ppgram* gram, ppsym* lhs, ppast* node )
 		}
 		else
 		{
-			sym = traverse_symbol( gram, lhs, node->child );
+			sym = traverse_symbol( gram, lhs, node->child->child );
 
 			if( NODE_IS( node, "pos" ) )
 				sym = pp_sym_mod_positive( sym );
@@ -195,7 +202,7 @@ static pboolean traverse_production( ppgram* gram, ppsym* lhs, ppast* node )
 		}
 	}
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 static pboolean ast_to_gram( ppgram* gram, ppast* ast )
