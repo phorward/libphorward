@@ -6,6 +6,7 @@ This file is used to document any relevant changes done to libphorward.
 
 Released on: April 17, 2018
 
+- v0.22.4: Memory leaks removed
 - v0.22.3: Updated documentation, thanks to AGS
 - v0.22.2: inline-symbols incorrectly implemented in pbnf
 - v0.22.1: Build-system fixes (Windows only)
