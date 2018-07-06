@@ -257,6 +257,7 @@ static pboolean ast_to_gram( ppgram* gram, ppast* ast )
 		else if( NODE_IS( node, "termdef" ) )
 		{
 			child = node->child;
+			*name = '\0';
 
 			if( NODE_IS( child, "flag_ignore" ) )
 			{
@@ -268,8 +269,6 @@ static pboolean ast_to_gram( ppgram* gram, ppast* ast )
 				sprintf( name, "%.*s", (int)child->len, child->start );
 				child = child->next;
 			}
-			else
-				*name = '\0';
 
 			if( NODE_IS( child, "emitsdef" ) )
 			{
