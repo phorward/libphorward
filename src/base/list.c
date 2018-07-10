@@ -596,7 +596,7 @@ pboolean plist_remove( plist* list, plistel* e )
 
 	if( e->hashprev )
 		e->hashprev->hashnext = e->hashnext;
-	else if( list->hash )
+	else if( list->hash && e->key )
 		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
 
 	/* Drop element contents */
