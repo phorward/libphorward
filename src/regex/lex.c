@@ -363,6 +363,7 @@ int plex_lex( plex* lex, char* start, char** end )
 	RETURN( 0 );
 }
 
+
 /** Performs lexical analysis using //lex// from begin of pointer //start//, to
 the next matching token.
 
@@ -613,3 +614,159 @@ void plex_dump_dot( FILE* stream, plex* lex )
 	fprintf( stream, "}\n" );
 	VOIDRET;
 };
+
+
+/** Initializes a lexer context //ctx// for lexer //lex//.
+
+Lexer contexts are objects holding state and semantics information on a current
+lexing process. */
+plexctx* plexctx_init( plexctx* ctx, plex* lex )
+{
+	PROC( "plexctx_init" );
+	PARMS( "ctx", "%p", ctx );
+	PARMS( "lex", "%p", lex );
+
+	if( !( ctx && lex ) )
+	{
+		WRONGPARAM;
+		RETURN( (plexctx*)NULL );
+	}
+
+	memset( ctx, 0, sizeof( plexctx ) );
+	ctx->lex = lex;
+
+	RETURN( ctx );
+}
+
+/** Creates a new lexer context for lexer //par//.
+
+lexer contexts are objects holding state and semantics information on a
+current parsing process. */
+plexctx* plexctx_create( plex* lex )
+{
+	plexctx*	ctx;
+
+	PROC( "plexctx_create" );
+	PARMS( "lex", "%p", lex );
+
+	if( !lex )
+	{
+		WRONGPARAM;
+		RETURN( (plexctx*)NULL );
+	}
+
+	ctx = (plexctx*)pmalloc( sizeof( plexctx ) );
+	plexctx_init( ctx, lex );
+
+	RETURN( ctx );
+}
+
+/** Resets the lexer context object //ctx//. */
+plexctx* plexctx_reset( plexctx* ctx )
+{
+	if( !ctx )
+		return (plexctx*)NULL;
+
+	ctx->state = 0;
+	ctx->handle = 0;
+
+	return ctx;
+}
+
+/** Frees the lexer context object //ctx//. */
+plexctx* plexctx_free( plexctx* ctx )
+{
+	if( !ctx )
+		return (plexctx*)NULL;
+
+	pfree( ctx );
+
+	return (plexctx*)NULL;
+}
+
+/** Performs a lexical analysis using the object //lex// using context //ctx//
+and character //ch//. */
+pboolean plexctx_lex( plexctx* ctx, wchar_t ch )
+{
+	int		i;
+	int		next_state;
+
+	PROC( "plexctx_lex" );
+	PARMS( "ctx", "%p", ctx );
+	PARMS( "ch", "%d", ch );
+
+	if( !( ctx && ctx->lex ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !ctx->lex->trans_cnt )
+		plex_prepare( ctx->lex );
+
+	if( !( ctx->state >= 0 && ctx->state < ctx->lex->trans_cnt ) )
+	{
+		MSG( "Invalid state" );
+		RETURN( FALSE );
+	}
+
+	/* State accepts? */
+	if( ctx->lex->trans[ ctx->state ][ 1 ] )
+	{
+		MSG( "This state accepts the input" );
+		ctx->handle = ctx->lex->trans[ ctx->state ][ 1 ];
+
+		if( ctx->lex->flags & PREGEX_RUN_NONGREEDY
+			|| ctx->lex->trans[ ctx->state ][ 2 ] & PREGEX_FLAG_NONGREEDY )
+			RETURN( FALSE );
+	}
+
+	/* References */
+	/* todo
+	if( lex->trans[ ctx->state ][ 3 ] )
+	{
+		for( i = 0; i < PREGEX_MAXREF; i++ )
+		{
+			if( lex->trans[ ctx->state ][ 3 ] & ( 1 << i ) )
+			{
+				if( !ctx->ref[ i ].start )
+					ctx->ref[ i ].start = ptr;
+
+				lex->ref[ i ].end = ptr;
+			}
+		}
+	}
+	*/
+
+	/* Initialize default transition */
+	next_state = ctx->lex->trans[ ctx->state ][ 4 ];
+
+	/* Find transition according to current character */
+	for( i = 5; i < ctx->lex->trans[ ctx->state ][ 0 ]; i += 3 )
+	{
+		if( ctx->lex->trans[ ctx->state  ][ i ] <= ch
+				&& ctx->lex->trans[ ctx->state  ][ i + 1 ] >= ch )
+		{
+			next_state = ctx->lex->trans[ ctx->state ][ i + 2 ];
+			break;
+		}
+	}
+
+	if( next_state < ctx->lex->trans_cnt )
+	{
+		MSG( "Having transition" );
+
+		if( ctx->lex->flags & PREGEX_RUN_WCHAR )
+			LOG( "state %d, wchar_t %d (>%lc<), next state %d\n",
+					ctx->state, ch, ch, next_state );
+		else
+			LOG( "state %d, char %d (>%c<), next state %d\n",
+					ctx->state, ch, ch, next_state );
+	}
+	else
+		MSG( "No more transitions" );
+
+	ctx->state = next_state;
+
+	RETURN( TRUEBOOLEAN( ctx->state < ctx->lex->trans_cnt ) );
+}

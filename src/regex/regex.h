@@ -80,7 +80,7 @@ typedef struct	_regex_ptn		pregex_ptn;
 typedef struct	_range			prange;
 typedef struct	_regex			pregex;
 typedef struct	_lex			plex;
-
+typedef struct	_lexctx			plexctx;
 
 /*
  * Internal Structures
@@ -188,3 +188,12 @@ struct _lex
 	prange			ref			[ PREGEX_MAXREF ];
 };
 
+/* The plex context object */
+struct _lexctx
+{
+	plex*			lex;		/* Lexer */
+
+	int				handle;		/* Match */
+	int				state;		/* State */
+	prange			ref			[ PREGEX_MAXREF ];
+};

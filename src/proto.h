@@ -257,6 +257,11 @@ int plex_lex( plex* lex, char* start, char** end );
 char* plex_next( plex* lex, char* start, unsigned int* id, char** end );
 size_t plex_tokenize( plex* lex, char* start, parray** matches );
 void plex_dump_dot( FILE* stream, plex* lex );
+plexctx* plexctx_init( plexctx* ctx, plex* lex );
+plexctx* plexctx_create( plex* lex );
+plexctx* plexctx_reset( plexctx* ctx );
+plexctx* plexctx_free( plexctx* ctx );
+pboolean plexctx_lex( plexctx* ctx, wchar_t ch );
 
 /* regex/misc.c */
 pboolean pregex_check_anchors( char* all, char* str, size_t len, int anchors, int flags );
