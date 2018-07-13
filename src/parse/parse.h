@@ -13,6 +13,8 @@ typedef struct _ppprod		ppprod;
 typedef struct _ppgram		ppgram;
 typedef struct _ppast		ppast;
 
+typedef struct _ppparctx	ppparctx;
+
 /* Flags for grammars and their objects */
 #define PPFLAG_NONE			0x00
 #define PPFLAG_CALLED		0x01
@@ -163,19 +165,22 @@ typedef struct
 	unsigned int			states;		/* States count */
 	unsigned int**			dfa;		/* Parse table */
 
-	/* Context */
-	char*					start;		/* Current start */
-	char*					end;		/* Current end */
-	int						row;		/* Current row */
-	int						col;		/* Current column */
+} pppar;
+
+/* Parser context */
+typedef void (*ppreducefn)( ppparctx* ctx, ppprod* reduce );
+
+struct _ppparctx
+{
+	pppar*					par;		/* Parser */
 
 	ppparstate				state;		/* State */
 	int						reduce;		/* Reduce */
-	parray*					stack;		/* Stack */
+	parray					stack;		/* Stack */
 	ppast*					ast;		/* AST */
-} pppar;
 
-
+	ppreducefn				reducefn;	/* Reduce function */
+} ;
 
 /* Macro: PP_GRAM_DUMP */
 #ifdef DEBUG

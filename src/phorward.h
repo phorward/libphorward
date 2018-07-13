@@ -612,6 +612,8 @@ typedef struct _ppprod		ppprod;
 typedef struct _ppgram		ppgram;
 typedef struct _ppast		ppast;
 
+typedef struct _ppparctx	ppparctx;
+
 
 #define PPFLAG_NONE			0x00
 #define PPFLAG_CALLED		0x01
@@ -761,19 +763,22 @@ typedef struct
 	unsigned int			states;		
 	unsigned int**			dfa;		
 
-	
-	char*					start;		
-	char*					end;		
-	int						row;		
-	int						col;		
-
-	ppparstate				state;		
-	int						reduce;		
-	parray*					stack;		
-	ppast*					ast;		
 } pppar;
 
 
+typedef void (*ppreducefn)( ppparctx* ctx, ppprod* reduce );
+
+struct _ppparctx
+{
+	pppar*					par;		
+
+	ppparstate				state;		
+	int						reduce;		
+	parray					stack;		
+	ppast*					ast;		
+
+	ppreducefn				reducefn;	
+} ;
 
 
 #ifdef DEBUG
@@ -1003,9 +1008,13 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 pppar* pp_par_create( ppgram* g );
 pppar* pp_par_free( pppar* par );
 plex* pp_par_autolex( pppar* p );
-ppparstate pp_par_next( pppar* par, ppsym* sym, pany* val );
-ppparstate pp_par_next_by_name( pppar* par, char* name, pany* val );
-ppparstate pp_par_next_by_idx( pppar* par, unsigned int idx, pany* val );
+ppparctx* pp_parctx_init( ppparctx* ctx, pppar* par );
+ppparctx* pp_parctx_create( pppar* par );
+ppparctx* pp_parctx_reset( ppparctx* ctx );
+ppparctx* pp_parctx_free( ppparctx* ctx );
+ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val );
+ppparstate pp_parctx_next_by_name( ppparctx* ctx, char* name, pany* val );
+ppparstate pp_parctx_next_by_idx( ppparctx* ctx, unsigned int idx, pany* val );
 pboolean pp_par_parse( ppast** root, pppar* par, char* start );
 
 
