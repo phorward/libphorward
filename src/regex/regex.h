@@ -191,6 +191,8 @@ struct _lex
 /* The plex context object */
 struct _lexctx
 {
+	plex*			lex;		/* Lexer */
+
 	int				handle;		/* Match */
 	int				state;		/* State */
 	prange			ref			[ PREGEX_MAXREF ];
