@@ -55,10 +55,9 @@ static int plist_hash_compare( plist* list, char* l, char* r )
 }
 
 /* Get hash table index */
-static int plist_hash_index( plist* list, char* key )
+static size_t plist_hash_index( plist* list, char* key )
 {
-	long hashval	= 0L;
-	long len;
+	size_t hashval	= 0L;
 
 	if( !( list ) )
 	{
@@ -67,17 +66,21 @@ static int plist_hash_index( plist* list, char* key )
 	}
 
 	if( list->flags & PLIST_MOD_PTRKEYS )
-		hashval = (long)key;
+		hashval = (size_t)key;
 	#ifdef UNICODE
 	else if( list->flags & PLIST_MOD_WCHAR )
-		for( len = (long)pwcslen( (wchar_t*)key ); len > 0; len-- )
-			hashval += (long)( (wchar_t*)key )[ len - 1 ];
+	{
+		wchar_t*	wkey	= (wchar_t*)key;
+
+		while( *wkey )
+			hashval += ( hashval << 1 ) + *( wkey++ );
+	}
 	#endif
 	else
-		for( len = (long)pstrlen( key ); len > 0; len-- )
-			hashval += (long)key[ len - 1 ];
+		while( *key )
+			hashval += ( hashval << 1 ) + *( key++ );
 
-	return (int)( hashval % list->hashsize );
+	return hashval % list->hashsize;
 }
 
 /* Insert a plist entry node into the hash-table via its key. */
@@ -593,7 +596,7 @@ pboolean plist_remove( plist* list, plistel* e )
 
 	if( e->hashprev )
 		e->hashprev->hashnext = e->hashnext;
-	else if( list->hash )
+	else if( list->hash && e->key )
 		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
 
 	/* Drop element contents */
@@ -751,7 +754,7 @@ with the key //key//.
 */
 plistel* plist_get_by_key( plist* list, char* key )
 {
-	int			idx;
+	size_t		idx;
 	plistel*	e;
 
 	PROC( "plist_get_by_key" );
@@ -768,7 +771,7 @@ plistel* plist_get_by_key( plist* list, char* key )
 		RETURN( (plistel*)NULL );
 
 	idx = plist_hash_index( list, key );
-	VARS( "idx", "%d", idx );
+	VARS( "idx", "%ld", idx );
 
 	for( e = list->hash[ idx ]; e; e = e->hashnext )
 	{
