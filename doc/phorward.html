@@ -13,8 +13,8 @@
 
 <div class="header" id="header">
 <h1>The Phorward Libraries</h1>
-<h2>libphorward 0.22.3</h2>
-<h3>May 2018</h3>
+<h2>libphorward 0.24.0</h2>
+<h3>Jul 2018</h3>
 </div>
 
 <div class="body" id="body">
@@ -172,6 +172,8 @@
       </li>
       <li><a href="#fn_MSG">MSG</a>
       </li>
+      <li><a href="#fn_PANY_DUMP">PANY_DUMP</a>
+      </li>
       <li><a href="#fn_PARMS">PARMS</a>
       </li>
       <li><a href="#fn_PPSYM_IS_TERMINAL">PPSYM_IS_TERMINAL</a>
@@ -194,7 +196,7 @@
       </li>
       </ul>
     </li>
-    <li><a href="#toc74">Functions</a>
+    <li><a href="#toc75">Functions</a>
       <ul>
       <li><a href="#fn_pany_convert">pany_convert</a>
       </li>
@@ -408,6 +410,8 @@
       </li>
       <li><a href="#fn_plex_define">plex_define</a>
       </li>
+      <li><a href="#fn_plex_dump_dot">plex_dump_dot</a>
+      </li>
       <li><a href="#fn_plex_free">plex_free</a>
       </li>
       <li><a href="#fn_plex_lex">plex_lex</a>
@@ -419,6 +423,16 @@
       <li><a href="#fn_plex_reset">plex_reset</a>
       </li>
       <li><a href="#fn_plex_tokenize">plex_tokenize</a>
+      </li>
+      <li><a href="#fn_plexctx_create">plexctx_create</a>
+      </li>
+      <li><a href="#fn_plexctx_free">plexctx_free</a>
+      </li>
+      <li><a href="#fn_plexctx_init">plexctx_init</a>
+      </li>
+      <li><a href="#fn_plexctx_lex">plexctx_lex</a>
+      </li>
+      <li><a href="#fn_plexctx_reset">plexctx_reset</a>
       </li>
       <li><a href="#fn_plist_access">plist_access</a>
       </li>
@@ -508,6 +522,8 @@
       </li>
       <li><a href="#fn_pmemdup">pmemdup</a>
       </li>
+      <li><a href="#fn_pp_ast_create">pp_ast_create</a>
+      </li>
       <li><a href="#fn_pp_ast_dump">pp_ast_dump</a>
       </li>
       <li><a href="#fn_pp_ast_dump_json">pp_ast_dump_json</a>
@@ -550,9 +566,21 @@
       </li>
       <li><a href="#fn_pp_par_free">pp_par_free</a>
       </li>
-      <li><a href="#fn_pp_par_lex">pp_par_lex</a>
-      </li>
       <li><a href="#fn_pp_par_parse">pp_par_parse</a>
+      </li>
+      <li><a href="#fn_pp_parctx_create">pp_parctx_create</a>
+      </li>
+      <li><a href="#fn_pp_parctx_free">pp_parctx_free</a>
+      </li>
+      <li><a href="#fn_pp_parctx_init">pp_parctx_init</a>
+      </li>
+      <li><a href="#fn_pp_parctx_next">pp_parctx_next</a>
+      </li>
+      <li><a href="#fn_pp_parctx_next_by_idx">pp_parctx_next_by_idx</a>
+      </li>
+      <li><a href="#fn_pp_parctx_next_by_name">pp_parctx_next_by_name</a>
+      </li>
+      <li><a href="#fn_pp_parctx_reset">pp_parctx_reset</a>
       </li>
       <li><a href="#fn_pp_prod_append">pp_prod_append</a>
       </li>
@@ -601,6 +629,42 @@
       <li><a href="#fn_pregex_free">pregex_free</a>
       </li>
       <li><a href="#fn_pregex_match">pregex_match</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create">pregex_ptn_create</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_alt">pregex_ptn_create_alt</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_char">pregex_ptn_create_char</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_kle">pregex_ptn_create_kle</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_opt">pregex_ptn_create_opt</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_pos">pregex_ptn_create_pos</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_refsub">pregex_ptn_create_refsub</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_seq">pregex_ptn_create_seq</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_string">pregex_ptn_create_string</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_create_sub">pregex_ptn_create_sub</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_dup">pregex_ptn_dup</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_free">pregex_ptn_free</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_parse">pregex_ptn_parse</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_print">pregex_ptn_print</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_to_dfa">pregex_ptn_to_dfa</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_to_dfatab">pregex_ptn_to_dfatab</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_to_nfa">pregex_ptn_to_nfa</a>
+      </li>
+      <li><a href="#fn_pregex_ptn_to_regex">pregex_ptn_to_regex</a>
       </li>
       <li><a href="#fn_pregex_qmatch">pregex_qmatch</a>
       </li>
@@ -2917,6 +2981,26 @@ Write a message to trace.
 <p>
 <i>message</i> is your message!
 </div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_PANY_DUMP">PANY_DUMP</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+PANY_DUMP( pany* any ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Dump pany object to trace.
+</div>
 <!-- NEED 20 -->
 <div class='function'>
 </p>
@@ -3233,7 +3317,7 @@ plist_for( my_list, e )
 
 </div>
 
-<h2 id="toc74">Functions</h2>
+<h2 id="toc75">Functions</h2>
 
 <!-- NEED 16 -->
 <div class='function'>
@@ -3348,8 +3432,8 @@ void pany_fprint( FILE* stream, pany* val )
 <b>Usage:</b>
 </p>
 <p>
-Print the type and value of <i>val</i> to <i>stream</i> without any conversion.
-This function shall be used for debugging purposes only.
+Print the type and value of <i>val</i> to <i>stream</i>
+without any conversion. This function shall be used for debug only.
 </p>
 <p>
 <i>stream</i> is the stream to write to.
@@ -3819,7 +3903,7 @@ pboolean pany_set_bool( pany* val, pboolean b )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>pboolean</code>-value and type of <i>va</i>.
+Sets the <code>pboolean</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -3846,7 +3930,7 @@ char pany_set_char( pany* val, char c )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>char</code>-value and type of <i>va</i>.
+Sets the <code>char</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -3873,7 +3957,7 @@ char* pany_set_cstr( pany* val, char* s )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>char*</code>-value and type of <i>va</i>.
+Sets the <code>char*</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -3900,7 +3984,7 @@ wchar_t* pany_set_cwcs( pany* val, wchar_t* ws )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>wchar_t*</code>-value and type of <i>va</i>.
+Sets the <code>wchar_t*</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -3927,7 +4011,7 @@ double pany_set_double( pany* val, double d )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>double</code>-value and type of <i>va</i>.
+Sets the <code>double</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -3954,7 +4038,7 @@ float pany_set_float( pany* val, float f )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>float</code>-value and type of <i>va</i>.
+Sets the <code>float</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -3981,7 +4065,7 @@ int pany_set_int( pany* val, int i )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>int</code>-value and type of <i>va</i>.
+Sets the <code>int</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -4008,7 +4092,7 @@ long pany_set_long( pany* val, long l )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>long</code>-value and type of <i>va</i>.
+Sets the <code>long</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -4035,7 +4119,7 @@ void* pany_set_ptr( pany* val, void* ptr )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>void*</code>-value and type of <i>va</i>.
+Sets the <code>void*</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -4062,7 +4146,7 @@ char* pany_set_str( pany* val, char* s )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>char*</code>-value and type of <i>va</i>.
+Sets the <code>char*</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -4089,7 +4173,7 @@ unsigned long pany_set_ulong( pany* val, unsigned long ul )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>unsigned long</code>-value and type of <i>va</i>.
+Sets the <code>unsigned long</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -4116,7 +4200,7 @@ wchar_t* pany_set_wcs( pany* val, wchar_t* ws )
 <b>Usage:</b>
 </p>
 <p>
-Sets the <code>wchar_t*</code>-value and type of <i>va</i>.
+Sets the <code>wchar_t*</code>-value and type of <i>val</i>.
 </p>
 <p>
 <i>val</i> is the pany-object to be set.
@@ -5684,7 +5768,7 @@ Returns the number of bytes that had been read for the character.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_parseshorthand( pccl* ccl, char **str )
+pboolean pccl_parseshorthand( pccl* ccl, char** str )
 </div>
 </p>
 <p>
@@ -6289,6 +6373,37 @@ Returns a pointer to the pattern object that just has been added. This allows
 for changing e.g. the accept flag later on. In case of an error, the value
 returned is NULL.
 </div>
+<!-- NEED 19 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plex_dump_dot">plex_dump_dot</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void plex_dump_dot( FILE* stream, plex* lex )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Dumps the DFA of a <i>lex</i> lexer object into a DOT-formatted graph output.
+</p>
+<p>
+The graph can be made visible with tools like Graphviz
+(<a href="http://www.graphviz.org/">http://www.graphviz.org/</a>) and similar.
+</p>
+<p>
+<i>stream</i> is the output stream to be used. This is stdout when NULL is
+provided.
+</p>
+<p>
+<i>lex</i> is the plex object, which DFA shall be dumped.
+</div>
 <!-- NEED 15 -->
 <div class='function'>
 </p>
@@ -6446,6 +6561,115 @@ to the configuration of the plex-object).
 <p>
 The function initializes and fills the array <i>matches</i>, if provided, with
 items of size prange. It returns the total number of matches.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plexctx_create">plexctx_create</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+plexctx* plexctx_create( plex* lex )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Creates a new lexer context for lexer <i>par</i>.
+</p>
+<p>
+lexer contexts are objects holding state and semantics information on a
+current parsing process.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plexctx_free">plexctx_free</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+plexctx* plexctx_free( plexctx* ctx )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Frees the lexer context object <i>ctx</i>.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plexctx_init">plexctx_init</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+plexctx* plexctx_init( plexctx* ctx, plex* lex )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Initializes a lexer context <i>ctx</i> for lexer <i>lex</i>.
+</p>
+<p>
+Lexer contexts are objects holding state and semantics information on a current
+lexing process.
+</div>
+<!-- NEED 12 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plexctx_lex">plexctx_lex</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean plexctx_lex( plexctx* ctx, wchar_t ch )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Performs a lexical analysis using the object <i>lex</i> using context <i>ctx</i>
+and character <i>ch</i>.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plexctx_reset">plexctx_reset</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+plexctx* plexctx_reset( plexctx* ctx )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Resets the lexer context object <i>ctx</i>.
 </div>
 <!-- NEED 11 -->
 <div class='function'>
@@ -7526,6 +7750,26 @@ type of <i>ptr</i> again.
 <div class='function'>
 </p>
 
+<h3 id="fn_pp_ast_create">pp_ast_create</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, ppast* child )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Creates a new abstract syntax tree node <i>emit</i> associated with <i>sym</i>.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
 <h3 id="fn_pp_ast_dump">pp_ast_dump</h3>
 
 <p>
@@ -7880,7 +8124,7 @@ grammar$ : defs ;
 </code></pre>
 
 </div>
-<!-- NEED 83 -->
+<!-- NEED 84 -->
 <div class='function'>
 
 <h3 id="fn_pp_gram_from_pbnf">pp_gram_from_pbnf</h3>
@@ -7897,10 +8141,11 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 <b>Usage:</b>
 </p>
 <p>
-Compiles an Phorward Backus-Naur form definition into a parser.
+Compiles a Phorward Backus-Naur form definition into a parser.
 </p>
 <p>
-<i>p</i> is the parser that receives the result of the parse.
+<i>g</i> is the grammar that receives the result of the parse.
+This grammar is extended to new definitions when it already contains symbols.
 </p>
 <p>
 In difference to <a href="#fn_pp_gram_from_bnf">pp_gram_from_bnf()</a> and <a href="#fn_pp_gram_from_ebnf">pp_gram_from_ebnf()</a>, <a href="#fn_pp_par_from_pbnf">pp_par_from_pbnf()</a> allows for a full-fledged parser definition with
@@ -8055,7 +8300,7 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm )
 <p>
 Build parse tables
 </div>
-<!-- NEED 14 -->
+<!-- NEED 15 -->
 <div class='function'>
 </p>
 
@@ -8066,18 +8311,19 @@ Build parse tables
 </p>
 <div class='definition'>
 <p>
-int pp_par_autolex( pppar* p )
+plex* pp_par_autolex( pppar* p )
 </div>
 </p>
 <p>
 <b>Usage:</b>
 </p>
 <p>
-Automatically generate lexical analysis for terminal symbols which
-have not been defined with <a href="#fn_pp_par_lex">pp_par_lex()</a>.
+Automatically generate lexical analyzer from terminal symbols
+defined in the grammar.
 </p>
 <p>
-Returns the number of inserted tokens on success.
+The lexical analyzer is constructed as a plex scanner and must be freed
+after usage with <a href="#fn_plex_free">plex_free()</a>.
 </div>
 <!-- NEED 22 -->
 <div class='function'>
@@ -8124,7 +8370,7 @@ the grammar is invalid.
 </p>
 <div class='definition'>
 <p>
-pppar* pp_par_free( pppar* p )
+pppar* pp_par_free( pppar* par )
 </div>
 </p>
 <p>
@@ -8133,32 +8379,7 @@ pppar* pp_par_free( pppar* p )
 <p>
 Frees the parser object <i>par</i>.
 </div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pp_par_lex">pp_par_lex</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Defines a lexical matcher for <i>sym</i> in parser <i>p</i> from a
-regular expression. <i>sym</i> must be a terminal symbol.
-</p>
-<p>
-Returns TRUE on success, FALSE if the symbol already was defined as a lexing
-token.
-</div>
-<!-- NEED 15 -->
+<!-- NEED 14 -->
 <div class='function'>
 </p>
 
@@ -8176,13 +8397,187 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 <b>Usage:</b>
 </p>
 <p>
-Run parser <i>par</i> with input <i>start</i>.
+Parse <i>start</i> with parser <i>par</i>.
 </p>
 <p>
-Currently, the used parsing method is LALR(1).
+If parsing succeeds, the function returns TRUE. And ppast-pointer is then
+saved to <i>root</i> if provided.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_parctx_create">pp_parctx_create</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppparctx* pp_parctx_create( pppar* par )
+</div>
 </p>
 <p>
-It returns an abstract syntax tree in <i>root</i> on success.
+<b>Usage:</b>
+</p>
+<p>
+Creates a new parser context for parser <i>par</i>.
+</p>
+<p>
+Parser contexts are objects holding state and semantics information on a
+current parsing process.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_parctx_free">pp_parctx_free</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppparctx* pp_parctx_free( ppparctx* ctx )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Frees the parser context object <i>ctx</i>.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_parctx_init">pp_parctx_init</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppparctx* pp_parctx_init( ppparctx* ctx, pppar* par )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Initializes a parser context <i>ctx</i> for parser <i>par</i>.
+</p>
+<p>
+Parser contexts are objects holding state and semantics information on a
+current parsing process.
+</div>
+<!-- NEED 25 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_parctx_next">pp_parctx_next</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Let parser and context <i>ctx</i> run on next token <i>sym</i>.
+</p>
+<p>
+<i>val</i> is an optional parameter that holds a semantic value. It will be
+assigned to an AST tree node when provided. Set it NULL if the value is not
+used or required.
+</p>
+<p>
+This method is called a push-parsing algorithm, where the scanner calls the
+parser to perform the next parsing steps. The used parsing method is LALR(1).
+</p>
+<p>
+The function returns one of the following values:
+</p>
+
+<ul>
+<li>PPPAR_STATE_DONE when the parse succeeded,
+</li>
+<li>PPPAR_STATE_NEXT when the partial parse succeeded, and next token is wanted,
+</li>
+<li>PPPAR_STATE_ERROR when an error was encountered.
+</li>
+</ul>
+
+</div>
+<!-- NEED 13 -->
+<div class='function'>
+
+<h3 id="fn_pp_parctx_next_by_idx">pp_parctx_next_by_idx</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppparstate pp_parctx_next_by_idx( ppparctx* ctx, unsigned int idx, pany* val )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Let parser <i>ctx</i> run on next token identified by <i>idx</i>.
+</p>
+<p>
+The function is a wrapper for <a href="#fn_pp_parctx_next">pp_parctx_next()</a> with same behavior.
+</div>
+<!-- NEED 13 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_parctx_next_by_name">pp_parctx_next_by_name</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppparstate pp_parctx_next_by_name( ppparctx* ctx, char* name, pany* val )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Let parser <i>ctx</i> run on next token identified by <i>name</i>.
+</p>
+<p>
+The function is a wrapper for <a href="#fn_pp_parctx_next">pp_parctx_next()</a> with same behavior.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_parctx_reset">pp_parctx_reset</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+ppparctx* pp_parctx_reset( ppparctx* ctx )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Resets the parser context object <i>ctx</i>.
 </div>
 <!-- NEED 11 -->
 <div class='function'>
@@ -8844,6 +9239,517 @@ Tries to match the regular expression <i>regex</i> at pointer <i>start</i>.
 <p>
 If the expression can be matched, the function returns TRUE and <i>end</i> receives
 the pointer to the last matched character.
+</div>
+<!-- NEED 22 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create">pregex_ptn_create</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create( char* pat, int flags )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs and parses a new pregex_ptn-structure from <i>pat</i>.
+</p>
+<p>
+This function is a shortcut for a call to <a href="#fn_pregex_ptn_parse">pregex_ptn_parse()</a>. <a href="#fn_pregex_ptn_create">pregex_ptn_create()</a> directly takes <i>pat</i> as its input and returns the parsed
+pregex_ptn structure which represents the internal representation of the
+regular expression <i>pat</i>.
+</p>
+<p>
+<i>flags</i> provides a combination of compile-time modifier flags
+(PREGEX_COMP_...) if wanted, or 0 (PREGEX_FLAG_NONE) if no flags should be
+used.
+</p>
+<p>
+Returns an allocated pregex_ptn-node which must be freed using <a href="#fn_pregex_ptn_free">pregex_ptn_free()</a>
+when it is not used anymore.
+</div>
+<!-- NEED 19 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_alt">pregex_ptn_create_alt</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs alternations of multiple patterns.
+</p>
+<p>
+<i>left</i> is the first pattern of the alternation.
+<i>...</i> are multiple pregex_ptn-pointers follow which become part of the
+alternation. The last node must be specified as (pregex_ptn*)NULL.
+</p>
+<p>
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence. If there is only <i>left</i> assigned without other alternation
+patterns, <i>left</i> will be returned back.
+</div>
+<!-- NEED 17 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_char">pregex_ptn_create_char</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_char( pccl* ccl )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs a character-class pattern.
+</p>
+<p>
+<i>ccl</i> is the pointer to a character class. This pointer is not duplicated,
+and will be directly assigned to the object.
+</p>
+<p>
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+</div>
+<!-- NEED 17 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_kle">pregex_ptn_create_kle</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs a kleene-closure repetition, allowing for multiple or none
+repetitions of the specified pattern.
+</p>
+<p>
+<i>ptn</i> is the pattern that will be configured for kleene-closure.
+</p>
+<p>
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+</div>
+<!-- NEED 16 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_opt">pregex_ptn_create_opt</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs an optional-closure, allowing for one or none specified pattern.
+</p>
+<p>
+<i>ptn</i> is the pattern to be configured for optional closure.
+</p>
+<p>
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+</div>
+<!-- NEED 17 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_pos">pregex_ptn_create_pos</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs an positive-closure, allowing for one or multiple specified
+pattern.
+</p>
+<p>
+<i>ptn</i> is the pattern to be configured for positive closure.
+</p>
+<p>
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+</div>
+<!-- NEED 16 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_refsub">pregex_ptn_create_refsub</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_refsub( pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs a sub-pattern as backreference (like with parantheses).
+</p>
+<p>
+<i>ptn</i> is the pattern that becomes the sub-ordered pattern.
+</p>
+<p>
+Returns a pregex_ptn-node which can be child of another pattern construct
+or part of a sequence.
+</div>
+<!-- NEED 17 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_seq">pregex_ptn_create_seq</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs a sequence of multiple patterns.
+</p>
+<p>
+<i>first</i> is the beginning pattern of the sequence. <i>...</i> follows as parameter
+list of multiple patterns that become part of the sequence. The last pointer
+must be specified as (pregex_ptn*)NULL to mark the end of the list.
+</p>
+<p>
+Always returns the pointer to <i>first</i>.
+</div>
+<!-- NEED 17 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_string">pregex_ptn_create_string</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_string( char* str, int flags )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs a pattern for a static string.
+</p>
+<p>
+<i>str</i> is the input string to be converted.
+<i>flags</i> are optional flags for wide-character support.
+</p>
+<p>
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+</div>
+<!-- NEED 16 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_create_sub">pregex_ptn_create_sub</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Constructs a sub-pattern (like with parantheses).
+</p>
+<p>
+<i>ptn</i> is the pattern that becomes the sub-ordered pattern.
+</p>
+<p>
+Returns a pregex_ptn-node which can be child of another pattern construct
+or part of a sequence.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_dup">pregex_ptn_dup</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Duplicate <i>ptn</i> into a stand-alone 1:1 copy.
+</div>
+<!-- NEED 16 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_free">pregex_ptn_free</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Releases memory of a pattern including all its subsequent and following
+patterns.
+</p>
+<p>
+<i>ptn</i> is the pattern object to be released.
+</p>
+<p>
+Always returns (pregex_ptn*)NULL.
+</div>
+<!-- NEED 21 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_parse">pregex_ptn_parse</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Parse a regular expression pattern string into a pregex_ptn structure.
+</p>
+<p>
+<i>ptn</i> is the return pointer receiving the root node of the generated pattern.
+</p>
+<p>
+<i>str</i> is the pointer to the string which contains the pattern to be parsed. If
+PREGEX_COMP_WCHAR is assigned in <i>flags</i>, this pointer must be set to a
+wchar_t-array holding a wide-character string.
+</p>
+<p>
+<i>flags</i> provides compile-time modifier flags (PREGEX_COMP_...).
+</p>
+<p>
+Returns TRUE on success.
+</div>
+<!-- NEED 14 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_print">pregex_ptn_print</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void pregex_ptn_print( pregex_ptn* ptn, int rec )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+A debug function to print a pattern's hierarchical structure to stderr.
+</p>
+<p>
+<i>ptn</i> is the pattern object to be printed.
+<i>rec</i> is the recursion depth, set this to 0 at initial call.
+</div>
+<!-- NEED 18 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_to_dfa">pregex_ptn_to_dfa</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Converts a pattern-structure into a DFA state machine.
+</p>
+<p>
+<i>dfa</i> is the DFA state machine structure that receives the compiled result of
+the pattern. <i>dfa</i> must be initialized!
+<i>ptn</i> is the pattern structure that will be converted and extended into
+the DFA state machine.
+</p>
+<p>
+Returns TRUE on success.
+</div>
+<!-- NEED 18 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_to_dfatab">pregex_ptn_to_dfatab</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+int pregex_ptn_to_dfatab( wchar_t*** dfatab, pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Converts a pattern-structure into a DFA state machine <i>dfatab</i>.
+</p>
+<p>
+<i>dfatab</i> receives the allocated dfa content. Its made-up the same way
+as described in the documentation of the function <a href="#fn_pregex_dfa_to_dfatab">pregex_dfa_to_dfatab()</a>.
+<i>ptn</i> is the pattern structure that will be converted into a DFA state
+machine.
+</p>
+<p>
+Returns the number of rows in <i>dfatab</i>, or a negative value in error case.
+</div>
+<!-- NEED 22 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_to_nfa">pregex_ptn_to_nfa</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Converts a pattern-structure into a NFA state machine.
+</p>
+<p>
+<i>nfa</i> is the NFA state machine structure that receives the compiled result of
+the pattern. This machine will be extended to the pattern if it already contains
+states. <i>nfa</i> must be previously initialized!
+</p>
+<p>
+<i>ptn</i> is the pattern structure that will be converted and extended into
+the NFA state machine.
+</p>
+<p>
+<i>flags</i> are compile-time flags.
+</p>
+<p>
+Returns TRUE on success.
+</div>
+<!-- NEED 17 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pregex_ptn_to_regex">pregex_ptn_to_regex</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+char* pregex_ptn_to_regex( pregex_ptn* ptn )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Turns a regular expression pattern back into a regular expression string.
+</p>
+<p>
+<i>ptn</i> is the pattern object to be converted into a regex.
+</p>
+<p>
+The returned pointer is dynamically allocated but part of <i>ptn</i>, so it should
+not be freed by the caller. It is automatically freed when the pattern object
+is released.
 </div>
 <!-- NEED 27 -->
 <div class='function'>

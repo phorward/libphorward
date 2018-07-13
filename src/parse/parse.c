@@ -564,7 +564,10 @@ static ppsym* pp_par_scan( pppar* par, plex* lex,
 	RETURN( sym );
 }
 
-/** Parse string with lexer. */
+/** Parse //start// with parser //par//.
+
+If parsing succeeds, the function returns TRUE. And ppast-pointer is then
+saved to //root// if provided. */
 pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 {
 	plex*			lex;

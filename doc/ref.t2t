@@ -39,6 +39,20 @@ Write a message to trace.
 
 //message// is your message!
 %FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== PANY_DUMP ===[fn_PANY_DUMP]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+PANY_DUMP( pany* any ) - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Dump pany object to trace.
+%FUNCTION:END
 %NEED:20
 %FUNCTION:BEGIN
 === PARMS ===[fn_PARMS]
@@ -347,8 +361,8 @@ void pany_fprint( FILE* stream, pany* val )
 
 **Usage:**
 
-Print the type and value of //val// to //stream// without any conversion.
-This function shall be used for debugging purposes only.
+Print the type and value of //val// to //stream//
+without any conversion. This function shall be used for debug only.
 
 //stream// is the stream to write to.
 //val// is the pany-object to be printed.
@@ -683,7 +697,7 @@ pboolean pany_set_bool( pany* val, pboolean b )
 
 **Usage:**
 
-Sets the ``pboolean``-value and type of //va//.
+Sets the ``pboolean``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //b// is the ``pboolean``-value to be assigned to //val//.
@@ -702,7 +716,7 @@ char pany_set_char( pany* val, char c )
 
 **Usage:**
 
-Sets the ``char``-value and type of //va//.
+Sets the ``char``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //c// is the ``char``-value to be assigned to //val//.
@@ -721,7 +735,7 @@ char* pany_set_cstr( pany* val, char* s )
 
 **Usage:**
 
-Sets the ``char*``-value and type of //va//.
+Sets the ``char*``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //s// is the ``char*``-value to be assigned to //val//.
@@ -740,7 +754,7 @@ wchar_t* pany_set_cwcs( pany* val, wchar_t* ws )
 
 **Usage:**
 
-Sets the ``wchar_t*``-value and type of //va//.
+Sets the ``wchar_t*``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //ws// is the ``wchar_t*``-value to be assigned to //val//.
@@ -759,7 +773,7 @@ double pany_set_double( pany* val, double d )
 
 **Usage:**
 
-Sets the ``double``-value and type of //va//.
+Sets the ``double``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //d// is the ``double``-value to be assigned to //val//.
@@ -778,7 +792,7 @@ float pany_set_float( pany* val, float f )
 
 **Usage:**
 
-Sets the ``float``-value and type of //va//.
+Sets the ``float``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //f// is the ``float``-value to be assigned to //val//.
@@ -797,7 +811,7 @@ int pany_set_int( pany* val, int i )
 
 **Usage:**
 
-Sets the ``int``-value and type of //va//.
+Sets the ``int``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //i// is the ``int``-value to be assigned to //val//.
@@ -816,7 +830,7 @@ long pany_set_long( pany* val, long l )
 
 **Usage:**
 
-Sets the ``long``-value and type of //va//.
+Sets the ``long``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //l// is the ``long``-value to be assigned to //val//.
@@ -835,7 +849,7 @@ void* pany_set_ptr( pany* val, void* ptr )
 
 **Usage:**
 
-Sets the ``void*``-value and type of //va//.
+Sets the ``void*``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //ptr// is the ``void*``-value to be assigned to //val//.
@@ -854,7 +868,7 @@ char* pany_set_str( pany* val, char* s )
 
 **Usage:**
 
-Sets the ``char*``-value and type of //va//.
+Sets the ``char*``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //s// is the ``char*``-value to be assigned to //val//.
@@ -873,7 +887,7 @@ unsigned long pany_set_ulong( pany* val, unsigned long ul )
 
 **Usage:**
 
-Sets the ``unsigned long``-value and type of //va//.
+Sets the ``unsigned long``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //ul// is the ``unsigned long``-value to be assigned to //val//.
@@ -892,7 +906,7 @@ wchar_t* pany_set_wcs( pany* val, wchar_t* ws )
 
 **Usage:**
 
-Sets the ``wchar_t*``-value and type of //va//.
+Sets the ``wchar_t*``-value and type of //val//.
 
 //val// is the pany-object to be set.
 //ws// is the ``wchar_t*``-value to be assigned to //val//.
@@ -2010,7 +2024,7 @@ Returns the number of bytes that had been read for the character.
 **Definition:**
 
 %DEFINITION:BEGIN
-pboolean pccl_parseshorthand( pccl* ccl, char **str )
+pboolean pccl_parseshorthand( pccl* ccl, char** str )
 %DEFINITION:END
 
 **Usage:**
@@ -2396,6 +2410,28 @@ Returns a pointer to the pattern object that just has been added. This allows
 for changing e.g. the accept flag later on. In case of an error, the value
 returned is NULL.
 %FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== plex_dump_dot ===[fn_plex_dump_dot]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void plex_dump_dot( FILE* stream, plex* lex )
+%DEFINITION:END
+
+**Usage:**
+
+Dumps the DFA of a //lex// lexer object into a DOT-formatted graph output.
+
+The graph can be made visible with tools like Graphviz
+(http://www.graphviz.org/) and similar.
+
+//stream// is the output stream to be used. This is stdout when NULL is
+provided.
+
+//lex// is the plex object, which DFA shall be dumped.
+%FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
 === plex_free ===[fn_plex_free]
@@ -2508,6 +2544,83 @@ to the configuration of the plex-object).
 
 The function initializes and fills the array //matches//, if provided, with
 items of size prange. It returns the total number of matches.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== plexctx_create ===[fn_plexctx_create]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+plexctx* plexctx_create( plex* lex )
+%DEFINITION:END
+
+**Usage:**
+
+Creates a new lexer context for lexer //par//.
+
+lexer contexts are objects holding state and semantics information on a
+current parsing process.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plexctx_free ===[fn_plexctx_free]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+plexctx* plexctx_free( plexctx* ctx )
+%DEFINITION:END
+
+**Usage:**
+
+Frees the lexer context object //ctx//.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== plexctx_init ===[fn_plexctx_init]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+plexctx* plexctx_init( plexctx* ctx, plex* lex )
+%DEFINITION:END
+
+**Usage:**
+
+Initializes a lexer context //ctx// for lexer //lex//.
+
+Lexer contexts are objects holding state and semantics information on a current
+lexing process.
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== plexctx_lex ===[fn_plexctx_lex]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean plexctx_lex( plexctx* ctx, wchar_t ch )
+%DEFINITION:END
+
+**Usage:**
+
+Performs a lexical analysis using the object //lex// using context //ctx//
+and character //ch//.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plexctx_reset ===[fn_plexctx_reset]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+plexctx* plexctx_reset( plexctx* ctx )
+%DEFINITION:END
+
+**Usage:**
+
+Resets the lexer context object //ctx//.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
@@ -3268,6 +3381,20 @@ type of //ptr// again.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
+=== pp_ast_create ===[fn_pp_ast_create]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, ppast* child )
+%DEFINITION:END
+
+**Usage:**
+
+Creates a new abstract syntax tree node //emit// associated with //sym//.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
 === pp_ast_dump ===[fn_pp_ast_dump]
 
 **Definition:**
@@ -3519,7 +3646,7 @@ defs : defs nonterm | nonterm ;
 grammar$ : defs ;
 ```
 %FUNCTION:END
-%NEED:83
+%NEED:84
 %FUNCTION:BEGIN
 === pp_gram_from_pbnf ===[fn_pp_gram_from_pbnf]
 
@@ -3531,9 +3658,10 @@ pboolean pp_gram_from_pbnf( ppgram* g, char* src )
 
 **Usage:**
 
-Compiles an Phorward Backus-Naur form definition into a parser.
+Compiles a Phorward Backus-Naur form definition into a parser.
 
-//p// is the parser that receives the result of the parse.
+//g// is the grammar that receives the result of the parse.
+This grammar is extended to new definitions when it already contains symbols.
 
 In difference to [pp_gram_from_bnf() #fn_pp_gram_from_bnf] and [pp_gram_from_ebnf() #fn_pp_gram_from_ebnf], [pp_par_from_pbnf() #fn_pp_par_from_pbnf] allows for a full-fledged parser definition with
 lexical analyzer-specific definitions, grammar and AST construction features.
@@ -3658,22 +3786,23 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm )
 
 Build parse tables
 %FUNCTION:END
-%NEED:14
+%NEED:15
 %FUNCTION:BEGIN
 === pp_par_autolex ===[fn_pp_par_autolex]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-int pp_par_autolex( pppar* p )
+plex* pp_par_autolex( pppar* p )
 %DEFINITION:END
 
 **Usage:**
 
-Automatically generate lexical analysis for terminal symbols which
-have not been defined with [pp_par_lex() #fn_pp_par_lex].
+Automatically generate lexical analyzer from terminal symbols
+defined in the grammar.
 
-Returns the number of inserted tokens on success.
+The lexical analyzer is constructed as a plex scanner and must be freed
+after usage with [plex_free() #fn_plex_free].
 %FUNCTION:END
 %NEED:22
 %FUNCTION:BEGIN
@@ -3707,32 +3836,14 @@ the grammar is invalid.
 **Definition:**
 
 %DEFINITION:BEGIN
-pppar* pp_par_free( pppar* p )
+pppar* pp_par_free( pppar* par )
 %DEFINITION:END
 
 **Usage:**
 
 Frees the parser object //par//.
 %FUNCTION:END
-%NEED:15
-%FUNCTION:BEGIN
-=== pp_par_lex ===[fn_pp_par_lex]
-
-**Definition:**
-
-%DEFINITION:BEGIN
-pboolean pp_par_lex( pppar* p, ppsym* sym, char* pat, int flags )
-%DEFINITION:END
-
-**Usage:**
-
-Defines a lexical matcher for //sym// in parser //p// from a
-regular expression. //sym// must be a terminal symbol.
-
-Returns TRUE on success, FALSE if the symbol already was defined as a lexing
-token.
-%FUNCTION:END
-%NEED:15
+%NEED:14
 %FUNCTION:BEGIN
 === pp_par_parse ===[fn_pp_par_parse]
 
@@ -3744,11 +3855,132 @@ pboolean pp_par_parse( ppast** root, pppar* par, char* start )
 
 **Usage:**
 
-Run parser //par// with input //start//.
+Parse //start// with parser //par//.
 
-Currently, the used parsing method is LALR(1).
+If parsing succeeds, the function returns TRUE. And ppast-pointer is then
+saved to //root// if provided.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== pp_parctx_create ===[fn_pp_parctx_create]
 
-It returns an abstract syntax tree in //root// on success.
+**Definition:**
+
+%DEFINITION:BEGIN
+ppparctx* pp_parctx_create( pppar* par )
+%DEFINITION:END
+
+**Usage:**
+
+Creates a new parser context for parser //par//.
+
+Parser contexts are objects holding state and semantics information on a
+current parsing process.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_parctx_free ===[fn_pp_parctx_free]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppparctx* pp_parctx_free( ppparctx* ctx )
+%DEFINITION:END
+
+**Usage:**
+
+Frees the parser context object //ctx//.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== pp_parctx_init ===[fn_pp_parctx_init]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppparctx* pp_parctx_init( ppparctx* ctx, pppar* par )
+%DEFINITION:END
+
+**Usage:**
+
+Initializes a parser context //ctx// for parser //par//.
+
+Parser contexts are objects holding state and semantics information on a
+current parsing process.
+%FUNCTION:END
+%NEED:25
+%FUNCTION:BEGIN
+=== pp_parctx_next ===[fn_pp_parctx_next]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Let parser and context //ctx// run on next token //sym//.
+
+//val// is an optional parameter that holds a semantic value. It will be
+assigned to an AST tree node when provided. Set it NULL if the value is not
+used or required.
+
+This method is called a push-parsing algorithm, where the scanner calls the
+parser to perform the next parsing steps. The used parsing method is LALR(1).
+
+The function returns one of the following values:
+
+- PPPAR_STATE_DONE when the parse succeeded,
+- PPPAR_STATE_NEXT when the partial parse succeeded, and next token is wanted,
+- PPPAR_STATE_ERROR when an error was encountered.
+-
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pp_parctx_next_by_idx ===[fn_pp_parctx_next_by_idx]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppparstate pp_parctx_next_by_idx( ppparctx* ctx, unsigned int idx, pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Let parser //ctx// run on next token identified by //idx//.
+
+The function is a wrapper for [pp_parctx_next() #fn_pp_parctx_next] with same behavior.
+%FUNCTION:END
+%NEED:13
+%FUNCTION:BEGIN
+=== pp_parctx_next_by_name ===[fn_pp_parctx_next_by_name]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppparstate pp_parctx_next_by_name( ppparctx* ctx, char* name, pany* val )
+%DEFINITION:END
+
+**Usage:**
+
+Let parser //ctx// run on next token identified by //name//.
+
+The function is a wrapper for [pp_parctx_next() #fn_pp_parctx_next] with same behavior.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_parctx_reset ===[fn_pp_parctx_reset]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+ppparctx* pp_parctx_reset( ppparctx* ctx )
+%DEFINITION:END
+
+**Usage:**
+
+Resets the parser context object //ctx//.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
@@ -4189,6 +4421,371 @@ Tries to match the regular expression //regex// at pointer //start//.
 
 If the expression can be matched, the function returns TRUE and //end// receives
 the pointer to the last matched character.
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== pregex_ptn_create ===[fn_pregex_ptn_create]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create( char* pat, int flags )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs and parses a new pregex_ptn-structure from //pat//.
+
+This function is a shortcut for a call to [pregex_ptn_parse() #fn_pregex_ptn_parse]. [pregex_ptn_create() #fn_pregex_ptn_create] directly takes //pat// as its input and returns the parsed
+pregex_ptn structure which represents the internal representation of the
+regular expression //pat//.
+
+//flags// provides a combination of compile-time modifier flags
+(PREGEX_COMP_...) if wanted, or 0 (PREGEX_FLAG_NONE) if no flags should be
+used.
+
+Returns an allocated pregex_ptn-node which must be freed using [pregex_ptn_free() #fn_pregex_ptn_free]
+when it is not used anymore.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pregex_ptn_create_alt ===[fn_pregex_ptn_create_alt]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs alternations of multiple patterns.
+
+//left// is the first pattern of the alternation.
+//...// are multiple pregex_ptn-pointers follow which become part of the
+alternation. The last node must be specified as (pregex_ptn*)NULL.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence. If there is only //left// assigned without other alternation
+patterns, //left// will be returned back.
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pregex_ptn_create_char ===[fn_pregex_ptn_create_char]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_char( pccl* ccl )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs a character-class pattern.
+
+//ccl// is the pointer to a character class. This pointer is not duplicated,
+and will be directly assigned to the object.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pregex_ptn_create_kle ===[fn_pregex_ptn_create_kle]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs a kleene-closure repetition, allowing for multiple or none
+repetitions of the specified pattern.
+
+//ptn// is the pattern that will be configured for kleene-closure.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pregex_ptn_create_opt ===[fn_pregex_ptn_create_opt]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs an optional-closure, allowing for one or none specified pattern.
+
+//ptn// is the pattern to be configured for optional closure.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pregex_ptn_create_pos ===[fn_pregex_ptn_create_pos]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs an positive-closure, allowing for one or multiple specified
+pattern.
+
+//ptn// is the pattern to be configured for positive closure.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pregex_ptn_create_refsub ===[fn_pregex_ptn_create_refsub]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_refsub( pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs a sub-pattern as backreference (like with parantheses).
+
+//ptn// is the pattern that becomes the sub-ordered pattern.
+
+Returns a pregex_ptn-node which can be child of another pattern construct
+or part of a sequence.
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pregex_ptn_create_seq ===[fn_pregex_ptn_create_seq]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs a sequence of multiple patterns.
+
+//first// is the beginning pattern of the sequence. //...// follows as parameter
+list of multiple patterns that become part of the sequence. The last pointer
+must be specified as (pregex_ptn*)NULL to mark the end of the list.
+
+Always returns the pointer to //first//.
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pregex_ptn_create_string ===[fn_pregex_ptn_create_string]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_string( char* str, int flags )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs a pattern for a static string.
+
+//str// is the input string to be converted.
+//flags// are optional flags for wide-character support.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pregex_ptn_create_sub ===[fn_pregex_ptn_create_sub]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Constructs a sub-pattern (like with parantheses).
+
+//ptn// is the pattern that becomes the sub-ordered pattern.
+
+Returns a pregex_ptn-node which can be child of another pattern construct
+or part of a sequence.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pregex_ptn_dup ===[fn_pregex_ptn_dup]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Duplicate //ptn// into a stand-alone 1:1 copy.
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== pregex_ptn_free ===[fn_pregex_ptn_free]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Releases memory of a pattern including all its subsequent and following
+patterns.
+
+//ptn// is the pattern object to be released.
+
+Always returns (pregex_ptn*)NULL.
+%FUNCTION:END
+%NEED:21
+%FUNCTION:BEGIN
+=== pregex_ptn_parse ===[fn_pregex_ptn_parse]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
+%DEFINITION:END
+
+**Usage:**
+
+Parse a regular expression pattern string into a pregex_ptn structure.
+
+//ptn// is the return pointer receiving the root node of the generated pattern.
+
+//str// is the pointer to the string which contains the pattern to be parsed. If
+PREGEX_COMP_WCHAR is assigned in //flags//, this pointer must be set to a
+wchar_t-array holding a wide-character string.
+
+//flags// provides compile-time modifier flags (PREGEX_COMP_...).
+
+Returns TRUE on success.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== pregex_ptn_print ===[fn_pregex_ptn_print]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void pregex_ptn_print( pregex_ptn* ptn, int rec )
+%DEFINITION:END
+
+**Usage:**
+
+A debug function to print a pattern's hierarchical structure to stderr.
+
+//ptn// is the pattern object to be printed.
+//rec// is the recursion depth, set this to 0 at initial call.
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== pregex_ptn_to_dfa ===[fn_pregex_ptn_to_dfa]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Converts a pattern-structure into a DFA state machine.
+
+//dfa// is the DFA state machine structure that receives the compiled result of
+the pattern. //dfa// must be initialized!
+//ptn// is the pattern structure that will be converted and extended into
+the DFA state machine.
+
+Returns TRUE on success.
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== pregex_ptn_to_dfatab ===[fn_pregex_ptn_to_dfatab]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int pregex_ptn_to_dfatab( wchar_t*** dfatab, pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Converts a pattern-structure into a DFA state machine //dfatab//.
+
+//dfatab// receives the allocated dfa content. Its made-up the same way
+as described in the documentation of the function [pregex_dfa_to_dfatab() #fn_pregex_dfa_to_dfatab].
+//ptn// is the pattern structure that will be converted into a DFA state
+machine.
+
+Returns the number of rows in //dfatab//, or a negative value in error case.
+%FUNCTION:END
+%NEED:22
+%FUNCTION:BEGIN
+=== pregex_ptn_to_nfa ===[fn_pregex_ptn_to_nfa]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Converts a pattern-structure into a NFA state machine.
+
+//nfa// is the NFA state machine structure that receives the compiled result of
+the pattern. This machine will be extended to the pattern if it already contains
+states. //nfa// must be previously initialized!
+
+//ptn// is the pattern structure that will be converted and extended into
+the NFA state machine.
+
+//flags// are compile-time flags.
+
+Returns TRUE on success.
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pregex_ptn_to_regex ===[fn_pregex_ptn_to_regex]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+char* pregex_ptn_to_regex( pregex_ptn* ptn )
+%DEFINITION:END
+
+**Usage:**
+
+Turns a regular expression pattern back into a regular expression string.
+
+//ptn// is the pattern object to be converted into a regex.
+
+The returned pointer is dynamically allocated but part of //ptn//, so it should
+not be freed by the caller. It is automatically freed when the pattern object
+is released.
 %FUNCTION:END
 %NEED:27
 %FUNCTION:BEGIN

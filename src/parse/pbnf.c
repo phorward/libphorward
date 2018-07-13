@@ -373,9 +373,10 @@ static pboolean ast_to_gram( ppgram* gram, ppast* ast )
 }
 
 
-/** Compiles an Phorward Backus-Naur form definition into a parser.
+/** Compiles a Phorward Backus-Naur form definition into a parser.
 
-//p// is the parser that receives the result of the parse.
+//g// is the grammar that receives the result of the parse.
+This grammar is extended to new definitions when it already contains symbols.
 
 In difference to pp_gram_from_bnf() and pp_gram_from_ebnf(),
 pp_par_from_pbnf() allows for a full-fledged parser definition with
