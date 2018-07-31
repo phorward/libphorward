@@ -6,19 +6,28 @@ This file is used to document any relevant changes done to libphorward.
 
 Unreleased.
 
-- `plex_dump_dot()` allows to dump plex-scanners in dot-formatted
-  GraphViz format; This can also be triggered with plex command-line tool,
-  `--dot` switch.
-- *pregex_ptn* function API white-listed for documentation generator
-- New function `pregex_ptn_create()` as an object-oriented shortcut
-  for `pregex_ptn_parse()`
-- Implemented push-parsing and further modularizations
+- parse: Implemented push-parsing
   - Push-parsing allows to call the parser on token-base from the scanner,
     so that more flexibility on input processing is achieved.
-  - New functions `pp_par_next()`, `pp_par_next_by_name()`,
-    `pp_par_next_by_idx()`.
+  - Parsers are now configured and executed using the parser context
+    data structure *ppparctx*.
+  - New functions `pp_parctx_next()`, `pp_parctx_next_by_name()`,
+    `pp_parctx_next_by_idx()` as well as `pp_parctx_init()`,
+	`pp_parctx_create()`, `pp_parctx_reset()` and `pp_parctx_free()`.
   - Entirely revised functions `pp_par_autolex()` and `pp_par_parse()`
-  - Fixed BNF parsers to work with new push-parsing-based approach
+  - Fixed BNF parsers to work with new push-parsing-based functions
+- regex: Implemented push-scanning
+  - Lexical analyzers are now configured and executing using the lexer context
+    data structure *plexctx*
+  - New functions `plexctx_lex()`, `plexctx_init()`,
+	`plexctx_create()`, `plexctx_reset()` and `plexctx_free()`.
+- regex: Several improvements
+  - `plex_dump_dot()` allows to dump plex-scanners in dot-formatted
+     GraphViz format; This can also be triggered with plex command-line tool,
+     `--dot` switch.
+  - *pregex_ptn* function API white-listed for documentation generator
+  - New function `pregex_ptn_create()` as an object-oriented shortcut
+    for `pregex_ptn_parse()`
 
 ## v0.22
 

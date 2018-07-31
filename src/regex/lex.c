@@ -254,8 +254,8 @@ int plex_lex( plex* lex, char* start, char** end )
 		RETURN( 0 );
 	}
 
-	if( !lex->trans_cnt )
-		plex_prepare( lex );
+	if( !lex->trans_cnt && !plex_prepare( lex ) )
+		RETURN( 0 );
 
 	memset( lex->ref, 0, PREGEX_MAXREF * sizeof( prange ) );
 
@@ -396,8 +396,8 @@ char* plex_next( plex* lex, char* start, unsigned int* id, char** end )
 		RETURN( (char*)NULL );
 	}
 
-	if( !lex->trans_cnt )
-		plex_prepare( lex );
+	if( !lex->trans_cnt && !plex_prepare( lex ) )
+		RETURN( (char*)NULL );
 
 	do
 	{
@@ -536,8 +536,8 @@ void plex_dump_dot( FILE* stream, plex* lex )
 		VOIDRET;
 	}
 
-	if( !lex->trans_cnt )
-		plex_prepare( lex );
+	if( !lex->trans_cnt && !plex_prepare( lex ) )
+		VOIDRET;
 
 	/* write start of graph */
 	fprintf( stream,"digraph {\n" );
@@ -701,8 +701,8 @@ pboolean plexctx_lex( plexctx* ctx, wchar_t ch )
 		RETURN( FALSE );
 	}
 
-	if( !ctx->lex->trans_cnt )
-		plex_prepare( ctx->lex );
+	if( !ctx->lex->trans_cnt && !plex_prepare( ctx->lex ) )
+		RETURN( FALSE );
 
 	if( !( ctx->state >= 0 && ctx->state < ctx->lex->trans_cnt ) )
 	{
