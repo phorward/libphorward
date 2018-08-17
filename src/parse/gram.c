@@ -423,6 +423,121 @@ char* pp_gram_to_str( ppgram* grm )
 	return grm->strval;
 }
 
+/** Dump grammar in a JSON format to //stream//. */
+pboolean pp_gram_dump_json( FILE* stream, ppgram* grm )
+{
+	plistel*		e;
+	plistel*		f;
+	ppsym*			sym;
+	ppprod*			prod;
+	char*			ptr;
+
+	PROC( "pp_gram_dump_json" );
+	PARMS( "stream", "%p", stream );
+	PARMS( "grm", "%p", grm );
+
+	if( !grm )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !stream )
+		stream = stdout;
+
+	if( !( grm->flags & PPFLAG_FINALIZED ) )
+	{
+		fprintf( stderr, "Grammar is not finalized, "
+			"please run pp_gram_prepare() first!\n" );
+		RETURN( FALSE );
+	}
+
+	fprintf( stream, "{ \"symbols\": [" );
+
+	/* Symbols */
+	plist_for( grm->symbols, e )
+	{
+		sym = (ppsym*)plist_access( e );
+
+		fprintf( stream, "{ \"id\": %d, ", sym->idx );
+
+		fprintf( stream, "\"type\": \"%s\"",
+			PPSYM_IS_TERMINAL( sym ) ? "terminal" : "non-terminal" );
+
+		if( sym->name && *sym->name )
+		{
+			fprintf( stream, ", \"name\": \"" );
+
+			for( ptr = sym->name; *ptr; ptr++ )
+				if( *ptr == '\"' )
+					fprintf( stream, "\\\"" );
+				else if( *ptr == '\\' )
+					fprintf( stream, "\\\\" );
+				else
+					fputc( *ptr, stream );
+
+			fprintf( stream, "\"" );
+		}
+
+		if( sym->emit && *sym->emit )
+		{
+			fprintf( stream, ", \"emit\": \"" );
+
+			for( ptr = sym->emit; *ptr; ptr++ )
+				if( *ptr == '\"' )
+					fprintf( stream, "\\\"" );
+				else if( *ptr == '\\' )
+					fprintf( stream, "\\\\" );
+				else
+					fputc( *ptr, stream );
+
+			fprintf( stream, "\"" );
+		}
+
+		if( PPSYM_IS_TERMINAL( sym ) && sym->ptn )
+		{
+			fprintf( stream, ", \"regexp\": \"" );
+
+			for( ptr = pregex_ptn_to_regex( sym->ptn ); *ptr; ptr++ )
+				if( *ptr == '\"' )
+					fprintf( stream, "\\\"" );
+				else if( *ptr == '\\' )
+					fprintf( stream, "\\\\" );
+				else
+					fputc( *ptr, stream );
+
+			fprintf( stream, "\"" );
+		}
+
+		fprintf( stream, "}%s", plist_next( e ) ? ", " : "" );
+	}
+
+	fprintf( stream, "], \"productions\": [" );
+
+	/* Productions */
+	plist_for( grm->prods, e )
+	{
+		prod = (ppprod*)plist_access( e );
+
+		fprintf( stream, "{\"id\": %d, \"lhs\": %d, \"rhs\": [",
+			prod->idx, prod->lhs->idx );
+
+		plist_for( prod->rhs, f )
+		{
+			sym = (ppsym*)plist_access( f );
+
+			fprintf( stream, "%d%s", sym->idx, plist_next( f ) ? ", " : "" );
+		}
+
+		fprintf( stream, "]}%s", plist_next( e ) ? ", " : "" );
+	}
+
+	fprintf( stream, "]}" );
+
+	RETURN( TRUE );
+}
+
+
 /** Frees grammar //g// and all its related memory. */
 ppgram* pp_gram_free( ppgram* g )
 {

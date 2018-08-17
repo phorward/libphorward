@@ -193,6 +193,7 @@ ppgram* pp_gram_create( void );
 pboolean pp_gram_prepare( ppgram* g );
 void _dbg_gram_dump( char* file, int line, char* function, char* name, ppgram* g );
 char* pp_gram_to_str( ppgram* grm );
+pboolean pp_gram_dump_json( FILE* stream, ppgram* grm );
 ppgram* pp_gram_free( ppgram* g );
 
 /* parse/lr.c */
@@ -202,6 +203,7 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
 pppar* pp_par_create( ppgram* g );
 pppar* pp_par_free( pppar* par );
 plex* pp_par_autolex( pppar* p );
+pboolean pp_par_dump_json( FILE* stream, pppar* par );
 ppparctx* pp_parctx_init( ppparctx* ctx, pppar* par );
 ppparctx* pp_parctx_create( pppar* par );
 ppparctx* pp_parctx_reset( ppparctx* ctx );

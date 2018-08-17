@@ -138,6 +138,71 @@ plex* pp_par_autolex( pppar* p )
 	RETURN( lex );
 }
 
+/** Dumps parser to JSON */
+pboolean pp_par_dump_json( FILE* stream, pppar* par )
+{
+	int		i;
+	int		j;
+
+	PROC( "pp_par_dump_json" );
+	PARMS( "stream", "%p", stream );
+	PARMS( "par", "%p", par );
+
+	if( !par )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !stream )
+		stream = stdout;
+
+	fprintf( stream, "{ \"grammar\": " );
+	pp_gram_dump_json( stream, par->gram );
+
+	/* LALR parser */
+	fprintf( stream, ", \"lalr\": [" );
+
+	for( i = 0; i < par->states; i++ )
+	{
+		fprintf( stream, "{" );
+
+		if( par->dfa[ 1 ] )
+			fprintf( stream, "\"default-production\": %d,",
+				( par->dfa[ i ][ 1 ] - 1 ) );
+
+		else
+			fprintf( stream, "\"default-production\": null," );
+
+		fprintf( stream, "\"actions\": [" );
+
+		/* Actions */
+		for( j = 2; j < par->dfa[ i ][ 0 ]; j += 3 )
+		{
+			fprintf( stream, "{ \"symbol\": %d, ", par->dfa[ i ][ j ] - 1 );
+
+			if( par->dfa[ i ][ j + 1 ] == ( PPLR_SHIFT | PPLR_REDUCE ) )
+				fprintf( stream, "\"shift-reduce\": %d",
+					(int)( par->dfa[ i ][ j + 2 ] - 1 ) );
+			else if( par->dfa[ i ][ j + 1 ] & PPLR_SHIFT )
+				fprintf( stream, "\"shift\": %d",
+					(int)( par->dfa[ i ][ j + 2 ] - 1 ) );
+			else if( par->dfa[ i ][ j + 1 ] & PPLR_REDUCE )
+				fprintf( stream, "\"reduce\": %d",
+					(int)( par->dfa[ i ][ j + 2 ] - 1 ) );
+
+			fprintf( stream, "}%s", j + 3 < par->dfa[ i ][ 0 ] ? "," : "" );
+		}
+
+		fprintf( stream, "]}%s", i + 1 < par->states ? "," : "" );
+	}
+
+	fprintf( stream, "]}" );
+
+	RETURN( TRUE );
+}
+
+
 /** Initializes a parser context //ctx// for parser //par//.
 
 Parser contexts are objects holding state and semantics information on a

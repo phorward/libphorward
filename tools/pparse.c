@@ -37,6 +37,7 @@ int main( int argc, char** argv )
 	pboolean	verbose	= FALSE;
 	pboolean	lm		= FALSE;
 	pboolean	dg		= FALSE;
+	pboolean	dj		= FALSE;
 	char*		bnftype	= "pbnf";
 	int			r		= 0;
 	ppast*		a		= (ppast*)NULL;
@@ -57,8 +58,8 @@ int main( int argc, char** argv )
 	PROC( "pparse" );
 
 	for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
-						"f:Ghr:vV",
-						"format: renderer: help verbose version", i ) )
+						"f:Ghjr:vV",
+						"format: renderer: help json verbose version", i ) )
 							== 0; i++ )
 	{
 		if( !strcmp( opt, "format" ) || !strcmp( opt, "f" ) )
@@ -76,6 +77,8 @@ int main( int argc, char** argv )
 		}
 		else if( !strcmp(opt, "G" ) )
 			dg = TRUE;
+		else if( !strcmp( opt, "json" ) || !strcmp( opt, "j" ) )
+			dj = TRUE;
 		else if( !strcmp( opt, "help" ) || !strcmp( opt, "h" ) )
 		{
 			help( argv );
@@ -145,10 +148,13 @@ int main( int argc, char** argv )
 
 	p = pp_par_create( g );
 
+	if( dj )
+		pp_par_dump_json( stdout, p );
+
 	lm = argc == next;
 	i = 0;
 
-	while( TRUE )
+	while( !dj )
 	{
 		ifile = (char*)NULL;
 
