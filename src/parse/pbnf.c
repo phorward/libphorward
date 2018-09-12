@@ -436,7 +436,7 @@ nontermdef		:= Nonterminal ':' alternation ';'
 termdef			:= Terminal ':' terminal ';'
 				;
 
-assocdef		:= '<<' terminal+ ';'	= assoc_left
+assocdef		: '<<' terminal+ ';'	= assoc_left
 				| '>>' terminal+ ';'	= assoc_right
 				| '^^' terminal+ ';'	= assoc_none
 				;

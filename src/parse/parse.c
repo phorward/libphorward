@@ -319,7 +319,7 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 	int			i;
 	pplrse*		tos;
 	int			shift;
-	ppprod*		prod;
+	int			reduce;
 	pppar*		par;
 	ppast*		node;
 
@@ -357,24 +357,21 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 		/* Reduce */
 		while( ctx->reduce )
 		{
-			VARS( "ctx->reduce", "%d", ctx->reduce );
-
-			prod = pp_prod_get( par->gram, ctx->reduce - 1 );
-
-			LOG( "reduce by production '%s'", pp_prod_to_str( prod ) );
-			LOG( "popping %d items off the stack, replacing by %s\n",
-						plist_count( prod->rhs ),
-							prod->lhs->name );
+			LOG( "reduce by production '%s'", pp_prod_to_str( ctx->reduce ) );
 
 			if( ctx->reducefn )
 			{
-				LOG( "Calling reduce function %p", ctx->reducefn );
-				(*ctx->reducefn)( ctx, prod );
+				LOG( "calling reduce function %p", ctx->reducefn );
+				(*ctx->reducefn)( ctx );
 			}
+
+			LOG( "popping %d items off the stack, replacing by %s\n",
+						plist_count( ctx->reduce->rhs ),
+							ctx->reduce->lhs->name );
 
 			node = (ppast*)NULL;
 
-			for( i = 0; i < plist_count( prod->rhs ); i++ )
+			for( i = 0; i < plist_count( ctx->reduce->rhs ); i++ )
 			{
 				tos = (pplrse*)parray_pop( &ctx->stack );
 
@@ -400,13 +397,14 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 			tos = (pplrse*)parray_last( &ctx->stack );
 
 			/* Construction of AST node */
-			if( prod->emit )
-				node = pp_ast_create( prod->emit, prod->lhs, prod, node );
-			else if( prod->lhs->emit )
-				node = pp_ast_create( prod->lhs->emit, prod->lhs, prod, node );
+			if( ctx->reduce->emit || ctx->reduce->lhs->emit )
+				node = pp_ast_create(
+						ctx->reduce->emit ? ctx->reduce->emit
+												: ctx->reduce->lhs->emit,
+							ctx->reduce->lhs, ctx->reduce, node );
 
 			/* Goal symbol reduced? */
-			if( prod->lhs == par->gram->goal
+			if( ctx->reduce->lhs == par->gram->goal
 					&& parray_count( &ctx->stack ) == 1 )
 			{
 				MSG( "Parsing succeeded!" );
@@ -417,16 +415,16 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 			}
 
 			/* Check for entries in the parse table */
-			for( i = par->dfa[tos->state][0] - 3, shift = 0, ctx->reduce = 0;
+			for( i = par->dfa[tos->state][0] - 3, shift = 0, reduce = 0;
 					i >= 2; i -= 3 )
 			{
-				if( par->dfa[tos->state][i] == prod->lhs->idx + 1 )
+				if( par->dfa[tos->state][i] == ctx->reduce->lhs->idx + 1 )
 				{
 					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_SHIFT )
 						shift = par->dfa[tos->state][ i + 2 ];
 
 					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-						ctx->reduce = par->dfa[tos->state][ i + 2 ];
+						reduce = par->dfa[tos->state][ i + 2 ];
 
 					break;
 				}
@@ -434,9 +432,12 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 
 			tos = (pplrse*)parray_malloc( &ctx->stack );
 
-			tos->sym = prod->lhs;
+			tos->sym = ctx->reduce->lhs;
 			tos->state = shift - 1;
 			tos->node = node;
+
+			ctx->reduce = reduce ? pp_prod_get( par->gram, reduce - 1 )
+									: (ppprod*)NULL;
 
 			LOG( "New top state is %d", tos->state );
 		}
@@ -446,7 +447,7 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 		/* Check for entries in the parse table */
 		if( tos->state > -1 )
 		{
-			for( i = 2, shift = 0, ctx->reduce = 0;
+			for( i = 2, shift = 0, reduce = 0;
 					i < par->dfa[tos->state][0]; i += 3 )
 			{
 				if( par->dfa[tos->state][i] == sym->idx + 1 )
@@ -455,14 +456,17 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 						shift = par->dfa[tos->state][ i + 2 ];
 
 					if( par->dfa[ tos->state ][ i + 1 ] & PPLR_REDUCE )
-						ctx->reduce = par->dfa[tos->state][ i + 2 ];
+						reduce = par->dfa[tos->state][ i + 2 ];
 
 					break;
 				}
 			}
 
-			if( !shift && !ctx->reduce )
-				ctx->reduce = par->dfa[ tos->state ][ 1 ];
+			if( !shift && !reduce )
+				reduce = par->dfa[ tos->state ][ 1 ];
+
+			ctx->reduce = reduce ? pp_prod_get( par->gram, reduce - 1 )
+									: (ppprod*)NULL;
 		}
 
 		VARS( "shift", "%d", shift );
@@ -482,7 +486,7 @@ ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val )
 
 	if( ctx->reduce )
 		LOG( "shift on %s and reduce by production %d\n",
-					sym->name, ctx->reduce - 1 );
+					sym->name, ctx->reduce->idx );
 	else
 		LOG( "shift on %s to state %d\n", sym->name, shift - 1 );
 

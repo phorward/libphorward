@@ -766,14 +766,14 @@ typedef struct
 } pppar;
 
 
-typedef void (*ppreducefn)( ppparctx* ctx, ppprod* reduce );
+typedef void (*ppreducefn)( ppparctx* ctx );
 
 struct _ppparctx
 {
 	pppar*					par;		
 
 	ppparstate				state;		
-	int						reduce;		
+	ppprod*					reduce;		
 	parray					stack;		
 	ppast*					ast;		
 

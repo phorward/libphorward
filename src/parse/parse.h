@@ -168,14 +168,14 @@ typedef struct
 } pppar;
 
 /* Parser context */
-typedef void (*ppreducefn)( ppparctx* ctx, ppprod* reduce );
+typedef void (*ppreducefn)( ppparctx* ctx );
 
 struct _ppparctx
 {
 	pppar*					par;		/* Parser */
 
 	ppparstate				state;		/* State */
-	int						reduce;		/* Reduce */
+	ppprod*					reduce;		/* Reduce */
 	parray					stack;		/* Stack */
 	ppast*					ast;		/* AST */
 
