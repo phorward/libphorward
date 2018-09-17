@@ -161,18 +161,18 @@ pboolean pp_par_dump_json( FILE* stream, pppar* par )
 	pp_gram_dump_json( stream, par->gram );
 
 	/* LALR parser */
-	fprintf( stream, ", \"lalr\": [" );
+	fprintf( stream, ", \"states\": [" );
 
 	for( i = 0; i < par->states; i++ )
 	{
 		fprintf( stream, "{" );
 
 		if( par->dfa[ 1 ] )
-			fprintf( stream, "\"default-production\": %d,",
+			fprintf( stream, "\"reduce-default\": %d,",
 				( par->dfa[ i ][ 1 ] - 1 ) );
 
 		else
-			fprintf( stream, "\"default-production\": null," );
+			fprintf( stream, "\"reduce-default\": null," );
 
 		fprintf( stream, "\"actions\": [" );
 
@@ -181,14 +181,13 @@ pboolean pp_par_dump_json( FILE* stream, pppar* par )
 		{
 			fprintf( stream, "{ \"symbol\": %d, ", par->dfa[ i ][ j ] - 1 );
 
-			if( par->dfa[ i ][ j + 1 ] == ( PPLR_SHIFT | PPLR_REDUCE ) )
-				fprintf( stream, "\"shift-reduce\": %d",
+			if( par->dfa[ i ][ j + 1 ] & PPLR_REDUCE )
+				fprintf( stream, "\"action\": \"%s\", \"production\": %d",
+					par->dfa[ i ][ j + 1 ] == ( PPLR_SHIFT | PPLR_REDUCE ) ?
+						"shift&reduce" : "reduce",
 					(int)( par->dfa[ i ][ j + 2 ] - 1 ) );
 			else if( par->dfa[ i ][ j + 1 ] & PPLR_SHIFT )
-				fprintf( stream, "\"shift\": %d",
-					(int)( par->dfa[ i ][ j + 2 ] - 1 ) );
-			else if( par->dfa[ i ][ j + 1 ] & PPLR_REDUCE )
-				fprintf( stream, "\"reduce\": %d",
+				fprintf( stream, "\"action\": \"shift\", \"state\": %d",
 					(int)( par->dfa[ i ][ j + 2 ] - 1 ) );
 
 			fprintf( stream, "}%s", j + 3 < par->dfa[ i ][ 0 ] ? "," : "" );
