@@ -4,7 +4,7 @@ This file is used to document any relevant changes done to libphorward.
 
 ## v0.23
 
-Unreleased.
+Released on: Sept 27, 2018
 
 - parse: Implemented push-parsing
   - Push-parsing allows to call the parser on token-base from the scanner,

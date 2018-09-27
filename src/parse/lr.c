@@ -894,7 +894,7 @@ pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm )
 	}
 
 	/* Compute LALR(1) states */
-	states = pp_lr_closure( grm, TRUE, FALSE );
+	states = pp_lr_closure( grm, TRUE, TRUE );
 
 	#if DEBUGLEVEL > 0
 	fprintf( stderr, "\n\n--- FINAL GLR STATES ---\n\n" );
