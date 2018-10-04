@@ -33,6 +33,24 @@ because they allocate arrays of memory instead of unfixed, linked elements.
 /* Local prototypes */
 static pboolean plist_hash_rebuild( plist* list );
 
+/* Calculates load factor of the map */
+static int plist_get_load_factor( const plist* list )
+{
+	int 	load = 0;
+	float	l = 0.00;
+
+	if ( !list )
+	{
+		WRONGPARAM;
+		return -1;
+	}
+
+	l = (float)plist_count( list ) / (float)list->hashsize;
+	load = (int)( l * 100 );
+
+	return load;
+}
+
 /* Compare hash-table elements */
 static int plist_hash_compare( plist* list, char* l, char* r )
 {
@@ -57,7 +75,7 @@ static int plist_hash_compare( plist* list, char* l, char* r )
 /* Get hash table index */
 static size_t plist_hash_index( plist* list, char* key )
 {
-	size_t hashval	= 0L;
+	size_t hashval	= 5381L;
 
 	if( !( list ) )
 	{
@@ -73,12 +91,12 @@ static size_t plist_hash_index( plist* list, char* key )
 		wchar_t*	wkey	= (wchar_t*)key;
 
 		while( *wkey )
-			hashval += ( hashval << 1 ) + *( wkey++ );
+			hashval += ( hashval << 7 ) + *( wkey++ );
 	}
 	#endif
 	else
 		while( *key )
-			hashval += ( hashval << 1 ) + *( key++ );
+			hashval += ( hashval << 7 ) + *( key++ );
 
 	return hashval % list->hashsize;
 }
@@ -104,6 +122,28 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 
 	e->hashnext = (plistel*)NULL;
 	e->hashprev = (plistel*)NULL;
+
+	if( ! plist_get_by_key( list, e->key ) )
+	{
+		/* new element, check if we have to resize the map */
+
+		/* check load factor */
+		list->LoadFactor = plist_get_load_factor( list );
+		VARS( "LoadFactor", "%d<", list->LoadFactor );
+
+		if( list->LoadFactor > LOAD_FACTOR_HIGH )
+		{
+			MSG( "hashmap has to be resized." );
+			if( !plist_hash_rebuild( list ) )
+			{
+				RETURN( FALSE );
+			}
+
+			/* store new load factor */
+			list->LoadFactor = plist_get_load_factor( list );
+			VARS( "LoadFactor", "%d<", list->LoadFactor );
+		}
+	}
 
 	bucket = &( list->hash[ plist_hash_index( list, e->key ) ] );
 
@@ -158,11 +198,21 @@ static pboolean plist_hash_rebuild( plist* list )
 		return FALSE;
 	}
 
+	if( list->size_index + 1 >= PLIST_LENGTH_OF_TABLE_SIZES )
+	{
+		MSG( "Maximum size is reached." );
+		return FALSE;
+	}
+
 	if( list->hash )
 		list->hash = pfree( list->hash );
 
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		e->hashnext = (plistel*)NULL;
+
+	list->size_index++;
+	list->hashsize = table_sizes[ list->size_index ];
+	VARS( "new list->hashsize", "%ld", list->hashsize );
 
 	list->hash = (plistel**)pmalloc( list->hashsize * sizeof( plistel* ) );
 
@@ -209,7 +259,7 @@ static int plist_compare( plist* list, plistel* l, plistel* r )
 /** Initialize the list //list// with an element allocation size //size//.
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage. */
-pboolean plist_init( plist* list, size_t size, int flags )
+pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 {
 	if( !( list && size >= 0 ) )
 	{
@@ -229,7 +279,15 @@ pboolean plist_init( plist* list, size_t size, int flags )
 
 	list->flags = flags;
 	list->size = size;
-	list->hashsize = PLIST_DFT_HASHSIZE;
+	list->size_index = 0;
+
+	/* Choose size on the basis off the defined table sizes,
+		take the next greater entry. */
+	while( list->size_index < PLIST_LENGTH_OF_TABLE_SIZES &&
+				table_size > table_sizes[ list->size_index ] )
+		list->size_index++;
+
+	list->hashsize = table_sizes[ list->size_index ];
 
 	list->sortfn = plist_compare;
 
@@ -273,7 +331,7 @@ plist* plist_create( size_t size, int flags )
 	}
 
 	list = (plist*)pmalloc( sizeof( plist ) );
-	plist_init( list, size, flags );
+	plist_init( list, size, PLIST_DFT_HASHSIZE, flags );
 
 	return list;
 }
@@ -621,6 +679,10 @@ pboolean plist_remove( plist* list, plistel* e )
 	}
 
 	list->count--;
+
+	/* store new load factor */
+	list->LoadFactor = plist_get_load_factor( list );
+	VARS( "LoadFactor", "%d<", list->LoadFactor );
 	RETURN( TRUE );
 }
 
