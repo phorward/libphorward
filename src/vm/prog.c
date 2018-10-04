@@ -26,7 +26,7 @@ pvmprog* pvm_prog_create( pvm* vm, char* src )
 	prog->vm = vm;
 	parray_init( &prog->prog, sizeof( pvmbyte ), 0 );
 	parray_init( &prog->lit, sizeof( pany ), 0 );
-	plist_init( &prog->label, sizeof( pvmlabel ),
+	plist_init( &prog->label, sizeof( pvmlabel ), PLIST_DFT_HASHSIZE,
 					PLIST_MOD_RECYCLE | PLIST_MOD_UNIQUE );
 
 	if( src && *src )
@@ -231,7 +231,7 @@ void pvm_prog_dump( pvmprog* prog )
 
 	while( ip < ecs )
 	{
-		fprintf( stderr, "%08ld ", ip - cs );
+		fprintf( stderr, "%08d ", ip - cs );
 		instr = *(ip++);
 
 		switch( instr )

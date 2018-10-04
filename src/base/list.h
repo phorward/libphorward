@@ -67,6 +67,7 @@ struct Plist
 #define PLIST_DFT_HASHSIZE	61
 
 	int						size_index;
+	int						load_factor;
 
 	int						(*comparefn)( plist*, plistel*, plistel* );
 	int						(*sortfn)( plist*, plistel*, plistel* );

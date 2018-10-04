@@ -34,7 +34,7 @@ because they allocate arrays of memory instead of unfixed, linked elements.
 static pboolean plist_hash_rebuild( plist* list );
 
 /* Calculates load factor of the map */
-static int plist_get_load_factor( const plist* list )
+static int plist_get_load_factor( plist* list )
 {
 	int 	load = 0;
 	float	l = 0.00;
@@ -128,10 +128,10 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 		/* new element, check if we have to resize the map */
 
 		/* check load factor */
-		list->LoadFactor = plist_get_load_factor( list );
-		VARS( "LoadFactor", "%d<", list->LoadFactor );
+		list->load_factor = plist_get_load_factor( list );
+		VARS( "load_factor", "%d<", list->load_factor );
 
-		if( list->LoadFactor > LOAD_FACTOR_HIGH )
+		if( list->load_factor > LOAD_FACTOR_HIGH )
 		{
 			MSG( "hashmap has to be resized." );
 			if( !plist_hash_rebuild( list ) )
@@ -140,8 +140,8 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 			}
 
 			/* store new load factor */
-			list->LoadFactor = plist_get_load_factor( list );
-			VARS( "LoadFactor", "%d<", list->LoadFactor );
+			list->load_factor = plist_get_load_factor( list );
+			VARS( "load_factor", "%d<", list->load_factor );
 		}
 	}
 
@@ -192,16 +192,19 @@ static pboolean plist_hash_rebuild( plist* list )
 {
 	plistel*	e;
 
+	PROC( "plist_hash_rebuild" );
+	PARMS( "list", "%p", list );
+
 	if( !list )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
 	}
 
 	if( list->size_index + 1 >= PLIST_LENGTH_OF_TABLE_SIZES )
 	{
 		MSG( "Maximum size is reached." );
-		return FALSE;
+		RETURN( FALSE );
 	}
 
 	if( list->hash )
@@ -219,7 +222,7 @@ static pboolean plist_hash_rebuild( plist* list )
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		plist_hash_insert( list, e );
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 /* Drop list element */
@@ -681,8 +684,8 @@ pboolean plist_remove( plist* list, plistel* e )
 	list->count--;
 
 	/* store new load factor */
-	list->LoadFactor = plist_get_load_factor( list );
-	VARS( "LoadFactor", "%d<", list->LoadFactor );
+	list->load_factor = plist_get_load_factor( list );
+	VARS( "load_factor", "%d<", list->load_factor );
 	RETURN( TRUE );
 }
 
