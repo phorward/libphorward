@@ -2718,6 +2718,20 @@ Possible flags are:
 
 Use [plist_free() #fn_plist_free] to erase and release the returned list object.
 %FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== plist_dbgstats ===[fn_plist_dbgstats]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+void plist_dbgstats( FILE* stream, plist* list )
+%DEFINITION:END
+
+**Usage:**
+
+Prints some statistics for the hashmap in //list// on stderr.
+%FUNCTION:END
 %NEED:16
 %FUNCTION:BEGIN
 === plist_diff ===[fn_plist_diff]
@@ -2885,7 +2899,7 @@ Access previous element with same hash value of a current unit //u//.
 **Definition:**
 
 %DEFINITION:BEGIN
-pboolean plist_init( plist* list, size_t size, int flags )
+pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 %DEFINITION:END
 
 **Usage:**
@@ -3563,6 +3577,20 @@ Creates a new ppgram-object.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
+=== pp_gram_dump_json ===[fn_pp_gram_dump_json]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pp_gram_dump_json( FILE* stream, ppgram* grm )
+%DEFINITION:END
+
+**Usage:**
+
+Dump grammar in a JSON format to //stream//.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
 === pp_gram_free ===[fn_pp_gram_free]
 
 **Definition:**
@@ -3720,7 +3748,7 @@ nontermdef		:= Nonterminal ':' alternation ';'
 termdef			:= Terminal ':' terminal ';'
 				;
 
-assocdef		:= '<<' terminal+ ';'	= assoc_left
+assocdef		: '<<' terminal+ ';'	= assoc_left
 				| '>>' terminal+ ';'	= assoc_right
 				| '^^' terminal+ ';'	= assoc_none
 				;
@@ -3828,6 +3856,20 @@ cause memory corruption and crashes.
 
 The function returns a valid parser object on success, or (pppar*)NULL in case
 the grammar is invalid.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== pp_par_dump_json ===[fn_pp_par_dump_json]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean pp_par_dump_json( FILE* stream, pppar* par )
+%DEFINITION:END
+
+**Usage:**
+
+Dumps parser to JSON
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN

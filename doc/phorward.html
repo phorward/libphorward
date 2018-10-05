@@ -444,6 +444,8 @@
       </li>
       <li><a href="#fn_plist_create">plist_create</a>
       </li>
+      <li><a href="#fn_plist_dbgstats">plist_dbgstats</a>
+      </li>
       <li><a href="#fn_plist_diff">plist_diff</a>
       </li>
       <li><a href="#fn_plist_dup">plist_dup</a>
@@ -546,6 +548,8 @@
       </li>
       <li><a href="#fn_pp_gram_create">pp_gram_create</a>
       </li>
+      <li><a href="#fn_pp_gram_dump_json">pp_gram_dump_json</a>
+      </li>
       <li><a href="#fn_pp_gram_free">pp_gram_free</a>
       </li>
       <li><a href="#fn_pp_gram_from_bnf">pp_gram_from_bnf</a>
@@ -563,6 +567,8 @@
       <li><a href="#fn_pp_par_autolex">pp_par_autolex</a>
       </li>
       <li><a href="#fn_pp_par_create">pp_par_create</a>
+      </li>
+      <li><a href="#fn_pp_par_dump_json">pp_par_dump_json</a>
       </li>
       <li><a href="#fn_pp_par_free">pp_par_free</a>
       </li>
@@ -6814,6 +6820,26 @@ Possible flags are:
 <p>
 Use <a href="#fn_plist_free">plist_free()</a> to erase and release the returned list object.
 </div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plist_dbgstats">plist_dbgstats</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+void plist_dbgstats( FILE* stream, plist* list )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Prints some statistics for the hashmap in <i>list</i> on stderr.
+</div>
 <!-- NEED 16 -->
 <div class='function'>
 </p>
@@ -7052,7 +7078,7 @@ Access previous element with same hash value of a current unit <i>u</i>.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_init( plist* list, size_t size, int flags )
+pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 </div>
 </p>
 <p>
@@ -8012,6 +8038,26 @@ Creates a new ppgram-object.
 <div class='function'>
 </p>
 
+<h3 id="fn_pp_gram_dump_json">pp_gram_dump_json</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pp_gram_dump_json( FILE* stream, ppgram* grm )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Dump grammar in a JSON format to <i>stream</i>.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
 <h3 id="fn_pp_gram_free">pp_gram_free</h3>
 
 <p>
@@ -8207,7 +8253,7 @@ nontermdef		:= Nonterminal ':' alternation ';'
 termdef			:= Terminal ':' terminal ';'
 				;
 
-assocdef		:= '&lt;&lt;' terminal+ ';'	= assoc_left
+assocdef		: '&lt;&lt;' terminal+ ';'	= assoc_left
 				| '&gt;&gt;' terminal+ ';'	= assoc_right
 				| '^^' terminal+ ';'	= assoc_none
 				;
@@ -8358,6 +8404,26 @@ cause memory corruption and crashes.
 <p>
 The function returns a valid parser object on success, or (pppar*)NULL in case
 the grammar is invalid.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pp_par_dump_json">pp_par_dump_json</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+pboolean pp_par_dump_json( FILE* stream, pppar* par )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Dumps parser to JSON
 </div>
 <!-- NEED 11 -->
 <div class='function'>

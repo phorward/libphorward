@@ -1494,9 +1494,10 @@ int plist_count( plist* l )
 }
 
 /** Prints some statistics for the hashmap in //list// on stderr. */
-void plist_print_statistics( plist* list )
+void plist_dbgstats( FILE* stream, plist* list )
 {
-	PROC( "plist_print_statistics" );
+	PROC( "plist_dbgstats" );
+	PARMS( "stream", "%p", stream );
 	PARMS( "list", "%p", list );
 
 	if( !list )
@@ -1505,18 +1506,21 @@ void plist_print_statistics( plist* list )
 		VOIDRET;
 	}
 
-	fprintf( stderr, "list statistics\n" );
-	fprintf( stderr, "=================================\n" );
-	fprintf( stderr, "element size:\t %7zd\n", list->size );
-	fprintf( stderr, "# of elements:\t %7ld\n", list->count );
-	fprintf( stderr, "# of recycled (unused) elements:\t %7ld\n", list->recycled );
-	fprintf( stderr, "\nhashmap statistics\n" );
-	fprintf( stderr, "---------------------------------\n" );
-	fprintf( stderr, "# of max. buckets:\t %7d\n", list->hashsize );
-	fprintf( stderr, "# of empty buckets:\t %7d\n", list->free_hash_entries );
-	fprintf( stderr, "load factor %%:\t\t %7d\n", list->load_factor );
-	fprintf( stderr, "# of collisions:\t %7d\n", list->hash_collisions );
-	fprintf( stderr, "\n" );
+	if( !stream )
+		stream = stderr;
+
+	fprintf( stream, "list statistics\n" );
+	fprintf( stream, "=================================\n" );
+	fprintf( stream, "element size:\t %7zd\n", list->size );
+	fprintf( stream, "# of elements:\t %7ld\n", list->count );
+	fprintf( stream, "# of recycled (unused) elements:\t %7ld\n", list->recycled );
+	fprintf( stream, "\nhashmap statistics\n" );
+	fprintf( stream, "---------------------------------\n" );
+	fprintf( stream, "# of max. buckets:\t %7d\n", list->hashsize );
+	fprintf( stream, "# of empty buckets:\t %7d\n", list->free_hash_entries );
+	fprintf( stream, "load factor %%:\t\t %7d\n", list->load_factor );
+	fprintf( stream, "# of collisions:\t %7d\n", list->hash_collisions );
+	fprintf( stream, "\n" );
 
 	VOIDRET;
 }
