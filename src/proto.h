@@ -155,7 +155,7 @@ plistel* plist_first( plist* l );
 plistel* plist_last( plist* l );
 int plist_size( plist* l );
 int plist_count( plist* l );
-void plist_print_statistics( plist* list );
+void plist_dbgstats( FILE* stream, plist* list );
 
 /* base/memory.c */
 void* pmalloc( size_t size );

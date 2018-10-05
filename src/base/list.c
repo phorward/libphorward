@@ -33,6 +33,23 @@ because they allocate arrays of memory instead of unfixed, linked elements.
 /* Local prototypes */
 static pboolean plist_hash_rebuild( plist* list );
 
+/* Local variables & defines */
+
+/* Table size definitions (using non mersenne primes for lesser colissions) */
+static const int table_sizes[] = {
+    61,      131, 	  257,     509,
+    1021,    2053,    4099,    8191,
+    16381,   32771,   65537,   131071,
+    262147,  524287,  1048573, 2097143,
+    4194301, 8388617
+};
+
+#define LENGTH_OF_TABLE_SIZES  \
+		( sizeof( table_sizes) / sizeof( *table_sizes ) )
+
+/* Load factor */
+#define	LOAD_FACTOR_HIGH	75	/* resize on 75% load factor to avoid collisions */
+
 /* Calculates load factor of the map */
 static int plist_get_load_factor( plist* list )
 {
@@ -208,7 +225,7 @@ static pboolean plist_hash_rebuild( plist* list )
 		RETURN( FALSE );
 	}
 
-	if( list->size_index + 1 >= PLIST_LENGTH_OF_TABLE_SIZES )
+	if( list->size_index + 1 >= LENGTH_OF_TABLE_SIZES )
 	{
 		MSG( "Maximum size is reached." );
 		RETURN( FALSE );
@@ -296,7 +313,7 @@ pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 
 	/* Choose size on the basis off the defined table sizes,
 		take the next greater entry. */
-	while( list->size_index < PLIST_LENGTH_OF_TABLE_SIZES &&
+	while( list->size_index < LENGTH_OF_TABLE_SIZES &&
 				table_size > table_sizes[ list->size_index ] )
 		list->size_index++;
 
@@ -1477,9 +1494,10 @@ int plist_count( plist* l )
 }
 
 /** Prints some statistics for the hashmap in //list// on stderr. */
-void plist_print_statistics( plist* list )
+void plist_dbgstats( FILE* stream, plist* list )
 {
-	PROC( "plist_print_statistics" );
+	PROC( "plist_dbgstats" );
+	PARMS( "stream", "%p", stream );
 	PARMS( "list", "%p", list );
 
 	if( !list )
@@ -1488,18 +1506,21 @@ void plist_print_statistics( plist* list )
 		VOIDRET;
 	}
 
-	fprintf( stderr, "list statistics\n" );
-	fprintf( stderr, "=================================\n" );
-	fprintf( stderr, "element size:\t %7zd\n", list->size );
-	fprintf( stderr, "# of elements:\t %7ld\n", list->count );
-	fprintf( stderr, "# of recycled (unused) elements:\t %7ld\n", list->recycled );
-	fprintf( stderr, "\nhashmap statistics\n" );
-	fprintf( stderr, "---------------------------------\n" );
-	fprintf( stderr, "# of max. buckets:\t %7d\n", list->hashsize );
-	fprintf( stderr, "# of empty buckets:\t %7d\n", list->free_hash_entries );
-	fprintf( stderr, "load factor %%:\t\t %7d\n", list->load_factor );
-	fprintf( stderr, "# of collisions:\t %7d\n", list->hash_collisions );
-	fprintf( stderr, "\n" );
+	if( !stream )
+		stream = stderr;
+
+	fprintf( stream, "list statistics\n" );
+	fprintf( stream, "=================================\n" );
+	fprintf( stream, "element size:\t %7zd\n", list->size );
+	fprintf( stream, "# of elements:\t %7ld\n", list->count );
+	fprintf( stream, "# of recycled (unused) elements:\t %7ld\n", list->recycled );
+	fprintf( stream, "\nhashmap statistics\n" );
+	fprintf( stream, "---------------------------------\n" );
+	fprintf( stream, "# of max. buckets:\t %7d\n", list->hashsize );
+	fprintf( stream, "# of empty buckets:\t %7d\n", list->free_hash_entries );
+	fprintf( stream, "load factor %%:\t\t %7d\n", list->load_factor );
+	fprintf( stream, "# of collisions:\t %7d\n", list->hash_collisions );
+	fprintf( stream, "\n" );
 
 	VOIDRET;
 }
