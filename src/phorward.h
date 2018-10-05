@@ -221,21 +221,6 @@ typedef void (*plistelfn)	( plistel* );
 typedef void (*plistfn)		( void* );		
 
 
-static const int table_sizes[] = {
-    61,      131, 	  257,     509,
-    1021,    2053,    4099,    8191,
-    16381,   32771,   65537,   131071,
-    262147,  524287,  1048573, 2097143,
-    4194301, 8388617
-};
-
-#define PLIST_LENGTH_OF_TABLE_SIZES  \
-		( sizeof( table_sizes) / sizeof( *table_sizes ) )
-
-
-#define	LOAD_FACTOR_HIGH	75	
-
-
 struct Plistel
 {
 	char*					key;

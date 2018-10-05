@@ -33,6 +33,23 @@ because they allocate arrays of memory instead of unfixed, linked elements.
 /* Local prototypes */
 static pboolean plist_hash_rebuild( plist* list );
 
+/* Local variables & defines */
+
+/* Table size definitions (using non mersenne primes for lesser colissions) */
+static const int table_sizes[] = {
+    61,      131, 	  257,     509,
+    1021,    2053,    4099,    8191,
+    16381,   32771,   65537,   131071,
+    262147,  524287,  1048573, 2097143,
+    4194301, 8388617
+};
+
+#define LENGTH_OF_TABLE_SIZES  \
+		( sizeof( table_sizes) / sizeof( *table_sizes ) )
+
+/* Load factor */
+#define	LOAD_FACTOR_HIGH	75	/* resize on 75% load factor to avoid collisions */
+
 /* Calculates load factor of the map */
 static int plist_get_load_factor( plist* list )
 {
@@ -208,7 +225,7 @@ static pboolean plist_hash_rebuild( plist* list )
 		RETURN( FALSE );
 	}
 
-	if( list->size_index + 1 >= PLIST_LENGTH_OF_TABLE_SIZES )
+	if( list->size_index + 1 >= LENGTH_OF_TABLE_SIZES )
 	{
 		MSG( "Maximum size is reached." );
 		RETURN( FALSE );
@@ -296,7 +313,7 @@ pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 
 	/* Choose size on the basis off the defined table sizes,
 		take the next greater entry. */
-	while( list->size_index < PLIST_LENGTH_OF_TABLE_SIZES &&
+	while( list->size_index < LENGTH_OF_TABLE_SIZES &&
 				table_size > table_sizes[ list->size_index ] )
 		list->size_index++;
 

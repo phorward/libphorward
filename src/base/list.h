@@ -17,21 +17,6 @@ typedef struct Plistel		plistel;		/* List element */
 typedef void (*plistelfn)	( plistel* );	/* List element callback */
 typedef void (*plistfn)		( void* );		/* List element access callback */
 
-/* Table size definitions (using non mersenne primes for less colissions)*/
-static const int table_sizes[] = {
-    61,      131, 	  257,     509,
-    1021,    2053,    4099,    8191,
-    16381,   32771,   65537,   131071,
-    262147,  524287,  1048573, 2097143,
-    4194301, 8388617
-};
-
-#define PLIST_LENGTH_OF_TABLE_SIZES  \
-		( sizeof( table_sizes) / sizeof( *table_sizes ) )
-
-/* Load factor */
-#define	LOAD_FACTOR_HIGH	75	/* resize on 75% load factor to avoid collisions */
-
 /* Element */
 struct Plistel
 {
