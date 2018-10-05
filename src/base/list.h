@@ -61,13 +61,12 @@ struct Plist
 #define PLIST_MOD_UNIQUE	32	/* Unique keys, no collisions */
 #define PLIST_MOD_WCHAR		64	/* Use wide-character strings for keys */
 
-	int						size;
-	int						count;
+	size_t					size;
+	long					count;
 	int						hashsize;
 #define PLIST_DFT_HASHSIZE	61
 
 	int						size_index;
-	int						load_factor;
 
 	int						(*comparefn)( plist*, plistel*, plistel* );
 	int						(*sortfn)( plist*, plistel*, plistel* );
@@ -78,6 +77,12 @@ struct Plist
 	plistel*				first;
 	plistel*				last;
 	plistel**				hash;
+
+	/* statistics */
+	int						load_factor;
+	int						free_hash_entries;
+	int						hash_collisions;
+	long					recycled;
 };
 
 /* Macros */

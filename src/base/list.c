@@ -151,6 +151,7 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 	{
 		MSG( "Bucket is empty, chaining start position" );
 		*bucket = e;
+		list->free_hash_entries--;
 	}
 	else
 	{
@@ -182,7 +183,13 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 				break;
 			}
 		}
+
+		list->hash_collisions++;
 	}
+
+	/* store new load factor */
+	list->load_factor = plist_get_load_factor( list );
+	VARS( "load_factor", "%d<", list->load_factor );
 
 	RETURN( TRUE );
 }
@@ -216,6 +223,8 @@ static pboolean plist_hash_rebuild( plist* list )
 	list->size_index++;
 	list->hashsize = table_sizes[ list->size_index ];
 	VARS( "new list->hashsize", "%ld", list->hashsize );
+
+	list->hash_collisions = 0;
 
 	list->hash = (plistel**)pmalloc( list->hashsize * sizeof( plistel* ) );
 
@@ -283,6 +292,7 @@ pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 	list->flags = flags;
 	list->size = size;
 	list->size_index = 0;
+	list->recycled = 0L;
 
 	/* Choose size on the basis off the defined table sizes,
 		take the next greater entry. */
@@ -293,6 +303,10 @@ pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 	list->hashsize = table_sizes[ list->size_index ];
 
 	list->sortfn = plist_compare;
+
+	list->load_factor = 0;
+	list->free_hash_entries = list->hashsize;
+	list->hash_collisions = 0;
 
 	return TRUE;
 }
@@ -481,6 +495,7 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		e = list->unused;
 		list->unused = e->next;
 		memset( e, 0, sizeof( plistel ) + list->size );
+		list->recycled--;
 	}
 	else
 	{
@@ -658,7 +673,10 @@ pboolean plist_remove( plist* list, plistel* e )
 	if( e->hashprev )
 		e->hashprev->hashnext = e->hashnext;
 	else if( list->hash && e->key )
+	{
 		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
+		list->free_hash_entries++;
+	}
 
 	/* Drop element contents */
 	plistel_drop( e );
@@ -671,6 +689,7 @@ pboolean plist_remove( plist* list, plistel* e )
 
 		e->next = list->unused;
 		list->unused = e;
+		list->recycled++;
 
 		MSG( "Element is now discarded, for later usage" );
 	}
@@ -686,6 +705,7 @@ pboolean plist_remove( plist* list, plistel* e )
 	/* store new load factor */
 	list->load_factor = plist_get_load_factor( list );
 	VARS( "load_factor", "%d<", list->load_factor );
+
 	RETURN( TRUE );
 }
 
@@ -1454,4 +1474,32 @@ int plist_count( plist* l )
 		return 0;
 
 	return l->count;
+}
+
+/** Prints some statistics for the hashmap in //list// on stderr. */
+void plist_print_statistics( plist* list )
+{
+	PROC( "plist_print_statistics" );
+	PARMS( "list", "%p", list );
+
+	if( !list )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	fprintf( stderr, "list statistics\n" );
+	fprintf( stderr, "=================================\n" );
+	fprintf( stderr, "element size:\t %7zd\n", list->size );
+	fprintf( stderr, "# of elements:\t %7ld\n", list->count );
+	fprintf( stderr, "# of recycled (unused) elements:\t %7ld\n", list->recycled );
+	fprintf( stderr, "\nhashmap statistics\n" );
+	fprintf( stderr, "---------------------------------\n" );
+	fprintf( stderr, "# of max. buckets:\t %7d\n", list->hashsize );
+	fprintf( stderr, "# of empty buckets:\t %7d\n", list->free_hash_entries );
+	fprintf( stderr, "load factor %%:\t\t %7d\n", list->load_factor );
+	fprintf( stderr, "# of collisions:\t %7d\n", list->hash_collisions );
+	fprintf( stderr, "\n" );
+
+	VOIDRET;
 }

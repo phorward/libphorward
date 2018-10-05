@@ -261,13 +261,12 @@ struct Plist
 #define PLIST_MOD_UNIQUE	32	
 #define PLIST_MOD_WCHAR		64	
 
-	int						size;
-	int						count;
+	size_t					size;
+	long					count;
 	int						hashsize;
 #define PLIST_DFT_HASHSIZE	61
 
 	int						size_index;
-	int						load_factor;
 
 	int						(*comparefn)( plist*, plistel*, plistel* );
 	int						(*sortfn)( plist*, plistel*, plistel* );
@@ -278,6 +277,12 @@ struct Plist
 	plistel*				first;
 	plistel*				last;
 	plistel**				hash;
+
+	
+	int						load_factor;
+	int						free_hash_entries;
+	int						hash_collisions;
+	long					recycled;
 };
 
 
@@ -979,6 +984,7 @@ plistel* plist_first( plist* l );
 plistel* plist_last( plist* l );
 int plist_size( plist* l );
 int plist_count( plist* l );
+void plist_print_statistics( plist* list );
 
 
 void* pmalloc( size_t size );
