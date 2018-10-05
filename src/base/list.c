@@ -33,6 +33,24 @@ because they allocate arrays of memory instead of unfixed, linked elements.
 /* Local prototypes */
 static pboolean plist_hash_rebuild( plist* list );
 
+/* Calculates load factor of the map */
+static int plist_get_load_factor( plist* list )
+{
+	int 	load = 0;
+	float	l = 0.00;
+
+	if ( !list )
+	{
+		WRONGPARAM;
+		return -1;
+	}
+
+	l = (float)plist_count( list ) / (float)list->hashsize;
+	load = (int)( l * 100 );
+
+	return load;
+}
+
 /* Compare hash-table elements */
 static int plist_hash_compare( plist* list, char* l, char* r )
 {
@@ -57,7 +75,7 @@ static int plist_hash_compare( plist* list, char* l, char* r )
 /* Get hash table index */
 static size_t plist_hash_index( plist* list, char* key )
 {
-	size_t hashval	= 0L;
+	size_t hashval	= 5381L;
 
 	if( !( list ) )
 	{
@@ -73,12 +91,12 @@ static size_t plist_hash_index( plist* list, char* key )
 		wchar_t*	wkey	= (wchar_t*)key;
 
 		while( *wkey )
-			hashval += ( hashval << 1 ) + *( wkey++ );
+			hashval += ( hashval << 7 ) + *( wkey++ );
 	}
 	#endif
 	else
 		while( *key )
-			hashval += ( hashval << 1 ) + *( key++ );
+			hashval += ( hashval << 7 ) + *( key++ );
 
 	return hashval % list->hashsize;
 }
@@ -105,12 +123,35 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 	e->hashnext = (plistel*)NULL;
 	e->hashprev = (plistel*)NULL;
 
+	if( ! plist_get_by_key( list, e->key ) )
+	{
+		/* new element, check if we have to resize the map */
+
+		/* check load factor */
+		list->load_factor = plist_get_load_factor( list );
+		VARS( "load_factor", "%d<", list->load_factor );
+
+		if( list->load_factor > LOAD_FACTOR_HIGH )
+		{
+			MSG( "hashmap has to be resized." );
+			if( !plist_hash_rebuild( list ) )
+			{
+				RETURN( FALSE );
+			}
+
+			/* store new load factor */
+			list->load_factor = plist_get_load_factor( list );
+			VARS( "load_factor", "%d<", list->load_factor );
+		}
+	}
+
 	bucket = &( list->hash[ plist_hash_index( list, e->key ) ] );
 
 	if( ! *bucket )
 	{
 		MSG( "Bucket is empty, chaining start position" );
 		*bucket = e;
+		list->free_hash_entries--;
 	}
 	else
 	{
@@ -142,7 +183,13 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 				break;
 			}
 		}
+
+		list->hash_collisions++;
 	}
+
+	/* store new load factor */
+	list->load_factor = plist_get_load_factor( list );
+	VARS( "load_factor", "%d<", list->load_factor );
 
 	RETURN( TRUE );
 }
@@ -152,10 +199,19 @@ static pboolean plist_hash_rebuild( plist* list )
 {
 	plistel*	e;
 
+	PROC( "plist_hash_rebuild" );
+	PARMS( "list", "%p", list );
+
 	if( !list )
 	{
 		WRONGPARAM;
-		return FALSE;
+		RETURN( FALSE );
+	}
+
+	if( list->size_index + 1 >= PLIST_LENGTH_OF_TABLE_SIZES )
+	{
+		MSG( "Maximum size is reached." );
+		RETURN( FALSE );
 	}
 
 	if( list->hash )
@@ -164,12 +220,18 @@ static pboolean plist_hash_rebuild( plist* list )
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		e->hashnext = (plistel*)NULL;
 
+	list->size_index++;
+	list->hashsize = table_sizes[ list->size_index ];
+	VARS( "new list->hashsize", "%ld", list->hashsize );
+
+	list->hash_collisions = 0;
+
 	list->hash = (plistel**)pmalloc( list->hashsize * sizeof( plistel* ) );
 
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		plist_hash_insert( list, e );
 
-	return TRUE;
+	RETURN( TRUE );
 }
 
 /* Drop list element */
@@ -209,7 +271,7 @@ static int plist_compare( plist* list, plistel* l, plistel* r )
 /** Initialize the list //list// with an element allocation size //size//.
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage. */
-pboolean plist_init( plist* list, size_t size, int flags )
+pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 {
 	if( !( list && size >= 0 ) )
 	{
@@ -229,9 +291,22 @@ pboolean plist_init( plist* list, size_t size, int flags )
 
 	list->flags = flags;
 	list->size = size;
-	list->hashsize = PLIST_DFT_HASHSIZE;
+	list->size_index = 0;
+	list->recycled = 0L;
+
+	/* Choose size on the basis off the defined table sizes,
+		take the next greater entry. */
+	while( list->size_index < PLIST_LENGTH_OF_TABLE_SIZES &&
+				table_size > table_sizes[ list->size_index ] )
+		list->size_index++;
+
+	list->hashsize = table_sizes[ list->size_index ];
 
 	list->sortfn = plist_compare;
+
+	list->load_factor = 0;
+	list->free_hash_entries = list->hashsize;
+	list->hash_collisions = 0;
 
 	return TRUE;
 }
@@ -273,7 +348,7 @@ plist* plist_create( size_t size, int flags )
 	}
 
 	list = (plist*)pmalloc( sizeof( plist ) );
-	plist_init( list, size, flags );
+	plist_init( list, size, PLIST_DFT_HASHSIZE, flags );
 
 	return list;
 }
@@ -420,6 +495,7 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		e = list->unused;
 		list->unused = e->next;
 		memset( e, 0, sizeof( plistel ) + list->size );
+		list->recycled--;
 	}
 	else
 	{
@@ -597,7 +673,10 @@ pboolean plist_remove( plist* list, plistel* e )
 	if( e->hashprev )
 		e->hashprev->hashnext = e->hashnext;
 	else if( list->hash && e->key )
+	{
 		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
+		list->free_hash_entries++;
+	}
 
 	/* Drop element contents */
 	plistel_drop( e );
@@ -610,6 +689,7 @@ pboolean plist_remove( plist* list, plistel* e )
 
 		e->next = list->unused;
 		list->unused = e;
+		list->recycled++;
 
 		MSG( "Element is now discarded, for later usage" );
 	}
@@ -621,6 +701,11 @@ pboolean plist_remove( plist* list, plistel* e )
 	}
 
 	list->count--;
+
+	/* store new load factor */
+	list->load_factor = plist_get_load_factor( list );
+	VARS( "load_factor", "%d<", list->load_factor );
+
 	RETURN( TRUE );
 }
 
@@ -1389,4 +1474,32 @@ int plist_count( plist* l )
 		return 0;
 
 	return l->count;
+}
+
+/** Prints some statistics for the hashmap in //list// on stderr. */
+void plist_print_statistics( plist* list )
+{
+	PROC( "plist_print_statistics" );
+	PARMS( "list", "%p", list );
+
+	if( !list )
+	{
+		WRONGPARAM;
+		VOIDRET;
+	}
+
+	fprintf( stderr, "list statistics\n" );
+	fprintf( stderr, "=================================\n" );
+	fprintf( stderr, "element size:\t %7zd\n", list->size );
+	fprintf( stderr, "# of elements:\t %7ld\n", list->count );
+	fprintf( stderr, "# of recycled (unused) elements:\t %7ld\n", list->recycled );
+	fprintf( stderr, "\nhashmap statistics\n" );
+	fprintf( stderr, "---------------------------------\n" );
+	fprintf( stderr, "# of max. buckets:\t %7d\n", list->hashsize );
+	fprintf( stderr, "# of empty buckets:\t %7d\n", list->free_hash_entries );
+	fprintf( stderr, "load factor %%:\t\t %7d\n", list->load_factor );
+	fprintf( stderr, "# of collisions:\t %7d\n", list->hash_collisions );
+	fprintf( stderr, "\n" );
+
+	VOIDRET;
 }

@@ -113,7 +113,7 @@ pboolean _dbg_trace_enabled( char* file, char* function );
 void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 /* base/list.c */
-pboolean plist_init( plist* list, size_t size, int flags );
+pboolean plist_init( plist* list, size_t size, size_t table_size, int flags );
 plist* plist_create( size_t size, int flags );
 plist* plist_dup( plist* list );
 pboolean plist_erase( plist* list );
@@ -155,6 +155,7 @@ plistel* plist_first( plist* l );
 plistel* plist_last( plist* l );
 int plist_size( plist* l );
 int plist_count( plist* l );
+void plist_print_statistics( plist* list );
 
 /* base/memory.c */
 void* pmalloc( size_t size );

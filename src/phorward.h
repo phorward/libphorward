@@ -221,6 +221,21 @@ typedef void (*plistelfn)	( plistel* );
 typedef void (*plistfn)		( void* );		
 
 
+static const int table_sizes[] = {
+    61,      131, 	  257,     509,
+    1021,    2053,    4099,    8191,
+    16381,   32771,   65537,   131071,
+    262147,  524287,  1048573, 2097143,
+    4194301, 8388617
+};
+
+#define PLIST_LENGTH_OF_TABLE_SIZES  \
+		( sizeof( table_sizes) / sizeof( *table_sizes ) )
+
+
+#define	LOAD_FACTOR_HIGH	75	
+
+
 struct Plistel
 {
 	char*					key;
@@ -246,10 +261,12 @@ struct Plist
 #define PLIST_MOD_UNIQUE	32	
 #define PLIST_MOD_WCHAR		64	
 
-	int						size;
-	int						count;
+	size_t					size;
+	long					count;
 	int						hashsize;
-#define PLIST_DFT_HASHSIZE	64
+#define PLIST_DFT_HASHSIZE	61
+
+	int						size_index;
 
 	int						(*comparefn)( plist*, plistel*, plistel* );
 	int						(*sortfn)( plist*, plistel*, plistel* );
@@ -260,6 +277,12 @@ struct Plist
 	plistel*				first;
 	plistel*				last;
 	plistel**				hash;
+
+	
+	int						load_factor;
+	int						free_hash_entries;
+	int						hash_collisions;
+	long					recycled;
 };
 
 
@@ -919,7 +942,7 @@ pboolean _dbg_trace_enabled( char* file, char* function );
 void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 
-pboolean plist_init( plist* list, size_t size, int flags );
+pboolean plist_init( plist* list, size_t size, size_t table_size, int flags );
 plist* plist_create( size_t size, int flags );
 plist* plist_dup( plist* list );
 pboolean plist_erase( plist* list );
@@ -961,6 +984,7 @@ plistel* plist_first( plist* l );
 plistel* plist_last( plist* l );
 int plist_size( plist* l );
 int plist_count( plist* l );
+void plist_print_statistics( plist* list );
 
 
 void* pmalloc( size_t size );

@@ -17,6 +17,21 @@ typedef struct Plistel		plistel;		/* List element */
 typedef void (*plistelfn)	( plistel* );	/* List element callback */
 typedef void (*plistfn)		( void* );		/* List element access callback */
 
+/* Table size definitions (using non mersenne primes for less colissions)*/
+static const int table_sizes[] = {
+    61,      131, 	  257,     509,
+    1021,    2053,    4099,    8191,
+    16381,   32771,   65537,   131071,
+    262147,  524287,  1048573, 2097143,
+    4194301, 8388617
+};
+
+#define PLIST_LENGTH_OF_TABLE_SIZES  \
+		( sizeof( table_sizes) / sizeof( *table_sizes ) )
+
+/* Load factor */
+#define	LOAD_FACTOR_HIGH	75	/* resize on 75% load factor to avoid collisions */
+
 /* Element */
 struct Plistel
 {
@@ -46,10 +61,12 @@ struct Plist
 #define PLIST_MOD_UNIQUE	32	/* Unique keys, no collisions */
 #define PLIST_MOD_WCHAR		64	/* Use wide-character strings for keys */
 
-	int						size;
-	int						count;
+	size_t					size;
+	long					count;
 	int						hashsize;
-#define PLIST_DFT_HASHSIZE	64
+#define PLIST_DFT_HASHSIZE	61
+
+	int						size_index;
 
 	int						(*comparefn)( plist*, plistel*, plistel* );
 	int						(*sortfn)( plist*, plistel*, plistel* );
@@ -60,6 +77,12 @@ struct Plist
 	plistel*				first;
 	plistel*				last;
 	plistel**				hash;
+
+	/* statistics */
+	int						load_factor;
+	int						free_hash_entries;
+	int						hash_collisions;
+	long					recycled;
 };
 
 /* Macros */
