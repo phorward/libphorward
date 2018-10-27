@@ -22,4 +22,4 @@ pair_list : pair | pair_list COMMA pair;
 key : SCONST | CCONST | ID ;
 pair : key COLON value = pair;
 array : LB RB | LB value_list RB ;
-value_list : value | value_list COMMA value;"
+value_list : value | value_list COMMA value;

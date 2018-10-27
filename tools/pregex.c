@@ -84,7 +84,7 @@ int main( int argc, char** argv )
 
 		}
 		else if( !strcmp( opt, "delimiter" ) || !strcmp( opt, "d" ) )
-			delimiter = param;
+			delimiter = pstrunescape( param );
 		else if( !strcmp( opt, "exec" ) || !strcmp( opt, "e" ) )
 			expr = param;
 		else if( !strcmp( opt, "file" ) || !strcmp( opt, "f" ) )
