@@ -48,7 +48,8 @@ static const int table_sizes[] = {
 		( sizeof( table_sizes) / sizeof( *table_sizes ) )
 
 /* Load factor */
-#define	LOAD_FACTOR_HIGH	75	/* resize on 75% load factor to avoid collisions */
+#define	LOAD_FACTOR_HIGH	75	/* resize on 75% load factor
+										to avoid collisions */
 
 /* Calculates load factor of the map */
 static int plist_get_load_factor( plist* list )
@@ -146,7 +147,7 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 
 		/* check load factor */
 		list->load_factor = plist_get_load_factor( list );
-		VARS( "load_factor", "%d<", list->load_factor );
+		VARS( "load_factor", "%d", list->load_factor );
 
 		if( list->load_factor > LOAD_FACTOR_HIGH )
 		{
@@ -158,7 +159,9 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 
 			/* store new load factor */
 			list->load_factor = plist_get_load_factor( list );
-			VARS( "load_factor", "%d<", list->load_factor );
+
+			VARS( "load_factor", "%d", list->load_factor );
+			RETURN( TRUE ); /* e has been inserted by plist_hash_rebuild()! */
 		}
 	}
 
@@ -167,6 +170,8 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 	if( ! *bucket )
 	{
 		MSG( "Bucket is empty, chaining start position" );
+		VARS( "e->key", "%s", e->key );
+
 		*bucket = e;
 		list->free_hash_entries--;
 	}
@@ -206,7 +211,7 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 
 	/* store new load factor */
 	list->load_factor = plist_get_load_factor( list );
-	VARS( "load_factor", "%d<", list->load_factor );
+	VARS( "load_factor", "%d", list->load_factor );
 
 	RETURN( TRUE );
 }

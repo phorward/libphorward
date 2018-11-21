@@ -2,6 +2,13 @@
 
 This file is used to document any relevant changes done to libphorward.
 
+## v0.24
+
+Not released yet.
+
+- Improvide hash table for `plist` based on non mersenne prime numbers
+
+
 ## v0.23
 
 Released on: Sept 27, 2018
