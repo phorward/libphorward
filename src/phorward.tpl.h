@@ -115,9 +115,7 @@ typedef char 					pboolean;	/* Phorward Boolean */
 
 ##include "regex/regex.h"
 
-##include "vm/vm.h"
-
-##include "parse/parse.h"
+/* #lol#include "vm/vm.h" */
 
 /*
  * Function Prototypes

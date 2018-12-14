@@ -23,14 +23,6 @@ SRC = \
 	base/list.c \
 	base/memory.c \
 	base/system.c \
-	parse/ast.c \
-	parse/bnf.c \
-	parse/gram.c \
-	parse/lr.c \
-	parse/parse.c \
-	parse/pbnf.c \
-	parse/prod.c \
-	parse/sym.c \
 	regex/dfa.c \
 	regex/direct.c \
 	regex/lex.c \
@@ -40,10 +32,7 @@ SRC = \
 	regex/regex.c \
 	string/convert.c \
 	string/string.c \
-	string/utf8.c \
-	vm/prog.c \
-	vm/run.c \
-	vm/vm.c
+	string/utf8.c
 
 HSRC = \
 	any/any.h \
@@ -51,9 +40,7 @@ HSRC = \
 	base/ccl.h \
 	base/dbg.h \
 	base/list.h \
-	parse/parse.h \
 	regex/regex.h \
-	vm/vm.h \
 	version.h \
 	phorward.tpl.h \
 	$(PROTOFILE)

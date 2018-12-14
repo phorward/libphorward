@@ -171,74 +171,6 @@ pboolean pfiletostr( char** cont, char* filename );
 int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx );
 size_t pgetline( char** lineptr, size_t* n, FILE* stream );
 
-/* parse/ast.c */
-ppast* pp_ast_create( char* emit, ppsym* sym, ppprod* prod, ppast* child );
-ppast* pp_ast_free( ppast* node );
-int pp_ast_len( ppast* node );
-ppast* pp_ast_get( ppast* node, int n );
-ppast* pp_ast_select( ppast* node, char* emit, int n );
-void pp_ast_eval( ppast* ast, pastevalfn func );
-void pp_ast_dump( FILE* stream, ppast* ast );
-void pp_ast_dump_short( FILE* stream, ppast* ast );
-void _dbg_ast_dump( char* file, int line, char* function, char* name, ppast* ast );
-void pp_ast_dump_json( FILE* stream, ppast* ast );
-void pp_ast_dump_tree2svg( FILE* stream, ppast* ast );
-void pp_ast_dump_pvm( pvmprog* prog, ppast* ast );
-
-/* parse/bnf.c */
-pboolean pp_gram_from_bnf( ppgram* g, char* src );
-pboolean pp_gram_from_ebnf( ppgram* g, char* src );
-
-/* parse/gram.c */
-ppgram* pp_gram_create( void );
-pboolean pp_gram_prepare( ppgram* g );
-void _dbg_gram_dump( char* file, int line, char* function, char* name, ppgram* g );
-char* pp_gram_to_str( ppgram* grm );
-pboolean pp_gram_dump_json( FILE* stream, ppgram* grm );
-ppgram* pp_gram_free( ppgram* g );
-
-/* parse/lr.c */
-pboolean pp_lr_build( unsigned int* cnt, unsigned int*** dfa, ppgram* grm );
-
-/* parse/parse.c */
-pppar* pp_par_create( ppgram* g );
-pppar* pp_par_free( pppar* par );
-plex* pp_par_autolex( pppar* p );
-pboolean pp_par_dump_json( FILE* stream, pppar* par );
-ppparctx* pp_parctx_init( ppparctx* ctx, pppar* par );
-ppparctx* pp_parctx_create( pppar* par );
-ppparctx* pp_parctx_reset( ppparctx* ctx );
-ppparctx* pp_parctx_free( ppparctx* ctx );
-ppparstate pp_parctx_next( ppparctx* ctx, ppsym* sym, pany* val );
-ppparstate pp_parctx_next_by_name( ppparctx* ctx, char* name, pany* val );
-ppparstate pp_parctx_next_by_idx( ppparctx* ctx, unsigned int idx, pany* val );
-pboolean pp_par_parse( ppast** root, pppar* par, char* start );
-
-/* parse/pbnf.c */
-pboolean pp_gram_from_pbnf( ppgram* g, char* src );
-
-/* parse/prod.c */
-ppprod* pp_prod_create( ppgram* g, ppsym* lhs, ... );
-ppprod* pp_prod_free( ppprod* p );
-ppprod* pp_prod_get( ppgram* g, int n );
-pboolean pp_prod_append( ppprod* p, ppsym* sym );
-int pp_prod_remove( ppprod* p, ppsym* sym );
-ppsym* pp_prod_getfromrhs( ppprod* p, int off );
-char* pp_prod_to_str( ppprod* p );
-
-/* parse/sym.c */
-ppsym* pp_sym_create( ppgram* g, char* name, unsigned int flags );
-ppsym* pp_sym_free( ppsym* sym );
-ppsym* pp_sym_drop( ppsym* sym );
-ppsym* pp_sym_get( ppgram* g, unsigned int n );
-ppsym* pp_sym_get_by_name( ppgram* g, char* name );
-ppsym* pp_sym_get_nameless_term_by_def( ppgram* g, char* name );
-ppprod* pp_sym_getprod( ppsym* sym, unsigned int n );
-char* pp_sym_to_str( ppsym* sym );
-ppsym* pp_sym_mod_positive( ppsym* sym );
-ppsym* pp_sym_mod_optional( ppsym* sym );
-ppsym* pp_sym_mod_kleene( ppsym* sym );
-
 /* regex/dfa.c */
 void pregex_dfa_print( pregex_dfa* dfa );
 pregex_dfa* pregex_dfa_create( void );
@@ -381,20 +313,4 @@ int putf8_escape(char *buf, int sz, char *src, int escape_quotes);
 char *putf8_strchr(char *s, wchar_t ch, int *charn);
 char *putf8_memchr(char *s, wchar_t ch, size_t sz, int *charn);
 int putf8_is_locale_utf8(char *locale);
-
-/* vm/prog.c */
-pvmprog* pvm_prog_create( pvm* vm, char* src );
-pvmprog* pvm_prog_free( pvmprog* prog );
-pboolean pvm_prog_compile( pvmprog* prog, char* src );
-void pvm_prog_dump( pvmprog* prog );
-
-/* vm/run.c */
-void pvm_prog_run( pany** ret, pvmprog* prog );
-
-/* vm/vm.c */
-pvm* pvm_init( pvm* vm );
-pvm* pvm_create( void );
-pvm* pvm_reset( pvm* vm );
-pvm* pvm_free( pvm* vm );
-int pvm_define( pvm* vm, char* mn, pvmop op );
 
