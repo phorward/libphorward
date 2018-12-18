@@ -8,10 +8,11 @@ html, body
 
 body
 {
-    margin: 0 5%;
+    margin: 1% 2%;
     padding: 3%;
 
     background-color: #fff;
+	border-radius: 25px;
 }
 
 table
@@ -74,25 +75,26 @@ div#header h1:before
 
 div#header h1
 {
-	font-size: 22pt;
+	font-size: 1.7em;
 
 }
 
 div#header h2
 {
-	font-size: 20pt;
+	font-size: 1.3em;
 }
 
 div#header h3
 {
-	font-size: 14pt;
+	font-size: 1.3em;
 	font-style: italic;
 }
 
 div#body h1
 {
 	border-top: 3px solid #333;
-	font-size: 20pt;
+	font-size: 1.6em;
+	margin-top: 3em;
 }
 
 div.function
@@ -106,20 +108,20 @@ div.function
 div.function .definition
 {
 	margin-left: 16px;
-	font-size: 13pt;
+	font-size: 1.1em;
 	font-family: "Lucida Console", Monaco, monospace;
 }
 
 div#body h2
 {
 	border-top: 1px dashed #666;
-	font-size: 16pt;
+	font-size: 1.4em;
 	margin-right: 5%;
 }
 
 div#body h3
 {
-	font-size: 14pt;
+	font-size: 1.2em;
 	margin: 1% 5% 1% 0%;
 	padding: 0;
 }
@@ -159,6 +161,17 @@ td.refreturns
 {
 }
 
+/* Media Querys */
+@media only screen and (max-width: 1024px) {
+
+	body
+	{
+		margin: initial;
+		background-color: #fff;
+		border-radius: initial;
+	}
+}
+
 @media print
 {
 	html, body, table
@@ -177,6 +190,7 @@ td.refreturns
 	h1
 	{
 		page-break-before: left;
+		margin-top: 0;
 	}
 
 	.header h1

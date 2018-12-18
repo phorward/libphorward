@@ -15,7 +15,7 @@ SRC 	= 	array.t2t \
 
 all: $(HTMLOUT)
 
-$(HTMLOUT): $(SRC) Makefile
+$(HTMLOUT): $(SRC) phorward.css Makefile
 	txt2tags -o $@ -t xhtml --toc --css-sugar --style=phorward.css $(MAINSRC)
 
 $(TXTOUT): $(SRC) Makefile
