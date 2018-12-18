@@ -1,8 +1,8 @@
 # phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=develop)](https://travis-ci.org/phorward/phorward) 
 
-**phorward** is a C/C++ programming library, providing useful extensions like dynamic data structures, enhanced string management functions and regular expressions. 
-
-## Features
+**phorward** *(libphorward)* is a C/C++ programming library, providing useful
+extensions like dynamic data structures, enhanced string management functions
+and regular expressions.
 
 The library provides several modules which can be used together or on their own:
 
@@ -11,9 +11,12 @@ The library provides several modules which can be used together or on their own:
 - **regex** provides tools for constructing, parsing, processing and modifying regular expressions.
 - **string** is an extended string processing library with useful functions for `char*` and `wchar_t*`-string manipulation.
 
+The library also comes with some tools and command-line helpers, including a documentation generator and a functions prototype generator for C modules.
+
 ## Documentation
 
-Recently updated, full documentation can be found [here](https://www.phorward-software.com/products/phorward/doc/phorward.html), but is also locally available after installation.
+A recently updated, full documentation can be found [here](https://www.phorward-software.com/products/phorward/doc/phorward.html),
+and is also locally available after installation.
 
 ## Building
 
@@ -29,42 +32,42 @@ make install
 
 And you're ready to go!
 
-### Windows platforms
+### Alternative development build
 
-On Windows, the usage of [Cygwin](https://cygwin.org/) or another Unix shell environment is required. *phorward* also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
+Alternatively, there is also a simpler method for setting up a local build system for development and testing purposes.
 
-To compile into 32-Bit Windows executables, configure with
-
-```bash
-$ ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
-```
-
-To compile into 64-Bit Windows executables, configure with
-
-```bash
-$ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
-```
-
-### Local development build
-
-Alternatively there is also a simpler method for setting up a local build system for development and testing purposes locally in the file-system:
+To do so, type
 
 ```bash
 $ make -f Makefile.gnu make_install
 $ make
 ```
 
-This locally compiles the toolkit and parts of it.
+This locally compiles the library or parts of it, and is ideal for development purposes.
+
+### Building on Windows
+
+On Windows systems, the usage of [Cygwin](https://cygwin.org/) or another Unix shell environment is required.
+
+The Phorward Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
+
+```bash
+# To compile into 32-Bit Windows executables, configure with
+$ ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
+
+# To compile into 64-Bit Windows executables, configure with 
+$ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
+```
 
 ## Credits
 
-*libphorward* is developed and maintained by Jan Max Meyer, Phorward Software Technologies.
+*libphorward* is developed and maintained by [Jan Max Meyer](https://github.com/phorward/), Phorward Software Technologies.
+
+Contributions by [Marco Wegner](https://github.com/Heavenfighter) and [AGS](https://github.com/FreeBASIC-programmer).
 
 ## License
 
-This software is an open source project released under the terms and conditions of the 3-clause BSD license. See the LICENSE file for more information.
+You may use, modify and distribute this software under the terms and conditions of the 3-clause BSD license.
+The full license terms can be obtained from the file LICENSE.
 
 Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer.
-
-You may use, modify and distribute this software under the terms and conditions of the 3-clause BSD license. The full license terms can be obtained from the file LICENSE.
-
