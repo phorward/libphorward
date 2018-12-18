@@ -3,11 +3,11 @@
 
 === Overview ===
 
-Next to the [parray #parray] object, the **plist** object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
+Next to the parray object, the plist object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
 
-**plist** can be seen as a superset of the [parray #parray] object, because it features nearly the same operations but with other underlying data management methods.
+plist can be seen as a superset of the parray object, because it features nearly the same operations but with other underlying data management methods.
 
-The **plist** object implements:
+The plist object implements:
 
 - a double linked-list
 - hashable entries (hash table, including same element key stacking)
@@ -16,7 +16,7 @@ The **plist** object implements:
 - set functions
 -
 
-**plist** can be used as a generic data structure for
+plist can be used as a generic data structure for
 
 - hash tables
 - queues
@@ -24,7 +24,7 @@ The **plist** object implements:
 - stacks
 -
 
-The **plist** object brings the following advantages and disadvantages:
+The plist object brings the following advantages and disadvantages:
 
 - __Advantages__
   - Allows pointer-mode and entity-mode configuration (PLIST_MOD_PTR)
@@ -37,14 +37,14 @@ The **plist** object brings the following advantages and disadvantages:
 - __Disadvantages__
   - High memory consumption, especially in case when used with hash-tables
   - Iteration over elements is much slower
-  - List elements are chained as **plistel** data structures, while the data members must be called separately
-  - All operations require more computing power in comparison to [parray #parray]
+  - List elements are chained as plistel data structures, while the data members must be called separately
+  - All operations require more computing power in comparison to parray
   -
 -
 
 === Construction and destruction ===
 
-**plist** objects are created using @plist_create() or initialized with @plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the **plist** object to a specified behavior.
+plist objects are created using @plist_create() or initialized with @plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the plist object to a specified behavior.
 
 Possible flags are listed below, and can be combined using bitwise or (|).
 
@@ -60,7 +60,7 @@ Possible flags are listed below, and can be combined using bitwise or (|).
 
 The mode **PLIST_MOD_PTR** is automatically set if the elements size is specified as 0.
 
-A **plist** object must be freed using @plist_free() or cleared with @plist_clear().
+A plist object must be freed using @plist_free() or cleared with @plist_clear().
 
 ```
 plist* l;
@@ -107,9 +107,9 @@ tp = (usertype*)plist_rmalloc( a );
 fill_usertype( tp );
 ```
 
-=== Accessing and iterating elements ===
+=== Accessing and iterating elements ===[plistel]
 
-Elements within a **plist** object are referenced by **plistel** items. To access the data element behind a **plistel** item, the function @plist_access() is used, in combination with element retrival functions, like
+Elements within a plist object are referenced by plistel items. To access the data element behind a plistel item, the function @plist_access() is used, in combination with element retrival functions, like
 
 - @plist_get() - get element by offset,
 - @plist_rget() - get element by offset from the end,
@@ -157,7 +157,7 @@ for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
 
 === Removing elements ===
 
-To remove elements from a **plist** object, the following functions can be used.
+To remove elements from a plist object, the following functions can be used.
 
 - @plist_remove() - remove any element,
 - @plist_pop() - pop last element as from a stack,
@@ -175,7 +175,7 @@ plist_unshift( a, &t );
 
 === Sorting elements ===
 
-**plist** objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertion.
+plist objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertion.
 
 The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like strcmp() does.
 This function can be individually set using @plist_set_sortfn(), and by default points to a callback function that uses memcmp() as the element comparison function.
@@ -200,11 +200,11 @@ int my_compare( plist* list, plistel* l, plistel* r )
 }
 ```
 
-This can then be attached to the **plist** object with
+This can then be attached to the plist object with
 
 ``` plist_set_sortfn( l, my_compare );
 
-To configure a **plist** object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
+To configure a plist object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
 Sorting can also be performed by invoking the functions
 
 - @plist_sort() - to sort the entire list,
@@ -214,9 +214,9 @@ Sorting can also be performed by invoking the functions
 
 === Interchanging functions ===
 
-**plist** objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind **plist**. Both lists must be configured with the same element memory size, else all functions will fail.
+plist objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind plist. Both lists must be configured with the same element memory size, else all functions will fail.
 
-To implement these functions, every **plist** object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
+To implement these functions, every plist object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
 
 - @plist_diff() - checks two lists for same items (equality),
 - @plist_union() - extends a list to all elements of a second list that are not equal to elements in the first list.
@@ -224,7 +224,7 @@ To implement these functions, every **plist** object also refers to a comparison
 
 === Additional functions ===
 
-**plist** provides these additional functions:
+plist provides these additional functions:
 
 - @plist_swap() - swaps the two elements within a list,
 - @plist_dup() - duplicate list and its items,

@@ -9,8 +9,6 @@ SRC 	= 	array.t2t \
 			ccl.t2t \
 			list.t2t \
 			regex.t2t \
-			parse.t2t \
-			misc.t2t \
 			\
 			$(MAINSRC) \
 			$(REFSRC)

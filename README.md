@@ -4,7 +4,7 @@
 
 ## Features
 
-The library provides several modules for their objects and functions.
+The library provides several modules which can be used together or on their own:
 
 - **any** provides an extensible data structure and interface to store, convert and handle variables of different value types (some kind of "variant" data type) within one data structure.
 - **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays.

@@ -3,29 +3,31 @@
 
 === Overview ===
 
-The **parray** object is a general-purpose data structure which can be used for several operations.
+The parray object is a general-purpose data structure which can be used for several operations.
 
-**parray** forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given **parray** object.
+parray forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given parray object.
 
-The **parray** object brings the following advantages and disadvantages:
+The parray object brings the following advantages and disadvantages:
 
 - __Advantages__
-  - Chunk allocation requires less @pmalloc()/@prealloc() operations than with [plist #plist]
+  - Chunk allocation requires less @pmalloc()/@prealloc() operations than with plist-objects
   - Dynamic and quick implementation for huge data structures
   - Elements are held in a real array on the heap
   - Low memory consumption
   - Fast iteration over elements
   -
 - __Disadvantages__
-  - Less flexible then [plist #plist]
   - No hashable entries
+  - Not as flexible as plist, especially when elements are rearranged
   - Removing elements or rechaining requires more computing power
+  - Careful programming necessary, problems with lost pointers may be
+    encountered after memory-reallocations!
   -
 -
 
 === Construction and destruction ===
 
-**parray** objects are created using @parray_create() or initialized with @parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with @parray_erase(), respectively cleared and freed with @parray_free().
+parray objects are created using @parray_create() or initialized with @parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with @parray_erase(), respectively cleared and freed with @parray_free().
 
 ```
 parray* a;

@@ -1,8 +1,9 @@
-The Phorward Libraries
-libphorward 0.23.0
-Sept 2018
+The Phorward Library
+libphorward 0.24.0
+Dec 2018
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
+%!preproc(xhtml): '([ \t])(pany|plist|plistel|parray|pccl|pregex|plex)([-,.* \t])' '\1[\2 #\2]\3'
 %!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
 %!preproc(xhtml): '%FUNCTION:BEGIN' "''' <div class='function'>"
 %!preproc(xhtml): '%FUNCTION:END' "''' </div>"
@@ -24,59 +25,21 @@ Sept 2018
 
 Welcome to the Phorward library on-line documentation!
 
-**phorward** is a versatile C-library. It is split into several modules, and mostly focuses on the definition and implementation of parsers, recognizers, virtual machines and regular expressions.
+**phorward** is a C/C++ programming library, providing useful extensions like dynamic data structures, enhanced string management functions and regular expressions.
 
-The library is made up of several modules. These are:
+The library provides several modules which can be used together or on their own:
 
-- **any** provides a dynamical, extendible data structure and interface to store, convert and handle variables of different value types ("variant" data type),
-- **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays,
-- **parse** defines tools to express grammars and provides a built-in LALR(1) parser generator and objects to handle abstract syntax trees, integrating perfectly with the tools from //regex// for lexical analysis,
-- **regex** provides tools for lexical analysis and regular expression processing,
-- **string** is an extended string processing library,
-- **vm** can be used to implement and run stack-based virtual machines and instruction sets aimed to work with the *any* data type.
--
+- **any** provides an extensible data structure and interface to store, convert and handle variables of different value types (some kind of "variant" data type) within one data structure.
+- **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays.
+- **regex** provides tools for constructing, parsing, processing and modifying regular expressions.
+- **string** is an extended string processing library with useful functions for `char*` and `wchar_t*`-string manipulation.
 
-= Features =
-
-//phorward// provides the following features:
-
-- Parser development tools
-  - Self-hosted Backus-Naur-Form (BNF) grammar definition language
-  - //pparse// provides a modular LR(1) and LALR(1) parser generator
-  - //ppast// is a representation of a browsable abstract syntax tree (AST)
-- Lexer development tools
-  - regular expressions and pattern definition interface
-  - //plex// provides a lexical analyzer
-  - //pregex// for definition and execution of regular expression
-  - //pccl// for unicode-enabled character classes
-  - tools for regex and lexer deployment
-  - string functions for regular expression match, split and replace
-- Runtime evaluation tools
-  - construction of dynamic intermediate languages and interpreters
-  - //pany// is a data object for handling different data-types in one object
-  - //pvm// for defining stack-based virtual machine instruction sets
-- Dynamic data structures
-  - //plist// for linked-lists with built-in hash table support,
-  - //parray// for arrays and stacks.
-- Extended string management functions
-  - concat, extend, tokenize and short-hand allocation of strings and wide-character strings
-  - consistent byte- and wide-character (unicode) function support
-  - unicode support for UTF-8 in byte-character functions
-- Universal system-specific functions for platform-independent C software development
-  - Unix-style command-line parser
-  - Mapping files to strings
-- Debug und trace facilities
-- Consequent object-oriented build-up of all function interfaces (e.g. plist, parray, pregex, pparse, ...)
-- Growing code-base of more and more powerful functions
--
-
-Please check out https://phorward.info/ continuously to get the latest news, documentation, updates and support on the Phorward Toolkit.
 
 = Installation =
 
 == Building from sources ==
 
-Building the Phorward library is simple as every GNU-style open source program. Extract the release tarball or clone the Git repository into a directory of your choice.
+Building the Phorward library is as simple as every GNU-style open source program. Extract the release tarball or clone the Git repository into a directory of your choice.
 
 Then, run
 
@@ -124,47 +87,211 @@ Note, that changes to the build system then must be done in the local Makefile, 
 
 The cornerstone for this library was laid in 2006 during some experimenting with several algorithms and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, mostly unfinished software projects which had their origin at //J.M.K S.F. Software Technologies//, which was later renamed to //Phorward Software Technologies//.
 
-The library was then released to the public in 2011, together with the open source parser generator [UniCC https://unicc.phorward-software.com/]. Since then, it was gradually extended to newer and more enhanced features, mostly on tools relating to parser and compiler construction, but also features already known from other projects and remastered in a more generic and powerful way.
+The library was then released to the public in 2011, together with the open source parser generator [UniCC https://unicc.phorward-software.com/]. It was initially planned to use the library also for other C-based software projects having their origin at Phorward Software Technologies, but most of them where not continued.
 
-The final destination of the Phorward library is not entirely clear yet. For now, it mostly serves as a kind of playground for different projections, but it is also used by the UniCC parser generator and the meanwhile discontinued RapidBATCH scripting language as its foundation library.
+Since 2018, the library is brought towards the official v1.0 release after some experiments had been started but now where separated and continued as stand-alone projects apart from //libphorward//.
 
 %-------------------------------------------------------------------------------
 
-= Dynamic general-purpose objects =
+= General functions & dynamic data structures  =
 
-== parray: Arrays and stacks ==[parray]
+== Advanced memory management ==
+
+The standard memory management functions can be replaced by these pendants:
+
+- @pmalloc() - allocate and zero-intialize memory, stop on error.
+- @prealloc() - reallocate memory, stop on error.
+- @pfree() - free memory and return (void*)NULL pointer.
+- @pmemdup() - shorthand for a malloc() with memcpy().
+-
+
+These functions are used throughout libphorward's internal object mapping functions.
+
+== Boolean data type ==
+
+libphorward makes heavy usage of the self-hosted data-type **pboolean**, which is also referenced by a define //BOOLEAN//, and the constants //TRUE// and //FALSE//.
+
+It is known, that several header files and projects define these constants on their own, so that **pboolean**, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
+
+```
+#ifndef TRUE
+#define TRUE					1
+#endif
+```
+
+within ``phorward.h``.
+
+== Debugging and tracing ==
+
+Although this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules to detect bugs or view the program trace.
+
+For this, the library provides the following macros:
+
+- @LOG() - message logging with printf-style formatting
+- @MSG() - message logging (older style)
+- @PROC() - starting macro marking a functions entry point,
+- @PARMS() - log function parameters,
+- @RETURN() - return a value
+- @VARS() - log variables,
+- @VOIDRET - return from a void function.
+-
+
+So when a function is written like this in libphorward's way:
+
+```
+int faculty( int x )
+{
+	int ret;
+
+	PROC( "faculty" );
+	PARMS( "x", "%d", x );
+
+	if( x < 0 )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+	else if( x == 0 )
+	{
+		MSG( "x is 0, so faculty is 1" );
+		RETURN( 1 );
+	}
+	else
+	{
+		MSG( "Calling faculty recursively with:" );
+		VARS( "x - 1", "%d", x - 1 );
+		ret = x * faculty( x - 1 );
+	}
+
+	VARS( "ret", "%d", ret );
+	RETURN( ret );
+}
+```
+
+Trace is written to stderr, and will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value > 0.
+
+Calling this function with
+
+``` faculty( 3 );
+
+yields in a debug log
+
+```
+(demo.c:  380) {
+(demo.c:  380) .ENTRY : faculty
+(demo.c:  381) .PARMS : x = >3<
+(demo.c:  395) .MSG   : Calling faculty recursively with:
+(demo.c:  396) .VARS  : x - 1 = >2<
+(demo.c:  380) .{
+(demo.c:  380) ..ENTRY : faculty
+(demo.c:  381) ..PARMS : x = >2<
+(demo.c:  395) ..MSG   : Calling faculty recursively with:
+(demo.c:  396) ..VARS  : x - 1 = >1<
+(demo.c:  380) ..{
+(demo.c:  380) ...ENTRY : faculty
+(demo.c:  381) ...PARMS : x = >1<
+(demo.c:  395) ...MSG   : Calling faculty recursively with:
+(demo.c:  396) ...VARS  : x - 1 = >0<
+(demo.c:  380) ...{
+(demo.c:  380) ....ENTRY : faculty
+(demo.c:  381) ....PARMS : x = >0<
+(demo.c:  390) ....MSG   : x is 0, so faculty is 1
+(demo.c:  391) ....RETURN: faculty
+(demo.c:  391) ...}
+(demo.c:  400) ...VARS  : ret = >1<
+(demo.c:  401) ...RETURN: faculty
+(demo.c:  401) ..}
+(demo.c:  400) ..VARS  : ret = >2<
+(demo.c:  401) ..RETURN: faculty
+(demo.c:  401) .}
+(demo.c:  400) .VARS  : ret = >6<
+(demo.c:  401) .RETURN: faculty
+(demo.c:  401) }
+```
+
+when previously setting the environment variable ``TRACEMODULE="demo.c"`` or ``TRACEFUNCTION="faculty"``.
+
+== System-related helpers ==
+
+The Phorward library provides some useful functions for system-related interactions.
+
+- @pbasename() returns the basename of a path (the last part),
+- @pfiletostr() reads the content of an entire file into a dynamically allocated char*,
+- @pfileexists() checks for file existence,
+- @pgetopt() provides a simple to use, but effective GNU-style command-line argument parser,
+- @pwhich() checks for a file using @pfileexists() in a PATH-like, delimited search path definition
+-
+
+== Dynamically managed arrays and stacks (parray)==[parray]
 
 %!include: array.t2t
 
-== plist: Linked lists, hash-tables, queues and stacks ==[plist]
+== Linked lists, hash-tables, queues and stacks (plist) ==[plist]
 
 %!include: list.t2t
 
-== pccl: Character-classes ==[pccl]
+== Character-classes (pccl) ==[pccl]
 
 %!include: ccl.t2t
 
 %-------------------------------------------------------------------------------
 
-= pregex, plex: Regular expression handling and lexical analyzers =
+= Variant data type (pany) =[pany]
+
+coming soon
+
+%-------------------------------------------------------------------------------
+
+= Regular expression handling and lexical analyzers (pregex, plex) =
 
 %!include: regex.t2t
 
 %-------------------------------------------------------------------------------
 
-= ppgram, ppar, ppast: Grammars, parsers and abstact-syntax trees =
+= String helper functions (pstr, pwcs) =
 
-%!include: parse.t2t
+libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
+
+String functions overview:
+
+- @pstrcasecmp() - case-insensitive string comparison,
+- @pstrcatchar() - append character to string with dynamic allocation,
+- @pstrcatstr() - append string to string with dynamic allocation,
+- @pstrdup() - duplicate string, also accepts NULL-pointers,
+- @pstrget() - securely get string from a pointer,
+- @pstrlen() - return length of string, also accepts NULL-pointers,
+- @pstrltrim() - remove prefixing whitespace,
+- @pstrlwr() - convert string to lower-case-order,
+- @pstrncasecmp() - case-insensitive string comparison over maximum length,
+- @pstrncatstr() - append string to string with dynamic allocation and maximum length,
+- @pstrndup() - duplicate a string with maximum length,
+- @pstrput() - securely set an allocated string into a pointer,
+- @pstrrender() - dynamically render a string with placeholder substitution,
+- @pstrreplace() - dynamically replace substrings within string,
+- @pstrrtrim() - remove trailing whitespace,
+- @pstrsplit() - dynamic tokenizer,
+- @pstrtrim() - remove prefixing and trailing whitespace,
+- @pstrupr() - convert string to lower-case-order.
+-
+
+Additionally, the following pendants for wide-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
+
+- @pwcscatchar() - append character to wide-character string with dynamic allocation,
+- @pwcscatstr() - append wide-character string to wide-character string with dynamic allocation,
+- @pwcsdup() - duplicate wide-character string, also accepts NULL-pointers,
+- @pwcsget() - securely get wide-character string from a pointer,
+- @pwcslen() - return length ot wide-character string, also accepts NULL-pointers,
+- @pwcsncatstr() - append wide-character string to wide-character string with dynamic allocation and maximum length,
+- @pwcsndup() - duplicate a wide-character string with maximum length,
+- @pwcsput() - securely set an allocated wide-character string into a pointer.
+-
+
+Although the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
+
 
 %-------------------------------------------------------------------------------
 
-= Miscelleanous =
-
-%!include: misc.t2t
-
-%-------------------------------------------------------------------------------
-
-= Reference =
+= Function reference =
 
 %!include: ref.t2t
 
