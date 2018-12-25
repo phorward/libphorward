@@ -39,6 +39,7 @@ a = parray_create( sizeof( usertype ), 0 );
 parray_free( a );
 ```
 
+$NEWPAGE$
 === Inserting elements ===
 
 Elements can be inserted with

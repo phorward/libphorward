@@ -58,6 +58,12 @@ li
 	padding-top: 8px;
 }
 
+
+div.page-break
+{
+	display: none;
+}
+
 div#header
 {
 	text-align: center;
@@ -93,7 +99,7 @@ div#header h3
 div#body h1
 {
 	border-top: 3px solid #333;
-	font-size: 1.6em;
+	font-size: 1.8em;
 	margin-top: 3em;
 }
 
@@ -187,10 +193,16 @@ td.refreturns
 		background-color: initial;
 	}
 
-	h1
+	div#body h1
 	{
 		page-break-before: left;
 		margin-top: 0;
+		border: 0;
+	}
+
+	div#body h2
+	{
+		border: 0;
 	}
 
 	.header h1
@@ -199,9 +211,18 @@ td.refreturns
 		margin-top: 8cm;
 	}
 
+	div.page-break
+	{
+		display: inline-block;
+		width: 0;
+		height: 0;
+		page-break-after: always;
+	}
+
 	div.function
 	{
 		page-break-inside: avoid;
+		border-top: 0;
 	}
 
 	#toc1, div.toc

@@ -42,6 +42,7 @@ The plist object brings the following advantages and disadvantages:
   -
 -
 
+$NEWPAGE$
 === Construction and destruction ===
 
 plist objects are created using @plist_create() or initialized with @plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the plist object to a specified behavior.
@@ -72,6 +73,7 @@ l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
 plist_free( l );
 ```
 
+$NEWPAGE$
 === Inserting elements ===
 
 Elements can be inserted with
@@ -107,6 +109,7 @@ tp = (usertype*)plist_rmalloc( a );
 fill_usertype( tp );
 ```
 
+$NEWPAGE$
 === Accessing and iterating elements ===[plistel]
 
 Elements within a plist object are referenced by plistel items. To access the data element behind a plistel item, the function @plist_access() is used, in combination with element retrival functions, like
@@ -151,10 +154,10 @@ for( e = plist_last( l ); e; e = plist_prev( e ) )
 	tp = (usertype*)plist_access( e );
 
 /* Reverse alternative: Using offset */
-for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
-	;
+for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ ) ;
 ```
 
+$NEWPAGE$
 === Removing elements ===
 
 To remove elements from a plist object, the following functions can be used.

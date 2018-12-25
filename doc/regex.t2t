@@ -32,6 +32,7 @@ In general, regular expressions are made-up of the following elements:
 
 All meta-characters can be escaped by backslash, so they are interpretered as usual characters.
 
+$NEWPAGE$
 === Characters and escape sequences ===
 
 Any other character coming up is consumed as one expression to be matched in the input.

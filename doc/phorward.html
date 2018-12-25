@@ -48,9 +48,9 @@
     </li>
     <li><a href="#toc11">Debugging and tracing</a>
     </li>
-    <li><a href="#toc12">System-related helpers</a>
+    <li><a href="#toc12">System-related, platform-independent helpers</a>
     </li>
-    <li><a href="#parray">Dynamically managed arrays and stacks (parray)</a>
+    <li><a href="#parray">Dynamically managed arrays &amp; stacks (parray)</a>
       <ul>
       <li><a href="#toc14">Overview</a>
       </li>
@@ -66,7 +66,7 @@
       </li>
       </ul>
     </li>
-    <li><a href="#plist">Linked lists, hash-tables, queues and stacks (plist)</a>
+    <li><a href="#plist">Linked lists, hash-tables, queues &amp; stacks (plist)</a>
       <ul>
       <li><a href="#toc21">Overview</a>
       </li>
@@ -92,7 +92,7 @@
   </li>
   <li><a href="#pany">Variant data type (pany)</a>
   </li>
-  <li><a href="#toc31">Regular expression handling and lexical analyzers (pregex, plex)</a>
+  <li><a href="#toc31">Regular expressions &amp; lexical analyzers (pregex, plex)</a>
     <ul>
     <li><a href="#toc32">Overview</a>
       <ul>
@@ -124,7 +124,7 @@
     </li>
     </ul>
   </li>
-  <li><a href="#toc44">String helper functions (pstr, pwcs)</a>
+  <li><a href="#toc44">String helper functions (pstr*, pwcs*)</a>
   </li>
   <li><a href="#toc45">Function reference</a>
     <ul>
@@ -882,10 +882,10 @@ yields in a debug log
 when previously setting the environment variable <code>TRACEMODULE="demo.c"</code> or <code>TRACEFUNCTION="faculty"</code>.
 </p>
 
-<h2 id="toc12">System-related helpers</h2>
+<h2 id="toc12">System-related, platform-independent helpers</h2>
 
 <p>
-The Phorward library provides some useful functions for system-related interactions.
+The Phorward library provides some useful functions for system-related but platform independent operations.
 </p>
 
 <ul>
@@ -901,7 +901,11 @@ The Phorward library provides some useful functions for system-related interacti
 </li>
 </ul>
 
-<h2 id="parray">Dynamically managed arrays and stacks (parray)</h2>
+<p>
+<div class="page-break"></div>
+</p>
+
+<h2 id="parray">Dynamically managed arrays &amp; stacks (parray)</h2>
 
 <h3 id="toc14">Overview</h3>
 
@@ -960,6 +964,10 @@ a = parray_create( sizeof( usertype ), 0 );
 
 parray_free( a );
 </code></pre>
+
+<p>
+<div class="page-break"></div>
+</p>
 
 <h3 id="toc16">Inserting elements</h3>
 
@@ -1110,7 +1118,11 @@ Other, useful functions are
 </li>
 </ul>
 
-<h2 id="plist">Linked lists, hash-tables, queues and stacks (plist)</h2>
+<p>
+<div class="page-break"></div>
+</p>
+
+<h2 id="plist">Linked lists, hash-tables, queues &amp; stacks (plist)</h2>
 
 <h3 id="toc21">Overview</h3>
 
@@ -1187,6 +1199,10 @@ The <a href="#plist">plist</a> object brings the following advantages and disadv
 </li>
 </ul>
 
+<p>
+<div class="page-break"></div>
+</p>
+
 <h3 id="toc22">Construction and destruction</h3>
 
 <p>
@@ -1232,6 +1248,10 @@ l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
 plist_free( l );
 </code></pre>
 
+<p>
+<div class="page-break"></div>
+</p>
+
 <h3 id="toc23">Inserting elements</h3>
 
 <p>
@@ -1274,6 +1294,10 @@ fill_usertype( tp );
 tp = (usertype*)plist_rmalloc( a );
 fill_usertype( tp );
 </code></pre>
+
+<p>
+<div class="page-break"></div>
+</p>
 
 <h3 id="plistel">Accessing and iterating elements</h3>
 
@@ -1331,9 +1355,12 @@ for( e = plist_last( l ); e; e = plist_prev( e ) )
 	tp = (usertype*)plist_access( e );
 
 /* Reverse alternative: Using offset */
-for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ )
-	;
+for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ ) ;
 </code></pre>
+
+<p>
+<div class="page-break"></div>
+</p>
 
 <h3 id="toc25">Removing elements</h3>
 
@@ -1441,6 +1468,10 @@ plist provides these additional functions:
 </li>
 </ul>
 
+<p>
+<div class="page-break"></div>
+</p>
+
 <h2 id="pccl">Character-classes (pccl)</h2>
 
 <p>
@@ -1541,7 +1572,7 @@ Useful, additional functions when working with <a href="#pccl">pccl</a> are:
 coming soon
 </p>
 
-<h1 id="toc31">Regular expression handling and lexical analyzers (pregex, plex)</h1>
+<h1 id="toc31">Regular expressions &amp; lexical analyzers (pregex, plex)</h1>
 
 <h2 id="toc32">Overview</h2>
 
@@ -1613,6 +1644,9 @@ In general, regular expressions are made-up of the following elements:
 
 <p>
 All meta-characters can be escaped by backslash, so they are interpretered as usual characters.
+</p>
+<p>
+<div class="page-break"></div>
 </p>
 
 <h3 id="toc34">Characters and escape sequences</h3>
@@ -2125,7 +2159,7 @@ ident &gt;x&lt;
 semicolon &gt;;&lt;
 </code></pre>
 
-<h1 id="toc44">String helper functions (pstr, pwcs)</h1>
+<h1 id="toc44">String helper functions (pstr*, pwcs*)</h1>
 
 <p>
 libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.

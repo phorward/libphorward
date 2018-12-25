@@ -10,6 +10,7 @@ Dec 2018
 %!preproc(xhtml): '%DEFINITION:BEGIN' "''' <div class='definition'>"
 %!preproc(xhtml): '%DEFINITION:END' "''' </div>"
 
+%!postproc(xhtml): '[$]NEWPAGE[$]' '<div class="page-break"></div>'
 %!postproc(xhtml): '\(C\)' '&copy;'
 %!postproc(xhtml): '(<pre>)' '\1<code class="language-c">'
 %!postproc(xhtml): '(</pre>)' '</code>\1'
@@ -223,9 +224,9 @@ yields in a debug log
 
 when previously setting the environment variable ``TRACEMODULE="demo.c"`` or ``TRACEFUNCTION="faculty"``.
 
-== System-related helpers ==
+== System-related, platform-independent helpers ==
 
-The Phorward library provides some useful functions for system-related interactions.
+The Phorward library provides some useful functions for system-related but platform independent operations.
 
 - @pbasename() returns the basename of a path (the last part),
 - @pfiletostr() reads the content of an entire file into a dynamically allocated char*,
@@ -234,14 +235,17 @@ The Phorward library provides some useful functions for system-related interacti
 - @pwhich() checks for a file using @pfileexists() in a PATH-like, delimited search path definition
 -
 
-== Dynamically managed arrays and stacks (parray)==[parray]
+$NEWPAGE$
+== Dynamically managed arrays & stacks (parray)==[parray]
 
 %!include: array.t2t
 
-== Linked lists, hash-tables, queues and stacks (plist) ==[plist]
+$NEWPAGE$
+== Linked lists, hash-tables, queues & stacks (plist) ==[plist]
 
 %!include: list.t2t
 
+$NEWPAGE$
 == Character-classes (pccl) ==[pccl]
 
 %!include: ccl.t2t
@@ -254,13 +258,13 @@ coming soon
 
 %-------------------------------------------------------------------------------
 
-= Regular expression handling and lexical analyzers (pregex, plex) =
+= Regular expressions & lexical analyzers (pregex, plex) =
 
 %!include: regex.t2t
 
 %-------------------------------------------------------------------------------
 
-= String helper functions (pstr, pwcs) =
+= String helper functions (pstr*, pwcs*) =
 
 libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
 
