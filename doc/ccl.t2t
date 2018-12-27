@@ -3,7 +3,7 @@
 
 The pccl object is established on top of the plist object and encapsulates easy-to-handle low-level functions for character-class handling.
 
-These functions are heavily used by the library's regular expressions and parser implementations, but may also be helpful for other related projects. The pccl can handle character classes, by chaining ranges.
+These functions are heavily used by the library's regular expressions, but may also be helpful for other related projects. pccl can handle character classes, by chaining ranges.
 
 It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. pccl objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as **wchar_t** (wide-character unicode) values.
 
@@ -12,7 +12,7 @@ It supports a fully-fledged set theory automatism, including construction of int
 - @pccl_negate() - negate a character-class over the character universe,
 - @pccl_add(), @pccl_addrange() - add single characters or ranges to the class,
 - @pccl_del(), @pccl_delrange() - delete single characters or ranges from the class,
-- @pccl_test(), @pccl_tesrange() - test if a character or range matches a class,
+- @pccl_test(), @pccl_testrange() - test if a character or range matches a class,
 - @pccl_to_str() - convert a character-class into a string,
 - @pccl_free() - destroy a previously created character-class,
 -

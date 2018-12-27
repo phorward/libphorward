@@ -122,13 +122,23 @@
       </li>
       </ul>
     </li>
+    <li><a href="#plex">Lexical analysis using regular expressions (plex)</a>
+    </li>
+    <li><a href="#toc45">Tools</a>
+      <ul>
+      <li><a href="#prange">Ranges</a>
+      </li>
+      <li><a href="#pregex_ptn">Regular Expression Patterns</a>
+      </li>
+      </ul>
+    </li>
     </ul>
   </li>
-  <li><a href="#toc44">String helper functions (pstr*, pwcs*)</a>
+  <li><a href="#toc48">String helper functions (pstr*, pwcs*)</a>
   </li>
-  <li><a href="#toc45">Function reference</a>
+  <li><a href="#toc49">Function reference</a>
     <ul>
-    <li><a href="#toc46">Macros</a>
+    <li><a href="#toc50">Macros</a>
       <ul>
       <li><a href="#fn_LOG">LOG</a>
       </li>
@@ -152,7 +162,7 @@
       </li>
       </ul>
     </li>
-    <li><a href="#toc57">Functions</a>
+    <li><a href="#toc61">Functions</a>
       <ul>
       <li><a href="#fn_pany_convert">pany_convert</a>
       </li>
@@ -1478,7 +1488,7 @@ plist provides these additional functions:
 The <a href="#pccl">pccl</a> object is established on top of the <a href="#plist">plist</a> object and encapsulates easy-to-handle low-level functions for character-class handling.
 </p>
 <p>
-These functions are heavily used by the library's regular expressions and parser implementations, but may also be helpful for other related projects. The <a href="#pccl">pccl</a> can handle character classes, by chaining ranges.
+These functions are heavily used by the library's regular expressions, but may also be helpful for other related projects. <a href="#pccl">pccl</a> can handle character classes, by chaining ranges.
 </p>
 <p>
 It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. <a href="#pccl">pccl</a> objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as <b>wchar_t</b> (wide-character unicode) values.
@@ -1495,7 +1505,7 @@ It supports a fully-fledged set theory automatism, including construction of int
 </li>
 <li><a href="#fn_pccl_del">pccl_del()</a>, <a href="#fn_pccl_delrange">pccl_delrange()</a> - delete single characters or ranges from the class,
 </li>
-<li><a href="#fn_pccl_test">pccl_test()</a>, <a href="#fn_pccl_tesrange">pccl_tesrange()</a> - test if a character or range matches a class,
+<li><a href="#fn_pccl_test">pccl_test()</a>, <a href="#fn_pccl_testrange">pccl_testrange()</a> - test if a character or range matches a class,
 </li>
 <li><a href="#fn_pccl_to_str">pccl_to_str()</a> - convert a character-class into a string,
 </li>
@@ -1593,9 +1603,9 @@ libphorward provides a powerful set of functions relating to general string patt
 </li>
 <li>Supports anchoring and back-references.
 </li>
-<li>Patterns are internally encapsulated in structures of <i>pregex_ptn</i> objects, which are then used to generate the NFA (nondeterministic finite automata) from which a DFA is constructed (subset construction algorithm).
+<li>Patterns are internally encapsulated in structures of <a href="#pregex_ptn">pregex_ptn</a>, which are then used to generate the NFA (nondeterministic finite automata) from which a DFA is constructed (subset construction algorithm).
 </li>
-<li>Matches are described in a structure called <i>prange</i>.
+<li>Matches are described in a structure called <a href="#prange">prange</a>.
 </li>
 <li>DFAs can be deployed in form of a two dimensional array containing all information that is required to run the regex without the slower, object-oriented data structure layers.
 </li>
@@ -1979,7 +1989,7 @@ while( ( s = pregex_find( r, s, &amp;e ) ) )
 </code></pre>
 
 <p>
-The function <a href="#fn_pregex_findall">pregex_findall()</a> can do this with one call, and fills an <i>parray</i> object with <i>prange</i> structures.
+The function <a href="#fn_pregex_findall">pregex_findall()</a> can do this with one call, and fills an <a href="#parray">parray</a> object with <a href="#prange">prange</a> structures.
 </p>
 
 <pre><code class="language-c">
@@ -2085,9 +2095,9 @@ Based on the <a href="#pregex">pregex</a>-object, libphorward provides the short
 <p>
 for immediate use, without creating and destroying a <a href="#pregex">pregex</a>-object. Because this is done within the function calls, multiple calls of these functions result in huger runtime latencies and produce more overhead.
 </p>
-<p>
-== Lexical analysis using regular expressions (plex) ==[#plex]
-</p>
+
+<h2 id="plex">Lexical analysis using regular expressions (plex)</h2>
+
 <p>
 The second part of libphorwards regular expression tools is the <a href="#plex">plex</a>-object, which encapsulates all required features for creating lexical analyzers (in terms of compiler-writers also called "scanners" or "lexers") into one handy object.
 </p>
@@ -2159,7 +2169,38 @@ ident &gt;x&lt;
 semicolon &gt;;&lt;
 </code></pre>
 
-<h1 id="toc44">String helper functions (pstr*, pwcs*)</h1>
+<h2 id="toc45">Tools</h2>
+
+<h3 id="prange">Ranges</h3>
+
+<p>
+Some functions of the regex library work with a structure of type <a href="#prange">prange</a>.
+</p>
+
+<pre><code class="language-c">
+typedef struct prange
+{
+    unsigned int	id;			/* Match ID */
+    char*			start;		/* Begin pointer */
+    char*			end;		/* End pointer */
+};
+</code></pre>
+
+<p>
+This structure is used by the functions <a href="#fn_plex_tokenize">plex_tokenize()</a>, <a href="#fn_pregex_findall">pregex_findall()</a>, <a href="#fn_pregex_qmatch">pregex_qmatch()</a>, <a href="#fn_pregex_qsplit">pregex_qsplit()</a> and <a href="#fn_pregex_splitall">pregex_splitall()</a> to generate arrays holding multiple operation ranges on the given function and regex.
+In case PREGEX_RUN_WCHAR is set, <i>start</i> and <i>end</i> members must be casted to wchar_t.
+</p>
+
+<h3 id="pregex_ptn">Regular Expression Patterns</h3>
+
+<p>
+Objects of the kind <a href="#pregex_ptn">pregex_ptn</a> can be seen as nodes of the abstract syntax tree representing regular expressions. This representation is used to convert regular expressions into from strings into data structures, to do revisions on them or to convert them back into strings expressed by a regex.
+</p>
+<p>
+They are managed by the functions <a href="#fn_pregex_ptn_create">pregex_ptn_create()</a>, <a href="#fn_pregex_ptn_create_alt">pregex_ptn_create_alt()</a>, <a href="#fn_pregex_ptn_create_char">pregex_ptn_create_char()</a>, <a href="#fn_pregex_ptn_create_kle">pregex_ptn_create_kle()</a>, <a href="#fn_pregex_ptn_create_opt">pregex_ptn_create_opt()</a>, <a href="#fn_pregex_ptn_create_pos">pregex_ptn_create_pos()</a>, <a href="#fn_pregex_ptn_create_refsub">pregex_ptn_create_refsub()</a>, <a href="#fn_pregex_ptn_create_seq">pregex_ptn_create_seq()</a>, <a href="#fn_pregex_ptn_create_string">pregex_ptn_create_string()</a>, <a href="#fn_pregex_ptn_create_sub">pregex_ptn_create_sub()</a>, <a href="#fn_pregex_ptn_dup">pregex_ptn_dup()</a>, <a href="#fn_pregex_ptn_free">pregex_ptn_free()</a>, <a href="#fn_pregex_ptn_parse">pregex_ptn_parse()</a>, <a href="#fn_pregex_ptn_print">pregex_ptn_print()</a>, <a href="#fn_pregex_ptn_to_dfa">pregex_ptn_to_dfa()</a>, <a href="#fn_pregex_ptn_to_dfatab">pregex_ptn_to_dfatab()</a>, <a href="#fn_pregex_ptn_to_nfa">pregex_ptn_to_nfa()</a> and pregex_ptn_to_regex().
+</p>
+
+<h1 id="toc48">String helper functions (pstr*, pwcs*)</h1>
 
 <p>
 libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
@@ -2234,9 +2275,9 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 Although the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
 </p>
 
-<h1 id="toc45">Function reference</h1>
+<h1 id="toc49">Function reference</h1>
 
-<h2 id="toc46">Macros</h2>
+<h2 id="toc50">Macros</h2>
 
 <!-- NEED 17 -->
 <div class='function'>
@@ -2548,7 +2589,7 @@ plist_for( my_list, e )
 
 </div>
 
-<h2 id="toc57">Functions</h2>
+<h2 id="toc61">Functions</h2>
 
 <!-- NEED 16 -->
 <div class='function'>
@@ -5547,7 +5588,7 @@ pregex_ptn* plex_define( <a href="#plex">plex</a>* lex, char* pat, int match_id,
 Defines and parses a regular expression pattern into the <a href="#plex">plex</a>-object.
 </p>
 <p>
-<i>pat</i> is the regular expression string, or a pointer to a pregex_ptn*
+<i>pat</i> is the regular expression string, or a pointer to a <a href="#pregex_ptn">pregex_ptn</a>*
 structure in case PREGEX_COMP_PTN is flagged.
 </p>
 <p>
@@ -5791,7 +5832,7 @@ to the configuration of the <a href="#plex">plex</a>-object).
 </p>
 <p>
 The function initializes and fills the array <i>matches</i>, if provided, with
-items of size prange. It returns the total number of matches.
+items of size <a href="#prange">prange</a>. It returns the total number of matches.
 </div>
 <!-- NEED 14 -->
 <div class='function'>
@@ -7246,7 +7287,7 @@ pregex_ptn* pregex_ptn_create( char* pat, int flags )
 <b>Usage:</b>
 </p>
 <p>
-Constructs and parses a new pregex_ptn-structure from <i>pat</i>.
+Constructs and parses a new <a href="#pregex_ptn">pregex_ptn</a>-structure from <i>pat</i>.
 </p>
 <p>
 This function is a shortcut for a call to <a href="#fn_pregex_ptn_parse">pregex_ptn_parse()</a>. <a href="#fn_pregex_ptn_create">pregex_ptn_create()</a> directly takes <i>pat</i> as its input and returns the parsed
@@ -7259,7 +7300,7 @@ regular expression <i>pat</i>.
 used.
 </p>
 <p>
-Returns an allocated pregex_ptn-node which must be freed using <a href="#fn_pregex_ptn_free">pregex_ptn_free()</a>
+Returns an allocated <a href="#pregex_ptn">pregex_ptn</a>-node which must be freed using <a href="#fn_pregex_ptn_free">pregex_ptn_free()</a>
 when it is not used anymore.
 </div>
 <!-- NEED 19 -->
@@ -7273,7 +7314,7 @@ when it is not used anymore.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... )
+pregex_ptn* pregex_ptn_create_alt( <a href="#pregex_ptn">pregex_ptn</a>* left, ... )
 </div>
 </p>
 <p>
@@ -7284,11 +7325,11 @@ Constructs alternations of multiple patterns.
 </p>
 <p>
 <i>left</i> is the first pattern of the alternation.
-<i>...</i> are multiple pregex_ptn-pointers follow which become part of the
+<i>...</i> are multiple <a href="#pregex_ptn">pregex_ptn</a>-pointers follow which become part of the
 alternation. The last node must be specified as (pregex_ptn*)NULL.
 </p>
 <p>
-Returns a pregex_ptn-node which can be child of another pattern construct or
+Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct or
 part of a sequence. If there is only <i>left</i> assigned without other alternation
 patterns, <i>left</i> will be returned back.
 </div>
@@ -7317,7 +7358,7 @@ Constructs a character-class pattern.
 and will be directly assigned to the object.
 </p>
 <p>
-Returns a pregex_ptn-node which can be child of another pattern construct or
+Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct or
 part of a sequence.
 </div>
 <!-- NEED 17 -->
@@ -7331,7 +7372,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
+pregex_ptn* pregex_ptn_create_kle( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7345,7 +7386,7 @@ repetitions of the specified pattern.
 <i>ptn</i> is the pattern that will be configured for kleene-closure.
 </p>
 <p>
-Returns a pregex_ptn-node which can be child of another pattern construct or
+Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct or
 part of a sequence.
 </div>
 <!-- NEED 16 -->
@@ -7359,7 +7400,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
+pregex_ptn* pregex_ptn_create_opt( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7372,7 +7413,7 @@ Constructs an optional-closure, allowing for one or none specified pattern.
 <i>ptn</i> is the pattern to be configured for optional closure.
 </p>
 <p>
-Returns a pregex_ptn-node which can be child of another pattern construct or
+Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct or
 part of a sequence.
 </div>
 <!-- NEED 17 -->
@@ -7386,7 +7427,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
+pregex_ptn* pregex_ptn_create_pos( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7400,7 +7441,7 @@ pattern.
 <i>ptn</i> is the pattern to be configured for positive closure.
 </p>
 <p>
-Returns a pregex_ptn-node which can be child of another pattern construct or
+Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct or
 part of a sequence.
 </div>
 <!-- NEED 16 -->
@@ -7414,7 +7455,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_refsub( pregex_ptn* ptn )
+pregex_ptn* pregex_ptn_create_refsub( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7427,7 +7468,7 @@ Constructs a sub-pattern as backreference (like with parantheses).
 <i>ptn</i> is the pattern that becomes the sub-ordered pattern.
 </p>
 <p>
-Returns a pregex_ptn-node which can be child of another pattern construct
+Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct
 or part of a sequence.
 </div>
 <!-- NEED 17 -->
@@ -7441,7 +7482,7 @@ or part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
+pregex_ptn* pregex_ptn_create_seq( <a href="#pregex_ptn">pregex_ptn</a>* first, ... )
 </div>
 </p>
 <p>
@@ -7483,7 +7524,7 @@ Constructs a pattern for a static string.
 <i>flags</i> are optional flags for wide-character support.
 </p>
 <p>
-Returns a pregex_ptn-node which can be child of another pattern construct or
+Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct or
 part of a sequence.
 </div>
 <!-- NEED 16 -->
@@ -7497,7 +7538,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
+pregex_ptn* pregex_ptn_create_sub( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7510,7 +7551,7 @@ Constructs a sub-pattern (like with parantheses).
 <i>ptn</i> is the pattern that becomes the sub-ordered pattern.
 </p>
 <p>
-Returns a pregex_ptn-node which can be child of another pattern construct
+Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct
 or part of a sequence.
 </div>
 <!-- NEED 11 -->
@@ -7524,7 +7565,7 @@ or part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
+pregex_ptn* pregex_ptn_dup( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7544,7 +7585,7 @@ Duplicate <i>ptn</i> into a stand-alone 1:1 copy.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
+pregex_ptn* pregex_ptn_free( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7571,14 +7612,14 @@ Always returns (pregex_ptn*)NULL.
 </p>
 <div class='definition'>
 <p>
-pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
+pboolean pregex_ptn_parse( <a href="#pregex_ptn">pregex_ptn</a>** ptn, char* str, int flags )
 </div>
 </p>
 <p>
 <b>Usage:</b>
 </p>
 <p>
-Parse a regular expression pattern string into a pregex_ptn structure.
+Parse a regular expression pattern string into a <a href="#pregex_ptn">pregex_ptn</a> structure.
 </p>
 <p>
 <i>ptn</i> is the return pointer receiving the root node of the generated pattern.
@@ -7605,7 +7646,7 @@ Returns TRUE on success.
 </p>
 <div class='definition'>
 <p>
-void pregex_ptn_print( pregex_ptn* ptn, int rec )
+void pregex_ptn_print( <a href="#pregex_ptn">pregex_ptn</a>* ptn, int rec )
 </div>
 </p>
 <p>
@@ -7629,7 +7670,7 @@ A debug function to print a pattern's hierarchical structure to stderr.
 </p>
 <div class='definition'>
 <p>
-pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
+pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7658,7 +7699,7 @@ Returns TRUE on success.
 </p>
 <div class='definition'>
 <p>
-int pregex_ptn_to_dfatab( wchar_t*** dfatab, pregex_ptn* ptn )
+int pregex_ptn_to_dfatab( wchar_t*** dfatab, <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7687,7 +7728,7 @@ Returns the number of rows in <i>dfatab</i>, or a negative value in error case.
 </p>
 <div class='definition'>
 <p>
-pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
+pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7722,7 +7763,7 @@ Returns TRUE on success.
 </p>
 <div class='definition'>
 <p>
-char* pregex_ptn_to_regex( pregex_ptn* ptn )
+char* pregex_ptn_to_regex( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7758,7 +7799,7 @@ int pregex_qmatch( char* regex, char* str, int flags, <a href="#parray">parray</
 </p>
 <p>
 Performs a regular expression match on a string, and returns an array of
-matches via prange-structures, which hold pointers to the begin- and
+matches via <a href="#prange">prange</a>-structures, which hold pointers to the begin- and
 end-addresses of all matches.
 </p>
 <p>
@@ -7773,7 +7814,7 @@ Several of them can be used with the bitwise or-operator (|).
 </p>
 <p>
 <i>matches</i> is the array of results to the matched substrings within <i>str</i>,
-provided as <a href="#parray">parray</a>-object existing of one prange-object for every match.
+provided as <a href="#parray">parray</a>-object existing of one <a href="#prange">prange</a>-object for every match.
 It is optional. <i>matches</i> must be released with <a href="#fn_parray_free">parray_free()</a> after its usage.
 </p>
 <p>
@@ -7854,7 +7895,7 @@ Several of them can be used with the bitwise or-operator (|).
 </p>
 <p>
 <i>matches</i> is the array of results to the matched substrings within <i>str</i>,
-provided as <a href="#parray">parray</a>-object existing of one prange-object for every match.
+provided as <a href="#parray">parray</a>-object existing of one <a href="#prange">prange</a>-object for every match.
 It is optional. <i>matches</i> must be released with <a href="#fn_parray_free">parray_free()</a> after its usage.
 </p>
 <p>

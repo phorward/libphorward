@@ -11,8 +11,8 @@ libphorward provides a powerful set of functions relating to general string patt
 - The plex object ecapsulates a regular expression-based scanner for lexical analysis into one object. It is used by libphorward's [build-in parser generator #pparse] for lexical analysis also.
 - All functions are designed to work on wide-character alphabets to fully support Unicode. Therefore, the flags PREGEX_COMP_WCHAR and PREGEX_RUN_WCHAR are provided, to allow processing on patterns and input strings provided as wide-character strings. If not explicitly deactivated by build-flags (-DUTF8), UTF-8 input is generally supported on all functions.
 - Supports anchoring and back-references.
-- Patterns are internally encapsulated in structures of //pregex_ptn// objects, which are then used to generate the NFA (nondeterministic finite automata) from which a DFA is constructed (subset construction algorithm).
-- Matches are described in a structure called //prange//.
+- Patterns are internally encapsulated in structures of pregex_ptn, which are then used to generate the NFA (nondeterministic finite automata) from which a DFA is constructed (subset construction algorithm).
+- Matches are described in a structure called prange.
 - DFAs can be deployed in form of a two dimensional array containing all information that is required to run the regex without the slower, object-oriented data structure layers.
 -
 
@@ -181,7 +181,7 @@ while( ( s = pregex_find( r, s, &e ) ) )
 }
 ```
 
-The function @pregex_findall() can do this with one call, and fills an //parray// object with //prange// structures.
+The function @pregex_findall() can do this with one call, and fills an parray object with prange structures.
 
 ```
 parray* a;
@@ -267,7 +267,7 @@ Based on the pregex-object, libphorward provides the shortcut functons
 for immediate use, without creating and destroying a pregex-object. Because this is done within the function calls, multiple calls of these functions result in huger runtime latencies and produce more overhead.
 
 
-== Lexical analysis using regular expressions (plex) ==[#plex]
+== Lexical analysis using regular expressions (plex) ==[plex]
 
 The second part of libphorwards regular expression tools is the plex-object, which encapsulates all required features for creating lexical analyzers (in terms of compiler-writers also called "scanners" or "lexers") into one handy object.
 
@@ -325,3 +325,27 @@ plus_op >+<
 ident >x<
 semicolon >;<
 ```
+
+== Tools ==
+
+=== Ranges ===[prange]
+
+Some functions of the regex library work with a structure of type prange.
+
+```
+typedef struct prange
+{
+    unsigned int	id;			/* Match ID */
+    char*			start;		/* Begin pointer */
+    char*			end;		/* End pointer */
+};
+```
+
+This structure is used by the functions @plex_tokenize(), @pregex_findall(), @pregex_qmatch(), @pregex_qsplit() and @pregex_splitall() to generate arrays holding multiple operation ranges on the given function and regex.
+In case PREGEX_RUN_WCHAR is set, //start// and //end// members must be casted to wchar_t.
+
+=== Regular Expression Patterns ===[pregex_ptn]
+
+Objects of the kind pregex_ptn can be seen as nodes of the abstract syntax tree representing regular expressions. This representation is used to convert regular expressions into from strings into data structures, to do revisions on them or to convert them back into strings expressed by a regex.
+
+They are managed by the functions @pregex_ptn_create(), @pregex_ptn_create_alt(), @pregex_ptn_create_char(), @pregex_ptn_create_kle(), @pregex_ptn_create_opt(), @pregex_ptn_create_pos(), @pregex_ptn_create_refsub(), @pregex_ptn_create_seq(), @pregex_ptn_create_string(), @pregex_ptn_create_sub(), @pregex_ptn_dup(), @pregex_ptn_free(), @pregex_ptn_parse(), @pregex_ptn_print(), @pregex_ptn_to_dfa(), @pregex_ptn_to_dfatab(), @pregex_ptn_to_nfa() and pregex_ptn_to_regex().

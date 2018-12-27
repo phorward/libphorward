@@ -16,33 +16,33 @@ Usage:	Header for the pregex object and functions.
 /* Regex flags */
 
 /* ---> Part I: Compile-time Flags */
-#define PREGEX_COMP_WCHAR		0x01	/* 	Regular expression is provided
+#define PREGEX_COMP_WCHAR		0x01	/* Regular expression is provided
 											in wchar_t. */
-#define PREGEX_COMP_NOANCHORS	0x02	/* 	Ignore anchor tokens, handle them
+#define PREGEX_COMP_NOANCHORS	0x02	/* Ignore anchor tokens, handle them
 											as normal characters */
-#define PREGEX_COMP_NOREF		0x04	/* 	Don't compile references. */
-#define PREGEX_COMP_NONGREEDY	0x08	/* 	Compile pattern to be nongreedy */
-#define PREGEX_COMP_NOERRORS	0x10	/*	Don't report errors, and try to
+#define PREGEX_COMP_NOREF		0x04	/* Don't compile references. */
+#define PREGEX_COMP_NONGREEDY	0x08	/* Compile pattern to be non-greedy */
+#define PREGEX_COMP_NOERRORS	0x10	/* Don't report errors, and try to
 											compile as much as possible */
-#define PREGEX_COMP_INSENSITIVE	0x20	/* 	Regular expression is case
+#define PREGEX_COMP_INSENSITIVE	0x20	/* Regular expression is case
 											insensitive */
-#define PREGEX_COMP_STATIC		0x40	/*	The regular expression passed
-											to the compiler should be converted
+#define PREGEX_COMP_STATIC		0x40	/* The regular expression passed to
+											the compiler should be converted
 											1:1 as it where a string-constant.
 											Any regex-specific symbols will
 											be ignored. */
-#define PREGEX_COMP_PTN			0x80	/*	The regular expression passed
+#define PREGEX_COMP_PTN			0x80	/* The regular expression passed
 											already is a pattern, and shall be
 											integrated. */
 
 /* ---> Part II: Runtime flags */
-#define PREGEX_RUN_WCHAR		0x100	/*	Run regular expression with
+#define PREGEX_RUN_WCHAR		0x100	/* Run regular expression with
 											wchar_t as input */
-#define	PREGEX_RUN_UCHAR		0x200	/*  Handle input as unsigned char */
-#define PREGEX_RUN_NOANCHORS	0x400	/* 	Ignore anchors while processing */
-#define PREGEX_RUN_NOREF		0x800	/*	Don't create references */
-#define PREGEX_RUN_NONGREEDY	0x1000	/*	Run regular expression nongreedy */
-#define PREGEX_RUN_DEBUG		0x2000 	/*	Debug mode; output some debug to
+#define	PREGEX_RUN_UCHAR		0x200	/* Handle input as unsigned char */
+#define PREGEX_RUN_NOANCHORS	0x400	/* Ignore anchors while processing */
+#define PREGEX_RUN_NOREF		0x800	/* Don't create references */
+#define PREGEX_RUN_NONGREEDY	0x1000	/* Run regular expression non-greedy */
+#define PREGEX_RUN_DEBUG		0x2000 	/* Debug mode; output some debug to
 											stderr */
 
 /* Matching flags */
@@ -118,8 +118,9 @@ struct _regex_dfa_st
 {
 	plist*			trans;		/* Transition table row for this DFA state */
 	pregex_dfa_tr*	def_trans;	/* If not NULL, this points to a default dfa
-									transition, which covers the most characters
-									of the entire character range */
+									transition, which covers the most
+									characters of the entire character range
+								*/
 
 	unsigned int	accept;		/* Accepting state */
 	int				flags;		/* State flagging */
