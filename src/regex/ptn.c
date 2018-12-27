@@ -972,10 +972,54 @@ pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
 
 /** Converts a pattern-structure into a DFA state machine //dfatab//.
 
-//dfatab// receives the allocated dfa content. Its made-up the same way
-as described in the documentation of the function pregex_dfa_to_dfatab().
 //ptn// is the pattern structure that will be converted into a DFA state
 machine.
+
+//dfatab// is a pointer to a variable that receives the allocated DFA state machine, where
+each row forms a state that is made up of columns described in the table below.
+
+|| Column / Index | Content |
+| 0 | Total number of columns in the current row |
+| 1 | Match ID if > 0, or 0 if the state is not an accepting state |
+| 2 | Match flags (anchors, greedyness, (PREGEX_FLAG_*)) |
+| 3 | Reference flags; The index of the flagged bits defines the number of \
+reference |
+| 4 | Default transition from the current state. If there is no transition, \
+its value is set to the number of all states. |
+| 5 | Transition: from-character |
+| 6 | Transition: to-character |
+| 7 | Transition: Goto-state |
+| ... | more triples follow for each transition |
+
+
+Example for a state machine that matches the regular expression ``@[a-z0-9]+``
+that has match 1 and no references:
+
+```
+8 0 0 0 3 64 64 2
+11 1 0 0 3 48 57 1 97 122 1
+11 0 0 0 3 48 57 1 97 122 1
+```
+
+Interpretation:
+
+```
+00: col= 8 acc= 0 flg= 0 ref= 0 def= 3 tra=064(@);064(@):02
+01: col=11 acc= 1 flg= 0 ref= 0 def= 3 tra=048(0);057(9):01 tra=097(a);122(z):01
+02: col=11 acc= 0 flg= 0 ref= 0 def= 3 tra=048(0);057(9):01 tra=097(a);122(z):01
+```
+
+A similar dump like this interpretation above will be printed to stderr by the
+function when //dfatab// is provided as (long***)NULL.
+
+The pointer assigned to //dfatab// must be freed after usage using a for-loop:
+
+```
+for( i = 0; i < dfatab_cnt; i++ )
+	pfree( dfatab[i] );
+
+pfree( dfatab );
+```
 
 Returns the number of rows in //dfatab//, or a negative value in error case.
 */

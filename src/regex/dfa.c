@@ -971,16 +971,16 @@ int pregex_dfa_match( pregex_dfa* dfa, char* str, size_t* len,
 /** Compiles the significant state table of a pregex_dfa-structure into a
 two-dimensional array //dfatab//.
 
-//dfatab// is a pointer to a variable that receives the allocated dfatab, where
-each row forms a state that constists of two sections.
+//dfatab// is a pointer to a variable that receives the allocated DFA state machine, where
+each row forms a state that is made up of columns described in the table below.
 
-|| Field | Content |
+|| Column / Index | Content |
 | 0 | Total number of columns in the current row |
 | 1 | Match ID if > 0, or 0 if the state is not an accepting state |
 | 2 | Match flags (anchors, greedyness, (PREGEX_FLAG_*)) |
-| 3 | Reference flags; The index of the flagged bits defines the number of\
+| 3 | Reference flags; The index of the flagged bits defines the number of \
 reference |
-| 4 | Default transition from the current state. If there is no transition,
+| 4 | Default transition from the current state. If there is no transition, \
 its value is set to the number of all states. |
 | 5 | Transition: from-character |
 | 6 | Transition: to-character |

@@ -44,7 +44,7 @@
     <ul>
     <li><a href="#toc9">Advanced memory management</a>
     </li>
-    <li><a href="#toc10">Boolean data type</a>
+    <li><a href="#pboolean">Boolean data type</a>
     </li>
     <li><a href="#toc11">Debugging and tracing</a>
     </li>
@@ -761,13 +761,13 @@ The standard memory management functions can be replaced by these pendants:
 These functions are used throughout libphorward's internal object mapping functions.
 </p>
 
-<h2 id="toc10">Boolean data type</h2>
+<h2 id="pboolean">Boolean data type</h2>
 
 <p>
-libphorward makes heavy usage of the self-hosted data-type <b>pboolean</b>, which is also referenced by a define <i>BOOLEAN</i>, and the constants <i>TRUE</i> and <i>FALSE</i>.
+libphorward makes heavy usage of the self-hosted data-type <b><a href="#pboolean">pboolean</a></b>, which is also referenced by a define <i>BOOLEAN</i>, and the constants <i>TRUE</i> and <i>FALSE</i>.
 </p>
 <p>
-It is known, that several header files and projects define these constants on their own, so that <b>pboolean</b>, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
+It is known, that several header files and projects define these constants on their own, so that <b><a href="#pboolean">pboolean</a></b>, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
 </p>
 
 <pre><code class="language-c">
@@ -905,6 +905,8 @@ The Phorward library provides some useful functions for system-related but platf
 </li>
 <li><a href="#fn_pfileexists">pfileexists()</a> checks for file existence,
 </li>
+<li><a href="#fn_pgetline">pgetline()</a> serves as a platform independent getline(),
+</li>
 <li><a href="#fn_pgetopt">pgetopt()</a> provides a simple to use, but effective GNU-style command-line argument parser,
 </li>
 <li><a href="#fn_pwhich">pwhich()</a> checks for a file using <a href="#fn_pfileexists">pfileexists()</a> in a PATH-like, delimited search path definition
@@ -923,7 +925,7 @@ The Phorward library provides some useful functions for system-related but platf
 The <a href="#parray">parray</a> object is a general-purpose data structure which can be used for several operations.
 </p>
 <p>
-parray forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given <a href="#parray">parray</a> object.
+<a href="#parray">parray</a> forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given <a href="#parray">parray</a> object.
 </p>
 <p>
 The <a href="#parray">parray</a> object brings the following advantages and disadvantages:
@@ -962,7 +964,7 @@ The <a href="#parray">parray</a> object brings the following advantages and disa
 <h3 id="toc15">Construction and destruction</h3>
 
 <p>
-parray objects are created using <a href="#fn_parray_create">parray_create()</a> or initialized with <a href="#fn_parray_init">parray_init()</a>. The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with <a href="#fn_parray_erase">parray_erase()</a>, respectively cleared and freed with <a href="#fn_parray_free">parray_free()</a>.
+<a href="#parray">parray</a> objects are created using <a href="#fn_parray_create">parray_create()</a> or initialized with <a href="#fn_parray_init">parray_init()</a>. The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with <a href="#fn_parray_erase">parray_erase()</a>, respectively cleared and freed with <a href="#fn_parray_free">parray_free()</a>.
 </p>
 
 <pre><code class="language-c">
@@ -1140,7 +1142,7 @@ Other, useful functions are
 Next to the <a href="#parray">parray</a> object, the <a href="#plist">plist</a> object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
 </p>
 <p>
-plist can be seen as a superset of the <a href="#parray">parray</a> object, because it features nearly the same operations but with other underlying data management methods.
+<a href="#plist">plist</a> can be seen as a superset of the <a href="#parray">parray</a> object, because it features nearly the same operations but with other underlying data management methods.
 </p>
 <p>
 The <a href="#plist">plist</a> object implements:
@@ -1160,7 +1162,7 @@ The <a href="#plist">plist</a> object implements:
 </ul>
 
 <p>
-plist can be used as a generic data structure for
+<a href="#plist">plist</a> can be used as a generic data structure for
 </p>
 
 <ul>
@@ -1216,7 +1218,7 @@ The <a href="#plist">plist</a> object brings the following advantages and disadv
 <h3 id="toc22">Construction and destruction</h3>
 
 <p>
-plist objects are created using <a href="#fn_plist_create">plist_create()</a> or initialized with <a href="#fn_plist_init">plist_init()</a>. The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the <a href="#plist">plist</a> object to a specified behavior.
+<a href="#plist">plist</a> objects are created using <a href="#fn_plist_create">plist_create()</a> or initialized with <a href="#fn_plist_init">plist_init()</a>. The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the <a href="#plist">plist</a> object to a specified behavior.
 </p>
 <p>
 Possible flags are listed below, and can be combined using bitwise or (|).
@@ -1399,7 +1401,7 @@ plist_unshift( a, &amp;t );
 <h3 id="toc26">Sorting elements</h3>
 
 <p>
-plist objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertion.
+<a href="#plist">plist</a> objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertion.
 </p>
 <p>
 The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like strcmp() does.
@@ -1410,7 +1412,7 @@ As prototype and example, the following comparison function:
 </p>
 
 <pre><code class="language-c">
-int my_compare( [plist #plist]* list, [plistel #plistel]* l, [plistel #plistel]* r )
+int my_compare( plist* list, plistel* l, plistel* r )
 {
 	usertype*	tr;
 	usertype*	tl;
@@ -1450,7 +1452,7 @@ Sorting can also be performed by invoking the functions
 <h3 id="toc27">Interchanging functions</h3>
 
 <p>
-plist objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind <a href="#plist">plist</a>. Both lists must be configured with the same element memory size, else all functions will fail.
+<a href="#plist">plist</a> objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind <a href="#plist">plist</a>. Both lists must be configured with the same element memory size, else all functions will fail.
 </p>
 <p>
 To implement these functions, every <a href="#plist">plist</a> object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
@@ -1466,7 +1468,7 @@ To implement these functions, every <a href="#plist">plist</a> object also refer
 <h3 id="toc28">Additional functions</h3>
 
 <p>
-plist provides these additional functions:
+<a href="#plist">plist</a> provides these additional functions:
 </p>
 
 <ul>
@@ -1880,7 +1882,7 @@ are supported by the compiled pattern.
 <h3 id="toc39">Construction and destruction</h3>
 
 <p>
-pregex objects are constructed by <a href="#fn_pregex_create">pregex_create()</a>. First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
+<a href="#pregex">pregex</a> objects are constructed by <a href="#fn_pregex_create">pregex_create()</a>. First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
 </p>
 
 <table border="1">
@@ -2601,7 +2603,7 @@ plist_for( my_list, e )
 </p>
 <div class='definition'>
 <p>
-pboolean pany_convert( <a href="#pany">pany</a>* val, panytype type )
+<a href="#pboolean">pboolean</a> pany_convert( <a href="#pany">pany</a>* val, panytype type )
 </div>
 </p>
 <p>
@@ -2628,7 +2630,7 @@ The function returns TRUE on success, FALSE else.
 </p>
 <div class='definition'>
 <p>
-pboolean pany_copy( <a href="#pany">pany</a>* dest, <a href="#pany">pany</a>* src )
+<a href="#pboolean">pboolean</a> pany_copy( <a href="#pany">pany</a>* dest, <a href="#pany">pany</a>* src )
 </div>
 </p>
 <p>
@@ -2651,7 +2653,7 @@ Copy any value from <i>src</i> into <i>dest</i>.
 </p>
 <div class='definition'>
 <p>
-pany* pany_create( char* str )
+<a href="#pany">pany</a>* pany_create( char* str )
 </div>
 </p>
 <p>
@@ -2677,7 +2679,7 @@ This object must be released after usage using <a href="#fn_pany_free">pany_free
 </p>
 <div class='definition'>
 <p>
-pany* pany_dup( <a href="#pany">pany</a>* src )
+<a href="#pany">pany</a>* pany_dup( <a href="#pany">pany</a>* src )
 </div>
 </p>
 <p>
@@ -2722,7 +2724,7 @@ without any conversion. This function shall be used for debug only.
 </p>
 <div class='definition'>
 <p>
-pany* pany_free( <a href="#pany">pany</a>* val )
+<a href="#pany">pany</a>* pany_free( <a href="#pany">pany</a>* val )
 </div>
 </p>
 <p>
@@ -2732,7 +2734,7 @@ pany* pany_free( <a href="#pany">pany</a>* val )
 Frees an allocated <a href="#pany">pany</a> object and all its used memory.
 </p>
 <p>
-The function always returns (pany*)NULL.
+The function always returns (<a href="#pany">pany</a>*)NULL.
 </div>
 <!-- NEED 17 -->
 <div class='function'>
@@ -2745,7 +2747,7 @@ The function always returns (pany*)NULL.
 </p>
 <div class='definition'>
 <p>
-pboolean pany_get_bool( <a href="#pany">pany</a>* val )
+<a href="#pboolean">pboolean</a> pany_get_bool( <a href="#pany">pany</a>* val )
 </div>
 </p>
 <p>
@@ -2759,7 +2761,7 @@ Returns the <code>pboolean</code>-value of <i>val</i>.
 </p>
 <p>
 If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as pboolean.
+The function returns the value assigned to <i>val</i> as <a href="#pboolean">pboolean</a>.
 This value could be converted from the original value.
 </div>
 <!-- NEED 17 -->
@@ -3081,7 +3083,7 @@ This value could be converted from the original value.
 </p>
 <div class='definition'>
 <p>
-pboolean pany_init( <a href="#pany">pany</a>* val )
+<a href="#pboolean">pboolean</a> pany_init( <a href="#pany">pany</a>* val )
 </div>
 </p>
 <p>
@@ -3104,7 +3106,7 @@ Initializes a <a href="#pany">pany</a>-element.
 </p>
 <div class='definition'>
 <p>
-pboolean pany_parse( <a href="#pany">pany</a>* val, char* str, panytype enforce )
+<a href="#pboolean">pboolean</a> pany_parse( <a href="#pany">pany</a>* val, char* str, panytype enforce )
 </div>
 </p>
 <p>
@@ -3141,7 +3143,7 @@ This function tries to detect
 </p>
 <div class='definition'>
 <p>
-pboolean pany_reset( <a href="#pany">pany</a>* val )
+<a href="#pboolean">pboolean</a> pany_reset( <a href="#pany">pany</a>* val )
 </div>
 </p>
 <p>
@@ -3168,7 +3170,7 @@ to be of type PANYTYPE_NULL.
 </p>
 <div class='definition'>
 <p>
-pboolean pany_set_bool( <a href="#pany">pany</a>* val, pboolean b )
+<a href="#pboolean">pboolean</a> pany_set_bool( <a href="#pany">pany</a>* val, <a href="#pboolean">pboolean</a> b )
 </div>
 </p>
 <p>
@@ -3492,20 +3494,20 @@ The function always returns the value <i>ws</i>.
 </p>
 <div class='definition'>
 <p>
-pboolean pany_to_bool( <a href="#pany">pany</a>* val )
+<a href="#pboolean">pboolean</a> pany_to_bool( <a href="#pany">pany</a>* val )
 </div>
 </p>
 <p>
 <b>Usage:</b>
 </p>
 <p>
-Converts the current value of <i>val</i> into a pboolean value.
+Converts the current value of <i>val</i> into a <a href="#pboolean">pboolean</a> value.
 </p>
 <p>
 <i>val</i> is the <a href="#pany">pany</a>-object to convert from.
 </p>
 <p>
-The function returns the pboolean-value of <i>val</i>.
+The function returns the <a href="#pboolean">pboolean</a>-value of <i>val</i>.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -3772,7 +3774,7 @@ Returns the number of elements in a array.
 </p>
 <div class='definition'>
 <p>
-parray* parray_create( size_t size, size_t chunk )
+<a href="#parray">parray</a>* parray_create( size_t size, size_t chunk )
 </div>
 </p>
 <p>
@@ -3796,7 +3798,7 @@ The returned memory must be released with <a href="#fn_parray_free">parray_free(
 </p>
 <div class='definition'>
 <p>
-pboolean parray_erase( <a href="#parray">parray</a>* array )
+<a href="#pboolean">pboolean</a> parray_erase( <a href="#parray">parray</a>* array )
 </div>
 </p>
 <p>
@@ -3846,7 +3848,7 @@ the array.
 </p>
 <div class='definition'>
 <p>
-parray* parray_free( <a href="#parray">parray</a>* array )
+<a href="#parray">parray</a>* parray_free( <a href="#parray">parray</a>* array )
 </div>
 </p>
 <p>
@@ -3856,7 +3858,7 @@ parray* parray_free( <a href="#parray">parray</a>* array )
 Releases all the memory <i>array</i> uses and destroys the array object.
 </p>
 <p>
-The function always returns (parray*)NULL.
+The function always returns (<a href="#parray">parray</a>*)NULL.
 </div>
 <!-- NEED 20 -->
 <div class='function'>
@@ -3901,7 +3903,7 @@ Use <a href="#fn_parray_rget">parray_rget()</a> for access items from the end.
 </p>
 <div class='definition'>
 <p>
-pboolean parray_init( <a href="#parray">parray</a>* array, size_t size, size_t chunk )
+<a href="#pboolean">pboolean</a> parray_init( <a href="#parray">parray</a>* array, size_t size, size_t chunk )
 </div>
 </p>
 <p>
@@ -4081,7 +4083,7 @@ To check if a pointer belongs to an array, call <a href="#fn_parray_partof">parr
 </p>
 <div class='definition'>
 <p>
-pboolean parray_partof( <a href="#parray">parray</a>* array, void* ptr )
+<a href="#pboolean">pboolean</a> parray_partof( <a href="#parray">parray</a>* array, void* ptr )
 </div>
 </p>
 <p>
@@ -4249,7 +4251,7 @@ moved up data part or invalid memory, if on the end).
 </p>
 <div class='definition'>
 <p>
-pboolean parray_reserve( <a href="#parray">parray</a>* array, size_t n )
+<a href="#pboolean">pboolean</a> parray_reserve( <a href="#parray">parray</a>* array, size_t n )
 </div>
 </p>
 <p>
@@ -4531,7 +4533,7 @@ Returns a pointer to the basename, which is a part of <i>path</i>.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_add( <a href="#pccl">pccl</a>* ccl, wchar_t ch )
+<a href="#pboolean">pboolean</a> pccl_add( <a href="#pccl">pccl</a>* ccl, wchar_t ch )
 </div>
 </p>
 <p>
@@ -4558,7 +4560,7 @@ The function is a shortcut for <a href="#fn_pccl_addrange">pccl_addrange()</a>.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_addrange( <a href="#pccl">pccl</a>* ccl, wchar_t begin, wchar_t end )
+<a href="#pboolean">pboolean</a> pccl_addrange( <a href="#pccl">pccl</a>* ccl, wchar_t begin, wchar_t end )
 </div>
 </p>
 <p>
@@ -4569,7 +4571,7 @@ Integrates a character range into a character-class.
 </p>
 <p>
 <i>ccl</i> is the pointer to the character-class to be affected. If <i>ccl</i> is
-provided as (pccl*)NULL, it will be created by the function.
+provided as (<a href="#pccl">pccl</a>*)NULL, it will be created by the function.
 </p>
 <p>
 <i>begin</i> is the begin of character range to be integrated.
@@ -4617,7 +4619,7 @@ equal to <i>right</i> or a value &gt; 0 if <i>left</i> is greater than <i>right<
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_compat( <a href="#pccl">pccl</a>* l, <a href="#pccl">pccl</a>* r )
+<a href="#pboolean">pboolean</a> pccl_compat( <a href="#pccl">pccl</a>* l, <a href="#pccl">pccl</a>* r )
 </div>
 </p>
 <p>
@@ -4664,7 +4666,7 @@ Returns the total number of characters the class is holding.
 </p>
 <div class='definition'>
 <p>
-pccl* pccl_create( int min, int max, char* ccldef )
+<a href="#pccl">pccl</a>* pccl_create( int min, int max, char* ccldef )
 </div>
 </p>
 <p>
@@ -4692,7 +4694,7 @@ released with <a href="#fn_pccl_free">pccl_free()</a> when its existence is no l
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_del( <a href="#pccl">pccl</a>* ccl, wchar_t ch )
+<a href="#pboolean">pboolean</a> pccl_del( <a href="#pccl">pccl</a>* ccl, wchar_t ch )
 </div>
 </p>
 <p>
@@ -4719,7 +4721,7 @@ The function is a shortcut for <a href="#fn_pccl_delrange">pccl_delrange()</a>.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_delrange( <a href="#pccl">pccl</a>* ccl, wchar_t begin, wchar_t end )
+<a href="#pboolean">pboolean</a> pccl_delrange( <a href="#pccl">pccl</a>* ccl, wchar_t begin, wchar_t end )
 </div>
 </p>
 <p>
@@ -4744,7 +4746,7 @@ Removes a character range from a character-class.
 </p>
 <div class='definition'>
 <p>
-pccl* pccl_diff( <a href="#pccl">pccl</a>* ccl, <a href="#pccl">pccl</a>* rem )
+<a href="#pccl">pccl</a>* pccl_diff( <a href="#pccl">pccl</a>* ccl, <a href="#pccl">pccl</a>* rem )
 </div>
 </p>
 <p>
@@ -4761,7 +4763,7 @@ new character-class.
 </p>
 <p>
 Returns a new pointer to a copy of <i>ccl</i>, without the ranges contained in
-<i>rem</i>. Returns (pccl*)NULL in case of memory allocation or parameter
+<i>rem</i>. Returns (<a href="#pccl">pccl</a>*)NULL in case of memory allocation or parameter
 error.
 </div>
 <!-- NEED 16 -->
@@ -4775,7 +4777,7 @@ error.
 </p>
 <div class='definition'>
 <p>
-pccl* pccl_dup( <a href="#pccl">pccl</a>* ccl )
+<a href="#pccl">pccl</a>* pccl_dup( <a href="#pccl">pccl</a>* ccl )
 </div>
 </p>
 <p>
@@ -4802,7 +4804,7 @@ in error case.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_erase( <a href="#pccl">pccl</a>* ccl )
+<a href="#pboolean">pboolean</a> pccl_erase( <a href="#pccl">pccl</a>* ccl )
 </div>
 </p>
 <p>
@@ -4827,7 +4829,7 @@ object, use <a href="#fn_pccl_free">pccl_free()</a>.
 </p>
 <div class='definition'>
 <p>
-pccl* pccl_free( <a href="#pccl">pccl</a>* ccl )
+<a href="#pccl">pccl</a>* pccl_free( <a href="#pccl">pccl</a>* ccl )
 </div>
 </p>
 <p>
@@ -4837,7 +4839,7 @@ pccl* pccl_free( <a href="#pccl">pccl</a>* ccl )
 Frees a character-class <i>ccl</i> and all its used memory.
 </p>
 <p>
-The function always returns (pccl*)NULL.
+The function always returns (<a href="#pccl">pccl</a>*)NULL.
 </div>
 <!-- NEED 23 -->
 <div class='function'>
@@ -4850,7 +4852,7 @@ The function always returns (pccl*)NULL.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_get( wchar_t* from, wchar_t* to, <a href="#pccl">pccl</a>* ccl, int offset )
+<a href="#pboolean">pboolean</a> pccl_get( wchar_t* from, wchar_t* to, <a href="#pccl">pccl</a>* ccl, int offset )
 </div>
 </p>
 <p>
@@ -4885,7 +4887,7 @@ On success, the function will always return TRUE.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_instest( <a href="#pccl">pccl</a>* ccl, wchar_t ch )
+<a href="#pboolean">pboolean</a> pccl_instest( <a href="#pccl">pccl</a>* ccl, wchar_t ch )
 </div>
 </p>
 <p>
@@ -4916,7 +4918,7 @@ It returns TRUE, if the character matches the class, and FALSE if not.
 </p>
 <div class='definition'>
 <p>
-pccl* pccl_intersect( <a href="#pccl">pccl</a>* ccl, <a href="#pccl">pccl</a>* within )
+<a href="#pccl">pccl</a>* pccl_intersect( <a href="#pccl">pccl</a>* ccl, <a href="#pccl">pccl</a>* within )
 </div>
 </p>
 <p>
@@ -4933,7 +4935,7 @@ provided character-classes.
 <p>
 Returns a new character-class containing the intersection of <i>ccl</i>
 and <i>within</i>. If there is no intersection between both character-classes,
-the function returns (pccl*)NULL.
+the function returns (<a href="#pccl">pccl</a>*)NULL.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -4946,7 +4948,7 @@ the function returns (pccl*)NULL.
 </p>
 <div class='definition'>
 <p>
-pccl* pccl_negate( <a href="#pccl">pccl</a>* ccl )
+<a href="#pccl">pccl</a>* pccl_negate( <a href="#pccl">pccl</a>* ccl )
 </div>
 </p>
 <p>
@@ -4972,7 +4974,7 @@ Returns a pointer to <i>ccl</i>.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_parse( <a href="#pccl">pccl</a>* ccl, char* ccldef, pboolean extend )
+<a href="#pboolean">pboolean</a> pccl_parse( <a href="#pccl">pccl</a>* ccl, char* ccldef, <a href="#pboolean">pboolean</a> extend )
 </div>
 </p>
 <p>
@@ -5009,7 +5011,7 @@ The function returns TRUE on success, and FALSE on an error.
 </p>
 <div class='definition'>
 <p>
-size_t pccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq )
+size_t pccl_parsechar( wchar_t* retc, char *str, <a href="#pboolean">pboolean</a> escapeseq )
 </div>
 </p>
 <p>
@@ -5040,7 +5042,7 @@ Returns the number of bytes that had been read for the character.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_parseshorthand( <a href="#pccl">pccl</a>* ccl, char** str )
+<a href="#pboolean">pboolean</a> pccl_parseshorthand( <a href="#pccl">pccl</a>* ccl, char** str )
 </div>
 </p>
 <p>
@@ -5138,7 +5140,7 @@ Returns the number of pairs the charclass holds.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_test( <a href="#pccl">pccl</a>* ccl, wchar_t ch )
+<a href="#pboolean">pboolean</a> pccl_test( <a href="#pccl">pccl</a>* ccl, wchar_t ch )
 </div>
 </p>
 <p>
@@ -5168,7 +5170,7 @@ It returns TRUE, if the character matches the class, and FALSE if not.
 </p>
 <div class='definition'>
 <p>
-pboolean pccl_testrange( <a href="#pccl">pccl</a>* ccl, wchar_t begin, wchar_t end )
+<a href="#pboolean">pboolean</a> pccl_testrange( <a href="#pccl">pccl</a>* ccl, wchar_t begin, wchar_t end )
 </div>
 </p>
 <p>
@@ -5196,7 +5198,7 @@ Returns TRUE if the entire character range matches the class, and FALSE if not.
 </p>
 <div class='definition'>
 <p>
-char* pccl_to_str( <a href="#pccl">pccl</a>* ccl, pboolean escape )
+char* pccl_to_str( <a href="#pccl">pccl</a>* ccl, <a href="#pboolean">pboolean</a> escape )
 </div>
 </p>
 <p>
@@ -5229,7 +5231,7 @@ character-class handling functions, so it should not be freed manually.
 </p>
 <div class='definition'>
 <p>
-pccl* pccl_union( <a href="#pccl">pccl</a>* ccl, <a href="#pccl">pccl</a>* add )
+<a href="#pccl">pccl</a>* pccl_union( <a href="#pccl">pccl</a>* ccl, <a href="#pccl">pccl</a>* add )
 </div>
 </p>
 <p>
@@ -5319,7 +5321,7 @@ by the caller.
 </p>
 <div class='definition'>
 <p>
-pboolean pfileexists( char* filename )
+<a href="#pboolean">pboolean</a> pfileexists( char* filename )
 </div>
 </p>
 <p>
@@ -5345,7 +5347,7 @@ Returns TRUE on success, FALSE if not.
 </p>
 <div class='definition'>
 <p>
-pboolean pfiletostr( char** cont, char* filename )
+<a href="#pboolean">pboolean</a> pfiletostr( char** cont, char* filename )
 </div>
 </p>
 <p>
@@ -5494,7 +5496,7 @@ hold a string to the option that is unknown to <a href="#fn_pgetopt">pgetopt()</
 </p>
 <div class='definition'>
 <p>
-plex* plex_create( int flags )
+<a href="#plex">plex</a>* plex_create( int flags )
 </div>
 </p>
 <p>
@@ -5578,7 +5580,7 @@ This must be freed later using <a href="#fn_plex_free">plex_free()</a>.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* plex_define( <a href="#plex">plex</a>* lex, char* pat, int match_id, int flags )
+<a href="#pregex_ptn">pregex_ptn</a>* plex_define( <a href="#plex">plex</a>* lex, char* pat, int match_id, int flags )
 </div>
 </p>
 <p>
@@ -5687,7 +5689,7 @@ provided.
 </p>
 <div class='definition'>
 <p>
-plex* plex_free( <a href="#plex">plex</a>* lex )
+<a href="#plex">plex</a>* plex_free( <a href="#plex">plex</a>* lex )
 </div>
 </p>
 <p>
@@ -5700,7 +5702,7 @@ Destructor function for a <a href="#plex">plex</a>-object.
 <i>lex</i> is the pointer to a <a href="#plex">plex</a>-structure that will be released.
 </p>
 <p>
-Always returns (plex*)NULL.
+Always returns (<a href="#plex">plex</a>*)NULL.
 </div>
 <!-- NEED 18 -->
 <div class='function'>
@@ -5776,7 +5778,7 @@ The function returns (char*)NULL in case that there is no match.
 </p>
 <div class='definition'>
 <p>
-pboolean plex_prepare( <a href="#plex">plex</a>* lex )
+<a href="#pboolean">pboolean</a> plex_prepare( <a href="#plex">plex</a>* lex )
 </div>
 </p>
 <p>
@@ -5796,7 +5798,7 @@ Prepares the DFA state machine of a <a href="#plex">plex</a>-object <i>lex</i> f
 </p>
 <div class='definition'>
 <p>
-pboolean plex_reset( <a href="#plex">plex</a>* lex )
+<a href="#pboolean">pboolean</a> plex_reset( <a href="#plex">plex</a>* lex )
 </div>
 </p>
 <p>
@@ -5913,7 +5915,7 @@ lexing process.
 </p>
 <div class='definition'>
 <p>
-pboolean plexctx_lex( plexctx* ctx, wchar_t ch )
+<a href="#pboolean">pboolean</a> plexctx_lex( plexctx* ctx, wchar_t ch )
 </div>
 </p>
 <p>
@@ -5974,7 +5976,7 @@ Access data-content of the current element <i>e</i>.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_clear( <a href="#plist">plist</a>* list )
+<a href="#pboolean">pboolean</a> plist_clear( <a href="#plist">plist</a>* list )
 </div>
 </p>
 <p>
@@ -6045,7 +6047,7 @@ Return element count of list <i>l</i>.
 </p>
 <div class='definition'>
 <p>
-plist* plist_create( size_t size, int flags )
+<a href="#plist">plist</a>* plist_create( size_t size, int flags )
 </div>
 </p>
 <p>
@@ -6143,7 +6145,7 @@ if <i>left</i> is greater <i>right</i> and a value == 0 if <i>left</i> is equal 
 </p>
 <div class='definition'>
 <p>
-plist* plist_dup( <a href="#plist">plist</a>* list )
+<a href="#plist">plist</a>* plist_dup( <a href="#plist">plist</a>* list )
 </div>
 </p>
 <p>
@@ -6166,7 +6168,7 @@ All elements of <i>list</i> are duplicated and stand-alone.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_erase( <a href="#plist">plist</a>* list )
+<a href="#pboolean">pboolean</a> plist_erase( <a href="#plist">plist</a>* list )
 </div>
 </p>
 <p>
@@ -6190,7 +6192,7 @@ using <a href="#fn_plist_init">plist_init()</a>.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_first( <a href="#plist">plist</a>* l )
+<a href="#plistel">plistel</a>* plist_first( <a href="#plist">plist</a>* l )
 </div>
 </p>
 <p>
@@ -6210,7 +6212,7 @@ Return first element of list <i>l</i>.
 </p>
 <div class='definition'>
 <p>
-plist* plist_free( <a href="#plist">plist</a>* list )
+<a href="#plist">plist</a>* plist_free( <a href="#plist">plist</a>* list )
 </div>
 </p>
 <p>
@@ -6220,7 +6222,7 @@ plist* plist_free( <a href="#plist">plist</a>* list )
 Releases all the memory <i>list</i> uses and destroys the list object.
 </p>
 <p>
-The function always returns (plist*)NULL.
+The function always returns (<a href="#plist">plist</a>*)NULL.
 </div>
 <!-- NEED 13 -->
 <div class='function'>
@@ -6233,7 +6235,7 @@ The function always returns (plist*)NULL.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_get( <a href="#plist">plist</a>* list, size_t n )
+<a href="#plistel">plistel</a>* plist_get( <a href="#plist">plist</a>* list, size_t n )
 </div>
 </p>
 <p>
@@ -6256,7 +6258,7 @@ The function returns the <i>n</i>th element of the list <i>list</i>.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_get_by_key( <a href="#plist">plist</a>* list, char* key )
+<a href="#plistel">plistel</a>* plist_get_by_key( <a href="#plist">plist</a>* list, char* key )
 </div>
 </p>
 <p>
@@ -6280,7 +6282,7 @@ with the key <i>key</i>.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_get_by_ptr( <a href="#plist">plist</a>* list, void* ptr )
+<a href="#plistel">plistel</a>* plist_get_by_ptr( <a href="#plist">plist</a>* list, void* ptr )
 </div>
 </p>
 <p>
@@ -6304,7 +6306,7 @@ that is the pointer <i>ptr</i>.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_hashnext( <a href="#plistel">plistel</a>* u )
+<a href="#plistel">plistel</a>* plist_hashnext( <a href="#plistel">plistel</a>* u )
 </div>
 </p>
 <p>
@@ -6324,7 +6326,7 @@ Access next element with same hash value of current unit <i>u</i>.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_hashprev( <a href="#plistel">plistel</a>* u )
+<a href="#plistel">plistel</a>* plist_hashprev( <a href="#plistel">plistel</a>* u )
 </div>
 </p>
 <p>
@@ -6344,7 +6346,7 @@ Access previous element with same hash value of a current unit <i>u</i>.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_init( <a href="#plist">plist</a>* list, size_t size, size_t table_size, int flags )
+<a href="#pboolean">pboolean</a> plist_init( <a href="#plist">plist</a>* list, size_t size, size_t table_size, int flags )
 </div>
 </p>
 <p>
@@ -6366,7 +6368,7 @@ of the linked list and hash table usage.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_insert( <a href="#plist">plist</a>* list, <a href="#plistel">plistel</a>* pos, char* key, void* src )
+<a href="#plistel">plistel</a>* plist_insert( <a href="#plist">plist</a>* list, <a href="#plistel">plistel</a>* pos, char* key, void* src )
 </div>
 </p>
 <p>
@@ -6467,7 +6469,7 @@ Access key-content of the current element <i>e</i>.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_last( <a href="#plist">plist</a>* l )
+<a href="#plistel">plistel</a>* plist_last( <a href="#plist">plist</a>* l )
 </div>
 </p>
 <p>
@@ -6511,7 +6513,7 @@ The function works as a shortcut for <a href="#fn_plist_access">plist_access()</
 </p>
 <div class='definition'>
 <p>
-plistel* plist_next( <a href="#plistel">plistel</a>* u )
+<a href="#plistel">plistel</a>* plist_next( <a href="#plistel">plistel</a>* u )
 </div>
 </p>
 <p>
@@ -6551,7 +6553,7 @@ Return the offset of the unit <i>u</i> within the list it belongs to.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_pop( <a href="#plist">plist</a>* list, void* dest )
+<a href="#pboolean">pboolean</a> plist_pop( <a href="#plist">plist</a>* list, void* dest )
 </div>
 </p>
 <p>
@@ -6579,7 +6581,7 @@ be popped off the list and discards.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_prev( <a href="#plistel">plistel</a>* u )
+<a href="#plistel">plistel</a>* plist_prev( <a href="#plistel">plistel</a>* u )
 </div>
 </p>
 <p>
@@ -6599,7 +6601,7 @@ Access previous element of current unit <i>u</i>.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_push( <a href="#plist">plist</a>* list, void* src )
+<a href="#plistel">plistel</a>* plist_push( <a href="#plist">plist</a>* list, void* src )
 </div>
 </p>
 <p>
@@ -6624,7 +6626,7 @@ in use.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_remove( <a href="#plist">plist</a>* list, <a href="#plistel">plistel</a>* e )
+<a href="#pboolean">pboolean</a> plist_remove( <a href="#plist">plist</a>* list, <a href="#plistel">plistel</a>* e )
 </div>
 </p>
 <p>
@@ -6645,7 +6647,7 @@ it into the unused element chain if PLIST_MOD_RECYCLE is flagged.
 </p>
 <div class='definition'>
 <p>
-plistel* plist_rget( <a href="#plist">plist</a>* list, size_t n )
+<a href="#plistel">plistel</a>* plist_rget( <a href="#plist">plist</a>* list, size_t n )
 </div>
 </p>
 <p>
@@ -6743,7 +6745,7 @@ The function works as a shortcut for <a href="#fn_plist_access">plist_access()</
 </p>
 <div class='definition'>
 <p>
-pboolean plist_set_comparefn( <a href="#plist">plist</a>* list, int (*comparefn)( <a href="#plist">plist</a>*, <a href="#plistel">plistel</a>*, <a href="#plistel">plistel</a>* ) )
+<a href="#pboolean">pboolean</a> plist_set_comparefn( <a href="#plist">plist</a>* list, int (*comparefn)( <a href="#plist">plist</a>*, <a href="#plistel">plistel</a>*, <a href="#plistel">plistel</a>* ) )
 </div>
 </p>
 <p>
@@ -6763,7 +6765,7 @@ Set compare function
 </p>
 <div class='definition'>
 <p>
-pboolean plist_set_printfn( <a href="#plist">plist</a>* list, void (*printfn)( <a href="#plist">plist</a>* ) )
+<a href="#pboolean">pboolean</a> plist_set_printfn( <a href="#plist">plist</a>* list, void (*printfn)( <a href="#plist">plist</a>* ) )
 </div>
 </p>
 <p>
@@ -6783,7 +6785,7 @@ Set an element dump function.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_set_sortfn( <a href="#plist">plist</a>* list, int (*sortfn)( <a href="#plist">plist</a>*, <a href="#plistel">plistel</a>*, <a href="#plistel">plistel</a>* ) )
+<a href="#pboolean">pboolean</a> plist_set_sortfn( <a href="#plist">plist</a>* list, int (*sortfn)( <a href="#plist">plist</a>*, <a href="#plistel">plistel</a>*, <a href="#plistel">plistel</a>* ) )
 </div>
 </p>
 <p>
@@ -6803,7 +6805,7 @@ Set sort function
 </p>
 <div class='definition'>
 <p>
-plistel* plist_shift( <a href="#plist">plist</a>* list, void* src )
+<a href="#plistel">plistel</a>* plist_shift( <a href="#plist">plist</a>* list, void* src )
 </div>
 </p>
 <p>
@@ -6848,7 +6850,7 @@ Return element size of list <i>l</i>.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_sort( <a href="#plist">plist</a>* list )
+<a href="#pboolean">pboolean</a> plist_sort( <a href="#plist">plist</a>* list )
 </div>
 </p>
 <p>
@@ -6878,7 +6880,7 @@ standard function.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_subsort( <a href="#plist">plist</a>* list, <a href="#plistel">plistel</a>* from, <a href="#plistel">plistel</a>* to )
+<a href="#pboolean">pboolean</a> plist_subsort( <a href="#plist">plist</a>* list, <a href="#plistel">plistel</a>* from, <a href="#plistel">plistel</a>* to )
 </div>
 </p>
 <p>
@@ -6909,7 +6911,7 @@ standard function.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_swap( <a href="#plistel">plistel</a>* a, <a href="#plistel">plistel</a>* b )
+<a href="#pboolean">pboolean</a> plist_swap( <a href="#plistel">plistel</a>* a, <a href="#plistel">plistel</a>* b )
 </div>
 </p>
 <p>
@@ -6961,7 +6963,7 @@ The function returns the number of elements added to <i>from</i>.
 </p>
 <div class='definition'>
 <p>
-pboolean plist_unshift( <a href="#plist">plist</a>* list, void* dest )
+<a href="#pboolean">pboolean</a> plist_unshift( <a href="#plist">plist</a>* list, void* dest )
 </div>
 </p>
 <p>
@@ -7084,7 +7086,7 @@ address should be freed using <a href="#fn_pfree">pfree()</a> after it is not re
 </p>
 <div class='definition'>
 <p>
-pregex* pregex_create( char* pat, int flags )
+<a href="#pregex">pregex</a>* pregex_create( char* pat, int flags )
 </div>
 </p>
 <p>
@@ -7217,7 +7219,7 @@ to the configuration of the <a href="#pregex">pregex</a>-object).
 </p>
 <p>
 The function fills the array <i>matches</i>, if provided, with items of size
-prange. It returns the total number of matches.
+<a href="#prange">prange</a>. It returns the total number of matches.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -7230,7 +7232,7 @@ prange. It returns the total number of matches.
 </p>
 <div class='definition'>
 <p>
-pregex* pregex_free( <a href="#pregex">pregex</a>* regex )
+<a href="#pregex">pregex</a>* pregex_free( <a href="#pregex">pregex</a>* regex )
 </div>
 </p>
 <p>
@@ -7243,7 +7245,7 @@ Destructor function for a <a href="#pregex">pregex</a>-object.
 <i>regex</i> is the pointer to a <a href="#pregex">pregex</a>-structure that will be released.
 </p>
 <p>
-Returns always (pregex*)NULL.
+Returns always (<a href="#pregex">pregex</a>*)NULL.
 </div>
 <!-- NEED 14 -->
 <div class='function'>
@@ -7256,7 +7258,7 @@ Returns always (pregex*)NULL.
 </p>
 <div class='definition'>
 <p>
-pboolean pregex_match( <a href="#pregex">pregex</a>* regex, char* start, char** end )
+<a href="#pboolean">pboolean</a> pregex_match( <a href="#pregex">pregex</a>* regex, char* start, char** end )
 </div>
 </p>
 <p>
@@ -7280,7 +7282,7 @@ the pointer to the last matched character.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create( char* pat, int flags )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create( char* pat, int flags )
 </div>
 </p>
 <p>
@@ -7291,7 +7293,7 @@ Constructs and parses a new <a href="#pregex_ptn">pregex_ptn</a>-structure from 
 </p>
 <p>
 This function is a shortcut for a call to <a href="#fn_pregex_ptn_parse">pregex_ptn_parse()</a>. <a href="#fn_pregex_ptn_create">pregex_ptn_create()</a> directly takes <i>pat</i> as its input and returns the parsed
-pregex_ptn structure which represents the internal representation of the
+<a href="#pregex_ptn">pregex_ptn</a> structure which represents the internal representation of the
 regular expression <i>pat</i>.
 </p>
 <p>
@@ -7314,7 +7316,7 @@ when it is not used anymore.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_alt( <a href="#pregex_ptn">pregex_ptn</a>* left, ... )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_alt( <a href="#pregex_ptn">pregex_ptn</a>* left, ... )
 </div>
 </p>
 <p>
@@ -7326,7 +7328,7 @@ Constructs alternations of multiple patterns.
 <p>
 <i>left</i> is the first pattern of the alternation.
 <i>...</i> are multiple <a href="#pregex_ptn">pregex_ptn</a>-pointers follow which become part of the
-alternation. The last node must be specified as (pregex_ptn*)NULL.
+alternation. The last node must be specified as (<a href="#pregex_ptn">pregex_ptn</a>*)NULL.
 </p>
 <p>
 Returns a <a href="#pregex_ptn">pregex_ptn</a>-node which can be child of another pattern construct or
@@ -7344,7 +7346,7 @@ patterns, <i>left</i> will be returned back.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_char( <a href="#pccl">pccl</a>* ccl )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_char( <a href="#pccl">pccl</a>* ccl )
 </div>
 </p>
 <p>
@@ -7372,7 +7374,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_kle( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_kle( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7400,7 +7402,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_opt( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_opt( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7427,7 +7429,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_pos( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_pos( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7455,7 +7457,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_refsub( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_refsub( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7482,7 +7484,7 @@ or part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_seq( <a href="#pregex_ptn">pregex_ptn</a>* first, ... )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_seq( <a href="#pregex_ptn">pregex_ptn</a>* first, ... )
 </div>
 </p>
 <p>
@@ -7494,7 +7496,7 @@ Constructs a sequence of multiple patterns.
 <p>
 <i>first</i> is the beginning pattern of the sequence. <i>...</i> follows as parameter
 list of multiple patterns that become part of the sequence. The last pointer
-must be specified as (pregex_ptn*)NULL to mark the end of the list.
+must be specified as (<a href="#pregex_ptn">pregex_ptn</a>*)NULL to mark the end of the list.
 </p>
 <p>
 Always returns the pointer to <i>first</i>.
@@ -7510,7 +7512,7 @@ Always returns the pointer to <i>first</i>.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_string( char* str, int flags )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_string( char* str, int flags )
 </div>
 </p>
 <p>
@@ -7538,7 +7540,7 @@ part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_create_sub( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_create_sub( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7565,7 +7567,7 @@ or part of a sequence.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_dup( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_dup( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7585,7 +7587,7 @@ Duplicate <i>ptn</i> into a stand-alone 1:1 copy.
 </p>
 <div class='definition'>
 <p>
-pregex_ptn* pregex_ptn_free( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pregex_ptn">pregex_ptn</a>* pregex_ptn_free( <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7599,7 +7601,7 @@ patterns.
 <i>ptn</i> is the pattern object to be released.
 </p>
 <p>
-Always returns (pregex_ptn*)NULL.
+Always returns (<a href="#pregex_ptn">pregex_ptn</a>*)NULL.
 </div>
 <!-- NEED 21 -->
 <div class='function'>
@@ -7612,7 +7614,7 @@ Always returns (pregex_ptn*)NULL.
 </p>
 <div class='definition'>
 <p>
-pboolean pregex_ptn_parse( <a href="#pregex_ptn">pregex_ptn</a>** ptn, char* str, int flags )
+<a href="#pboolean">pboolean</a> pregex_ptn_parse( <a href="#pregex_ptn">pregex_ptn</a>** ptn, char* str, int flags )
 </div>
 </p>
 <p>
@@ -7670,7 +7672,7 @@ A debug function to print a pattern's hierarchical structure to stderr.
 </p>
 <div class='definition'>
 <p>
-pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pboolean">pboolean</a> pregex_ptn_to_dfa( pregex_dfa* dfa, <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -7688,7 +7690,7 @@ the DFA state machine.
 <p>
 Returns TRUE on success.
 </div>
-<!-- NEED 18 -->
+<!-- NEED 60 -->
 <div class='function'>
 </p>
 
@@ -7709,11 +7711,93 @@ int pregex_ptn_to_dfatab( wchar_t*** dfatab, <a href="#pregex_ptn">pregex_ptn</a
 Converts a pattern-structure into a DFA state machine <i>dfatab</i>.
 </p>
 <p>
-<i>dfatab</i> receives the allocated dfa content. Its made-up the same way
-as described in the documentation of the function <a href="#fn_pregex_dfa_to_dfatab">pregex_dfa_to_dfatab()</a>.
 <i>ptn</i> is the pattern structure that will be converted into a DFA state
 machine.
 </p>
+<p>
+<i>dfatab</i> is a pointer to a variable that receives the allocated DFA state machine, where
+each row forms a state that is made up of columns described in the table below.
+</p>
+
+<table border="1">
+<tr>
+<th>Column / Index</th>
+<th>Content</th>
+</tr>
+<tr>
+<td>0</td>
+<td>Total number of columns in the current row</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Match ID if &gt; 0, or 0 if the state is not an accepting state</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Match flags (anchors, greedyness, (PREGEX_FLAG_*))</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Reference flags; The index of the flagged bits defines the number of reference</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Default transition from the current state. If there is no transition, its value is set to the number of all states.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Transition: from-character</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Transition: to-character</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Transition: Goto-state</td>
+</tr>
+<tr>
+<td>...</td>
+<td>more triples follow for each transition</td>
+</tr>
+</table>
+
+<p>
+Example for a state machine that matches the regular expression <code>@[a-z0-9]+</code>
+that has match 1 and no references:
+</p>
+
+<pre><code class="language-c">
+8 0 0 0 3 64 64 2
+11 1 0 0 3 48 57 1 97 122 1
+11 0 0 0 3 48 57 1 97 122 1
+</code></pre>
+
+<p>
+Interpretation:
+</p>
+
+<pre><code class="language-c">
+00: col= 8 acc= 0 flg= 0 ref= 0 def= 3 tra=064(@);064(@):02
+01: col=11 acc= 1 flg= 0 ref= 0 def= 3 tra=048(0);057(9):01 tra=097(a);122(z):01
+02: col=11 acc= 0 flg= 0 ref= 0 def= 3 tra=048(0);057(9):01 tra=097(a);122(z):01
+</code></pre>
+
+<p>
+A similar dump like this interpretation above will be printed to stderr by the
+function when <i>dfatab</i> is provided as (long***)NULL.
+</p>
+<p>
+The pointer assigned to <i>dfatab</i> must be freed after usage using a for-loop:
+</p>
+
+<pre><code class="language-c">
+for( i = 0; i &lt; dfatab_cnt; i++ )
+	pfree( dfatab[i] );
+
+pfree( dfatab );
+</code></pre>
+
 <p>
 Returns the number of rows in <i>dfatab</i>, or a negative value in error case.
 </div>
@@ -7728,7 +7812,7 @@ Returns the number of rows in <i>dfatab</i>, or a negative value in error case.
 </p>
 <div class='definition'>
 <p>
-pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, <a href="#pregex_ptn">pregex_ptn</a>* ptn )
+<a href="#pboolean">pboolean</a> pregex_ptn_to_nfa( pregex_nfa* nfa, <a href="#pregex_ptn">pregex_ptn</a>* ptn )
 </div>
 </p>
 <p>
@@ -8000,7 +8084,7 @@ to the configuration of the <a href="#pregex">pregex</a>-object).
 </p>
 <p>
 The function fills the array <i>matches</i>, if provided, with items of size
-prange. It returns the total number of matches.
+<a href="#prange">prange</a>. It returns the total number of matches.
 </div>
 <!-- NEED 23 -->
 <div class='function'>
@@ -8013,7 +8097,7 @@ prange. It returns the total number of matches.
 </p>
 <div class='definition'>
 <p>
-wchar_t* pstr_to_wcs( char* str, pboolean freestr )
+wchar_t* pstr_to_wcs( char* str, <a href="#pboolean">pboolean</a> freestr )
 </div>
 </p>
 <p>
@@ -8106,7 +8190,7 @@ be released with <a href="#fn_pfree">pfree()</a> when its existence is no longer
 </p>
 <div class='definition'>
 <p>
-char* pstrcatstr( char* dest, char* src, pboolean freesrc )
+char* pstrcatstr( char* dest, char* src, <a href="#pboolean">pboolean</a> freesrc )
 </div>
 </p>
 <p>
@@ -8437,7 +8521,7 @@ These consist of three values each:
 </li>
 <li><i>char* value</i> as the replacement value for the wildcard
 </li>
-<li><i>pboolean freeflag</i> defines if <i>value</i> shall be freed after processing
+<li><i><a href="#pboolean">pboolean</a> freeflag</i> defines if <i>value</i> shall be freed after processing
 </li>
 </ul>
 
@@ -8708,7 +8792,7 @@ character string.
 </p>
 <div class='definition'>
 <p>
-pboolean putf8_isutf( unsigned char c )
+<a href="#pboolean">pboolean</a> putf8_isutf( unsigned char c )
 </div>
 </p>
 <p>
@@ -8843,7 +8927,7 @@ Returns the number of characters written, or -1 in case of an error.
 </p>
 <div class='definition'>
 <p>
-char* pwcs_to_str( wchar_t* str, pboolean freestr )
+char* pwcs_to_str( wchar_t* str, <a href="#pboolean">pboolean</a> freestr )
 </div>
 </p>
 <p>
@@ -8906,7 +8990,7 @@ Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 </p>
 <div class='definition'>
 <p>
-wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc )
+wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, <a href="#pboolean">pboolean</a> freesrc )
 </div>
 </p>
 <p>

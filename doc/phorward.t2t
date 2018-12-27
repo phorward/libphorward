@@ -3,7 +3,7 @@ libphorward 0.24.0
 Dec 2018
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
-%!preproc(xhtml): '([ \t]|$)(pany|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '\1[\2 #\2]\3'
+%!preproc(xhtml): '(pboolean|pany|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '[\1 #\1]\2'
 %!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
 %!preproc(xhtml): '%FUNCTION:BEGIN' "''' <div class='function'>"
 %!preproc(xhtml): '%FUNCTION:END' "''' </div>"
@@ -15,6 +15,7 @@ Dec 2018
 %!postproc(xhtml): '(<pre>)' '\1<code class="language-c">'
 %!postproc(xhtml): '(</pre>)' '</code>\1'
 %!postproc(xhtml): '(</head>)' '<link rel="stylesheet" type="text/css" href="prism.css" />\n<script src="prism.js"></script>\n\1'
+%!postproc(xhtml): '\[(p\w+) #p\w+\]' '\1'
 
 %-------------------------------------------------------------------------------
 
@@ -120,7 +121,7 @@ The standard memory management functions can be replaced by these pendants:
 
 These functions are used throughout libphorward's internal object mapping functions.
 
-== Boolean data type ==
+== Boolean data type ==[pboolean]
 
 libphorward makes heavy usage of the self-hosted data-type **pboolean**, which is also referenced by a define //BOOLEAN//, and the constants //TRUE// and //FALSE//.
 
@@ -231,6 +232,7 @@ The Phorward library provides some useful functions for system-related but platf
 - @pbasename() returns the basename of a path (the last part),
 - @pfiletostr() reads the content of an entire file into a dynamically allocated char*,
 - @pfileexists() checks for file existence,
+- @pgetline() serves as a platform independent getline(),
 - @pgetopt() provides a simple to use, but effective GNU-style command-line argument parser,
 - @pwhich() checks for a file using @pfileexists() in a PATH-like, delimited search path definition
 -
