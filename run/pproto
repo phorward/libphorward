@@ -1,8 +1,8 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
-# Phorward Foundation Toolkit
-# Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# Phorward C/C++ Library
+# Copyright (C) 2006-2019 by Phorward Software Technologies, Jan Max Meyer
+# https://phorward.info ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See LICENSE for more information.
 #
 # Script:		pproto
@@ -46,7 +46,15 @@ while [ "$1" != "" ]
 do
 	echo "/* $1 */"
 
-	premcomments < $1 | awk $options '
+	sed "/\/\*/!bc
+:a
+/\*\//!{
+N
+ba
+}
+:c
+s:/\*.*\*/::
+s://.*$::g" < $1 | awk $options '
 
 BEGIN				{	FS = "[ \t]+"
 						same_line = 0

@@ -1,11 +1,11 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Foundation Toolkit
-Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+Phorward C/C++ Library
+Copyright (C) 2006-2019 by Phorward Software Technologies, Jan Max Meyer
+https://phorward.info ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	phorward.h
-Usage:	Phorward Foundation Toolkit Global Header
+Usage:	Phorward C/C++ Library Global Header
 ----------------------------------------------------------------------------- */
 
 /*
@@ -99,7 +99,7 @@ typedef char 					pboolean;
 
 
 
-#define LIBPHORWARD_VERSION "0.24.0dev"
+#define LIBPHORWARD_VERSION "0.24.0"
 
 
 
@@ -600,10 +600,6 @@ void* pany_to_ptr( pany* val );
 pboolean pany_convert( pany* val, panytype type );
 
 
-void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
-void pany_fprint( FILE* stream, pany* val );
-
-
 pboolean pany_get_bool( pany* val );
 char pany_get_char( pany* val );
 int pany_get_int( pany* val );
@@ -616,6 +612,10 @@ char* pany_get_str( pany* val );
 wchar_t* pany_get_cwcs( pany* val );
 wchar_t* pany_get_wcs( pany* val );
 void* pany_get_ptr( pany* val );
+
+
+void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
+void pany_fprint( FILE* stream, pany* val );
 
 
 pboolean pany_set_bool( pany* val, pboolean b );

@@ -68,9 +68,9 @@ case "$ext" in
 esac
 
 echo "$clin$cbeg-$what--------------------------------------------------------------------"
-echo "${clin}Phorward Foundation Toolkit"
+echo "${clin}Phorward C/C++ Library"
 echo "${clin}Copyright (C) 2006-`date +\"%Y\"` by Phorward Software Technologies, Jan Max Meyer"
-echo "${clin}http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com"
+echo "${clin}https://phorward.info ++ contact<at>phorward<dash>software<dot>com"
 echo "${clin}All rights reserved. See LICENSE for more information."
 echo "${clin}"
 echo "${clin}File:	$file"

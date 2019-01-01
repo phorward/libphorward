@@ -20,10 +20,6 @@ wchar_t* pany_to_wcs( pany* val );
 void* pany_to_ptr( pany* val );
 pboolean pany_convert( pany* val, panytype type );
 
-/* any/any.print.c */
-void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
-void pany_fprint( FILE* stream, pany* val );
-
 /* any/any.get.c */
 pboolean pany_get_bool( pany* val );
 char pany_get_char( pany* val );
@@ -37,6 +33,10 @@ char* pany_get_str( pany* val );
 wchar_t* pany_get_cwcs( pany* val );
 wchar_t* pany_get_wcs( pany* val );
 void* pany_get_ptr( pany* val );
+
+/* any/any.print.c */
+void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
+void pany_fprint( FILE* stream, pany* val );
 
 /* any/any.set.c */
 pboolean pany_set_bool( pany* val, pboolean b );

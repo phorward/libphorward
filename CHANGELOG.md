@@ -4,32 +4,27 @@ This file is used to document any relevant changes done to libphorward.
 
 ## v0.24
 
-Not released yet.
+Released on: Jan 1, 2019
 
-- Improvide hash table for `plist` based on non mersenne prime numbers
-
+- Improved hash table feature of `plist` to use non-mersenne prime numbers for collision avoidance
+- Updated layout and cross-linking of the HTML-documentation
+- Removed former `parse` module and integrated it into the [UniCC repository](https://github.com/phorward/unicc)
+- Removed former `vm` module and integrated it into the [phosphor repository](https://github.com/phorward/phosphor)
+- Install `pdoc`, `pinclude` and `pproto` command-line tools to /bin
+- Removed `premcomment` tool
 
 ## v0.23
 
 Released on: Sept 27, 2018
 
-- parse: Implemented push-parsing
-  - Push-parsing allows to call the parser on token-base from the scanner,
-    so that more flexibility on input processing is achieved.
-  - Parsers are now configured and executed using the parser context
-    data structure *ppparctx*.
-  - New functions `pp_parctx_next()`, `pp_parctx_next_by_name()`,
-    `pp_parctx_next_by_idx()` as well as `pp_parctx_init()`,
-	`pp_parctx_create()`, `pp_parctx_reset()` and `pp_parctx_free()`.
-  - Entirely revised functions `pp_par_autolex()` and `pp_par_parse()`
-  - Fixed BNF parsers to work with new push-parsing-based functions
 - regex: Implemented push-scanning
   - Lexical analyzers are now configured and executing using the lexer context
     data structure *plexctx*
   - New functions `plexctx_lex()`, `plexctx_init()`,
 	`plexctx_create()`, `plexctx_reset()` and `plexctx_free()`.
 - regex: Several improvements
-  - `plex_dump_dot()` allows to dump plex-scanners in dot-formatted
+  - `plex_dump_dot()` allows to du- Install `pdoc`, `pinclude` and `pproto` command-line tools to /bin
+- Removed `premcomment` toolmp plex-scanners in dot-formatted
      GraphViz format; This can also be triggered with plex command-line tool,
      `--dot` switch.
   - *pregex_ptn* function API white-listed for documentation generator
@@ -45,21 +40,6 @@ Released on: April 17, 2018
 - v0.22.2: inline-symbols incorrectly implemented in pbnf
 - v0.22.1: Build-system fixes (Windows only)
 - v0.22.1: pgetline() function as POSIX compatiblity layer
-- Parsing tools
-  - Revised all modules, separating the grammar definition entirely from the
-    parsing algorithm, lexer, parser and abstract syntax tree. This allows for
-    a much higher modularity. The ``pppar`` object now represents the internal
-    LALR parser that can be executed on arbitrary input, with a combined lexical
-    analyzer implemented using ``plex``.
-  - Revised and simplified LR parser driver, now working on state machine, and
-    not the data-structures from lr.c anymore.
-  - Created better definition language called PBNF (Phorward BNF, pbnf.c)
-  - Frontends for BNF, EBNF and a Phorward-style BNF (PBNF) as input grammars
-    using the functions pp_gram_from_bnf(), pp_gram_from_ebnf() and
-    pp_gram_from_pbnf().
-  - Implied precedence & associativity for LALR conflict resolution, which can
-    be used via ``<<`` (left-associative), ``>>`` (right-associative) and
-    ``^^`` (non-associative) in the pbnf language.
 - Regular expressions
   - Internal revisions and renamings.
   - Cleaning data structures from temporal and ephemeral values.
@@ -95,7 +75,6 @@ Released on: November 7, 2017
 
 - v0.20.2: Removed warnings that came up on Mingw32, issue #1
 - v0.20.1: Purged build system
-- Started use of a lexical analyzer in the build-in LR parser (very unstable!).
 - Changed behavior of command-line tools to be more pynetree compliant.
 - Fixing an ancient bug in the DFA construction mechanism building arbitrary
   state orders.
@@ -106,7 +85,7 @@ Released on: November 7, 2017
 Released on: February 3, 2017
 
 - Redesign of the grammar definition language
-- Introduced command-line utilies for pparse, pregex, plex and pvm
+- Introduced command-line utilities `pregex` and `plex`
 - Generated documentation added
 - Several bugfixes in the build-system
 - Cleared build-system from unrequired files
@@ -122,10 +101,6 @@ Released on: September 9, 2016
    - pany for a dynamic, object-oriented data type
    - pregex for an object-oriented regular expression toolchain
    - plex for an object-oriented lexing toolchain
-   - pparse for an object-oriented parsing toolchain with build-in
-     abstract syntax tree traversal tools (unfinished!)
-   - pvm for object-oriented definition of virtual instruction sets and
-     machines (unfinished!)
 - Started to create a full reference manual and user guide
 - New README.md file with examples
 - More test programs and tools in DEMO folder
@@ -157,4 +132,4 @@ Released on: July 2, 2012
 
 ## v0.16
 
-The toolkit's mentionable initial public release was on Sep 16, 2011 as v0.16.3.
+First mentionable initial public release was on Sep 16, 2011 as v0.16.3.

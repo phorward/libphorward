@@ -41,7 +41,7 @@ void string_demo( void )
 
 	/* String rendering from templates */
 	str1 = pstrrender( "<a href=\"$link\" alt=\"$title\">$title</a>",
-			"$link", "http://www.phorward-software.com", FALSE,
+			"$link", "https://phorward.info", FALSE,
 			"$title", str2, TRUE,
 			(char*)NULL );
 

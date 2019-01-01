@@ -1,6 +1,6 @@
 # doc
 
-This directory hold the Phorward library's documentation.
+This directory hold the Phorward C/C++ Library's documentation.
 
 Due to a personal favor, the whole documentation is written using the markup language [txt2tags](https://txt2tags.org/), which allows documentation conversion into formats like HTML, man page and LaTeX.
 

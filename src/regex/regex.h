@@ -1,7 +1,7 @@
 /* -HEADER----------------------------------------------------------------------
-Phorward Foundation Toolkit
-Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
-http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+Phorward C/C++ Library
+Copyright (C) 2006-2019 by Phorward Software Technologies, Jan Max Meyer
+https://phorward.info ++ contact<at>phorward<dash>software<dot>com
 All rights reserved. See LICENSE for more information.
 
 File:	regex.h

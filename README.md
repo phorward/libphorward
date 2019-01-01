@@ -49,7 +49,7 @@ This locally compiles the library or parts of it, and is ideal for development p
 
 On Windows systems, the usage of [Cygwin](https://cygwin.org/) or another Unix shell environment is required.
 
-The Phorward Toolkit also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
+The Phorward C/C++ Library also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
 
 ```bash
 # To compile into 32-Bit Windows executables, configure with
@@ -70,4 +70,4 @@ Contributions by [Marco Wegner](https://github.com/Heavenfighter) and [AGS](http
 You may use, modify and distribute this software under the terms and conditions of the 3-clause BSD license.
 The full license terms can be obtained from the file LICENSE.
 
-Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer.
+Copyright (C) 2006-2019 by Phorward Software Technologies, Jan Max Meyer.

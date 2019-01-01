@@ -1,8 +1,8 @@
 #!/bin/sh
 #-------------------------------------------------------------------------------
-# Phorward Foundation Toolkit
-# Copyright (C) 2006-2018 by Phorward Software Technologies, Jan Max Meyer
-# http://www.phorward-software.com ++ contact<at>phorward<dash>software<dot>com
+# Phorward C/C++ Library
+# Copyright (C) 2006-2019 by Phorward Software Technologies, Jan Max Meyer
+# https://phorward.info ++ contact<at>phorward<dash>software<dot>com
 # All rights reserved. See LICENSE for more information.
 #
 # Script:		pinclude
@@ -48,7 +48,7 @@ then
 	echo
 	echo "          -b STRING Configure block comment begin to STRING ($cbeg)"
 	echo "          -e STRING Configure block comment end to STRING ($cend)"
-	echo "          -l STRING Configure line comment end to STRING ($cline)"
+	echo "          -l STRING Configure line comment begin to STRING ($cline)"
 	echo "          -q        Disable commented output"
 	exit 1
 fi
@@ -112,7 +112,15 @@ BEGIN				{	FS = "[ \t\"]+"		}
 					{
 						print
 					}
-	' $1 | premcomments
+	' $1 | sed "/\/\*/!bc
+:a
+/\*\//!{
+N
+ba
+}
+:c
+s:/\*.*\*/::
+s://.*$::g"
 
 	if [ $? -ne 0 ]
 	then

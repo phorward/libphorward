@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([Phorward Toolkit], [0.23.0])
+AC_INIT([Phorward C/C++ Library], [0.24.0])
 AC_PREFIX_DEFAULT([/usr])
 
 AC_CONFIG_SRCDIR([src/phorward.tpl.h])
@@ -60,5 +60,6 @@ AC_TYPE_SIZE_T
 AC_CONFIG_FILES([Makefile
                  src/Makefile
 				 tools/Makefile
+				 run/Makefile
 				 examples/Makefile])
 AC_OUTPUT

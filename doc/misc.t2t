@@ -1,6 +1,6 @@
 == Command-line tools ==
 
-The Phorward library provides some useful command-line tools which can also be used or forked.
+The Phorward C/C++ Library provides some useful command-line tools which can also be used or forked.
 
 === pregex ===
 
@@ -61,47 +61,11 @@ plex -b ":" -e "\n" -i "123 abc456    78xy9" "\d+" "[a-z]+"
 1:9
 ```
 
-=== pparse ===
-
-**pparse** is a command-line tool to compile and run parsers via command-line. It outputs the parse trees (if any) of the parsed inputs, or just checks for correct syntax.
-
-```
-Usage: pparse OPTIONS grammar [input [input ...]]
-
-   grammar                   Grammar to create a parser from.
-   input                     Input to be processed by the parser.
-
-   -f  --format  TYPE        Which input grammar parser to use, either
-                             pbnf (default), ebnf, bnf
-   -G                        Dump constructed grammar
-   -h  --help                Show this help, and exit.
-   -r  --render  RENDERER    Use AST renderer RENDERER:
-                             short (default), full, json, tree2svg
-   -v  --verbose             Print processing information.
-   -V  --version             Show version info and exit.
-```
-
-Example call:
-
-```
-$ pparse "Int := /[0-9]+/; f : Int | '(' e ')'; t : t '*' f = mul | f ; e : e '+' t = add | t ;" "1+2*3+4*5"
-add
- add
-  Int (1)
-  mul
-   Int (2)
-   Int (3)
- mul
-  Int (4)
-  Int (5)
-```
-
 == Other tools ==
 
 There are also some more, useful command-line tools for C programmers, which are installed and made available. These tools are heavily used by libphorward's own build process, but may also be interesting to others. These tools are all written using standard GNU utilities like sh, awk, grep and sed.
 
+- pdoc - is a documentation tool for C functions,
 - pproto - is a C function prototype generator,
 - pinclude - is some kind of simple pre-processor to generate one big file from various smaller ones,
-- premcomments - remove any comments from C sources,
-- pdostounix - convert DOS-formatted text into Unix format.
 -

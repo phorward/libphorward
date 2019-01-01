@@ -1,4 +1,4 @@
-# This is a plain Makefile for general Phorward Foundation Toolkit development.
+# This is a plain Makefile for general Phorward C/C++ Library development.
 # It compiles libphorward.a quickly and out of the box without autotools.
 
 CFLAGS += -g -DDEBUG -DUNICODE -DUTF8 -I. -Wall
@@ -81,7 +81,7 @@ $(PROTOFILE): $(SRC)
 
 # Library Header
 $(LIBHEADER): $(HSRC)
-	$(PATHEXT) filehead phorward.h "Phorward Foundation Toolkit Global Header" \
+	$(PATHEXT) filehead phorward.h "Phorward C/C++ Library Global Header" \
 		>$@
 	$(PATHEXT) pinclude phorward.tpl.h >>$@
 
