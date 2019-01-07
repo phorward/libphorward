@@ -9,7 +9,7 @@
 # Usage:	Phorward Documentation Generator
 # ------------------------------------------------------------------------------
 
-. .phorward
+. .phorward >/dev/null
 
 help()
 {

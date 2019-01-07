@@ -12,6 +12,7 @@
 
 # This is the official place where the version number is provided:
 VERSION="0.25.0"
+echo "$VERSION"
 
 # ------------------------------------------------------------------------------
 version()
@@ -56,3 +57,4 @@ dos2unix()
 {
     tr -d '\r' <$1
 }
+

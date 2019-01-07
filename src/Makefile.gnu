@@ -50,7 +50,7 @@ OBJ = $(patsubst %.c,%.o,$(SRC))
 all: $(LIBPHORWARD)
 
 version.h:
-	echo "#define LIBPHORWARD_VERSION \"`../Version`\"" >$@
+	echo "#define LIBPHORWARD_VERSION \"`../run/.phorward`\"" >$@
 
 $(LIBPHORWARD): $(LIBHEADER) $(OBJ)
 	$(AR) rv $@ $(OBJ)

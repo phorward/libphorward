@@ -10,7 +10,7 @@
 # Usage:		Local include resolver
 #-------------------------------------------------------------------------------
 
-. .phorward
+. .phorward >/dev/null
 
 help()
 {

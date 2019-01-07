@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cat <<ENDL
-:: Phorward C/C++ Library v`./Version`
+:: Phorward C/C++ Library v`./run/.phorward`
 :: Copyright (C) 2006-2019 by Phorward Software Technologies, Jan Max Meyer
 :: All rights reserved. See LICENSE for more informations.
 :: `uname -n -o -p -r`

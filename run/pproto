@@ -10,7 +10,7 @@
 # Usage:		C function prototype generator
 #-------------------------------------------------------------------------------
 
-. .phorward
+. .phorward >/dev/null
 
 help()
 {
