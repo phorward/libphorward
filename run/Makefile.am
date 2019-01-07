@@ -1,2 +1,2 @@
 
-bin_SCRIPTS = pdoc pinclude pproto
+bin_SCRIPTS = .phorward pdoc pinclude pproto

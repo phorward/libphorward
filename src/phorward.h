@@ -99,7 +99,7 @@ typedef char 					pboolean;
 
 
 
-#define LIBPHORWARD_VERSION "0.24.0"
+#define LIBPHORWARD_VERSION ""
 
 
 
@@ -600,6 +600,10 @@ void* pany_to_ptr( pany* val );
 pboolean pany_convert( pany* val, panytype type );
 
 
+void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
+void pany_fprint( FILE* stream, pany* val );
+
+
 pboolean pany_get_bool( pany* val );
 char pany_get_char( pany* val );
 int pany_get_int( pany* val );
@@ -612,10 +616,6 @@ char* pany_get_str( pany* val );
 wchar_t* pany_get_cwcs( pany* val );
 wchar_t* pany_get_wcs( pany* val );
 void* pany_get_ptr( pany* val );
-
-
-void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
-void pany_fprint( FILE* stream, pany* val );
 
 
 pboolean pany_set_bool( pany* val, pboolean b );

@@ -9,16 +9,36 @@
 # Usage:	Phorward Documentation Generator
 # ------------------------------------------------------------------------------
 
+. .phorward
+
+help()
+{
+    echo "Usage: `basename $0` OPTIONS file..."
+	echo
+	echo "    -d  --depth     DEPTH    Enforce headline level DEPTH (default:$depth)"
+    echo "    -h  --help               Show this help, and exit."
+	echo "    -V  --version            Show version info and exit."
+	echo
+}
+
 #assemble options
 depth=1
 
 while [ "$1" ]
 do
 	case "$1" in
-		-d)
+		-d|--depth)
 			depth=$2
 			shift
 			;;
+		-h|--help)
+		    help
+		    exit 0
+		    ;;
+		-V|--version)
+		    version `basename $0` "Phorward Documentation Generator"
+		    exit 0
+		    ;;
 		*)
 			break
 			;;
@@ -29,12 +49,9 @@ done
 
 if [ $# -lt 1 ]
 then
-	echo "usage: $0 [OPTION...] FILE..."
-	echo
-	echo "          -d DEPTH    Enforce headline level DEPTH (default:$depth)"
+	help
 	exit 1
 fi
-
 
 
 read -r -d '' src <<'ENDL'

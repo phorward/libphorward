@@ -10,6 +10,21 @@
 # Usage:		Local include resolver
 #-------------------------------------------------------------------------------
 
+. .phorward
+
+help()
+{
+    echo "Usage: `basename $0` OPTIONS file..."
+    echo
+    echo "    -b  --begin     STRING   Configure block comment begin to STRING ($cbeg)"
+    echo "    -e  --end       STRING   Configure block comment end to STRING ($cend)"
+    echo "    -h  --help               Show this help, and exit."
+    echo "    -l  --line      STRING   Configure line comment begin to STRING ($cline)"
+    echo "    -q  --quiet              Disable commented output"
+	echo "    -V  --version            Show version info and exit."
+    echo
+}
+
 #assemble options
 quiet=1
 cbeg="/*"
@@ -19,21 +34,29 @@ cline=""
 while [ "$1" ]
 do
 	case "$1" in
-		-q)
-			quiet=0
-			;;
-		-b)
+		-b|--begin)
 			cbeg=$2
 			shift
 			;;
-		-e)
+		-e|--end)
 			cend=$2
 			shift
 			;;
-		-l)
+		-h|--help)
+		    help
+		    exit 0
+		    ;;
+		-l|--line)
 			cline=$2
 			shift
 			;;
+		-q|--quiet)
+			quiet=0
+			;;
+		-V|--version)
+		    version `basename $0` "Local include resolver"
+		    exit 0
+		    ;;
 		*)
 			break
 			;;
@@ -44,12 +67,7 @@ done
 
 if [ $# -lt 1 ]
 then
-	echo "usage: $0 [OPTION...] FILE..."
-	echo
-	echo "          -b STRING Configure block comment begin to STRING ($cbeg)"
-	echo "          -e STRING Configure block comment end to STRING ($cend)"
-	echo "          -l STRING Configure line comment begin to STRING ($cline)"
-	echo "          -q        Disable commented output"
+	help
 	exit 1
 fi
 
@@ -112,15 +130,7 @@ BEGIN				{	FS = "[ \t\"]+"		}
 					{
 						print
 					}
-	' $1 | sed "/\/\*/!bc
-:a
-/\*\//!{
-N
-ba
-}
-:c
-s:/\*.*\*/::
-s://.*$::g"
+	' $1 | remove_c_comments
 
 	if [ $? -ne 0 ]
 	then

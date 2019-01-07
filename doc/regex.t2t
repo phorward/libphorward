@@ -279,6 +279,7 @@ A plex-object can be seen as a container, which merges multiple regular expressi
 - @plex_next() - finds the next match within a string, where unrecognized characters are ignored,
 - @plex_tokenize() - generates an array of all tokens from a string,
 - @plex_free() - destructs the plex-object after its usage,
+- @plex_dump_dot() - generates a dot-file Graphviz (http://www.graphviz.org/) to visualize the constructed lexer.
 -
 
 To tokenize a C-styled variable assignment, one could write a simple lexical analyzer, like this:

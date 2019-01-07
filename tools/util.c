@@ -12,7 +12,7 @@ Usage:	Utility library for the command-line tools.
 
 void version( char** argv, char* descr )
 {
-	printf( "%s v%s [built %s]\n", *argv, LIBPHORWARD_VERSION, __DATE__ );
+	printf( "%s v%s\n", *argv, LIBPHORWARD_VERSION );
 
 	if( descr && *descr )
 		printf( "%s. Part of the Phorward C/C++ Library.\n\n", descr );

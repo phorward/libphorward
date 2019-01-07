@@ -2241,7 +2241,7 @@ includes the newline character, if one was found.
 
 This function serves as a platform-independent implementation for POSIX [getline() #fn_getline], which is wrapped in case of POSIX.
 %FUNCTION:END
-%NEED:37
+%NEED:74
 %FUNCTION:BEGIN
 === pgetopt ===[fn_pgetopt]
 
@@ -2253,15 +2253,12 @@ int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* op
 
 **Usage:**
 
-Implementation of a command-line option interpreter.
+Command-line option interpreter.
 
 This function works similar to the [getopt() #fn_getopt] functions of the GNU Standard
 Library, but uses a different style of parameter submit.
 
 It supports both short- and long- option-style parameters.
-This function is currently under recent development relating to the issues it
-is used for. It can't be seen as compatible or feature-proven, and does not
-follow a clear concept right now.
 
 - //opt// is a pointer to a buffer with enough space to store the requested parameter to. For short parameters, this is only one char, for long-parameters the full name. The string will be zero-terminated.
 - //param// is a pointer to store a possible parameter value to, if the detected option allows for parameters.
@@ -2274,12 +2271,52 @@ returned to param. This parameter can be (char*)NULL.
 - //idx// is the index of the requested option, 0 for the first option behind argv[0].
 -
 
+The function must be called multiple times to read all command-line parameters
+and to react on the parameters.
+
 The function returns 0, if the parameter with the given index was
 successfully evaluated. It returns 1, if there are still command-line
 parameters, but not as part of options. The parameter //param// will receive
 the given pointer. It returns -1 if no more options could be read, or if an
 option could not be evaluated (unknown option). In such case, //param// will
 hold a string to the option that is unknown to [pgetopt() #fn_pgetopt].
+
+**Example:**
+
+This is a minimal example showing the usage of [pgetopt() #fn_pgetopt] in a real program:
+
+```
+#include <phorward.h>
+
+int main( int argc, char** argv )
+{
+    int			i;
+    int			rc;
+    int			next;
+    char		opt			[ 10 + 1 ];
+    char*		param;
+
+    for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
+                                "ho:", "help output:", i ) ) == 0; i++ )
+    {
+        if( !strcmp( opt, "help" ) || !strcmp( opt, "h" ) )
+            printf( "Help\n" );
+        else if( !strcmp( opt, "output" ) || !strcmp( opt, "o" ) )
+            printf( "Output = >%s<\n", param );
+    }
+
+    if( rc < 0 && param )
+    {
+        fprintf( stderr, "Unknown option '%s'\n", param );
+        return 1;
+    }
+
+    for( i = 0; next < argc; next++, i++ )
+        printf( "Parameter %d = >%s<\n", i, argv[ next ] );
+
+    return 0;
+}
+```
 %FUNCTION:END
 %NEED:32
 %FUNCTION:BEGIN

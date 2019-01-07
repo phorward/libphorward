@@ -265,7 +265,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-bin_SCRIPTS = pdoc pinclude pproto
+bin_SCRIPTS = .phorward pdoc pinclude pproto
 all: all-am
 
 .SUFFIXES:
