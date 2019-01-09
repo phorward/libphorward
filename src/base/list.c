@@ -1529,3 +1529,195 @@ void plist_dbgstats( FILE* stream, plist* list )
 
 	VOIDRET;
 }
+
+/*TESTCASE plist object functions
+#include <phorward.h>
+
+typedef struct
+{
+	char	firstname	[ 30 + 1 ];
+	char	lastname	[ 30 + 1 ];
+} person;
+
+static void dump( plist* list )
+{
+	person*		pp;
+	plistel*	e;
+
+	for( e = plist_first( list ); e; e = plist_next( e ) )
+	{
+		pp = (person*)plist_access( e );
+		printf( "- %s, %s\n", pp->lastname, pp->firstname );
+	}
+	printf( "%d elements\n", plist_count( list ) );
+}
+
+static void dump_by_key( plist* list, char* key )
+{
+	person*		pp;
+	plistel*	e;
+
+	if( !( e = plist_get_by_key( list, key ) ) )
+	{
+		printf( "<No record found matching '%s'>\n", key );
+		return;
+	}
+
+	pp = (person*)plist_access( e );
+	printf( "%s => %s, %s\n", key, pp->lastname, pp->firstname );
+}
+
+static int by_name( plist* list, plistel* a, plistel* b )
+{
+	person*	ap = plist_access( a );
+	person*	bp = plist_access( b );
+
+	return strcmp( ap->lastname, bp->lastname );
+}
+
+void testcase( void )
+{
+	person		p;
+	plist*		my;
+	plistel*	e;
+
+	// Initialize
+	my = plist_create( sizeof( person ), PLIST_MOD_RECYCLE );
+
+	strcpy( p.firstname, "Melinda" );
+	strcpy( p.lastname, "Smith" );
+	plist_insert( my, NULL, "Smith", &p );
+
+	strcpy( p.firstname, "Brenda" );
+	strcpy( p.lastname, "Brandon" );
+	plist_insert( my, NULL, "Brandon", &p );
+
+	strcpy( p.firstname, "Monique" );
+	strcpy( p.lastname, "Joli" );
+	e = plist_insert( my, NULL, "Joli", &p );
+
+	strcpy( p.firstname, "Susan" );
+	strcpy( p.lastname, "Mueller" );
+	plist_insert( my, NULL, "Mueller", &p );
+
+	dump( my );
+
+	// Sort list by name
+	plist_set_sortfn( my, by_name );
+	plist_sort( my );
+
+	// Print content
+	dump( my );
+
+	// Find by key
+	dump_by_key( my, "Joli" );
+
+	// Remove entry
+	plist_remove( my, e );
+
+	// Find again by key
+	dump_by_key( my, "Joli" );
+
+	// Add more data - first element will be recycled.
+	strcpy( p.firstname, "Rei" );
+	strcpy( p.lastname, "Ayanami" );
+	plist_insert( my, NULL, "Ayanami", &p );
+	dump_by_key( my, "Ayanami" );
+
+	// Add data with same key, test collision
+	strcpy( p.firstname, "Throttle" );
+	strcpy( p.lastname, "Full" );
+	plist_insert( my, NULL, "Ayanami", &p );
+
+	// Sort list by name again
+	plist_sort( my );
+
+	// Now print and get by key
+	dump( my );
+	dump_by_key( my, "Ayanami" );
+
+	plist_erase( my );
+	dump( my );
+
+	my = plist_free( my );
+}
+
+--------------------------------------------------------------------------------
+- Smith, Melinda
+- Brandon, Brenda
+- Joli, Monique
+- Mueller, Susan
+4 elements
+- Smith, Melinda
+- Mueller, Susan
+- Joli, Monique
+- Brandon, Brenda
+4 elements
+Joli => Joli, Monique
+<No record found matching 'Joli'>
+Ayanami => Ayanami, Rei
+- Smith, Melinda
+- Mueller, Susan
+- Full, Throttle
+- Brandon, Brenda
+- Ayanami, Rei
+5 elements
+Ayanami => Full, Throttle
+0 elements
+TESTCASE*/
+
+/*TESTCASE:plist behavior with PLIST_MOD_PTR
+#include <phorward.h>
+
+void testcase( void )
+{
+    plist*		mylist; // This is list object
+    plistel*	e; 		// e, for list iteration
+    char*		values[] = { "Hello", "World", "out there!" };
+    char*		tmp;
+
+    mylist = plist_create( sizeof( char* ), PLIST_MOD_RECYCLE | PLIST_MOD_PTR );
+
+    // Create the list.
+    plist_push( mylist, (void*)values[0] );
+    plist_push( mylist, (void*)values[1] );
+    plist_push( mylist, (void*)values[2] );
+
+    printf( "%ld\n", values[0] - values[0] );
+    printf( "%ld\n", values[1] - values[0] );
+    printf( "%ld\n", values[2] - values[0] );
+
+    // Let's iterate it.
+    printf( "mylist contains %d items\n", plist_count( mylist ) );
+    for( e = plist_first( mylist ); e; e = plist_next( e ) )
+        printf( "%s(%ld) ", (char*)plist_access( e ),
+                                (char*)plist_access( e ) - values[0] );
+
+    // Now, we remove one element (identified by its pointer)
+    //    and iterate the list again
+    plist_remove( mylist, plist_get_by_ptr( mylist, (void*)values[1] ) );
+    printf( "\nmylist contains now %d items\n", plist_count( mylist ) );
+
+    // The macro plist_for() expands into a for-loop like above...
+    plist_for( mylist, e )
+    printf( "%s(%ld) ", (char*)plist_access( e ),
+                            (char*)plist_access( e ) - values[0] );
+
+    printf( "\n" );
+
+    plist_pop( mylist, (void*)&tmp );
+    printf( "tmp = %ld >%s<\n", tmp - values[0], tmp );
+
+    // Free the entire list
+    mylist = plist_free( mylist );
+}
+--------------------------------------------------------------------------------
+0
+6
+12
+mylist contains 3 items
+Hello(0) World(6) out there!(12)
+mylist contains now 2 items
+Hello(0) out there!(12)
+tmp = 12 >out there!<
+TESTCASE*/

@@ -787,3 +787,116 @@ size_t parray_offset( parray* array, void* ptr )
 								+ ( array->first * array->size ) ) )
 				/ array->size;
 }
+
+/*TESTCASE parray object functions
+#include <phorward.h>
+
+typedef struct
+{
+	char	firstname	[ 30 + 1 ];
+	char	lastname	[ 30 + 1 ];
+} person;
+
+static void dump( parray* a )
+{
+	int		i;
+	person*	p;
+
+	printf( "first = %ld last = %ld count = %ld\n",
+				a->first, a->last, a->count );
+
+	printf( "-- %d Elements --\n", parray_count( a ) );
+
+	for( i = 0; ( p = (person*)parray_get( a, i ) ); i++ )
+		printf( "%02d) %s %s\n", i, p->firstname, p->lastname );
+
+	printf( "-- %d Elements --\n", parray_count( a ) );
+}
+
+void testcase( void )
+{
+	person 	x;
+	person*	p;
+	parray*	a;
+
+	a = parray_create( sizeof( person ), 0 );
+
+	strcpy( x.lastname, "Zufall" );
+	strcpy( x.firstname, "Reiner" );
+	parray_push( a, (void*)&x );
+
+	dump( a );
+
+	strcpy( x.lastname, "Pfahl" );
+	strcpy( x.firstname, "Martha" );
+	p = (person*)parray_insert( a, 5, (void*)&x );
+
+	dump( a );
+	printf( "%ld\n", parray_offset( a, p - 10 ) );
+
+	strcpy( x.lastname, "Racho" );
+	strcpy( x.firstname, "Volker" );
+	parray_unshift( a, (void*)&x );
+
+	dump( a );
+
+	strcpy( x.lastname, "Pete" );
+	strcpy( x.firstname, "Dieter" );
+	parray_unshift( a, (void*)&x );
+
+	dump( a );
+
+	parray_remove( a, 1, (void**)NULL );
+
+	dump( a );
+
+	a = parray_free( a );
+}
+
+--------------------------------------------------------------------------------
+first = 0 last = 1 count = 128
+-- 1 Elements --
+00) Reiner Zufall
+-- 1 Elements --
+first = 0 last = 6 count = 128
+-- 6 Elements --
+00) Reiner Zufall
+01)
+02)
+03)
+04)
+05) Martha Pfahl
+-- 6 Elements --
+6
+first = 127 last = 134 count = 256
+-- 7 Elements --
+00) Volker Racho
+01) Reiner Zufall
+02)
+03)
+04)
+05)
+06) Martha Pfahl
+-- 7 Elements --
+first = 126 last = 134 count = 256
+-- 8 Elements --
+00) Dieter Pete
+01) Volker Racho
+02) Reiner Zufall
+03)
+04)
+05)
+06)
+07) Martha Pfahl
+-- 8 Elements --
+first = 126 last = 133 count = 256
+-- 7 Elements --
+00) Dieter Pete
+01) Reiner Zufall
+02)
+03)
+04)
+05)
+06) Martha Pfahl
+-- 7 Elements --
+TESTCASE*/

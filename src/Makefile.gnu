@@ -98,3 +98,6 @@ any/any.conv.c: any/any.h any/any.gen.awk
 any/any.print.c: any/any.h any/any.gen.awk
 	$(AWK) -f any/any.gen.awk -vwith_fprint=1 any/any.h >$@
 
+# Test suite
+test: $(LIBPHORWARD)
+	LD_LIBRARY_PATH="`pwd`" LDFLAGS="-lphorward" CFLAGS="-I `pwd`" ptest -v $(SRC)

@@ -1277,3 +1277,40 @@ int main( int argc, char** argv )
 }
 #endif
 
+/*TESTCASE
+#include <phorward.h>
+
+void testcase()
+{
+	pccl*		c;
+	pccl*		d;
+	pccl*		e;
+	char* 		x;
+
+	c = pccl_create( PCCL_MIN, PCCL_MAX, "^ €A-Z\n" );
+	d = pccl_create( PCCL_MIN, PCCL_MAX, "A-NXYZ\n" );
+
+	d = pccl_create( PCCL_MIN, PCCL_MAX,
+					 "^alles richtig! :)" );
+	pccl_print( stderr, c, -1 );
+	pccl_print( stderr, d, -1 );
+
+	e = pccl_union( c, d );
+	pccl_print( stderr, e, -1 );
+
+	pccl_negate( e );
+	pccl_print( stderr, e, -1 );
+
+	pccl_negate( e );
+	pccl_print( stderr, e, -1 );
+
+	pccl_delrange( d, '\0', PCCL_MAX );
+	printf( "e = >%s<\n", pccl_to_str( d, TRUE ) );
+
+	pccl_free( c );
+	pccl_free( d );
+	pccl_free( e );
+}
+---
+todo
+*/
