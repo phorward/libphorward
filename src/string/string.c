@@ -111,7 +111,7 @@ char* pstrcatstr( char* dest, char* src, pboolean freesrc )
 	RETURN( dest );
 }
 
-/** Dynamicaly appends n-characters from one string to another string.
+/** Dynamically appends n-characters from one string to another string.
 
 The function works similar to pstrcatstr(), but allows to copy only a maximum
 of //n// characters from //append//.
