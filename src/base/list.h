@@ -43,8 +43,11 @@ struct Plist
 #define PLIST_MOD_EXTKEYS	8	/* Store keys as pointer, no copying */
 #define PLIST_MOD_PTRKEYS	16	/* Keys are directly used and compared
 									(pointer value) */
-#define PLIST_MOD_UNIQUE	32	/* Unique keys, no collisions */
-#define PLIST_MOD_WCHAR		64	/* Use wide-character strings for keys */
+#define PLIST_MOD_KEEPKEYS	32	/* Don't hide elements on hash collision
+									(colliding elements will be chained behind
+										existing ones, rather than before) */
+#define PLIST_MOD_UNIQUE	64	/* Unique keys, no collisions */
+#define PLIST_MOD_WCHAR		128	/* Use wide-character strings for keys */
 
 	size_t					size;
 	long					count;

@@ -189,13 +189,25 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 				if( list->flags & PLIST_MOD_UNIQUE )
 					RETURN( FALSE );
 
-				if( he == *bucket )
-					*bucket = e;
+				if( list->flags & PLIST_MOD_KEEPKEYS )
+				{
+					while( he->hashnext )
+						he = he->hashnext;
 
-				/* he will become hidden with e */
-				e->hashnext = he;
-				e->hashprev = he->prev;
-				he->hashprev = e;
+					e->hashprev = he;
+					he->hashnext = e;
+				}
+				else
+				{
+					if( he == *bucket )
+						*bucket = e;
+
+					/* he will become hidden with e */
+					e->hashnext = he;
+					e->hashprev = he->hashprev;
+					he->hashprev = e;
+				}
+
 				break;
 			}
 			else if( !he->hashnext )
@@ -831,6 +843,34 @@ plistel* plist_get( plist* list, size_t n )
 		;
 
 	return e;
+}
+
+/** Retrieve list keys by their index from the begin.
+
+The function returns the //n//th key within the list //list//. */
+plistel* plist_getkey( plist* list, size_t n )
+{
+	int			i;
+	plistel*	e;
+
+	if( !( list ) )
+	{
+		WRONGPARAM;
+		return (plistel*)NULL;
+	}
+
+	for( i = 0; i < list->hashsize; i++ )
+	{
+		if( !( e = list->hash[ i ] ) )
+			continue;
+
+		if( !n )
+			return e;
+
+		n--;
+	}
+
+	return (plistel*)NULL;
 }
 
 /** Retrieve list element by its index from the end.

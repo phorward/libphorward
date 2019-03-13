@@ -128,6 +128,7 @@ pboolean plist_remove( plist* list, plistel* e );
 pboolean plist_pop( plist* list, void* dest );
 pboolean plist_unshift( plist* list, void* dest );
 plistel* plist_get( plist* list, size_t n );
+plistel* plist_getkey( plist* list, size_t n );
 plistel* plist_rget( plist* list, size_t n );
 plistel* plist_get_by_key( plist* list, char* key );
 plistel* plist_get_by_ptr( plist* list, void* ptr );

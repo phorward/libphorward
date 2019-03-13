@@ -243,8 +243,9 @@ struct Plist
 #define PLIST_MOD_AUTOSORT	4	
 #define PLIST_MOD_EXTKEYS	8	
 #define PLIST_MOD_PTRKEYS	16	
-#define PLIST_MOD_UNIQUE	32	
-#define PLIST_MOD_WCHAR		64	
+#define PLIST_MOD_KEEPKEYS	32	
+#define PLIST_MOD_UNIQUE	64	
+#define PLIST_MOD_WCHAR		128	
 
 	size_t					size;
 	long					count;
@@ -707,6 +708,7 @@ pboolean plist_remove( plist* list, plistel* e );
 pboolean plist_pop( plist* list, void* dest );
 pboolean plist_unshift( plist* list, void* dest );
 plistel* plist_get( plist* list, size_t n );
+plistel* plist_getkey( plist* list, size_t n );
 plistel* plist_rget( plist* list, size_t n );
 plistel* plist_get_by_key( plist* list, char* key );
 plistel* plist_get_by_ptr( plist* list, void* ptr );
