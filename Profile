@@ -2,11 +2,21 @@
 
 ./AllSystemsGo
 
+# --- Add local binary folder to PATH
 BINDIR="`pwd`/run"
 
 if [[ $PATH != *"$BINDIR"* ]]
 then
-	PATH="`pwd`/run:$PATH"
+	PATH="$BINDIR:$PATH"
 	export PATH
+fi
+
+# --- Set CDPATH for quick project switching
+CDDIR="`pwd`/.."
+
+if [[ $CDPATH != *"$CDDIR"* ]]
+then
+	CDPATH="${CDPATH:=.}:$CDDIR"
+	export CDPATH
 fi
 
