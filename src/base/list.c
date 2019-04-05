@@ -853,24 +853,55 @@ plistel* plist_getkey( plist* list, size_t n )
 	int			i;
 	plistel*	e;
 
+	PROC( "plist_getkey" );
+	PARMS( "list", "%p", list );
+	PARMS( "n", "%ld", n );
+
 	if( !( list ) )
 	{
 		WRONGPARAM;
-		return (plistel*)NULL;
+		RETURN( (plistel*)NULL );
 	}
 
+	/* Iterate trough the buckets */
 	for( i = 0; i < list->hashsize; i++ )
 	{
+		VARS( "i", "%d", i );
+
 		if( !( e = list->hash[ i ] ) )
 			continue;
 
-		if( !n )
-			return e;
+		while( e )
+		{
+			VARS( "n", "%ld", n );
+			if( !n )
+				RETURN( e );
 
-		n--;
+			n--;
+
+			while( ( e = e->hashnext ) )
+			{
+				if( !( list->flags & PLIST_MOD_PTRKEYS ) )
+				{
+					if( list->flags & PLIST_MOD_WCHAR )
+					{
+						VARS( "e->hashprev->key", "%ls", e->hashprev->key );
+						VARS( "e->key", "%ls", e->key );
+					}
+					else
+					{
+						VARS( "e->hashprev->key", "%s", e->hashprev->key );
+						VARS( "e->key", "%s", e->key );
+					}
+				}
+
+				if( e && plist_hash_compare( list, e->hashprev->key, e->key ) )
+					break;
+			}
+		}
 	}
 
-	return (plistel*)NULL;
+	RETURN( (plistel*)NULL );
 }
 
 /** Retrieve list element by its index from the end.
