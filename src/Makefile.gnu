@@ -12,11 +12,6 @@ PATHEXT = PATH="../run:$(PATH)"
 REF = ../doc/ref.t2t
 
 SRC = \
-	any/any.c \
-	any/any.conv.c \
-	any/any.print.c \
-	any/any.get.c \
-	any/any.set.c \
 	base/array.c \
 	base/ccl.c \
 	base/dbg.c \
@@ -35,7 +30,6 @@ SRC = \
 	string/utf8.c
 
 HSRC = \
-	any/any.h \
 	base/array.h \
 	base/ccl.h \
 	base/dbg.h \
@@ -62,10 +56,6 @@ clean:
 clean_all: clean
 	-rm $(LIBHEADER)
 	-rm version.h
-	-rm any/any.conv.c
-	-rm any/any.get.c
-	-rm any/any.print.c
-	-rm any/any.set.c
 
 ref: $(SRC)
 	echo "% --- DON'T EDIT THIS FILE, IT IS GENERATED FROM SRC/ ---" >$(REF)
@@ -84,19 +74,6 @@ $(LIBHEADER): $(HSRC)
 	$(PATHEXT) filehead phorward.h "Phorward C/C++ Library Global Header" \
 		>$@
 	$(PATHEXT) pinclude phorward.tpl.h >>$@
-
-# pany object functions (generated from definitions in any.h comments)
-any/any.get.c: any/any.h any/any.gen.awk
-	$(AWK) -f any/any.gen.awk -vwith_get=1 any/any.h >$@
-
-any/any.set.c: any/any.h any/any.gen.awk
-	$(AWK) -f any/any.gen.awk -vwith_set=1 any/any.h >$@
-
-any/any.conv.c: any/any.h any/any.gen.awk
-	$(AWK) -f any/any.gen.awk -vwith_conv=1 any/any.h >$@
-
-any/any.print.c: any/any.h any/any.gen.awk
-	$(AWK) -f any/any.gen.awk -vwith_fprint=1 any/any.h >$@
 
 # Test suite
 test: $(LIBPHORWARD)

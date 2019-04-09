@@ -2,13 +2,26 @@
 
 This file is used to document any relevant changes done to libphorward.
 
+## v0.25
+
+Under development.
+
+- Modularization of the command-line tools `pdoc`, `pinclude` and `pproto`
+- Started `ptest` utility to perform automated tests and CI
+- Moved the `pany` dynamic variant data type into the [phosphor repository](https://github.com/phorward/phosphor)
+- plist:
+  - `PLIST_MOD_KEEPKEYS` to keep key order and implement opposite hiding
+    (last key collision will be chained to the end).
+  - New function `plist_getkey()` to iterate over available keys in a
+    hash-table configured plist object.
+
 ## v0.24
 
 Released on: Jan 1, 2019
 
 - Improved hash table feature of `plist` to use non-mersenne prime numbers for collision avoidance
 - Updated layout and cross-linking of the HTML-documentation
-- Removed former `parse` module and integrated it into the [UniCC repository](https://github.com/phorward/unicc)
+- Removed former `parse` module and integrated it into the [UniCC² repository](https://github.com/phorward/unicc2)
 - Removed former `vm` module and integrated it into the [phosphor repository](https://github.com/phorward/phosphor)
 - Install `pdoc`, `pinclude` and `pproto` command-line tools to /bin
 - Removed `premcomment` tool

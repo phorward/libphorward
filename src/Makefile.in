@@ -142,12 +142,11 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(phorwarddir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libphorward_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libphorward_la_OBJECTS = any/any.lo any/any.conv.lo any/any.get.lo \
-	any/any.print.lo any/any.set.lo base/array.lo base/ccl.lo \
-	base/dbg.lo base/list.lo base/memory.lo base/system.lo \
-	regex/dfa.lo regex/direct.lo regex/lex.lo regex/misc.lo \
-	regex/nfa.lo regex/ptn.lo regex/regex.lo string/convert.lo \
-	string/string.lo string/utf8.lo
+am_libphorward_la_OBJECTS = base/array.lo base/ccl.lo base/dbg.lo \
+	base/list.lo base/memory.lo base/system.lo regex/dfa.lo \
+	regex/direct.lo regex/lex.lo regex/misc.lo regex/nfa.lo \
+	regex/ptn.lo regex/regex.lo string/convert.lo string/string.lo \
+	string/utf8.lo
 libphorward_la_OBJECTS = $(am_libphorward_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -172,17 +171,14 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = any/$(DEPDIR)/any.Plo any/$(DEPDIR)/any.conv.Plo \
-	any/$(DEPDIR)/any.get.Plo any/$(DEPDIR)/any.print.Plo \
-	any/$(DEPDIR)/any.set.Plo base/$(DEPDIR)/array.Plo \
-	base/$(DEPDIR)/ccl.Plo base/$(DEPDIR)/dbg.Plo \
-	base/$(DEPDIR)/list.Plo base/$(DEPDIR)/memory.Plo \
-	base/$(DEPDIR)/system.Plo regex/$(DEPDIR)/dfa.Plo \
-	regex/$(DEPDIR)/direct.Plo regex/$(DEPDIR)/lex.Plo \
-	regex/$(DEPDIR)/misc.Plo regex/$(DEPDIR)/nfa.Plo \
-	regex/$(DEPDIR)/ptn.Plo regex/$(DEPDIR)/regex.Plo \
-	string/$(DEPDIR)/convert.Plo string/$(DEPDIR)/string.Plo \
-	string/$(DEPDIR)/utf8.Plo
+am__depfiles_remade = base/$(DEPDIR)/array.Plo base/$(DEPDIR)/ccl.Plo \
+	base/$(DEPDIR)/dbg.Plo base/$(DEPDIR)/list.Plo \
+	base/$(DEPDIR)/memory.Plo base/$(DEPDIR)/system.Plo \
+	regex/$(DEPDIR)/dfa.Plo regex/$(DEPDIR)/direct.Plo \
+	regex/$(DEPDIR)/lex.Plo regex/$(DEPDIR)/misc.Plo \
+	regex/$(DEPDIR)/nfa.Plo regex/$(DEPDIR)/ptn.Plo \
+	regex/$(DEPDIR)/regex.Plo string/$(DEPDIR)/convert.Plo \
+	string/$(DEPDIR)/string.Plo string/$(DEPDIR)/utf8.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -357,11 +353,6 @@ PATHEXT = PATH="../run:$(PATH)"
 lib_LTLIBRARIES = libphorward.la
 libphorward_la_LDFLAGS = -no-undefined
 libphorward_la_SOURCES = \
-	any/any.c \
-	any/any.conv.c \
-	any/any.get.c \
-	any/any.print.c \
-	any/any.set.c \
 	base/array.c \
 	base/ccl.c \
 	base/dbg.c \
@@ -380,7 +371,6 @@ libphorward_la_SOURCES = \
 	string/utf8.c
 
 noinst_HEADERS = \
-	any/any.h \
 	base/array.h \
 	base/ccl.h \
 	base/dbg.h \
@@ -465,17 +455,6 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
-any/$(am__dirstamp):
-	@$(MKDIR_P) any
-	@: > any/$(am__dirstamp)
-any/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) any/$(DEPDIR)
-	@: > any/$(DEPDIR)/$(am__dirstamp)
-any/any.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
-any/any.conv.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
-any/any.get.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
-any/any.print.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
-any/any.set.lo: any/$(am__dirstamp) any/$(DEPDIR)/$(am__dirstamp)
 base/$(am__dirstamp):
 	@$(MKDIR_P) base
 	@: > base/$(am__dirstamp)
@@ -519,8 +498,6 @@ libphorward.la: $(libphorward_la_OBJECTS) $(libphorward_la_DEPENDENCIES) $(EXTRA
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f any/*.$(OBJEXT)
-	-rm -f any/*.lo
 	-rm -f base/*.$(OBJEXT)
 	-rm -f base/*.lo
 	-rm -f regex/*.$(OBJEXT)
@@ -531,11 +508,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.conv.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.get.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.print.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@any/$(DEPDIR)/any.set.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/array.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/ccl.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@base/$(DEPDIR)/dbg.Plo@am__quote@ # am--include-marker
@@ -588,7 +560,6 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-	-rm -rf any/.libs any/_libs
 	-rm -rf base/.libs base/_libs
 	-rm -rf regex/.libs regex/_libs
 	-rm -rf string/.libs string/_libs
@@ -753,8 +724,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f any/$(DEPDIR)/$(am__dirstamp)
-	-rm -f any/$(am__dirstamp)
 	-rm -f base/$(DEPDIR)/$(am__dirstamp)
 	-rm -f base/$(am__dirstamp)
 	-rm -f regex/$(DEPDIR)/$(am__dirstamp)
@@ -771,12 +740,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f any/$(DEPDIR)/any.Plo
-	-rm -f any/$(DEPDIR)/any.conv.Plo
-	-rm -f any/$(DEPDIR)/any.get.Plo
-	-rm -f any/$(DEPDIR)/any.print.Plo
-	-rm -f any/$(DEPDIR)/any.set.Plo
-	-rm -f base/$(DEPDIR)/array.Plo
+		-rm -f base/$(DEPDIR)/array.Plo
 	-rm -f base/$(DEPDIR)/ccl.Plo
 	-rm -f base/$(DEPDIR)/dbg.Plo
 	-rm -f base/$(DEPDIR)/list.Plo
@@ -837,12 +801,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f any/$(DEPDIR)/any.Plo
-	-rm -f any/$(DEPDIR)/any.conv.Plo
-	-rm -f any/$(DEPDIR)/any.get.Plo
-	-rm -f any/$(DEPDIR)/any.print.Plo
-	-rm -f any/$(DEPDIR)/any.set.Plo
-	-rm -f base/$(DEPDIR)/array.Plo
+		-rm -f base/$(DEPDIR)/array.Plo
 	-rm -f base/$(DEPDIR)/ccl.Plo
 	-rm -f base/$(DEPDIR)/dbg.Plo
 	-rm -f base/$(DEPDIR)/list.Plo
@@ -925,20 +884,6 @@ $(LIBHEADER): $(noinst_HEADERS) $(PROTOFILE)
 	$(PATHEXT) filehead phorward.h "Phorward C/C++ Library Global Header" \
 		>$@
 	$(PATHEXT) pinclude phorward.tpl.h >>$@
-
-# Variant Data Type Modules (generated from definitions in var.h comments)
-
-any/any.get.c: any/any.h any/any.gen.awk
-	$(AWK) -f any/any.gen.awk -vwith_get=1 any/any.h >$@
-
-any/any.set.c: any/any.h any/any.gen.awk
-	$(AWK) -f any/any.gen.awk -vwith_set=1 any/any.h >$@
-
-any/any.conv.c: any/any.h any/any.gen.awk
-	$(AWK) -f any/any.gen.awk -vwith_conv=1 any/any.h >$@
-
-any/any.print.c: any/any.h any/any.gen.awk
-	$(AWK) -f any/any.gen.awk -vwith_fprint=1 any/any.h >$@
 
 # Phorward Foundation Library Documentation
 ../doc/ref.t2t: $(libphorward_la_SOURCES) $(noinst_HEADERS)

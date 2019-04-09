@@ -311,97 +311,6 @@ typedef struct
 
 
 
-
-
-typedef enum
-{
-	PANYTYPE_NULL,
-
-	
-	PANYTYPE_BOOL,
-	PANYTYPE_CHAR,
-	PANYTYPE_INT,
-	PANYTYPE_LONG,
-	PANYTYPE_ULONG,
-	PANYTYPE_FLOAT,
-	PANYTYPE_DOUBLE,
-
-	
-	PANYTYPE_STR,
-	PANYTYPE_CSTR,
-	PANYTYPE_WCS,
-	PANYTYPE_CWCS,
-
-	
-	PANYTYPE_PTR
-} panytype;
-
-
-typedef struct
-{
-	panytype		type;			
-
-	union							
-	{
-		pboolean		b;
-		
-
-		char			c;
-		
-
-		int				i;
-		
-
-		long			l;
-		
-
-		unsigned long	ul;
-		
-
-		float			f;
-		
-
-		double			d;
-		
-
-		char*			s;
-		
-		
-
-		wchar_t*		ws;
-		
-
-		
-
-		void*			ptr;
-		
-	} val;
-} pany;
-
-
-#define pany_set_strdup( val, str ) \
-			pany_set_str( val, pstrdup( str ) )
-#define pany_set_strndup( val, str, n ) \
-			pany_set_str( val, pstrndup( str, n ) )
-
-#define pany_set_wcsdup( val, wcs ) \
-			pany_set_wcs( val, pwcsdup( wcs ) )
-#define pany_set_wcsndup( val, wcs, n ) \
-			pany_set_wcs( val, pwcnsdup( wcs, n ) )
-
-
-#ifdef DEBUG
-	#define PANY_DUMP( val ) \
-		_dbg_any_dump( __FILE__, __LINE__, _dbg_proc_name, #val, val )
-#else
-	#define PANY_DUMP( val )
-#endif
-
-
-
-
-
-
 #define PREGEX_ALLOC_STEP		16
 #define PREGEX_MAXREF			32
 
@@ -571,66 +480,10 @@ struct _lexctx
 
 
 
-
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-
-pboolean pany_init( pany* val );
-pany* pany_create( char* str );
-pboolean pany_reset( pany* val );
-pany* pany_free( pany* val );
-pboolean pany_parse( pany* val, char* str, panytype enforce );
-pboolean pany_copy( pany* dest, pany* src );
-pany* pany_dup( pany* src );
-
-
-pboolean pany_to_bool( pany* val );
-char pany_to_char( pany* val );
-int pany_to_int( pany* val );
-long pany_to_long( pany* val );
-unsigned long pany_to_ulong( pany* val );
-float pany_to_float( pany* val );
-double pany_to_double( pany* val );
-char* pany_to_str( pany* val );
-wchar_t* pany_to_wcs( pany* val );
-void* pany_to_ptr( pany* val );
-pboolean pany_convert( pany* val, panytype type );
-
-
-void _dbg_any_dump( char* file, int line, char* function, char* name, pany* val );
-void pany_fprint( FILE* stream, pany* val );
-
-
-pboolean pany_get_bool( pany* val );
-char pany_get_char( pany* val );
-int pany_get_int( pany* val );
-long pany_get_long( pany* val );
-unsigned long pany_get_ulong( pany* val );
-float pany_get_float( pany* val );
-double pany_get_double( pany* val );
-char* pany_get_cstr( pany* val );
-char* pany_get_str( pany* val );
-wchar_t* pany_get_cwcs( pany* val );
-wchar_t* pany_get_wcs( pany* val );
-void* pany_get_ptr( pany* val );
-
-
-pboolean pany_set_bool( pany* val, pboolean b );
-char pany_set_char( pany* val, char c );
-int pany_set_int( pany* val, int i );
-long pany_set_long( pany* val, long l );
-unsigned long pany_set_ulong( pany* val, unsigned long ul );
-float pany_set_float( pany* val, float f );
-double pany_set_double( pany* val, double d );
-char* pany_set_cstr( pany* val, char* s );
-char* pany_set_str( pany* val, char* s );
-wchar_t* pany_set_cwcs( pany* val, wchar_t* ws );
-wchar_t* pany_set_wcs( pany* val, wchar_t* ws );
-void* pany_set_ptr( pany* val, void* ptr );
 
 
 pboolean parray_init( parray* array, size_t size, size_t chunk );

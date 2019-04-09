@@ -3,7 +3,7 @@ libphorward 0.24.0
 Jan 2019
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
-%!preproc(xhtml): '(pboolean|pany|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '[\1 #\1]\2'
+%!preproc(xhtml): '(pboolean|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '[\1 #\1]\2'
 %!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
 %!preproc(xhtml): '%FUNCTION:BEGIN' "''' <div class='function'>"
 %!preproc(xhtml): '%FUNCTION:END' "''' </div>"
@@ -251,12 +251,6 @@ $NEWPAGE$
 == Character-classes (pccl) ==[pccl]
 
 %!include: ccl.t2t
-
-%-------------------------------------------------------------------------------
-
-= Variant data type (pany) =[pany]
-
-coming soon
 
 %-------------------------------------------------------------------------------
 

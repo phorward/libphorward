@@ -90,41 +90,39 @@
     </li>
     </ul>
   </li>
-  <li><a href="#pany">Variant data type (pany)</a>
-  </li>
-  <li><a href="#toc31">Regular expressions &amp; lexical analyzers (pregex, plex)</a>
+  <li><a href="#toc30">Regular expressions &amp; lexical analyzers (pregex, plex)</a>
     <ul>
-    <li><a href="#toc32">Overview</a>
+    <li><a href="#toc31">Overview</a>
       <ul>
-      <li><a href="#toc33">Meta constructs</a>
+      <li><a href="#toc32">Meta constructs</a>
       </li>
-      <li><a href="#toc34">Characters and escape sequences</a>
+      <li><a href="#toc33">Characters and escape sequences</a>
       </li>
-      <li><a href="#toc35">Shorthand character classes</a>
+      <li><a href="#toc34">Shorthand character classes</a>
       </li>
-      <li><a href="#toc36">Anchoring</a>
+      <li><a href="#toc35">Anchoring</a>
       </li>
-      <li><a href="#toc37">Examples</a>
+      <li><a href="#toc36">Examples</a>
       </li>
       </ul>
     </li>
     <li><a href="#pregex">Operating on regular expressions (pregex)</a>
       <ul>
-      <li><a href="#toc39">Construction and destruction</a>
+      <li><a href="#toc38">Construction and destruction</a>
       </li>
-      <li><a href="#toc40">Matching</a>
+      <li><a href="#toc39">Matching</a>
       </li>
-      <li><a href="#toc41">Splitting</a>
+      <li><a href="#toc40">Splitting</a>
       </li>
-      <li><a href="#toc42">Replacing</a>
+      <li><a href="#toc41">Replacing</a>
       </li>
-      <li><a href="#toc43">Quick-access functions</a>
+      <li><a href="#toc42">Quick-access functions</a>
       </li>
       </ul>
     </li>
     <li><a href="#plex">Lexical analysis using regular expressions (plex)</a>
     </li>
-    <li><a href="#toc45">Tools</a>
+    <li><a href="#toc44">Tools</a>
       <ul>
       <li><a href="#prange">Ranges</a>
       </li>
@@ -134,17 +132,15 @@
     </li>
     </ul>
   </li>
-  <li><a href="#toc48">String helper functions (pstr*, pwcs*)</a>
+  <li><a href="#toc47">String helper functions (pstr*, pwcs*)</a>
   </li>
-  <li><a href="#toc49">Function reference</a>
+  <li><a href="#toc48">Function reference</a>
     <ul>
-    <li><a href="#toc50">Macros</a>
+    <li><a href="#toc49">Macros</a>
       <ul>
       <li><a href="#fn_LOG">LOG</a>
       </li>
       <li><a href="#fn_MSG">MSG</a>
-      </li>
-      <li><a href="#fn_PANY_DUMP">PANY_DUMP</a>
       </li>
       <li><a href="#fn_PARMS">PARMS</a>
       </li>
@@ -162,94 +158,8 @@
       </li>
       </ul>
     </li>
-    <li><a href="#toc61">Functions</a>
+    <li><a href="#toc59">Functions</a>
       <ul>
-      <li><a href="#fn_pany_convert">pany_convert</a>
-      </li>
-      <li><a href="#fn_pany_copy">pany_copy</a>
-      </li>
-      <li><a href="#fn_pany_create">pany_create</a>
-      </li>
-      <li><a href="#fn_pany_dup">pany_dup</a>
-      </li>
-      <li><a href="#fn_pany_fprint">pany_fprint</a>
-      </li>
-      <li><a href="#fn_pany_free">pany_free</a>
-      </li>
-      <li><a href="#fn_pany_get_bool">pany_get_bool</a>
-      </li>
-      <li><a href="#fn_pany_get_char">pany_get_char</a>
-      </li>
-      <li><a href="#fn_pany_get_cstr">pany_get_cstr</a>
-      </li>
-      <li><a href="#fn_pany_get_cwcs">pany_get_cwcs</a>
-      </li>
-      <li><a href="#fn_pany_get_double">pany_get_double</a>
-      </li>
-      <li><a href="#fn_pany_get_float">pany_get_float</a>
-      </li>
-      <li><a href="#fn_pany_get_int">pany_get_int</a>
-      </li>
-      <li><a href="#fn_pany_get_long">pany_get_long</a>
-      </li>
-      <li><a href="#fn_pany_get_ptr">pany_get_ptr</a>
-      </li>
-      <li><a href="#fn_pany_get_str">pany_get_str</a>
-      </li>
-      <li><a href="#fn_pany_get_ulong">pany_get_ulong</a>
-      </li>
-      <li><a href="#fn_pany_get_wcs">pany_get_wcs</a>
-      </li>
-      <li><a href="#fn_pany_init">pany_init</a>
-      </li>
-      <li><a href="#fn_pany_parse">pany_parse</a>
-      </li>
-      <li><a href="#fn_pany_reset">pany_reset</a>
-      </li>
-      <li><a href="#fn_pany_set_bool">pany_set_bool</a>
-      </li>
-      <li><a href="#fn_pany_set_char">pany_set_char</a>
-      </li>
-      <li><a href="#fn_pany_set_cstr">pany_set_cstr</a>
-      </li>
-      <li><a href="#fn_pany_set_cwcs">pany_set_cwcs</a>
-      </li>
-      <li><a href="#fn_pany_set_double">pany_set_double</a>
-      </li>
-      <li><a href="#fn_pany_set_float">pany_set_float</a>
-      </li>
-      <li><a href="#fn_pany_set_int">pany_set_int</a>
-      </li>
-      <li><a href="#fn_pany_set_long">pany_set_long</a>
-      </li>
-      <li><a href="#fn_pany_set_ptr">pany_set_ptr</a>
-      </li>
-      <li><a href="#fn_pany_set_str">pany_set_str</a>
-      </li>
-      <li><a href="#fn_pany_set_ulong">pany_set_ulong</a>
-      </li>
-      <li><a href="#fn_pany_set_wcs">pany_set_wcs</a>
-      </li>
-      <li><a href="#fn_pany_to_bool">pany_to_bool</a>
-      </li>
-      <li><a href="#fn_pany_to_char">pany_to_char</a>
-      </li>
-      <li><a href="#fn_pany_to_double">pany_to_double</a>
-      </li>
-      <li><a href="#fn_pany_to_float">pany_to_float</a>
-      </li>
-      <li><a href="#fn_pany_to_int">pany_to_int</a>
-      </li>
-      <li><a href="#fn_pany_to_long">pany_to_long</a>
-      </li>
-      <li><a href="#fn_pany_to_ptr">pany_to_ptr</a>
-      </li>
-      <li><a href="#fn_pany_to_str">pany_to_str</a>
-      </li>
-      <li><a href="#fn_pany_to_ulong">pany_to_ulong</a>
-      </li>
-      <li><a href="#fn_pany_to_wcs">pany_to_wcs</a>
-      </li>
       <li><a href="#fn_parray_count">parray_count</a>
       </li>
       <li><a href="#fn_parray_create">parray_create</a>
@@ -427,6 +337,8 @@
       <li><a href="#fn_plist_get_by_key">plist_get_by_key</a>
       </li>
       <li><a href="#fn_plist_get_by_ptr">plist_get_by_ptr</a>
+      </li>
+      <li><a href="#fn_plist_getkey">plist_getkey</a>
       </li>
       <li><a href="#fn_plist_hashnext">plist_hashnext</a>
       </li>
@@ -1578,15 +1490,9 @@ Useful, additional functions when working with <a href="#pccl">pccl</a> are:
 </li>
 </ul>
 
-<h1 id="pany">Variant data type (pany)</h1>
+<h1 id="toc30">Regular expressions &amp; lexical analyzers (pregex, plex)</h1>
 
-<p>
-coming soon
-</p>
-
-<h1 id="toc31">Regular expressions &amp; lexical analyzers (pregex, plex)</h1>
-
-<h2 id="toc32">Overview</h2>
+<h2 id="toc31">Overview</h2>
 
 <p>
 libphorward provides a powerful set of functions relating to general string pattern matching and lexical analysis using regular expressions.
@@ -1613,7 +1519,7 @@ libphorward provides a powerful set of functions relating to general string patt
 </li>
 </ul>
 
-<h3 id="toc33">Meta constructs</h3>
+<h3 id="toc32">Meta constructs</h3>
 
 <p>
 In general, regular expressions are made-up of the following elements:
@@ -1661,7 +1567,7 @@ All meta-characters can be escaped by backslash, so they are interpretered as us
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc34">Characters and escape sequences</h3>
+<h3 id="toc33">Characters and escape sequences</h3>
 
 <p>
 Any other character coming up is consumed as one expression to be matched in the input.
@@ -1738,7 +1644,7 @@ Escape sequences (C-style) are supported according to the following table:
 <u><b>Note:</b> When specifying escape-sequences in static strings within C-code, they must be double-escaped, because they are first analyzed by the C compiler and then by libphorward's regex-parser. Therefore, specifiying a backslash <code>\\</code> must become <code>\\\\</code> in the C-Code, which then yields in <code>\\</code> after compiling the C program.</u>
 </p>
 
-<h3 id="toc35">Shorthand character classes</h3>
+<h3 id="toc34">Shorthand character classes</h3>
 
 <p>
 Pre-defined shorthand character-classes are also supported by libphorward's <a href="#pregex">pregex</a> and <a href="#plex">plex</a> tools.
@@ -1782,7 +1688,7 @@ Pre-defined shorthand character-classes are also supported by libphorward's <a h
 </tr>
 </table>
 
-<h3 id="toc36">Anchoring</h3>
+<h3 id="toc35">Anchoring</h3>
 
 <p>
 The following anchors are supported, when specified at beginning or ending of an expression:
@@ -1815,7 +1721,7 @@ The following anchors are supported, when specified at beginning or ending of an
 Anchors can be entirely switched off when setting the PREGEX_COMP_NOANCHORS on compile-time, respectively PREGEX_RUN_NOANCHORS on run-time.
 </p>
 
-<h3 id="toc37">Examples</h3>
+<h3 id="toc36">Examples</h3>
 
 <p>
 Some examples:
@@ -1879,7 +1785,7 @@ Generally, the actions
 are supported by the compiled pattern.
 </p>
 
-<h3 id="toc39">Construction and destruction</h3>
+<h3 id="toc38">Construction and destruction</h3>
 
 <p>
 <a href="#pregex">pregex</a> objects are constructed by <a href="#fn_pregex_create">pregex_create()</a>. First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
@@ -1954,7 +1860,7 @@ r = pregex_create( "[_A-Za-z]+", 0 );
 pregex_free( r );
 </code></pre>
 
-<h3 id="toc40">Matching</h3>
+<h3 id="toc39">Matching</h3>
 
 <p>
 To immediatelly test if a <a href="#pregex">pregex</a>-object matches on a string, the function <a href="#fn_pregex_match">pregex_match()</a> shall be invoked.
@@ -2006,7 +1912,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 parray_free( a );
 </code></pre>
 
-<h3 id="toc41">Splitting</h3>
+<h3 id="toc40">Splitting</h3>
 
 <p>
 Splitting a string by a regular expression can be done with <a href="#fn_pregex_split">pregex_split()</a>. This function takes several parameters, and is designed to be called in a loop.
@@ -2045,7 +1951,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 parray_free( a );
 </code></pre>
 
-<h3 id="toc42">Replacing</h3>
+<h3 id="toc41">Replacing</h3>
 
 <p>
 The function <a href="#fn_pregex_replace">pregex_replace()</a> allows for replacing parts of strings by regular expressions.
@@ -2079,7 +1985,7 @@ will return "int[5] and int[6] are the cross sums of int[23] and int[42]." when 
 To disable the backreference replacement features, the regular expression flag PREGEX_RUN_NOREF must be switched.
 </p>
 
-<h3 id="toc43">Quick-access functions</h3>
+<h3 id="toc42">Quick-access functions</h3>
 
 <p>
 Based on the <a href="#pregex">pregex</a>-object, libphorward provides the shortcut functons
@@ -2173,7 +2079,7 @@ ident &gt;x&lt;
 semicolon &gt;;&lt;
 </code></pre>
 
-<h2 id="toc45">Tools</h2>
+<h2 id="toc44">Tools</h2>
 
 <h3 id="prange">Ranges</h3>
 
@@ -2204,7 +2110,7 @@ Objects of the kind <a href="#pregex_ptn">pregex_ptn</a> can be seen as nodes of
 They are managed by the functions <a href="#fn_pregex_ptn_create">pregex_ptn_create()</a>, <a href="#fn_pregex_ptn_create_alt">pregex_ptn_create_alt()</a>, <a href="#fn_pregex_ptn_create_char">pregex_ptn_create_char()</a>, <a href="#fn_pregex_ptn_create_kle">pregex_ptn_create_kle()</a>, <a href="#fn_pregex_ptn_create_opt">pregex_ptn_create_opt()</a>, <a href="#fn_pregex_ptn_create_pos">pregex_ptn_create_pos()</a>, <a href="#fn_pregex_ptn_create_refsub">pregex_ptn_create_refsub()</a>, <a href="#fn_pregex_ptn_create_seq">pregex_ptn_create_seq()</a>, <a href="#fn_pregex_ptn_create_string">pregex_ptn_create_string()</a>, <a href="#fn_pregex_ptn_create_sub">pregex_ptn_create_sub()</a>, <a href="#fn_pregex_ptn_dup">pregex_ptn_dup()</a>, <a href="#fn_pregex_ptn_free">pregex_ptn_free()</a>, <a href="#fn_pregex_ptn_parse">pregex_ptn_parse()</a>, <a href="#fn_pregex_ptn_print">pregex_ptn_print()</a>, <a href="#fn_pregex_ptn_to_dfa">pregex_ptn_to_dfa()</a>, <a href="#fn_pregex_ptn_to_dfatab">pregex_ptn_to_dfatab()</a>, <a href="#fn_pregex_ptn_to_nfa">pregex_ptn_to_nfa()</a> and pregex_ptn_to_regex().
 </p>
 
-<h1 id="toc48">String helper functions (pstr*, pwcs*)</h1>
+<h1 id="toc47">String helper functions (pstr*, pwcs*)</h1>
 
 <p>
 libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
@@ -2279,9 +2185,9 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 Although the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
 </p>
 
-<h1 id="toc49">Function reference</h1>
+<h1 id="toc48">Function reference</h1>
 
-<h2 id="toc50">Macros</h2>
+<h2 id="toc49">Macros</h2>
 
 <!-- NEED 17 -->
 <div class='function'>
@@ -2332,26 +2238,6 @@ Write a message to trace.
 </p>
 <p>
 <i>message</i> is your message!
-</div>
-<!-- NEED 11 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_PANY_DUMP">PANY_DUMP</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-PANY_DUMP( <a href="#pany">pany</a>* any ) - <i>Macro</i>
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Dump <a href="#pany">pany</a> object to trace.
 </div>
 <!-- NEED 20 -->
 <div class='function'>
@@ -2593,1161 +2479,10 @@ plist_for( my_list, e )
 
 </div>
 
-<h2 id="toc61">Functions</h2>
+<h2 id="toc59">Functions</h2>
 
-<!-- NEED 16 -->
-<div class='function'>
-
-<h3 id="fn_pany_convert">pany_convert</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pboolean">pboolean</a> pany_convert( <a href="#pany">pany</a>* val, panytype type )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts a <a href="#pany">pany</a>-structure to any supported type.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be converted.
-<i>type</i> is the type define to which <i>val</i> should be converted to.
-</p>
-<p>
-The function returns TRUE on success, FALSE else.
-</div>
-<!-- NEED 13 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_copy">pany_copy</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pboolean">pboolean</a> pany_copy( <a href="#pany">pany</a>* dest, <a href="#pany">pany</a>* src )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Copy any value from <i>src</i> into <i>dest</i>.
-</p>
-<p>
-<i>dest</i> will be reset and stand on its own after copying.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_create">pany_create</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pany">pany</a>* pany_create( char* str )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Creates a new <a href="#pany">pany</a>-object.
-</p>
-<p>
-It allows for parsing a value from <i>str</i>.
-</p>
-<p>
-This object must be released after usage using <a href="#fn_pany_free">pany_free()</a>.
-</div>
 <!-- NEED 11 -->
 <div class='function'>
-</p>
-
-<h3 id="fn_pany_dup">pany_dup</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pany">pany</a>* pany_dup( <a href="#pany">pany</a>* src )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Duplicate the object <i>src</i> into a new object that stands on its own.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_fprint">pany_fprint</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-void pany_fprint( FILE* stream, <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Print the type and value of <i>val</i> to <i>stream</i>
-without any conversion. This function shall be used for debug only.
-</p>
-<p>
-<i>stream</i> is the stream to write to.
-<i>val</i> is the <a href="#pany">pany</a>-object to be printed.
-</div>
-<!-- NEED 13 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_free">pany_free</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pany">pany</a>* pany_free( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Frees an allocated <a href="#pany">pany</a> object and all its used memory.
-</p>
-<p>
-The function always returns (<a href="#pany">pany</a>*)NULL.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_bool">pany_get_bool</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pboolean">pboolean</a> pany_get_bool( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>pboolean</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as <a href="#pboolean">pboolean</a>.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_char">pany_get_char</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char pany_get_char( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>char</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as char.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_cstr">pany_get_cstr</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char* pany_get_cstr( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>char*</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as char*.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_cwcs">pany_get_cwcs</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-wchar_t* pany_get_cwcs( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>wchar_t*</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as wchar_t*.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_double">pany_get_double</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-double pany_get_double( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>double</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as double.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_float">pany_get_float</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-float pany_get_float( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>float</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as float.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_int">pany_get_int</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-int pany_get_int( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>int</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as int.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_long">pany_get_long</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-long pany_get_long( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>long</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as long.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_ptr">pany_get_ptr</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-void* pany_get_ptr( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>void*</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as void*.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_str">pany_get_str</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char* pany_get_str( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>char*</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as char*.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_ulong">pany_get_ulong</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-unsigned long pany_get_ulong( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>unsigned long</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as unsigned long.
-This value could be converted from the original value.
-</div>
-<!-- NEED 17 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_get_wcs">pany_get_wcs</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-wchar_t* pany_get_wcs( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Returns the <code>wchar_t*</code>-value of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-object.
-</p>
-<p>
-If the <a href="#pany">pany</a>-object exists in another data type, it will be converted.
-The function returns the value assigned to <i>val</i> as wchar_t*.
-This value could be converted from the original value.
-</div>
-<!-- NEED 13 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_init">pany_init</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pboolean">pboolean</a> pany_init( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Initializes a <a href="#pany">pany</a>-element.
-</p>
-<p>
-<i>val</i> is the pointer to the <a href="#pany">pany</a>-structure to be initialized.
-</div>
-<!-- NEED 24 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_parse">pany_parse</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pboolean">pboolean</a> pany_parse( <a href="#pany">pany</a>* val, char* str, panytype enforce )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Parse any value from a string.
-</p>
-<p>
-The function will check and ignore for leading and following whitespace, and
-matches long integer, double values and strings.
-</p>
-<p>
-If a string is encapsulated between C-styled string or character tokens (", '),
-the content between the delimiters will be taken as a string and ran through an
-escaping function.
-</p>
-<p>
-Any other content is taken as string. If the parameter <i>enforce</i> is set to
-a desired PANY_-type, this type will be enforced, and no special recognition
-is done.
-</p>
-<p>
-This function tries to detect
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_reset">pany_reset</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pboolean">pboolean</a> pany_reset( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Frees all memory used by a <a href="#pany">pany</a>-element.
-</p>
-<p>
-All memory used by the element is freed, and the union's structure is reset
-to be of type PANYTYPE_NULL.
-</p>
-<p>
-<i>val</i> is the pointer to <a href="#pany">pany</a> structure.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_bool">pany_set_bool</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pboolean">pboolean</a> pany_set_bool( <a href="#pany">pany</a>* val, <a href="#pboolean">pboolean</a> b )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>pboolean</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>b</i> is the <code>pboolean</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>b</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_char">pany_set_char</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char pany_set_char( <a href="#pany">pany</a>* val, char c )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>char</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>c</i> is the <code>char</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>c</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_cstr">pany_set_cstr</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char* pany_set_cstr( <a href="#pany">pany</a>* val, char* s )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>char*</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>s</i> is the <code>char*</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>s</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_cwcs">pany_set_cwcs</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-wchar_t* pany_set_cwcs( <a href="#pany">pany</a>* val, wchar_t* ws )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>wchar_t*</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>ws</i> is the <code>wchar_t*</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>ws</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_double">pany_set_double</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-double pany_set_double( <a href="#pany">pany</a>* val, double d )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>double</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>d</i> is the <code>double</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>d</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_float">pany_set_float</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-float pany_set_float( <a href="#pany">pany</a>* val, float f )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>float</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>f</i> is the <code>float</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>f</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_int">pany_set_int</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-int pany_set_int( <a href="#pany">pany</a>* val, int i )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>int</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>i</i> is the <code>int</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>i</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_long">pany_set_long</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-long pany_set_long( <a href="#pany">pany</a>* val, long l )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>long</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>l</i> is the <code>long</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>l</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_ptr">pany_set_ptr</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-void* pany_set_ptr( <a href="#pany">pany</a>* val, void* ptr )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>void*</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>ptr</i> is the <code>void*</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>ptr</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_str">pany_set_str</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char* pany_set_str( <a href="#pany">pany</a>* val, char* s )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>char*</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>s</i> is the <code>char*</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>s</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_ulong">pany_set_ulong</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-unsigned long pany_set_ulong( <a href="#pany">pany</a>* val, unsigned long ul )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>unsigned long</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>ul</i> is the <code>unsigned long</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>ul</i>.
-</div>
-<!-- NEED 16 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_set_wcs">pany_set_wcs</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-wchar_t* pany_set_wcs( <a href="#pany">pany</a>* val, wchar_t* ws )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Sets the <code>wchar_t*</code>-value and type of <i>val</i>.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to be set.
-<i>ws</i> is the <code>wchar_t*</code>-value to be assigned to <i>val</i>.
-</p>
-<p>
-The function always returns the value <i>ws</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_bool">pany_to_bool</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-<a href="#pboolean">pboolean</a> pany_to_bool( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a <a href="#pboolean">pboolean</a> value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the <a href="#pboolean">pboolean</a>-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_char">pany_to_char</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char pany_to_char( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a char value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the char-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_double">pany_to_double</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-double pany_to_double( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a double value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the double-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_float">pany_to_float</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-float pany_to_float( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a float value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the float-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_int">pany_to_int</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-int pany_to_int( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a int value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the int-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_long">pany_to_long</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-long pany_to_long( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a long value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the long-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_ptr">pany_to_ptr</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-void* pany_to_ptr( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a void* value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the void*-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_str">pany_to_str</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-char* pany_to_str( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a char* value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the char*-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_ulong">pany_to_ulong</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-unsigned long pany_to_ulong( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a unsigned long value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the unsigned long-value of <i>val</i>.
-</div>
-<!-- NEED 15 -->
-<div class='function'>
-</p>
-
-<h3 id="fn_pany_to_wcs">pany_to_wcs</h3>
-
-<p>
-<b>Definition:</b>
-</p>
-<div class='definition'>
-<p>
-wchar_t* pany_to_wcs( <a href="#pany">pany</a>* val )
-</div>
-</p>
-<p>
-<b>Usage:</b>
-</p>
-<p>
-Converts the current value of <i>val</i> into a wchar_t* value.
-</p>
-<p>
-<i>val</i> is the <a href="#pany">pany</a>-object to convert from.
-</p>
-<p>
-The function returns the wchar_t*-value of <i>val</i>.
-</div>
-<!-- NEED 11 -->
-<div class='function'>
-</p>
 
 <h3 id="fn_parray_count">parray_count</h3>
 
@@ -6338,6 +5073,29 @@ Retrieve list element by pointer.
 This function returns the list element of the unit within the list <i>list</i>
 that is the pointer <i>ptr</i>.
 </div>
+<!-- NEED 13 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_plist_getkey">plist_getkey</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+<a href="#plistel">plistel</a>* plist_getkey( <a href="#plist">plist</a>* list, size_t n )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Retrieve list keys by their index from the begin.
+</p>
+<p>
+The function returns the <i>n</i>th key within the list <i>list</i>.
+</div>
 <!-- NEED 11 -->
 <div class='function'>
 </p>
@@ -8438,7 +7196,7 @@ char* pstrncatstr( char* str, char* append, size_t n )
 <b>Usage:</b>
 </p>
 <p>
-Dynamicaly appends n-characters from one string to another string.
+Dynamically appends n-characters from one string to another string.
 </p>
 <p>
 The function works similar to <a href="#fn_pstrcatstr">pstrcatstr()</a>, but allows to copy only a maximum
