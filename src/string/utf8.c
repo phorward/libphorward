@@ -322,9 +322,8 @@ int putf8_charnum(char *s, int offset)
 int putf8_strlen(char *s)
 {
     int count = 0;
-    int i = 0;
 
-    while (putf8_nextchar(s, &i) != 0)
+    while( *( s += utf8_seqlen( s ) ) )
         count++;
 
     return count;
@@ -569,3 +568,27 @@ int putf8_is_locale_utf8(char *locale)
     return 0;
 }
 
+/*TESTCASE:UTF-8 functions
+#include <phorward.h>
+#include <locale.h>
+
+void utf8_demo()
+{
+	char	str		[ 1024 ];
+	char*	ptr;
+
+	setlocale( LC_ALL, "" );
+
+	strcpy( str, "Hällö ich bün ein StrÜng€!" );
+	\*            0123456789012345678901234567890
+	               0        1         2         3
+	*\
+	printf( "%ld %d\n", pstrlen( str ), putf8_strlen( str ) );
+
+	putf8_unescape( str, sizeof( str ), "\\u20AC" );
+	printf( ">%s< %d\n", str, putf8_char( str ) );
+}
+---
+32 26
+>€< 8364
+*/

@@ -70,7 +70,7 @@ static int plist_get_load_factor( plist* list )
 }
 
 /* Compare hash-table elements */
-static int plist_hash_compare( plist* list, char* l, char* r )
+static int plist_hash_compare( plist* list, char* l, char* r, size_t n )
 {
 	int		res;
 
@@ -82,16 +82,23 @@ static int plist_hash_compare( plist* list, char* l, char* r )
 
 	if( list->flags & PLIST_MOD_PTRKEYS )
 		res = (int)( l - r );
-	else if( list->flags & PLIST_MOD_WCHAR )
-		res = wcscmp( (wchar_t*)l, (wchar_t*)r );
 	else
-		res = strcmp( l, r );
+	{
+		if( !n && list->flags & PLIST_MOD_WCHAR )
+			res = wcscmp( (wchar_t*)l, (wchar_t*)r );
+		else if( !n )
+			res = strcmp( l, r );
+		else if( list->flags & PLIST_MOD_WCHAR )
+			res = wcsncmp( (wchar_t*)l, (wchar_t*)r, n );
+		else
+			res = strncmp( l, r, n );
+	}
 
 	return res;
 }
 
 /* Get hash table index */
-static size_t plist_hash_index( plist* list, char* key )
+static size_t plist_hash_index( plist* list, char* key, size_t n )
 {
 	size_t hashval	= 5381L;
 
@@ -103,18 +110,40 @@ static size_t plist_hash_index( plist* list, char* key )
 
 	if( list->flags & PLIST_MOD_PTRKEYS )
 		hashval = (size_t)key;
-	#ifdef UNICODE
-	else if( list->flags & PLIST_MOD_WCHAR )
-	{
-		wchar_t*	wkey	= (wchar_t*)key;
-
-		while( *wkey )
-			hashval += ( hashval << 7 ) + *( wkey++ );
-	}
-	#endif
 	else
-		while( *key )
-			hashval += ( hashval << 7 ) + *( key++ );
+	{
+		#ifdef UNICODE
+		if( !n && list->flags & PLIST_MOD_WCHAR )
+		{
+			wchar_t*	wkey	= (wchar_t*)key;
+
+			while( *wkey )
+				hashval += ( hashval << 7 ) + *( wkey++ );
+		}
+		else
+		#endif
+		if( !n )
+			while( *key )
+				hashval += ( hashval << 7 ) + *( key++ );
+		#ifdef UNICODE
+		else if( list->flags & PLIST_MOD_WCHAR )
+		{
+			wchar_t*	wkey	= (wchar_t*)key;
+
+			while( n && *wkey )
+			{
+				hashval += ( hashval << 7 ) + *( wkey++ );
+				n--;
+			}
+		}
+		#endif
+		else
+			while( n && *key )
+			{
+				hashval += ( hashval << 7 ) + *( key++ );
+				n--;
+			}
+	}
 
 	return hashval % list->hashsize;
 }
@@ -165,7 +194,7 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 		}
 	}
 
-	bucket = &( list->hash[ plist_hash_index( list, e->key ) ] );
+	bucket = &( list->hash[ plist_hash_index( list, e->key, 0 ) ] );
 
 	if( ! *bucket )
 	{
@@ -184,7 +213,7 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 			VARS( "he->key", "%s", he->key );
 			VARS( "e->key", "%s", e->key );
 
-			if( plist_hash_compare( list, he->key, e->key ) == 0 )
+			if( plist_hash_compare( list, he->key, e->key, 0 ) == 0 )
 			{
 				if( list->flags & PLIST_MOD_UNIQUE )
 					RETURN( FALSE );
@@ -708,7 +737,7 @@ pboolean plist_remove( plist* list, plistel* e )
 		e->hashprev->hashnext = e->hashnext;
 	else if( list->hash && e->key )
 	{
-		list->hash[ plist_hash_index( list, e->key ) ] = e->hashnext;
+		list->hash[ plist_hash_index( list, e->key, 0 ) ] = e->hashnext;
 		list->free_hash_entries++;
 	}
 
@@ -895,7 +924,8 @@ plistel* plist_getkey( plist* list, size_t n )
 					}
 				}
 
-				if( e && plist_hash_compare( list, e->hashprev->key, e->key ) )
+				if( e && plist_hash_compare(
+							list, e->hashprev->key, e->key, 0 ) )
 					break;
 			}
 		}
@@ -925,14 +955,14 @@ plistel* plist_rget( plist* list, size_t n )
 	return e;
 }
 
-/** Retrieve list element by hash-table key.
+/** Retrieve list element by hash-table //key//.
 
 This function tries to fetch a list entry plistel from list //list//
 with the key //key//.
 */
 plistel* plist_get_by_key( plist* list, char* key )
 {
-	size_t		idx;
+	int			bucket;
 	plistel*	e;
 
 	PROC( "plist_get_by_key" );
@@ -948,15 +978,58 @@ plistel* plist_get_by_key( plist* list, char* key )
 	if( !list->hash )
 		RETURN( (plistel*)NULL );
 
-	idx = plist_hash_index( list, key );
-	VARS( "idx", "%ld", idx );
+	bucket = plist_hash_index( list, key, 0 );
+	VARS( "bucket", "%d", bucket );
 
-	for( e = list->hash[ idx ]; e; e = e->hashnext )
+	for( e = list->hash[ bucket ]; e; e = e->hashnext )
 	{
 		VARS( "e", "%p", e );
 		VARS( "e->key", "%p", e->key );
 
-		if( plist_hash_compare( list, e->key, key ) == 0 )
+		if( plist_hash_compare( list, e->key, key, 0 ) == 0 )
+		{
+			MSG( "Key matches" );
+			RETURN( e );
+		}
+	}
+
+	RETURN( e );
+}
+
+/** Retrieve list element by hash-table //key//,
+where key is limited by //n// bytes.
+
+This function tries to fetch a list entry plistel from list //list//
+with the key //key// over a size of //n// bytes.
+*/
+plistel* plist_get_by_nkey( plist* list, char* key, size_t n )
+{
+	int			bucket;
+	plistel*	e;
+
+	PROC( "plist_get_by_nkey" );
+	PARMS( "list", "%p", list );
+	PARMS( "key", "%p", key );
+	PARMS( "n", "%ld", n );
+
+	if( !( list && key && n ) )
+	{
+		WRONGPARAM;
+		RETURN( (plistel*)NULL );
+	}
+
+	if( !list->hash )
+		RETURN( (plistel*)NULL );
+
+	bucket = plist_hash_index( list, key, n );
+	VARS( "bucket", "%d", bucket );
+
+	for( e = list->hash[ bucket ]; e; e = e->hashnext )
+	{
+		VARS( "e", "%p", e );
+		VARS( "e->key", "%p", e->key );
+
+		if( plist_hash_compare( list, e->key, key, n ) == 0 )
 		{
 			MSG( "Key matches" );
 			RETURN( e );
@@ -1601,7 +1674,7 @@ void plist_dbgstats( FILE* stream, plist* list )
 	VOIDRET;
 }
 
-/*TESTCASE plist object functions
+/*TESTCASE:plist object functions
 #include <phorward.h>
 
 typedef struct

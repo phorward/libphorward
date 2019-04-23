@@ -564,6 +564,7 @@ plistel* plist_get( plist* list, size_t n );
 plistel* plist_getkey( plist* list, size_t n );
 plistel* plist_rget( plist* list, size_t n );
 plistel* plist_get_by_key( plist* list, char* key );
+plistel* plist_get_by_nkey( plist* list, char* key, size_t n );
 plistel* plist_get_by_ptr( plist* list, void* ptr );
 int plist_concat( plist* dest, plist* src );
 void plist_iter( plist* list, plistelfn callback );

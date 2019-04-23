@@ -6,7 +6,6 @@ and regular expressions.
 
 The library provides several modules which can be used together or on their own:
 
-- **any** provides an extensible data structure and interface to store, convert and handle variables of different value types (some kind of "variant" data type) within one data structure.
 - **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays.
 - **regex** provides tools for constructing, parsing, processing and modifying regular expressions.
 - **string** is an extended string processing library with useful functions for `char*` and `wchar_t*`-string manipulation.

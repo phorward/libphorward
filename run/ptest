@@ -18,6 +18,7 @@ help()
 	echo
 	echo "    -D  --debug              Print test case outputs"
     echo "    -h  --help               Show this help, and exit."
+    echo "    -k  --keep               Keep generates files (for debugging)"
 	echo "    -V  --version            Show version info and exit."
 	echo
 }
@@ -38,6 +39,9 @@ do
 		    ;;
 		-v|--verbose)
 		    options="$options -vverbose=1"
+		    ;;
+		-k|--keep)
+		    options="$options -vkeep=1"
 		    ;;
 		-V|--version)
 		    version `basename $0` "C test checker"
@@ -125,7 +129,7 @@ END                 {
                         entry = ""
                         while( (getline < (testsrc ".proto")) > 0 )
                         {
-                            if( $0 ~ "void [A-Za-z_]+\\([ \t]*(void)?[ \t]*\\)" )
+                            if( $0 ~ "void [A-Za-z_][A-Za-z0-9_]*\\([ \t]*(void)?[ \t]*\\)" )
                                 entry = $2
                         }
 
@@ -145,7 +149,7 @@ END                 {
                         print testbin ": " testobj >testmake
 
                         # Compile
-                        if( system( "make -f " testmake dbgopt ) > 0 )
+                        if( system( "make -f " testmake dbgopt ) )
                             error( "`make` failed" )
 
                         # Run
@@ -188,6 +192,8 @@ END                 {
 						if( mode == "code" )
 						{
 						    code = 1
+						    gsub("\\\\\\*", "/*")
+						    gsub("\\*\\\\", "*/")
 							print >> testsrc
 						}
 						else if( mode == "output" )
@@ -215,6 +221,9 @@ function clean()
 {
     if( !testsrc )
         return
+
+    if( keep )
+		return
 
     system("rm " \
         testsrc " " \

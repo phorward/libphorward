@@ -77,4 +77,4 @@ $(LIBHEADER): $(HSRC)
 
 # Test suite
 test: $(LIBPHORWARD)
-	LD_LIBRARY_PATH="`pwd`" LDFLAGS="-lphorward" CFLAGS="-I `pwd`" ptest -v $(SRC)
+	LD_LIBRARY_PATH="`pwd`" LDFLAGS="-lphorward" CFLAGS="-I `pwd` -DDEBUG -DUTF8 -DUNICODE -g" ptest -v $(SRC)

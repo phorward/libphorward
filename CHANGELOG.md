@@ -14,6 +14,8 @@ Under development.
     (last key collision will be chained to the end).
   - New function `plist_getkey()` to iterate over available keys in a
     hash-table configured plist object.
+- utf8:
+  - putf8_strlen() improved
 
 ## v0.24
 

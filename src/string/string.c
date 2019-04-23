@@ -61,6 +61,26 @@ char* pstrcatchar( char* str, char chr )
 	RETURN( str );
 }
 
+/*TESTCASE:pstrcatchar
+#include <phorward.h>
+
+void testcase()
+{
+	char* str1;
+
+	str1 = pstrdup( "Hello" );
+	str1 = pstrcatchar( str1, 'X' );
+
+	printf( "%s", str1 );
+
+	pfree( str1 );
+}
+---
+HelloX
+*/
+
+
+
 /** Dynamically appends a zero-terminated string to a dynamic string.
 
 //str// is the pointer to a zero-terminated string to be appended.
@@ -111,6 +131,24 @@ char* pstrcatstr( char* dest, char* src, pboolean freesrc )
 	RETURN( dest );
 }
 
+/*TESTCASE:pstrcatstr
+#include <phorward.h>
+
+void testcase()
+{
+	char* str1;
+
+	str1 = pstrdup( "Hello" );
+	str1 = pstrcatstr( str1, "World", FALSE );
+
+	printf( "%s", str1 );
+
+	pfree( str1 );
+}
+---
+HelloWorld
+*/
+
 /** Dynamically appends n-characters from one string to another string.
 
 The function works similar to pstrcatstr(), but allows to copy only a maximum
@@ -156,6 +194,24 @@ char* pstrncatstr( char* str, char* append, size_t n )
 
 	RETURN( str );
 }
+
+/*TESTCASE:pstrncatstr
+#include <phorward.h>
+
+void testcase()
+{
+	char* str1;
+
+	str1 = pstrdup( "Hello" );
+	str1 = pstrncatstr( str1, "WorldDinosaurus", 5 );
+
+	printf( "%s", str1 );
+
+	pfree( str1 );
+}
+---
+HelloWorld
+*/
 
 /** Replace a substring sequence within a string.
 
@@ -237,6 +293,25 @@ char* pstrreplace( char* str, char* find, char* replace )
 
 	RETURN( result );
 }
+
+/*TESTCASE:pstrreplace
+#include <phorward.h>
+
+void testcase()
+{
+	char* str1;
+	char* str2;
+
+	str1 = pstrdup( "Hello World" );
+	str2 = pstrreplace( str1, "World", "Universe" );
+
+	printf( "%s", str2 );
+
+	pfree( str1 );
+}
+---
+Hello Universe
+*/
 
 /** Duplicate a string in memory.
 
@@ -343,6 +418,27 @@ char* pstrget( char* str )
 
 	return str;
 }
+
+/*TESTCASE:pstrput, pstrget
+#include <phorward.h>
+
+void testcase()
+{
+	char* s = NULL;
+
+	printf( "%s\n", pstrget( s ) );
+	pstrput( &s, "Hello World" );
+	printf( "%s\n", pstrget( s ) );
+	pstrput( &s, "Jean Luc Picard" );
+	printf( "%s\n", pstrget( s ) );
+
+	pfree( s );
+}
+---
+
+Hello World
+Jean Luc Picard
+*/
 
 /** String rendering function.
 
@@ -459,6 +555,27 @@ char* pstrrender( char* tpl, ... )
 
 	return result;
 }
+
+/*TESTCASE:String rendering from templates
+#include <phorward.h>
+
+void testcase()
+{
+	char* str1;
+	char* str2 = "Hello World";
+
+	str1 = pstrrender( "<a href=\"$link\" alt=\"$title\">$title</a>",
+			"$link", "https://phorward.info", FALSE,
+			"$title", str2, FALSE,
+			(char*)NULL );
+
+	printf( "str1 = >%s<\n", str1 );
+	pfree( str1 );
+}
+---
+str1 = ><a href="https://phorward.info" alt="Hello World">Hello World</a><
+*/
+
 
 /** Removes whitespace on the left of a string.
 
@@ -580,6 +697,31 @@ int pstrsplit( char*** tokens, char* str, char* sep, int limit )
 
 	RETURN( cnt );
 }
+
+/*TESTCASE:String Tokenizer
+#include <phorward.h>
+
+void testcase()
+{
+	char 	str[1024];
+	int 	i, all;
+	char**	tokens;
+
+	strcpy( str, "Hello World, this is a simple test" );
+	all = pstrsplit( &tokens, str, " ", 3 );
+	printf( "%d\n", all );
+
+	for( i = 0; i < all; i++ )
+		printf( "%d: >%s<\n", i, tokens[i] );
+
+	pfree( tokens );
+}
+---
+3
+0: >Hello<
+1: >World,<
+2: >this<
+*/
 
 /** Convert a string to upper-case.
 
@@ -822,6 +964,24 @@ char* pasprintf( char* fmt, ... )
 	VARS( "str", "%s", str );
 	RETURN( str );
 }
+
+/*TESTCASE:Self-allocating sprintf extension
+#include <phorward.h>
+
+void testcase()
+{
+	char* str = "Hello World";
+	char* str1;
+
+	str1 = pasprintf( "current content of str is >%s<, and len is %d",
+						str, strlen( str ) );
+	printf( "str1 = >%s<\n", str1 );
+	pfree( str1 );
+}
+---
+str1 = >current content of str is >Hello World<, and len is 11<
+*/
+
 
 /******************************************************************************
  * FUNCTIONS FOR UNICODE PROCESSING (wchar_t)                                 *
@@ -1163,3 +1323,44 @@ wchar_t* pawcsprintf( wchar_t* fmt, ... )
 }
 
 #endif /* UNICODE */
+
+/*TESTCASE:UNICODE functions
+#include <phorward.h>
+#include <locale.h>
+
+void unicode_demo()
+{
+	wchar_t		mystr		[ 255 ];
+	wchar_t*	mydynamicstr;
+
+	setlocale( LC_ALL, "" );
+
+	wcscpy( mystr, L"Yes, w€ cän üse standard C function "
+			L"names for Unicode-strings!" );
+
+	printf( "mystr = >%ls<\n", mystr );
+	swprintf( mystr, sizeof( mystr ),
+			L"This string was %d characters long!",
+			pwcslen( mystr ) );
+	printf( "mystr = >%ls<\n", mystr );
+
+	mydynamicstr = pwcsdup( mystr );
+	mydynamicstr = pwcscatstr( mydynamicstr,
+			L" You can see: The functions are"
+			L" used the same way as the standard"
+			L" char-functions!", FALSE );
+
+	printf( "mydynamicstr = >%ls<\n", mydynamicstr );
+	pfree( mydynamicstr );
+
+	mydynamicstr = pawcsprintf( L"This is €uro symbol %ls of %d",
+						mystr, sizeof( mystr ) );
+	printf( "mydynamicstr = >%ls<\n", mydynamicstr );
+	pfree( mydynamicstr );
+}
+---
+mystr = >Yes, w€ cän üse standard C function names for Unicode-strings!<
+mystr = >This string was 62 characters long!<
+mydynamicstr = >This string was 62 characters long! You can see: The functions are used the same way as the standard char-functions!<
+mydynamicstr = >This is €uro symbol This string was 62 characters long! of 1020<
+*/
