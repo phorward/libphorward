@@ -323,7 +323,7 @@ int putf8_strlen(char *s)
 {
     int count = 0;
 
-    while( *( s += utf8_seqlen( s ) ) )
+    while( *( s += putf8_seqlen( s ) ) )
         count++;
 
     return count;
