@@ -52,6 +52,7 @@ Usage:	Header for the pregex object and functions.
 #define PREGEX_FLAG_BOW			0x04	/* Match at begin of word only */
 #define PREGEX_FLAG_EOW			0x08	/* Match at end of word only */
 #define PREGEX_FLAG_NONGREEDY	0x10	/* Nongreedy match, overwrite mode. */
+#define PREGEX_FLAG_RECURSE		0x20	/* Recurse into regex */
 
 /* Regular Expression pattern types */
 enum _regex_ptntype
@@ -63,7 +64,8 @@ enum _regex_ptntype
 	PREGEX_PTN_ALT,
 	PREGEX_PTN_KLE,
 	PREGEX_PTN_POS,
-	PREGEX_PTN_OPT
+	PREGEX_PTN_OPT,
+	PREGEX_PTN_REC
 };
 
 /* Typedefs */
@@ -89,8 +91,7 @@ typedef struct	_lexctx			plexctx;
 /* NFA state */
 struct _regex_nfa_st
 {
-	pccl*			ccl;		/* Char-class; if ccl == (pccl*)NULL,
-									then this is an epsilon edge */
+	pccl*			ccl;		/* Char-class */
 	pregex_nfa_st*	next;		/* First following NFA-state */
 	pregex_nfa_st*	next2;		/* Second following NFA-state */
 

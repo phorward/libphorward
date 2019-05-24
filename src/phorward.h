@@ -69,7 +69,7 @@ typedef char 					pboolean;
 #define WRONGPARAM				fprintf( stderr, \
 									"%s, %d: Function called with wrong or " \
 									"incomplete parameters, fix your call!\n", \
-										__FILE__, __LINE__ )
+										__FILE__, __LINE__ ); CORE
 
 #define MISSINGCASE				fprintf( stderr, \
 									"%s, %d: Missing case engaged, " \
@@ -341,6 +341,7 @@ typedef struct
 #define PREGEX_FLAG_BOW			0x04	
 #define PREGEX_FLAG_EOW			0x08	
 #define PREGEX_FLAG_NONGREEDY	0x10	
+#define PREGEX_FLAG_RECURSE		0x20	
 
 
 enum _regex_ptntype
@@ -352,7 +353,8 @@ enum _regex_ptntype
 	PREGEX_PTN_ALT,
 	PREGEX_PTN_KLE,
 	PREGEX_PTN_POS,
-	PREGEX_PTN_OPT
+	PREGEX_PTN_OPT,
+	PREGEX_PTN_REC
 };
 
 
@@ -647,6 +649,7 @@ pregex_nfa* pregex_nfa_create( void );
 pboolean pregex_nfa_reset( pregex_nfa* nfa );
 pregex_nfa* pregex_nfa_free( pregex_nfa* nfa );
 int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to );
+int pregex_nfa_flagmove( pregex_nfa* nfa, plist* hits, int flags );
 int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure, unsigned int* accept, int* flags );
 int pregex_nfa_match( pregex_nfa* nfa, char* str, size_t* len, int* mflags, prange** ref, int* ref_count, int flags );
 pboolean pregex_nfa_from_string( pregex_nfa* nfa, char* str, int flags, int acc );
@@ -661,6 +664,7 @@ pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... );
 pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn );
+pregex_ptn* pregex_ptn_create_rec( void );
 pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... );
 pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn );
 pregex_ptn* pregex_ptn_free( pregex_ptn* ptn );

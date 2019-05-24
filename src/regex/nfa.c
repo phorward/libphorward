@@ -60,6 +60,8 @@ pregex_nfa_st* pregex_nfa_create_state(
 
 			iccl = pccl_dup( ptr->ccl );
 
+			flags &= ~PREGEX_COMP_INSENSITIVE;
+
 			MSG( "PREGEX_COMP_INSENSITIVE set" );
 			for( i = 0; pccl_get( &ch, (wchar_t*)NULL, ptr->ccl, i ); i++ )
 			{
@@ -90,6 +92,8 @@ pregex_nfa_st* pregex_nfa_create_state(
 		VARS( "ptr->ccl", "%p", ptr->ccl );
 	}
 
+	ptr->flags = flags;
+
 	RETURN( ptr );
 }
 
@@ -104,7 +108,7 @@ void pregex_nfa_print( pregex_nfa* nfa )
 	pregex_nfa_st*	s;
 	int				i;
 
-	fprintf( stderr, " no next next2 accept flags refs\n" );
+	fprintf( stderr, " no next next2 accept flags special refs\n" );
 	fprintf( stderr, "----------------------------------------------------\n" );
 
 	plist_for( nfa->states, e )
@@ -113,11 +117,12 @@ void pregex_nfa_print( pregex_nfa* nfa )
 
 #define GETOFF( l, s ) 	(s) ? plist_offset( plist_get_by_ptr( l, s ) ) : -1
 
-		fprintf( stderr, "#%2d %4d %5d %6d %5d",
+		fprintf( stderr, "#%-2d %-4d %-5d %-6d %-5d %-7s",
 			GETOFF( nfa->states, s ),
 			GETOFF( nfa->states, s->next ),
 			GETOFF( nfa->states, s->next2 ),
-			s->accept, s->flags );
+			s->accept, s->flags,
+			s->flags & PREGEX_FLAG_RECURSE ? "rec" : "" );
 
 		for( i = 0; i < PREGEX_MAXREF; i++ )
 			if( s->refs & ( 1 << i ) )
@@ -286,6 +291,52 @@ int pregex_nfa_move( pregex_nfa* nfa, plist* hits, wchar_t from, wchar_t to )
 	RETURN( plist_count( hits ) );
 }
 
+/* Fixme: Ugly solution! */
+int pregex_nfa_flagmove( pregex_nfa* nfa, plist* hits, int flags )
+{
+	plistel*		first;
+	plistel*		end;
+	pregex_nfa_st*	st;
+
+	PROC( "pregex_nfa_flagmove" );
+	PARMS( "nfa", "%p", nfa );
+	PARMS( "hits", "%p", hits );
+	PARMS( "flags", "%d", flags );
+
+	if( !( nfa && hits ) )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+
+	if( !( end = plist_last( hits ) ) )
+	{
+		MSG( "Nothing to do, hits is empty" );
+		RETURN( 0 );
+	}
+
+	/* Loop through the input items */
+	do
+	{
+		first = plist_first( hits );
+		st = (pregex_nfa_st*)plist_access( first );
+		VARS( "st", "%p", st );
+
+		/* Not an epsilon edge? */
+		if( st->flags & flags )
+		{
+			MSG( "State matches range!" );
+			plist_push( hits, st->next );
+		}
+
+		plist_remove( hits, first );
+	}
+	while( first != end );
+
+	VARS( "plist_count( hits )", "%d", plist_count( hits ) );
+	RETURN( plist_count( hits ) );
+}
+
 /** Performs an epsilon closure from a set of NFA states.
 
 //nfa// is the NFA state machine
@@ -335,7 +386,7 @@ int pregex_nfa_epsilon_closure( pregex_nfa* nfa, plist* closure,
 					|| last_accept->accept > top->accept ) )
 			last_accept = top;
 
-		if( !top->ccl )
+		if( !top->ccl && !( top->flags & PREGEX_FLAG_RECURSE ) )
 		{
 			for( i = 0; i < 2; i++ )
 			{

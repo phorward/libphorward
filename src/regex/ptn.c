@@ -337,6 +337,17 @@ pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
 	return pattern;
 }
 
+/** Constructs a recursion, allowing for the same pattern on an
+arbitrary position.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+*/
+pregex_ptn* pregex_ptn_create_rec( void )
+{
+	return pregex_ptn_CREATE( PREGEX_PTN_REC );
+}
+
 /** Constructs a sequence of multiple patterns.
 
 //first// is the beginning pattern of the sequence. //...// follows as parameter
@@ -465,7 +476,8 @@ void pregex_ptn_print( pregex_ptn* ptn, int rec )
 								"PREGEX_PTN_SUB", "PREGEX_PTN_REFSUB",
 								"PREGEX_PTN_ALT",
 								"PREGEX_PTN_KLE", "PREGEX_PTN_POS",
-									"PREGEX_PTN_OPT"
+									"PREGEX_PTN_OPT",
+								"PREGEX_PTN_REC"
 							};
 
 	for( i = 0; i < rec; i++ )
@@ -654,6 +666,11 @@ static pboolean pregex_ptn_to_REGEX( char** regex, pregex_ptn* ptn )
 				*regex = pstrcatchar( *regex, '?' );
 				break;
 
+			case PREGEX_PTN_REC:
+				*regex = pstrcatstr( *regex, "(?R)", FALSE );
+				break;
+
+
 			default:
 				MISSINGCASE;
 				return FALSE;
@@ -694,7 +711,8 @@ char* pregex_ptn_to_regex( pregex_ptn* ptn )
 
 /* Internal recursive processing function for pregex_ptn_to_nfa() */
 static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
-	pregex_nfa_st** start, pregex_nfa_st** end, int* ref_count )
+	pregex_nfa_st** start, pregex_nfa_st** end, int* ref_count,
+		pregex_nfa_st* first )
 {
 	pregex_nfa_st*	n_start	= (pregex_nfa_st*)NULL;
 	pregex_nfa_st*	n_end	= (pregex_nfa_st*)NULL;
@@ -718,9 +736,9 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 			case PREGEX_PTN_CHAR:
 				n_start = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
 				n_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
+				n_start->next = n_end;
 
 				n_start->ccl = pccl_dup( pattern->ccl );
-				n_start->next = n_end;
 				break;
 
 			case PREGEX_PTN_REFSUB:
@@ -730,7 +748,8 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 
 			case PREGEX_PTN_SUB:
 				if( !pregex_ptn_to_NFA( nfa,
-						pattern->child[ 0 ], &n_start, &n_end, ref_count ) )
+						pattern->child[ 0 ], &n_start, &n_end,
+							ref_count, first ) )
 					return FALSE;
 
 				if( ref )
@@ -750,14 +769,16 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
 
 				if( !pregex_ptn_to_NFA( nfa,
-						pattern->child[ 0 ], &a_start, &a_end, ref_count ) )
+						pattern->child[ 0 ], &a_start, &a_end,
+							ref_count, first ) )
 					return FALSE;
 
 				n_start->next = a_start;
 				a_end->next= n_end;
 
 				if( !pregex_ptn_to_NFA( nfa,
-						pattern->child[ 1 ], &a_start, &a_end, ref_count ) )
+						pattern->child[ 1 ], &a_start, &a_end,
+							ref_count, first ) )
 					return FALSE;
 
 				n_start->next2 = a_start;
@@ -776,7 +797,8 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 				n_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
 
 				if( !pregex_ptn_to_NFA( nfa,
-						pattern->child[ 0 ], &m_start, &m_end, ref_count ) )
+						pattern->child[ 0 ], &m_start, &m_end,
+							ref_count, first ) )
 					return FALSE;
 
 				/* Standard chain linking */
@@ -820,6 +842,31 @@ static pboolean pregex_ptn_to_NFA( pregex_nfa* nfa, pregex_ptn* pattern,
 					default:
 						break;
 				}
+				break;
+			}
+
+			case PREGEX_PTN_REC:
+			{
+				pregex_nfa_st*	r_start;
+				pregex_nfa_st*	r_end;
+
+				n_start = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
+				n_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
+
+				/* Recurson */
+				r_start = pregex_nfa_create_state(
+							nfa, (char*)NULL, PREGEX_FLAG_RECURSE );
+				r_end = pregex_nfa_create_state( nfa, (char*)NULL, 0 );
+
+				r_start->next = r_end;
+
+				/* Standard chain linking */
+				n_start->next = r_start;
+				r_end->next = n_end;
+
+				/* Make optional! */
+				n_start->next2 = n_end;
+
 				break;
 			}
 
@@ -904,7 +951,7 @@ pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
 		RETURN( FALSE );
 
 	/* Turn pattern into NFA */
-	if( !pregex_ptn_to_NFA( nfa, ptn, &start, &end, &ref_count ) )
+	if( !pregex_ptn_to_NFA( nfa, ptn, &start, &end, &ref_count, first ) )
 		RETURN( FALSE );
 
 	/* start is next of first */
@@ -917,6 +964,9 @@ pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
 	/* end becomes the accepting state */
 	end->accept = ptn->accept;
 	end->flags = ptn->flags;
+
+	/* Debug! */
+	/* pregex_nfa_print( nfa ); */
 
 	RETURN( TRUE );
 }
@@ -961,11 +1011,16 @@ pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
 
 	pregex_nfa_free( nfa );
 
+	/* DEBUG */
+	/* pregex_dfa_print( dfa ); */
+
+	/*
 	if( pregex_dfa_minimize( dfa ) < 0 )
 	{
 		pregex_dfa_free( dfa );
 		RETURN( FALSE );
 	}
+	*/
 
 	RETURN( TRUE );
 }
@@ -1178,6 +1233,13 @@ static pboolean parse_char( pregex_ptn** ptn, char** pstr, int flags )
 
 	PROC( "parse_char" );
 	VARS( "**pstr", "%c", **pstr );
+
+	if( strncmp( *pstr, "(?R)", 4 ) == 0 )
+	{
+		*ptn = pregex_ptn_create_rec();
+		(*pstr) += 4;
+		RETURN( TRUE );
+	}
 
 	switch( **pstr )
 	{

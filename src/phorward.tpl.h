@@ -70,7 +70,7 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #define WRONGPARAM				fprintf( stderr, \
 									"%s, %d: Function called with wrong or " \
 									"incomplete parameters, fix your call!\n", \
-										__FILE__, __LINE__ )
+										__FILE__, __LINE__ ); CORE
 
 #define MISSINGCASE				fprintf( stderr, \
 									"%s, %d: Missing case engaged, " \

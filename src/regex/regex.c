@@ -106,7 +106,7 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 	int		next_state;
 	char*	match		= (char*)NULL;
 	char*	ptr			= start;
-	wchar_t	ch;
+	wchar_t	ch          = 1;
 
 	PROC( "pregex_match" );
 	PARMS( "regex", "%p", regex );
@@ -123,23 +123,31 @@ pboolean pregex_match( pregex* regex, char* start, char** end )
 
 	while( state >= 0 )
 	{
-		/* State accepts? */
-		if( regex->trans[ state ][ 1 ] )
-		{
-			MSG( "This state accepts the input" );
-			match = ptr;
+        /* State accepts? */
+        if( regex->trans[ state ][ 1 ] )
+        {
+            MSG( "This state accepts the input" );
+            match = ptr;
 
-			if( ( regex->flags & PREGEX_RUN_NONGREEDY
-					|| regex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY ) )
-			{
-				if( regex->flags & PREGEX_RUN_DEBUG )
-					fprintf( stderr,
-						"state %d accepted %d, end of recognition\n",
-							state, regex->trans[ state ][ 1 ] );
+            if( ( regex->flags & PREGEX_RUN_NONGREEDY
+                  || regex->trans[ state ][ 2 ] & PREGEX_FLAG_NONGREEDY ) )
+            {
+                if( regex->flags & PREGEX_RUN_DEBUG )
+                    fprintf( stderr,
+                             "state %d accepted %d, end of recognition\n",
+                             state, regex->trans[ state ][ 1 ] );
+                break;
+            }
+        }
 
-				break;
-			}
-		}
+        /* State recurses? */
+        if( regex->trans[ state ][ 2 ] & PREGEX_FLAG_RECURSE )
+        {
+			char*	rend;
+
+            if( pregex_match( regex, ptr, &rend ) )
+				ptr = rend;
+        }
 
 		/* References */
 		if( regex->trans[ state ][ 3 ] )
@@ -288,6 +296,8 @@ char* pregex_find( pregex* regex, char* start, char** end )
 #endif
 			}
 		}
+
+		VARS( "ch", "%lc", ch );
 
 		if( !ch )
 			break;

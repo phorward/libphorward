@@ -45,7 +45,9 @@ void pregex_dfa_print( pregex_dfa* dfa )
 		{
 			t = (pregex_dfa_tr*)plist_access( f );
 
-			pccl_print( stderr, t->ccl, 0 );
+			if( t->ccl )
+				pccl_print( stderr, t->ccl, 0 );
+
 			fprintf( stderr, "-> %d\n", t->go_to );
 		}
 
@@ -58,6 +60,9 @@ static int pregex_dfa_sort_trans( plist* list, plistel* el, plistel* er )
 {
 	pregex_dfa_tr*	l = (pregex_dfa_tr*)plist_access( el );
 	pregex_dfa_tr*	r = (pregex_dfa_tr*)plist_access( er );
+
+	if( !( l->ccl && r->ccl ) )
+		return l->ccl < r->ccl ? 1 : 0;
 
 	return pccl_compare( l->ccl, r->ccl ) < 0 ? 1 : 0;
 }
@@ -192,6 +197,9 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 		plist_for( st->trans, f )
 		{
 			tr = (pregex_dfa_tr*)plist_access( f );
+
+			if( !tr->ccl )
+				continue;
 
 			if( max < ( cnt = pccl_count( tr->ccl ) ) )
 			{
@@ -388,14 +396,17 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 			plist_for( classes, e )
 			{
-				ccl = (pccl*)plist_access( e );
+
+				if( !( ccl = (pccl*)plist_access( e ) ) )
+					continue;
 
 				plist_for( classes, f )
 				{
 					if( e == f )
 						continue;
 
-					test = (pccl*)plist_access( f );
+					if( !( test = (pccl*)plist_access( f ) ) )
+						continue;
 
 					if( pccl_count( ccl ) > pccl_count( test ) )
 						continue;
@@ -523,6 +534,40 @@ int pregex_dfa_from_nfa( pregex_dfa* dfa, pregex_nfa* nfa )
 
 			pccl_free( ccl );
 		}
+
+		/* Try transition on recursion! */
+		do
+		{
+			plist_for( current_nfa_set, f )
+			{
+				if( !plist_push( transitions, plist_access( f ) ) )
+					RETURN( -1 );
+			}
+
+			if( pregex_nfa_flagmove( nfa, transitions,
+					PREGEX_FLAG_RECURSE ) < 0 )
+			{
+				MSG( "pregex_nfa_move() failed" );
+				break;
+			}
+
+			if( pregex_nfa_epsilon_closure( nfa, transitions,
+							(unsigned int*)NULL, (int*)NULL ) < 0 )
+			{
+				MSG( "pregex_nfa_epsilon_closure() failed" );
+				break;
+			}
+
+			if( !plist_count( transitions ) )
+			{
+				/* There is no move on this character! */
+				MSG( "transition set is empty, will continue" );
+				continue;
+			}
+
+			current->flags = PREGEX_FLAG_RECURSE;
+		}
+		while( FALSE );
 	}
 
 	/* Clear temporary allocated memory */
@@ -574,6 +619,9 @@ static pboolean pregex_dfa_equal_states(
 	{
 		tr[0] = (pregex_dfa_tr*)plist_access( e );
 		tr[1] = (pregex_dfa_tr*)plist_access( f );
+
+		if( !( tr[0]->ccl && tr[1]->ccl ) )
+			continue;
 
 		/* Equal Character class selection? */
 		if( pccl_compare( tr[0]->ccl, tr[1]->ccl ) )
@@ -1073,7 +1121,7 @@ int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa )
 			if( st->def_trans == tr )
 				continue;
 
-			cnt += pccl_size( tr->ccl ) * 3;
+			cnt += tr->ccl ? ( pccl_size( tr->ccl ) * 3 ) : 0;
 		}
 
 		VARS( "required( cnt )", "%d", cnt );
@@ -1091,7 +1139,7 @@ int pregex_dfa_to_dfatab( wchar_t*** dfatab, pregex_dfa* dfa )
 		for( j = 5, f = plist_first( st->trans ); f; f = plist_next( f ) )
 		{
 			tr = (pregex_dfa_tr*)plist_access( f );
-			if( st->def_trans == tr )
+			if( st->def_trans == tr || !tr->ccl )
 				continue;
 
 			for( k = 0; pccl_get( &from, &to, tr->ccl, k ); k++ )

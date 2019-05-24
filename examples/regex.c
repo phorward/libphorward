@@ -3,19 +3,21 @@
 int main( int argc, char** argv )
 {
     pregex* re;
-    char*   s;
-    char*   ptr;
+    char*	s;
+    char*	e;
+    char*	p;
 
-    if( argc < 2 || !pfiletostr( &s, argv[ 1 ] ) )      /* Load file into str */
-        return 1;
-
-    ptr = s;
+    p = s = "{{{}} und {{{}}} bis {{}";
     re = pregex_create(
-            "(href|src)=\"((https://|http://|//).*)\"", /* Regular expression */
-                PREGEX_COMP_NONGREEDY );                /* Handling options */
+            "{(?R)?}", 						/* Regular expression */
+                0 );                /* Handling options */
 
-    while( pregex_find( re, ptr, &ptr ) )               /* Dump matches */
-        printf( "%.*s\n", re->ref[2].end - re->ref[2].start, re->ref[2].start );
+    while( ( p = pregex_find( re, p, &e ) ) )               /* Dump matches */
+    {
+        printf( "%d >%.*s<\n", p - s, e - p, p );
+        p = e;
+    }
+
 
     return 0;
 }
