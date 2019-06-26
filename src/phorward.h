@@ -554,7 +554,7 @@ char* pccl_to_str( pccl* ccl, pboolean escape );
 void pccl_print( FILE* stream, pccl* ccl, int break_after );
 
 
-pboolean _dbg_trace_enabled( char* file, char* function );
+pboolean _dbg_trace_enabled( char* file, char* function, char* type );
 void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 

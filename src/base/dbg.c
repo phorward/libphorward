@@ -115,16 +115,24 @@ static clock_t	_dbg_clock;
 static void _dbg_indent( void )
 {
 	int		i;
+	char*	traceindent;
+
+	if( ( traceindent = getenv( "TRACEINDENT" ) ) )
+	{
+		if( strcasecmp( traceindent, "ON" ) != 0 && !atoi( traceindent ) )
+			return;
+	}
 
 	for( i = 0; i < _dbg_level; i++ )
 		fprintf( stderr, "." );
 }
 
 /** Check if debug output is wanted. */
-pboolean _dbg_trace_enabled( char* file, char* function )
+pboolean _dbg_trace_enabled( char* file, char* function, char* type )
 {
 	char*		modules;
 	char*		functions;
+	char*		types;
 	char*		basename;
 	int			maxdepth;
 
@@ -146,6 +154,14 @@ pboolean _dbg_trace_enabled( char* file, char* function )
 	{
 		if( strcmp( functions, "*" ) != 0
 			&& !strstr( functions, function ) )
+			return FALSE;
+	}
+
+	/* Find out if this type should be traced */
+	if( ( types = getenv( "TRACETYPE" ) ) )
+	{
+		if( strcmp( types, "*" ) != 0
+			&& !strstr( types, type ) )
 			return FALSE;
 	}
 
@@ -176,23 +192,17 @@ void _dbg_trace( char* file, int line, char* type,
 	time_t		now;
 
 	/* Check if trace is enabled */
-	if( !_dbg_trace_enabled( file, function ) )
+	if( !_dbg_trace_enabled( file, function, type ) )
 		return;
 
 	if( type && strcmp( type, "ENTRY" ) == 0 )
-	{
-		fprintf( stderr, "(%s:%5d) ", file, line );
-		_dbg_indent();
-		fprintf( stderr, "{\n" );
-
 		_dbg_level++;
-	}
 
 	now = clock();
 	if( !_dbg_clock )
 		_dbg_clock = now;
 
-	fprintf( stderr, "(%s:%5d %lf) ", file, line,
+	fprintf( stderr, "(%-20s:%5d %lf) ", file, line,
 		( (double)( now - _dbg_clock ) / CLOCKS_PER_SEC ) );
 
 	_dbg_clock = now;
@@ -213,13 +223,7 @@ void _dbg_trace( char* file, int line, char* type,
 	fprintf( stderr, "\n" );
 
 	if( type && strcmp( type, "RETURN" ) == 0 )
-	{
 		_dbg_level--;
-
-		fprintf( stderr, "(%s:%5d) ", file, line );
-		_dbg_indent();
-		fprintf( stderr, "}\n" );
-	}
 
 	fflush( stderr );
 }
