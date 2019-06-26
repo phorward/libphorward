@@ -108,7 +108,8 @@ format string with variable amount of parameters.
 
 /*NO_DOC*/
 
-static int _dbg_level;
+static int 		_dbg_level;
+static clock_t	_dbg_clock;
 
 /** Print //indent// levels to //f//. */
 static void _dbg_indent( void )
@@ -172,6 +173,7 @@ void _dbg_trace( char* file, int line, char* type,
 					char* function, char* format, ... )
 {
 	va_list		arg;
+	time_t		now;
 
 	/* Check if trace is enabled */
 	if( !_dbg_trace_enabled( file, function ) )
@@ -186,7 +188,15 @@ void _dbg_trace( char* file, int line, char* type,
 		_dbg_level++;
 	}
 
-	fprintf( stderr, "(%s:%5d) ", file, line );
+	now = clock();
+	if( !_dbg_clock )
+		_dbg_clock = now;
+
+	fprintf( stderr, "(%s:%5d %lf) ", file, line,
+		( (double)( now - _dbg_clock ) / CLOCKS_PER_SEC ) );
+
+	_dbg_clock = now;
+
 	_dbg_indent();
 	fprintf( stderr, "%-8s", type ? type : "" );
 
