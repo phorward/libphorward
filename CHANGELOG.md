@@ -6,6 +6,8 @@ This file is used to document any relevant changes done to libphorward.
 
 Under development.
 
+- Improvements of the `plist` data type so that `plistel` provides no
+  (error-prone) back-pointer to its list anymore.
 - Modularization of the command-line tools `pdoc`, `pinclude` and `pproto`
 - Started `ptest` utility to perform automated tests and CI
 - Moved the `pany` dynamic variant data type into the [phosphor repository](https://github.com/phorward/phosphor)

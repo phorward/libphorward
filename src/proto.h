@@ -98,7 +98,7 @@ plistel* plist_prev( plistel* u );
 plistel* plist_hashnext( plistel* u );
 plistel* plist_hashprev( plistel* u );
 int plist_offset( plistel* u );
-pboolean plist_swap( plistel* a, plistel* b );
+pboolean plist_swap( plist* l, plistel* a, plistel* b );
 plistel* plist_first( plist* l );
 plistel* plist_last( plist* l );
 int plist_size( plist* l );
