@@ -35,7 +35,7 @@ static pboolean plist_hash_rebuild( plist* list );
 
 /* Local variables & defines */
 
-/* Table size definitions (using non mersenne primes for lesser colissions) */
+/* Table size definitions (using non mersenne primes for lesser collisions) */
 static const int table_sizes[] = {
     61,      131, 	  257,     509,
     1021,    2053,    4099,    8191,
@@ -43,9 +43,6 @@ static const int table_sizes[] = {
     262147,  524287,  1048573, 2097143,
     4194301, 8388617
 };
-
-#define LENGTH_OF_TABLE_SIZES  \
-		( sizeof( table_sizes) / sizeof( *table_sizes ) )
 
 /* Load factor */
 #define	LOAD_FACTOR_HIGH	75	/* resize on 75% load factor
@@ -271,7 +268,7 @@ static pboolean plist_hash_rebuild( plist* list )
 		RETURN( FALSE );
 	}
 
-	if( list->size_index + 1 >= LENGTH_OF_TABLE_SIZES )
+	if( list->size_index + 1 >= ( sizeof( table_sizes) / sizeof( *table_sizes ) ) )
 	{
 		MSG( "Maximum size is reached." );
 		RETURN( FALSE );
@@ -332,9 +329,10 @@ static int plist_compare( plist* list, plistel* l, plistel* r )
 }
 
 /** Initialize the list //list// with an element allocation size //size//.
+
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage. */
-pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
+pboolean plist_init( plist* list, size_t size, int flags )
 {
 	if( !( list && size >= 0 ) )
 	{
@@ -354,14 +352,6 @@ pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
 
 	list->flags = flags;
 	list->size = size;
-	list->size_index = 0;
-	list->recycled = 0L;
-
-	/* Choose size on the basis off the defined table sizes,
-		take the next greater entry. */
-	while( list->size_index < LENGTH_OF_TABLE_SIZES &&
-				table_size > table_sizes[ list->size_index ] )
-		list->size_index++;
 
 	list->hashsize = table_sizes[ list->size_index ];
 
@@ -411,7 +401,7 @@ plist* plist_create( size_t size, int flags )
 	}
 
 	list = (plist*)pmalloc( sizeof( plist ) );
-	plist_init( list, size, PLIST_DFT_HASHSIZE, flags );
+	plist_init( list, size, flags );
 
 	return list;
 }
@@ -1066,10 +1056,10 @@ plistel* plist_get_by_ptr( plist* list, void* ptr )
 The function will not run if both lists have different element size settings.
 
 The function returns the number of elements added to //dest//. */
-int plist_concat( plist* dest, plist* src )
+size_t plist_concat( plist* dest, plist* src )
 {
 	plistel*	e;
-	int			added;
+	size_t		count;
 
 	if( !( dest && src && dest->size == src->size ) )
 	{
@@ -1077,11 +1067,13 @@ int plist_concat( plist* dest, plist* src )
 		return 0;
 	}
 
-	plist_for( src, e )
-		if( plist_insert( dest, (plistel*)NULL, e->key, plist_access( e ) ) )
-			added++;
+	count = dest->count;
 
-	return added;
+	plist_for( src, e )
+		if( !plist_insert( dest, (plistel*)NULL, e->key, plist_access( e ) ) )
+			break;
+
+	return dest->count - count;
 }
 
 /** Iterates over //list//.
@@ -1192,9 +1184,9 @@ element with the same size and content.
 The function will not run if both lists have different element size settings.
 
 The function returns the number of elements added to //from//. */
-int plist_union( plist* all, plist* from )
+size_t plist_union( plist* all, plist* from )
 {
-	int			added	= 0;
+	size_t		count;
 	plistel*	ea;
 	plistel*	ef;
 
@@ -1207,6 +1199,9 @@ int plist_union( plist* all, plist* from )
 		WRONGPARAM;
 		RETURN( 0 );
 	}
+
+	if( !( count = all->count ) )
+		RETURN( plist_concat( all, from ) );
 
 	plist_for( from, ef )
 	{
@@ -1222,16 +1217,13 @@ int plist_union( plist* all, plist* from )
 			}
 		}
 
-		if( !ea && plist_insert( all, (plistel*)NULL,
+		if( !ea && !plist_insert( all, (plistel*)NULL,
 						(char*)NULL, plist_access( ef ) ) )
-		{
-			MSG( "Added element" );
-			added++;
-		}
+			break;
 	}
 
-	VARS( "added", "%d", added );
-	RETURN( added );
+	VARS( "added", "%ld", all->count - count );
+	RETURN( all->count - count );
 }
 
 /** Tests the contents (data parts) of the list //left// and the list //right//

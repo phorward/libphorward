@@ -52,7 +52,6 @@ struct Plist
 	size_t					size;
 	long					count;
 	int						hashsize;
-#define PLIST_DFT_HASHSIZE	61
 
 	int						size_index;
 
