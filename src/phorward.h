@@ -186,18 +186,23 @@ typedef char 					pboolean;
 #ifndef PARRAY_H
 #define PARRAY_H
 
-typedef struct
+typedef struct _parray parray;
+
+struct _parray
 {
 	void*	array;
 	size_t	first;
 	size_t	last;
-	size_t	count;
+	size_t	count;      
 
 	size_t	size;
 	size_t	chunk;
-} parray;
 
-typedef void (*parrayfn)	( void* );		
+	int		(*comparefn)( parray*, void*, void* );
+	int		(*sortfn)( parray*, void*, void* );
+};
+
+typedef void (*parrayfn)	( parray*, void* );		
 
 
 
@@ -513,6 +518,13 @@ void* parray_swap( parray* array, size_t pos1, size_t pos2 );
 size_t parray_count( parray* array );
 pboolean parray_partof( parray* array, void* ptr );
 size_t parray_offset( parray* array, void* ptr );
+size_t parray_concat( parray* dest, parray* src );
+size_t parray_union( parray* all, parray* from );
+int parray_diff( parray* left, parray* right );
+pboolean parray_subsort( parray* array, size_t from, size_t to );
+pboolean parray_sort( parray* array );
+pboolean parray_set_comparefn( parray* array, int (*comparefn)( parray*, void*, void* ) );
+pboolean parray_set_sortfn( parray* array, int (*sortfn)( parray*, void*, void* ) );
 
 
 pccl* pccl_create( int min, int max, char* ccldef );
