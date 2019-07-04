@@ -12,18 +12,24 @@ Usage:	Universal, dynamic array management functions
 #ifndef PARRAY_H
 #define PARRAY_H
 
-typedef struct
+typedef struct _parray parray;
+
+struct _parray
 {
 	void*	array;
 	size_t	first;
 	size_t	last;
-	size_t	count;
+	size_t	count;      /* this is NOT the actual element count;
+							use parray_count() for correct value! */
 
 	size_t	size;
 	size_t	chunk;
-} parray;
 
-typedef void (*parrayfn)	( void* );		/* Array element callback */
+	int		(*comparefn)( parray*, void*, void* );
+	int		(*sortfn)( parray*, void*, void* );
+};
+
+typedef void (*parrayfn)	( parray*, void* );		/* Array element callback */
 
 /* Macros */
 

@@ -13,6 +13,15 @@ Usage:	Universal, dynamic array management functions.
 
 #define STD_CHUNK			128		/* Default chunk size */
 
+/* Compare elements of a list */
+static int parray_compare( parray* array, void* l, void* r )
+{
+	if( array->comparefn )
+		return (*array->comparefn)( array, l, r );
+
+	return -memcmp( l, r, array->size );
+}
+
 /** Performs an array initialization.
 
 //array// is the pointer to the array to be initialized.
@@ -44,6 +53,8 @@ pboolean parray_init( parray* array, size_t size, size_t chunk )
 	memset( array, 0, sizeof( parray ) );
 	array->size = size;
 	array->chunk = chunk;
+
+	array->sortfn = parray_compare;
 
 	RETURN( TRUE );
 }
@@ -597,7 +608,7 @@ void parray_iter( parray* array, parrayfn callback )
 	}
 
 	for( ptr = parray_first( array ); ptr; ptr = parray_next( array, ptr ) )
-		(*callback)( ptr );
+		(*callback)( array, ptr );
 
 	VOIDRET;
 }
@@ -621,7 +632,7 @@ void parray_riter( parray* array, parrayfn callback )
 	}
 
 	for( ptr = parray_last( array ); ptr; ptr = parray_prev( array, ptr ) )
-		(*callback)( ptr );
+		(*callback)( array, ptr );
 
 	VOIDRET;
 }
@@ -788,7 +799,7 @@ size_t parray_offset( parray* array, void* ptr )
 				/ array->size;
 }
 
-/*TESTCASE parray object functions
+/*TESTCASE:parray_(create|free|push|pop|shift|insert|unshift|remove)
 #include <phorward.h>
 
 typedef struct
@@ -900,3 +911,414 @@ first = 126 last = 133 count = 256
 06) Martha Pfahl
 -- 7 Elements --
 TESTCASE*/
+
+/** Concats the elements of array //src// to the elements of array //dest//.
+
+The function will not run if both arrays have different element size settings.
+
+The function returns the number of elements added to //dest//. */
+size_t parray_concat( parray* dest, parray* src )
+{
+	size_t		count;
+	void*       p;
+
+	if( !( dest && src && dest->size == src->size ) )
+	{
+		WRONGPARAM;
+		return 0;
+	}
+
+	count = dest->count;
+
+	parray_for( src, p )
+		if( !parray_push( dest, p ) )
+			break;
+
+	return dest->count - count;
+}
+
+/** Unions elements from array //from// into array //all//.
+
+An element is only added to //all//, if there exists no equal element with the
+same size and content.
+
+The function will not run if both arrays have different element size settings.
+
+The function returns the number of elements added to //from//. */
+size_t parray_union( parray* all, parray* from )
+{
+	size_t		count;
+	size_t      last;
+	void*       p;
+	void*       q;
+
+	PROC( "parray_union" );
+	PARMS( "all", "%p", all );
+	PARMS( "from", "%p", from );
+
+	if( !( all && from
+		&& all->size == from->size
+		&& all->comparefn == from->comparefn ) )
+	{
+		WRONGPARAM;
+		RETURN( 0 );
+	}
+
+	if( !( count = parray_count( all ) ) )
+		RETURN( parray_concat( all, from ) );
+
+	last = all->last;
+
+	parray_for( from, p )
+	{
+		for( q = parray_first( all ); q && q < all->array + last; q = parray_next( all, q ) )
+			if( parray_compare( all, p, q ) == 0 )
+				break;
+
+		if( !q || q == all->array + last )
+			if( !parray_push( all, p ) )
+				break;
+	}
+
+	VARS( "added", "%ld", parray_count( all ) - count );
+	RETURN( parray_count( all ) - count );
+}
+
+/*TESTCASE:parray_union
+#include <phorward.h>
+
+void dump( parray* a, void* p )
+{
+	printf( "%c%s", *((char*)p), p == parray_last( a ) ? "\n" : "" );
+}
+
+void testcase()
+{
+	parray  a;
+	parray  b;
+
+	parray_init( &a, sizeof( char ), 0 );
+	parray_init( &b, sizeof( char ), 0 );
+
+	parray_push( &a, "a" );
+	parray_push( &a, "b" );
+	parray_push( &a, "c" );
+
+	parray_push( &b, "a" );
+	parray_push( &b, "d" );
+
+	parray_iter( &a, dump );
+	parray_iter( &b, dump );
+
+	printf( "%ld\n", parray_union( &b, &a ) );
+
+	parray_iter( &a, dump );
+	parray_iter( &b, dump );
+}
+---
+abc
+ad
+2
+abc
+adbc
+*/
+
+/** Tests the contents (data parts) of the array //left// and the array //right//
+for equal elements.
+
+The function returns a value < 0 if //left// is lower //right//, a value > 0
+if //left// is greater //right// and a value == 0 if //left// is equal to
+//right//. */
+int parray_diff( parray* left, parray* right )
+{
+	int		diff;
+	void*   p;
+	void*   q;
+
+	PROC( "plist_diff" );
+	PARMS( "left", "%p", left );
+	PARMS( "right", "%p", right );
+
+	if( !( left && right
+			&& left->size == right->size
+			&& left->comparefn == right->comparefn ) )
+	{
+		WRONGPARAM;
+		RETURN( -1 );
+	}
+
+	MSG( "Checking for same element count" );
+	if( parray_count( right ) < parray_count( left ) )
+		RETURN( 1 );
+	else if( parray_count( right ) > parray_count( left ) )
+		RETURN( -1 );
+
+	MSG( "OK, requiring deep check" );
+
+	for( p = parray_first( left ), q = parray_first( right );
+			p && q; p = parray_next( left, p ), q = parray_next( right, q ) )
+	{
+		if( ( diff = parray_compare( left, p, q ) ) )
+		{
+			MSG( "Elements are not equal" );
+			break;
+		}
+	}
+
+	VARS( "diff", "%d", diff );
+	RETURN( diff );
+}
+
+/*TESTCASE:parray_diff
+#include <phorward.h>
+
+void dump( parray* a, void* p )
+{
+	printf( "%c%s", *((char*)p), p == parray_last( a ) ? "\n" : "" );
+}
+
+void testcase()
+{
+	parray  a;
+	parray  b;
+
+	parray_init( &a, sizeof( char ), 0 );
+	parray_init( &b, sizeof( char ), 0 );
+
+	parray_push( &a, "a" );
+	parray_push( &a, "b" );
+
+	parray_push( &b, "a" );
+	parray_push( &b, "b" );
+
+	parray_iter( &a, dump );
+	parray_iter( &b, dump );
+
+	printf( "%d\n", parray_diff( &a, &b ) );
+
+	parray_push( &b, "c" );
+
+	printf( "%d\n", parray_diff( &a, &b ) );
+
+	parray_push( &a, "c" );
+
+	printf( "%d\n", parray_diff( &a, &b ) );
+
+	parray_shift( &b );
+
+	parray_iter( &a, dump );
+	parray_iter( &b, dump );
+
+	printf( "%d\n", parray_diff( &a, &b ) );
+
+	parray_shift( &a );
+	parray_pop( &b );
+
+	parray_iter( &a, dump );
+	parray_iter( &b, dump );
+
+	printf( "%d\n", parray_diff( &a, &b ) );
+	printf( "%d\n", parray_diff( &b, &a ) );
+}
+---
+ab
+ab
+0
+-1
+0
+abc
+bc
+1
+bc
+b
+1
+-1
+*/
+
+/** Sorts //list// between the elements //from// and //to// according to the
+sort-function that was set for the list.
+
+To sort the entire list, use plist_sort().
+
+The sort-function can be modified by using plist_set_sortfn().
+
+The default sort function sorts the list by content using the memcmp()
+standard function. */
+pboolean parray_subsort( parray* array, size_t from, size_t to )
+{
+	size_t	a	    = from;
+	size_t	b	    = to;
+	size_t  ref;
+
+	if( !( array ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( from == to )
+		return TRUE;
+
+	if( from > to )
+	{
+		ref = from;
+		from = to;
+		to = ref;
+	}
+
+	a = ref = from;
+
+	do
+	{
+		while( ( *array->sortfn )(
+			array, parray_get( array, a ), parray_get( array, ref ) )
+				> 0 )
+		{
+			a++;
+		}
+
+		while( ( *array->sortfn )(
+			array, parray_get( array, ref ), parray_get( array, b ) )
+				> 0 )
+		{
+			b--;
+		}
+
+		if( a <= b )
+		{
+			parray_swap( array, a, b );
+			a++;
+
+			if( b )
+				b--;
+		}
+	}
+	while( a <= b );
+
+	if( ( b != from ) && ( b != from - 1 ) )
+		parray_subsort( array, from, b );
+
+	if( ( a != to ) && ( a != to + 1 ) )
+		parray_subsort( array, a, to );
+
+	return TRUE;
+}
+
+/** Sorts //list// according to the sort-function that was set for the list.
+
+To sort only parts of a list, use plist_subsort().
+
+The sort-function can be modified by using plist_set_sortfn().
+
+The default sort function sorts the list by content using the memcmp()
+standard function. */
+pboolean parray_sort( parray* array )
+{
+	if( !( array ) )
+	{
+		WRONGPARAM;
+		return FALSE;
+	}
+
+	if( !parray_first( array ) )
+		return TRUE;
+
+	return parray_subsort( array, array->first, array->last - 1 );
+}
+
+/*TESTCASE:parray_sort
+#include <phorward.h>
+
+void dump( parray* a, void* p )
+{
+	printf( "%c%s", *((char*)p), p == parray_last( a ) ? "\n" : "" );
+}
+
+int sort( parray* a, void* p, void* q )
+{
+	int ret = toupper( *((char*)q) ) - toupper( *((char*)p) );
+
+	if( ret == 0 )
+		return *((char*)q) - *((char*)p);
+
+	return ret;
+}
+
+void testcase()
+{
+	parray  a;
+	parray  b;
+
+	parray_init( &a, sizeof( char ), 0 );
+	parray_init( &b, sizeof( char ), 0 );
+
+	parray_push( &a, "c" );
+	parray_push( &a, "d" );
+	parray_push( &a, "a" );
+	parray_push( &a, "b" );
+	parray_push( &a, "b" );
+	parray_push( &a, "B" );
+	parray_push( &a, "k" );
+	parray_push( &a, "e" );
+	parray_push( &a, "A" );
+	parray_push( &a, "x" );
+
+	parray_concat( &b, &a );
+
+	parray_iter( &a, dump );
+	parray_sort( &a );
+	parray_iter( &a, dump );
+
+	parray_set_sortfn( &b, sort );
+
+	parray_iter( &b, dump );
+	parray_sort( &b );
+	parray_iter( &b, dump );
+}
+---
+cdabbBkeAx
+ABabbcdekx
+cdabbBkeAx
+AaBbbcdekx
+*/
+
+/** Set compare function */
+pboolean parray_set_comparefn( parray* array,
+			int (*comparefn)( parray*, void*, void* ) )
+{
+	PROC( "parray_set_comparefn" );
+	PARMS( "array", "%p", array );
+	PARMS( "compare_fn", "%p", comparefn );
+
+	if( !( array ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !( array->comparefn = comparefn ) )
+		array->comparefn = parray_compare;
+
+	RETURN( TRUE );
+}
+
+/** Set sort function */
+pboolean parray_set_sortfn( parray* array,
+			int (*sortfn)( parray*, void*, void* ) )
+{
+	PROC( "parray_set_sortfn" );
+	PARMS( "array", "%p", array );
+	PARMS( "sortfn", "%p", sortfn );
+
+	if( !( array ) )
+	{
+		WRONGPARAM;
+		RETURN( FALSE );
+	}
+
+	if( !( array->sortfn = sortfn ) )
+		array->sortfn = parray_compare;
+
+	RETURN( TRUE );
+}
+

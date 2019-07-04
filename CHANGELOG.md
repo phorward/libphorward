@@ -9,6 +9,11 @@ Under development.
 - Modularization of the command-line tools `pdoc`, `pinclude` and `pproto`
 - Started `ptest` utility to perform automated tests and CI
 - Moved the `pany` dynamic variant data type into the [phosphor repository](https://github.com/phorward/phosphor)
+- parray:
+  - New functions for set management: parray_union(), parray_diff(),
+    parray_sort(), parray_concat(), providing equivalence to their
+    plist counterparts
+  - Changed signatures for parray iter functions
 - plist:
   - `PLIST_MOD_KEEPKEYS` to keep key order and implement opposite hiding
     (last key collision will be chained to the end).
