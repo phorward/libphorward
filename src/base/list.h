@@ -20,8 +20,8 @@ typedef void (*plistfn)		( void* );		/* List element access callback */
 /* Element */
 struct Plistel
 {
+	int						flags;
 	char*					key;
-	plist*					list;
 
 	plistel*				prev;
 	plistel*				next;
@@ -52,7 +52,6 @@ struct Plist
 	size_t					size;
 	long					count;
 	int						hashsize;
-#define PLIST_DFT_HASHSIZE	61
 
 	int						size_index;
 

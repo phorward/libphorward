@@ -15,6 +15,9 @@ Under development.
     plist counterparts
   - Changed signatures for parray iter functions
 - plist:
+  - Improvements of the `plist` data type so that `plistel` provides no
+    (error-prone) back-pointer to its list anymore.
+  - Optimization of plist_diff() and plist_union().
   - `PLIST_MOD_KEEPKEYS` to keep key order and implement opposite hiding
     (last key collision will be chained to the end).
   - New function `plist_getkey()` to iterate over available keys in a
