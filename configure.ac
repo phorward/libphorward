@@ -44,7 +44,7 @@ AC_CHECK_LIB([rt], [sprintf])
 
 # Checks for header files.
 AC_HEADER_STDC
-#AC_CHECK_HEADERS([fcntl.h limits.h unistd.h locale.h])
+AC_CHECK_HEADERS([time.h limits.h ctype.h])
 AC_CHECK_HEADER([wchar.h],[AC_DEFINE([UTF8],[1],[Enabling UTF8 build])])
 AC_CHECK_HEADER([wctype.h],[AC_DEFINE([UNICODE],[1],[Enabling UNICODE build])])
 
