@@ -21,6 +21,7 @@ Usage:	Template for the general include file for Phorward C/C++ Library
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+#include <time.h>
 
 #ifdef UTF8
 #include <wchar.h>

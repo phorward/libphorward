@@ -17,7 +17,10 @@ Usage:	Program Trace Facilities
 #ifdef DEBUG
 	#define PROC( name ) \
 		static char*	_dbg_proc_name	= name; \
-		_dbg_trace( __FILE__, __LINE__, "ENTRY", _dbg_proc_name, (char*)NULL )
+		static clock_t	_dbg_proc_clock; \
+		_dbg_trace( __FILE__, __LINE__, "ENTRY", \
+			_dbg_proc_name, (char*)NULL ); \
+		_dbg_proc_clock = clock()
 #else
 	#define PROC( name )
 #endif
@@ -27,6 +30,10 @@ Usage:	Program Trace Facilities
 	#define RETURN( val ) \
 		do \
 		{ \
+			_dbg_trace( __FILE__, __LINE__, \
+				"CLOCK", _dbg_proc_name, "%s : %lf", \
+					_dbg_proc_name, \
+					(double)( clock() - _dbg_proc_clock ) / CLOCKS_PER_SEC ); \
 			_dbg_trace( __FILE__, __LINE__, \
 				"RETURN", _dbg_proc_name, (char*)NULL ); \
 			return val; \
@@ -41,6 +48,10 @@ Usage:	Program Trace Facilities
 	#define VOIDRET \
 		do \
 		{ \
+			_dbg_trace( __FILE__, __LINE__, \
+				"CLOCK", _dbg_proc_name, "%s : %lf", \
+					_dbg_proc_name, \
+					(double)( clock() - _dbg_proc_clock ) / CLOCKS_PER_SEC ); \
 			_dbg_trace( __FILE__, __LINE__, \
 				"RETURN", _dbg_proc_name, (char*)NULL ); \
 			return; \

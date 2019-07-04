@@ -12783,7 +12783,19 @@ $as_echo "#define STDC_HEADERS 1" >>confdefs.h
 
 fi
 
-#AC_CHECK_HEADERS([fcntl.h limits.h unistd.h locale.h])
+for ac_header in time.h limits.h ctype.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
 ac_fn_c_check_header_mongrel "$LINENO" "wchar.h" "ac_cv_header_wchar_h" "$ac_includes_default"
 if test "x$ac_cv_header_wchar_h" = xyes; then :
 

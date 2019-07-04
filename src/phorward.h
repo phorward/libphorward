@@ -24,6 +24,7 @@ Usage:	Phorward C/C++ Library Global Header
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+#include <time.h>
 
 #ifdef UTF8
 #include <wchar.h>
@@ -111,7 +112,10 @@ typedef char 					pboolean;
 #ifdef DEBUG
 	#define PROC( name ) \
 		static char*	_dbg_proc_name	= name; \
-		_dbg_trace( __FILE__, __LINE__, "ENTRY", _dbg_proc_name, (char*)NULL )
+		static clock_t	_dbg_proc_clock; \
+		_dbg_trace( __FILE__, __LINE__, "ENTRY", \
+			_dbg_proc_name, (char*)NULL ); \
+		_dbg_proc_clock = clock()
 #else
 	#define PROC( name )
 #endif
@@ -121,6 +125,10 @@ typedef char 					pboolean;
 	#define RETURN( val ) \
 		do \
 		{ \
+			_dbg_trace( __FILE__, __LINE__, \
+				"CLOCK", _dbg_proc_name, "%s : %lf", \
+					_dbg_proc_name, \
+					(double)( clock() - _dbg_proc_clock ) / CLOCKS_PER_SEC ); \
 			_dbg_trace( __FILE__, __LINE__, \
 				"RETURN", _dbg_proc_name, (char*)NULL ); \
 			return val; \
@@ -135,6 +143,10 @@ typedef char 					pboolean;
 	#define VOIDRET \
 		do \
 		{ \
+			_dbg_trace( __FILE__, __LINE__, \
+				"CLOCK", _dbg_proc_name, "%s : %lf", \
+					_dbg_proc_name, \
+					(double)( clock() - _dbg_proc_clock ) / CLOCKS_PER_SEC ); \
 			_dbg_trace( __FILE__, __LINE__, \
 				"RETURN", _dbg_proc_name, (char*)NULL ); \
 			return; \
@@ -553,7 +565,7 @@ char* pccl_to_str( pccl* ccl, pboolean escape );
 void pccl_print( FILE* stream, pccl* ccl, int break_after );
 
 
-pboolean _dbg_trace_enabled( char* file, char* function );
+pboolean _dbg_trace_enabled( char* file, char* function, char* type );
 void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 
