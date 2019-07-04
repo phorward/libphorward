@@ -20,8 +20,8 @@ typedef void (*plistfn)		( void* );		/* List element access callback */
 /* Element */
 struct Plistel
 {
+	int						flags;
 	char*					key;
-	plist*					list;
 
 	plistel*				prev;
 	plistel*				next;

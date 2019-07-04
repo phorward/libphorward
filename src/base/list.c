@@ -306,8 +306,8 @@ static pboolean plistel_drop( plistel* e )
 	}
 
 	/* TODO: Call element destructor? */
-	if( !( e->list->flags & PLIST_MOD_EXTKEYS )
-			&& !( e->list->flags & PLIST_MOD_PTRKEYS ) )
+	if( !( e->flags & PLIST_MOD_EXTKEYS )
+			&& !( e->flags & PLIST_MOD_PTRKEYS ) )
 		e->key = pfree( e->key );
 
 	RETURN( TRUE );
@@ -316,12 +316,6 @@ static pboolean plistel_drop( plistel* e )
 /* Compare elements of a list */
 static int plist_compare( plist* list, plistel* l, plistel* r )
 {
-	if( !( list && l && r ) )
-	{
-		WRONGPARAM;
-		return -1;
-	}
-
 	if( list->comparefn )
 		return (*list->comparefn)( list, l, r );
 
@@ -334,7 +328,7 @@ static int plist_compare( plist* list, plistel* l, plistel* r )
 of the linked list and hash table usage. */
 pboolean plist_init( plist* list, size_t size, int flags )
 {
-	if( !( list && size >= 0 ) )
+	if( !( list ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -393,12 +387,6 @@ Use plist_free() to erase and release the returned list object. */
 plist* plist_create( size_t size, int flags )
 {
 	plist*	list;
-
-	if( !( size >= 0 ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
 
 	list = (plist*)pmalloc( sizeof( plist ) );
 	plist_init( list, size, flags );
@@ -558,7 +546,7 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		e = (plistel*)pmalloc( sizeof( plistel ) + list->size );
 	}
 
-	e->list = list;
+	e->flags = list->flags;
 
 	if( src )
 	{
@@ -573,7 +561,7 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 		}
 		else
 		{
-			MSG( "Copy memory of size-bytes" );
+			LOG( "Copying %ld bytes", list->size );
 			memcpy( e + 1, src, list->size );
 		}
 	}
@@ -644,7 +632,6 @@ plistel* plist_push( plist* list, void* src )
 	if( !( list ) )
 	{
 		WRONGPARAM;
-		CORE;
 		return (plistel*)NULL;
 	}
 
@@ -707,7 +694,7 @@ pboolean plist_remove( plist* list, plistel* e )
 {
 	PROC( "plist_remove" );
 
-	if( !( list && e && e->list == list ) )
+	if( !( list && e ) )
 	{
 		WRONGPARAM;
 		RETURN( FALSE );
@@ -737,7 +724,9 @@ pboolean plist_remove( plist* list, plistel* e )
 	/* Put unused node into unused list or free? */
 	if( list->flags & PLIST_MOD_RECYCLE )
 	{
-		MSG( "Will recycle current element" );
+		LOG( "Will recycle current element, resetting %d bytes",
+			sizeof( plistel ) + list->size );
+
 		memset( e, 0, sizeof( plistel ) + list->size );
 
 		e->next = list->unused;
@@ -1178,8 +1167,8 @@ void plist_riter_access( plist* list, plistfn callback )
 
 /** Unions elements from list //from// into list //all//.
 
-An element is only added to //all//, if there exists no other
-element with the same size and content.
+An element is only added to //all//, if there exists no equal element with the
+same size and content.
 
 The function will not run if both lists have different element size settings.
 
@@ -1288,7 +1277,7 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 	int			i	= 0;
 	int			j	= 0;
 
-	if( !( list && from && to && from->list == list && to->list == list ) )
+	if( !( list && from && to ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -1313,13 +1302,13 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 
 	do
 	{
-		while( ( *list->sortfn )( from->list, a, ref ) > 0 )
+		while( ( *list->sortfn )( list, a, ref ) > 0 )
 		{
 			i++;
 			a = a->next;
 		}
 
-		while( ( *list->sortfn )( from->list, ref, b ) > 0 )
+		while( ( *list->sortfn )( list, ref, b ) > 0 )
 		{
 			j--;
 			b = b->prev;
@@ -1337,7 +1326,7 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 			else if( to == b )
 				to = a;
 
-			plist_swap( a, b );
+			plist_swap( list, a, b );
 
 			e = a;
 			a = b->next;
@@ -1455,7 +1444,7 @@ void* plist_access( plistel* e )
 		return (void*)NULL;
 
 	/* Dereference pointer list differently */
-	if( e->list->flags & PLIST_MOD_PTR )
+	if( e->flags & PLIST_MOD_PTR )
 		return *((void**)( e + 1 ));
 
 	return (void*)( e + 1 );
@@ -1511,9 +1500,6 @@ int plist_offset( plistel* u )
 {
 	int		off		= 0;
 
-	if( !( u && u->list ) )
-		return -1;
-
 	while( ( u = plist_prev( u ) ) )
 		off++;
 
@@ -1523,15 +1509,14 @@ int plist_offset( plistel* u )
 /** Swaps the positions of the list elements //a// and //b// with each
 other. The elements must be in the same plist object, else the function
 returns FALSE. */
-pboolean plist_swap( plistel* a, plistel* b )
+pboolean plist_swap( plist* l, plistel* a, plistel* b )
 {
-	plist*		l;
 	plistel*	aprev;
 	plistel*	anext;
 	plistel*	bprev;
 	plistel*	bnext;
 
-	if( !( a && b ) || b->list != a->list )
+	if( !( l && a && b ) )
 	{
 		WRONGPARAM;
 		return FALSE;
@@ -1541,7 +1526,6 @@ pboolean plist_swap( plistel* a, plistel* b )
 		return TRUE;
 
 	/* Retrieve pointers */
-	l = a->list;
 	aprev = a->prev;
 	anext = a->next;
 	bprev = b->prev;
