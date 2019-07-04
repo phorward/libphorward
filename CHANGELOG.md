@@ -6,12 +6,13 @@ This file is used to document any relevant changes done to libphorward.
 
 Under development.
 
-- Improvements of the `plist` data type so that `plistel` provides no
-  (error-prone) back-pointer to its list anymore.
 - Modularization of the command-line tools `pdoc`, `pinclude` and `pproto`
 - Started `ptest` utility to perform automated tests and CI
 - Moved the `pany` dynamic variant data type into the [phosphor repository](https://github.com/phorward/phosphor)
 - plist:
+  - Improvements of the `plist` data type so that `plistel` provides no
+    (error-prone) back-pointer to its list anymore.
+  - Optimization of plist_diff() and plist_union().
   - `PLIST_MOD_KEEPKEYS` to keep key order and implement opposite hiding
     (last key collision will be chained to the end).
   - New function `plist_getkey()` to iterate over available keys in a
