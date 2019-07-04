@@ -37,11 +37,11 @@ static pboolean plist_hash_rebuild( plist* list );
 
 /* Table size definitions (using non mersenne primes for lesser collisions) */
 static const int table_sizes[] = {
-    61,      131, 	  257,     509,
-    1021,    2053,    4099,    8191,
-    16381,   32771,   65537,   131071,
-    262147,  524287,  1048573, 2097143,
-    4194301, 8388617
+	61,      131, 	  257,     509,
+	1021,    2053,    4099,    8191,
+	16381,   32771,   65537,   131071,
+	262147,  524287,  1048573, 2097143,
+	4194301, 8388617
 };
 
 /* Load factor */
@@ -319,7 +319,7 @@ static int plist_compare( plist* list, plistel* l, plistel* r )
 	if( list->comparefn )
 		return (*list->comparefn)( list, l, r );
 
-	return memcmp( l + 1, r + 1, list->size );
+	return -memcmp( l + 1, r + 1, list->size );
 }
 
 /** Initialize the list //list// with an element allocation size //size//.
@@ -1176,14 +1176,17 @@ The function returns the number of elements added to //from//. */
 size_t plist_union( plist* all, plist* from )
 {
 	size_t		count;
-	plistel*	ea;
-	plistel*	ef;
+	plistel*    last;
+	plistel*	p;
+	plistel*	q;
 
 	PROC( "plist_union" );
 	PARMS( "all", "%p", all );
 	PARMS( "from", "%p", from );
 
-	if( !( all && from && all->size == from->size ) )
+	if( !( all && from
+		&& all->size == from->size
+		&& all->comparefn == from->comparefn ) )
 	{
 		WRONGPARAM;
 		RETURN( 0 );
@@ -1192,23 +1195,17 @@ size_t plist_union( plist* all, plist* from )
 	if( !( count = all->count ) )
 		RETURN( plist_concat( all, from ) );
 
-	plist_for( from, ef )
+	last = plist_last( all );
+
+	plist_for( from, p )
 	{
-		VARS( "ef", "%p", ef );
-		plist_for( all, ea )
-		{
-			VARS( "ea", "%p", ea );
-
-			if( plist_compare( all, ea, ef ) == 0 )
-			{
-				MSG( "Elements match" );
+		for( q = plist_first( all ); q; q = q == last ? NULL : plist_next( q ) )
+			if( plist_compare( all, p, q ) == 0 )
 				break;
-			}
-		}
 
-		if( !ea && !plist_insert( all, (plistel*)NULL,
-						(char*)NULL, plist_access( ef ) ) )
-			break;
+		if( !q )
+			if( !plist_push( all, plist_access( p ) ) )
+				break;
 	}
 
 	VARS( "added", "%ld", all->count - count );
@@ -1223,34 +1220,36 @@ if //left// is greater //right// and a value == 0 if //left// is equal to
 //right//. */
 int plist_diff( plist* left, plist* right )
 {
-	plistel*	el;
-	plistel*	er;
+	plistel*	p;
+	plistel*	q;
 	int			diff;
 
 	PROC( "plist_diff" );
 	PARMS( "left", "%p", left );
 	PARMS( "right", "%p", right );
 
-	if( !( left && right && left->size == right->size ) )
+	if( !( left && right
+		   && left->size == right->size
+		   && left->comparefn == right->comparefn ) )
 	{
 		WRONGPARAM;
 		RETURN( -1 );
 	}
 
-	MSG( "Checking for same list sizes" );
-	if( !( diff = right->count - left->count ) )
-	{
-		MSG( "OK, requiring deep check" );
+	if( right->count < left->count )
+		RETURN( 1 );
+	else if( right->count > left->count )
+		RETURN( -1 );
 
-		for( el = plist_first( left ), er = plist_first( right );
-					el && er; el = plist_next( el ), er = plist_next( er ) )
+	MSG( "OK, requiring deep check" );
+
+	for( p = plist_first( left ), q = plist_first( right );
+				p && q; p = plist_next( p ), q = plist_next( q ) )
+	{
+		if( ( diff = plist_compare( left, p, q ) ) )
 		{
-			if( ( diff = plist_compare( left, el, er ) ) )
-			{
-				MSG( "Elements are not equal" );
-				VARS( "diff", "%d", diff );
-				RETURN( diff );
-			}
+			MSG( "Elements are not equal" );
+			break;
 		}
 	}
 
@@ -1791,45 +1790,45 @@ TESTCASE*/
 
 void testcase( void )
 {
-    plist*		mylist; // This is list object
-    plistel*	e; 		// e, for list iteration
-    char*		values[] = { "Hello", "World", "out there!" };
-    char*		tmp;
+	plist*		mylist; // This is list object
+	plistel*	e; 		// e, for list iteration
+	char*		values[] = { "Hello", "World", "out there!" };
+	char*		tmp;
 
-    mylist = plist_create( sizeof( char* ), PLIST_MOD_RECYCLE | PLIST_MOD_PTR );
+	mylist = plist_create( sizeof( char* ), PLIST_MOD_RECYCLE | PLIST_MOD_PTR );
 
-    // Create the list.
-    plist_push( mylist, (void*)values[0] );
-    plist_push( mylist, (void*)values[1] );
-    plist_push( mylist, (void*)values[2] );
+	// Create the list.
+	plist_push( mylist, (void*)values[0] );
+	plist_push( mylist, (void*)values[1] );
+	plist_push( mylist, (void*)values[2] );
 
-    printf( "%ld\n", values[0] - values[0] );
-    printf( "%ld\n", values[1] - values[0] );
-    printf( "%ld\n", values[2] - values[0] );
+	printf( "%ld\n", values[0] - values[0] );
+	printf( "%ld\n", values[1] - values[0] );
+	printf( "%ld\n", values[2] - values[0] );
 
-    // Let's iterate it.
-    printf( "mylist contains %d items\n", plist_count( mylist ) );
-    for( e = plist_first( mylist ); e; e = plist_next( e ) )
-        printf( "%s(%ld) ", (char*)plist_access( e ),
-                                (char*)plist_access( e ) - values[0] );
+	// Let's iterate it.
+	printf( "mylist contains %d items\n", plist_count( mylist ) );
+	for( e = plist_first( mylist ); e; e = plist_next( e ) )
+		printf( "%s(%ld) ", (char*)plist_access( e ),
+								(char*)plist_access( e ) - values[0] );
 
-    // Now, we remove one element (identified by its pointer)
-    //    and iterate the list again
-    plist_remove( mylist, plist_get_by_ptr( mylist, (void*)values[1] ) );
-    printf( "\nmylist contains now %d items\n", plist_count( mylist ) );
+	// Now, we remove one element (identified by its pointer)
+	//    and iterate the list again
+	plist_remove( mylist, plist_get_by_ptr( mylist, (void*)values[1] ) );
+	printf( "\nmylist contains now %d items\n", plist_count( mylist ) );
 
-    // The macro plist_for() expands into a for-loop like above...
-    plist_for( mylist, e )
-    printf( "%s(%ld) ", (char*)plist_access( e ),
-                            (char*)plist_access( e ) - values[0] );
+	// The macro plist_for() expands into a for-loop like above...
+	plist_for( mylist, e )
+	printf( "%s(%ld) ", (char*)plist_access( e ),
+							(char*)plist_access( e ) - values[0] );
 
-    printf( "\n" );
+	printf( "\n" );
 
-    plist_pop( mylist, (void*)&tmp );
-    printf( "tmp = %ld >%s<\n", tmp - values[0], tmp );
+	plist_pop( mylist, (void*)&tmp );
+	printf( "tmp = %ld >%s<\n", tmp - values[0], tmp );
 
-    // Free the entire list
-    mylist = plist_free( mylist );
+	// Free the entire list
+	mylist = plist_free( mylist );
 }
 --------------------------------------------------------------------------------
 0
