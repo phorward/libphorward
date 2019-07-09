@@ -12,10 +12,12 @@ Usage:	An improved, double linked, optionally hashed list collection object.
 #define PLIST_H
 
 /* Typedefs */
-typedef struct Plist		plist;			/* List */
-typedef struct Plistel		plistel;		/* List element */
-typedef void (*plistelfn)	( plistel* );	/* List element callback */
-typedef void (*plistfn)		( void* );		/* List element access callback */
+typedef struct Plist		plist;					/* List container */
+typedef struct Plistel		plistel;				/* List element */
+
+/* Callbacks */
+typedef void (*plistelfn)	( plistel* );			/* List element */
+typedef void (*plistfn)		( void* );				/* List element access */
 
 /* Element */
 struct Plistel

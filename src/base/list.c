@@ -1378,7 +1378,10 @@ pboolean plist_sort( plist* list )
 	return ret;
 }
 
-/** Set compare function */
+/** Set compare function.
+
+If no compare function is set or NULL is provided, memcmp() will be used
+as default fallback. */
 pboolean plist_set_comparefn( plist* list,
 			int (*comparefn)( plist*, plistel*, plistel* ) )
 {
@@ -1398,7 +1401,10 @@ pboolean plist_set_comparefn( plist* list,
 	RETURN( TRUE );
 }
 
-/** Set sort function */
+/** Set sort function.
+
+If no sort function is given, the compare function set by plist_set_comparefn()
+is used. If even unset, memcmp() will be used. */
 pboolean plist_set_sortfn( plist* list,
 			int (*sortfn)( plist*, plistel*, plistel* ) )
 {

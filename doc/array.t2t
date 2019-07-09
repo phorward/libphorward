@@ -5,12 +5,19 @@
 
 The parray object is a general-purpose data structure which can be used for several operations.
 
-parray forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated with a specified chunk-size, and can be appended or prepended to the given parray object.
+parray forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated within a specified chunk-size, and can be appended or prepended to the given parray object.
+
+The parray object implements:
+
+- dynamic stack functions
+- data object collections
+- set functions (unions, diffs)
+-
 
 The parray object brings the following advantages and disadvantages:
 
 - __Advantages__
-  - Chunk allocation requires less @pmalloc()/@prealloc() operations than with plist-objects
+  - Chunk allocation requires lesser @pmalloc()/@prealloc() operations than with plist-objects
   - Dynamic and quick implementation for huge data structures
   - Elements are held in a real array on the heap
   - Low memory consumption
@@ -18,7 +25,7 @@ The parray object brings the following advantages and disadvantages:
   -
 - __Disadvantages__
   - No hashable entries
-  - Not as flexible as plist, especially when elements are rearranged
+  - Not as flexible as plist; especially element rearrangement requires more care
   - Removing elements or rechaining requires more computing power
   - Careful programming necessary, problems with lost pointers may be
     encountered after memory-reallocations!
@@ -97,7 +104,7 @@ parray_for( a, tp )
 
 /* Using a callback function ------------------------------------------------ */
 
-void tp_callback( usertype* tp )
+void tp_callback( parray* a, usertype* tp )
 {
 	/* ... */
 }
@@ -141,6 +148,51 @@ parray_remove( a, 2, &t );
 tp = (usertype*)parray_pop( a );
 tp = (usertype*)parray_unshift( a );
 ```
+
+=== Sorting elements ===
+
+parray objects provide a sorting automatism, so that elements can be sorted on demand.
+
+The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like memcmp() does.
+
+This function can be individually set using @parray_set_sortfn(), and by default points to a callback function that uses memcmp() as the element comparison function.
+
+As prototype and example, the following comparison function:
+```
+int my_compare( parray* a, usertype* p, usertype* q )
+{
+	if( p < q )
+		return -1;
+	else if( p > q )
+		return 1;
+
+	return 0;
+}
+```
+
+This function can then be attached to an parray object with
+
+``` parray_set_sortfn( a, my_compare );
+
+Sorting can be performed by invoking the functions
+
+- @parray_sort() - to sort the entire array,
+- @parray_subsort() - to sort only a part of the array (begin- and end-elements required).
+-
+
+The used algorithm is quick-sort.
+
+
+=== Interchanging functions ===
+
+parray objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind parray. Both arrays must be configured with the same element memory size, else all functions will fail.
+
+To implement these functions, every parray object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
+
+- @parray_diff() - checks two arrays for same items (equality),
+- @parray_union() - extends an array to all elements of a secondary array that are not equal within the first array.
+-
+
 
 === Additional functions ===
 

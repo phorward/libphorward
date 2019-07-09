@@ -1,24 +1,7 @@
 # Todo
 
-This is the location for ideas and modifications with an unspecified roadmap.
-
-## general
-
-- Unit tests
-
-## base
-
-- Info / logging system for status, warning, error messages related to the usage
-  of functions (beyond debug!)
-
-## regex
-
-- Revise greedyness/non-greedyness handling according to exising implementations
-- Implement a regex-parser using pparse as parsing engine
-
-## parse
-
-- Dumping grammars into all supported BNF dialects
-- Precedence and associativity leveling to resolve conflicts
-- Direct traversal from an AST into a pvm program
-- GLR parser with on-line conflict resolution (target shall still be one AST!)
+- [x] base: extend parray to union/diff/sort-functions to compete with plist
+- [ ] base: create unit test facility for travis
+- [ ] base: rewrite pccl to be based on parray for increasing speed
+- [ ] regex: Revise greedyness/non-greedyness handling according to existing implementations
+- [ ] regex: Implement a regex-parser with UniCC² when available

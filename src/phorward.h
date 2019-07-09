@@ -232,10 +232,12 @@ typedef void (*parrayfn)	( parray*, void* );
 #define PLIST_H
 
 
-typedef struct Plist		plist;			
-typedef struct Plistel		plistel;		
-typedef void (*plistelfn)	( plistel* );	
-typedef void (*plistfn)		( void* );		
+typedef struct Plist		plist;					
+typedef struct Plistel		plistel;				
+
+
+typedef void (*plistelfn)	( plistel* );			
+typedef void (*plistfn)		( void* );				
 
 
 struct Plistel

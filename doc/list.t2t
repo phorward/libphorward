@@ -214,6 +214,7 @@ Sorting can also be performed by invoking the functions
 - @plist_subsort() - to sort only a part of the list (begin- and end-elements required).
 -
 
+The used algorithm is quick-sort.
 
 === Interchanging functions ===
 

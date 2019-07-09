@@ -1,6 +1,6 @@
 The Phorward C/C++ Library
-libphorward 0.24.0
-Jan 2019
+libphorward 0.25.0
+Jul 2019
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
 %!preproc(xhtml): '(pboolean|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '[\1 #\1]\2'
@@ -34,7 +34,6 @@ Welcome to the Phorward C/C++ Library on-line documentation!
 
 The library provides several modules which can be used together or on their own:
 
-- **any** provides an extensible data structure and interface to store, convert and handle variables of different value types (some kind of "variant" data type) within one data structure.
 - **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays.
 - **regex** provides tools for constructing, parsing, processing and modifying regular expressions.
 - **string** is an extended string processing library with useful functions for `char*` and `wchar_t*`-string manipulation.

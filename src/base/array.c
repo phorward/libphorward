@@ -11,7 +11,9 @@ Usage:	Universal, dynamic array management functions.
 
 #include "phorward.h"
 
-#define STD_CHUNK			128		/* Default chunk size */
+#ifndef PARRAY_DEFAULT_CHUNK
+#define PARRAY_DEFAULT_CHUNK		128			/* Default chunk size */
+#endif
 
 /* Compare elements of a list */
 static int parray_compare( parray* array, void* l, void* r )
@@ -48,7 +50,7 @@ pboolean parray_init( parray* array, size_t size, size_t chunk )
 	}
 
 	if( chunk <= 0 )
-		chunk = STD_CHUNK;
+		chunk = PARRAY_DEFAULT_CHUNK;
 
 	memset( array, 0, sizeof( parray ) );
 	array->size = size;
@@ -1035,7 +1037,7 @@ int parray_diff( parray* left, parray* right )
 	void*   p;
 	void*   q;
 
-	PROC( "plist_diff" );
+	PROC( "parray_diff" );
 	PARMS( "left", "%p", left );
 	PARMS( "right", "%p", right );
 
@@ -1135,12 +1137,12 @@ b
 -1
 */
 
-/** Sorts //list// between the elements //from// and //to// according to the
+/** Sorts //array// between the elements //from// and //to// according to the
 sort-function that was set for the list.
 
-To sort the entire list, use plist_sort().
+To sort the entire array, use parray_sort().
 
-The sort-function can be modified by using plist_set_sortfn().
+The sort-function can be modified by using parray_set_sortfn().
 
 The default sort function sorts the list by content using the memcmp()
 standard function. */
@@ -1173,16 +1175,12 @@ pboolean parray_subsort( parray* array, size_t from, size_t to )
 		while( ( *array->sortfn )(
 			array, parray_get( array, a ), parray_get( array, ref ) )
 				> 0 )
-		{
 			a++;
-		}
 
 		while( ( *array->sortfn )(
 			array, parray_get( array, ref ), parray_get( array, b ) )
 				> 0 )
-		{
 			b--;
-		}
 
 		if( a <= b )
 		{
@@ -1282,7 +1280,10 @@ cdabbBkeAx
 AaBbbcdekx
 */
 
-/** Set compare function */
+/** Sets array compare function.
+
+If no compare function is set or NULL is provided, memcmp() will be used
+as default fallback. */
 pboolean parray_set_comparefn( parray* array,
 			int (*comparefn)( parray*, void*, void* ) )
 {
@@ -1302,7 +1303,10 @@ pboolean parray_set_comparefn( parray* array,
 	RETURN( TRUE );
 }
 
-/** Set sort function */
+/** Sets array sort function.
+
+If no sort function is given, the compare function set by parray_set_comparefn()
+is used. If even unset, memcmp() will be used. */
 pboolean parray_set_sortfn( parray* array,
 			int (*sortfn)( parray*, void*, void* ) )
 {

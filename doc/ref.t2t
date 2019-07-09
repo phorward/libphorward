@@ -213,6 +213,24 @@ plist_for( my_list, e )
 ```
 %FUNCTION:END
 == Functions ==
+%NEED:15
+%FUNCTION:BEGIN
+=== parray_concat ===[fn_parray_concat]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+size_t parray_concat( parray* dest, parray* src )
+%DEFINITION:END
+
+**Usage:**
+
+Concats the elements of array //src// to the elements of array //dest//.
+
+The function will not run if both arrays have different element size settings.
+
+The function returns the number of elements added to //dest//.
+%FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
 === parray_count ===[fn_parray_count]
@@ -243,6 +261,25 @@ Create a new parray as an object with an element allocation size //size//
 and a reallocation-chunk-size of //chunk//.
 
 The returned memory must be released with [parray_free() #fn_parray_free].
+%FUNCTION:END
+%NEED:16
+%FUNCTION:BEGIN
+=== parray_diff ===[fn_parray_diff]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int parray_diff( parray* left, parray* right )
+%DEFINITION:END
+
+**Usage:**
+
+Tests the contents (data parts) of the array //left// and the array //right//
+for equal elements.
+
+The function returns a value < 0 if //left// is lower //right//, a value > 0
+if //left// is greater //right// and a value == 0 if //left// is equal to
+//right//.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -667,6 +704,40 @@ set to zero.
 Returns the address of the item in the array, or NULL if the desired offset
 is out of the array bounds.
 %FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_set_comparefn ===[fn_parray_set_comparefn]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean parray_set_comparefn( parray* array, int (*comparefn)( parray*, void*, void* ) )
+%DEFINITION:END
+
+**Usage:**
+
+Sets array compare function.
+
+If no compare function is set or NULL is provided, [memcmp() #fn_memcmp] will be used
+as default fallback.
+%FUNCTION:END
+%NEED:14
+%FUNCTION:BEGIN
+=== parray_set_sortfn ===[fn_parray_set_sortfn]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean parray_set_sortfn( parray* array, int (*sortfn)( parray*, void*, void* ) )
+%DEFINITION:END
+
+**Usage:**
+
+Sets array sort function.
+
+If no sort function is given, the compare function set by [parray_set_comparefn() #fn_parray_set_comparefn]
+is used. If even unset, [memcmp() #fn_memcmp] will be used.
+%FUNCTION:END
 %NEED:21
 %FUNCTION:BEGIN
 === parray_shift ===[fn_parray_shift]
@@ -691,6 +762,49 @@ operation.
 The function returns the address of the shifted item, and (void*)NULL if the
 item could not be popped (e.g. array is empty).
 %FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== parray_sort ===[fn_parray_sort]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean parray_sort( parray* array )
+%DEFINITION:END
+
+**Usage:**
+
+Sorts //list// according to the sort-function that was set for the list.
+
+To sort only parts of a list, use [plist_subsort() #fn_plist_subsort].
+
+The sort-function can be modified by using [plist_set_sortfn() #fn_plist_set_sortfn].
+
+The default sort function sorts the list by content using the [memcmp() #fn_memcmp]
+standard function.
+%FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== parray_subsort ===[fn_parray_subsort]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+pboolean parray_subsort( parray* array, size_t from, size_t to )
+%DEFINITION:END
+
+**Usage:**
+
+Sorts //array// between the elements //from// and //to// according to the
+sort-function that was set for the list.
+
+To sort the entire array, use [parray_sort() #fn_parray_sort].
+
+The sort-function can be modified by using [parray_set_sortfn() #fn_parray_set_sortfn].
+
+The default sort function sorts the list by content using the [memcmp() #fn_memcmp]
+standard function.
+%FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
 === parray_swap ===[fn_parray_swap]
@@ -704,6 +818,27 @@ void* parray_swap( parray* array, size_t pos1, size_t pos2 )
 **Usage:**
 
 Swap two elements of an array.
+%FUNCTION:END
+%NEED:18
+%FUNCTION:BEGIN
+=== parray_union ===[fn_parray_union]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+size_t parray_union( parray* all, parray* from )
+%DEFINITION:END
+
+**Usage:**
+
+Unions elements from array //from// into array //all//.
+
+An element is only added to //all//, if there exists no equal element with the
+same size and content.
+
+The function will not run if both arrays have different element size settings.
+
+The function returns the number of elements added to //from//.
 %FUNCTION:END
 %NEED:23
 %FUNCTION:BEGIN
@@ -1818,7 +1953,7 @@ PLIST_MOD_RECYCLE, existing pointers are held for later usage.
 **Definition:**
 
 %DEFINITION:BEGIN
-int plist_concat( plist* dest, plist* src )
+size_t plist_concat( plist* dest, plist* src )
 %DEFINITION:END
 
 **Usage:**
@@ -1999,10 +2134,28 @@ plistel* plist_get_by_key( plist* list, char* key )
 
 **Usage:**
 
-Retrieve list element by hash-table key.
+Retrieve list element by hash-table //key//.
 
 This function tries to fetch a list entry plistel from list //list//
 with the key //key//.
+%FUNCTION:END
+%NEED:15
+%FUNCTION:BEGIN
+=== plist_get_by_nkey ===[fn_plist_get_by_nkey]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+plistel* plist_get_by_nkey( plist* list, char* key, size_t n )
+%DEFINITION:END
+
+**Usage:**
+
+Retrieve list element by hash-table //key//,
+where key is limited by //n// bytes.
+
+This function tries to fetch a list entry plistel from list //list//
+with the key //key// over a size of //n// bytes.
 %FUNCTION:END
 %NEED:14
 %FUNCTION:BEGIN
@@ -2065,19 +2218,20 @@ plistel* plist_hashprev( plistel* u )
 
 Access previous element with same hash value of a current unit //u//.
 %FUNCTION:END
-%NEED:13
+%NEED:14
 %FUNCTION:BEGIN
 === plist_init ===[fn_plist_init]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-pboolean plist_init( plist* list, size_t size, size_t table_size, int flags )
+pboolean plist_init( plist* list, size_t size, int flags )
 %DEFINITION:END
 
 **Usage:**
 
 Initialize the list //list// with an element allocation size //size//.
+
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage.
 %FUNCTION:END
@@ -2349,7 +2503,7 @@ and return the pointer to this.
 
 The function works as a shortcut for [plist_access() #fn_plist_access] in combination with [plist_shift() #fn_plist_shift].
 %FUNCTION:END
-%NEED:11
+%NEED:14
 %FUNCTION:BEGIN
 === plist_set_comparefn ===[fn_plist_set_comparefn]
 
@@ -2361,7 +2515,10 @@ pboolean plist_set_comparefn( plist* list, int (*comparefn)( plist*, plistel*, p
 
 **Usage:**
 
-Set compare function
+Set compare function.
+
+If no compare function is set or NULL is provided, [memcmp() #fn_memcmp] will be used
+as default fallback.
 %FUNCTION:END
 %NEED:11
 %FUNCTION:BEGIN
@@ -2377,7 +2534,7 @@ pboolean plist_set_printfn( plist* list, void (*printfn)( plist* ) )
 
 Set an element dump function.
 %FUNCTION:END
-%NEED:11
+%NEED:14
 %FUNCTION:BEGIN
 === plist_set_sortfn ===[fn_plist_set_sortfn]
 
@@ -2389,7 +2546,10 @@ pboolean plist_set_sortfn( plist* list, int (*sortfn)( plist*, plistel*, plistel
 
 **Usage:**
 
-Set sort function
+Set sort function.
+
+If no sort function is given, the compare function set by [plist_set_comparefn() #fn_plist_set_comparefn]
+is used. If even unset, [memcmp() #fn_memcmp] will be used.
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -2473,7 +2633,7 @@ standard function.
 **Definition:**
 
 %DEFINITION:BEGIN
-pboolean plist_swap( plistel* a, plistel* b )
+pboolean plist_swap( plist* l, plistel* a, plistel* b )
 %DEFINITION:END
 
 **Usage:**
@@ -2489,15 +2649,15 @@ returns FALSE.
 **Definition:**
 
 %DEFINITION:BEGIN
-int plist_union( plist* all, plist* from )
+size_t plist_union( plist* all, plist* from )
 %DEFINITION:END
 
 **Usage:**
 
 Unions elements from list //from// into list //all//.
 
-An element is only added to //all//, if there exists no other
-element with the same size and content.
+An element is only added to //all//, if there exists no equal element with the
+same size and content.
 
 The function will not run if both lists have different element size settings.
 
