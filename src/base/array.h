@@ -16,7 +16,8 @@ typedef struct _parray parray;
 
 struct _parray
 {
-	void*	array;
+	char*	start;
+
 	size_t	first;
 	size_t	last;
 	size_t	count;      /* this is NOT the actual element count;

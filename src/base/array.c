@@ -97,7 +97,7 @@ pboolean parray_erase( parray* array )
 		RETURN( FALSE );
 	}
 
-	array->array = pfree( array->array );
+	array->start = pfree( array->start );
 	array->count = array->first = array->last = 0;
 
 	RETURN( TRUE );
@@ -146,12 +146,12 @@ void* parray_push( parray* array, void* item )
 	{
 		array->count += array->chunk;
 
-		if( !( array->array = (void*)prealloc(
-				(void*)array->array, array->count * array->size ) ) )
+		if( !( array->start = (void*)prealloc(
+				(void*)array->start, array->count * array->size ) ) )
 			return (void*)NULL;
 	}
 
-	ptr = (char*)array->array + ( ( array->last++ ) * array->size );
+	ptr = array->start + ( ( array->last++ ) * array->size );
 
 	/* Copy item into last of array */
 	if( item )
@@ -181,8 +181,8 @@ pboolean parray_reserve( parray* array, size_t n )
 
 	array->count += n + ( n % array->chunk );
 
-	if( !( array->array = (void*)prealloc(
-			(void*)array->array, array->count * array->size ) ) )
+	if( !( array->start = (void*)prealloc(
+			(void*)array->start, array->count * array->size ) ) )
 		RETURN( FALSE );
 
 	RETURN( TRUE );
@@ -264,7 +264,7 @@ void* parray_insert( parray* array, size_t offset, void* item )
 		/* Allocate one item for moving up */
 		parray_malloc( array );
 
-		slot = (char*)array->array + ( array->first + offset ) * array->size;
+		slot = array->start + ( array->first + offset ) * array->size;
 
 		/* Move up existing items right of offset */
 		memmove( slot + array->size, slot,
@@ -322,7 +322,7 @@ void* parray_remove( parray* array, size_t offset, void** item )
 		RETURN( (void*)NULL );
 	}
 
-	slot = (char*)array->array + ( array->first + offset ) * array->size;
+	slot = array->start + ( array->first + offset ) * array->size;
 
 	if( item )
 		memcpy( *item, slot, ( array->first + offset ) * array->size );
@@ -366,7 +366,7 @@ void* parray_pop( parray* array )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( (char*)array->array + ( ( --array->last ) * array->size ) );
+	RETURN( array->start + ( ( --array->last ) * array->size ) );
 }
 
 /** Appends an element to the begin of the array.
@@ -402,20 +402,20 @@ void* parray_unshift( parray* array, void* item )
 	{
 		array->count += array->chunk;
 
-		if( !( array->array = (void*)prealloc(
-				(void*)array->array, array->count * array->size ) ) )
+		if( !( array->start = (void*)prealloc(
+				(void*)array->start, array->count * array->size ) ) )
 			RETURN( (void*)NULL );
 
 		array->first = array->chunk;
 
 		if( array->last > 0 )
-			memmove( (char*)array->array + array->first * array->size,
-						array->array, array->last * array->size );
+			memmove( array->start + array->first * array->size,
+						array->start, array->last * array->size );
 
 		array->last += array->first;
 	}
 
-	ptr = (char*)array->array + ( --array->first * array->size );
+	ptr = array->start + ( --array->first * array->size );
 
 	/* Copy item into last of array */
 	if( item )
@@ -453,7 +453,7 @@ void* parray_shift( parray* array )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( (char*)array->array + array->first++ * array->size );
+	RETURN( array->start + array->first++ * array->size );
 }
 
 /** Access an element from the array by its offset position from the left.
@@ -486,7 +486,7 @@ void* parray_get( parray* array, size_t offset )
 		RETURN( (void*)NULL );
 	}
 
-	RETURN( (char*)array->array + ( array->first + offset ) * array->size );
+	RETURN( array->start + ( array->first + offset ) * array->size );
 }
 
 /** Put an element //item// at position //offset// of array //array//.
@@ -522,7 +522,7 @@ void* parray_put( parray* array, size_t offset, void* item )
 		RETURN( (void*)NULL );
 	}
 
-	slot = (char*)array->array + ( array->first + offset ) * array->size;
+	slot = array->start + ( array->first + offset ) * array->size;
 
 	if( item )
 		memcpy( slot, item, array->size );
@@ -654,7 +654,7 @@ void* parray_first( parray* array )
 	if( array->first == array->last )
 		RETURN( (void*)NULL );
 
-	RETURN( (char*)array->array + ( array->first * array->size ) );
+	RETURN( array->start + ( array->first * array->size ) );
 }
 
 /** Access last element of the array.
@@ -676,7 +676,7 @@ void* parray_last( parray* array )
 	if( array->first == array->last )
 		RETURN( (void*)NULL );
 
-	RETURN( (char*)array->array + ( ( array->last - 1 ) * array->size ) );
+	RETURN( array->start + ( ( array->last - 1 ) * array->size ) );
 }
 
 /** Access next element from //ptr// in //array//.
@@ -792,8 +792,7 @@ size_t parray_offset( parray* array, void* ptr )
 	if( !parray_partof( array, ptr ) )
 		return parray_count( array );
 
-	return ( (char*)ptr - ( (char*)array->array
-								+ ( array->first * array->size ) ) )
+	return ( (char*)ptr - ( array->start + ( array->first * array->size ) ) )
 				/ array->size;
 }
 
@@ -966,13 +965,13 @@ size_t parray_union( parray* all, parray* from )
 	if( !( last = all->last ) )
 		RETURN( parray_concat( all, from ) );
 
-	ptop = (char*)from->array + ( from->last * from->size );
+	ptop = from->start + ( from->last * from->size );
 
-	for( p = (char*)from->array; p < ptop; p += from->size )
+	for( p = from->start; p < ptop; p += from->size )
 	{
-		qtop = (char*)all->array + ( last * all->size );
+		qtop = all->start + ( last * all->size );
 
-		for( q = all->array; q < qtop; q += all->size )
+		for( q = all->start; q < qtop; q += all->size )
 			if( parray_compare( all, p, q ) == 0 )
 				break;
 
