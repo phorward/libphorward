@@ -135,14 +135,10 @@ void* parray_push( parray* array, void* item )
 {
 	void*	ptr;
 
-	PROC( "parray_push" );
-	PARMS( "array", "%p", array );
-	PARMS( "item", "%p", item );
-
 	if( !( array ) )
 	{
 		WRONGPARAM;
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 	}
 
 	/* Is reallocation required? */
@@ -152,7 +148,7 @@ void* parray_push( parray* array, void* item )
 
 		if( !( array->array = (void*)prealloc(
 				(void*)array->array, array->count * array->size ) ) )
-			RETURN( (void*)NULL );
+			return (void*)NULL;
 	}
 
 	ptr = (char*)array->array + ( ( array->last++ ) * array->size );
@@ -161,7 +157,7 @@ void* parray_push( parray* array, void* item )
 	if( item )
 		memcpy( ptr, item, array->size );
 
-	RETURN( ptr );
+	return ptr;
 }
 
 /** Reserves memory for //n// items in //array//.
@@ -949,10 +945,11 @@ The function will not run if both arrays have different element size settings.
 The function returns the number of elements added to //from//. */
 size_t parray_union( parray* all, parray* from )
 {
-	size_t		count;
 	size_t      last;
-	void*       p;
-	void*       q;
+	char*       p;
+	char*       q;
+	char*		qtop;
+	char*		ptop;
 
 	PROC( "parray_union" );
 	PARMS( "all", "%p", all );
@@ -966,24 +963,26 @@ size_t parray_union( parray* all, parray* from )
 		RETURN( 0 );
 	}
 
-	if( !( count = parray_count( all ) ) )
+	if( !( last = all->last ) )
 		RETURN( parray_concat( all, from ) );
 
-	last = all->last;
+	ptop = (char*)from->array + ( from->last * from->size );
 
-	parray_for( from, p )
+	for( p = (char*)from->array; p < ptop; p += from->size )
 	{
-		for( q = parray_first( all ); q && q < all->array + last; q = parray_next( all, q ) )
+		qtop = (char*)all->array + ( last * all->size );
+
+		for( q = all->array; q < qtop; q += all->size )
 			if( parray_compare( all, p, q ) == 0 )
 				break;
 
-		if( !q || q == all->array + last )
+		if( !q || q == qtop )
 			if( !parray_push( all, p ) )
 				break;
 	}
 
-	VARS( "added", "%ld", parray_count( all ) - count );
-	RETURN( parray_count( all ) - count );
+	VARS( "added", "%ld", parray_count( all ) - last );
+	RETURN( parray_count( all ) - last );
 }
 
 /*TESTCASE:parray_union
