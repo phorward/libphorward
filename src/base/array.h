@@ -16,7 +16,10 @@ typedef struct _parray parray;
 
 struct _parray
 {
-	char*	start;
+	char*	start;		/* Array memory address */
+
+	char*	bottom;		/* = start + first * size */
+	char*	top;		/* = start + last * size */
 
 	size_t	first;
 	size_t	last;
@@ -58,9 +61,9 @@ parray_for( a, t )
 }
 ```
 */
-/*MACRO:parray_for( parray* array, void* ptr )*/
+/*MACRO:parray_for( parray* array, usertype* ptr )*/
 #define parray_for( array, ptr )	\
-	for( (ptr) = parray_first( array ); (ptr); \
-			(ptr) = parray_next( array, ptr ) )
+	for( (ptr) = (void*)(array)->bottom; \
+		(ptr) && (char*)(ptr) < (array)->top; (ptr)++ )
 
 #endif

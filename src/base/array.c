@@ -97,7 +97,7 @@ pboolean parray_erase( parray* array )
 		RETURN( FALSE );
 	}
 
-	array->start = pfree( array->start );
+	array->bottom = array->top = array->start = pfree( array->start );
 	array->count = array->first = array->last = 0;
 
 	RETURN( TRUE );
@@ -133,8 +133,6 @@ the item could not be pushed.
 */
 void* parray_push( parray* array, void* item )
 {
-	void*	ptr;
-
 	if( !( array ) )
 	{
 		WRONGPARAM;
@@ -151,13 +149,14 @@ void* parray_push( parray* array, void* item )
 			return (void*)NULL;
 	}
 
-	ptr = array->start + ( ( array->last++ ) * array->size );
+	array->bottom = array->start + array->first * array->size;
+	array->top = array->start + ++array->last * array->size;
 
 	/* Copy item into last of array */
 	if( item )
-		memcpy( ptr, item, array->size );
+		memcpy( array->top - array->size, item, array->size );
 
-	return ptr;
+	return array->top - array->size;
 }
 
 /** Reserves memory for //n// items in //array//.
@@ -184,6 +183,9 @@ pboolean parray_reserve( parray* array, size_t n )
 	if( !( array->start = (void*)prealloc(
 			(void*)array->start, array->count * array->size ) ) )
 		RETURN( FALSE );
+
+	array->bottom = array->start + array->first * array->size;
+	array->top = array->start + array->last * array->size;
 
 	RETURN( TRUE );
 }
@@ -334,6 +336,7 @@ void* parray_remove( parray* array, size_t offset, void** item )
 					* array->size );
 
 	array->last--;
+	array->top -= array->size;
 
 	RETURN( slot );
 }
@@ -366,6 +369,8 @@ void* parray_pop( parray* array )
 		RETURN( (void*)NULL );
 	}
 
+	array->top -= array->size;
+
 	RETURN( array->start + ( ( --array->last ) * array->size ) );
 }
 
@@ -385,8 +390,6 @@ if the item could not be unshifted.
 */
 void* parray_unshift( parray* array, void* item )
 {
-	void*	ptr;
-
 	PROC( "parray_unshift" );
 	PARMS( "array", "%p", array );
 	PARMS( "item", "%p", item );
@@ -413,15 +416,19 @@ void* parray_unshift( parray* array, void* item )
 						array->start, array->last * array->size );
 
 		array->last += array->first;
+
+		array->bottom = array->start + array->first * array->size;
+		array->top = array->start + array->last * array->size;
 	}
 
-	ptr = array->start + ( --array->first * array->size );
+	array->bottom -= array->size;
+	array->first--;
 
 	/* Copy item into last of array */
 	if( item )
-		memcpy( ptr, item, array->size );
+		memcpy( array->bottom, item, array->size );
 
-	RETURN( ptr );
+	RETURN( array->bottom );
 }
 
 /** Removes an element from the begin of an array.
@@ -453,6 +460,7 @@ void* parray_shift( parray* array )
 		RETURN( (void*)NULL );
 	}
 
+	array->bottom += array->size;
 	RETURN( array->start + array->first++ * array->size );
 }
 
@@ -642,19 +650,16 @@ the array.
 */
 void* parray_first( parray* array )
 {
-	PROC( "parray_first" );
-	PARMS( "array", "%p", array );
-
 	if( !array )
 	{
 		WRONGPARAM;
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 	}
 
 	if( array->first == array->last )
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 
-	RETURN( array->start + ( array->first * array->size ) );
+	return array->bottom;
 }
 
 /** Access last element of the array.
@@ -664,19 +669,16 @@ the array.
 */
 void* parray_last( parray* array )
 {
-	PROC( "parray_last" );
-	PARMS( "array", "%p", array );
-
 	if( !array )
 	{
 		WRONGPARAM;
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 	}
 
 	if( array->first == array->last )
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 
-	RETURN( array->start + ( ( array->last - 1 ) * array->size ) );
+	return array->top - array->size;
 }
 
 /** Access next element from //ptr// in //array//.
@@ -686,20 +688,17 @@ out of bounds.
 */
 void* parray_next( parray* array, void* ptr )
 {
-	PROC( "parray_next" );
-	PARMS( "array", "%p", array );
-
 	if( !( array && ptr ) )
 	{
 		WRONGPARAM;
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 	}
 
 	ptr += array->size;
 	if( ptr > parray_last( array ) || ptr < parray_first( array ) )
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 
-	RETURN( ptr );
+	return ptr;
 }
 
 /** Access previous element from //ptr// in //array//.
@@ -709,20 +708,17 @@ out of bounds.
 */
 void* parray_prev( parray* array, void* ptr )
 {
-	PROC( "parray_prev" );
-	PARMS( "array", "%p", array );
-
 	if( !( array && ptr ) )
 	{
 		WRONGPARAM;
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 	}
 
 	ptr -= array->size;
 	if( ptr < parray_first( array ) || ptr > parray_last( array ) )
-		RETURN( (void*)NULL );
+		return (void*)NULL;
 
-	RETURN( ptr );
+	return ptr;
 }
 
 /** Swap two elements of an array. */
@@ -917,7 +913,7 @@ The function returns the number of elements added to //dest//. */
 size_t parray_concat( parray* dest, parray* src )
 {
 	size_t		count;
-	void*       p;
+	char*       p;
 
 	if( !( dest && src && dest->size == src->size ) )
 	{
@@ -927,7 +923,8 @@ size_t parray_concat( parray* dest, parray* src )
 
 	count = dest->count;
 
-	parray_for( src, p )
+	/* fixme: This can be done much faster! */
+	for( p = src->bottom; p && p < src->top; p += src->size )
 		if( !parray_push( dest, p ) )
 			break;
 
@@ -944,11 +941,10 @@ The function will not run if both arrays have different element size settings.
 The function returns the number of elements added to //from//. */
 size_t parray_union( parray* all, parray* from )
 {
-	size_t      last;
+	size_t		last;
+	char*		top;
 	char*       p;
 	char*       q;
-	char*		qtop;
-	char*		ptop;
 
 	PROC( "parray_union" );
 	PARMS( "all", "%p", all );
@@ -965,17 +961,15 @@ size_t parray_union( parray* all, parray* from )
 	if( !( last = all->last ) )
 		RETURN( parray_concat( all, from ) );
 
-	ptop = from->start + ( from->last * from->size );
-
-	for( p = from->start; p < ptop; p += from->size )
+	for( p = from->bottom; p < from->top; p += from->size )
 	{
-		qtop = all->start + ( last * all->size );
+		top = all->bottom + last * all->size;
 
-		for( q = all->start; q < qtop; q += all->size )
+		for( q = all->bottom; q < top; q += all->size )
 			if( parray_compare( all, p, q ) == 0 )
 				break;
 
-		if( !q || q == qtop )
+		if( q == top )
 			if( !parray_push( all, p ) )
 				break;
 	}
@@ -1032,8 +1026,8 @@ if //left// is greater //right// and a value == 0 if //left// is equal to
 int parray_diff( parray* left, parray* right )
 {
 	int		diff;
-	void*   p;
-	void*   q;
+	char*   p;
+	char*   q;
 
 	PROC( "parray_diff" );
 	PARMS( "left", "%p", left );
@@ -1055,8 +1049,8 @@ int parray_diff( parray* left, parray* right )
 
 	MSG( "OK, requiring deep check" );
 
-	for( p = parray_first( left ), q = parray_first( right );
-			p && q; p = parray_next( left, p ), q = parray_next( right, q ) )
+	for( p = left->bottom, q = right->bottom;
+			p && q; p += left->size, q += right->size )
 	{
 		if( ( diff = parray_compare( left, p, q ) ) )
 		{

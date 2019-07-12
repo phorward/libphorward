@@ -202,7 +202,10 @@ typedef struct _parray parray;
 
 struct _parray
 {
-	char*	start;
+	char*	start;		
+
+	char*	bottom;		
+	char*	top;		
 
 	size_t	first;
 	size_t	last;
@@ -222,8 +225,8 @@ typedef void (*parrayfn)	( parray*, void* );
 
 
 #define parray_for( array, ptr )	\
-	for( (ptr) = parray_first( array ); (ptr); \
-			(ptr) = parray_next( array, ptr ) )
+	for( (ptr) = (void*)(array)->bottom; \
+		(ptr) && (char*)(ptr) < (array)->top; (ptr)++ )
 
 #endif
 
