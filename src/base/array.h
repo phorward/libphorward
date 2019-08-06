@@ -21,13 +21,14 @@ struct _parray
 	char*	bottom;		/* = start + first * size */
 	char*	top;		/* = start + last * size */
 
-	size_t	first;
-	size_t	last;
-	size_t	count;      /* this is NOT the actual element count;
+	size_t	first;		/* Offset of first element */
+	size_t	last;		/* Offset of last element */
+	size_t	count;      /* Total array elements size;
+							this is NOT the actual element count;
 							use parray_count() for correct value! */
 
-	size_t	size;
-	size_t	chunk;
+	size_t	size;		/* Element size */
+	size_t	chunk;		/* Chunk size */
 
 	int		(*comparefn)( parray*, void*, void* );
 	int		(*sortfn)( parray*, void*, void* );
@@ -64,6 +65,7 @@ parray_for( a, t )
 /*MACRO:parray_for( parray* array, usertype* ptr )*/
 #define parray_for( array, ptr )	\
 	for( (ptr) = (void*)(array)->bottom; \
-		(ptr) && (char*)(ptr) < (array)->top; (ptr)++ )
+		(ptr) && (char*)(ptr) < (array)->top; \
+			(ptr) = (void*)((char*)(ptr) + (array)->size) )
 
 #endif

@@ -61,8 +61,8 @@ pboolean parray_init( parray* array, size_t size, size_t chunk )
 	RETURN( TRUE );
 }
 
-/** Create a new parray as an object with an element allocation size //size//
-and a reallocation-chunk-size of //chunk//.
+/** Create a new parray as an object with an element allocation size //size//,
+a reallocation-chunk-size of //chunk//.
 
 The returned memory must be released with parray_free().  */
 parray* parray_create( size_t size, size_t chunk )
