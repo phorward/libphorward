@@ -56,6 +56,7 @@ Possible flags are listed below, and can be combined using bitwise or (|).
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
 - **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
 - **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exists in the object will be rejected.
+- **PLIST_MOD_KEEPKEYS** holds the correct element insertation sequence. In case of a key collision, the inserted element is inserted __behind__ the colliding element rather than __before__.
 - **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
 -
 

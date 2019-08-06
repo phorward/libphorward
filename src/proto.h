@@ -66,8 +66,8 @@ pboolean _dbg_trace_enabled( char* file, char* function, char* type );
 void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 /* base/list.c */
-pboolean plist_init( plist* list, size_t size, int flags );
-plist* plist_create( size_t size, int flags );
+pboolean plist_init( plist* list, size_t size, short flags );
+plist* plist_create( size_t size, short flags );
 plist* plist_dup( plist* list );
 pboolean plist_erase( plist* list );
 pboolean plist_clear( plist* list );

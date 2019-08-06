@@ -326,7 +326,7 @@ static int plist_compare( plist* list, plistel* l, plistel* r )
 
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage. */
-pboolean plist_init( plist* list, size_t size, int flags )
+pboolean plist_init( plist* list, size_t size, short flags )
 {
 	if( !( list ) )
 	{
@@ -378,13 +378,16 @@ values are stored elsewhere, so the plist-module only uses the original \
 pointers instead of copying them.
 - **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value \
 provided as key directly.
+- **PLIST_MOD_KEEPKEYS** holds the correct element insertation sequence. \
+In case of a key collision, the inserted element is inserted __behind__ the \
+colliding element rather than __before__.
 - **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with \
 a key that already exist in the object will be rejected.
 - **PLIST_MOD_WCHAR** to handle all key values as wide-character strings.
 -
 
 Use plist_free() to erase and release the returned list object. */
-plist* plist_create( size_t size, int flags )
+plist* plist_create( size_t size, short flags )
 {
 	plist*	list;
 

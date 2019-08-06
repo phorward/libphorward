@@ -22,7 +22,7 @@ typedef void (*plistfn)		( void* );				/* List element access */
 /* Element */
 struct Plistel
 {
-	int						flags;
+	short					flags;
 	char*					key;
 
 	plistel*				prev;
@@ -35,12 +35,11 @@ struct Plistel
 /* Container */
 struct Plist
 {
-	int						flags;
+	short					flags;
 #define PLIST_MOD_NONE		0	/* No modification (for sake of completeness) */
 #define PLIST_MOD_PTR		1	/* Pointer mode: Store only pointers
 									into list elements */
-#define PLIST_MOD_RECYCLE	2	/* Recycle removed elements for later
-									usage */
+#define PLIST_MOD_RECYCLE	2	/* Recycle removed elements for later usage */
 #define PLIST_MOD_AUTOSORT	4	/* Automatically sort elements */
 #define PLIST_MOD_EXTKEYS	8	/* Store keys as pointer, no copying */
 #define PLIST_MOD_PTRKEYS	16	/* Keys are directly used and compared
@@ -52,7 +51,7 @@ struct Plist
 #define PLIST_MOD_WCHAR		128	/* Use wide-character strings for keys */
 
 	size_t					size;
-	long					count;
+	size_t					count;
 	int						hashsize;
 
 	int						size_index;

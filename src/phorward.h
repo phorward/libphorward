@@ -207,12 +207,12 @@ struct _parray
 	char*	bottom;		
 	char*	top;		
 
-	size_t	first;
-	size_t	last;
+	size_t	first;		
+	size_t	last;		
 	size_t	count;      
 
-	size_t	size;
-	size_t	chunk;
+	size_t	size;		
+	size_t	chunk;		
 
 	int		(*comparefn)( parray*, void*, void* );
 	int		(*sortfn)( parray*, void*, void* );
@@ -226,7 +226,8 @@ typedef void (*parrayfn)	( parray*, void* );
 
 #define parray_for( array, ptr )	\
 	for( (ptr) = (void*)(array)->bottom; \
-		(ptr) && (char*)(ptr) < (array)->top; (ptr)++ )
+		(ptr) && (char*)(ptr) < (array)->top; \
+			(ptr) = (void*)((char*)(ptr) + (array)->size) )
 
 #endif
 
@@ -246,7 +247,7 @@ typedef void (*plistfn)		( void* );
 
 struct Plistel
 {
-	int						flags;
+	short					flags;
 	char*					key;
 
 	plistel*				prev;
@@ -259,7 +260,7 @@ struct Plistel
 
 struct Plist
 {
-	int						flags;
+	short					flags;
 #define PLIST_MOD_NONE		0	
 #define PLIST_MOD_PTR		1	
 #define PLIST_MOD_RECYCLE	2	
@@ -271,7 +272,7 @@ struct Plist
 #define PLIST_MOD_WCHAR		128	
 
 	size_t					size;
-	long					count;
+	size_t					count;
 	int						hashsize;
 
 	int						size_index;
@@ -575,8 +576,8 @@ pboolean _dbg_trace_enabled( char* file, char* function, char* type );
 void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
 
-pboolean plist_init( plist* list, size_t size, int flags );
-plist* plist_create( size_t size, int flags );
+pboolean plist_init( plist* list, size_t size, short flags );
+plist* plist_create( size_t size, short flags );
 plist* plist_dup( plist* list );
 pboolean plist_erase( plist* list );
 pboolean plist_clear( plist* list );
