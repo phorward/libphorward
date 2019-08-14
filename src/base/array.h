@@ -65,7 +65,7 @@ parray_for( a, t )
 /*MACRO:parray_for( parray* array, usertype* ptr )*/
 #define parray_for( array, ptr )	\
 	for( (ptr) = (void*)(array)->bottom; \
-		(ptr) && (char*)(ptr) < (array)->top; \
+		(ptr) && (char*)(ptr) < (array)->top || ((ptr) = NULL); \
 			(ptr) = (void*)((char*)(ptr) + (array)->size) )
 
 #endif
