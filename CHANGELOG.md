@@ -2,12 +2,14 @@
 
 This file is used to document any relevant changes done to libphorward.
 
-## v0.25
+## v1.0
 
 Under development.
 
 - Modularization of the command-line tools `pdoc`, `pinclude` and `pproto`
 - Started `ptest` utility to perform automated tests and CI
+- Started to develop several tests for `ptest`
+- Improved program tracing facilities, including clock measuring to indicate slow running functions
 - Moved the `pany` dynamic variant data type into the [phosphor repository](https://github.com/phorward/phosphor)
 - parray:
   - New functions for set management: parray_union(), parray_diff(),
@@ -16,12 +18,13 @@ Under development.
   - Changed signatures for parray iter functions
 - plist:
   - Improvements of the `plist` data type so that `plistel` provides no
-    (error-prone) back-pointer to its list anymore.
-  - Optimization of plist_diff() and plist_union().
-  - `PLIST_MOD_KEEPKEYS` to keep key order and implement opposite hiding
+    (error-prone!) back-pointer to its list anymore.
+  - Speed optimization on plist_diff() and plist_union().
+  - New flag `PLIST_MOD_KEEPKEYS` to keep key order and implement opposite hiding
     (last key collision will be chained to the end).
   - New function `plist_getkey()` to iterate over available keys in a
     hash-table configured plist object.
+  - Flags generally stored as short values rather than int.
 - utf8:
   - putf8_strlen() improved
 

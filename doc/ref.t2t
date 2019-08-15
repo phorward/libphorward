@@ -150,7 +150,7 @@ For typed functions, use the macro [RETURN() #fn_RETURN].
 **Definition:**
 
 %DEFINITION:BEGIN
-parray_for( parray* array, void* ptr ) - //Macro//
+parray_for( parray* array, usertype* ptr ) - //Macro//
 %DEFINITION:END
 
 **Usage:**
@@ -257,8 +257,8 @@ parray* parray_create( size_t size, size_t chunk )
 
 **Usage:**
 
-Create a new parray as an object with an element allocation size //size//
-and a reallocation-chunk-size of //chunk//.
+Create a new parray as an object with an element allocation size //size//,
+a reallocation-chunk-size of //chunk//.
 
 The returned memory must be released with [parray_free() #fn_parray_free].
 %FUNCTION:END
@@ -1978,14 +1978,14 @@ int plist_count( plist* l )
 
 Return element count of list //l//.
 %FUNCTION:END
-%NEED:29
+%NEED:30
 %FUNCTION:BEGIN
 === plist_create ===[fn_plist_create]
 
 **Definition:**
 
 %DEFINITION:BEGIN
-plist* plist_create( size_t size, int flags )
+plist* plist_create( size_t size, short flags )
 %DEFINITION:END
 
 **Usage:**
@@ -2004,6 +2004,7 @@ Possible flags are:
 - **PLIST_MOD_AUTOSORT** to automatically sort elements on insert operations.
 - **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table keyvalues are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
 - **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
+- **PLIST_MOD_KEEPKEYS** holds the correct element insertation sequence. In case of a key collision, the inserted element is inserted __behind__ the colliding element rather than __before__.
 - **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
 - **PLIST_MOD_WCHAR** to handle all key values as wide-character strings.
 -
@@ -2225,7 +2226,7 @@ Access previous element with same hash value of a current unit //u//.
 **Definition:**
 
 %DEFINITION:BEGIN
-pboolean plist_init( plist* list, size_t size, int flags )
+pboolean plist_init( plist* list, size_t size, short flags )
 %DEFINITION:END
 
 **Usage:**

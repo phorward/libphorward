@@ -14,11 +14,11 @@
 
 help()
 {
-    echo "Usage: `basename $0` OPTIONS file..."
+	echo "Usage: `basename $0` OPTIONS file..."
 	echo
 	echo "    -D  --debug              Print test case outputs"
-    echo "    -h  --help               Show this help, and exit."
-    echo "    -k  --keep               Keep generates files (for debugging)"
+	echo "    -h  --help               Show this help, and exit."
+	echo "    -k  --keep               Keep generates files (for debugging)"
 	echo "    -V  --version            Show version info and exit."
 	echo
 }

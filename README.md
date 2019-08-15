@@ -1,4 +1,4 @@
-# phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=develop)](https://travis-ci.org/phorward/phorward) 
+# phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward) 
 
 **phorward** *(libphorward)* is a C/C++ programming library, providing useful
 extensions like dynamic data structures, enhanced string management functions
@@ -14,7 +14,7 @@ The library also comes with some tools and command-line helpers, including a doc
 
 ## Documentation
 
-A recently updated, full documentation can be found [here](https://www.phorward-software.com/products/phorward/doc/phorward.html),
+A recently updated, [full documentation can be found here](https://www.phorward-software.com/products/phorward/doc/phorward.html),
 and is also locally available after installation.
 
 ## Building
@@ -43,20 +43,6 @@ $ make
 ```
 
 This locally compiles the library or parts of it, and is ideal for development purposes.
-
-### Building on Windows
-
-On Windows systems, the usage of [Cygwin](https://cygwin.org/) or another Unix shell environment is required.
-
-The Phorward C/C++ Library also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
-
-```bash
-# To compile into 32-Bit Windows executables, configure with
-$ ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
-
-# To compile into 64-Bit Windows executables, configure with 
-$ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
-```
 
 ## Credits
 

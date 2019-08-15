@@ -193,7 +193,7 @@ To implement these functions, every parray object also refers to a comparison-ca
 - @parray_union() - extends an array to all elements of a secondary array that are not equal within the first array.
 -
 
-
+$NEWPAGE$
 === Additional functions ===
 
 Other, useful functions are

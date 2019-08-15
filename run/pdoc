@@ -13,10 +13,10 @@
 
 help()
 {
-    echo "Usage: `basename $0` OPTIONS file..."
+	echo "Usage: `basename $0` OPTIONS file..."
 	echo
 	echo "    -d  --depth     DEPTH    Enforce headline level DEPTH (default:$depth)"
-    echo "    -h  --help               Show this help, and exit."
+	echo "    -h  --help               Show this help, and exit."
 	echo "    -V  --version            Show version info and exit."
 	echo
 }
@@ -32,13 +32,13 @@ do
 			shift
 			;;
 		-h|--help)
-		    help
-		    exit 0
-		    ;;
+				help
+				exit 0
+				;;
 		-V|--version)
-		    version `basename $0` "Phorward Documentation Generator"
-		    exit 0
-		    ;;
+				version `basename $0` "Phorward Documentation Generator"
+				exit 0
+				;;
 		*)
 			break
 			;;

@@ -13,8 +13,8 @@
 
 <div class="header" id="header">
 <h1>The Phorward C/C++ Library</h1>
-<h2>libphorward 0.25.0</h2>
-<h3>Jul 2019</h3>
+<h2>libphorward 1.0</h2>
+<h3>August 2019</h3>
 </div>
 
 <div class="body" id="body">
@@ -38,55 +38,71 @@
     </li>
     </ul>
   </li>
-  <li><a href="#toc7">Intention behind this library</a>
+  <li><a href="#toc7">History</a>
   </li>
-  <li><a href="#toc8">General functions &amp; dynamic data structures</a>
+  <li><a href="#toc8">Command-line tools</a>
+      <ul>
+      <li><a href="#toc9">pdoc - C source code documentation tool</a>
+      </li>
+      <li><a href="#toc10">pinclude - Generate big files from various smaller ones</a>
+      </li>
+      <li><a href="#toc11">plex - Lexical analyzer generator and interpreter</a>
+      </li>
+      <li><a href="#toc12">pproto - C function prototype generator</a>
+      </li>
+      <li><a href="#toc13">pregex - Regular expression operations</a>
+      </li>
+      <li><a href="#toc14">ptest - C program test facilities</a>
+      </li>
+      </ul>
+  </li>
+  <li><a href="#toc15">General functions &amp; dynamic data structures</a>
     <ul>
-    <li><a href="#toc9">Advanced memory management</a>
+    <li><a href="#toc16">Advanced memory management</a>
     </li>
     <li><a href="#pboolean">Boolean data type</a>
     </li>
-    <li><a href="#toc11">Debugging and tracing</a>
+    <li><a href="#toc18">Debugging and tracing</a>
     </li>
-    <li><a href="#toc12">System-related, platform-independent helpers</a>
+    <li><a href="#toc19">System-related, platform-independent helpers</a>
     </li>
     <li><a href="#parray">Dynamically managed arrays &amp; stacks (parray)</a>
       <ul>
-      <li><a href="#toc14">Overview</a>
+      <li><a href="#toc21">Overview</a>
       </li>
-      <li><a href="#toc15">Construction and destruction</a>
+      <li><a href="#toc22">Construction and destruction</a>
       </li>
-      <li><a href="#toc16">Inserting elements</a>
+      <li><a href="#toc23">Inserting elements</a>
       </li>
-      <li><a href="#toc17">Accessing and iterating elements</a>
+      <li><a href="#toc24">Accessing and iterating elements</a>
       </li>
-      <li><a href="#toc18">Removing elements</a>
+      <li><a href="#toc25">Removing elements</a>
       </li>
-      <li><a href="#toc19">Sorting elements</a>
+      <li><a href="#toc26">Sorting elements</a>
       </li>
-      <li><a href="#toc20">Interchanging functions</a>
+      <li><a href="#toc27">Interchanging functions</a>
       </li>
-      <li><a href="#toc21">Additional functions</a>
+      <li><a href="#toc28">Additional functions</a>
       </li>
       </ul>
     </li>
     <li><a href="#plist">Linked lists, hash-tables, queues &amp; stacks (plist)</a>
       <ul>
-      <li><a href="#toc23">Overview</a>
+      <li><a href="#toc30">Overview</a>
       </li>
-      <li><a href="#toc24">Construction and destruction</a>
+      <li><a href="#toc31">Construction and destruction</a>
       </li>
-      <li><a href="#toc25">Inserting elements</a>
+      <li><a href="#toc32">Inserting elements</a>
       </li>
       <li><a href="#plistel">Accessing and iterating elements</a>
       </li>
-      <li><a href="#toc27">Removing elements</a>
+      <li><a href="#toc34">Removing elements</a>
       </li>
-      <li><a href="#toc28">Sorting elements</a>
+      <li><a href="#toc35">Sorting elements</a>
       </li>
-      <li><a href="#toc29">Interchanging functions</a>
+      <li><a href="#toc36">Interchanging functions</a>
       </li>
-      <li><a href="#toc30">Additional functions</a>
+      <li><a href="#toc37">Additional functions</a>
       </li>
       </ul>
     </li>
@@ -94,39 +110,39 @@
     </li>
     </ul>
   </li>
-  <li><a href="#toc32">Regular expressions &amp; lexical analyzers (pregex, plex)</a>
+  <li><a href="#toc39">Regular expressions &amp; lexical analyzers (pregex, plex)</a>
     <ul>
-    <li><a href="#toc33">Overview</a>
+    <li><a href="#toc40">Overview</a>
       <ul>
-      <li><a href="#toc34">Meta constructs</a>
+      <li><a href="#toc41">Meta constructs</a>
       </li>
-      <li><a href="#toc35">Characters and escape sequences</a>
+      <li><a href="#toc42">Characters and escape sequences</a>
       </li>
-      <li><a href="#toc36">Shorthand character classes</a>
+      <li><a href="#toc43">Shorthand character classes</a>
       </li>
-      <li><a href="#toc37">Anchoring</a>
+      <li><a href="#toc44">Anchoring</a>
       </li>
-      <li><a href="#toc38">Examples</a>
+      <li><a href="#toc45">Examples</a>
       </li>
       </ul>
     </li>
     <li><a href="#pregex">Operating on regular expressions (pregex)</a>
       <ul>
-      <li><a href="#toc40">Construction and destruction</a>
+      <li><a href="#toc47">Construction and destruction</a>
       </li>
-      <li><a href="#toc41">Matching</a>
+      <li><a href="#toc48">Matching</a>
       </li>
-      <li><a href="#toc42">Splitting</a>
+      <li><a href="#toc49">Splitting</a>
       </li>
-      <li><a href="#toc43">Replacing</a>
+      <li><a href="#toc50">Replacing</a>
       </li>
-      <li><a href="#toc44">Quick-access functions</a>
+      <li><a href="#toc51">Quick-access functions</a>
       </li>
       </ul>
     </li>
     <li><a href="#plex">Lexical analysis using regular expressions (plex)</a>
     </li>
-    <li><a href="#toc46">Tools</a>
+    <li><a href="#toc53">Tools</a>
       <ul>
       <li><a href="#prange">Ranges</a>
       </li>
@@ -136,11 +152,11 @@
     </li>
     </ul>
   </li>
-  <li><a href="#toc49">String helper functions (pstr*, pwcs*)</a>
+  <li><a href="#toc56">String helper functions (pstr*, pwcs*)</a>
   </li>
-  <li><a href="#toc50">Function reference</a>
+  <li><a href="#toc57">Function reference</a>
     <ul>
-    <li><a href="#toc51">Macros</a>
+    <li><a href="#toc58">Macros</a>
       <ul>
       <li><a href="#fn_LOG">LOG</a>
       </li>
@@ -162,7 +178,7 @@
       </li>
       </ul>
     </li>
-    <li><a href="#toc61">Functions</a>
+    <li><a href="#toc68">Functions</a>
       <ul>
       <li><a href="#fn_parray_concat">parray_concat</a>
       </li>
@@ -642,7 +658,7 @@ This locally compiles the library or parts of it, and is ideal for development p
 <h2 id="toc6">Building on Windows</h2>
 
 <p>
-On Windows systems, the usage of [Cygwin](<a href="https://cygwin.org/">https://cygwin.org/</a>) or another Unix shell environment is required.
+On Windows systems, the usage of Cygwin, Msys2, or another Unix shell environment is required.
 </p>
 <p>
 The Phorward C/C++ Library also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
@@ -656,21 +672,240 @@ $ ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
 $ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 </code></pre>
 
-<h1 id="toc7">Intention behind this library</h1>
+<h1 id="toc7">History</h1>
 
 <p>
-The cornerstone for this library was laid in 2006 during some experimenting with several algorithms and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, mostly unfinished software projects which had their origin at <i>J.M.K S.F. Software Technologies</i>, which was later renamed to <i>Phorward Software Technologies</i>.
+The cornerstone for this C functions library was already laid in 2006 during some experimenting with several algorithms, data structures and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, unfortunately mostly unfinished software projects which had their origin at <i>J.M.K S.F. Software Technologies</i>, which was later renamed to <i>Phorward Software Technologies</i>.
 </p>
 <p>
-The library was then released to the public in 2011, together with the open source parser generator <a href="https://unicc.phorward-software.com/">UniCC</a>. It was initially planned to use the library also for other C-based software projects having their origin at Phorward Software Technologies, but most of them where not continued.
+The library was then released as version 0.16 to the public in 2011, together with the open source parser generator <a href="https://unicc.phorward-software.com/">UniCC</a>. It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandonded or evolved into other directions.
 </p>
 <p>
-Since 2018, the library is brought towards the official v1.0 release after some experiments had been started but now where separated and continued as stand-alone projects apart from <i>libphorward</i>.
+In 2019, the library was finally officially released as version 1.0, and will now be continued in several ways.
 </p>
 
-<h1 id="toc8">General functions &amp; dynamic data structures</h1>
+<h1 id="toc8">Command-line tools</h1>
 
-<h2 id="toc9">Advanced memory management</h2>
+<p>
+The Phorward C/C++ Library provides some useful command-line tools which can also be used or forked.
+</p>
+
+<h3 id="toc9">pdoc - C source code documentation tool</h3>
+
+<p>
+<b>pdoc</b> is a tool to build documentation from C source code.
+</p>
+
+<pre><code class="language-c">
+Usage: pdoc OPTIONS file...
+
+    -d  --depth     DEPTH    Enforce headline level DEPTH (default:1)
+    -h  --help               Show this help, and exit.
+    -V  --version            Show version info and exit.
+
+</code></pre>
+
+<p>
+pdoc currently is only used for libphorward's own library documentation, but can also be used as a base for similar documentation tools. It reads source code with C function definitions and preceding comments of the form
+</p>
+
+<pre><code class="language-c">
+/**
+This is a neat function.
+
+It does something, and you //can// use txt2tags-relating formatting here, and
+later run the result through txt2tags.
+*/
+int myLittleFunction( parray* a )
+{
+    ...
+}
+</code></pre>
+
+<h3 id="toc10">pinclude - Generate big files from various smaller ones</h3>
+
+<p>
+<b>pinclude</b> is some kind of simple pre-processor to generate one big file from various smaller ones.
+</p>
+
+<pre><code class="language-c">
+Usage: pinclude OPTIONS file...
+
+    -b  --begin     STRING   Configure block comment begin to STRING (/*)
+    -e  --end       STRING   Configure block comment end to STRING (*/)
+    -h  --help               Show this help, and exit.
+    -l  --line      STRING   Configure line comment begin to STRING ()
+    -q  --quiet              Disable commented output
+    -V  --version            Show version info and exit.
+
+</code></pre>
+
+<p>
+<div class="page-break"></div>
+</p>
+
+<h3 id="toc11">plex - Lexical analyzer generator and interpreter</h3>
+
+<p>
+<b><a href="#plex">plex</a></b> is a command-line tool to construct and run lexical analyzers. It returns a list of tokens on success to stdout, and aims to be used in combination with shell scripts for lexical analysis.
+</p>
+
+<pre><code class="language-c">
+Usage: plex OPTIONS patterns...
+
+   -b  --begin     STRING    Use STRING as result begin separator
+                             (' &gt;' is default)
+   -e  --end       STRING    Use STRING as result end separator
+                             ('&lt;\n' is default)
+   -f  --file      FILENAME  Read input from FILENAME
+   -h  --help                Show this help, and exit.
+   -i  --input     INPUT     Use string INPUT as input.
+   -V  --version             Show version info and exit.
+
+</code></pre>
+
+<p>
+Example call:
+</p>
+
+<pre><code class="language-c">
+plex -b ":" -e "\n" -i "123 abc456    78xy9" "\d+" "[a-z]+"
+1:123
+2:abc
+1:456
+1:78
+2:xy
+1:9
+</code></pre>
+
+<h3 id="toc12">pproto - C function prototype generator</h3>
+
+<p>
+<b>pproto</b> generates C function prototypes from C source code.
+</p>
+
+<pre><code class="language-c">
+Usage: pproto OPTIONS file...
+
+    -h  --help               Show this help, and exit.
+    -n  --no-comments        Disable output of comments between files
+    -s  --with-static        Output static declarations also
+    -S  --only-static        Output static declarations only
+    -V  --version            Show version info and exit.
+
+</code></pre>
+
+<p>
+It can be seen as a very simple implementation of the well-known <i>cproto</i> command-line tool. It only accepts ANSI C functions as input. It recognizes #ifdef/#ifndef/#if/#endif-preprocessor directives around functions and emits them in the same manner to the output.
+</p>
+<p>
+<div class="page-break"></div>
+</p>
+
+<h3 id="toc13">pregex - Regular expression operations</h3>
+
+<p>
+<b><a href="#pregex">pregex</a></b> is a command-line tool for regular expression operations on files and strings. It can be used for match, find, split and replace actions.
+</p>
+
+<pre><code class="language-c">
+Usage: pregex OPTIONS {expression} input
+
+   -a  --action    ACTION    Perform regular expression action:
+                             match (default), find, split, replace
+   -d  --delimiter STRING    Use STRING as result delimiter
+                             (newline is default)
+   -D                        Dump constructed DFA
+   -e  --exec      EXPR      Use string EXPR as expression.
+   -f  --file      FILENAME  Read expression from FILENAME
+   -h  --help                Show this help, and exit.
+   -i  --input     INPUT     Use string INPUT as input.
+   -r  --replace   STRING    Replacement string for 'replace' action.
+   -V  --version             Show version info and exit.
+
+</code></pre>
+
+<p>
+Example call:
+</p>
+
+<pre><code class="language-c">
+$ pregex -a find "\d+|[a-z]+" "123 abc456    78xy9"
+123
+abc
+456
+78
+xy
+9
+</code></pre>
+
+<p>
+<div class="page-break"></div>
+</p>
+
+<h3 id="toc14">ptest - C program test facilities</h3>
+
+<p>
+<b>ptest</b> extracts test-cases (source snippets) from C code, compiles them, executes them and compares their result against a given output. If the output differs, the test failed, otherwise it succeeds.
+</p>
+
+<pre><code class="language-c">
+Usage: ptest OPTIONS file...
+
+    -D  --debug              Print test case outputs
+    -h  --help               Show this help, and exit.
+    -k  --keep               Keep generates files (for debugging)
+    -V  --version            Show version info and exit.
+</code></pre>
+
+<p>
+Example for a test case. Test-cases are defined as comments in the C source.
+</p>
+
+<pre><code class="language-c">
+/*TESTCASE:parray_union
+#include &lt;phorward.h&gt;
+
+void dump( parray* a, void* p )
+{
+	printf( "%c%s", *((char*)p), p == parray_last( a ) ? "\n" : "" );
+}
+
+void testcase()
+{
+	parray  a;
+	parray  b;
+
+	parray_init( &amp;a, sizeof( char ), 0 );
+	parray_init( &amp;b, sizeof( char ), 0 );
+
+	parray_push( &amp;a, "a" );
+	parray_push( &amp;a, "b" );
+	parray_push( &amp;a, "c" );
+
+	parray_push( &amp;b, "a" );
+	parray_push( &amp;b, "d" );
+
+	parray_iter( &amp;a, dump );
+	parray_iter( &amp;b, dump );
+
+	printf( "%ld\n", parray_union( &amp;b, &amp;a ) );
+
+	parray_iter( &amp;a, dump );
+	parray_iter( &amp;b, dump );
+}
+---
+abc
+ad
+2
+abc
+adbc
+*/
+</code></pre>
+
+<h1 id="toc15">General functions &amp; dynamic data structures</h1>
+
+<h2 id="toc16">Advanced memory management</h2>
 
 <p>
 The standard memory management functions can be replaced by these pendants:
@@ -709,8 +944,11 @@ It is known, that several header files and projects define these constants on th
 <p>
 within <code>phorward.h</code>.
 </p>
+<p>
+<div class="page-break"></div>
+</p>
 
-<h2 id="toc11">Debugging and tracing</h2>
+<h2 id="toc18">Debugging and tracing</h2>
 
 <p>
 Although this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules to detect bugs or view the program trace.
@@ -786,43 +1024,80 @@ yields in a debug log
 </p>
 
 <pre><code class="language-c">
-(demo.c:  380) {
-(demo.c:  380) .ENTRY : faculty
-(demo.c:  381) .PARMS : x = &gt;3&lt;
-(demo.c:  395) .MSG   : Calling faculty recursively with:
-(demo.c:  396) .VARS  : x - 1 = &gt;2&lt;
-(demo.c:  380) .{
-(demo.c:  380) ..ENTRY : faculty
-(demo.c:  381) ..PARMS : x = &gt;2&lt;
-(demo.c:  395) ..MSG   : Calling faculty recursively with:
-(demo.c:  396) ..VARS  : x - 1 = &gt;1&lt;
-(demo.c:  380) ..{
-(demo.c:  380) ...ENTRY : faculty
-(demo.c:  381) ...PARMS : x = &gt;1&lt;
-(demo.c:  395) ...MSG   : Calling faculty recursively with:
-(demo.c:  396) ...VARS  : x - 1 = &gt;0&lt;
-(demo.c:  380) ...{
-(demo.c:  380) ....ENTRY : faculty
-(demo.c:  381) ....PARMS : x = &gt;0&lt;
-(demo.c:  390) ....MSG   : x is 0, so faculty is 1
-(demo.c:  391) ....RETURN: faculty
-(demo.c:  391) ...}
-(demo.c:  400) ...VARS  : ret = &gt;1&lt;
-(demo.c:  401) ...RETURN: faculty
-(demo.c:  401) ..}
-(demo.c:  400) ..VARS  : ret = &gt;2&lt;
-(demo.c:  401) ..RETURN: faculty
-(demo.c:  401) .}
-(demo.c:  400) .VARS  : ret = &gt;6&lt;
-(demo.c:  401) .RETURN: faculty
-(demo.c:  401) }
+(faculty.c           :    7 0.000000) .ENTRY   : faculty
+(faculty.c           :    8 0.000108) .PARMS   : x = &gt;3&lt;
+(faculty.c           :   22 0.000055) .MSG     : Calling faculty recursively with:
+(faculty.c           :   23 0.000042) .VARS    : x - 1 = &gt;2&lt;
+(faculty.c           :    7 0.000039) ..ENTRY   : faculty
+(faculty.c           :    8 0.000058) ..PARMS   : x = &gt;2&lt;
+(faculty.c           :   22 0.000054) ..MSG     : Calling faculty recursively with:
+(faculty.c           :   23 0.000045) ..VARS    : x - 1 = &gt;1&lt;
+(faculty.c           :    7 0.000048) ...ENTRY   : faculty
+(faculty.c           :    8 0.000078) ...PARMS   : x = &gt;1&lt;
+(faculty.c           :   22 0.000072) ...MSG     : Calling faculty recursively with:
+(faculty.c           :   23 0.000058) ...VARS    : x - 1 = &gt;0&lt;
+(faculty.c           :    7 0.000048) ....ENTRY   : faculty
+(faculty.c           :    8 0.000072) ....PARMS   : x = &gt;0&lt;
+(faculty.c           :   17 0.000075) ....MSG     : x is 0, so faculty is 1
+(faculty.c           :   18 0.000098) ....CLOCK   : faculty : 0.000155
+(faculty.c           :   18 0.000087) ....RETURN  : faculty
+(faculty.c           :   27 0.000068) ...VARS    : ret = &gt;1&lt;
+(faculty.c           :   28 0.000070) ...CLOCK   : faculty : 0.000399
+(faculty.c           :   28 0.000069) ...RETURN  : faculty
+(faculty.c           :   27 0.000057) ..VARS    : ret = &gt;2&lt;
+(faculty.c           :   28 0.000067) ..CLOCK   : faculty : 0.000592
+(faculty.c           :   28 0.000059) ..RETURN  : faculty
+(faculty.c           :   27 0.000052) .VARS    : ret = &gt;6&lt;
+(faculty.c           :   28 0.000051) .CLOCK   : faculty : 0.000755
+(faculty.c           :   28 0.000086) .RETURN  : faculty
 </code></pre>
 
 <p>
 when previously setting the environment variable <code>TRACEMODULE="demo.c"</code> or <code>TRACEFUNCTION="faculty"</code>.
 </p>
+<p>
+<div class="page-break"></div>
+The following environment variables can be used when running programs using libphorward and compiled with <code>-DDEBUG</code>:
+</p>
 
-<h2 id="toc12">System-related, platform-independent helpers</h2>
+<table border="1">
+<tr>
+<th>Environment Variable</th>
+<th>Example</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td><code>TRACEMODULE</code></td>
+<td><code>TRACEMODULE="faculty.c main.c"</code></td>
+<td>Trace full C program module; multiple modules can be specified. Can be set to <code>*</code> to emit trace in ALL modules!</td>
+</tr>
+<tr>
+<td><code>TRACEFUNCTION</code></td>
+<td><code>TRACEFUNCTION="faculty plist_insert"</code></td>
+<td>Trace only the functions specified. Can be set to <code>*</code> to emit trace of ALL functions!</td>
+</tr>
+<tr>
+<td><code>TRACETYPE</code></td>
+<td><code>TRACETYPE="ENTRY LOG RETURN"</code></td>
+<td>Only print trace types given, ignore any other types. Can be set to <code>*</code> to emit all trace types (default)</td>
+</tr>
+<tr>
+<td><code>TRACEDEPTH</code></td>
+<td><code>TRACEDEPTH=5</code></td>
+<td>Maximum trace depth, stop emitting trace when behind this level depth.</td>
+</tr>
+<tr>
+<td><code>TRACEINDENT</code></td>
+<td><code>TRACEINDENT=OFF</code></td>
+<td>Enable/disable trace indentation; If switched OFF, the dots indicating the trace level depth are not emitted.</td>
+</tr>
+</table>
+
+<p>
+<div class="page-break"></div>
+</p>
+
+<h2 id="toc19">System-related, platform-independent helpers</h2>
 
 <p>
 The Phorward C/C++ Library provides some useful functions for system-related but platform independent operations.
@@ -849,7 +1124,7 @@ The Phorward C/C++ Library provides some useful functions for system-related but
 
 <h2 id="parray">Dynamically managed arrays &amp; stacks (parray)</h2>
 
-<h3 id="toc14">Overview</h3>
+<h3 id="toc21">Overview</h3>
 
 <p>
 The <a href="#parray">parray</a> object is a general-purpose data structure which can be used for several operations.
@@ -904,7 +1179,7 @@ The <a href="#parray">parray</a> object brings the following advantages and disa
 </li>
 </ul>
 
-<h3 id="toc15">Construction and destruction</h3>
+<h3 id="toc22">Construction and destruction</h3>
 
 <p>
 <a href="#parray">parray</a> objects are created using <a href="#fn_parray_create">parray_create()</a> or initialized with <a href="#fn_parray_init">parray_init()</a>. The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with <a href="#fn_parray_erase">parray_erase()</a>, respectively cleared and freed with <a href="#fn_parray_free">parray_free()</a>.
@@ -924,7 +1199,7 @@ parray_free( a );
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc16">Inserting elements</h3>
+<h3 id="toc23">Inserting elements</h3>
 
 <p>
 Elements can be inserted with
@@ -961,7 +1236,7 @@ tp = (usertype*)parray_rmalloc( a );
 fill_usertype( tp );
 </code></pre>
 
-<h3 id="toc17">Accessing and iterating elements</h3>
+<h3 id="toc24">Accessing and iterating elements</h3>
 
 <p>
 Direct access to specific elements is done using
@@ -1029,7 +1304,7 @@ To get a predecessor or successor of an element, use <a href="#fn_parray_prev">p
 Elements can be replaced by <a href="#fn_parray_put">parray_put()</a> and <a href="#fn_parray_rput">parray_rput()</a> via their index.
 </p>
 
-<h3 id="toc18">Removing elements</h3>
+<h3 id="toc25">Removing elements</h3>
 
 <p>
 Elements can be removed with
@@ -1054,7 +1329,7 @@ tp = (usertype*)parray_pop( a );
 tp = (usertype*)parray_unshift( a );
 </code></pre>
 
-<h3 id="toc19">Sorting elements</h3>
+<h3 id="toc26">Sorting elements</h3>
 
 <p>
 <a href="#parray">parray</a> objects provide a sorting automatism, so that elements can be sorted on demand.
@@ -1104,7 +1379,7 @@ Sorting can be performed by invoking the functions
 The used algorithm is quick-sort.
 </p>
 
-<h3 id="toc20">Interchanging functions</h3>
+<h3 id="toc27">Interchanging functions</h3>
 
 <p>
 <a href="#parray">parray</a> objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind <a href="#parray">parray</a>. Both arrays must be configured with the same element memory size, else all functions will fail.
@@ -1120,7 +1395,11 @@ To implement these functions, every <a href="#parray">parray</a> object also ref
 </li>
 </ul>
 
-<h3 id="toc21">Additional functions</h3>
+<p>
+<div class="page-break"></div>
+</p>
+
+<h3 id="toc28">Additional functions</h3>
 
 <p>
 Other, useful functions are
@@ -1145,7 +1424,7 @@ Other, useful functions are
 
 <h2 id="plist">Linked lists, hash-tables, queues &amp; stacks (plist)</h2>
 
-<h3 id="toc23">Overview</h3>
+<h3 id="toc30">Overview</h3>
 
 <p>
 Next to the <a href="#parray">parray</a> object, the <a href="#plist">plist</a> object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
@@ -1224,7 +1503,7 @@ The <a href="#plist">plist</a> object brings the following advantages and disadv
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc24">Construction and destruction</h3>
+<h3 id="toc31">Construction and destruction</h3>
 
 <p>
 <a href="#plist">plist</a> objects are created using <a href="#fn_plist_create">plist_create()</a> or initialized with <a href="#fn_plist_init">plist_init()</a>. The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the <a href="#plist">plist</a> object to a specified behavior.
@@ -1247,6 +1526,8 @@ Possible flags are listed below, and can be combined using bitwise or (|).
 <li><b>PLIST_MOD_PTRKEYS</b> disables string keys and uses the pointer/value provided as key directly.
 </li>
 <li><b>PLIST_MOD_UNIQUE</b> to disallow hash-table-key collisions, so elements with a key that already exists in the object will be rejected.
+</li>
+<li><b>PLIST_MOD_KEEPKEYS</b> holds the correct element insertation sequence. In case of a key collision, the inserted element is inserted <u>behind</u> the colliding element rather than <u>before</u>.
 </li>
 <li><b>PLIST_MOD_WCHAR</b> to let all key values handle as wide-character strings.
 </li>
@@ -1273,7 +1554,7 @@ plist_free( l );
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc25">Inserting elements</h3>
+<h3 id="toc32">Inserting elements</h3>
 
 <p>
 Elements can be inserted with
@@ -1383,7 +1664,7 @@ for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ ) ;
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc27">Removing elements</h3>
+<h3 id="toc34">Removing elements</h3>
 
 <p>
 To remove elements from a <a href="#plist">plist</a> object, the following functions can be used.
@@ -1407,7 +1688,7 @@ plist_pop( a, &amp;t );
 plist_unshift( a, &amp;t );
 </code></pre>
 
-<h3 id="toc28">Sorting elements</h3>
+<h3 id="toc35">Sorting elements</h3>
 
 <p>
 <a href="#plist">plist</a> objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertion.
@@ -1462,7 +1743,7 @@ Sorting can also be performed by invoking the functions
 The used algorithm is quick-sort.
 </p>
 
-<h3 id="toc29">Interchanging functions</h3>
+<h3 id="toc36">Interchanging functions</h3>
 
 <p>
 <a href="#plist">plist</a> objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind <a href="#plist">plist</a>. Both lists must be configured with the same element memory size, else all functions will fail.
@@ -1478,7 +1759,7 @@ To implement these functions, every <a href="#plist">plist</a> object also refer
 </li>
 </ul>
 
-<h3 id="toc30">Additional functions</h3>
+<h3 id="toc37">Additional functions</h3>
 
 <p>
 <a href="#plist">plist</a> provides these additional functions:
@@ -1591,9 +1872,9 @@ Useful, additional functions when working with <a href="#pccl">pccl</a> are:
 </li>
 </ul>
 
-<h1 id="toc32">Regular expressions &amp; lexical analyzers (pregex, plex)</h1>
+<h1 id="toc39">Regular expressions &amp; lexical analyzers (pregex, plex)</h1>
 
-<h2 id="toc33">Overview</h2>
+<h2 id="toc40">Overview</h2>
 
 <p>
 libphorward provides a powerful set of functions relating to general string pattern matching and lexical analysis using regular expressions.
@@ -1620,7 +1901,7 @@ libphorward provides a powerful set of functions relating to general string patt
 </li>
 </ul>
 
-<h3 id="toc34">Meta constructs</h3>
+<h3 id="toc41">Meta constructs</h3>
 
 <p>
 In general, regular expressions are made-up of the following elements:
@@ -1668,7 +1949,7 @@ All meta-characters can be escaped by backslash, so they are interpretered as us
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc35">Characters and escape sequences</h3>
+<h3 id="toc42">Characters and escape sequences</h3>
 
 <p>
 Any other character coming up is consumed as one expression to be matched in the input.
@@ -1745,7 +2026,7 @@ Escape sequences (C-style) are supported according to the following table:
 <u><b>Note:</b> When specifying escape-sequences in static strings within C-code, they must be double-escaped, because they are first analyzed by the C compiler and then by libphorward's regex-parser. Therefore, specifiying a backslash <code>\\</code> must become <code>\\\\</code> in the C-Code, which then yields in <code>\\</code> after compiling the C program.</u>
 </p>
 
-<h3 id="toc36">Shorthand character classes</h3>
+<h3 id="toc43">Shorthand character classes</h3>
 
 <p>
 Pre-defined shorthand character-classes are also supported by libphorward's <a href="#pregex">pregex</a> and <a href="#plex">plex</a> tools.
@@ -1789,7 +2070,7 @@ Pre-defined shorthand character-classes are also supported by libphorward's <a h
 </tr>
 </table>
 
-<h3 id="toc37">Anchoring</h3>
+<h3 id="toc44">Anchoring</h3>
 
 <p>
 The following anchors are supported, when specified at beginning or ending of an expression:
@@ -1822,7 +2103,7 @@ The following anchors are supported, when specified at beginning or ending of an
 Anchors can be entirely switched off when setting the PREGEX_COMP_NOANCHORS on compile-time, respectively PREGEX_RUN_NOANCHORS on run-time.
 </p>
 
-<h3 id="toc38">Examples</h3>
+<h3 id="toc45">Examples</h3>
 
 <p>
 Some examples:
@@ -1886,7 +2167,7 @@ Generally, the actions
 are supported by the compiled pattern.
 </p>
 
-<h3 id="toc40">Construction and destruction</h3>
+<h3 id="toc47">Construction and destruction</h3>
 
 <p>
 <a href="#pregex">pregex</a> objects are constructed by <a href="#fn_pregex_create">pregex_create()</a>. First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
@@ -1961,7 +2242,7 @@ r = pregex_create( "[_A-Za-z]+", 0 );
 pregex_free( r );
 </code></pre>
 
-<h3 id="toc41">Matching</h3>
+<h3 id="toc48">Matching</h3>
 
 <p>
 To immediatelly test if a <a href="#pregex">pregex</a>-object matches on a string, the function <a href="#fn_pregex_match">pregex_match()</a> shall be invoked.
@@ -2013,7 +2294,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 parray_free( a );
 </code></pre>
 
-<h3 id="toc42">Splitting</h3>
+<h3 id="toc49">Splitting</h3>
 
 <p>
 Splitting a string by a regular expression can be done with <a href="#fn_pregex_split">pregex_split()</a>. This function takes several parameters, and is designed to be called in a loop.
@@ -2052,7 +2333,7 @@ while( ( rg = (prange*)parray_shift( a ) ) )
 parray_free( a );
 </code></pre>
 
-<h3 id="toc43">Replacing</h3>
+<h3 id="toc50">Replacing</h3>
 
 <p>
 The function <a href="#fn_pregex_replace">pregex_replace()</a> allows for replacing parts of strings by regular expressions.
@@ -2086,7 +2367,7 @@ will return "int[5] and int[6] are the cross sums of int[23] and int[42]." when 
 To disable the backreference replacement features, the regular expression flag PREGEX_RUN_NOREF must be switched.
 </p>
 
-<h3 id="toc44">Quick-access functions</h3>
+<h3 id="toc51">Quick-access functions</h3>
 
 <p>
 Based on the <a href="#pregex">pregex</a>-object, libphorward provides the shortcut functons
@@ -2180,7 +2461,7 @@ ident &gt;x&lt;
 semicolon &gt;;&lt;
 </code></pre>
 
-<h2 id="toc46">Tools</h2>
+<h2 id="toc53">Tools</h2>
 
 <h3 id="prange">Ranges</h3>
 
@@ -2211,7 +2492,7 @@ Objects of the kind <a href="#pregex_ptn">pregex_ptn</a> can be seen as nodes of
 They are managed by the functions <a href="#fn_pregex_ptn_create">pregex_ptn_create()</a>, <a href="#fn_pregex_ptn_create_alt">pregex_ptn_create_alt()</a>, <a href="#fn_pregex_ptn_create_char">pregex_ptn_create_char()</a>, <a href="#fn_pregex_ptn_create_kle">pregex_ptn_create_kle()</a>, <a href="#fn_pregex_ptn_create_opt">pregex_ptn_create_opt()</a>, <a href="#fn_pregex_ptn_create_pos">pregex_ptn_create_pos()</a>, <a href="#fn_pregex_ptn_create_refsub">pregex_ptn_create_refsub()</a>, <a href="#fn_pregex_ptn_create_seq">pregex_ptn_create_seq()</a>, <a href="#fn_pregex_ptn_create_string">pregex_ptn_create_string()</a>, <a href="#fn_pregex_ptn_create_sub">pregex_ptn_create_sub()</a>, <a href="#fn_pregex_ptn_dup">pregex_ptn_dup()</a>, <a href="#fn_pregex_ptn_free">pregex_ptn_free()</a>, <a href="#fn_pregex_ptn_parse">pregex_ptn_parse()</a>, <a href="#fn_pregex_ptn_print">pregex_ptn_print()</a>, <a href="#fn_pregex_ptn_to_dfa">pregex_ptn_to_dfa()</a>, <a href="#fn_pregex_ptn_to_dfatab">pregex_ptn_to_dfatab()</a>, <a href="#fn_pregex_ptn_to_nfa">pregex_ptn_to_nfa()</a> and pregex_ptn_to_regex().
 </p>
 
-<h1 id="toc49">String helper functions (pstr*, pwcs*)</h1>
+<h1 id="toc56">String helper functions (pstr*, pwcs*)</h1>
 
 <p>
 libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
@@ -2286,9 +2567,9 @@ Additionally, the following pendants for wide-character strings (wchar_t) exist 
 Although the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
 </p>
 
-<h1 id="toc50">Function reference</h1>
+<h1 id="toc57">Function reference</h1>
 
-<h2 id="toc51">Macros</h2>
+<h2 id="toc58">Macros</h2>
 
 <!-- NEED 17 -->
 <div class='function'>
@@ -2494,7 +2775,7 @@ For typed functions, use the macro <a href="#fn_RETURN">RETURN()</a>.
 </p>
 <div class='definition'>
 <p>
-parray_for( <a href="#parray">parray</a>* array, void* ptr ) - <i>Macro</i>
+parray_for( <a href="#parray">parray</a>* array, usertype* ptr ) - <i>Macro</i>
 </div>
 </p>
 <p>
@@ -2580,7 +2861,7 @@ plist_for( my_list, e )
 
 </div>
 
-<h2 id="toc61">Functions</h2>
+<h2 id="toc68">Functions</h2>
 
 <!-- NEED 15 -->
 <div class='function'>
@@ -2645,8 +2926,8 @@ Returns the number of elements in a array.
 <b>Usage:</b>
 </p>
 <p>
-Create a new <a href="#parray">parray</a> as an object with an element allocation size <i>size</i>
-and a reallocation-chunk-size of <i>chunk</i>.
+Create a new <a href="#parray">parray</a> as an object with an element allocation size <i>size</i>,
+a reallocation-chunk-size of <i>chunk</i>.
 </p>
 <p>
 The returned memory must be released with <a href="#fn_parray_free">parray_free()</a>.
@@ -5106,7 +5387,7 @@ int plist_count( <a href="#plist">plist</a>* l )
 <p>
 Return element count of list <i>l</i>.
 </div>
-<!-- NEED 29 -->
+<!-- NEED 30 -->
 <div class='function'>
 </p>
 
@@ -5117,7 +5398,7 @@ Return element count of list <i>l</i>.
 </p>
 <div class='definition'>
 <p>
-<a href="#plist">plist</a>* plist_create( size_t size, int flags )
+<a href="#plist">plist</a>* plist_create( size_t size, short flags )
 </div>
 </p>
 <p>
@@ -5148,6 +5429,8 @@ Possible flags are:
 <li><b>PLIST_MOD_EXTKEYS</b> to configure that string pointers to hash-table keyvalues are stored elsewhere, so the <a href="#plist">plist</a>-module only uses the original pointers instead of copying them.
 </li>
 <li><b>PLIST_MOD_PTRKEYS</b> disables string keys and uses the pointer/value provided as key directly.
+</li>
+<li><b>PLIST_MOD_KEEPKEYS</b> holds the correct element insertation sequence. In case of a key collision, the inserted element is inserted <u>behind</u> the colliding element rather than <u>before</u>.
 </li>
 <li><b>PLIST_MOD_UNIQUE</b> to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
 </li>
@@ -5464,7 +5747,7 @@ Access previous element with same hash value of a current unit <i>u</i>.
 </p>
 <div class='definition'>
 <p>
-<a href="#pboolean">pboolean</a> plist_init( <a href="#plist">plist</a>* list, size_t size, int flags )
+<a href="#pboolean">pboolean</a> plist_init( <a href="#plist">plist</a>* list, size_t size, short flags )
 </div>
 </p>
 <p>

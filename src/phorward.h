@@ -100,7 +100,7 @@ typedef char 					pboolean;
 
 
 
-#define LIBPHORWARD_VERSION "0.25.0"
+#define LIBPHORWARD_VERSION "1.0.0"
 
 
 

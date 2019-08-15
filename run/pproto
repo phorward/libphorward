@@ -14,12 +14,12 @@
 
 help()
 {
-    echo "Usage: `basename $0` OPTIONS file..."
+	echo "Usage: `basename $0` OPTIONS file..."
 	echo
-    echo "    -h  --help               Show this help, and exit."
-    echo "    -n  --no-comments        Disable output of comments between files"
+	echo "    -h  --help               Show this help, and exit."
+	echo "    -n  --no-comments        Disable output of comments between files"
 	echo "    -s  --with-static        Output static declarations also"
-    echo "    -S  --only-static        Output static declarations only"
+	echo "    -S  --only-static        Output static declarations only"
 	echo "    -V  --version            Show version info and exit."
 	echo
 }

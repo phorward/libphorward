@@ -1,6 +1,6 @@
 The Phorward C/C++ Library
-libphorward 0.25.0
-Jul 2019
+libphorward 1.0
+August 2019
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
 %!preproc(xhtml): '(pboolean|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '[\1 #\1]\2'
@@ -80,7 +80,7 @@ This locally compiles the library or parts of it, and is ideal for development p
 
 == Building on Windows ==
 
-On Windows systems, the usage of [Cygwin](https://cygwin.org/) or another Unix shell environment is required.
+On Windows systems, the usage of Cygwin, Msys2, or another Unix shell environment is required.
 
 The Phorward C/C++ Library also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
 
@@ -96,13 +96,200 @@ $ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
 
 %-------------------------------------------------------------------------------
 
-= Intention behind this library =
+= History =
 
-The cornerstone for this library was laid in 2006 during some experimenting with several algorithms and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, mostly unfinished software projects which had their origin at //J.M.K S.F. Software Technologies//, which was later renamed to //Phorward Software Technologies//.
+The cornerstone for this C functions library was already laid in 2006 during some experimenting with several algorithms, data structures and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, unfortunately mostly unfinished software projects which had their origin at //J.M.K S.F. Software Technologies//, which was later renamed to //Phorward Software Technologies//.
 
-The library was then released to the public in 2011, together with the open source parser generator [UniCC https://unicc.phorward-software.com/]. It was initially planned to use the library also for other C-based software projects having their origin at Phorward Software Technologies, but most of them where not continued.
+The library was then released as version 0.16 to the public in 2011, together with the open source parser generator [UniCC https://unicc.phorward-software.com/]. It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandonded or evolved into other directions.
 
-Since 2018, the library is brought towards the official v1.0 release after some experiments had been started but now where separated and continued as stand-alone projects apart from //libphorward//.
+In 2019, the library was finally officially released as version 1.0, and will now be continued in several ways.
+
+%-------------------------------------------------------------------------------
+
+= Command-line tools =
+
+The Phorward C/C++ Library provides some useful command-line tools which can also be used or forked.
+
+=== pdoc - C source code documentation tool ===
+
+**pdoc** is a tool to build documentation from C source code.
+
+```
+Usage: pdoc OPTIONS file...
+
+    -d  --depth     DEPTH    Enforce headline level DEPTH (default:1)
+    -h  --help               Show this help, and exit.
+    -V  --version            Show version info and exit.
+
+```
+
+pdoc currently is only used for libphorward's own library documentation, but can also be used as a base for similar documentation tools. It reads source code with C function definitions and preceding comments of the form
+
+```
+/**
+This is a neat function.
+
+It does something, and you //can// use txt2tags-relating formatting here, and
+later run the result through txt2tags.
+*/
+int myLittleFunction( parray* a )
+{
+    ...
+}
+```
+
+=== pinclude - Generate big files from various smaller ones ===
+
+**pinclude** is some kind of simple pre-processor to generate one big file from various smaller ones.
+
+```
+Usage: pinclude OPTIONS file...
+
+    -b  --begin     STRING   Configure block comment begin to STRING (/*)
+    -e  --end       STRING   Configure block comment end to STRING (*/)
+    -h  --help               Show this help, and exit.
+    -l  --line      STRING   Configure line comment begin to STRING ()
+    -q  --quiet              Disable commented output
+    -V  --version            Show version info and exit.
+
+```
+
+$NEWPAGE$
+=== plex - Lexical analyzer generator and interpreter ===
+
+**plex** is a command-line tool to construct and run lexical analyzers. It returns a list of tokens on success to stdout, and aims to be used in combination with shell scripts for lexical analysis.
+
+```
+Usage: plex OPTIONS patterns...
+
+   -b  --begin     STRING    Use STRING as result begin separator
+                             (' >' is default)
+   -e  --end       STRING    Use STRING as result end separator
+                             ('<\n' is default)
+   -f  --file      FILENAME  Read input from FILENAME
+   -h  --help                Show this help, and exit.
+   -i  --input     INPUT     Use string INPUT as input.
+   -V  --version             Show version info and exit.
+
+```
+
+Example call:
+```
+plex -b ":" -e "\n" -i "123 abc456    78xy9" "\d+" "[a-z]+"
+1:123
+2:abc
+1:456
+1:78
+2:xy
+1:9
+```
+
+=== pproto - C function prototype generator ===
+
+**pproto** generates C function prototypes from C source code.
+
+```
+Usage: pproto OPTIONS file...
+
+    -h  --help               Show this help, and exit.
+    -n  --no-comments        Disable output of comments between files
+    -s  --with-static        Output static declarations also
+    -S  --only-static        Output static declarations only
+    -V  --version            Show version info and exit.
+
+```
+
+It can be seen as a very simple implementation of the well-known //cproto// command-line tool. It only accepts ANSI C functions as input. It recognizes #ifdef/#ifndef/#if/#endif-preprocessor directives around functions and emits them in the same manner to the output.
+
+$NEWPAGE$
+=== pregex - Regular expression operations ===
+
+**pregex** is a command-line tool for regular expression operations on files and strings. It can be used for match, find, split and replace actions.
+
+```
+Usage: pregex OPTIONS {expression} input
+
+   -a  --action    ACTION    Perform regular expression action:
+                             match (default), find, split, replace
+   -d  --delimiter STRING    Use STRING as result delimiter
+                             (newline is default)
+   -D                        Dump constructed DFA
+   -e  --exec      EXPR      Use string EXPR as expression.
+   -f  --file      FILENAME  Read expression from FILENAME
+   -h  --help                Show this help, and exit.
+   -i  --input     INPUT     Use string INPUT as input.
+   -r  --replace   STRING    Replacement string for 'replace' action.
+   -V  --version             Show version info and exit.
+
+```
+
+Example call:
+```
+$ pregex -a find "\d+|[a-z]+" "123 abc456    78xy9"
+123
+abc
+456
+78
+xy
+9
+```
+
+$NEWPAGE$
+=== ptest - C program test facilities ===
+
+**ptest** extracts test-cases (source snippets) from C code, compiles them, executes them and compares their result against a given output. If the output differs, the test failed, otherwise it succeeds.
+
+```
+Usage: ptest OPTIONS file...
+
+    -D  --debug              Print test case outputs
+    -h  --help               Show this help, and exit.
+    -k  --keep               Keep generates files (for debugging)
+    -V  --version            Show version info and exit.
+```
+
+Example for a test case. Test-cases are defined as comments in the C source.
+
+```
+/*TESTCASE:parray_union
+#include <phorward.h>
+
+void dump( parray* a, void* p )
+{
+	printf( "%c%s", *((char*)p), p == parray_last( a ) ? "\n" : "" );
+}
+
+void testcase()
+{
+	parray  a;
+	parray  b;
+
+	parray_init( &a, sizeof( char ), 0 );
+	parray_init( &b, sizeof( char ), 0 );
+
+	parray_push( &a, "a" );
+	parray_push( &a, "b" );
+	parray_push( &a, "c" );
+
+	parray_push( &b, "a" );
+	parray_push( &b, "d" );
+
+	parray_iter( &a, dump );
+	parray_iter( &b, dump );
+
+	printf( "%ld\n", parray_union( &b, &a ) );
+
+	parray_iter( &a, dump );
+	parray_iter( &b, dump );
+}
+---
+abc
+ad
+2
+abc
+adbc
+*/
+```
 
 %-------------------------------------------------------------------------------
 
@@ -134,6 +321,7 @@ It is known, that several header files and projects define these constants on th
 
 within ``phorward.h``.
 
+$NEWPAGE$
 == Debugging and tracing ==
 
 Although this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules to detect bugs or view the program trace.
@@ -190,40 +378,47 @@ Calling this function with
 yields in a debug log
 
 ```
-(demo.c:  380) {
-(demo.c:  380) .ENTRY : faculty
-(demo.c:  381) .PARMS : x = >3<
-(demo.c:  395) .MSG   : Calling faculty recursively with:
-(demo.c:  396) .VARS  : x - 1 = >2<
-(demo.c:  380) .{
-(demo.c:  380) ..ENTRY : faculty
-(demo.c:  381) ..PARMS : x = >2<
-(demo.c:  395) ..MSG   : Calling faculty recursively with:
-(demo.c:  396) ..VARS  : x - 1 = >1<
-(demo.c:  380) ..{
-(demo.c:  380) ...ENTRY : faculty
-(demo.c:  381) ...PARMS : x = >1<
-(demo.c:  395) ...MSG   : Calling faculty recursively with:
-(demo.c:  396) ...VARS  : x - 1 = >0<
-(demo.c:  380) ...{
-(demo.c:  380) ....ENTRY : faculty
-(demo.c:  381) ....PARMS : x = >0<
-(demo.c:  390) ....MSG   : x is 0, so faculty is 1
-(demo.c:  391) ....RETURN: faculty
-(demo.c:  391) ...}
-(demo.c:  400) ...VARS  : ret = >1<
-(demo.c:  401) ...RETURN: faculty
-(demo.c:  401) ..}
-(demo.c:  400) ..VARS  : ret = >2<
-(demo.c:  401) ..RETURN: faculty
-(demo.c:  401) .}
-(demo.c:  400) .VARS  : ret = >6<
-(demo.c:  401) .RETURN: faculty
-(demo.c:  401) }
+(faculty.c           :    7 0.000000) .ENTRY   : faculty
+(faculty.c           :    8 0.000108) .PARMS   : x = >3<
+(faculty.c           :   22 0.000055) .MSG     : Calling faculty recursively with:
+(faculty.c           :   23 0.000042) .VARS    : x - 1 = >2<
+(faculty.c           :    7 0.000039) ..ENTRY   : faculty
+(faculty.c           :    8 0.000058) ..PARMS   : x = >2<
+(faculty.c           :   22 0.000054) ..MSG     : Calling faculty recursively with:
+(faculty.c           :   23 0.000045) ..VARS    : x - 1 = >1<
+(faculty.c           :    7 0.000048) ...ENTRY   : faculty
+(faculty.c           :    8 0.000078) ...PARMS   : x = >1<
+(faculty.c           :   22 0.000072) ...MSG     : Calling faculty recursively with:
+(faculty.c           :   23 0.000058) ...VARS    : x - 1 = >0<
+(faculty.c           :    7 0.000048) ....ENTRY   : faculty
+(faculty.c           :    8 0.000072) ....PARMS   : x = >0<
+(faculty.c           :   17 0.000075) ....MSG     : x is 0, so faculty is 1
+(faculty.c           :   18 0.000098) ....CLOCK   : faculty : 0.000155
+(faculty.c           :   18 0.000087) ....RETURN  : faculty
+(faculty.c           :   27 0.000068) ...VARS    : ret = >1<
+(faculty.c           :   28 0.000070) ...CLOCK   : faculty : 0.000399
+(faculty.c           :   28 0.000069) ...RETURN  : faculty
+(faculty.c           :   27 0.000057) ..VARS    : ret = >2<
+(faculty.c           :   28 0.000067) ..CLOCK   : faculty : 0.000592
+(faculty.c           :   28 0.000059) ..RETURN  : faculty
+(faculty.c           :   27 0.000052) .VARS    : ret = >6<
+(faculty.c           :   28 0.000051) .CLOCK   : faculty : 0.000755
+(faculty.c           :   28 0.000086) .RETURN  : faculty
 ```
 
 when previously setting the environment variable ``TRACEMODULE="demo.c"`` or ``TRACEFUNCTION="faculty"``.
 
+$NEWPAGE$
+The following environment variables can be used when running programs using libphorward and compiled with ``-DDEBUG``:
+
+|| Environment Variable | Example | Usage |
+| ``TRACEMODULE`` | ``TRACEMODULE="faculty.c main.c"`` | Trace full C program module; multiple modules can be specified. Can be set to ``*`` to emit trace in ALL modules! |
+| ``TRACEFUNCTION`` | ``TRACEFUNCTION="faculty plist_insert"`` | Trace only the functions specified. Can be set to ``*`` to emit trace of ALL functions! |
+| ``TRACETYPE`` | ``TRACETYPE="ENTRY LOG RETURN"`` | Only print trace types given, ignore any other types. Can be set to ``*`` to emit all trace types (default) |
+| ``TRACEDEPTH`` | ``TRACEDEPTH=5`` | Maximum trace depth, stop emitting trace when behind this level depth. |
+| ``TRACEINDENT`` | ``TRACEINDENT=OFF`` | Enable/disable trace indentation; If switched OFF, the dots indicating the trace level depth are not emitted. |
+
+$NEWPAGE$
 == System-related, platform-independent helpers ==
 
 The Phorward C/C++ Library provides some useful functions for system-related but platform independent operations.
