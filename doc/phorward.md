@@ -1,0 +1,4894 @@
+The Phorward C/C++ Library
+libphorward 1.0
+August 2019
+
+
+# Table of Contents 
+
+
+ * Table of Contents
+ * Introduction
+ * Installation
+  * Building from sources
+  * Local development build
+  * Building on Windows
+ * History
+ * Command-line tools
+  * pdoc - C source code documentation tool
+  * pinclude - Generate big files from various smaller ones
+  * plex - Lexical analyzer generator and interpreter
+  * pproto - C function prototype generator
+  * pregex - Regular expression operations
+  * ptest - C program test facilities
+ * General functions & dynamic data structures
+  * Advanced memory management
+  * Boolean data type
+  * Debugging and tracing
+  * System-related, platform-independent helpers
+  * Dynamically managed arrays & stacks (parray)
+   * Overview
+   * Construction and destruction
+   * Inserting elements
+   * Accessing and iterating elements
+   * Removing elements
+   * Sorting elements
+   * Interchanging functions
+   * Additional functions
+  * Linked lists, hash-tables, queues & stacks (plist)
+   * Overview
+   * Construction and destruction
+   * Inserting elements
+   * Accessing and iterating elements
+   * Removing elements
+   * Sorting elements
+   * Interchanging functions
+   * Additional functions
+  * Character-classes (pccl)
+ * Regular expressions & lexical analyzers (pregex, plex)
+  * Overview
+   * Meta constructs
+   * Characters and escape sequences
+   * Shorthand character classes
+   * Anchoring
+   * Examples
+  * Operating on regular expressions (pregex)
+   * Construction and destruction
+   * Matching
+   * Splitting
+   * Replacing
+   * Quick-access functions
+  * Lexical analysis using regular expressions (plex)
+  * Tools
+   * Ranges
+   * Regular Expression Patterns
+ * String helper functions (pstr*, pwcs*)
+ * Function reference
+  * Macros
+   * LOG
+   * MSG
+   * PARMS
+   * PROC
+   * RETURN
+   * VARS
+   * VOIDRET
+   * parray_for
+   * plist_for
+  * Functions
+   * parray_concat
+   * parray_count
+   * parray_create
+   * parray_diff
+   * parray_erase
+   * parray_first
+   * parray_free
+   * parray_get
+   * parray_init
+   * parray_insert
+   * parray_iter
+   * parray_last
+   * parray_malloc
+   * parray_next
+   * parray_offset
+   * parray_partof
+   * parray_pop
+   * parray_prev
+   * parray_push
+   * parray_put
+   * parray_remove
+   * parray_reserve
+   * parray_rget
+   * parray_riter
+   * parray_rmalloc
+   * parray_rput
+   * parray_set_comparefn
+   * parray_set_sortfn
+   * parray_shift
+   * parray_sort
+   * parray_subsort
+   * parray_swap
+   * parray_union
+   * parray_unshift
+   * pasprintf
+   * pbasename
+   * pccl_add
+   * pccl_addrange
+   * pccl_compare
+   * pccl_compat
+   * pccl_count
+   * pccl_create
+   * pccl_del
+   * pccl_delrange
+   * pccl_diff
+   * pccl_dup
+   * pccl_erase
+   * pccl_free
+   * pccl_get
+   * pccl_instest
+   * pccl_intersect
+   * pccl_negate
+   * pccl_parse
+   * pccl_parsechar
+   * pccl_parseshorthand
+   * pccl_print
+   * pccl_size
+   * pccl_test
+   * pccl_testrange
+   * pccl_to_str
+   * pccl_union
+   * pdbl_to_str
+   * pdbl_to_wcs
+   * pfileexists
+   * pfiletostr
+   * pfree
+   * pgetline
+   * pgetopt
+   * plex_create
+   * plex_define
+   * plex_dump_dot
+   * plex_free
+   * plex_lex
+   * plex_next
+   * plex_prepare
+   * plex_reset
+   * plex_tokenize
+   * plexctx_create
+   * plexctx_free
+   * plexctx_init
+   * plexctx_lex
+   * plexctx_reset
+   * plist_access
+   * plist_clear
+   * plist_concat
+   * plist_count
+   * plist_create
+   * plist_dbgstats
+   * plist_diff
+   * plist_dup
+   * plist_erase
+   * plist_first
+   * plist_free
+   * plist_get
+   * plist_get_by_key
+   * plist_get_by_nkey
+   * plist_get_by_ptr
+   * plist_getkey
+   * plist_hashnext
+   * plist_hashprev
+   * plist_init
+   * plist_insert
+   * plist_iter
+   * plist_iter_access
+   * plist_key
+   * plist_last
+   * plist_malloc
+   * plist_next
+   * plist_offset
+   * plist_pop
+   * plist_prev
+   * plist_push
+   * plist_remove
+   * plist_rget
+   * plist_riter
+   * plist_riter_access
+   * plist_rmalloc
+   * plist_set_comparefn
+   * plist_set_printfn
+   * plist_set_sortfn
+   * plist_shift
+   * plist_size
+   * plist_sort
+   * plist_subsort
+   * plist_swap
+   * plist_union
+   * plist_unshift
+   * pmalloc
+   * pmemdup
+   * prealloc
+   * pregex_create
+   * pregex_find
+   * pregex_findall
+   * pregex_free
+   * pregex_match
+   * pregex_ptn_create
+   * pregex_ptn_create_alt
+   * pregex_ptn_create_char
+   * pregex_ptn_create_kle
+   * pregex_ptn_create_opt
+   * pregex_ptn_create_pos
+   * pregex_ptn_create_refsub
+   * pregex_ptn_create_seq
+   * pregex_ptn_create_string
+   * pregex_ptn_create_sub
+   * pregex_ptn_dup
+   * pregex_ptn_free
+   * pregex_ptn_parse
+   * pregex_ptn_print
+   * pregex_ptn_to_dfa
+   * pregex_ptn_to_dfatab
+   * pregex_ptn_to_nfa
+   * pregex_ptn_to_regex
+   * pregex_qmatch
+   * pregex_qreplace
+   * pregex_qsplit
+   * pregex_replace
+   * pregex_split
+   * pregex_splitall
+   * pstr_to_wcs
+   * pstrcasecmp
+   * pstrcatchar
+   * pstrcatstr
+   * pstrdup
+   * pstrget
+   * pstrlen
+   * pstrltrim
+   * pstrlwr
+   * pstrncasecmp
+   * pstrncatstr
+   * pstrndup
+   * pstrput
+   * pstrrender
+   * pstrreplace
+   * pstrrtrim
+   * pstrsplit
+   * pstrtrim
+   * pstrunescape
+   * pstrupr
+   * putf8_char
+   * putf8_isutf
+   * putf8_move
+   * putf8_parse_char
+   * putf8_seqlen
+   * pvasprintf
+   * pwcs_to_str
+   * pwcscatchar
+   * pwcscatstr
+   * pwcsdup
+   * pwcsget
+   * pwcslen
+   * pwcsncatstr
+   * pwcsndup
+   * pwcsput
+   * pwhich
+
+# Introduction 
+
+Welcome to the Phorward C/C++ Library on-line documentation!
+
+**phorward** *(libphorward)* is a C/C++ programming library, providing useful extensions like dynamic data structures, enhanced string management functions and regular expressions.
+
+The library provides several modules which can be used together or on their own:
+
+ * **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays.
+ * **regex** provides tools for constructing, parsing, processing and modifying regular expressions.
+ * **string** is an extended string processing library with useful functions for `char*` and `wchar_t*`-string manipulation.
+
+The library also comes with some tools and command-line helpers, including a documentation generator and a functions prototype generator for C modules.
+
+# Installation 
+
+## Building from sources 
+
+Building the Phorward C/C++ Library is as simple as every GNU-style open source program. Extract the release tarball or clone the Git repository into a directory of your choice.
+
+Then, run
+
+    $ ./configure
+
+to configure the build-system and generate the Makefiles for your current platform. After successful configuration, run
+
+    $ make
+
+and
+
+    $ make install
+
+(properly as root), to install the toolkit into your system.
+
+## Local development build 
+
+Alternatively, there is also a simpler method for setting up a local build system for development and testing purposes.
+
+To do so, type
+
+    $ make -f Makefile.gnu make_install
+    $ make
+
+This locally compiles the library or parts of it, and is ideal for development purposes.
+
+## Building on Windows 
+
+On Windows systems, the usage of Cygwin, Msys2, or another Unix shell environment is required.
+
+The Phorward C/C++ Library also perfectly cross-compiles on Linux using the MinGW and MinGW_x86-64 compilers.
+
+    # To compile into 32-Bit Windows executables, configure with
+    $ ./configure --host=i486-mingw32 --prefix=/usr/i486-mingw32
+    
+    # To compile into 64-Bit Windows executables, configure with
+    $ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
+
+# History 
+
+The cornerstone for this C functions library was already laid in 2006 during some experimenting with several algorithms, data structures and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, unfortunately mostly unfinished software projects which had their origin at *J.M.K S.F. Software Technologies*, which was later renamed to *Phorward Software Technologies*.
+
+The library was then released as version 0.16 to the public in 2011, together with the open source parser generator [UniCC](https://unicc.phorward-software.com/). It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandonded or evolved into other directions.
+
+In 2019, the library was finally officially released as version 1.0, and will now be continued in several ways.
+
+# Command-line tools 
+
+The Phorward C/C++ Library provides some useful command-line tools which can also be used or forked.
+
+### pdoc - C source code documentation tool 
+
+**pdoc** is a tool to build documentation from C source code.
+
+    Usage: pdoc OPTIONS file...
+    
+        -d  --depth     DEPTH    Enforce headline level DEPTH (default:1)
+        -h  --help               Show this help, and exit.
+        -V  --version            Show version info and exit.
+    
+
+pdoc currently is only used for libphorward's own library documentation, but can also be used as a base for similar documentation tools. It reads source code with C function definitions and preceding comments of the form
+
+    /**
+    This is a neat function.
+    
+    It does something, and you //can// use txt2tags-relating formatting here, and
+    later run the result through txt2tags.
+    */
+    int myLittleFunction( parray* a )
+    {
+        ...
+    }
+
+### pinclude - Generate big files from various smaller ones 
+
+**pinclude** is some kind of simple pre-processor to generate one big file from various smaller ones.
+
+    Usage: pinclude OPTIONS file...
+    
+        -b  --begin     STRING   Configure block comment begin to STRING (/*)
+        -e  --end       STRING   Configure block comment end to STRING (*/)
+        -h  --help               Show this help, and exit.
+        -l  --line      STRING   Configure line comment begin to STRING ()
+        -q  --quiet              Disable commented output
+        -V  --version            Show version info and exit.
+    
+
+$NEWPAGE$
+
+### plex - Lexical analyzer generator and interpreter 
+
+**plex** is a command-line tool to construct and run lexical analyzers. It returns a list of tokens on success to stdout, and aims to be used in combination with shell scripts for lexical analysis.
+
+    Usage: plex OPTIONS patterns...
+    
+       -b  --begin     STRING    Use STRING as result begin separator
+                                 (' >' is default)
+       -e  --end       STRING    Use STRING as result end separator
+                                 ('<\n' is default)
+       -f  --file      FILENAME  Read input from FILENAME
+       -h  --help                Show this help, and exit.
+       -i  --input     INPUT     Use string INPUT as input.
+       -V  --version             Show version info and exit.
+    
+
+Example call:
+
+    plex -b ":" -e "\n" -i "123 abc456    78xy9" "\d+" "[a-z]+"
+    1:123
+    2:abc
+    1:456
+    1:78
+    2:xy
+    1:9
+
+### pproto - C function prototype generator 
+
+**pproto** generates C function prototypes from C source code.
+
+    Usage: pproto OPTIONS file...
+    
+        -h  --help               Show this help, and exit.
+        -n  --no-comments        Disable output of comments between files
+        -s  --with-static        Output static declarations also
+        -S  --only-static        Output static declarations only
+        -V  --version            Show version info and exit.
+    
+
+It can be seen as a very simple implementation of the well-known *cproto* command-line tool. It only accepts ANSI C functions as input. It recognizes #ifdef/#ifndef/#if/#endif-preprocessor directives around functions and emits them in the same manner to the output.
+
+$NEWPAGE$
+
+### pregex - Regular expression operations 
+
+**pregex** is a command-line tool for regular expression operations on files and strings. It can be used for match, find, split and replace actions.
+
+    Usage: pregex OPTIONS {expression} input
+    
+       -a  --action    ACTION    Perform regular expression action:
+                                 match (default), find, split, replace
+       -d  --delimiter STRING    Use STRING as result delimiter
+                                 (newline is default)
+       -D                        Dump constructed DFA
+       -e  --exec      EXPR      Use string EXPR as expression.
+       -f  --file      FILENAME  Read expression from FILENAME
+       -h  --help                Show this help, and exit.
+       -i  --input     INPUT     Use string INPUT as input.
+       -r  --replace   STRING    Replacement string for 'replace' action.
+       -V  --version             Show version info and exit.
+    
+
+Example call:
+
+    $ pregex -a find "\d+|[a-z]+" "123 abc456    78xy9"
+    123
+    abc
+    456
+    78
+    xy
+    9
+
+$NEWPAGE$
+
+### ptest - C program test facilities 
+
+**ptest** extracts test-cases (source snippets) from C code, compiles them, executes them and compares their result against a given output. If the output differs, the test failed, otherwise it succeeds.
+
+    Usage: ptest OPTIONS file...
+    
+        -D  --debug              Print test case outputs
+        -h  --help               Show this help, and exit.
+        -k  --keep               Keep generates files (for debugging)
+        -V  --version            Show version info and exit.
+
+Example for a test case. Test-cases are defined as comments in the C source.
+
+    /*TESTCASE:parray_union
+    #include <phorward.h>
+    
+    void dump( parray* a, void* p )
+    {
+    	printf( "%c%s", *((char*)p), p == parray_last( a ) ? "\n" : "" );
+    }
+    
+    void testcase()
+    {
+    	parray  a;
+    	parray  b;
+    
+    	parray_init( &a, sizeof( char ), 0 );
+    	parray_init( &b, sizeof( char ), 0 );
+    
+    	parray_push( &a, "a" );
+    	parray_push( &a, "b" );
+    	parray_push( &a, "c" );
+    
+    	parray_push( &b, "a" );
+    	parray_push( &b, "d" );
+    
+    	parray_iter( &a, dump );
+    	parray_iter( &b, dump );
+    
+    	printf( "%ld\n", parray_union( &b, &a ) );
+    
+    	parray_iter( &a, dump );
+    	parray_iter( &b, dump );
+    }
+    ---
+    abc
+    ad
+    2
+    abc
+    adbc
+    */
+
+# General functions & dynamic data structures 
+
+## Advanced memory management 
+
+The standard memory management functions can be replaced by these pendants:
+
+ * @pmalloc() - allocate and zero-intialize memory, stop on error.
+ * @prealloc() - reallocate memory, stop on error.
+ * @pfree() - free memory and return (void*)NULL pointer.
+ * @pmemdup() - shorthand for a malloc() with memcpy().
+
+These functions are used throughout libphorward's internal object mapping functions.
+
+## Boolean data type 
+
+libphorward makes heavy usage of the self-hosted data-type **pboolean**, which is also referenced by a define *BOOLEAN*, and the constants *TRUE* and *FALSE*.
+
+It is known, that several header files and projects define these constants on their own, so that **pboolean**, the data-type, exists on its own using the p-prefix, but any of the defines are conditionally flagged with
+
+    #ifndef TRUE
+    #define TRUE					1
+    #endif
+
+within `phorward.h`.
+
+$NEWPAGE$
+
+## Debugging and tracing 
+
+Although this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules to detect bugs or view the program trace.
+
+For this, the library provides the following macros:
+
+ * @LOG() - message logging with printf-style formatting
+ * @MSG() - message logging (older style)
+ * @PROC() - starting macro marking a functions entry point,
+ * @PARMS() - log function parameters,
+ * @RETURN() - return a value
+ * @VARS() - log variables,
+ * @VOIDRET - return from a void function.
+
+So when a function is written like this in libphorward's way:
+
+    int faculty( int x )
+    {
+    	int ret;
+    
+    	PROC( "faculty" );
+    	PARMS( "x", "%d", x );
+    
+    	if( x < 0 )
+    	{
+    		WRONGPARAM;
+    		RETURN( -1 );
+    	}
+    	else if( x == 0 )
+    	{
+    		MSG( "x is 0, so faculty is 1" );
+    		RETURN( 1 );
+    	}
+    	else
+    	{
+    		MSG( "Calling faculty recursively with:" );
+    		VARS( "x - 1", "%d", x - 1 );
+    		ret = x * faculty( x - 1 );
+    	}
+    
+    	VARS( "ret", "%d", ret );
+    	RETURN( ret );
+    }
+
+Trace is written to stderr, and will be compiled into the executable code if the DEBUG preprocessor-flag is defined with a value > 0.
+
+Calling this function with
+
+    faculty( 3 );
+
+yields in a debug log
+
+    (faculty.c           :    7 0.000000) .ENTRY   : faculty
+    (faculty.c           :    8 0.000108) .PARMS   : x = >3<
+    (faculty.c           :   22 0.000055) .MSG     : Calling faculty recursively with:
+    (faculty.c           :   23 0.000042) .VARS    : x - 1 = >2<
+    (faculty.c           :    7 0.000039) ..ENTRY   : faculty
+    (faculty.c           :    8 0.000058) ..PARMS   : x = >2<
+    (faculty.c           :   22 0.000054) ..MSG     : Calling faculty recursively with:
+    (faculty.c           :   23 0.000045) ..VARS    : x - 1 = >1<
+    (faculty.c           :    7 0.000048) ...ENTRY   : faculty
+    (faculty.c           :    8 0.000078) ...PARMS   : x = >1<
+    (faculty.c           :   22 0.000072) ...MSG     : Calling faculty recursively with:
+    (faculty.c           :   23 0.000058) ...VARS    : x - 1 = >0<
+    (faculty.c           :    7 0.000048) ....ENTRY   : faculty
+    (faculty.c           :    8 0.000072) ....PARMS   : x = >0<
+    (faculty.c           :   17 0.000075) ....MSG     : x is 0, so faculty is 1
+    (faculty.c           :   18 0.000098) ....CLOCK   : faculty : 0.000155
+    (faculty.c           :   18 0.000087) ....RETURN  : faculty
+    (faculty.c           :   27 0.000068) ...VARS    : ret = >1<
+    (faculty.c           :   28 0.000070) ...CLOCK   : faculty : 0.000399
+    (faculty.c           :   28 0.000069) ...RETURN  : faculty
+    (faculty.c           :   27 0.000057) ..VARS    : ret = >2<
+    (faculty.c           :   28 0.000067) ..CLOCK   : faculty : 0.000592
+    (faculty.c           :   28 0.000059) ..RETURN  : faculty
+    (faculty.c           :   27 0.000052) .VARS    : ret = >6<
+    (faculty.c           :   28 0.000051) .CLOCK   : faculty : 0.000755
+    (faculty.c           :   28 0.000086) .RETURN  : faculty
+
+when previously setting the environment variable `TRACEMODULE="demo.c"` or `TRACEFUNCTION="faculty"`.
+
+$NEWPAGE$
+The following environment variables can be used when running programs using libphorward and compiled with `-DDEBUG`:
+
+| Environment Variable |Example |Usage|
+|---------------|
+|`TRACEMODULE` |`TRACEMODULE="faculty.c main.c"` |Trace full C program module; multiple modules can be specified. Can be set to `*` to emit trace in ALL modules!|
+|`TRACEFUNCTION` |`TRACEFUNCTION="faculty plist_insert"` |Trace only the functions specified. Can be set to `*` to emit trace of ALL functions!|
+|`TRACETYPE` |`TRACETYPE="ENTRY LOG RETURN"` |Only print trace types given, ignore any other types. Can be set to `*` to emit all trace types (default)|
+|`TRACEDEPTH` |`TRACEDEPTH=5` |Maximum trace depth, stop emitting trace when behind this level depth.|
+|`TRACEINDENT` |`TRACEINDENT=OFF` |Enable/disable trace indentation; If switched OFF, the dots indicating the trace level depth are not emitted.|
+
+$NEWPAGE$
+
+## System-related, platform-independent helpers 
+
+The Phorward C/C++ Library provides some useful functions for system-related but platform independent operations.
+
+ * @pbasename() returns the basename of a path (the last part),
+ * @pfiletostr() reads the content of an entire file into a dynamically allocated char*,
+ * @pfileexists() checks for file existence,
+ * @pgetline() serves as a platform independent getline(),
+ * @pgetopt() provides a simple to use, but effective GNU-style command-line argument parser,
+ * @pwhich() checks for a file using @pfileexists() in a PATH-like, delimited search path definition
+
+$NEWPAGE$
+
+## Dynamically managed arrays & stacks (parray) 
+
+### Overview 
+
+The parray object is a general-purpose data structure which can be used for several operations.
+
+parray forms a data management container for handling homogeneous elements of the same size in a dynamic way. These elements can be atomic data types, pointers or structures. Elements are automatically allocated within a specified chunk-size, and can be appended or prepended to the given parray object.
+
+The parray object implements:
+
+ * dynamic stack functions
+ * data object collections
+ * set functions (unions, diffs)
+
+The parray object brings the following advantages and disadvantages:
+
+ * Advantages
+  * Chunk allocation requires lesser @pmalloc()/@prealloc() operations than with plist-objects
+  * Dynamic and quick implementation for huge data structures
+  * Elements are held in a real array on the heap
+  * Low memory consumption
+  * Fast iteration over elements
+ * Disadvantages
+  * No hashable entries
+  * Not as flexible as plist; especially element rearrangement requires more care
+  * Removing elements or rechaining requires more computing power
+  * Careful programming necessary, problems with lost pointers may be
+encountered after memory-reallocations!
+
+### Construction and destruction 
+
+parray objects are created using @parray_create() or initialized with @parray_init(). The specific functions require the objects byte size that is required for every single element, and a chunk-size. Latter one can be omitted by specifing a chunk-size of 0, so that 128 elements per chunk will be the default. Objects can be cleared with @parray_erase(), respectively cleared and freed with @parray_free().
+
+    parray* a;
+    
+    a = parray_create( sizeof( usertype ), 0 );
+    
+    /* Do something... */
+    
+    parray_free( a );
+
+$NEWPAGE$
+
+### Inserting elements 
+
+Elements can be inserted with
+
+ * @parray_insert() - insert element at any desired offset,
+ * @parray_push() - push element to end of array,
+ * @parray_shift() - shift element on begin of array,
+ * @parray_malloc() - zero-initialize new element at end of array, and
+ * @parray_rmalloc() - zero-initialize new element at begin of array.
+
+    parray* a;
+    usertype t;
+    usertype* tp;
+    
+    fill_usertype( &t );
+    parray_insert( a, 2, &t );
+    
+    fill_usertype( &t );
+    parray_push( a, &t );
+    parray_shift( a, &t );
+    
+    tp = (usertype*)parray_malloc( a );
+    fill_usertype( tp );
+    tp = (usertype*)parray_rmalloc( a );
+    fill_usertype( tp );
+
+### Accessing and iterating elements 
+
+Direct access to specific elements is done using
+
+ * @parray_get() - get element by offset from begin, and
+ * @parray_rget() - get element by offset from end.
+ * @parray_for() - Expands into a for-loop iterating over elements.
+ * @parray_iter() - Iterate over all elements and call a function on each element.
+ * @parray_riter() - Like @parray_iter(), but backwards.
+
+Iterating over the elements:
+
+    parray* a;
+    usertype* tp;
+    
+    /* Using a pointer ---------------------------------------------------------- */
+    
+    for( tp = parray_first( a ); tp; tp = parray_next( a, tp ) )
+    	;
+    
+    /* Shortcut */
+    parray_for( a, tp )
+    	;
+    
+    /* Using a callback function ------------------------------------------------ */
+    
+    void tp_callback( parray* a, usertype* tp )
+    {
+    	/* ... */
+    }
+    
+    parray_iter( a, (parrayfn)tp_callback ); /* Forwards... */
+    parray_riter( a, (parrayfn)tp_callback ); /* Backwards... */
+    
+    /* Using a counter ---------------------------------------------------------- */
+    int i;
+    
+    /* Iterate from first to last. */
+    for( i = 0; ( tp = (usertype*)parray_get( a, i ) ); i++ )
+    	;
+    
+    /* Iterate from last to first. */
+    for( i = 0; ( tp = (usertype*)parray_rget( a, i ) ); i++ )
+    	;
+
+Quick access to the first or last element is gained by @parray_last() and @parray_first().
+
+To get a predecessor or successor of an element, use @parray_prev() respectively @parray_next().
+
+Elements can be replaced by @parray_put() and @parray_rput() via their index.
+
+### Removing elements 
+
+Elements can be removed with
+
+ * @parray_remove() - remove element at any desired offset,
+ * @parray_pop() - remove last element like from a stack, and
+ * @parray_unshift() - remove first element.
+
+    parray* a;
+    usertype t;
+    usertype* tp;
+    
+    parray_remove( a, 2, &t );
+    tp = (usertype*)parray_pop( a );
+    tp = (usertype*)parray_unshift( a );
+
+### Sorting elements 
+
+parray objects provide a sorting automatism, so that elements can be sorted on demand.
+
+The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like memcmp() does.
+
+This function can be individually set using @parray_set_sortfn(), and by default points to a callback function that uses memcmp() as the element comparison function.
+
+As prototype and example, the following comparison function:
+
+    int my_compare( parray* a, usertype* p, usertype* q )
+    {
+    	if( p < q )
+    		return -1;
+    	else if( p > q )
+    		return 1;
+    
+    	return 0;
+    }
+
+This function can then be attached to an parray object with
+
+    parray_set_sortfn( a, my_compare );
+
+Sorting can be performed by invoking the functions
+
+ * @parray_sort() - to sort the entire array,
+ * @parray_subsort() - to sort only a part of the array (begin- and end-elements required).
+
+The used algorithm is quick-sort.
+
+### Interchanging functions 
+
+parray objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind parray. Both arrays must be configured with the same element memory size, else all functions will fail.
+
+To implement these functions, every parray object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
+
+ * @parray_diff() - checks two arrays for same items (equality),
+ * @parray_union() - extends an array to all elements of a secondary array that are not equal within the first array.
+
+$NEWPAGE$
+
+### Additional functions 
+
+Other, useful functions are
+
+ * @parray_count() - get number of elements within object,
+ * @parray_offset() - get offset of element by pointer,
+ * @parray_partof() - check if element is part of object,
+ * @parray_swap() - swap two elements within an object,
+ * @parray_reserve() - assume memory pre-allocation; This is interesting for stack operations.
+
+$NEWPAGE$
+
+## Linked lists, hash-tables, queues & stacks (plist) 
+
+### Overview 
+
+Next to the parray object, the plist object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
+
+plist can be seen as a superset of the parray object, because it features nearly the same operations but with other underlying data management methods.
+
+The plist object implements:
+
+ * a double linked-list
+ * hashable entries (hash table, including same element key stacking)
+ * dynamic stack functionalities
+ * data object collections
+ * set functions
+
+plist can be used as a generic data structure for
+
+ * hash tables
+ * queues
+ * arrays
+ * stacks
+
+The plist object brings the following advantages and disadvantages:
+
+ * Advantages
+  * Allows pointer-mode and entity-mode configuration (PLIST_MOD_PTR)
+  * Additionally find objects using a hash-table
+  * Provides element recycling methods (PLIST_MOD_RECYCLE)
+  * Elements are chained, can be re-arraged and have persistent pointers
+  * Automatical sorting using individual sort-functions
+  * Simple set-theory functions (union, diff)
+ * Disadvantages
+  * High memory consumption, especially in case when used with hash-tables
+  * Iteration over elements is much slower
+  * List elements are chained as plistel data structures, while the data members must be called separately
+  * All operations require more computing power in comparison to parray
+
+$NEWPAGE$
+
+### Construction and destruction 
+
+plist objects are created using @plist_create() or initialized with @plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the plist object to a specified behavior.
+
+Possible flags are listed below, and can be combined using bitwise or (|).
+
+ * **PLIST_MOD_NONE** no flags, this can also be just 0.
+ * **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each element contains only a pointer to an object in memory and returns this, instead of copying from or into pointers.
+ * **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later, which reduces dynamic memory consumption.
+ * **PLIST_MOD_AUTOSORT** to automatically sort the list on insert operations.
+ * **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table key values are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
+ * **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
+ * **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exists in the object will be rejected.
+ * **PLIST_MOD_KEEPKEYS** holds the correct element insertation sequence. In case of a key collision, the inserted element is inserted behind the colliding element rather than before.
+ * **PLIST_MOD_WCHAR** to let all key values handle as wide-character strings.
+
+The mode **PLIST_MOD_PTR** is automatically set if the elements size is specified as 0.
+
+A plist object must be freed using @plist_free() or cleared with @plist_clear().
+
+    plist* l;
+    
+    l = plist_create( sizeof( usertype ), PLIST_MOD_RECYCLE );
+    
+    /* Do something... */
+    
+    plist_free( l );
+
+$NEWPAGE$
+
+### Inserting elements 
+
+Elements can be inserted with
+
+ * @plist_insert() - insert element, optionally with key, at any desired position,
+ * @plist_push() - push element to end of list,
+ * @plist_shift() - shift element on begin of list,
+ * @plist_malloc() - zero-initialize new element at end of list, and
+ * @plist_rmalloc() - zero-initialize new element at begin of list.
+
+    plist* l;
+    usertype t;
+    usertype* tp;
+    
+    /* Insert to position */
+    fill_usertype( &t );
+    plist_insert( l, plist_get( l, 2 ), (char*)NULL, &t );
+    
+    /* Insert to end, with key value */
+    plist_insert( l, (plistel*)NULL, "hello", &t );
+    
+    /* Insert to end and begin */
+    fill_usertype( &t );
+    plist_push( a, &t );
+    plist_shift( a, &t );
+    
+    /* Retrieve fresh element memory at end and begin */
+    tp = (usertype*)plist_malloc( a );
+    fill_usertype( tp );
+    tp = (usertype*)plist_rmalloc( a );
+    fill_usertype( tp );
+
+$NEWPAGE$
+
+### Accessing and iterating elements 
+
+Elements within a plist object are referenced by plistel items. To access the data element behind a plistel item, the function @plist_access() is used, in combination with element retrival functions, like
+
+ * @plist_get() - get element by offset,
+ * @plist_rget() - get element by offset from the end,
+ * @plist_first() - get first element,
+ * @plist_last() - get last element,
+ * @plist_get_by_key() - retrieve element by key (in a hash table),
+ * @plist_get_by_ptr() - retrieve element by its data pointer.
+ * @plist_for() - Expands into a for-loop iterating over elements.
+ * @plist_iter() - Iterate over all elements and call a function on each element.
+ * @plist_riter() - Like @plist_iter(), but backwards.
+
+    plist* l;
+    plistel* e;
+    usertype* tp;
+    int i;
+    
+    /* Get 6th data element */
+    tp = (usertype*)plist_access( plist_get( l, 5 ) );
+    
+    /* Get data element with key "hello" */
+    tp = (usertype*)plist_access( plist_get_by_key( l, "hello" ) );
+    
+    /* Iterate from begin to end */
+    for( e = plist_first( l ); e; e = plist_next( e ) )
+    	tp = (usertype*)plist_access( e );
+    
+    /* Alternative: Using the plist_for()-macro */
+    plist_for( l, e )
+    	tp = (usertype*)plist_access( e );
+    
+    /* Alternative: Using offset */
+    for( i = 0; ( tp = (usertype*)plist_access( plist_get( l, i ) ) ); i++ )
+    	;
+    
+    /* Reversely iterate from end to begin */
+    for( e = plist_last( l ); e; e = plist_prev( e ) )
+    	tp = (usertype*)plist_access( e );
+    
+    /* Reverse alternative: Using offset */
+    for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ ) ;
+
+$NEWPAGE$
+
+### Removing elements 
+
+To remove elements from a plist object, the following functions can be used.
+
+ * @plist_remove() - remove any element,
+ * @plist_pop() - pop last element as from a stack,
+ * @plist_unshift() - remove first element as from a queue.
+
+    plist* l;
+    usertype t;
+    
+    plist_remove( l, plist_get( l, 7 ) );
+    plist_pop( a, &t );
+    plist_unshift( a, &t );
+
+### Sorting elements 
+
+plist objects provide a sorting automatism, so that elements can be sorted on demand or on the fly at each element insertion.
+
+The sorting order and rule is defined using an element comparison callback-function, which returns element lower, greater or equality like strcmp() does.
+This function can be individually set using @plist_set_sortfn(), and by default points to a callback function that uses memcmp() as the element comparison function.
+
+As prototype and example, the following comparison function:
+
+    int my_compare( plist* list, plistel* l, plistel* r )
+    {
+    	usertype*	tr;
+    	usertype*	tl;
+    
+    	tl = (usertype*)plist_access( l );
+    	tr = (usertype*)plist_access( r );
+    
+    	if( tl < tr )
+    		return -1;
+    	else if( tl > tr )
+    		return 1;
+    
+    	return 0;
+    }
+
+This can then be attached to the plist object with
+
+    plist_set_sortfn( l, my_compare );
+
+To configure a plist object to be auto-sorted, the flag PLIST_MOD_AUTOSORT should be used at construction.
+Sorting can also be performed by invoking the functions
+
+ * @plist_sort() - to sort the entire list,
+ * @plist_subsort() - to sort only a part of the list (begin- and end-elements required).
+
+The used algorithm is quick-sort.
+
+### Interchanging functions 
+
+plist objects also provide functions to handle data collections and sets, by providing functions that can deal with two objects of kind plist. Both lists must be configured with the same element memory size, else all functions will fail.
+
+To implement these functions, every plist object also refers to a comparison-callback function. This is, by default, the same function as used for the sorting, and has also the same signature. This function can be implemented to check for element equality within set handling functions.
+
+ * @plist_diff() - checks two lists for same items (equality),
+ * @plist_union() - extends a list to all elements of a second list that are not equal to elements in the first list.
+
+### Additional functions 
+
+plist provides these additional functions:
+
+ * @plist_swap() - swaps the two elements within a list,
+ * @plist_dup() - duplicate list and its items,
+ * @plist_count() - return number of items in a list.
+
+$NEWPAGE$
+
+## Character-classes (pccl) 
+
+The pccl object is established on top of the plist object and encapsulates easy-to-handle low-level functions for character-class handling.
+
+These functions are heavily used by the library's regular expressions, but may also be helpful for other related projects. pccl can handle character classes, by chaining ranges.
+
+It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. pccl objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as **wchar_t** (wide-character unicode) values.
+
+ * @pccl_create() - create and optionally parse a new character-class,
+ * @pccl_parse() - parse characters and ranges from a string into a character-class,
+ * @pccl_negate() - negate a character-class over the character universe,
+ * @pccl_add(), @pccl_addrange() - add single characters or ranges to the class,
+ * @pccl_del(), @pccl_delrange() - delete single characters or ranges from the class,
+ * @pccl_test(), @pccl_testrange() - test if a character or range matches a class,
+ * @pccl_to_str() - convert a character-class into a string,
+ * @pccl_free() - destroy a previously created character-class,
+
+    pccl* ccl;
+    
+    /* Construct a character-class within a universe of the ASCII-alphabet (0-255):
+    	"-0123456789ABCDEFGHIJKLMNOQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+    */
+    ccl = pccl_create( 0, 255, "A-Za-z0-9_-" );
+    
+    /* Invert character class */
+    pccl_negate( ccl );
+    
+    /* Remove system chars */
+    pccl_delrange( ccl, 0, 31 );
+    
+    /* Oh, and delete the "z" */
+    pccl_del( ccl, 'z' );
+    
+    /* But add tab again! */
+    pccl_add( ccl, '\t' );
+    
+    /* Enable all from 32 to 126  */
+    pccl_addrange( ccl, ' ', '~' );
+    
+    /* Alternative way: */
+    pccl_parse( ccl, " -~", TRUE );
+    
+    /* Test for characters */
+    printf( "A is in? %s\n", BOOLEAN_STR( pccl_test( ccl, 'A' ) );
+    printf( "a-z are in? %s\n", BOOLEAN_STR( pccl_testrange( ccl, 'a', 'z' ) );
+    printf( "\\n is in? %s\n", BOOLEAN_STR( pccl_test( ccl, '\n' ) );
+    
+    /* Generate string */
+    printf( "My ccl is: %s\n", pccl_to_str( ccl, TRUE ) );
+    
+    /* Drop it! */
+    pccl_free( ccl );
+
+Useful, additional functions when working with pccl are:
+
+ * @pccl_compare() - compare character-classes,
+ * @pccl_diff() - create differencing character-class of two classes,
+ * @pccl_erase() - clear character-class,
+ * @pccl_get() - retrieve characters or ranges by offset,
+ * @pccl_instest() - like @pccl_test(), but with insensitve-character check,
+ * @pccl_intersect() - create intersection character-class of two classes,
+ * @pccl_print() - print character-class (for debug),
+ * @pccl_parsechar() - parse an escaped character sequence into a wide-character,
+ * @pccl_parseshorthand() - parse a typical shorthand (\d, \w) into a character-class.
+
+# Regular expressions & lexical analyzers (pregex, plex) 
+
+## Overview 
+
+libphorward provides a powerful set of functions relating to general string pattern matching and lexical analysis using regular expressions.
+
+ * The pregex object encapsulates several regular expression patterns into one data structure that is compiled into a reusable DFA (deterministic finite automata) for quick pattern processing. Strings can be matched, split or replaced on patterns.
+  * Based on the pregex object, the functions @pregex_qmatch(), @pregex_qsplit() and @pregex_qreplace() are provided, for one-line string processing.
+ * The plex object ecapsulates a regular expression-based scanner for lexical analysis into one object. It is used by libphorward's [build-in parser generator](#pparse) for lexical analysis also.
+ * All functions are designed to work on wide-character alphabets to fully support Unicode. Therefore, the flags PREGEX_COMP_WCHAR and PREGEX_RUN_WCHAR are provided, to allow processing on patterns and input strings provided as wide-character strings. If not explicitly deactivated by build-flags (-DUTF8), UTF-8 input is generally supported on all functions.
+ * Supports anchoring and back-references.
+ * Patterns are internally encapsulated in structures of pregex_ptn, which are then used to generate the NFA (nondeterministic finite automata) from which a DFA is constructed (subset construction algorithm).
+ * Matches are described in a structure called prange.
+ * DFAs can be deployed in form of a two dimensional array containing all information that is required to run the regex without the slower, object-oriented data structure layers.
+
+### Meta constructs 
+
+In general, regular expressions are made-up of the following elements:
+
+| Construct |Usage|
+|---------------|
+|`[...]` or `[^...]` |Specifies a character, character-class or negated character-class (^).|
+|`.` |Specifies a character-class standing for "any character". Using this construct causes the terminal to be configured as "non-greedy".|
+|`(` and `)` |Parantheses to build sub-expressions.|
+|`|` |The alternative operator to define multiple expressions at one expression level.|
+|`*` |Kleene closure (none or several of previous expression) modifier.|
+|`+` |Positive closure (one or several of previous expression) modifier.|
+|`?` |Optional closure (none or one of previous expression) modifier.|
+
+All meta-characters can be escaped by backslash, so they are interpretered as usual characters.
+
+$NEWPAGE$
+
+### Characters and escape sequences 
+
+Any other character coming up is consumed as one expression to be matched in the input.
+By default, all strings are interpretered in UTF-8 encoded unicode style, so unicode is fully supported.
+
+Escape sequences (C-style) are supported according to the following table:
+
+| Escape sequence |Description|
+|---------------|
+|`\a` |Bell (alert)|
+|`\b` |Backspace|
+|`\f` |Formfeed|
+|`\n` |New line|
+|`\r` |Carriage return|
+|`\t` |Horizontal tab|
+|`\v` |Vertical tab|
+|`\'` |Single quotation mark|
+|`\"` |Double quotation mark|
+|`\\` |Backslash|
+|`\OOO` |ASCII character in octal notation, (O = octal digit)|
+|`\xHH` |ASCII character in hexadecimal notation (H = hexadecimal digit)|
+|`\uHHHH` |32-Bit Unicode character in hexadecimal notation (H = hexadecimal digit)|
+|`\UHHHHHHHH` |64-Bit Unicode character in hexadecimal notation (H = hexadecimal digit)|
+
+**Note:** When specifying escape-sequences in static strings within C-code, they must be double-escaped, because they are first analyzed by the C compiler and then by libphorward's regex-parser. Therefore, specifiying a backslash `\\` must become `\\\\` in the C-Code, which then yields in `\\` after compiling the C program.
+
+### Shorthand character classes 
+
+Pre-defined shorthand character-classes are also supported by libphorward's pregex and plex tools.
+
+| Shorthand |Complains with |Explanation|
+|---------------|
+|\w |[A-Za-z0-9_] |All alphanumeric characters (ASCII only)|
+|\W |[^A-Za-z0-9_] |Any other than (ASCII only) alphanumeric characters|
+|\d |[0-9] |All digit characters (ASCII-only)|
+|\D |[^0-9] |Any other than (ASCII only) digit characters|
+|\s |[ \f\n\r\t\v] |All whitespace characters (ASCII-only)|
+|\S |[^ \f\n\r\t\v] |Any other than (ASCII only) whitespace characters|
+
+### Anchoring 
+
+The following anchors are supported, when specified at beginning or ending of an expression:
+
+| Anchor |Usage|
+|---------------|
+|`^` |Anchor at begin of pattern, matching begin-of-line.|
+|`$` |Anchor at end of pattern, matching end-of-line.|
+|`<` |Anchor at begin of pattern, matching begin-of-word.|
+|`>` |Anchor at end of pattern, matching end-of-word.|
+
+Anchors can be entirely switched off when setting the PREGEX_COMP_NOANCHORS on compile-time, respectively PREGEX_RUN_NOANCHORS on run-time.
+
+### Examples 
+
+Some examples:
+
+ * `Hello World` matches "Hello World",
+ * `Hello? World` matches "Hello World" and "Hell World",
+ * `Hello+ World` matches "Hello World" or "Hellooooooooo World",
+ * `Hello* World` matches "Hello World", "Hellooooooooo World" or even "Hell World",
+ * `(Hello)? World` matches "Hello World" and " World",
+ * `(Hello)+ World` matches "Hello World" and "HelloHelloHello World",
+ * `(Hello)* World` matches "Hello World", "HelloHelloHello World" or even " World",
+ * `[any]+ World` matches "any World", "n World, "nyan World" or "nayayayaaa World",
+ * `[^none]* World` matches "yuluthisisfun World", "xyz World" and " World",
+ * `'([^']|\\')*'` matches "''", "'Hello World'" or even "'What\'s Up?'",
+ * `Hello|World` matches "Hello" or "World",
+ * `Hello (World|Universe)` matches both "Hello World" or "Hello Universe".
+
+(TODO: more examples)
+
+## Operating on regular expressions (pregex) 
+
+The pregex object is the object-oriented interface for string operations based on regular expressions.
+
+Patterns are compiled into a DFA and associated with the pregex object as a reusable state machine that can be executed several times.
+
+Generally, the actions
+
+ * matching
+ * finding
+ * splitting
+ * replacing
+
+are supported by the compiled pattern.
+
+### Construction and destruction 
+
+pregex objects are constructed by @pregex_create(). First parameter is the regular expression pattern string that is compiled into a DFA. The second parameter allows to specify several flags for influencing the compile- and execution process. All flags can be combined using the bitwise or-operator (|).
+
+| Flag |Usage|
+|---------------|
+|PREGEX_COMP_WCHAR |The regular expression provided to pregex_create() shall be casted to wchar_t.|
+|PREGEX_COMP_NOANCHORS |Ignore anchor tokens, handle them as normal characters|
+|PREGEX_COMP_NOREF |Don't compile references.|
+|PREGEX_COMP_NONGREEDY |Compile regex to be forced nongreedy.|
+|PREGEX_COMP_NOERRORS |Don't report errors, and try to compile as much as possible|
+|PREGEX_COMP_INSENSITIVE |Parse regular expression as case insensitive.|
+|PREGEX_COMP_STATIC |The regular expression passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped.|
+|PREGEX_RUN_WCHAR |Run regular expression with wchar_t as input.|
+|PREGEX_RUN_NOANCHORS |Ignore anchors while processing the regex.|
+|PREGEX_RUN_NOREF |Don't create references.|
+|PREGEX_RUN_NONGREEDY |Force run regular expression nongreedy.|
+|PREGEX_RUN_DEBUG |Debug mode; output some debug to stderr.|
+
+@pregex_free() destructs and releases a pregex object after its use.
+
+    pregex* r;
+    
+    r = pregex_create( "[_A-Za-z]+", 0 );
+    
+    /* do something with r */
+    
+    pregex_free( r );
+
+### Matching 
+
+To immediatelly test if a pregex-object matches on a string, the function @pregex_match() shall be invoked.
+
+    pregex* r;
+    char* s = "a1337b";
+    char* e;
+    
+    r = pregex_create( "[0-9]+", 0 );
+    pregex_match( r, s, &e ); /* returns FALSE */
+    pregex_match( r, s + 1, &e ); /* returns TRUE, e receives s+5. */
+
+@pregex_match() only tests for a string that immediatelly matches the pattern. To find a matching pattern within a string, the function @pregex_find() shall be invoked, which is called with the same parameters, but returns the position of the match instead of a bool state.
+
+    pregex_find( r, s, &e ); /* returns s + 1, e receives s+5. */
+
+To find all matching patterns, @pregex_find() must be called in a loop.
+
+    while( ( s = pregex_find( r, s, &e ) ) )
+    {
+    	printf( ">%.*s<\n", e - s, s );
+    	s = e;
+    }
+
+The function @pregex_findall() can do this with one call, and fills an parray object with prange structures.
+
+    parray* a;
+    prange* rg;
+    
+    pregex_findall( r, s, &a );
+    
+    while( ( rg = (prange*)parray_shift( a ) ) )
+    	printf( ">%.*s<\n", rg->end - rg->start, rg->start );
+    
+    parray_free( a );
+
+### Splitting 
+
+Splitting a string by a regular expression can be done with @pregex_split(). This function takes several parameters, and is designed to be called in a loop.
+
+    pregex* r;
+    char* s = "5 and 6 are the cross sums of 23 and 42.";
+    char* e;
+    char* n;
+    
+    r = pregex_create( "[0-9]+", 0 );
+    
+    while( s )
+    {
+    	if( ( s = pregex_split( r, s, &e, &n ) ) )
+    			printf( ">%.*s<\n", e - s, s );
+    
+    	s = n;
+    }
+
+There is also an one call shortcut @pregex_splitall(), filling an array:
+
+    parray* a;
+    prange* rg;
+    
+    pregex_splitall( r, s, &a );
+    
+    while( ( rg = (prange*)parray_shift( a ) ) )
+    	printf( ">%.*s<\n", rg->end - rg->start, rg->start );
+    
+    parray_free( a );
+
+### Replacing 
+
+The function @pregex_replace() allows for replacing parts of strings by regular expressions.
+
+    char* ns;
+    
+    ns = pregex_replace( r, s, "int" );
+
+The result of this function is always an dynamically allocated string that contains the replaces version of the input string, even if there hadn't been any matches. The above example will return "int and int are the cross sums of int and int." when executed on the string of previous chapter. The returned string must always be released with @pfree() after its use.
+
+The replacement may also allow backreference-placeholders defined as `$<backreference>`, to take parts of the matched regular expression into the replaces string. A back-reference is created for every opening that exists in the regular expression, and begins counting at 1.
+
+This modified version
+
+    r = pregex_create( "([0-9]+)", 0 );
+    ns = pregex_replace( r, s, "int[$1]" );
+
+will return "int[5] and int[6] are the cross sums of int[23] and int[42]." when executed on the example string.
+
+To disable the backreference replacement features, the regular expression flag PREGEX_RUN_NOREF must be switched.
+
+### Quick-access functions 
+
+Based on the pregex-object, libphorward provides the shortcut functons
+
+ * @pregex_qmatch() - match strings by pattern,
+ * @pregex_qsplit() - split strings by pattern,
+ * @pregex_qreplace() - replace strings by pattern
+
+for immediate use, without creating and destroying a pregex-object. Because this is done within the function calls, multiple calls of these functions result in huger runtime latencies and produce more overhead.
+
+## Lexical analysis using regular expressions (plex) 
+
+The second part of libphorwards regular expression tools is the plex-object, which encapsulates all required features for creating lexical analyzers (in terms of compiler-writers also called "scanners" or "lexers") into one handy object.
+
+A plex-object can be seen as a container, which merges multiple regular expressions together into one state machine to recognize tokens. A token is then identified by an unique number that is associated with the matching regular expression.
+
+ * @plex_create() - creates a new plex-object,
+ * @plex_define() - adds a new token matcher,
+ * @plex_lex() - immediatelly tests for a direct match on a string,
+ * @plex_next() - finds the next match within a string, where unrecognized characters are ignored,
+ * @plex_tokenize() - generates an array of all tokens from a string,
+ * @plex_free() - destructs the plex-object after its usage,
+ * @plex_dump_dot() - generates a dot-file Graphviz (http://www.graphviz.org/) to visualize the constructed lexer.
+
+To tokenize a C-styled variable assignment, one could write a simple lexical analyzer, like this:
+
+    enum
+    {
+    	IDENT = 1, INTEGER, EQUALS, PLUS_OP, SEMICOLON
+    };
+    
+    char* nid[] = { "ident", "integer", "equals", "plus_op", "semicolon" };
+    
+    int m;
+    char* s = "sum = 5 + 23 + x;";
+    char* e;
+    plex* l;
+    
+    l = plex_create( 0 );
+    
+    plex_define( l, "[A-Za-z_][A-Za-z0-9_]*", IDENT, 0 );
+    plex_define( l, "[0-9]+", INTEGER, 0 );
+    plex_define( l, "=", EQUALS, 0 );
+    plex_define( l, "+", PLUS_OP, 0 );
+    plex_define( l, ";", SEMICOLON, 0 );
+    
+    while( *s && ( s = plex_next( l, s, &m, &e ) ) )
+    {
+    	printf( "%s >%.*s<\n", nid[m - 1], e - s, s );
+    	s = e;
+    }
+    
+    plex_free( l );
+
+When running, this yields in the output:
+
+    ident >sum<
+    equals >=<
+    integer >5<
+    plus_op >+<
+    integer >23<
+    plus_op >+<
+    ident >x<
+    semicolon >;<
+
+## Tools 
+
+### Ranges 
+
+Some functions of the regex library work with a structure of type prange.
+
+    typedef struct prange
+    {
+        unsigned int	id;			/* Match ID */
+        char*			start;		/* Begin pointer */
+        char*			end;		/* End pointer */
+    };
+
+This structure is used by the functions @plex_tokenize(), @pregex_findall(), @pregex_qmatch(), @pregex_qsplit() and @pregex_splitall() to generate arrays holding multiple operation ranges on the given function and regex.
+In case PREGEX_RUN_WCHAR is set, *start* and *end* members must be casted to wchar_t.
+
+### Regular Expression Patterns 
+
+Objects of the kind pregex_ptn can be seen as nodes of the abstract syntax tree representing regular expressions. This representation is used to convert regular expressions into from strings into data structures, to do revisions on them or to convert them back into strings expressed by a regex.
+
+They are managed by the functions @pregex_ptn_create(), @pregex_ptn_create_alt(), @pregex_ptn_create_char(), @pregex_ptn_create_kle(), @pregex_ptn_create_opt(), @pregex_ptn_create_pos(), @pregex_ptn_create_refsub(), @pregex_ptn_create_seq(), @pregex_ptn_create_string(), @pregex_ptn_create_sub(), @pregex_ptn_dup(), @pregex_ptn_free(), @pregex_ptn_parse(), @pregex_ptn_print(), @pregex_ptn_to_dfa(), @pregex_ptn_to_dfatab(), @pregex_ptn_to_nfa() and pregex_ptn_to_regex().
+
+# String helper functions (pstr*, pwcs*) 
+
+libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
+
+String functions overview:
+
+ * @pstrcasecmp() - case-insensitive string comparison,
+ * @pstrcatchar() - append character to string with dynamic allocation,
+ * @pstrcatstr() - append string to string with dynamic allocation,
+ * @pstrdup() - duplicate string, also accepts NULL-pointers,
+ * @pstrget() - securely get string from a pointer,
+ * @pstrlen() - return length of string, also accepts NULL-pointers,
+ * @pstrltrim() - remove prefixing whitespace,
+ * @pstrlwr() - convert string to lower-case-order,
+ * @pstrncasecmp() - case-insensitive string comparison over maximum length,
+ * @pstrncatstr() - append string to string with dynamic allocation and maximum length,
+ * @pstrndup() - duplicate a string with maximum length,
+ * @pstrput() - securely set an allocated string into a pointer,
+ * @pstrrender() - dynamically render a string with placeholder substitution,
+ * @pstrreplace() - dynamically replace substrings within string,
+ * @pstrrtrim() - remove trailing whitespace,
+ * @pstrsplit() - dynamic tokenizer,
+ * @pstrtrim() - remove prefixing and trailing whitespace,
+ * @pstrupr() - convert string to lower-case-order.
+
+Additionally, the following pendants for wide-character strings (wchar_t) exist and are available, when libphorward is compiled with the UNICODE flag enabled.
+
+ * @pwcscatchar() - append character to wide-character string with dynamic allocation,
+ * @pwcscatstr() - append wide-character string to wide-character string with dynamic allocation,
+ * @pwcsdup() - duplicate wide-character string, also accepts NULL-pointers,
+ * @pwcsget() - securely get wide-character string from a pointer,
+ * @pwcslen() - return length ot wide-character string, also accepts NULL-pointers,
+ * @pwcsncatstr() - append wide-character string to wide-character string with dynamic allocation and maximum length,
+ * @pwcsndup() - duplicate a wide-character string with maximum length,
+ * @pwcsput() - securely set an allocated wide-character string into a pointer.
+
+Although the wide-character pendants to the standard extended string functions are not consistent right now, they may be extended in the future, when the existence of such functions is needed, or another, brave programmer is having the fun to implement them.
+
+# Function reference 
+
+## Macros 
+
+### LOG 
+
+**Definition:**
+
+LOG( char* format, ... ) - *Macro*
+
+**Usage:**
+
+Write any logging output to trace.
+
+This function is newer than the previous ones, and allows for a printf-like
+format string with variable amount of parameters.
+
+*format* is a [printf()](#fn_printf)-like format-string.
+*...* parameters in the way they occur in the format-string.
+
+### MSG 
+
+**Definition:**
+
+MSG( char* message ) - *Macro*
+
+**Usage:**
+
+Write a message to trace.
+
+*message* is your message!
+
+### PARMS 
+
+**Definition:**
+
+PARMS( char* param_name, char* format, param_type parameter ) - *Macro*
+
+**Usage:**
+
+Write parameter content to trace.
+
+The PARMS-macro is used to write parameter names and values to the program
+trace. [PARMS()](#fn_PARMS) should - by definition - only be used right behind [PROC()](#fn_PROC).
+If the logging of variable values is wanted during a function execution to
+trace, the [VARS()](#fn_VARS)-macro shall be used.
+
+*param_name* is the name of the parameter
+*format* is a printf-styled format placeholder.
+*parameter* is the parameter itself.
+
+### PROC 
+
+**Definition:**
+
+PROC( char* func_name ) - *Macro*
+
+**Usage:**
+
+Write function entry to trace.
+
+The PROC-macro introduces a new function level, if compiled with trace.
+
+The PROC-macro must be put behind the last local variable declaration and the
+first code line, else it won't compile. A PROC-macro must exists within a
+function to allow for other trace-macro usages. If [PROC()](#fn_PROC) is used within a
+function, the macros [RETURN()](#fn_RETURN) or VOIDRET, according to the function return
+value, must be used. If PROC is used without RETURN, the trace output will
+output a wrong call level depth.
+
+The parameter *func_name* is a static string for the function name.
+
+### RETURN 
+
+**Definition:**
+
+RETURN( function_type return_value ) - *Macro*
+
+**Usage:**
+
+Write function return to trace.
+ [RETURN()](#fn_RETURN) can only be used if [PROC()](#fn_PROC) is used at the beginning of the function.
+For void-functions, use the macro VOIDRET.
+
+*return_value* is return-value of the function.
+
+### VARS 
+
+**Definition:**
+
+VARS( char* var_name, char* format, var_type variable ) - *Macro*
+
+**Usage:**
+
+Write variable content to trace.
+
+The VARS-macro is used to write variable names and values to the program trace.
+For parameters taken to functions, the [PARMS()](#fn_PARMS)-macro shall be used.
+
+*var_name* is the name of the variable
+*format* is a printf-styled format placeholder.
+*variable* is the parameter itself.
+
+### VOIDRET 
+
+**Definition:**
+
+VOIDRET - *Macro*
+
+**Usage:**
+
+Write void function return to trace.
+
+VOIDRET can only be used if [PROC()](#fn_PROC) is used at the beginning of the function.
+For typed functions, use the macro [RETURN()](#fn_RETURN).
+
+### parray_for 
+
+**Definition:**
+
+parray_for( parray* array, usertype* ptr ) - *Macro*
+
+**Usage:**
+
+Macro that expands into a for-loop iterating a parray-object *array* using
+and pointer variable *ptr* as walker.
+
+This macro expands into a for-loop in the format
+
+    for( ptr = parray_first( array ); ptr; ptr = parray_next( array, ptr ) )
+
+where *ptr* is a walker variable of the same type size of the array's size
+for each element.
+
+**Example:**
+
+    usertype* 	t;
+    parray		a;
+    
+    parray_init( &a, sizeof( usertype ), 0 );
+    
+    parray_for( a, t )
+    {
+    	/* Do something with t *}
+
+### plist_for 
+
+**Definition:**
+
+plist_for( plist* l, plistel* e ) - *Macro*
+
+**Usage:**
+
+Macro that expands into a for-loop iterating a plist-object *l* using
+the element variable *e* as walker.
+
+This macro expands into a for-loop of the format
+
+    for( e = plist_first( l ); e; e = plist_next( e ) )
+
+where *e* is a walker variable for each element.
+
+**Example:**
+
+    plist*		my_list;
+    plistel*	e;
+    
+    plist_for( my_list, e )
+    {
+    	/* Access current element data part *	ptr = (cast*)plist_access( e );
+    	...
+    }
+
+## Functions 
+
+### parray_concat 
+
+**Definition:**
+
+size_t parray_concat( parray* dest, parray* src )
+
+**Usage:**
+
+Concats the elements of array *src* to the elements of array *dest*.
+
+The function will not run if both arrays have different element size settings.
+
+The function returns the number of elements added to *dest*.
+
+### parray_count 
+
+**Definition:**
+
+size_t parray_count( parray* array )
+
+**Usage:**
+
+Returns the number of elements in a array.
+
+### parray_create 
+
+**Definition:**
+
+parray* parray_create( size_t size, size_t chunk )
+
+**Usage:**
+
+Create a new parray as an object with an element allocation size *size*,
+a reallocation-chunk-size of *chunk*.
+
+The returned memory must be released with [parray_free()](#fn_parray_free).
+
+### parray_diff 
+
+**Definition:**
+
+int parray_diff( parray* left, parray* right )
+
+**Usage:**
+
+Tests the contents (data parts) of the array *left* and the array *right*
+for equal elements.
+
+The function returns a value < 0 if *left* is lower *right*, a value > 0
+if *left* is greater *right* and a value == 0 if *left* is equal to
+*right*.
+
+### parray_erase 
+
+**Definition:**
+
+pboolean parray_erase( parray* array )
+
+**Usage:**
+
+Erase a dynamic array.
+
+The array must not be reinitialized after destruction, using [parray_init()](#fn_parray_init).
+
+*array* is the pointer to the array to be erased.
+
+### parray_first 
+
+**Definition:**
+
+void* parray_first( parray* array )
+
+**Usage:**
+
+Access first element of the array.
+
+Returns the address of the accessed item, and (void*)NULL if nothing is in
+the array.
+
+### parray_free 
+
+**Definition:**
+
+parray* parray_free( parray* array )
+
+**Usage:**
+
+Releases all the memory *array* uses and destroys the array object.
+
+The function always returns (parray*)NULL.
+
+### parray_get 
+
+**Definition:**
+
+void* parray_get( parray* array, size_t offset )
+
+**Usage:**
+
+Access an element from the array by its offset position from the left.
+
+*array* is the pointer to array where to access the element from.
+*offset* is the offset of the element to be accessed from the array's
+base address.
+
+Returns the address of the accessed item, and (void*)NULL if the item could not
+be accessed (e.g. if the array is empty or offset is beyond the last of array).
+
+Use [parray_rget()](#fn_parray_rget) for access items from the end.
+
+### parray_init 
+
+**Definition:**
+
+pboolean parray_init( parray* array, size_t size, size_t chunk )
+
+**Usage:**
+
+Performs an array initialization.
+
+*array* is the pointer to the array to be initialized.
+
+*size* defines the size of one array element, in bytes.
+This should be evaluated using the [sizeof()](#fn_sizeof)-macro.
+
+*chunk* defines the chunk size, when an array-(re)allocation will be
+performed. If, e.g. this is set to 128, then, if the 128th item is created
+within the array, a realloction is done. Once allocated memory remains until
+the array is freed again.
+
+### parray_insert 
+
+**Definition:**
+
+void* parray_insert( parray* array, size_t offset, void* item )
+
+**Usage:**
+
+Insert item *item* at *offset* into array *array*.
+Items right to *offset* will move up.
+
+Gap space between the offset is filled with zero elements;
+Handle with care!
+
+### parray_iter 
+
+**Definition:**
+
+void parray_iter( parray* array, parrayfn callback )
+
+**Usage:**
+
+Iterates over *array*.
+
+Iterates over all items of *array* and calls the function *callback* on
+every item.
+
+### parray_last 
+
+**Definition:**
+
+void* parray_last( parray* array )
+
+**Usage:**
+
+Access last element of the array.
+
+Returns the address of the accessed item, and (void*)NULL if nothing is in
+the array.
+
+### parray_malloc 
+
+**Definition:**
+
+void* parray_malloc( parray* array )
+
+**Usage:**
+
+Pushes and "allocates" an empty element on the array.
+
+This function is just a shortcut to ``parray_push( array, (void*)NULL )``,
+and the memory of the pushed element is initialized to zero.
+
+### parray_next 
+
+**Definition:**
+
+void* parray_next( parray* array, void* ptr )
+
+**Usage:**
+
+Access next element from *ptr* in *array*.
+
+Returns the address of the next element, and (void*)NULL if the access gets
+out of bounds.
+
+### parray_offset 
+
+**Definition:**
+
+size_t parray_offset( parray* array, void* ptr )
+
+**Usage:**
+
+Return offset of element *ptr* in array *array*.
+Returns the offset of *ptr* in *array*.
+The function returns the size of the array (which is an invalid offset)
+if *ptr* is not part of *array*.
+
+To check if a pointer belongs to an array, call [parray_partof()](#fn_parray_partof).
+
+### parray_partof 
+
+**Definition:**
+
+pboolean parray_partof( parray* array, void* ptr )
+
+**Usage:**
+
+Returns TRUE, if *ptr* is an element of array *array*.
+
+### parray_pop 
+
+**Definition:**
+
+void* parray_pop( parray* array )
+
+**Usage:**
+
+Removes an element from the end of an array.
+
+The function returns the pointer of the popped item. Because dynamic arrays only
+grow and no memory is freed, the returned data pointer is still valid, and will
+only be overridden with the next push operation.
+
+*array* is the pointer to array where to pop an item off.
+
+The function returns the address of the popped item, and (void*)NULL if the
+item could not be popped (e.g. array is empty).
+
+### parray_prev 
+
+**Definition:**
+
+void* parray_prev( parray* array, void* ptr )
+
+**Usage:**
+
+Access previous element from *ptr* in *array*.
+
+Returns the address of the previous element, and (void*)NULL if the access gets
+out of bounds.
+
+### parray_push 
+
+**Definition:**
+
+void* parray_push( parray* array, void* item )
+
+**Usage:**
+
+Appends an element to the end of the array.
+
+The element's memory is copied during the push. The item must be of the same
+memory size as used at array initialization.
+
+*array* is the pointer to array where to push an item on.
+
+*item* is the pointer to the memory of the item that should be pushed onto the
+array. The caller should cast his type into void, or wrap the push-operation
+with a macro. It can be left (void*)NULL, so no memory will be copied.
+
+The function returns the address of the newly pushed item, and (void*)NULL if
+the item could not be pushed.
+
+### parray_put 
+
+**Definition:**
+
+void* parray_put( parray* array, size_t offset, void* item )
+
+**Usage:**
+
+Put an element *item* at position *offset* of array *array*.
+
+*array* is the pointer to array where to put the element to.
+*offset* is the offset of the element to be set.
+*item* is a pointer to the memory that will be copied into the
+position at *offset*. If this is NULL, the position at *offset* will be
+set to zero.
+
+Returns the address of the item in the array, or NULL if the desired offset
+is out of the array bounds.
+
+### parray_remove 
+
+**Definition:**
+
+void* parray_remove( parray* array, size_t offset, void** item )
+
+**Usage:**
+
+Remove item on *offset* from array *array*.
+
+The removed item will be copied into *item*, if *item* is not NULL.
+The function returns the memory of the removed item (it will contain the
+moved up data part or invalid memory, if on the end).
+
+### parray_reserve 
+
+**Definition:**
+
+pboolean parray_reserve( parray* array, size_t n )
+
+**Usage:**
+
+Reserves memory for *n* items in *array*.
+
+This function is only used to assume that no memory reallocation is done when
+the next *n* items are inserted/malloced.
+
+### parray_rget 
+
+**Definition:**
+
+void* parray_rget( parray* array, size_t offset )
+
+**Usage:**
+
+Access an element from the array by its offset position from the right.
+
+*array* is the pointer to array where to access the element from.
+*offset* is the offset of the element to be accessed from the array's
+base address.
+
+Returns the address of the accessed item, and (void*)NULL if the item could not
+be accessed (e.g. if the array is empty or offset is beyond the bottom of
+the array).
+
+Use [parray_get()](#fn_parray_get) to access items from the begin.
+
+### parray_riter 
+
+**Definition:**
+
+void parray_riter( parray* array, parrayfn callback )
+
+**Usage:**
+
+Iterates backwards over *array*.
+
+Backwardly iterates over all items of *array* and calls the function
+*callback* on every item.
+
+### parray_rmalloc 
+
+**Definition:**
+
+void* parray_rmalloc( parray* array )
+
+**Usage:**
+
+Unshifts and "allocates" an empty element on the array.
+
+This function is just a shortcut to ``parray_unshift( array, (void*)NULL )``,
+and the memory of the unshifted element is initialized to zero.
+
+### parray_rput 
+
+**Definition:**
+
+void* parray_rput( parray* array, size_t offset, void* item )
+
+**Usage:**
+
+Put an element *item* at position *offset* from the right of
+array *array*.
+
+*array* is the pointer to array where to put the element to.
+*offset* is the offset of the element to be set.
+*item* is a pointer to the memory that will be copied into the
+position at *offset*. If this is NULL, the position at *offset* will be
+set to zero.
+
+Returns the address of the item in the array, or NULL if the desired offset
+is out of the array bounds.
+
+### parray_set_comparefn 
+
+**Definition:**
+
+pboolean parray_set_comparefn( parray* array, int (*comparefn)( parray*, void*, void* ) )
+
+**Usage:**
+
+Sets array compare function.
+
+If no compare function is set or NULL is provided, [memcmp()](#fn_memcmp) will be used
+as default fallback.
+
+### parray_set_sortfn 
+
+**Definition:**
+
+pboolean parray_set_sortfn( parray* array, int (*sortfn)( parray*, void*, void* ) )
+
+**Usage:**
+
+Sets array sort function.
+
+If no sort function is given, the compare function set by [parray_set_comparefn()](#fn_parray_set_comparefn)
+is used. If even unset, [memcmp()](#fn_memcmp) will be used.
+
+### parray_shift 
+
+**Definition:**
+
+void* parray_shift( parray* array )
+
+**Usage:**
+
+Removes an element from the begin of an array.
+
+The function returns the pointer of the shifted item.
+Because dynamic arrays only grow and no memory is freed, the returned data
+pointer is still valid, and will only be overridden with the next unshift
+operation.
+
+*array* is the pointer to array where to pop an item off.
+
+The function returns the address of the shifted item, and (void*)NULL if the
+item could not be popped (e.g. array is empty).
+
+### parray_sort 
+
+**Definition:**
+
+pboolean parray_sort( parray* array )
+
+**Usage:**
+
+Sorts *list* according to the sort-function that was set for the list.
+
+To sort only parts of a list, use [plist_subsort()](#fn_plist_subsort).
+
+The sort-function can be modified by using [plist_set_sortfn()](#fn_plist_set_sortfn).
+
+The default sort function sorts the list by content using the [memcmp()](#fn_memcmp)
+standard function.
+
+### parray_subsort 
+
+**Definition:**
+
+pboolean parray_subsort( parray* array, size_t from, size_t to )
+
+**Usage:**
+
+Sorts *array* between the elements *from* and *to* according to the
+sort-function that was set for the list.
+
+To sort the entire array, use [parray_sort()](#fn_parray_sort).
+
+The sort-function can be modified by using [parray_set_sortfn()](#fn_parray_set_sortfn).
+
+The default sort function sorts the list by content using the [memcmp()](#fn_memcmp)
+standard function.
+
+### parray_swap 
+
+**Definition:**
+
+void* parray_swap( parray* array, size_t pos1, size_t pos2 )
+
+**Usage:**
+
+Swap two elements of an array.
+
+### parray_union 
+
+**Definition:**
+
+size_t parray_union( parray* all, parray* from )
+
+**Usage:**
+
+Unions elements from array *from* into array *all*.
+
+An element is only added to *all*, if there exists no equal element with the
+same size and content.
+
+The function will not run if both arrays have different element size settings.
+
+The function returns the number of elements added to *from*.
+
+### parray_unshift 
+
+**Definition:**
+
+void* parray_unshift( parray* array, void* item )
+
+**Usage:**
+
+Appends an element to the begin of the array.
+
+The elements memory is copied during the unshift. The item must be of the same
+memory size as used at array initialization.
+
+*array* is the pointer to array where to push an item to the beginning.
+
+*item* is the pointer to the memory of the item that should be pushed onto the
+array. The caller should cast his type into void, or wrap the push-operation
+with a macro. It can be left (void*)NULL, so no memory will be copied.
+
+The function returns the address of the newly unshifted item, and (void*)NULL
+if the item could not be unshifted.
+
+### pasprintf 
+
+**Definition:**
+
+char* pasprintf( char* fmt, ... )
+
+**Usage:**
+
+Implementation and replacement for asprintf. [pasprintf()](#fn_pasprintf) takes only the
+format-string and various arguments. It outputs an allocated string to be freed
+later on.
+
+*fmt* is the format string.
+*...* are the parameters according to the placeholders set in *fmt*.
+
+Returns a char* Returns the allocated string which contains the format string
+with inserted values.
+
+### pbasename 
+
+**Definition:**
+
+char* pbasename( char* path )
+
+**Usage:**
+
+Returns the basename of a file.
+
+*path* is the file path pointer.
+
+Returns a pointer to the basename, which is a part of *path*.
+
+### pccl_add 
+
+**Definition:**
+
+pboolean pccl_add( pccl* ccl, wchar_t ch )
+
+**Usage:**
+
+Integrates a single character into a character-class.
+
+*ccl* is the pointer to the character-class to be affected.
+*ch* is the character to be integrated.
+
+The function is a shortcut for [pccl_addrange()](#fn_pccl_addrange).
+
+### pccl_addrange 
+
+**Definition:**
+
+pboolean pccl_addrange( pccl* ccl, wchar_t begin, wchar_t end )
+
+**Usage:**
+
+Integrates a character range into a character-class.
+
+*ccl* is the pointer to the character-class to be affected. If *ccl* is
+provided as (pccl*)NULL, it will be created by the function.
+
+*begin* is the begin of character range to be integrated.
+*end* is the end of character range to be integrated.
+
+If *begin* is greater than *end*, the values will be swapped.
+
+### pccl_compare 
+
+**Definition:**
+
+int pccl_compare( pccl* left, pccl* right )
+
+**Usage:**
+
+Checks for differences in two character-classes.
+
+*left* is the pointer to the first character-class.
+*right* is the pointer to the second character-class.
+
+Returns a value < 0 if *left* is lower than *right*, 0 if *left* is
+equal to *right* or a value > 0 if *left* is greater than *right*.
+
+### pccl_compat 
+
+**Definition:**
+
+pboolean pccl_compat( pccl* l, pccl* r )
+
+**Usage:**
+
+Checks if the character-classes *l* and *r* are configured
+to be in the same character universe and compatible for operations.
+
+### pccl_count 
+
+**Definition:**
+
+int pccl_count( pccl* ccl )
+
+**Usage:**
+
+Returns the number of characters within a character-class.
+
+*ccl* is a pointer to the character-class to be processed.
+
+Returns the total number of characters the class is holding.
+
+### pccl_create 
+
+**Definition:**
+
+pccl* pccl_create( int min, int max, char* ccldef )
+
+**Usage:**
+
+Constructor function to create a new character-class.
+
+*min* and *max* can either be specified as -1, so the configured default
+constants PCCL_MIN and PCCL_MAX will be used. The values can also be inverted.
+
+Returns a pointer to the newly created character-class. This pointer should be
+released with [pccl_free()](#fn_pccl_free) when its existence is no longer required.
+
+### pccl_del 
+
+**Definition:**
+
+pboolean pccl_del( pccl* ccl, wchar_t ch )
+
+**Usage:**
+
+Removes a character from a character-class.
+
+*ccl* is the pointer to the character-class to be affected.
+*ch* is the character to be removed from *ccl*.
+
+The function is a shortcut for [pccl_delrange()](#fn_pccl_delrange).
+
+### pccl_delrange 
+
+**Definition:**
+
+pboolean pccl_delrange( pccl* ccl, wchar_t begin, wchar_t end )
+
+**Usage:**
+
+Removes a character range from a character-class.
+
+*ccl* is the pointer to the character-class to be affected.
+*begin* is the begin of character range to be removed.
+*end* is the end of character range to be removed.
+
+### pccl_diff 
+
+**Definition:**
+
+pccl* pccl_diff( pccl* ccl, pccl* rem )
+
+**Usage:**
+
+Returns the difference quantity of two character-classes.
+All elements from *rem* will be removed from *ccl*, and put into a
+new character-class.
+
+*ccl* is the pointer to the first character-class.
+*rem* is the pointer to the second character-class.
+
+Returns a new pointer to a copy of *ccl*, without the ranges contained in
+*rem*. Returns (pccl*)NULL in case of memory allocation or parameter
+error.
+
+### pccl_dup 
+
+**Definition:**
+
+pccl* pccl_dup( pccl* ccl )
+
+**Usage:**
+
+Duplicates a character-class into a new one.
+
+*ccl* is the pointer to the character-class to be duplicated.
+
+Returns a pointer to the duplicate of *ccl*, or (pcrange)NULL
+in error case.
+
+### pccl_erase 
+
+**Definition:**
+
+pboolean pccl_erase( pccl* ccl )
+
+**Usage:**
+
+Erases a character-class *ccl*.
+
+The function sets a character-class to zero, as it contains no character range
+definitions. The object *ccl* will be still alive. To delete the entire
+object, use [pccl_free()](#fn_pccl_free).
+
+### pccl_free 
+
+**Definition:**
+
+pccl* pccl_free( pccl* ccl )
+
+**Usage:**
+
+Frees a character-class *ccl* and all its used memory.
+
+The function always returns (pccl*)NULL.
+
+### pccl_get 
+
+**Definition:**
+
+pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset )
+
+**Usage:**
+
+Return a character or a character-range by its offset.
+
+If the function is called only with pointer *from* provided, and *to* as
+(wchar_t*)NULL, it writes the character in *offset*th position of the
+character-class into from.
+
+If the function is called both with pointer *from* and *to* provided,
+it writes the *begin* and *end* character of the character-range in the
+*offset*th position of the character-class into *from* and *to*.
+
+If no character or range with the given offset was found, the function
+returns FALSE, meaning that the end of the characters is reached.
+On success, the function will always return TRUE.
+
+### pccl_instest 
+
+**Definition:**
+
+pboolean pccl_instest( pccl* ccl, wchar_t ch )
+
+**Usage:**
+
+Tests for a character in case-insensitive-mode if it matches
+a character-class.
+
+*ccl* is the pointer to character-class to be tested.
+*ch* is the character to be tested.
+
+The function is a shortcut for [pccl_testrange()](#fn_pccl_testrange).
+
+It returns TRUE, if the character matches the class, and FALSE if not.
+
+### pccl_intersect 
+
+**Definition:**
+
+pccl* pccl_intersect( pccl* ccl, pccl* within )
+
+**Usage:**
+
+Returns a new character-class with all characters that exist in both
+provided character-classes.
+
+*ccl* is the pointer to the first character-class.
+*within* is the pointer to the second character-class.
+
+Returns a new character-class containing the intersection of *ccl*
+and *within*. If there is no intersection between both character-classes,
+the function returns (pccl*)NULL.
+
+### pccl_negate 
+
+**Definition:**
+
+pccl* pccl_negate( pccl* ccl )
+
+**Usage:**
+
+Negates all ranges in a character-class.
+
+*ccl* is the pointer to the character-class to be negated.
+
+Returns a pointer to *ccl*.
+
+### pccl_parse 
+
+**Definition:**
+
+pboolean pccl_parse( pccl* ccl, char* ccldef, pboolean extend )
+
+**Usage:**
+
+Parses the character-class definition provided in *ccldef* and assigns
+this definition to the character-class *ccl*. *ccldef* may contain
+UTF-8 formatted input. Escape-sequences will be interpreted to their correct
+character representations.
+
+A typical character-class definition simply exists of single characters and
+range definitions. For example, "$A-Z#0-9" defines a character-class that
+consists of the characters "$#0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".
+
+The parameter *extend* specifies, if the provided character-class overwrites
+(*extend* = FALSE) or extends (*extend* = TRUE) the provided
+character-class. This means that definitions that already exist in the
+character-class, should be erased first or not.
+
+The function returns TRUE on success, and FALSE on an error.
+
+### pccl_parsechar 
+
+**Definition:**
+
+size_t pccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq )
+
+**Usage:**
+
+Reads a character from a string. The character may consist of one single
+character or it may be made up of an escape sequence or UTF-8 character.
+The function returns the number of bytes read.
+
+*retc* is the return pointer for the character code of the escaped string.
+*str* is the begin pointer of the string at which character parsing begins.
+If *escapeseq* is TRUE, the function regards escape sequences, else it ignores
+them.
+
+Returns the number of bytes that had been read for the character.
+
+### pccl_parseshorthand 
+
+**Definition:**
+
+pboolean pccl_parseshorthand( pccl* ccl, char** str )
+
+**Usage:**
+
+Tries to parse a shorthand sequence from a string. This matches the
+shorthands \w, \W, \d, \D, \s and \S. If it matches, all characters are
+added to *ccl*.
+
+The function returns TRUE in case a shorthand has been parsed. If so,
+the pointer *str* is moved the characters consumed.
+
+If no shorthand sequence could be found, it returns FALSE, leaving *ccl*
+untouched.
+
+### pccl_print 
+
+**Definition:**
+
+void pccl_print( FILE* stream, pccl* ccl, int break_after )
+
+**Usage:**
+
+Print character-class to output stream.
+This function is provided for debug-purposes only.
+
+*stream* is the output stream to dump the character-class to; This can be
+left (FILE*)NULL, so *stderr* will be used.
+*ccl* is the pointer to character-class
+
+*break_after* defines:
+
+ * if < 0 print with pointer info
+ * if 0 print all into one line
+ * if > 0 print linewise
+
+### pccl_size 
+
+**Definition:**
+
+int pccl_size( pccl* ccl )
+
+**Usage:**
+
+Returns the number of range pairs within a character-class.
+
+*ccl* is a pointer to the character-class to be processed.
+
+To retrieve the number of characters in a character-class, use [pccl_count()](#fn_pccl_count) instead.
+
+Returns the number of pairs the charclass holds.
+
+### pccl_test 
+
+**Definition:**
+
+pboolean pccl_test( pccl* ccl, wchar_t ch )
+
+**Usage:**
+
+Tests a character-class if it contains a character.
+
+*ccl* is the pointer to character-class to be tested.
+*ch* is the character to be tested.
+
+The function is a shortcut for [pccl_testrange()](#fn_pccl_testrange).
+
+It returns TRUE, if the character matches the class, and FALSE if not.
+
+### pccl_testrange 
+
+**Definition:**
+
+pboolean pccl_testrange( pccl* ccl, wchar_t begin, wchar_t end )
+
+**Usage:**
+
+Tests a character-class to match a character range.
+
+*ccl* is a pointer to the character-class to be tested.
+*begin* is the begin of character-range to be tested.
+*end* is the end of character-range to be tested.
+
+Returns TRUE if the entire character range matches the class, and FALSE if not.
+
+### pccl_to_str 
+
+**Definition:**
+
+char* pccl_to_str( pccl* ccl, pboolean escape )
+
+**Usage:**
+
+Converts a character-class back to a string representation of the
+character-class definition, which in turn can be converted back into a
+character-class using [pccl_create()](#fn_pccl_create).
+
+*ccl* is the pointer to character-class to be converted.
+*escape*, if TRUE, escapes "unprintable" characters in their hexadecimal
+representation. If FALSE, it prints all characters, except the zero, which will
+be returned as "\0"
+
+Returns a pointer to the generated string that represents the charclass.
+The returned pointer belongs to the *ccl* and is managed by the
+character-class handling functions, so it should not be freed manually.
+
+### pccl_union 
+
+**Definition:**
+
+pccl* pccl_union( pccl* ccl, pccl* add )
+
+**Usage:**
+
+Creates the union of two character-classes and returns the newly created,
+normalized character-class.
+
+*ccl* is the pointer to the character-class that will be extended to all
+ranges contained in *add*. *add* is the character-class that will be joined
+with *ccl*.
+
+The function creates and returns a new character-class that is the union
+of *ccl* and *add*.
+
+### pdbl_to_str 
+
+**Definition:**
+
+char* pdbl_to_str( double d )
+
+**Usage:**
+
+Converts a double-value into an allocated string buffer.
+
+*d* is the double value to become converted. Zero-digits behind the decimal
+dot will be removed after conversion, so 1.65000 will become "1.65" in its
+string representation.
+
+Returns a pointer to the newly allocated string, which contains the
+string-representation of the double value. This pointer must be released
+by the caller.
+
+### pdbl_to_wcs 
+
+**Definition:**
+
+wchar_t* pdbl_to_wcs( double d )
+
+**Usage:**
+
+Converts a double-value into an allocated wide-character string buffer.
+
+*d* is the double value to become converted. Zero-digits behind the decimal
+dot will be removed after conversion, so 1.65000 will become L"1.65" in its
+wide-character string representation.
+
+Returns a pointer to the newly allocated wide-character string, which contains
+the string-representation of the double value. This pointer must be released
+by the caller.
+
+### pfileexists 
+
+**Definition:**
+
+pboolean pfileexists( char* filename )
+
+**Usage:**
+
+Checks for file existence.
+
+*filename* is the path to a file that will be checked.
+
+Returns TRUE on success, FALSE if not.
+
+### pfiletostr 
+
+**Definition:**
+
+pboolean pfiletostr( char** cont, char* filename )
+
+**Usage:**
+
+Maps the content of an entire file into memory.
+
+*cont* is the file content return pointer.
+*filename* is the path to file to be mapped
+
+The function returns TRUE on success.
+
+### pfree 
+
+**Definition:**
+
+void* pfree( void* ptr )
+
+**Usage:**
+
+Free allocated memory.
+
+The function is a wrapper for the system-function [free()](#fn_free), but accepts
+NULL-pointers and returns a (void*)NULL pointer for direct pointer memory reset.
+
+It could be used this way to immediately reset a pointer to NULL:
+
+    ptr = pfree( ptr );
+
+*ptr* is the pointer to be freed.
+
+Always returns (void*)NULL.
+
+### pgetline 
+
+**Definition:**
+
+size_t pgetline( char** lineptr, size_t* n, FILE* stream )
+
+**Usage:**
+
+Reads an entire line from *stream*, storing the address of the buffer
+containing the text into *lineptr*. The buffer is zero-terminated and
+includes the newline character, if one was found.
+
+This function serves as a platform-independent implementation for POSIX [getline()](#fn_getline), which is wrapped in case of POSIX.
+
+### pgetopt 
+
+**Definition:**
+
+int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx )
+
+**Usage:**
+
+Command-line option interpreter.
+
+This function works similar to the [getopt()](#fn_getopt) functions of the GNU Standard
+Library, but uses a different style of parameter submit.
+
+It supports both short- and long- option-style parameters.
+
+ * *opt* is a pointer to a buffer with enough space to store the requested parameter to. For short parameters, this is only one char, for long-parameters the full name. The string will be zero-terminated.
+ * *param* is a pointer to store a possible parameter value to, if the detected option allows for parameters.
+ * *next* receives the index in argv of the next evaluated option. It can be left (int*)NULL. It points to the next valid index in argv[] after all parameters have been evaluated. Check it for < argc, to point to valid data.
+ * *argc* is the argument count as taken from the [main()](#fn_main) function.
+ * *argv* are the argument values as taken from the [main()](#fn_main) function.
+ * *optstr* contains the possible short-options. This is a string where each character defines an option. If an option takes a parameter, a colon (:) is submitted. E.g. "abc:def:g". The Options "-c" and "-f" will take a parameter that is
+returned to param. This parameter can be (char*)NULL.
+ * *loptstr* contains the possible long-options. This is a string containing all long option names, each separated by a blank. Long options taking parameters have an attached colon (:) to the name.  E.g. "hello world: next" defines three long options, where option 'world' takes one parameter that is returned to param. This parameter can be (char*)NULL.
+ * *idx* is the index of the requested option, 0 for the first option behind argv[0].
+
+The function must be called multiple times to read all command-line parameters
+and to react on the parameters.
+
+The function returns 0, if the parameter with the given index was
+successfully evaluated. It returns 1, if there are still command-line
+parameters, but not as part of options. The parameter *param* will receive
+the given pointer. It returns -1 if no more options could be read, or if an
+option could not be evaluated (unknown option). In such case, *param* will
+hold a string to the option that is unknown to [pgetopt()](#fn_pgetopt).
+
+**Example:**
+
+This is a minimal example showing the usage of [pgetopt()](#fn_pgetopt) in a real program:
+
+    #include <phorward.h>
+    
+    int main( int argc, char** argv )
+    {
+        int			i;
+        int			rc;
+        int			next;
+        char		opt			[ 10 + 1 ];
+        char*		param;
+    
+        for( i = 0; ( rc = pgetopt( opt, &param, &next, argc, argv,
+                                    "ho:", "help output:", i ) ) == 0; i++ )
+        {
+            if( !strcmp( opt, "help" ) || !strcmp( opt, "h" ) )
+                printf( "Help\n" );
+            else if( !strcmp( opt, "output" ) || !strcmp( opt, "o" ) )
+                printf( "Output = >%s<\n", param );
+        }
+    
+        if( rc < 0 && param )
+        {
+            fprintf( stderr, "Unknown option '%s'\n", param );
+            return 1;
+        }
+    
+        for( i = 0; next < argc; next++, i++ )
+            printf( "Parameter %d = >%s<\n", i, argv[ next ] );
+    
+        return 0;
+    }
+
+### plex_create 
+
+**Definition:**
+
+plex* plex_create( int flags )
+
+**Usage:**
+
+Constructor function to create a new plex object.
+
+*flags* can be a combination of compile- and runtime-flags and are merged
+with special compile-time flags provided for each pattern.
+
+| Flag |Usage|
+|---------------|
+|PREGEX_COMP_WCHAR |The regular expressions are provided as wchar_t.|
+|PREGEX_COMP_NOANCHORS |Ignore anchor tokens, handle them as normal characters|
+|PREGEX_COMP_NOREF |Don't compile references.|
+|PREGEX_COMP_NONGREEDY |Compile all patterns to be forced nongreedy.|
+|PREGEX_COMP_NOERRORS |Don't report errors, and try to compile as much as possible|
+|PREGEX_COMP_INSENSITIVE |Parse regular expressions as case insensitive.|
+|PREGEX_COMP_STATIC |The regular expressions passed should be converted 1:1 as if it were a string-constant. Any regex-specific symbols will be ignored and taken as if escaped.|
+|PREGEX_RUN_WCHAR |Run regular expressions with wchar_t as input.|
+|PREGEX_RUN_NOANCHORS |Ignore anchors while processing the lexer.|
+|PREGEX_RUN_NOREF |Don't create references.|
+|PREGEX_RUN_NONGREEDY |Force run lexer nongreedy.|
+|PREGEX_RUN_DEBUG |Debug mode; output some debug info to stderr.|
+
+On success, the function returns the allocated pointer to a plex-object.
+This must be freed later using [plex_free()](#fn_plex_free).
+
+### plex_define 
+
+**Definition:**
+
+pregex_ptn* plex_define( plex* lex, char* pat, int match_id, int flags )
+
+**Usage:**
+
+Defines and parses a regular expression pattern into the plex-object.
+
+*pat* is the regular expression string, or a pointer to a pregex_ptn*
+structure in case PREGEX_COMP_PTN is flagged.
+
+*match_id* must be a token match ID, a value > 0. The lower the match ID is,
+the higher precedence takes the appended expression when there are multiple
+matches.
+
+*flags* may ONLY contain compile-time flags, and is combined with the
+compile-time flags of the plex-object provided at [plex_create()](#fn_plex_create).
+
+| Flag |Usage|
+|---------------|
+|PREGEX_COMP_WCHAR |The regular expressions are provided as wchar_t.|
+|PREGEX_COMP_NOANCHORS |Ignore anchor tokens, handle them as normal characters|
+|PREGEX_COMP_NOREF |Don't compile references.|
+|PREGEX_COMP_NONGREEDY |Compile all patterns to be forced nongreedy.|
+|PREGEX_COMP_NOERRORS |Don't report errors, and try to compile as much as possible|
+|PREGEX_COMP_INSENSITIVE |Parse regular expressions as case insensitive.|
+|PREGEX_COMP_STATIC |The regular expressions passed should be converted 1:1 as if it were a string-constant. Any regex-specific symbols will be ignored and taken as if escaped.|
+|PREGEX_COMP_PTN |The regular expression passed already is a pattern, and shall be integrated.|
+
+Returns a pointer to the pattern object that just has been added. This allows
+for changing e.g. the accept flag later on. In case of an error, the value
+returned is NULL.
+
+### plex_dump_dot 
+
+**Definition:**
+
+void plex_dump_dot( FILE* stream, plex* lex )
+
+**Usage:**
+
+Dumps the DFA of a *lex* lexer object into a DOT-formatted graph output.
+
+The graph can be made visible with tools like Graphviz
+(http://www.graphviz.org/) and similar.
+
+*stream* is the output stream to be used. This is stdout when NULL is
+provided.
+
+*lex* is the plex object, which DFA shall be dumped.
+
+### plex_free 
+
+**Definition:**
+
+plex* plex_free( plex* lex )
+
+**Usage:**
+
+Destructor function for a plex-object.
+
+*lex* is the pointer to a plex-structure that will be released.
+
+Always returns (plex*)NULL.
+
+### plex_lex 
+
+**Definition:**
+
+int plex_lex( plex* lex, char* start, char** end )
+
+**Usage:**
+
+Performs a lexical analysis using the object *lex* on pointer *start*.
+
+If a token can be matched, the function returns the related id of the matching
+pattern, and *end* receives the pointer to the last matched character.
+
+The function returns 0 in case that there was no direct match.
+The function [plex_next()](#fn_plex_next) ignores unrecognized symbols and directly moves to the
+next matching pattern.
+
+### plex_next 
+
+**Definition:**
+
+char* plex_next( plex* lex, char* start, unsigned int* id, char** end )
+
+**Usage:**
+
+Performs lexical analysis using *lex* from begin of pointer *start*, to
+the next matching token.
+
+*start* has to be a zero-terminated string or wide-character string (according
+to the configuration of the plex-object).
+
+If a token can be matched, the function returns the pointer to the position
+where the match starts at. *id* receives the id of the matching pattern,
+*end* receives the end pointer of the match, when provided. *id* and *end*
+can be omitted by providing NULL-pointers.
+
+The function returns (char*)NULL in case that there is no match.
+
+### plex_prepare 
+
+**Definition:**
+
+pboolean plex_prepare( plex* lex )
+
+**Usage:**
+
+Prepares the DFA state machine of a plex-object *lex* for execution.
+
+### plex_reset 
+
+**Definition:**
+
+pboolean plex_reset( plex* lex )
+
+**Usage:**
+
+Resets the DFA state machine of a plex-object *lex*.
+
+### plex_tokenize 
+
+**Definition:**
+
+size_t plex_tokenize( plex* lex, char* start, parray** matches )
+
+**Usage:**
+
+Tokenizes the string beginning at *start* using the lexical analyzer
+*lex*.
+
+*start* has to be a zero-terminated string or wide-character string (according
+to the configuration of the plex-object).
+
+The function initializes and fills the array *matches*, if provided, with
+items of size prange. It returns the total number of matches.
+
+### plexctx_create 
+
+**Definition:**
+
+plexctx* plexctx_create( plex* lex )
+
+**Usage:**
+
+Creates a new lexer context for lexer *par*.
+
+lexer contexts are objects holding state and semantics information on a
+current parsing process.
+
+### plexctx_free 
+
+**Definition:**
+
+plexctx* plexctx_free( plexctx* ctx )
+
+**Usage:**
+
+Frees the lexer context object *ctx*.
+
+### plexctx_init 
+
+**Definition:**
+
+plexctx* plexctx_init( plexctx* ctx, plex* lex )
+
+**Usage:**
+
+Initializes a lexer context *ctx* for lexer *lex*.
+
+Lexer contexts are objects holding state and semantics information on a current
+lexing process.
+
+### plexctx_lex 
+
+**Definition:**
+
+pboolean plexctx_lex( plexctx* ctx, wchar_t ch )
+
+**Usage:**
+
+Performs a lexical analysis using the object *lex* using context *ctx*
+and character *ch*.
+
+### plexctx_reset 
+
+**Definition:**
+
+plexctx* plexctx_reset( plexctx* ctx )
+
+**Usage:**
+
+Resets the lexer context object *ctx*.
+
+### plist_access 
+
+**Definition:**
+
+void* plist_access( plistel* e )
+
+**Usage:**
+
+Access data-content of the current element *e*.
+
+### plist_clear 
+
+**Definition:**
+
+pboolean plist_clear( plist* list )
+
+**Usage:**
+
+Clear content of the list *list*.
+
+The function has nearly the same purpose as [plist_erase()](#fn_plist_erase), except that
+the entire list is only cleared, but if the list was initialized with
+PLIST_MOD_RECYCLE, existing pointers are held for later usage.
+
+### plist_concat 
+
+**Definition:**
+
+size_t plist_concat( plist* dest, plist* src )
+
+**Usage:**
+
+Concats the elements of list *src* to the elements of list *dest*.
+
+The function will not run if both lists have different element size settings.
+
+The function returns the number of elements added to *dest*.
+
+### plist_count 
+
+**Definition:**
+
+int plist_count( plist* l )
+
+**Usage:**
+
+Return element count of list *l*.
+
+### plist_create 
+
+**Definition:**
+
+plist* plist_create( size_t size, short flags )
+
+**Usage:**
+
+Create a new plist as an object with an element allocation size *size*.
+Providing a *size* of 0 causes automatic configuration of PLIST_MOD_PTR.
+
+*flags* defines an optional flag configuration that modifies the behavior
+of the linked list and hash table usage. The flags can be merged together using
+bitwise or (|).
+
+Possible flags are:
+
+ * **PLIST_MOD_NONE** for no special flagging.
+ * **PLIST_MOD_PTR** to use the plist-object in pointer-mode: Each plistel-element cointains only a pointer to an object in the memory and returns this, instead of copying from or into pointers.
+ * **PLIST_MOD_RECYCLE** to configure that elements that are removed during list usage will be reused later.
+ * **PLIST_MOD_AUTOSORT** to automatically sort elements on insert operations.
+ * **PLIST_MOD_EXTKEYS** to configure that string pointers to hash-table keyvalues are stored elsewhere, so the plist-module only uses the original pointers instead of copying them.
+ * **PLIST_MOD_PTRKEYS** disables string keys and uses the pointer/value provided as key directly.
+ * **PLIST_MOD_KEEPKEYS** holds the correct element insertation sequence. In case of a key collision, the inserted element is inserted behind the colliding element rather than before.
+ * **PLIST_MOD_UNIQUE** to disallow hash-table-key collisions, so elements with a key that already exist in the object will be rejected.
+ * **PLIST_MOD_WCHAR** to handle all key values as wide-character strings.
+
+Use [plist_free()](#fn_plist_free) to erase and release the returned list object.
+
+### plist_dbgstats 
+
+**Definition:**
+
+void plist_dbgstats( FILE* stream, plist* list )
+
+**Usage:**
+
+Prints some statistics for the hashmap in *list* on stderr.
+
+### plist_diff 
+
+**Definition:**
+
+int plist_diff( plist* left, plist* right )
+
+**Usage:**
+
+Tests the contents (data parts) of the list *left* and the list *right*
+for equal elements.
+
+The function returns a value < 0 if *left* is lower *right*, a value > 0
+if *left* is greater *right* and a value == 0 if *left* is equal to
+*right*.
+
+### plist_dup 
+
+**Definition:**
+
+plist* plist_dup( plist* list )
+
+**Usage:**
+
+Creates an independent copy of *list* and returns it.
+
+All elements of *list* are duplicated and stand-alone.
+
+### plist_erase 
+
+**Definition:**
+
+pboolean plist_erase( plist* list )
+
+**Usage:**
+
+Erase all allocated content of the list *list*.
+
+The object *list* will be still alive, but must be re-configured
+using [plist_init()](#fn_plist_init).
+
+### plist_first 
+
+**Definition:**
+
+plistel* plist_first( plist* l )
+
+**Usage:**
+
+Return first element of list *l*.
+
+### plist_free 
+
+**Definition:**
+
+plist* plist_free( plist* list )
+
+**Usage:**
+
+Releases all the memory *list* uses and destroys the list object.
+
+The function always returns (plist*)NULL.
+
+### plist_get 
+
+**Definition:**
+
+plistel* plist_get( plist* list, size_t n )
+
+**Usage:**
+
+Retrieve list element by its index from the begin.
+
+The function returns the *n*th element of the list *list*.
+
+### plist_get_by_key 
+
+**Definition:**
+
+plistel* plist_get_by_key( plist* list, char* key )
+
+**Usage:**
+
+Retrieve list element by hash-table *key*.
+
+This function tries to fetch a list entry plistel from list *list*
+with the key *key*.
+
+### plist_get_by_nkey 
+
+**Definition:**
+
+plistel* plist_get_by_nkey( plist* list, char* key, size_t n )
+
+**Usage:**
+
+Retrieve list element by hash-table *key*,
+where key is limited by *n* bytes.
+
+This function tries to fetch a list entry plistel from list *list*
+with the key *key* over a size of *n* bytes.
+
+### plist_get_by_ptr 
+
+**Definition:**
+
+plistel* plist_get_by_ptr( plist* list, void* ptr )
+
+**Usage:**
+
+Retrieve list element by pointer.
+
+This function returns the list element of the unit within the list *list*
+that is the pointer *ptr*.
+
+### plist_getkey 
+
+**Definition:**
+
+plistel* plist_getkey( plist* list, size_t n )
+
+**Usage:**
+
+Retrieve list keys by their index from the begin.
+
+The function returns the *n*th key within the list *list*.
+
+### plist_hashnext 
+
+**Definition:**
+
+plistel* plist_hashnext( plistel* u )
+
+**Usage:**
+
+Access next element with same hash value of current unit *u*.
+
+### plist_hashprev 
+
+**Definition:**
+
+plistel* plist_hashprev( plistel* u )
+
+**Usage:**
+
+Access previous element with same hash value of a current unit *u*.
+
+### plist_init 
+
+**Definition:**
+
+pboolean plist_init( plist* list, size_t size, short flags )
+
+**Usage:**
+
+Initialize the list *list* with an element allocation size *size*.
+
+*flags* defines an optional flag configuration that modifies the behavior
+of the linked list and hash table usage.
+
+### plist_insert 
+
+**Definition:**
+
+plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
+
+**Usage:**
+
+Insert *src* as element to the list *list* before position *pos*.
+
+If *pos* is NULL, the new element will be attached to the end of the
+list.
+
+If *key* is not NULL, the element will also be added to the lists hash table.
+
+If *src* is NULL, a zero-initialized element is inserted into the list for
+further processing.
+
+### plist_iter 
+
+**Definition:**
+
+void plist_iter( plist* list, plistelfn callback )
+
+**Usage:**
+
+Iterates over *list*.
+
+Iterates over all items of *list* and calls the function *callback* on
+every item. The callback function receives the plistel-element pointer of
+the list element.
+
+### plist_iter_access 
+
+**Definition:**
+
+void plist_iter_access( plist* list, plistfn callback )
+
+**Usage:**
+
+Iterates over *list* and accesses every item.
+
+Iterates over all items of *list* and calls the function *callback* on
+every item's access. The callback function receives a pointer to the accessed
+element.
+
+### plist_key 
+
+**Definition:**
+
+char* plist_key( plistel* e )
+
+**Usage:**
+
+Access key-content of the current element *e*.
+
+### plist_last 
+
+**Definition:**
+
+plistel* plist_last( plist* l )
+
+**Usage:**
+
+Return last element of list *l*.
+
+### plist_malloc 
+
+**Definition:**
+
+void* plist_malloc( plist* list )
+
+**Usage:**
+
+Allocates memory for a new element in list *list*, push it to the end and
+return the pointer to this.
+
+The function works as a shortcut for [plist_access()](#fn_plist_access) in combination with [plist_push()](#fn_plist_push).
+
+### plist_next 
+
+**Definition:**
+
+plistel* plist_next( plistel* u )
+
+**Usage:**
+
+Access next element of current unit *u*.
+
+### plist_offset 
+
+**Definition:**
+
+int plist_offset( plistel* u )
+
+**Usage:**
+
+Return the offset of the unit *u* within the list it belongs to.
+
+### plist_pop 
+
+**Definition:**
+
+pboolean plist_pop( plist* list, void* dest )
+
+**Usage:**
+
+Pop last element to *dest* off the list *list*.
+
+Like *list* would be a stack, the last element of the list is popped and
+its content is written to *dest*, if provided at the end of the list.
+
+*dest* can be omitted and given as (void*)NULL, so the last element will
+be popped off the list and discards.
+
+### plist_prev 
+
+**Definition:**
+
+plistel* plist_prev( plistel* u )
+
+**Usage:**
+
+Access previous element of current unit *u*.
+
+### plist_push 
+
+**Definition:**
+
+plistel* plist_push( plist* list, void* src )
+
+**Usage:**
+
+Push *src* to end of *list*.
+
+Like *list* would be a stack, *src* is pushed at the end of the list.
+This function can only be used for linked lists without the hash-table feature
+in use.
+
+### plist_remove 
+
+**Definition:**
+
+pboolean plist_remove( plist* list, plistel* e )
+
+**Usage:**
+
+Removes the element *e* from the *list* and frees it or puts
+it into the unused element chain if PLIST_MOD_RECYCLE is flagged.
+
+### plist_rget 
+
+**Definition:**
+
+plistel* plist_rget( plist* list, size_t n )
+
+**Usage:**
+
+Retrieve list element by its index from the end.
+
+The function returns the *n*th element of the list *list*
+from the right.
+
+### plist_riter 
+
+**Definition:**
+
+void plist_riter( plist* list, plistelfn callback )
+
+**Usage:**
+
+Iterates backwards over *list*.
+
+Backwardly iterates over all items of *list* and calls the function
+*callback* on every item. The callback function receives the plistel-element
+pointer of the list element.
+
+### plist_riter_access 
+
+**Definition:**
+
+void plist_riter_access( plist* list, plistfn callback )
+
+**Usage:**
+
+Iterates backwards over *list*.
+
+Backwardly iterates over all items of *list* and calls the function
+*callback* on every  item's access. The callback function receives a pointer
+to the accessed element.
+
+### plist_rmalloc 
+
+**Definition:**
+
+void* plist_rmalloc( plist* list )
+
+**Usage:**
+
+Allocates memory for a new element in list *list*, shift it at the begin
+and return the pointer to this.
+
+The function works as a shortcut for [plist_access()](#fn_plist_access) in combination with [plist_shift()](#fn_plist_shift).
+
+### plist_set_comparefn 
+
+**Definition:**
+
+pboolean plist_set_comparefn( plist* list, int (*comparefn)( plist*, plistel*, plistel* ) )
+
+**Usage:**
+
+Set compare function.
+
+If no compare function is set or NULL is provided, [memcmp()](#fn_memcmp) will be used
+as default fallback.
+
+### plist_set_printfn 
+
+**Definition:**
+
+pboolean plist_set_printfn( plist* list, void (*printfn)( plist* ) )
+
+**Usage:**
+
+Set an element dump function.
+
+### plist_set_sortfn 
+
+**Definition:**
+
+pboolean plist_set_sortfn( plist* list, int (*sortfn)( plist*, plistel*, plistel* ) )
+
+**Usage:**
+
+Set sort function.
+
+If no sort function is given, the compare function set by [plist_set_comparefn()](#fn_plist_set_comparefn)
+is used. If even unset, [memcmp()](#fn_memcmp) will be used.
+
+### plist_shift 
+
+**Definition:**
+
+plistel* plist_shift( plist* list, void* src )
+
+**Usage:**
+
+Shift *src* at begin of *list*.
+
+Like *list* would be a queue, *src* is shifted at the beginning of the list.
+This function can only be used for linked lists without the hash-table feature
+in use.
+
+### plist_size 
+
+**Definition:**
+
+int plist_size( plist* l )
+
+**Usage:**
+
+Return element size of list *l*.
+
+### plist_sort 
+
+**Definition:**
+
+pboolean plist_sort( plist* list )
+
+**Usage:**
+
+Sorts *list* according to the sort-function that was set for the list.
+
+To sort only parts of a list, use [plist_subsort()](#fn_plist_subsort).
+
+The sort-function can be modified by using [plist_set_sortfn()](#fn_plist_set_sortfn).
+
+The default sort function sorts the list by content using the [memcmp()](#fn_memcmp)
+standard function.
+
+### plist_subsort 
+
+**Definition:**
+
+pboolean plist_subsort( plist* list, plistel* from, plistel* to )
+
+**Usage:**
+
+Sorts *list* between the elements *from* and *to* according to the
+sort-function that was set for the list.
+
+To sort the entire list, use [plist_sort()](#fn_plist_sort).
+
+The sort-function can be modified by using [plist_set_sortfn()](#fn_plist_set_sortfn).
+
+The default sort function sorts the list by content using the [memcmp()](#fn_memcmp)
+standard function.
+
+### plist_swap 
+
+**Definition:**
+
+pboolean plist_swap( plist* l, plistel* a, plistel* b )
+
+**Usage:**
+
+Swaps the positions of the list elements *a* and *b* with each
+other. The elements must be in the same plist object, else the function
+returns FALSE.
+
+### plist_union 
+
+**Definition:**
+
+size_t plist_union( plist* all, plist* from )
+
+**Usage:**
+
+Unions elements from list *from* into list *all*.
+
+An element is only added to *all*, if there exists no equal element with the
+same size and content.
+
+The function will not run if both lists have different element size settings.
+
+The function returns the number of elements added to *from*.
+
+### plist_unshift 
+
+**Definition:**
+
+pboolean plist_unshift( plist* list, void* dest )
+
+**Usage:**
+
+Take first element of *list* and write it to *dest*.
+
+Like *list* would be a queue, the first element of the list is taken and
+its content is written to *dest*.
+
+*dest* can be omitted and given as (void*)NULL, so the first element from
+*list* will be taken and discarded.
+
+### pmalloc 
+
+**Definition:**
+
+void* pmalloc( size_t size )
+
+**Usage:**
+
+Dynamically allocate heap memory.
+
+The function is a wrapper for the system function [malloc()](#fn_malloc), but with memory
+initialization to zero, and immediately stops the program if no more memory
+can be allocated.
+
+*size* is the size of memory to be allocated, in bytes.
+
+The function returns the allocated heap memory pointer. The returned memory
+address should be freed using [pfree()](#fn_pfree) after it is not required anymore.
+
+### pmemdup 
+
+**Definition:**
+
+void* pmemdup( void* ptr, size_t size )
+
+**Usage:**
+
+Duplicates a memory entry onto the heap.
+
+*ptr* is the pointer to the memory to be duplicated.
+*size* is the size of pointer's data storage.
+
+Returns the new pointer to the memory copy. This should be cast back to the
+type of *ptr* again.
+
+### prealloc 
+
+**Definition:**
+
+void* prealloc( void* oldptr, size_t size )
+
+**Usage:**
+
+Dynamically (re)allocate memory on the heap.
+
+The function wraps the system-function [realloc()](#fn_realloc), but always accepts a
+NULL-pointer and immediately stops the program if no more memory can be
+allocated.
+
+*oldptr* is the pointer to be reallocated. If this is (void*)NULL, [prealloc()](#fn_prealloc) works like a normal call to [pmalloc()](#fn_pmalloc).
+
+*size* is the size of memory to be reallocated, in bytes.
+
+The function returns the allocated heap memory pointer. The returned memory
+address should be freed using [pfree()](#fn_pfree) after it is not required any more.
+
+### pregex_create 
+
+**Definition:**
+
+pregex* pregex_create( char* pat, int flags )
+
+**Usage:**
+
+Constructor function to create a new pregex object.
+
+*pat* is a string providing a regular expression pattern.
+*flags* can be a combination of compile- and runtime-flags.
+
+| Flag |Usage|
+|---------------|
+|PREGEX_COMP_WCHAR |The regular expression *pat* is provided as wchar_t.|
+|PREGEX_COMP_NOANCHORS |Ignore anchor tokens, handle them as normal characters|
+|PREGEX_COMP_NOREF |Don't compile references.|
+|PREGEX_COMP_NONGREEDY |Compile regex to be forced non-greedy.|
+|PREGEX_COMP_NOERRORS |Don't report errors, and try to compile as much as possible|
+|PREGEX_COMP_INSENSITIVE |Parse regular expression as case insensitive.|
+|PREGEX_COMP_STATIC |The regular expression passed should be converted 1:1 as it where a string-constant. Any regex-specific symbols will be ignored and taken as they where escaped.|
+|PREGEX_RUN_WCHAR |Run regular expression with wchar_t as input.|
+|PREGEX_RUN_NOANCHORS |Ignore anchors while processing the regex.|
+|PREGEX_RUN_NOREF |Don't create references.|
+|PREGEX_RUN_NONGREEDY |Force run regular expression non-greedy.|
+|PREGEX_RUN_DEBUG |Debug mode; output some debug to stderr.|
+
+On success, the function returns the allocated pointer to a pregex-object.
+This must be freed later using [pregex_free()](#fn_pregex_free).
+
+### pregex_find 
+
+**Definition:**
+
+char* pregex_find( pregex* regex, char* start, char** end )
+
+**Usage:**
+
+Find a match for the regular expression *regex* from begin of pointer
+*start*.
+
+*start* has to be a zero-terminated string or wide-character string (according
+to the configuration of the pregex-object).
+
+If the expression can be matched, the function returns the pointer to the
+position where the match begins. *end* receives the end pointer of the match,
+when provided.
+
+The function returns (char*)NULL in case that there is no match.
+
+### pregex_findall 
+
+**Definition:**
+
+int pregex_findall( pregex* regex, char* start, parray** matches )
+
+**Usage:**
+
+Find all matches for the regular expression *regex* from begin of pointer
+*start*, and optionally return matches as an array.
+
+*start* has to be a zero-terminated string or wide-character string (according
+to the configuration of the pregex-object).
+
+The function fills the array *matches*, if provided, with items of size
+prange. It returns the total number of matches.
+
+### pregex_free 
+
+**Definition:**
+
+pregex* pregex_free( pregex* regex )
+
+**Usage:**
+
+Destructor function for a pregex-object.
+
+*regex* is the pointer to a pregex-structure that will be released.
+
+Returns always (pregex*)NULL.
+
+### pregex_match 
+
+**Definition:**
+
+pboolean pregex_match( pregex* regex, char* start, char** end )
+
+**Usage:**
+
+Tries to match the regular expression *regex* at pointer *start*.
+
+If the expression can be matched, the function returns TRUE and *end* receives
+the pointer to the last matched character.
+
+### pregex_ptn_create 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create( char* pat, int flags )
+
+**Usage:**
+
+Constructs and parses a new pregex_ptn-structure from *pat*.
+
+This function is a shortcut for a call to [pregex_ptn_parse()](#fn_pregex_ptn_parse). [pregex_ptn_create()](#fn_pregex_ptn_create) directly takes *pat* as its input and returns the parsed
+pregex_ptn structure which represents the internal representation of the
+regular expression *pat*.
+
+*flags* provides a combination of compile-time modifier flags
+(PREGEX_COMP_...) if wanted, or 0 (PREGEX_FLAG_NONE) if no flags should be
+used.
+
+Returns an allocated pregex_ptn-node which must be freed using [pregex_ptn_free()](#fn_pregex_ptn_free)
+when it is not used anymore.
+
+### pregex_ptn_create_alt 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_alt( pregex_ptn* left, ... )
+
+**Usage:**
+
+Constructs alternations of multiple patterns.
+
+*left* is the first pattern of the alternation.
+*...* are multiple pregex_ptn-pointers follow which become part of the
+alternation. The last node must be specified as (pregex_ptn*)NULL.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence. If there is only *left* assigned without other alternation
+patterns, *left* will be returned back.
+
+### pregex_ptn_create_char 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_char( pccl* ccl )
+
+**Usage:**
+
+Constructs a character-class pattern.
+
+*ccl* is the pointer to a character class. This pointer is not duplicated,
+and will be directly assigned to the object.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+
+### pregex_ptn_create_kle 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_kle( pregex_ptn* ptn )
+
+**Usage:**
+
+Constructs a kleene-closure repetition, allowing for multiple or none
+repetitions of the specified pattern.
+
+*ptn* is the pattern that will be configured for kleene-closure.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+
+### pregex_ptn_create_opt 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_opt( pregex_ptn* ptn )
+
+**Usage:**
+
+Constructs an optional-closure, allowing for one or none specified pattern.
+
+*ptn* is the pattern to be configured for optional closure.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+
+### pregex_ptn_create_pos 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_pos( pregex_ptn* ptn )
+
+**Usage:**
+
+Constructs an positive-closure, allowing for one or multiple specified
+pattern.
+
+*ptn* is the pattern to be configured for positive closure.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+
+### pregex_ptn_create_refsub 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_refsub( pregex_ptn* ptn )
+
+**Usage:**
+
+Constructs a sub-pattern as backreference (like with parantheses).
+
+*ptn* is the pattern that becomes the sub-ordered pattern.
+
+Returns a pregex_ptn-node which can be child of another pattern construct
+or part of a sequence.
+
+### pregex_ptn_create_seq 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_seq( pregex_ptn* first, ... )
+
+**Usage:**
+
+Constructs a sequence of multiple patterns.
+
+*first* is the beginning pattern of the sequence. *...* follows as parameter
+list of multiple patterns that become part of the sequence. The last pointer
+must be specified as (pregex_ptn*)NULL to mark the end of the list.
+
+Always returns the pointer to *first*.
+
+### pregex_ptn_create_string 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_string( char* str, int flags )
+
+**Usage:**
+
+Constructs a pattern for a static string.
+
+*str* is the input string to be converted.
+*flags* are optional flags for wide-character support.
+
+Returns a pregex_ptn-node which can be child of another pattern construct or
+part of a sequence.
+
+### pregex_ptn_create_sub 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_create_sub( pregex_ptn* ptn )
+
+**Usage:**
+
+Constructs a sub-pattern (like with parantheses).
+
+*ptn* is the pattern that becomes the sub-ordered pattern.
+
+Returns a pregex_ptn-node which can be child of another pattern construct
+or part of a sequence.
+
+### pregex_ptn_dup 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_dup( pregex_ptn* ptn )
+
+**Usage:**
+
+Duplicate *ptn* into a stand-alone 1:1 copy.
+
+### pregex_ptn_free 
+
+**Definition:**
+
+pregex_ptn* pregex_ptn_free( pregex_ptn* ptn )
+
+**Usage:**
+
+Releases memory of a pattern including all its subsequent and following
+patterns.
+
+*ptn* is the pattern object to be released.
+
+Always returns (pregex_ptn*)NULL.
+
+### pregex_ptn_parse 
+
+**Definition:**
+
+pboolean pregex_ptn_parse( pregex_ptn** ptn, char* str, int flags )
+
+**Usage:**
+
+Parse a regular expression pattern string into a pregex_ptn structure.
+
+*ptn* is the return pointer receiving the root node of the generated pattern.
+
+*str* is the pointer to the string which contains the pattern to be parsed. If
+PREGEX_COMP_WCHAR is assigned in *flags*, this pointer must be set to a
+wchar_t-array holding a wide-character string.
+
+*flags* provides compile-time modifier flags (PREGEX_COMP_...).
+
+Returns TRUE on success.
+
+### pregex_ptn_print 
+
+**Definition:**
+
+void pregex_ptn_print( pregex_ptn* ptn, int rec )
+
+**Usage:**
+
+A debug function to print a pattern's hierarchical structure to stderr.
+
+*ptn* is the pattern object to be printed.
+*rec* is the recursion depth, set this to 0 at initial call.
+
+### pregex_ptn_to_dfa 
+
+**Definition:**
+
+pboolean pregex_ptn_to_dfa( pregex_dfa* dfa, pregex_ptn* ptn )
+
+**Usage:**
+
+Converts a pattern-structure into a DFA state machine.
+
+*dfa* is the DFA state machine structure that receives the compiled result of
+the pattern. *dfa* must be initialized!
+*ptn* is the pattern structure that will be converted and extended into
+the DFA state machine.
+
+Returns TRUE on success.
+
+### pregex_ptn_to_dfatab 
+
+**Definition:**
+
+int pregex_ptn_to_dfatab( wchar_t*** dfatab, pregex_ptn* ptn )
+
+**Usage:**
+
+Converts a pattern-structure into a DFA state machine *dfatab*.
+
+*ptn* is the pattern structure that will be converted into a DFA state
+machine.
+
+*dfatab* is a pointer to a variable that receives the allocated DFA state machine, where
+each row forms a state that is made up of columns described in the table below.
+
+| Column / Index |Content|
+|---------------|
+|0 |Total number of columns in the current row|
+|1 |Match ID if > 0, or 0 if the state is not an accepting state|
+|2 |Match flags (anchors, greedyness, (PREGEX_FLAG_*))|
+|3 |Reference flags; The index of the flagged bits defines the number of reference|
+|4 |Default transition from the current state. If there is no transition, its value is set to the number of all states.|
+|5 |Transition: from-character|
+|6 |Transition: to-character|
+|7 |Transition: Goto-state|
+|... |more triples follow for each transition|
+
+Example for a state machine that matches the regular expression `@[a-z0-9]+`
+that has match 1 and no references:
+
+    8 0 0 0 3 64 64 2
+    11 1 0 0 3 48 57 1 97 122 1
+    11 0 0 0 3 48 57 1 97 122 1
+
+Interpretation:
+
+    00: col= 8 acc= 0 flg= 0 ref= 0 def= 3 tra=064(@);064(@):02
+    01: col=11 acc= 1 flg= 0 ref= 0 def= 3 tra=048(0);057(9):01 tra=097(a);122(z):01
+    02: col=11 acc= 0 flg= 0 ref= 0 def= 3 tra=048(0);057(9):01 tra=097(a);122(z):01
+
+A similar dump like this interpretation above will be printed to stderr by the
+function when *dfatab* is provided as (long***)NULL.
+
+The pointer assigned to *dfatab* must be freed after usage using a for-loop:
+
+    for( i = 0; i < dfatab_cnt; i++ )
+    	pfree( dfatab[i] );
+    
+    pfree( dfatab );
+
+Returns the number of rows in *dfatab*, or a negative value in error case.
+
+### pregex_ptn_to_nfa 
+
+**Definition:**
+
+pboolean pregex_ptn_to_nfa( pregex_nfa* nfa, pregex_ptn* ptn )
+
+**Usage:**
+
+Converts a pattern-structure into a NFA state machine.
+
+*nfa* is the NFA state machine structure that receives the compiled result of
+the pattern. This machine will be extended to the pattern if it already contains
+states. *nfa* must be previously initialized!
+
+*ptn* is the pattern structure that will be converted and extended into
+the NFA state machine.
+
+*flags* are compile-time flags.
+
+Returns TRUE on success.
+
+### pregex_ptn_to_regex 
+
+**Definition:**
+
+char* pregex_ptn_to_regex( pregex_ptn* ptn )
+
+**Usage:**
+
+Turns a regular expression pattern back into a regular expression string.
+
+*ptn* is the pattern object to be converted into a regex.
+
+The returned pointer is dynamically allocated but part of *ptn*, so it should
+not be freed by the caller. It is automatically freed when the pattern object
+is released.
+
+### pregex_qmatch 
+
+**Definition:**
+
+int pregex_qmatch( char* regex, char* str, int flags, parray** matches )
+
+**Usage:**
+
+Performs a regular expression match on a string, and returns an array of
+matches via prange-structures, which hold pointers to the begin- and
+end-addresses of all matches.
+
+*regex* is the regular expression pattern to be processed.
+
+*str* is the string on which the pattern will be executed.
+
+*flags* are for regular expression compile- and runtime-mode switching.
+Several of them can be used with the bitwise or-operator (|).
+
+*matches* is the array of results to the matched substrings within *str*,
+provided as parray-object existing of one prange-object for every match.
+It is optional. *matches* must be released with [parray_free()](#fn_parray_free) after its usage.
+
+Returns the number of matches, which is the number of result entries in the
+returned array *matches*. If the value is negative, an error occurred.
+
+### pregex_qreplace 
+
+**Definition:**
+
+char* pregex_qreplace( char* regex, char* str, char* replace, int flags )
+
+**Usage:**
+
+Replaces all matches of a regular expression pattern within a string with
+the replacement. Backreferences can be used with `$x` for each opening bracket
+within the regular expression.
+
+*regex* is the regular expression pattern to be processed.
+
+*str* is the string on which the pattern will be executed.
+
+*replace* is the string that will be inserted as replacement for each pattern
+match. `$x` back-references can be used.
+
+*flags* are for regular expression compile- and runtime-mode switching.
+Several of them can be used with the bitwise or-operator (|).
+
+Returns an allocated pointer to the generated string with the replacements.
+This string must be released after its existence is no longer required by the
+caller using [pfree()](#fn_pfree).
+
+### pregex_qsplit 
+
+**Definition:**
+
+int pregex_qsplit( char* regex, char* str, int flags, parray** matches )
+
+**Usage:**
+
+Performs a regular expression search on a string and uses the expression as
+separator; All strings that where split are returned as *matches*-array.
+
+*regex* is the regular expression pattern to be processed.
+
+*str* is the string on which the pattern will be executed.
+
+*flags* are for regular expression compile- and runtime-mode switching.
+Several of them can be used with the bitwise or-operator (|).
+
+*matches* is the array of results to the matched substrings within *str*,
+provided as parray-object existing of one prange-object for every match.
+It is optional. *matches* must be released with [parray_free()](#fn_parray_free) after its usage.
+
+Returns the number of split substrings, which is the number of result entries in
+the returned array *matches*. If the value is negative, an error occured.
+
+### pregex_replace 
+
+**Definition:**
+
+char* pregex_replace( pregex* regex, char* str, char* replacement )
+
+**Usage:**
+
+Replaces all matches of a regular expression object within a string *str*
+with *replacement*. Backreferences in *replacement* can be used with *$x*
+for each opening bracket within the regular expression.
+
+*regex* is the pregex-object used for pattern matching.
+*str* is the string on which *regex* will be executed.
+*replacement* is the string that will be inserted as the replacement for each
+match of a pattern described in *regex*. The notation *$x* can be used for
+backreferences, where x is the offset of opening brackets in the pattern,
+beginning at 1.
+
+The function returns the string with the replaced elements, or (char*)NULL
+in case of an error.
+
+### pregex_split 
+
+**Definition:**
+
+char* pregex_split( pregex* regex, char* start, char** end, char** next )
+
+**Usage:**
+
+Returns the range between string *start* and the next match of *regex*.
+
+This function can be seen as a "negative match", so the substrings that are
+not part of the match will be returned.
+
+*start* has to be a zero-terminated string or wide-character string (according
+to the configuration of the pregex-object).
+*end* receives the last position of the string before the regex.
+*next* receives the pointer of the next split element behind the matched
+substring, so *next* should become the next *start* when [pregex_split()](#fn_pregex_split) is
+called in a loop.
+
+The function returns (char*)NULL in case there is no more string to split, else
+it returns *start*.
+
+### pregex_splitall 
+
+**Definition:**
+
+int pregex_splitall( pregex* regex, char* start, parray** matches )
+
+**Usage:**
+
+Split a string at all matches of the regular expression *regex* from
+begin of pointer *start*, and optionally returns the substrings found as an
+array.
+
+*start* has to be a zero-terminated string or wide-character string (according
+to the configuration of the pregex-object).
+
+The function fills the array *matches*, if provided, with items of size
+prange. It returns the total number of matches.
+
+### pstr_to_wcs 
+
+**Definition:**
+
+wchar_t* pstr_to_wcs( char* str, pboolean freestr )
+
+**Usage:**
+
+This functions converts an UTF-8-multi-byte string into a Unicode
+wide-character string.
+
+The function wraps [mbstowcs()](#fn_mbstowcs), so [set_locale()](#fn_set_locale) must be done before this
+function works properly.
+
+*str* is the zero-terminated multi-byte-character string to be converted
+into a wide-character string.
+*freestr* if value equals TRUE then *str* will be freed after successfull
+conversion.
+
+Returns the wide-character pendant of *str* as pointer to dynamically
+allocated memory.
+
+### pstrcasecmp 
+
+**Definition:**
+
+int pstrcasecmp( char* s1, char* s2 )
+
+**Usage:**
+
+Compare a string ignoring case-order.
+
+*s1* is the string to compare with *s2*.
+*s2* is the string to compare with *s1*.
+
+Returns 0 if both strings are equal. Returns a value <0 if *s1* is lower than
+*s2* or a value >0 if *s1* is greater than *s2*.
+
+### pstrcatchar 
+
+**Definition:**
+
+char* pstrcatchar( char* str, char chr )
+
+**Usage:**
+
+Dynamically appends a character to a string.
+
+*str* is the pointer to a string to be appended. If this is (char*)NULL,
+the string will be newly allocated. *chr* is the character to be appended
+to str.
+
+Returns a char*-pointer to the (possibly re-)allocated and appended string.
+(char*)NULL is returned if no memory could be (re)allocated. This pointer must
+be released with [pfree()](#fn_pfree) when its existence is no longer required.
+
+### pstrcatstr 
+
+**Definition:**
+
+char* pstrcatstr( char* dest, char* src, pboolean freesrc )
+
+**Usage:**
+
+Dynamically appends a zero-terminated string to a dynamic string.
+
+*str* is the pointer to a zero-terminated string to be appended.
+If this is (char*)NULL, the string is newly allocated.
+
+*append* is the string to be appended at the end of *str*.
+
+*freesrc* frees the pointer provided as *append* automatically by
+this function, if set to TRUE.
+
+Returns a char*-pointer to (possibly re-)allocated and appended string.
+(char*)NULL is returned if no memory could be (re)allocated, or both strings
+were NULL. If *dest* is NULL and *freesrc* is FALSE, the function
+automatically returns the pointer *src*. This pointer must be released with [pfree()](#fn_pfree) when its existence is no longer required.
+
+### pstrdup 
+
+**Definition:**
+
+char* pstrdup( char* str )
+
+**Usage:**
+
+Duplicate a string in memory.
+
+*str* is the string to be copied in memory. If *str* is provided as NULL,
+the function will also return NULL.
+
+Returns a char*-pointer to the newly allocated copy of *str*. This pointer
+must be released with [pfree()](#fn_pfree) when its existence is no longer required.
+
+### pstrget 
+
+**Definition:**
+
+char* pstrget( char* str )
+
+**Usage:**
+
+Safely reads a string.
+
+*str* is the string pointer to be safely read. If *str* is NULL, the
+function returns a pointer to a static address holding an empty string.
+
+### pstrlen 
+
+**Definition:**
+
+size_t pstrlen( char* str )
+
+**Usage:**
+
+Return length of a string.
+
+*str* is the parameter string to be evaluated. If (char*)NULL, the function
+returns 0. [pstrlen()](#fn_pstrlen) is much safer than [strlen()](#fn_strlen) because it returns 0 when
+a NULL-pointer is provided.
+
+Returns the length of the string *str*.
+
+### pstrltrim 
+
+**Definition:**
+
+char* pstrltrim( char* s )
+
+**Usage:**
+
+Removes whitespace on the left of a string.
+
+*s* is the string to be left-trimmed.
+
+Returns *s*.
+
+### pstrlwr 
+
+**Definition:**
+
+char* pstrlwr( char* s )
+
+**Usage:**
+
+Convert a string to lower-case.
+
+*s* is the acts both as input and output-string.
+
+Returns *s*.
+
+### pstrncasecmp 
+
+**Definition:**
+
+int pstrncasecmp( char* s1, char* s2, size_t n )
+
+**Usage:**
+
+Compare two strings ignoring case-order up to a maximum of *n* bytes.
+
+*s1* is the string to compare with *s2*.
+*s2* is the string to compare with *s1*.
+*n* is the number of bytes to compare.
+
+Returns 0 if both strings are equal. Returns a value <0 if *s1* is less than
+*s2* or a value >0 if *s1* is greater than *s2*.
+
+### pstrncatstr 
+
+**Definition:**
+
+char* pstrncatstr( char* str, char* append, size_t n )
+
+**Usage:**
+
+Dynamically appends n-characters from one string to another string.
+
+The function works similar to [pstrcatstr()](#fn_pstrcatstr), but allows to copy only a maximum
+of *n* characters from *append*.
+
+*str* is the pointer to a string to be appended. If this is (char*)NULL,
+the string is newly allocated. *append* is the begin of character sequence to
+be appended. *n* is the number of characters to be appended to *str*.
+
+Returns a char*-pointer to (possibly re-)allocated and appended string.
+(char*)NULL is returned if no memory could be (re)allocated, or both strings
+were NULL. This pointer must be released with [pfree()](#fn_pfree) when its existence
+is no longer required.
+
+### pstrndup 
+
+**Definition:**
+
+char* pstrndup( char* str, size_t len )
+
+**Usage:**
+
+Duplicate *n* characters from a string in memory.
+
+The function mixes the functionalities of [strdup()](#fn_strdup) and [strncpy()](#fn_strncpy).
+The resulting string will be zero-terminated.
+
+*str* is the parameter string to be duplicated. If this is provided as
+(char*)NULL, the function will also return (char*)NULL.
+*n* is the number of characters to be copied and duplicated from *str*.
+If *n* is greater than the length of *str*, copying will stop at the zero
+terminator.
+
+Returns a char*-pointer to the allocated memory holding the zero-terminated
+string duplicate. This pointer must be released with [pfree()](#fn_pfree) when its existence
+is no longer required.
+
+### pstrput 
+
+**Definition:**
+
+char* pstrput( char** str, char* val )
+
+**Usage:**
+
+Assign a string to a dynamically allocated pointer.
+ [pstrput()](#fn_pstrput) manages the assignment of a dynamically allocated string.
+
+*str* is a pointer receiving the target pointer to be (re)allocated. If
+*str* already references a string, this pointer will be freed and reassigned
+to a copy of *val*.
+
+*val* is the string to be assigned to *str* (as a independent copy).
+
+Returns a pointer to the allocated heap memory on success, (char*)NULL else.
+This is the same pointer as returned when calling `*str`. The returned pointer
+must be released with [pfree()](#fn_pfree) or another call of [pstrput()](#fn_pstrput). Calling [pstrput()](#fn_pstrput)
+as `pstrput( &p, (char*)NULL );` is equivalent to `p = pfree( &p )`.
+
+### pstrrender 
+
+**Definition:**
+
+char* pstrrender( char* tpl, ... )
+
+**Usage:**
+
+String rendering function.
+
+Inserts multiple values dynamically into the according wildcards positions of
+a template string. The function can be compared to the function of [pstrreplace()](#fn_pstrreplace), but allows to replace multiple substrings by multiple replacement
+strings.
+
+*tpl* is the template string to be rendered with values.
+*...* are the set of values to be inserted into the desired position;
+
+These consist of three values each:
+
+ * *char* name* as a wildcard-name
+ * *char* value* as the replacement value for the wildcard
+ * *pboolean freeflag* defines if *value* shall be freed after processing
+
+Returns an allocated string which is the result of rendering. This string must
+be released by [pfree()](#fn_pfree) or another function releasing heap memory when its
+existence is no longer required.
+
+### pstrreplace 
+
+**Definition:**
+
+char* pstrreplace( char* str, char* find, char* replace )
+
+**Usage:**
+
+Replace a substring sequence within a string.
+
+*str* is the string to be replaced in. *find* is the substring to be
+matched. *replace* is the string to be inserted for each match of the
+substring *find*.
+
+Returns a char* containing the allocated string which is the result of replacing
+all occurences of *find* with *replace* in *str*.
+
+This pointer must be released with [pfree()](#fn_pfree) when its existence is no longer
+required.
+
+### pstrrtrim 
+
+**Definition:**
+
+char* pstrrtrim( char* s )
+
+**Usage:**
+
+Removes trailing whitespace on the right of a string.
+
+*s* is the string to be right-trimmed.
+
+Returns *s*.
+
+### pstrsplit 
+
+**Definition:**
+
+int pstrsplit( char*** tokens, char* str, char* sep, int limit )
+
+**Usage:**
+
+Splits a string at a delimiting token and returns an allocated array of
+token reference pointers.
+
+*tokens* is an allocated array of tokenized array values.
+Requires a pointer to char**.
+*str* is the input string to be tokenized.
+*sep* is the token separation substring.
+*limit* is the token limit; If set to 0, there is no token limit available,
+in which case as many as possible tokens are read.
+
+Returns the number of separated tokens, or -1 on error.
+
+### pstrtrim 
+
+**Definition:**
+
+char* pstrtrim( char* s )
+
+**Usage:**
+
+Removes beginning and trailing whitespace from a string.
+
+*s* is the string to be trimmed.
+
+Returns *s*.
+
+### pstrunescape 
+
+**Definition:**
+
+char* pstrunescape( char* str )
+
+**Usage:**
+
+Converts a string with included escape-sequences back into its natural form.
+
+The following table shows escape sequences which are converted.
+
+| Sequence |is replaced by|
+|---------------|
+|\n |newline|
+|\t |tabulator|
+|\r |carriage-return|
+|\b |backspace|
+|\f |form feed|
+|\a |bell / alert|
+|\' |single-quote|
+|\" |double-quote|
+
+The replacement is done within the memory bounds of *str* itself, because the
+unescaped version of the character requires less space than its previous escape
+sequence.
+
+The function always returns its input pointer.
+
+**Example:**
+
+    char* s = (char*)NULL;
+    
+    psetstr( &s, "\\tHello\\nWorld!" );
+    printf( ">%s<\n", pstrunescape( s ) );
+    
+    s = pfree( s );
+
+### pstrupr 
+
+**Definition:**
+
+char* pstrupr( char* s )
+
+**Usage:**
+
+Convert a string to upper-case.
+
+*s* acts both as input- and output string.
+
+Returns *s*.
+
+### putf8_char 
+
+**Definition:**
+
+wchar_t putf8_char( char* str )
+
+**Usage:**
+
+Return single character (as wide-character value) from UTF-8 multi-byte
+character string.
+
+*str* is the pointer to character sequence begin.
+
+### putf8_isutf 
+
+**Definition:**
+
+pboolean putf8_isutf( unsigned char c )
+
+**Usage:**
+
+Check for UTF-8 character sequence signature.
+
+The function returns TRUE, if the character *c* is the beginning of a UTF-8
+character signature, else FALSE.
+
+### putf8_move 
+
+**Definition:**
+
+char* putf8_move( char* str, int count )
+
+**Usage:**
+
+Moves *count* characters ahead in an UTF-8 multi-byte character sequence.
+
+*str* is the pointer to UTF-8 string to begin moving.
+*count* is the number of characters to move left.
+
+The function returns the address of the next UTF-8 character sequence after
+*count* characters. If the string's end is reached, it will return a
+pointer to the zero-terminator.
+
+### putf8_parse_char 
+
+**Definition:**
+
+wchar_t putf8_parse_char( char** ch )
+
+**Usage:**
+
+Read one character from an UTF-8 input sequence.
+This character can be escaped, an UTF-8 character or an ordinary ASCII-char.
+
+*chr* is the input- and output-pointer (the pointer is replaced by the pointer
+to the next character or escape-sequence within the string).
+
+The function returns the character code of the parsed character.
+
+### putf8_seqlen 
+
+**Definition:**
+
+int putf8_seqlen(char *s)
+
+**Usage:**
+
+Returns length of next UTF-8 sequence in a multi-byte character string.
+
+*s* is the pointer to begin of UTF-8 sequence.
+
+Returns the number of bytes used for the next character.
+
+### pvasprintf 
+
+**Definition:**
+
+int pvasprintf( char** str, char* fmt, va_list ap )
+
+**Usage:**
+
+Implementation and replacement for vasprintf.
+
+*str* is the pointer receiving the result, allocated string pointer.
+*fmt* is the format string.
+*...* are the parameters according to the placeholders set in *fmt*.
+
+Returns the number of characters written, or -1 in case of an error.
+
+### pwcs_to_str 
+
+**Definition:**
+
+char* pwcs_to_str( wchar_t* str, pboolean freestr )
+
+**Usage:**
+
+This functions converts a wide-character string into an UTF-8 string.
+
+The string conversion is performed into dynamically allocated memory.
+The function wraps the system function [wcstombs()](#fn_wcstombs), so [set_locale()](#fn_set_locale) must be
+called before this function works properly.
+
+*str* is the zero-terminated string to be converted to UTF-8.
+*freestr* defines if the input-string shall be freed after successful
+conversion, if set to TRUE.
+
+Returns the UTF-8 character pendant of *str* as pointer to dynamically
+allocated memory.
+
+### pwcscatchar 
+
+**Definition:**
+
+wchar_t* pwcscatchar( wchar_t* str, wchar_t chr )
+
+**Usage:**
+
+Appends a character to a dynamic wide-character string.
+
+*str* is the pointer to a wchar_t-string to be appended. If this is
+(wchar_t*)NULL, the string is newly allocated. *chr* is the the character
+to be appended to str.
+
+Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
+(wchar_t*)NULL is returned if no memory could be (re)allocated.
+
+### pwcscatstr 
+
+**Definition:**
+
+wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc )
+
+**Usage:**
+
+Appends a (possibly dynamic) wide-character string to a dynamic
+wide-character string.
+
+*str* is the pointer to a wchar_t-string to be appended. If this is
+(wchar_t*)NULL, the string is newly allocated.
+*append* is the string to be appended.
+*freesrc* if true, *append* is free'd automatically by this function.
+
+Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
+(wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
+were NULL.
+
+### pwcsdup 
+
+**Definition:**
+
+wchar_t* pwcsdup( wchar_t* str )
+
+**Usage:**
+
+Duplicate a wide-character string in memory.
+
+*str* is the string to be copied in memory. If *str* is provided as NULL,
+the function will also return NULL.
+
+Returns a wchar_t*-pointer to the newly allocated copy of *str*. This pointer
+must be released with [pfree()](#fn_pfree) when its existence is no longer required.
+
+### pwcsget 
+
+**Definition:**
+
+wchar_t* pwcsget( wchar_t* str )
+
+**Usage:**
+
+Safely reads a wide-character string.
+
+*str* is the string pointer to be safely read. If *str* is NULL, the
+function returns a pointer to a static address holding an empty string.
+
+### pwcslen 
+
+**Definition:**
+
+size_t pwcslen( wchar_t* str )
+
+**Usage:**
+
+Safe strlen replacement for wide-character.
+
+*str* is the parameter string to be evaluated. If (wchar_t*)NULL,
+the function returns 0.
+
+### pwcsncatstr 
+
+**Definition:**
+
+wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n )
+
+**Usage:**
+
+Appends *n* characters from one wide-character string to a dynamic string.
+
+*str* is the pointer to a wchar_t-string to be appended. If this is
+(wchar_t*)NULL, the string is newly allocated.
+*append* is the begin of character sequence to be appended.
+*n* is the number of characters to be appended to str.
+
+Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
+(wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
+were NULL.
+
+### pwcsndup 
+
+**Definition:**
+
+wchar_t* pwcsndup( wchar_t* str, size_t len )
+
+**Usage:**
+
+Duplicate *n* characters from a wide-character string in memory.
+
+The function mixes the functionalities of [wcsdup()](#fn_wcsdup) and [wcsncpy()](#fn_wcsncpy).
+The resulting wide-character string will be zero-terminated.
+
+*str* is the parameter wide-character string to be duplicated.
+If this is provided as (wchar_t*)NULL, the function will also return
+(wchar_t*)NULL.
+
+*n* is the the number of characters to be copied and duplicated from *str*.
+If *n* is greater than the length of *str*, copying will stop at the zero
+terminator.
+
+Returns a wchar_t*-pointer to the allocated memory holding the zero-terminated
+wide-character string duplicate. This pointer must be released with [pfree()](#fn_pfree)
+when its existence is no longer required.
+
+### pwcsput 
+
+**Definition:**
+
+wchar_t* pwcsput( wchar_t** str, wchar_t* val )
+
+**Usage:**
+
+Assign a wide-character string to a dynamically allocated pointer.
+ [pwcsput()](#fn_pwcsput) manages the assignment of an dynamically allocated  wide-chararacter
+string.
+
+*str* is a pointer receiving the target pointer to be (re)allocated. If
+*str* already references a wide-character string, this pointer will be freed
+and reassigned to a copy of *val*.
+
+*val* is the the wide-character string to be assigned to *str*
+(as an independent copy).
+
+Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
+This is the same pointer as returned when calling `*str`. The returned pointer
+must be released with [pfree()](#fn_pfree) or another call of [pwcsput()](#fn_pwcsput). Calling [pwcsput()](#fn_pwcsput)
+as `pwcsput( &p, (char*)NULL );` is equivalent to `p = pfree( &p )`.
+
+### pwhich 
+
+**Definition:**
+
+char* pwhich( char* filename, char* directories )
+
+**Usage:**
+
+Figures out a filepath by searching in a PATH definition.
+
+*filename* is the filename to be searched for.
+
+*directories* is a string specifying the directories to search in.
+If this is (char*)NULL, the environment variable PATH will be used and
+evaluated by using  [getenv()](#fn_getenv) #fn_getenv]. The path can be split with multiple
+paths by a character that depends on the current platform
+(Unix: ":", Windows: ";").
+
+Returns a static pointer to the absolute path that contains the file specified
+as filename, else it will return (char*)NULL.
+

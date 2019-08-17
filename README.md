@@ -4,31 +4,30 @@
 
 ## Generic data structures
 
-- [parray](doc/phorward.html#parray) - Dynamically managed arrays & stacks
-- [pccl](doc/phorward.html#pccl) - Character-classes
-- [plex](doc/phorward.html#plex) - Lexical analysis
-- [plist](doc/phorward.html#plist) - Linked lists, hash-tables, queues & stacks
-- [pregex](doc/phorward.html#pregex) - Regular expressions
+- [parray](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#parray) - Dynamically managed arrays & stacks
+- [pccl](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#pccl) - Character-classes
+- [plex](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#plex) - Lexical analysis
+- [plist](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#plist) - Linked lists, hash-tables, queues & stacks
+- [pregex](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#pregex) - Regular expressions
 
 ## Generic helpers
 
-- [DEBUG-facilities](doc/phorward.html#ptrace) - Logging, tracing and run-time analysis
-- [pgetopt](doc/phorward.html#fn_pgetopt) - Command-line options interpreter
-- [pstr*, pwcs*](doc/phorward.html#pstr) - Enhanced string operations
+- [DEBUG-facilities](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#ptrace) - Logging, tracing and run-time analysis
+- [pgetopt](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#fn_pgetopt) - Command-line options interpreter
+- [pstr*, pwcs*](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#pstr) - Enhanced string operations
 
 ## Command-line tools
 
-- [pdoc](doc/phorward.html#c_pdoc) - C source code documentation tool
-- [pinclude](doc/phorward.html#c_pinclude) - Generate big files from various smaller ones
-- [plex](doc/phorward.html#c_plex) - Lexical analyzer generator and interpreter
-- [pproto](doc/phorward.html#c_pproto) - C function prototype generator
-- [pregex](doc/phorward.html#c_pregex) - Regular expressions match/find/replace
-- [ptest](doc/phorward.html#c_ptest) - C program test facilities
+- [pdoc](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_pdoc) - C source code documentation tool
+- [pinclude](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_pinclude) - Generate big files from various smaller ones
+- [plex](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_plex) - Lexical analyzer generator and interpreter
+- [pproto](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_pproto) - C function prototype generator
+- [pregex](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_pregex) - Regular expressions match/find/replace
+- [ptest](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_ptest) - C program test facilities
 
 ## Documentation
 
-A recently updated, [full documentation can be found here](https://www.phorward-software.com/products/phorward/doc/phorward.html),
-and is also locally available after installation.
+A recently updated, [full documentation can be found here](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html), and is also locally available after installation.
 
 ## Building
 
