@@ -363,11 +363,11 @@ Software Technologies, which was later renamed to Phorward Software
 Technologies.
 
 The library was then released as version 0.16 to the public in 2011,
-together with the open source parser generator UniCC (https://unicc
+together with the open source parser generator UniCC (http://unicc
 .phorward-software.com/). It was initially planned to use the library
 for other C-based software projects having their origin at Phorward
 Software Technologies also, but most of them where not continued,
-abandonded or evolved into other directions.
+abandoned or evolved into other directions.
 
 In 2019, the library was finally officially released as version 1.0, and
 will now be continued in several ways.

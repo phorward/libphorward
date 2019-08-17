@@ -1,4 +1,4 @@
-The Phorward C/C++ Library
+The Phorward C/C++ Library and Toolkit
 libphorward 1.0
 August 2019
 
@@ -331,7 +331,7 @@ The Phorward C/C++ Library also perfectly cross-compiles on Linux using the MinG
 
 The cornerstone for this C functions library was already laid in 2006 during some experimenting with several algorithms, data structures and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, unfortunately mostly unfinished software projects which had their origin at *J.M.K S.F. Software Technologies*, which was later renamed to *Phorward Software Technologies*.
 
-The library was then released as version 0.16 to the public in 2011, together with the open source parser generator [UniCC](https://unicc.phorward-software.com/). It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandonded or evolved into other directions.
+The library was then released as version 0.16 to the public in 2011, together with the open source parser generator [UniCC](http://unicc.phorward-software.com/). It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandoned or evolved into other directions.
 
 In 2019, the library was finally officially released as version 1.0, and will now be continued in several ways.
 

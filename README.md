@@ -22,7 +22,7 @@
 - [pinclude](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_pinclude) - Generate big files from various smaller ones
 - [plex](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_plex) - Lexical analyzer generator and interpreter
 - [pproto](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_pproto) - C function prototype generator
-- [pregex](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_pregex) - Regular expressions match/find/replace
+- [pregex](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_pregex) - Regular expressions match/find/split/replace
 - [ptest](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#c_ptest) - C program test facilities
 
 ## Documentation
