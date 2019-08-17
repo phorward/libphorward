@@ -1,16 +1,29 @@
 # phorward [![Build Status](https://travis-ci.org/phorward/phorward.svg?branch=master)](https://travis-ci.org/phorward/phorward) 
 
-**phorward** *(libphorward)* is a C/C++ programming library, providing useful
-extensions like dynamic data structures, enhanced string management functions
-and regular expressions.
+**phorward** *(libphorward)* is a generic C/C++ library and toolbox, serving platform-independent utilities for different purposes.
 
-The library provides several modules which can be used together or on their own:
+## Generic data structures
 
-- **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays.
-- **regex** provides tools for constructing, parsing, processing and modifying regular expressions.
-- **string** is an extended string processing library with useful functions for `char*` and `wchar_t*`-string manipulation.
+- [parray](doc/phorward.html#parray) - Dynamically managed arrays & stacks
+- [pccl](doc/phorward.html#pccl) - Character-classes
+- [plex](doc/phorward.html#plex) - Lexical analysis
+- [plist](doc/phorward.html#plist) - Linked lists, hash-tables, queues & stacks
+- [pregex](doc/phorward.html#pregex) - Regular expressions
 
-The library also comes with some tools and command-line helpers, including a documentation generator and a functions prototype generator for C modules.
+## Generic helpers
+
+- [DEBUG-facilities](doc/phorward.html#ptrace) - Logging, tracing and run-time analysis
+- [pgetopt](doc/phorward.html#fn_pgetopt) - Command-line options interpreter
+- [pstr*, pwcs*](doc/phorward.html#pstr) - Enhanced string operations
+
+## Command-line tools
+
+- [pdoc](doc/phorward.html#c_pdoc) - C source code documentation tool
+- [pinclude](doc/phorward.html#c_pinclude) - Generate big files from various smaller ones
+- [plex](doc/phorward.html#c_plex) - Lexical analyzer generator and interpreter
+- [pproto](doc/phorward.html#c_pproto) - C function prototype generator
+- [pregex](doc/phorward.html#c_pregex) - Regular expressions match/find/replace
+- [ptest](doc/phorward.html#c_ptest) - C program test facilities
 
 ## Documentation
 

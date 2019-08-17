@@ -42,17 +42,17 @@
   </li>
   <li><a href="#toc8">Command-line tools</a>
       <ul>
-      <li><a href="#toc9">pdoc - C source code documentation tool</a>
+      <li><a href="#c_pdoc">pdoc - C source code documentation tool</a>
       </li>
-      <li><a href="#toc10">pinclude - Generate big files from various smaller ones</a>
+      <li><a href="#c_pinclude">pinclude - Generate big files from various smaller ones</a>
       </li>
-      <li><a href="#toc11">plex - Lexical analyzer generator and interpreter</a>
+      <li><a href="#c_plex">plex - Lexical analyzer generator and interpreter</a>
       </li>
-      <li><a href="#toc12">pproto - C function prototype generator</a>
+      <li><a href="#c_pproto">pproto - C function prototype generator</a>
       </li>
-      <li><a href="#toc13">pregex - Regular expression operations</a>
+      <li><a href="#c_pregex">pregex - Regular expression operations</a>
       </li>
-      <li><a href="#toc14">ptest - C program test facilities</a>
+      <li><a href="#c_ptest">ptest - C program test facilities</a>
       </li>
       </ul>
   </li>
@@ -62,7 +62,7 @@
     </li>
     <li><a href="#pboolean">Boolean data type</a>
     </li>
-    <li><a href="#toc18">Debugging and tracing</a>
+    <li><a href="#ptrace">Debugging and tracing</a>
     </li>
     <li><a href="#toc19">System-related, platform-independent helpers</a>
     </li>
@@ -152,7 +152,7 @@
     </li>
     </ul>
   </li>
-  <li><a href="#toc56">String helper functions (pstr*, pwcs*)</a>
+  <li><a href="#pstr">String helper functions (pstr*, pwcs*)</a>
   </li>
   <li><a href="#toc57">Function reference</a>
     <ul>
@@ -690,7 +690,7 @@ In 2019, the library was finally officially released as version 1.0, and will no
 The Phorward C/C++ Library provides some useful command-line tools which can also be used or forked.
 </p>
 
-<h3 id="toc9">pdoc - C source code documentation tool</h3>
+<h3 id="c_pdoc">pdoc - C source code documentation tool</h3>
 
 <p>
 <b>pdoc</b> is a tool to build documentation from C source code.
@@ -722,7 +722,7 @@ int myLittleFunction( parray* a )
 }
 </code></pre>
 
-<h3 id="toc10">pinclude - Generate big files from various smaller ones</h3>
+<h3 id="c_pinclude">pinclude - Generate big files from various smaller ones</h3>
 
 <p>
 <b>pinclude</b> is some kind of simple pre-processor to generate one big file from various smaller ones.
@@ -744,7 +744,7 @@ Usage: pinclude OPTIONS file...
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc11">plex - Lexical analyzer generator and interpreter</h3>
+<h3 id="c_plex">plex - Lexical analyzer generator and interpreter</h3>
 
 <p>
 <b><a href="#plex">plex</a></b> is a command-line tool to construct and run lexical analyzers. It returns a list of tokens on success to stdout, and aims to be used in combination with shell scripts for lexical analysis.
@@ -778,7 +778,7 @@ plex -b ":" -e "\n" -i "123 abc456    78xy9" "\d+" "[a-z]+"
 1:9
 </code></pre>
 
-<h3 id="toc12">pproto - C function prototype generator</h3>
+<h3 id="c_pproto">pproto - C function prototype generator</h3>
 
 <p>
 <b>pproto</b> generates C function prototypes from C source code.
@@ -802,7 +802,7 @@ It can be seen as a very simple implementation of the well-known <i>cproto</i> c
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc13">pregex - Regular expression operations</h3>
+<h3 id="c_pregex">pregex - Regular expression operations</h3>
 
 <p>
 <b><a href="#pregex">pregex</a></b> is a command-line tool for regular expression operations on files and strings. It can be used for match, find, split and replace actions.
@@ -843,7 +843,7 @@ xy
 <div class="page-break"></div>
 </p>
 
-<h3 id="toc14">ptest - C program test facilities</h3>
+<h3 id="c_ptest">ptest - C program test facilities</h3>
 
 <p>
 <b>ptest</b> extracts test-cases (source snippets) from C code, compiles them, executes them and compares their result against a given output. If the output differs, the test failed, otherwise it succeeds.
@@ -948,7 +948,7 @@ within <code>phorward.h</code>.
 <div class="page-break"></div>
 </p>
 
-<h2 id="toc18">Debugging and tracing</h2>
+<h2 id="ptrace">Debugging and tracing</h2>
 
 <p>
 Although this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules to detect bugs or view the program trace.
@@ -2492,7 +2492,7 @@ Objects of the kind <a href="#pregex_ptn">pregex_ptn</a> can be seen as nodes of
 They are managed by the functions <a href="#fn_pregex_ptn_create">pregex_ptn_create()</a>, <a href="#fn_pregex_ptn_create_alt">pregex_ptn_create_alt()</a>, <a href="#fn_pregex_ptn_create_char">pregex_ptn_create_char()</a>, <a href="#fn_pregex_ptn_create_kle">pregex_ptn_create_kle()</a>, <a href="#fn_pregex_ptn_create_opt">pregex_ptn_create_opt()</a>, <a href="#fn_pregex_ptn_create_pos">pregex_ptn_create_pos()</a>, <a href="#fn_pregex_ptn_create_refsub">pregex_ptn_create_refsub()</a>, <a href="#fn_pregex_ptn_create_seq">pregex_ptn_create_seq()</a>, <a href="#fn_pregex_ptn_create_string">pregex_ptn_create_string()</a>, <a href="#fn_pregex_ptn_create_sub">pregex_ptn_create_sub()</a>, <a href="#fn_pregex_ptn_dup">pregex_ptn_dup()</a>, <a href="#fn_pregex_ptn_free">pregex_ptn_free()</a>, <a href="#fn_pregex_ptn_parse">pregex_ptn_parse()</a>, <a href="#fn_pregex_ptn_print">pregex_ptn_print()</a>, <a href="#fn_pregex_ptn_to_dfa">pregex_ptn_to_dfa()</a>, <a href="#fn_pregex_ptn_to_dfatab">pregex_ptn_to_dfatab()</a>, <a href="#fn_pregex_ptn_to_nfa">pregex_ptn_to_nfa()</a> and pregex_ptn_to_regex().
 </p>
 
-<h1 id="toc56">String helper functions (pstr*, pwcs*)</h1>
+<h1 id="pstr">String helper functions (pstr*, pwcs*)</h1>
 
 <p>
 libphorward provides a set of functions for extended, dynamic string memory handling. These functions are named according to their standard C library counterparts with an added prefix ("p"), or introduce entirely new features.
