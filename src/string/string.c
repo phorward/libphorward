@@ -989,6 +989,8 @@ the function will also return NULL.
 
 Returns a wchar_t*-pointer to the newly allocated copy of //str//. This pointer
 must be released with pfree() when its existence is no longer required.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pwcsdup( wchar_t* str )
 {
@@ -1006,6 +1008,8 @@ to be appended to str.
 
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pwcscatchar( wchar_t* str, wchar_t chr )
 {
@@ -1055,6 +1059,8 @@ wide-character string.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 were NULL.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc )
 {
@@ -1100,6 +1106,8 @@ wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc )
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 were NULL.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n )
 {
@@ -1142,7 +1150,10 @@ wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n )
 /** Safe strlen replacement for wide-character.
 
 //str// is the parameter string to be evaluated. If (wchar_t*)NULL,
-the function returns 0. */
+the function returns 0.
+
+//This function is only available when compiled with -DUNICODE.//
+*/
 size_t pwcslen( wchar_t* str )
 {
 	if( !str )
@@ -1167,6 +1178,8 @@ Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
 This is the same pointer as returned when calling ``*str``. The returned pointer
 must be released with pfree() or another call of pwcsput(). Calling pwcsput()
 as ``pwcsput( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pwcsput( wchar_t** str, wchar_t* val )
 {
@@ -1186,6 +1199,8 @@ wchar_t* pwcsput( wchar_t** str, wchar_t* val )
 
 //str// is the string pointer to be safely read. If //str// is NULL, the
 function returns a pointer to a static address holding an empty string.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pwcsget( wchar_t* str )
 {
@@ -1211,6 +1226,8 @@ terminator.
 Returns a wchar_t*-pointer to the allocated memory holding the zero-terminated
 wide-character string duplicate. This pointer must be released with pfree()
 when its existence is no longer required.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pwcsndup( wchar_t* str, size_t len )
 {
@@ -1237,6 +1254,8 @@ wchar_t* pwcsndup( wchar_t* str, size_t len )
 //...// is the parameters according to the placeholders set in //fmt//.
 
 Returns the number of characters written.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 {
@@ -1285,13 +1304,15 @@ int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 
 /** An implementation of pasprintf() for wide-character wchar_t. pasprintf()
 takes only the format-string and various arguments. It outputs an allocated
-string to bbe released with pfree() later on.
+string to be released with pfree() later on.
 
 //fmt// is the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
 Returns a wchar_t* Returns the allocated string which cointains the format
 string with inserted values.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pawcsprintf( wchar_t* fmt, ... )
 {

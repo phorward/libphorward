@@ -51,7 +51,7 @@ The function returns TRUE, if the character //c// is the beginning of a UTF-8
 character signature, else FALSE. */
 pboolean putf8_isutf( unsigned char c )
 {
-	return TRUEBOOLEAN( ( c & 0xC0 ) != 0x80 );
+	return MAKE_BOOLEAN( ( c & 0xC0 ) != 0x80 );
 }
 
 /** Returns length of next UTF-8 sequence in a multi-byte character string.

@@ -151,6 +151,8 @@ wide-character string representation.
 Returns a pointer to the newly allocated wide-character string, which contains
 the string-representation of the double value. This pointer must be released
 by the caller.
+
+//This function is only available when compiled with -DUNICODE.//
 */
 wchar_t* pdbl_to_wcs( double d )
 {

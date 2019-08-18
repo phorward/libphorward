@@ -768,5 +768,5 @@ pboolean plexctx_lex( plexctx* ctx, wchar_t ch )
 
 	ctx->state = next_state;
 
-	RETURN( TRUEBOOLEAN( ctx->state < ctx->lex->trans_cnt ) );
+	RETURN( MAKE_BOOLEAN( ctx->state < ctx->lex->trans_cnt ) );
 }

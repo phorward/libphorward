@@ -60,7 +60,7 @@ typedef char 					pboolean;
 #endif
 
 #define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
-#define TRUEBOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
+#define MAKE_BOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
 
 
 #define OUTOFMEM				fprintf( stderr, \

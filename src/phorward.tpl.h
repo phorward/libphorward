@@ -59,7 +59,7 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #endif
 
 #define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
-#define TRUEBOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
+#define MAKE_BOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
 
 /*
  * Generic error case macros
