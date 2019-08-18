@@ -80,7 +80,6 @@ HelloX
 */
 
 
-
 /** Dynamically appends a zero-terminated string to a dynamic string.
 
 //str// is the pointer to a zero-terminated string to be appended.
@@ -806,7 +805,6 @@ int	pstrncasecmp( char* s1, char* s2, size_t n )
 	return (int)( ( !n ) ? 0 : ( toupper( *s1 ) - toupper( *s2 ) ) );
 }
 
-
 /** Converts a string with included escape-sequences back into its natural form.
 
 The following table shows escape sequences which are converted.
@@ -866,10 +864,6 @@ char* pstrunescape( char* str )
 	return str;
 }
 
-
-/* These two functions are marked for removal, but are still in use. */
-
-/*REMOVE?*/
 /** Implementation and replacement for vasprintf.
 
 //str// is the pointer receiving the result, allocated string pointer.
@@ -935,7 +929,6 @@ int pvasprintf( char** str, char* fmt, va_list ap )
 	RETURN( len );
 }
 
-/*REMOVE?*/
 /** Implementation and replacement for asprintf. pasprintf() takes only the
 format-string and various arguments. It outputs an allocated string to be freed
 later on.
@@ -1236,10 +1229,8 @@ wchar_t* pwcsndup( wchar_t* str, size_t len )
 	return ret;
 }
 
-/* These two functions are also marked for removal: */
 
-/* REMOVE! */
-/* Wide-character implementation of pasprintf().
+/** Wide-character implementation of pasprintf().
 
 //str// is the a pointer receiving the resultung, allocated string pointer.
 //fmt// is the the format string.
@@ -1249,7 +1240,7 @@ Returns the number of characters written.
 */
 int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 {
-	wchar_t*		istr;
+	wchar_t*	istr;
 	int			ilen;
 	int			len;
 	va_list		w_ap;
@@ -1292,8 +1283,7 @@ int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
 	RETURN( len );
 }
 
-/* REMOVE! */
-/* An implementation of pasprintf() for wide-character wchar_t. pasprintf()
+/** An implementation of pasprintf() for wide-character wchar_t. pasprintf()
 takes only the format-string and various arguments. It outputs an allocated
 string to bbe released with pfree() later on.
 

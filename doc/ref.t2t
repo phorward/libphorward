@@ -888,6 +888,28 @@ later on.
 Returns a char* Returns the allocated string which contains the format string
 with inserted values.
 %FUNCTION:END
+%NEED:19
+%FUNCTION:BEGIN
+=== pawcsprintf ===[fn_pawcsprintf]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+wchar_t* pawcsprintf( wchar_t* fmt, ... )
+%DEFINITION:END
+
+**Usage:**
+
+An implementation of [pasprintf() #fn_pasprintf] for wide-character wchar_t. [pasprintf() #fn_pasprintf]
+takes only the format-string and various arguments. It outputs an allocated
+string to bbe released with [pfree() #fn_pfree] later on.
+
+//fmt// is the format string.
+//...// are the parameters according to the placeholders set in //fmt//.
+
+Returns a wchar_t* Returns the allocated string which cointains the format
+string with inserted values.
+%FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
 === pbasename ===[fn_pbasename]
@@ -4015,6 +4037,26 @@ Implementation and replacement for vasprintf.
 //...// are the parameters according to the placeholders set in //fmt//.
 
 Returns the number of characters written, or -1 in case of an error.
+%FUNCTION:END
+%NEED:17
+%FUNCTION:BEGIN
+=== pvawcsprintf ===[fn_pvawcsprintf]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
+%DEFINITION:END
+
+**Usage:**
+
+Wide-character implementation of [pasprintf() #fn_pasprintf].
+
+//str// is the a pointer receiving the resultung, allocated string pointer.
+//fmt// is the the format string.
+//...// is the parameters according to the placeholders set in //fmt//.
+
+Returns the number of characters written.
 %FUNCTION:END
 %NEED:22
 %FUNCTION:BEGIN

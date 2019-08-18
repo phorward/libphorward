@@ -250,6 +250,8 @@
       </li>
       <li><a href="#fn_pasprintf">pasprintf</a>
       </li>
+      <li><a href="#fn_pawcsprintf">pawcsprintf</a>
+      </li>
       <li><a href="#fn_pbasename">pbasename</a>
       </li>
       <li><a href="#fn_pccl_add">pccl_add</a>
@@ -549,6 +551,8 @@
       <li><a href="#fn_putf8_seqlen">putf8_seqlen</a>
       </li>
       <li><a href="#fn_pvasprintf">pvasprintf</a>
+      </li>
+      <li><a href="#fn_pvawcsprintf">pvawcsprintf</a>
       </li>
       <li><a href="#fn_pwcs_to_str">pwcs_to_str</a>
       </li>
@@ -3805,6 +3809,36 @@ later on.
 <p>
 Returns a char* Returns the allocated string which contains the format string
 with inserted values.
+</div>
+<!-- NEED 19 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pawcsprintf">pawcsprintf</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+wchar_t* pawcsprintf( wchar_t* fmt, ... )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+An implementation of <a href="#fn_pasprintf">pasprintf()</a> for wide-character wchar_t. <a href="#fn_pasprintf">pasprintf()</a>
+takes only the format-string and various arguments. It outputs an allocated
+string to bbe released with <a href="#fn_pfree">pfree()</a> later on.
+</p>
+<p>
+<i>fmt</i> is the format string.
+<i>...</i> are the parameters according to the placeholders set in <i>fmt</i>.
+</p>
+<p>
+Returns a wchar_t* Returns the allocated string which cointains the format
+string with inserted values.
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -8326,6 +8360,34 @@ Implementation and replacement for vasprintf.
 </p>
 <p>
 Returns the number of characters written, or -1 in case of an error.
+</div>
+<!-- NEED 17 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_pvawcsprintf">pvawcsprintf</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Wide-character implementation of <a href="#fn_pasprintf">pasprintf()</a>.
+</p>
+<p>
+<i>str</i> is the a pointer receiving the resultung, allocated string pointer.
+<i>fmt</i> is the the format string.
+<i>...</i> is the parameters according to the placeholders set in <i>fmt</i>.
+</p>
+<p>
+Returns the number of characters written.
 </div>
 <!-- NEED 22 -->
 <div class='function'>

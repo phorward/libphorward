@@ -109,6 +109,7 @@ August 2019
    * parray_union
    * parray_unshift
    * pasprintf
+   * pawcsprintf
    * pbasename
    * pccl_add
    * pccl_addrange
@@ -259,6 +260,7 @@ August 2019
    * putf8_parse_char
    * putf8_seqlen
    * pvasprintf
+   * pvawcsprintf
    * pwcs_to_str
    * pwcscatchar
    * pwcscatstr
@@ -2185,6 +2187,24 @@ later on.
 
 Returns a char* Returns the allocated string which contains the format string
 with inserted values.
+
+### pawcsprintf 
+
+**Definition:**
+
+wchar_t* pawcsprintf( wchar_t* fmt, ... )
+
+**Usage:**
+
+An implementation of [pasprintf()](#fn_pasprintf) for wide-character wchar_t. [pasprintf()](#fn_pasprintf)
+takes only the format-string and various arguments. It outputs an allocated
+string to bbe released with [pfree()](#fn_pfree) later on.
+
+*fmt* is the format string.
+*...* are the parameters according to the placeholders set in *fmt*.
+
+Returns a wchar_t* Returns the allocated string which cointains the format
+string with inserted values.
 
 ### pbasename 
 
@@ -4702,6 +4722,22 @@ Implementation and replacement for vasprintf.
 *...* are the parameters according to the placeholders set in *fmt*.
 
 Returns the number of characters written, or -1 in case of an error.
+
+### pvawcsprintf 
+
+**Definition:**
+
+int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap )
+
+**Usage:**
+
+Wide-character implementation of [pasprintf()](#fn_pasprintf).
+
+*str* is the a pointer receiving the resultung, allocated string pointer.
+*fmt* is the the format string.
+*...* is the parameters according to the placeholders set in *fmt*.
+
+Returns the number of characters written.
 
 ### pwcs_to_str 
 
