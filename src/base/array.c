@@ -1050,7 +1050,8 @@ int parray_diff( parray* left, parray* right )
 	MSG( "OK, requiring deep check" );
 
 	for( p = left->bottom, q = right->bottom;
-			p && q; p += left->size, q += right->size )
+			p < left->top && q < right->top;
+				p += left->size, q += right->size )
 	{
 		if( ( diff = parray_compare( left, p, q ) ) )
 		{
