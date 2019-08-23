@@ -50,39 +50,66 @@ typedef char 					pboolean;	/* Phorward Boolean */
 #define boolean 				pboolean
 #endif
 
+
+/** Value 1 for TRUE. */
+/*MACRO:TRUE */
+
 #ifndef TRUE
 #define TRUE					1
 #endif
+
+/** Value 0 for FALSE. */
+/*MACRO:FALSE */
 
 #ifndef FALSE
 #define FALSE					0
 #endif
 
+
+/** Returns the string represenation of the value or expression in //b//. */
+/*MACRO:BOOLEAN_STR( b )*/
 #define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
+
+/** Turns the value or expression //b// into a pboolean value TRUE or FALSE. */
+/*MACRO:MAKE_BOOLEAN( b )*/
 #define MAKE_BOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
 
 /*
  * Generic error case macros
  */
+
+/** Prints "ran out of memory" into stderr and exits with status 1. */
+/*MACRO:OUTOFMEM */
 #define OUTOFMEM				fprintf( stderr, \
 									"%s, %d: Ran out of memory\n", \
 										__FILE__, __LINE__ ), exit( 1 )
 
+/** Prints "function called with wrong or incomplete parameters" into stderr,
+to indicate invalid function calls. */
+/*MACRO:WRONGPARAM */
 #define WRONGPARAM				fprintf( stderr, \
 									"%s, %d: Function called with wrong or " \
 									"incomplete parameters, fix your call!\n", \
 										__FILE__, __LINE__ )
 
+/** Prints "missing case engaged" into stderr, to indicate switch-case
+constructs running into default-branch because any other branch is not engaged.
+*/
+/*MACRO:MISSINGCASE */
 #define MISSINGCASE				fprintf( stderr, \
 									"%s, %d: Missing case engaged, " \
 									"please check for correctness.\n", \
 									__FILE__, __LINE__ )
 
+/** Prints "TODO alert!" into stderr, to inform about incomplete branches. */
+/*MACRO:TODO */
 #define TODO					fprintf( stderr, \
 									"%s, %d: TODO alert! The program ran into "\
 									"a module that is not finished yet!\n", \
 											__FILE__, __LINE__ )
 
+/** Enforces a SIGSEGV by writing to invalid memory. */
+/*MACRO:CORE */
 #define CORE					{ 	int* x = NULL; \
 									fprintf( stderr, \
 									"%s, %d: !CORE!\n", __FILE__, __LINE__ ); \

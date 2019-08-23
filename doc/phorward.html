@@ -158,9 +158,21 @@
     <ul>
     <li><a href="#toc58">Macros</a>
       <ul>
+      <li><a href="#fn_BOOLEAN_STR">BOOLEAN_STR</a>
+      </li>
+      <li><a href="#fn_CORE">CORE</a>
+      </li>
+      <li><a href="#fn_FALSE">FALSE</a>
+      </li>
       <li><a href="#fn_LOG">LOG</a>
       </li>
+      <li><a href="#fn_MAKE_BOOLEAN">MAKE_BOOLEAN</a>
+      </li>
+      <li><a href="#fn_MISSINGCASE">MISSINGCASE</a>
+      </li>
       <li><a href="#fn_MSG">MSG</a>
+      </li>
+      <li><a href="#fn_OUTOFMEM">OUTOFMEM</a>
       </li>
       <li><a href="#fn_PARMS">PARMS</a>
       </li>
@@ -168,9 +180,15 @@
       </li>
       <li><a href="#fn_RETURN">RETURN</a>
       </li>
+      <li><a href="#fn_TODO">TODO</a>
+      </li>
+      <li><a href="#fn_TRUE">TRUE</a>
+      </li>
       <li><a href="#fn_VARS">VARS</a>
       </li>
       <li><a href="#fn_VOIDRET">VOIDRET</a>
+      </li>
+      <li><a href="#fn_WRONGPARAM">WRONGPARAM</a>
       </li>
       <li><a href="#fn_parray_for">parray_for</a>
       </li>
@@ -178,7 +196,7 @@
       </li>
       </ul>
     </li>
-    <li><a href="#toc68">Functions</a>
+    <li><a href="#toc77">Functions</a>
       <ul>
       <li><a href="#fn_parray_concat">parray_concat</a>
       </li>
@@ -948,6 +966,17 @@ It is known, that several header files and projects define these constants on th
 <p>
 within <code>phorward.h</code>.
 </p>
+<p>
+See also
+</p>
+
+<ul>
+<li><a href="#fn_BOOLEAN_STR">BOOLEAN_STR()</a> - converts a boolean expression into a string.
+</li>
+<li><a href="#fn_MAKE_BOOLEAN">MAKE_BOOLEAN()</a> - converts a boolean expression into a real <a href="#pboolean">pboolean</a> TRUE or FALSE.
+</li>
+</ul>
+
 <p>
 <div class="page-break"></div>
 </p>
@@ -2575,8 +2604,68 @@ Although the wide-character pendants to the standard extended string functions a
 
 <h2 id="toc58">Macros</h2>
 
+<!-- NEED 11 -->
+<div class='function'>
+
+<h3 id="fn_BOOLEAN_STR">BOOLEAN_STR</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+BOOLEAN_STR( b ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Returns the string represenation of the value or expression in <i>b</i>.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_CORE">CORE</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+CORE  - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Enforces a SIGSEGV by writing to invalid memory.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_FALSE">FALSE</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+FALSE  - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Value 0 for FALSE.
+</div>
 <!-- NEED 17 -->
 <div class='function'>
+</p>
 
 <h3 id="fn_LOG">LOG</h3>
 
@@ -2602,6 +2691,47 @@ format string with variable amount of parameters.
 <i>format</i> is a <a href="#fn_printf">printf()</a>-like format-string.
 <i>...</i> parameters in the way they occur in the format-string.
 </div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_MAKE_BOOLEAN">MAKE_BOOLEAN</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+MAKE_BOOLEAN( b ) - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Turns the value or expression <i>b</i> into a <a href="#pboolean">pboolean</a> value TRUE or FALSE.
+</div>
+<!-- NEED 12 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_MISSINGCASE">MISSINGCASE</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+MISSINGCASE  - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Prints "missing case engaged" into stderr, to indicate switch-case
+constructs running into default-branch because any other branch is not engaged.
+</div>
 <!-- NEED 13 -->
 <div class='function'>
 </p>
@@ -2624,6 +2754,26 @@ Write a message to trace.
 </p>
 <p>
 <i>message</i> is your message!
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_OUTOFMEM">OUTOFMEM</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+OUTOFMEM  - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Prints "ran out of memory" into stderr and exits with status 1.
 </div>
 <!-- NEED 20 -->
 <div class='function'>
@@ -2715,6 +2865,46 @@ For void-functions, use the macro VOIDRET.
 <p>
 <i>return_value</i> is return-value of the function.
 </div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_TODO">TODO</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+TODO  - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Prints "TODO alert!" into stderr, to inform about incomplete branches.
+</div>
+<!-- NEED 11 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_TRUE">TRUE</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+TRUE  - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Value 1 for TRUE.
+</div>
 <!-- NEED 18 -->
 <div class='function'>
 </p>
@@ -2767,6 +2957,27 @@ Write void function return to trace.
 <p>
 VOIDRET can only be used if <a href="#fn_PROC">PROC()</a> is used at the beginning of the function.
 For typed functions, use the macro <a href="#fn_RETURN">RETURN()</a>.
+</div>
+<!-- NEED 12 -->
+<div class='function'>
+</p>
+
+<h3 id="fn_WRONGPARAM">WRONGPARAM</h3>
+
+<p>
+<b>Definition:</b>
+</p>
+<div class='definition'>
+<p>
+WRONGPARAM  - <i>Macro</i>
+</div>
+</p>
+<p>
+<b>Usage:</b>
+</p>
+<p>
+Prints "function called with wrong or incomplete parameters" into stderr,
+to indicate invalid function calls.
 </div>
 <!-- NEED 32 -->
 <div class='function'>
@@ -2865,7 +3076,7 @@ plist_for( my_list, e )
 
 </div>
 
-<h2 id="toc68">Functions</h2>
+<h2 id="toc77">Functions</h2>
 
 <!-- NEED 15 -->
 <div class='function'>
@@ -3810,7 +4021,7 @@ later on.
 Returns a char* Returns the allocated string which contains the format string
 with inserted values.
 </div>
-<!-- NEED 19 -->
+<!-- NEED 21 -->
 <div class='function'>
 </p>
 
@@ -3830,7 +4041,7 @@ wchar_t* pawcsprintf( wchar_t* fmt, ... )
 <p>
 An implementation of <a href="#fn_pasprintf">pasprintf()</a> for wide-character wchar_t. <a href="#fn_pasprintf">pasprintf()</a>
 takes only the format-string and various arguments. It outputs an allocated
-string to bbe released with <a href="#fn_pfree">pfree()</a> later on.
+string to be released with <a href="#fn_pfree">pfree()</a> later on.
 </p>
 <p>
 <i>fmt</i> is the format string.
@@ -3839,6 +4050,9 @@ string to bbe released with <a href="#fn_pfree">pfree()</a> later on.
 <p>
 Returns a wchar_t* Returns the allocated string which cointains the format
 string with inserted values.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -4624,7 +4838,7 @@ Returns a pointer to the newly allocated string, which contains the
 string-representation of the double value. This pointer must be released
 by the caller.
 </div>
-<!-- NEED 19 -->
+<!-- NEED 21 -->
 <div class='function'>
 </p>
 
@@ -4653,6 +4867,9 @@ wide-character string representation.
 Returns a pointer to the newly allocated wide-character string, which contains
 the string-representation of the double value. This pointer must be released
 by the caller.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
 <!-- NEED 15 -->
 <div class='function'>
@@ -8361,7 +8578,7 @@ Implementation and replacement for vasprintf.
 <p>
 Returns the number of characters written, or -1 in case of an error.
 </div>
-<!-- NEED 17 -->
+<!-- NEED 19 -->
 <div class='function'>
 </p>
 
@@ -8388,6 +8605,9 @@ Wide-character implementation of <a href="#fn_pasprintf">pasprintf()</a>.
 </p>
 <p>
 Returns the number of characters written.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
 <!-- NEED 22 -->
 <div class='function'>
@@ -8423,7 +8643,7 @@ conversion, if set to TRUE.
 Returns the UTF-8 character pendant of <i>str</i> as pointer to dynamically
 allocated memory.
 </div>
-<!-- NEED 18 -->
+<!-- NEED 20 -->
 <div class='function'>
 </p>
 
@@ -8451,8 +8671,11 @@ to be appended to str.
 <p>
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
-<!-- NEED 21 -->
+<!-- NEED 23 -->
 <div class='function'>
 </p>
 
@@ -8483,8 +8706,11 @@ wide-character string.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 were NULL.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
-<!-- NEED 17 -->
+<!-- NEED 19 -->
 <div class='function'>
 </p>
 
@@ -8511,8 +8737,11 @@ the function will also return NULL.
 <p>
 Returns a wchar_t*-pointer to the newly allocated copy of <i>str</i>. This pointer
 must be released with <a href="#fn_pfree">pfree()</a> when its existence is no longer required.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
-<!-- NEED 14 -->
+<!-- NEED 16 -->
 <div class='function'>
 </p>
 
@@ -8535,8 +8764,11 @@ Safely reads a wide-character string.
 <p>
 <i>str</i> is the string pointer to be safely read. If <i>str</i> is NULL, the
 function returns a pointer to a static address holding an empty string.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
-<!-- NEED 14 -->
+<!-- NEED 16 -->
 <div class='function'>
 </p>
 
@@ -8559,8 +8791,11 @@ Safe strlen replacement for wide-character.
 <p>
 <i>str</i> is the parameter string to be evaluated. If (wchar_t*)NULL,
 the function returns 0.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
-<!-- NEED 20 -->
+<!-- NEED 22 -->
 <div class='function'>
 </p>
 
@@ -8590,8 +8825,11 @@ Appends <i>n</i> characters from one wide-character string to a dynamic string.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 were NULL.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
-<!-- NEED 26 -->
+<!-- NEED 28 -->
 <div class='function'>
 </p>
 
@@ -8629,8 +8867,11 @@ terminator.
 Returns a wchar_t*-pointer to the allocated memory holding the zero-terminated
 wide-character string duplicate. This pointer must be released with <a href="#fn_pfree">pfree()</a>
 when its existence is no longer required.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
-<!-- NEED 25 -->
+<!-- NEED 27 -->
 <div class='function'>
 </p>
 
@@ -8666,6 +8907,9 @@ Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
 This is the same pointer as returned when calling <code>*str</code>. The returned pointer
 must be released with <a href="#fn_pfree">pfree()</a> or another call of <a href="#fn_pwcsput">pwcsput()</a>. Calling <a href="#fn_pwcsput">pwcsput()</a>
 as <code>pwcsput( &amp;p, (char*)NULL );</code> is equivalent to <code>p = pfree( &amp;p )</code>.
+</p>
+<p>
+<i>This function is only available when compiled with -DUNICODE.</i>
 </div>
 <!-- NEED 22 -->
 <div class='function'>

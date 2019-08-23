@@ -3,6 +3,48 @@
 
 
 == Macros ==
+%NEED:11
+%FUNCTION:BEGIN
+=== BOOLEAN_STR ===[fn_BOOLEAN_STR]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+BOOLEAN_STR( b ) - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Returns the string represenation of the value or expression in //b//.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== CORE ===[fn_CORE]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+CORE  - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Enforces a SIGSEGV by writing to invalid memory.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== FALSE ===[fn_FALSE]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+FALSE  - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Value 0 for FALSE.
+%FUNCTION:END
 %NEED:17
 %FUNCTION:BEGIN
 === LOG ===[fn_LOG]
@@ -23,6 +65,35 @@ format string with variable amount of parameters.
 //format// is a [printf() #fn_printf]-like format-string.
 //...// parameters in the way they occur in the format-string.
 %FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== MAKE_BOOLEAN ===[fn_MAKE_BOOLEAN]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+MAKE_BOOLEAN( b ) - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Turns the value or expression //b// into a pboolean value TRUE or FALSE.
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== MISSINGCASE ===[fn_MISSINGCASE]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+MISSINGCASE  - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Prints "missing case engaged" into stderr, to indicate switch-case
+constructs running into default-branch because any other branch is not engaged.
+%FUNCTION:END
 %NEED:13
 %FUNCTION:BEGIN
 === MSG ===[fn_MSG]
@@ -38,6 +109,20 @@ MSG( char* message ) - //Macro//
 Write a message to trace.
 
 //message// is your message!
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== OUTOFMEM ===[fn_OUTOFMEM]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+OUTOFMEM  - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Prints "ran out of memory" into stderr and exits with status 1.
 %FUNCTION:END
 %NEED:20
 %FUNCTION:BEGIN
@@ -105,6 +190,34 @@ For void-functions, use the macro VOIDRET.
 
 //return_value// is return-value of the function.
 %FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== TODO ===[fn_TODO]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+TODO  - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Prints "TODO alert!" into stderr, to inform about incomplete branches.
+%FUNCTION:END
+%NEED:11
+%FUNCTION:BEGIN
+=== TRUE ===[fn_TRUE]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+TRUE  - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Value 1 for TRUE.
+%FUNCTION:END
 %NEED:18
 %FUNCTION:BEGIN
 === VARS ===[fn_VARS]
@@ -142,6 +255,21 @@ Write void function return to trace.
 
 VOIDRET can only be used if [PROC() #fn_PROC] is used at the beginning of the function.
 For typed functions, use the macro [RETURN() #fn_RETURN].
+%FUNCTION:END
+%NEED:12
+%FUNCTION:BEGIN
+=== WRONGPARAM ===[fn_WRONGPARAM]
+
+**Definition:**
+
+%DEFINITION:BEGIN
+WRONGPARAM  - //Macro//
+%DEFINITION:END
+
+**Usage:**
+
+Prints "function called with wrong or incomplete parameters" into stderr,
+to indicate invalid function calls.
 %FUNCTION:END
 %NEED:32
 %FUNCTION:BEGIN
@@ -888,7 +1016,7 @@ later on.
 Returns a char* Returns the allocated string which contains the format string
 with inserted values.
 %FUNCTION:END
-%NEED:19
+%NEED:21
 %FUNCTION:BEGIN
 === pawcsprintf ===[fn_pawcsprintf]
 
@@ -902,13 +1030,15 @@ wchar_t* pawcsprintf( wchar_t* fmt, ... )
 
 An implementation of [pasprintf() #fn_pasprintf] for wide-character wchar_t. [pasprintf() #fn_pasprintf]
 takes only the format-string and various arguments. It outputs an allocated
-string to bbe released with [pfree() #fn_pfree] later on.
+string to be released with [pfree() #fn_pfree] later on.
 
 //fmt// is the format string.
 //...// are the parameters according to the placeholders set in //fmt//.
 
 Returns a wchar_t* Returns the allocated string which cointains the format
 string with inserted values.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -1471,7 +1601,7 @@ Returns a pointer to the newly allocated string, which contains the
 string-representation of the double value. This pointer must be released
 by the caller.
 %FUNCTION:END
-%NEED:19
+%NEED:21
 %FUNCTION:BEGIN
 === pdbl_to_wcs ===[fn_pdbl_to_wcs]
 
@@ -1492,6 +1622,8 @@ wide-character string representation.
 Returns a pointer to the newly allocated wide-character string, which contains
 the string-representation of the double value. This pointer must be released
 by the caller.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
 %NEED:15
 %FUNCTION:BEGIN
@@ -4038,7 +4170,7 @@ Implementation and replacement for vasprintf.
 
 Returns the number of characters written, or -1 in case of an error.
 %FUNCTION:END
-%NEED:17
+%NEED:19
 %FUNCTION:BEGIN
 === pvawcsprintf ===[fn_pvawcsprintf]
 
@@ -4057,6 +4189,8 @@ Wide-character implementation of [pasprintf() #fn_pasprintf].
 //...// is the parameters according to the placeholders set in //fmt//.
 
 Returns the number of characters written.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
 %NEED:22
 %FUNCTION:BEGIN
@@ -4083,7 +4217,7 @@ conversion, if set to TRUE.
 Returns the UTF-8 character pendant of //str// as pointer to dynamically
 allocated memory.
 %FUNCTION:END
-%NEED:18
+%NEED:20
 %FUNCTION:BEGIN
 === pwcscatchar ===[fn_pwcscatchar]
 
@@ -4103,8 +4237,10 @@ to be appended to str.
 
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
-%NEED:21
+%NEED:23
 %FUNCTION:BEGIN
 === pwcscatstr ===[fn_pwcscatstr]
 
@@ -4127,8 +4263,10 @@ wide-character string.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 were NULL.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
-%NEED:17
+%NEED:19
 %FUNCTION:BEGIN
 === pwcsdup ===[fn_pwcsdup]
 
@@ -4147,8 +4285,10 @@ the function will also return NULL.
 
 Returns a wchar_t*-pointer to the newly allocated copy of //str//. This pointer
 must be released with [pfree() #fn_pfree] when its existence is no longer required.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
-%NEED:14
+%NEED:16
 %FUNCTION:BEGIN
 === pwcsget ===[fn_pwcsget]
 
@@ -4164,8 +4304,10 @@ Safely reads a wide-character string.
 
 //str// is the string pointer to be safely read. If //str// is NULL, the
 function returns a pointer to a static address holding an empty string.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
-%NEED:14
+%NEED:16
 %FUNCTION:BEGIN
 === pwcslen ===[fn_pwcslen]
 
@@ -4181,8 +4323,10 @@ Safe strlen replacement for wide-character.
 
 //str// is the parameter string to be evaluated. If (wchar_t*)NULL,
 the function returns 0.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
-%NEED:20
+%NEED:22
 %FUNCTION:BEGIN
 === pwcsncatstr ===[fn_pwcsncatstr]
 
@@ -4204,8 +4348,10 @@ Appends //n// characters from one wide-character string to a dynamic string.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 were NULL.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
-%NEED:26
+%NEED:28
 %FUNCTION:BEGIN
 === pwcsndup ===[fn_pwcsndup]
 
@@ -4233,8 +4379,10 @@ terminator.
 Returns a wchar_t*-pointer to the allocated memory holding the zero-terminated
 wide-character string duplicate. This pointer must be released with [pfree() #fn_pfree]
 when its existence is no longer required.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
-%NEED:25
+%NEED:27
 %FUNCTION:BEGIN
 === pwcsput ===[fn_pwcsput]
 
@@ -4261,6 +4409,8 @@ Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
 This is the same pointer as returned when calling ``*str``. The returned pointer
 must be released with [pfree() #fn_pfree] or another call of [pwcsput() #fn_pwcsput]. Calling [pwcsput() #fn_pwcsput]
 as ``pwcsput( &p, (char*)NULL );`` is equivalent to ``p = pfree( &p )``.
+
+//This function is only available when compiled with -DUNICODE.//
 %FUNCTION:END
 %NEED:22
 %FUNCTION:BEGIN

@@ -64,13 +64,22 @@ August 2019
  * String helper functions (pstr*, pwcs*)
  * Function reference
   * Macros
+   * BOOLEAN_STR
+   * CORE
+   * FALSE
    * LOG
+   * MAKE_BOOLEAN
+   * MISSINGCASE
    * MSG
+   * OUTOFMEM
    * PARMS
    * PROC
    * RETURN
+   * TODO
+   * TRUE
    * VARS
    * VOIDRET
+   * WRONGPARAM
    * parray_for
    * plist_for
   * Functions
@@ -531,6 +540,11 @@ It is known, that several header files and projects define these constants on th
     #endif
 
 within `phorward.h`.
+
+See also
+
+ * @BOOLEAN_STR() - converts a boolean expression into a string.
+ * @MAKE_BOOLEAN() - converts a boolean expression into a real pboolean TRUE or FALSE.
 
 $NEWPAGE$
 
@@ -1482,6 +1496,36 @@ Although the wide-character pendants to the standard extended string functions a
 
 ## Macros 
 
+### BOOLEAN_STR 
+
+**Definition:**
+
+BOOLEAN_STR( b ) - *Macro*
+
+**Usage:**
+
+Returns the string represenation of the value or expression in *b*.
+
+### CORE 
+
+**Definition:**
+
+CORE  - *Macro*
+
+**Usage:**
+
+Enforces a SIGSEGV by writing to invalid memory.
+
+### FALSE 
+
+**Definition:**
+
+FALSE  - *Macro*
+
+**Usage:**
+
+Value 0 for FALSE.
+
 ### LOG 
 
 **Definition:**
@@ -1498,6 +1542,27 @@ format string with variable amount of parameters.
 *format* is a [printf()](#fn_printf)-like format-string.
 *...* parameters in the way they occur in the format-string.
 
+### MAKE_BOOLEAN 
+
+**Definition:**
+
+MAKE_BOOLEAN( b ) - *Macro*
+
+**Usage:**
+
+Turns the value or expression *b* into a pboolean value TRUE or FALSE.
+
+### MISSINGCASE 
+
+**Definition:**
+
+MISSINGCASE  - *Macro*
+
+**Usage:**
+
+Prints "missing case engaged" into stderr, to indicate switch-case
+constructs running into default-branch because any other branch is not engaged.
+
 ### MSG 
 
 **Definition:**
@@ -1509,6 +1574,16 @@ MSG( char* message ) - *Macro*
 Write a message to trace.
 
 *message* is your message!
+
+### OUTOFMEM 
+
+**Definition:**
+
+OUTOFMEM  - *Macro*
+
+**Usage:**
+
+Prints "ran out of memory" into stderr and exits with status 1.
 
 ### PARMS 
 
@@ -1564,6 +1639,26 @@ For void-functions, use the macro VOIDRET.
 
 *return_value* is return-value of the function.
 
+### TODO 
+
+**Definition:**
+
+TODO  - *Macro*
+
+**Usage:**
+
+Prints "TODO alert!" into stderr, to inform about incomplete branches.
+
+### TRUE 
+
+**Definition:**
+
+TRUE  - *Macro*
+
+**Usage:**
+
+Value 1 for TRUE.
+
 ### VARS 
 
 **Definition:**
@@ -1593,6 +1688,17 @@ Write void function return to trace.
 
 VOIDRET can only be used if [PROC()](#fn_PROC) is used at the beginning of the function.
 For typed functions, use the macro [RETURN()](#fn_RETURN).
+
+### WRONGPARAM 
+
+**Definition:**
+
+WRONGPARAM  - *Macro*
+
+**Usage:**
+
+Prints "function called with wrong or incomplete parameters" into stderr,
+to indicate invalid function calls.
 
 ### parray_for 
 
@@ -2198,13 +2304,15 @@ wchar_t* pawcsprintf( wchar_t* fmt, ... )
 
 An implementation of [pasprintf()](#fn_pasprintf) for wide-character wchar_t. [pasprintf()](#fn_pasprintf)
 takes only the format-string and various arguments. It outputs an allocated
-string to bbe released with [pfree()](#fn_pfree) later on.
+string to be released with [pfree()](#fn_pfree) later on.
 
 *fmt* is the format string.
 *...* are the parameters according to the placeholders set in *fmt*.
 
 Returns a wchar_t* Returns the allocated string which cointains the format
 string with inserted values.
+
+*This function is only available when compiled with -DUNICODE.*
 
 ### pbasename 
 
@@ -2676,6 +2784,8 @@ wide-character string representation.
 Returns a pointer to the newly allocated wide-character string, which contains
 the string-representation of the double value. This pointer must be released
 by the caller.
+
+*This function is only available when compiled with -DUNICODE.*
 
 ### pfileexists 
 
@@ -4739,6 +4849,8 @@ Wide-character implementation of [pasprintf()](#fn_pasprintf).
 
 Returns the number of characters written.
 
+*This function is only available when compiled with -DUNICODE.*
+
 ### pwcs_to_str 
 
 **Definition:**
@@ -4777,6 +4889,8 @@ to be appended to str.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated.
 
+*This function is only available when compiled with -DUNICODE.*
+
 ### pwcscatstr 
 
 **Definition:**
@@ -4797,6 +4911,8 @@ Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 were NULL.
 
+*This function is only available when compiled with -DUNICODE.*
+
 ### pwcsdup 
 
 **Definition:**
@@ -4813,6 +4929,8 @@ the function will also return NULL.
 Returns a wchar_t*-pointer to the newly allocated copy of *str*. This pointer
 must be released with [pfree()](#fn_pfree) when its existence is no longer required.
 
+*This function is only available when compiled with -DUNICODE.*
+
 ### pwcsget 
 
 **Definition:**
@@ -4826,6 +4944,8 @@ Safely reads a wide-character string.
 *str* is the string pointer to be safely read. If *str* is NULL, the
 function returns a pointer to a static address holding an empty string.
 
+*This function is only available when compiled with -DUNICODE.*
+
 ### pwcslen 
 
 **Definition:**
@@ -4838,6 +4958,8 @@ Safe strlen replacement for wide-character.
 
 *str* is the parameter string to be evaluated. If (wchar_t*)NULL,
 the function returns 0.
+
+*This function is only available when compiled with -DUNICODE.*
 
 ### pwcsncatstr 
 
@@ -4857,6 +4979,8 @@ Appends *n* characters from one wide-character string to a dynamic string.
 Returns a wchar_t* Pointer to (possibly re-)allo- cated and appended string.
 (wchar_t*)NULL is returned if no memory could be (re)allocated, or both strings
 were NULL.
+
+*This function is only available when compiled with -DUNICODE.*
 
 ### pwcsndup 
 
@@ -4883,6 +5007,8 @@ Returns a wchar_t*-pointer to the allocated memory holding the zero-terminated
 wide-character string duplicate. This pointer must be released with [pfree()](#fn_pfree)
 when its existence is no longer required.
 
+*This function is only available when compiled with -DUNICODE.*
+
 ### pwcsput 
 
 **Definition:**
@@ -4906,6 +5032,8 @@ Returns a pointer to the allocated heap memory on success, (char_t*)NULL else.
 This is the same pointer as returned when calling `*str`. The returned pointer
 must be released with [pfree()](#fn_pfree) or another call of [pwcsput()](#fn_pwcsput). Calling [pwcsput()](#fn_pwcsput)
 as `pwcsput( &p, (char*)NULL );` is equivalent to `p = pfree( &p )`.
+
+*This function is only available when compiled with -DUNICODE.*
 
 ### pwhich 
 

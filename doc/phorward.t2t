@@ -321,6 +321,12 @@ It is known, that several header files and projects define these constants on th
 
 within ``phorward.h``.
 
+See also
+
+- @BOOLEAN_STR() - converts a boolean expression into a string.
+- @MAKE_BOOLEAN() - converts a boolean expression into a real pboolean TRUE or FALSE.
+-
+
 $NEWPAGE$
 == Debugging and tracing ==[ptrace]
 
