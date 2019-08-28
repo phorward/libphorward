@@ -134,10 +134,10 @@ constructs running into default-branch because any other branch is not engaged.
 /* Watch for order! */
 ##include "version.h"
 
-##include "base/dbg.h"
-##include "base/array.h"
-##include "base/list.h"
-##include "base/ccl.h"
+##include "dbg.h"
+##include "array.h"
+##include "list.h"
+##include "ccl.h"
 
 ##include "regex/regex.h"
 

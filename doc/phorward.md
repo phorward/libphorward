@@ -1,5 +1,5 @@
 The Phorward C/C++ Library and Toolkit
-libphorward 1.0
+libphorward 1.0.0
 August 2019
 
 
@@ -12,7 +12,6 @@ August 2019
   * Building from sources
   * Local development build
   * Building on Windows
- * History
  * Command-line tools
   * pdoc - C source code documentation tool
   * pinclude - Generate big files from various smaller ones
@@ -283,17 +282,31 @@ August 2019
 
 # Introduction 
 
-Welcome to the Phorward C/C++ Library on-line documentation!
+**phorward** (*libphorward*) is a generic C/C++ library and toolbox, serving platform-independent utilities for different purposes.
 
-**phorward** *(libphorward)* is a C/C++ programming library, providing useful extensions like dynamic data structures, enhanced string management functions and regular expressions.
+ * Data structures
+  * parray - Dynamically managed arrays & stacks
+  * pccl - Character-classes
+  * plex - Lexical analyzers
+  * plist - Linked lists, hash-tables, queues & stacks
+  * pregex - Regular expressions
+ * Generic helpers
+  * [DEBUG-facilities](#ptrace) - Logging, tracing and run-time analysis
+  * [pgetopt](#fn_getopt) - Command-line options interpreter
+  * [pstr*, pwcs*](#pstr) - Enhanced string operations
+ * Command-line tools
+  * [pdoc](#c_pdoc) - C source code documentation tool
+  * [pinclude](#c_pinclude) - Generate big files from various smaller ones
+  * [plex](#c_plex) - Lexical analyzer generator and interpreter
+  * [pproto](#c_pproto) - C function prototype generator
+  * [pregex](#c_pregex) - Regular expressions match/find/split/replace
+  * [ptest](#c_ptest) - C program test facilities
 
-The library provides several modules which can be used together or on their own:
+The cornerstone for this C functions library was already laid in 2006 during some experimenting with several algorithms, data structures and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, unfortunately mostly unfinished software projects which had their origin at *J.M.K S.F. Software Technologies*, which was later renamed to *Phorward Software Technologies*.
 
- * **base** provides tools for dynamic data structures and utility functions used throughout the library, including linked lists, hash-tables, stacks and arrays.
- * **regex** provides tools for constructing, parsing, processing and modifying regular expressions.
- * **string** is an extended string processing library with useful functions for `char*` and `wchar_t*`-string manipulation.
+The library was then released as version 0.16 to the public in 2011, together with the open source parser generator [UniCC](http://unicc.phorward-software.com/). It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandoned or evolved into other directions.
 
-The library also comes with some tools and command-line helpers, including a documentation generator and a functions prototype generator for C modules.
+In 2019, the library was finally officially released as version 1.0, and will now be continued in several ways.
 
 # Installation 
 
@@ -337,14 +350,6 @@ The Phorward C/C++ Library also perfectly cross-compiles on Linux using the MinG
     
     # To compile into 64-Bit Windows executables, configure with
     $ ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
-
-# History 
-
-The cornerstone for this C functions library was already laid in 2006 during some experimenting with several algorithms, data structures and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, unfortunately mostly unfinished software projects which had their origin at *J.M.K S.F. Software Technologies*, which was later renamed to *Phorward Software Technologies*.
-
-The library was then released as version 0.16 to the public in 2011, together with the open source parser generator [UniCC](http://unicc.phorward-software.com/). It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandoned or evolved into other directions.
-
-In 2019, the library was finally officially released as version 1.0, and will now be continued in several ways.
 
 # Command-line tools 
 

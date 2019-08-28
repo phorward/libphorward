@@ -2,7 +2,7 @@
 
 **phorward** *(libphorward)* is a generic C/C++ library and toolbox, serving platform-independent utilities for different purposes.
 
-## Generic data structures
+## Data structures
 
 - [parray](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#parray) - Dynamically managed arrays & stacks
 - [pccl](https://raw.githack.com/phorward/phorward/develop/doc/phorward.html#pccl) - Character-classes

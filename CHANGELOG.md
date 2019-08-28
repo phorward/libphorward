@@ -6,11 +6,12 @@ This file is used to document any relevant changes done to libphorward.
 
 Under development.
 
+- Entirely restructured `src/`-folder
 - Modularization of the command-line tools `pdoc`, `pinclude` and `pproto`
 - Started `ptest` utility to perform automated tests and CI
 - Started to develop several tests for `ptest`
 - Improved program tracing facilities, including clock measuring to indicate slow running functions
-- Moved the `pany` dynamic variant data type into the [phosphor repository](https://github.com/phorward/phosphor)
+- Moved the `pany` dynamic variant data type away into the [phosphor repository](https://github.com/phorward/phosphor)
 - parray:
   - New functions for set management: parray_union(), parray_diff(),
     parray_sort(), parray_concat(), providing equivalence to their

@@ -51,36 +51,60 @@ typedef char 					pboolean;
 #define boolean 				pboolean
 #endif
 
+
+
+
+
 #ifndef TRUE
 #define TRUE					1
 #endif
+
+
+
 
 #ifndef FALSE
 #define FALSE					0
 #endif
 
+
+
+
 #define BOOLEAN_STR( b ) 		( ( b ) ? "TRUE" : "FALSE" )
+
+
+
 #define MAKE_BOOLEAN( b ) 		( ( b ) ? TRUE : FALSE )
+
+
+
 
 
 #define OUTOFMEM				fprintf( stderr, \
 									"%s, %d: Ran out of memory\n", \
 										__FILE__, __LINE__ ), exit( 1 )
 
+
+
 #define WRONGPARAM				fprintf( stderr, \
 									"%s, %d: Function called with wrong or " \
 									"incomplete parameters, fix your call!\n", \
 										__FILE__, __LINE__ )
+
+
 
 #define MISSINGCASE				fprintf( stderr, \
 									"%s, %d: Missing case engaged, " \
 									"please check for correctness.\n", \
 									__FILE__, __LINE__ )
 
+
+
 #define TODO					fprintf( stderr, \
 									"%s, %d: TODO alert! The program ran into "\
 									"a module that is not finished yet!\n", \
 											__FILE__, __LINE__ )
+
+
 
 #define CORE					{ 	int* x = NULL; \
 									fprintf( stderr, \

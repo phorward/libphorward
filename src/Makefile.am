@@ -20,28 +20,28 @@ lib_LTLIBRARIES = libphorward.la
 libphorward_la_LDFLAGS = -no-undefined
 
 libphorward_la_SOURCES = \
-	base/array.c \
-	base/ccl.c \
-	base/dbg.c \
-	base/list.c \
-	base/memory.c \
-	base/system.c \
+	array.c \
+	ccl.c \
+	convert.c \
+	dbg.c \
+	list.c \
+	memory.c \
+	string.c \
+	system.c \
+	utf8.c \
 	regex/dfa.c \
 	regex/direct.c \
     regex/lex.c \
 	regex/misc.c \
 	regex/nfa.c \
 	regex/ptn.c \
-	regex/regex.c \
-	string/convert.c \
-	string/string.c \
-	string/utf8.c
+	regex/regex.c
 
 noinst_HEADERS = \
-	base/array.h \
-	base/ccl.h \
-	base/dbg.h \
-	base/list.h \
+	array.h \
+	ccl.h \
+	dbg.h \
+	list.h \
 	regex/regex.h \
 	version.h \
 	phorward.tpl.h \
