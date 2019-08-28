@@ -6,4 +6,4 @@ sudo make install
 
 # Run test suite
 hash -r
-LD_LIBRARY_PATH="/usr/lib" LDLIBS="-lphorward" CFLAGS="-DDEBUG -DUTF8 -DUNICODE -g" ptest -v src/base/array.c src/base/list.c src/string/string.c
+LD_LIBRARY_PATH="/usr/lib" LDLIBS="-lphorward" CFLAGS="-DDEBUG -DUTF8 -DUNICODE -g" ptest -v src/array.c src/list.c src/string.c
