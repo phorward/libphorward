@@ -17,6 +17,8 @@ Under development.
     parray_sort(), parray_concat(), providing equivalence to their
     plist counterparts
   - Changed signatures for parray iter functions
+- pccl:
+  - Changed underlying data structures from plist to the much faster parray.
 - plist:
   - Improvements of the `plist` data type so that `plistel` provides no
     (error-prone!) back-pointer to its list anymore.

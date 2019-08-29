@@ -12,13 +12,13 @@ Usage:	Character classes
 #define PREGEX_LOCAL
 #include "phorward.h"
 
-/* Sort-function required for quick sort */
-static int ccl_SORTFUNC( plist* list, plistel* el, plistel* er )
-{
-	pcrange*	l	= (pcrange*)plist_access( el );
-	pcrange*	r	= (pcrange*)plist_access( er );
+/* Prototype */
+static pboolean pccl_ADDRANGE( pccl* ccl, wchar_t begin, wchar_t end );
 
-	return r->begin - l->begin;
+/* Sort-function required for quick sort */
+static int ccl_SORTFUNC( parray* arr, void* a, void* b )
+{
+	return ((pcrange*)b)->begin - ((pcrange*)a)->begin;
 }
 
 /** Constructor function to create a new character-class.
@@ -45,8 +45,8 @@ pccl* pccl_create( int min, int max, char* ccldef )
 
 	ccl = (pccl*)pmalloc( sizeof( pccl ) );
 
-	ccl->ranges = plist_create( sizeof( pcrange ), PLIST_MOD_RECYCLE );
-	plist_set_sortfn( ccl->ranges, ccl_SORTFUNC );
+	parray_init( &ccl->ranges, sizeof( pcrange ), 0 );
+	parray_set_sortfn( &ccl->ranges, ccl_SORTFUNC );
 
 	if( min > max )
 	{
@@ -61,7 +61,6 @@ pccl* pccl_create( int min, int max, char* ccldef )
 
 	if( ccldef )
 		pccl_parse( ccl, ccldef, FALSE );
-
 
 	RETURN( ccl );
 }
@@ -88,7 +87,7 @@ pccl_count() instead.
 
 Returns the number of pairs the charclass holds.
 */
-int pccl_size( pccl* ccl )
+size_t pccl_size( pccl* ccl )
 {
 	if( !ccl )
 	{
@@ -96,7 +95,7 @@ int pccl_size( pccl* ccl )
 		return 0;
 	}
 
-	return plist_count( ccl->ranges );
+	return parray_count( &ccl->ranges );
 }
 
 /** Returns the number of characters within a character-class.
@@ -105,11 +104,10 @@ int pccl_size( pccl* ccl )
 
 Returns the total number of characters the class is holding.
 */
-int pccl_count( pccl* ccl )
+size_t pccl_count( pccl* ccl )
 {
-	plistel*	e;
 	pcrange*	cr;
-	int			cnt	= 0;
+	size_t		cnt	= 0;
 
 	if( !ccl )
 	{
@@ -117,11 +115,8 @@ int pccl_count( pccl* ccl )
 		return 0;
 	}
 
-	for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
-	{
-		cr = (pcrange*)plist_access( e );
+	parray_for( &ccl->ranges, cr )
 		cnt += ( cr->end - cr->begin ) + 1;
-	}
 
 	return cnt;
 }
@@ -136,7 +131,7 @@ in error case.
 pccl* pccl_dup( pccl* ccl )
 {
 	pccl* 		dup;
-	plistel*	e;
+	pcrange*	cr;
 
 	if( !ccl )
 	{
@@ -147,9 +142,11 @@ pccl* pccl_dup( pccl* ccl )
 	/* Create new, empty ccl */
 	dup = pccl_create( ccl->min, ccl->max, (char*)NULL );
 
+	parray_reserve( &dup->ranges, parray_count( &ccl->ranges ) );
+
 	/* Copy elements */
-	plist_for( ccl->ranges, e )
-		plist_push( dup->ranges, plist_access( e ) );
+	parray_for( &ccl->ranges, cr )
+		pccl_ADDRANGE( dup, cr->begin, cr->end );
 
 	return dup;
 }
@@ -166,11 +163,10 @@ Returns the number of cycles used for normalization.
 */
 static int pccl_normalize( pccl* ccl )
 {
-	plistel*	e;
 	pcrange*	l;
 	pcrange*	r;
-	int			count		= 0;
-	int			oldcount	= 0;
+	size_t		count		= 0;
+	size_t		oldcount;
 	int			cycles		= 0;
 
 	PROC( "pccl_normalize" );
@@ -182,42 +178,39 @@ static int pccl_normalize( pccl* ccl )
 		RETURN( -1 );
 	}
 
-	do
+	while( ( count = pccl_size( ccl ) ) != oldcount )
 	{
 		oldcount = count;
 
 		/* First sort the character ranges */
-		plist_sort( ccl->ranges );
+		parray_sort( &ccl->ranges );
 
 		/* Then, find intersections and... */
-		for( e = plist_first( ccl->ranges ); e; )
+		parray_for( &ccl->ranges, l )
 		{
-			l = (pcrange*)plist_access( e );
-
-			if( ( r = (pcrange*)plist_access( plist_next( e ) ) ) )
+			if( ( r = l + 1 ) < (pcrange*)ccl->ranges.top )
 			{
 				if( r->begin <= l->end && r->end >= l->begin )
 				{
 					if( r->end > l->end )
 						l->end = r->end;
 
-					plist_remove( ccl->ranges, plist_next( e ) );
-					continue;
+					parray_remove( &ccl->ranges,
+							parray_offset( &ccl->ranges, r ), NULL );
+					break;
 				}
 				else if( l->end + 1 == r->begin )
 				{
 					l->end = r->end;
-					plist_remove( ccl->ranges, plist_next( e ) );
-					continue;
+					parray_remove( &ccl->ranges,
+							parray_offset( &ccl->ranges, r ), NULL );
+					break;
 				}
 			}
-
-			e = plist_next( e );
 		}
 
 		cycles++;
 	}
-	while( ( count = pccl_size( ccl ) ) != oldcount );
 
 	RETURN( cycles );
 }
@@ -233,7 +226,6 @@ Returns TRUE if the entire character range matches the class, and FALSE if not.
 pboolean pccl_testrange( pccl* ccl, wchar_t begin, wchar_t end )
 {
 	pcrange*	cr;
-	plistel*	e;
 
 	if( !( ccl ) )
 	{
@@ -241,13 +233,9 @@ pboolean pccl_testrange( pccl* ccl, wchar_t begin, wchar_t end )
 		return FALSE;
 	}
 
-	for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
-	{
-		cr = (pcrange*)plist_access( e );
-
+	parray_for( &ccl->ranges, cr )
 		if( begin >= cr->begin && end <= cr->end )
 			return TRUE;
-	}
 
 	return FALSE;
 }
@@ -347,7 +335,7 @@ static pboolean pccl_ADDRANGE( pccl* ccl, wchar_t begin, wchar_t end )
 		RETURN( FALSE );
 	}
 
-	plist_push( ccl->ranges, (void*)&cr );
+	parray_push( &ccl->ranges, &cr );
 
 	RETURN( TRUE );
 }
@@ -397,7 +385,6 @@ pboolean pccl_add( pccl* ccl, wchar_t ch )
 */
 pboolean pccl_delrange( pccl* ccl, wchar_t begin, wchar_t end )
 {
-	plistel*	e;
 	pcrange		d;
 	pcrange*	r;
 
@@ -426,10 +413,8 @@ pboolean pccl_delrange( pccl* ccl, wchar_t begin, wchar_t end )
 	/* Which elements do match? */
 	do
 	{
-		for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
+		parray_for( &ccl->ranges, r )
 		{
-			r = (pcrange*)plist_access( e );
-
 			if( d.begin <= r->end && end >= r->begin )
 			{
 				/* Slitting required? */
@@ -460,15 +445,16 @@ pboolean pccl_delrange( pccl* ccl, wchar_t begin, wchar_t end )
 				else
 				{
 					MSG( "Remove entire range" );
-					plist_remove( ccl->ranges, e );
+					parray_remove( &ccl->ranges,
+							parray_offset( &ccl->ranges, r ), NULL );
 
-					e = plist_first( ccl->ranges );
+					r = parray_first( &ccl->ranges );
 					break;
 				}
 			}
 		}
 	}
-	while( e );
+	while( r );
 
 	pccl_normalize( ccl );
 	RETURN( TRUE );
@@ -496,8 +482,6 @@ pccl* pccl_negate( pccl* ccl )
 {
 	wchar_t		start;
 	wchar_t		end;
-	plistel*	e;
-	plistel*	ne;
 	pcrange*	r;
 
 	PROC( "pccl_negate" );
@@ -511,25 +495,28 @@ pccl* pccl_negate( pccl* ccl )
 
 	start = end = ccl->min;
 
-	for( e = plist_first( ccl->ranges ); e; e = ne )
+	do
 	{
-		r = (pcrange*)plist_access( e );
-		ne = plist_next( e );
-
-		if( end < r->begin )
+		parray_for( &ccl->ranges, r )
 		{
-			start = r->begin;
-			r->begin = end;
+			if( end < r->begin )
+			{
+				start = r->begin;
+				r->begin = end;
 
-			end = r->end + 1;
-			r->end = start - 1;
-		}
-		else
-		{
-			end = r->end + 1;
-			plist_remove( ccl->ranges, e );
+				end = r->end + 1;
+				r->end = start - 1;
+			}
+			else
+			{
+				end = r->end + 1;
+				parray_remove( &ccl->ranges,
+						parray_offset( &ccl->ranges, r ), NULL );
+				break;
+			}
 		}
 	}
+	while( r );
 
 	if( end < ccl->max )
 		pccl_addrange( ccl, end, ccl->max );
@@ -552,7 +539,6 @@ of //ccl// and //add//.
 pccl* pccl_union( pccl* ccl, pccl* add )
 {
 	pccl*		un;
-	plistel*	e;
 	pcrange*	r;
 
 	PROC( "pccl_union" );
@@ -573,13 +559,9 @@ pccl* pccl_union( pccl* ccl, pccl* add )
 
 	un = pccl_dup( ccl );
 
-	for( e = plist_first( add->ranges ); e; e = plist_next( e ) )
-	{
-		r = (pcrange*)plist_access( e );
-
+	parray_for( &add->ranges, r )
 		if( !pccl_ADDRANGE( un, r->begin, r->end ) )
 			RETURN( FALSE );
-	}
 
 	pccl_normalize( un );
 
@@ -600,7 +582,6 @@ error.
 */
 pccl* pccl_diff( pccl* ccl, pccl* rem )
 {
-	plistel*	e;
 	pcrange*	r;
 	pccl*		diff;
 
@@ -621,15 +602,12 @@ pccl* pccl_diff( pccl* ccl, pccl* rem )
 	}
 
 	if( !( diff = pccl_dup( ccl ) ) )
-		return (pccl*)NULL;
+		RETURN( (pccl*)NULL );
 
-	for( e = plist_first( rem->ranges ); e; e = plist_next( e ) )
-	{
-		r = (pcrange*)plist_access( e );
+	parray_for( &rem->ranges, r )
 		pccl_delrange( diff, r->begin, r->end );
-	}
 
-	return diff;
+	RETURN( diff );
 }
 
 /** Checks for differences in two character-classes.
@@ -642,11 +620,7 @@ equal to //right// or a value > 0 if //left// is greater than //right//.
 */
 int pccl_compare( pccl* left, pccl* right )
 {
-	plistel*	e;
-	plistel*	f;
-	pcrange*	l;
-	pcrange*	r;
-	int			ret		= 0;
+	size_t	ret;
 
 	PROC( "pccl_compare" );
 	PARMS( "left", "%p", left );
@@ -667,25 +641,10 @@ int pccl_compare( pccl* left, pccl* right )
 	if( ( ret = pccl_size( left ) - pccl_size( right ) ) != 0 )
 	{
 		MSG( "Unequal number of range pairs" );
-		RETURN( ret );
+		RETURN( ret < 0 ? -1 : 1 );
 	}
 
-	MSG( "Deep check all ranges" );
-	for( e = plist_first( left->ranges ), f = plist_first( right->ranges );
-			e && f; e = plist_next( e ), f = plist_next( f ) )
-	{
-		l = (pcrange*)plist_access( e );
-		r = (pcrange*)plist_access( f );
-
-		if( !( l->begin == r->begin && l->end == r->end ) )
-		{
-			MSG( "Ranges not equal" );
-			RETURN( ( ( l->begin > r->begin ) ? 1 : -1 ) );
-		}
-	}
-
-	MSG( "Character-classes are equal" );
-	RETURN( ret );
+	RETURN( parray_diff( &left->ranges, &right->ranges ) );
 }
 
 /** Returns a new character-class with all characters that exist in both
@@ -700,8 +659,6 @@ the function returns (pccl*)NULL.
 */
 pccl* pccl_intersect( pccl* ccl, pccl* within )
 {
-	plistel*	e;
-	plistel*	f;
 	pcrange*	r;
 	pcrange*	s;
 	pccl*		in	= (pccl*)NULL;
@@ -722,14 +679,10 @@ pccl* pccl_intersect( pccl* ccl, pccl* within )
 		RETURN( (pccl*)NULL );
 	}
 
-	for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
+	parray_for( &ccl->ranges, r )
 	{
-		r = (pcrange*)plist_access( e );
-
-		for( f = plist_first( within->ranges ); f; f = plist_next( f ) )
+		parray_for( &within->ranges, s )
 		{
-			s = (pcrange*)plist_access( f );
-
 			if( s->begin <= r->end && s->end >= r->begin )
 			{
 				if( !in )
@@ -743,10 +696,7 @@ pccl* pccl_intersect( pccl* ccl, pccl* within )
 	}
 
 	if( in )
-	{
-		MSG( "Normalizing" );
 		pccl_normalize( in );
-	}
 
 	RETURN( in );
 }
@@ -764,18 +714,17 @@ it writes the //begin// and //end// character of the character-range in the
 If no character or range with the given offset was found, the function
 returns FALSE, meaning that the end of the characters is reached.
 On success, the function will always return TRUE. */
-pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset )
+pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, size_t offset )
 {
-	plistel*	e;
 	pcrange*	cr;
 
 	PROC( "pccl_get" );
 	PARMS( "from", "%p", from );
 	PARMS( "to", "%p", to );
 	PARMS( "ccl", "%p", ccl );
-	PARMS( "offset", "%d", offset );
+	PARMS( "offset", "%ld", offset );
 
-	if( !( ccl && from && offset >= 0 ) )
+	if( !( ccl && from ) )
 	{
 		WRONGPARAM;
 		RETURN( FALSE );
@@ -783,12 +732,10 @@ pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset )
 
 	if( !to )
 	{
-		MSG( "Single-character retrival" );
+		MSG( "Single-character retrieval" );
 
-		for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
+		parray_for( &ccl->ranges, cr )
 		{
-			cr = (pcrange*)plist_access( e );
-
 			VARS( "offset", "%d", offset );
 			VARS( "cr->begin", "%d", cr->begin );
 			VARS( "cr->end", "%d", cr->end );
@@ -813,10 +760,9 @@ pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset )
 	}
 	else
 	{
-		MSG( "Range retrival" );
+		MSG( "Range retrieval" );
 
-		if( ( cr = (pcrange*)plist_access(
-						plist_get( ccl->ranges, offset ) ) ) )
+		if( ( cr = (pcrange*)parray_get( &ccl->ranges, offset ) ) )
 		{
 			*from = cr->begin;
 			*to = cr->end;
@@ -1117,7 +1063,7 @@ pboolean pccl_erase( pccl* ccl )
 		return FALSE;
 	}
 
-	return plist_erase( ccl->ranges );
+	return parray_erase( &ccl->ranges );
 }
 
 /** Frees a character-class //ccl// and all its used memory.
@@ -1129,7 +1075,7 @@ pccl* pccl_free( pccl* ccl )
 	if( !ccl )
 		return (pccl*)NULL;
 
-	plist_free( ccl->ranges );
+	parray_erase( &ccl->ranges );
 	pfree( ccl->str );
 
 	pfree( ccl );
@@ -1152,7 +1098,6 @@ character-class handling functions, so it should not be freed manually.
 */
 char* pccl_to_str( pccl* ccl, pboolean escape )
 {
-	plistel*	e;
 	pcrange*	r;
 	char		from	[ 40 + 1 ];
 	char		to		[ 20 + 1 ];
@@ -1169,10 +1114,8 @@ char* pccl_to_str( pccl* ccl, pboolean escape )
 
 	ccl->str = pfree( ccl->str );
 
-	for( e = plist_first( ccl->ranges ); e; e = plist_next( e ) )
+	parray_for( &ccl->ranges, r )
 	{
-		r = (pcrange*)plist_access( e );
-
 		if( escape )
 			putf8_escape_wchar( from, sizeof( from ), r->begin );
 		else
@@ -1210,9 +1153,8 @@ left (FILE*)NULL, so //stderr// will be used.
 */
 void pccl_print( FILE* stream, pccl* ccl, int break_after )
 {
-	plistel*	e;
 	pcrange*	r;
-	int			cnt;
+	int			cnt			= 0;
 	char		outstr[ 2 ] [ 10 + 1 ];
 
 	if( !( ccl ) )
@@ -1224,11 +1166,8 @@ void pccl_print( FILE* stream, pccl* ccl, int break_after )
 	if( break_after < 0 )
 		fprintf( stream, "*** begin of ccl %p ***\n", ccl );
 
-	for( e = plist_first( ccl->ranges ), cnt = 0;
-			e; e = plist_next( e ), cnt++ )
+	parray_for( &ccl->ranges, r )
 	{
-		r = (pcrange*)plist_access( e );
-
 		putf8_toutf8( outstr[0], sizeof( outstr[0] ), &( r->begin ), 1 );
 
 		if( r->begin != r->end )
@@ -1240,12 +1179,12 @@ void pccl_print( FILE* stream, pccl* ccl, int break_after )
 		else
 			fprintf( stream, "'%s' [%d] ", outstr[0], (int)r->begin );
 
-		if( break_after > 0 && cnt % break_after == 0 )
+		if( break_after > 0 && cnt++ % break_after == 0 )
 			fprintf( stream, "\n" );
 	}
 
 	if( break_after < 0 )
-		fprintf( stream, "*** end of ccl %p ***\n", ccl );
+		fprintf( stream, "\n*** end of ccl %p ***\n", ccl );
 }
 
 #if 0
@@ -1292,17 +1231,17 @@ void testcase()
 
 	d = pccl_create( PCCL_MIN, PCCL_MAX,
 					 "^alles richtig! :)" );
-	pccl_print( stderr, c, -1 );
-	pccl_print( stderr, d, -1 );
+	pccl_print( stderr, c, 0 );
+	pccl_print( stderr, d, 0 );
 
 	e = pccl_union( c, d );
-	pccl_print( stderr, e, -1 );
+	pccl_print( stderr, e, 0 );
 
 	pccl_negate( e );
-	pccl_print( stderr, e, -1 );
+	pccl_print( stderr, e, 0 );
 
 	pccl_negate( e );
-	pccl_print( stderr, e, -1 );
+	pccl_print( stderr, e, 0 );
 
 	pccl_delrange( d, '\0', PCCL_MAX );
 	printf( "e = >%s<\n", pccl_to_str( d, TRUE ) );

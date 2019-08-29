@@ -19,17 +19,17 @@ Usage:	Implements functions for Unicode-enabled character-class handling.
 
 typedef struct
 {
-	wchar_t			begin;
-	wchar_t			end;
+	wchar_t			begin;		/* Character range begin */
+	wchar_t			end;		/* Character range end */
 } pcrange;
 
 typedef struct
 {
-	int				min;
-	int				max;
+	wchar_t			min;		/* Character universe start */
+	wchar_t			max;		/* Character universe end */
 
-	plist*			ranges;
+	parray			ranges;		/* Ranges */
 
-	char*			str;
+	char*			str;		/* String representation */
 } pccl;
 

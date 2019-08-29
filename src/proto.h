@@ -1,4 +1,4 @@
-/* base/array.c */
+/* array.c */
 pboolean parray_init( parray* array, size_t size, size_t chunk );
 parray* parray_create( size_t size, size_t chunk );
 pboolean parray_erase( parray* array );
@@ -34,11 +34,11 @@ pboolean parray_sort( parray* array );
 pboolean parray_set_comparefn( parray* array, int (*comparefn)( parray*, void*, void* ) );
 pboolean parray_set_sortfn( parray* array, int (*sortfn)( parray*, void*, void* ) );
 
-/* base/ccl.c */
+/* ccl.c */
 pccl* pccl_create( int min, int max, char* ccldef );
 pboolean pccl_compat( pccl* l, pccl* r );
-int pccl_size( pccl* ccl );
-int pccl_count( pccl* ccl );
+size_t pccl_size( pccl* ccl );
+size_t pccl_count( pccl* ccl );
 pccl* pccl_dup( pccl* ccl );
 pboolean pccl_testrange( pccl* ccl, wchar_t begin, wchar_t end );
 pboolean pccl_test( pccl* ccl, wchar_t ch );
@@ -52,7 +52,7 @@ pccl* pccl_union( pccl* ccl, pccl* add );
 pccl* pccl_diff( pccl* ccl, pccl* rem );
 int pccl_compare( pccl* left, pccl* right );
 pccl* pccl_intersect( pccl* ccl, pccl* within );
-pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset );
+pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, size_t offset );
 size_t pccl_parsechar( wchar_t* retc, char *str, pboolean escapeseq );
 pboolean pccl_parseshorthand( pccl* ccl, char** str );
 pboolean pccl_parse( pccl* ccl, char* ccldef, pboolean extend );
@@ -61,11 +61,19 @@ pccl* pccl_free( pccl* ccl );
 char* pccl_to_str( pccl* ccl, pboolean escape );
 void pccl_print( FILE* stream, pccl* ccl, int break_after );
 
-/* base/dbg.c */
+/* convert.c */
+char* pwcs_to_str( wchar_t* str, pboolean freestr );
+wchar_t* pstr_to_wcs( char* str, pboolean freestr );
+char* pdbl_to_str( double d );
+#ifdef UNICODE
+wchar_t* pdbl_to_wcs( double d );
+#endif
+
+/* dbg.c */
 pboolean _dbg_trace_enabled( char* file, char* function, char* type );
 void _dbg_trace( char* file, int line, char* type, char* function, char* format, ... );
 
-/* base/list.c */
+/* list.c */
 pboolean plist_init( plist* list, size_t size, short flags );
 plist* plist_create( size_t size, short flags );
 plist* plist_dup( plist* list );
@@ -112,19 +120,79 @@ int plist_size( plist* l );
 int plist_count( plist* l );
 void plist_dbgstats( FILE* stream, plist* list );
 
-/* base/memory.c */
+/* memory.c */
 void* pmalloc( size_t size );
 void* prealloc( void* oldptr, size_t size );
 void* pfree( void* ptr );
 void* pmemdup( void* ptr, size_t size );
 
-/* base/system.c */
+/* string.c */
+char* pstrcatchar( char* str, char chr );
+char* pstrcatstr( char* dest, char* src, pboolean freesrc );
+char* pstrncatstr( char* str, char* append, size_t n );
+char* pstrreplace( char* str, char* find, char* replace );
+char* pstrdup( char* str );
+char* pstrndup( char* str, size_t len );
+size_t pstrlen( char* str );
+char* pstrput( char** str, char* val );
+char* pstrget( char* str );
+char* pstrrender( char* tpl, ... );
+char* pstrltrim( char* s );
+char* pstrrtrim( char* s );
+char* pstrtrim( char* s );
+int pstrsplit( char*** tokens, char* str, char* sep, int limit );
+char* pstrupr( char* s );
+char* pstrlwr( char* s );
+int pstrcasecmp( char* s1, char* s2 );
+int pstrncasecmp( char* s1, char* s2, size_t n );
+char* pstrunescape( char* str );
+int pvasprintf( char** str, char* fmt, va_list ap );
+char* pasprintf( char* fmt, ... );
+#ifdef UNICODE
+wchar_t* pwcsdup( wchar_t* str );
+wchar_t* pwcscatchar( wchar_t* str, wchar_t chr );
+wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc );
+wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n );
+size_t pwcslen( wchar_t* str );
+wchar_t* pwcsput( wchar_t** str, wchar_t* val );
+wchar_t* pwcsget( wchar_t* str );
+wchar_t* pwcsndup( wchar_t* str, size_t len );
+int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap );
+wchar_t* pawcsprintf( wchar_t* fmt, ... );
+#endif 
+
+/* system.c */
 char* pwhich( char* filename, char* directories );
 char* pbasename( char* path );
 pboolean pfileexists( char* filename );
 pboolean pfiletostr( char** cont, char* filename );
 int pgetopt( char* opt, char** param, int* next, int argc, char** argv, char* optstr, char* loptstr, int idx );
 size_t pgetline( char** lineptr, size_t* n, FILE* stream );
+
+/* utf8.c */
+pboolean putf8_isutf( unsigned char c );
+int putf8_seqlen(char *s);
+wchar_t putf8_char( char* str );
+char* putf8_move( char* str, int count );
+wchar_t putf8_parse_char( char** ch );
+int putf8_toucs(wchar_t *dest, int sz, char *src, int srcsz);
+int putf8_toutf8(char *dest, int sz, wchar_t *src, int srcsz);
+int putf8_wc_toutf8(char *dest, wchar_t ch);
+int putf8_offset(char *str, int charnum);
+int putf8_charnum(char *s, int offset);
+int putf8_strlen(char *s);
+wchar_t putf8_nextchar(char *s, int *i);
+void putf8_inc(char *s, int *i);
+void putf8_dec(char *s, int *i);
+int octal_digit(char c);
+int hex_digit(char c);
+int putf8_read_escape_sequence(char *str, wchar_t *dest);
+int putf8_unescape(char *buf, int sz, char *src);
+int putf8_escape_wchar(char *buf, int sz, wchar_t ch);
+int putf8_escape(char *buf, int sz, char *src, int escape_quotes);
+char *putf8_strchr(char *s, wchar_t ch, int *charn);
+char *putf8_memchr(char *s, wchar_t ch, size_t sz, int *charn);
+int putf8_is_locale_utf8(char *locale);
 
 /* regex/dfa.c */
 void pregex_dfa_print( pregex_dfa* dfa );
@@ -200,72 +268,4 @@ int pregex_findall( pregex* regex, char* start, parray** matches );
 char* pregex_split( pregex* regex, char* start, char** end, char** next );
 int pregex_splitall( pregex* regex, char* start, parray** matches );
 char* pregex_replace( pregex* regex, char* str, char* replacement );
-
-/* string/convert.c */
-char* pwcs_to_str( wchar_t* str, pboolean freestr );
-wchar_t* pstr_to_wcs( char* str, pboolean freestr );
-char* pdbl_to_str( double d );
-#ifdef UNICODE
-wchar_t* pdbl_to_wcs( double d );
-#endif
-
-/* string/string.c */
-char* pstrcatchar( char* str, char chr );
-char* pstrcatstr( char* dest, char* src, pboolean freesrc );
-char* pstrncatstr( char* str, char* append, size_t n );
-char* pstrreplace( char* str, char* find, char* replace );
-char* pstrdup( char* str );
-char* pstrndup( char* str, size_t len );
-size_t pstrlen( char* str );
-char* pstrput( char** str, char* val );
-char* pstrget( char* str );
-char* pstrrender( char* tpl, ... );
-char* pstrltrim( char* s );
-char* pstrrtrim( char* s );
-char* pstrtrim( char* s );
-int pstrsplit( char*** tokens, char* str, char* sep, int limit );
-char* pstrupr( char* s );
-char* pstrlwr( char* s );
-int pstrcasecmp( char* s1, char* s2 );
-int pstrncasecmp( char* s1, char* s2, size_t n );
-char* pstrunescape( char* str );
-int pvasprintf( char** str, char* fmt, va_list ap );
-char* pasprintf( char* fmt, ... );
-#ifdef UNICODE
-wchar_t* pwcsdup( wchar_t* str );
-wchar_t* pwcscatchar( wchar_t* str, wchar_t chr );
-wchar_t* pwcscatstr( wchar_t* dest, wchar_t* src, pboolean freesrc );
-wchar_t* pwcsncatstr( wchar_t* str, wchar_t* append, size_t n );
-size_t pwcslen( wchar_t* str );
-wchar_t* pwcsput( wchar_t** str, wchar_t* val );
-wchar_t* pwcsget( wchar_t* str );
-wchar_t* pwcsndup( wchar_t* str, size_t len );
-int pvawcsprintf( wchar_t** str, wchar_t* fmt, va_list ap );
-wchar_t* pawcsprintf( wchar_t* fmt, ... );
-#endif 
-
-/* string/utf8.c */
-pboolean putf8_isutf( unsigned char c );
-int putf8_seqlen(char *s);
-wchar_t putf8_char( char* str );
-char* putf8_move( char* str, int count );
-wchar_t putf8_parse_char( char** ch );
-int putf8_toucs(wchar_t *dest, int sz, char *src, int srcsz);
-int putf8_toutf8(char *dest, int sz, wchar_t *src, int srcsz);
-int putf8_wc_toutf8(char *dest, wchar_t ch);
-int putf8_offset(char *str, int charnum);
-int putf8_charnum(char *s, int offset);
-int putf8_strlen(char *s);
-wchar_t putf8_nextchar(char *s, int *i);
-void putf8_inc(char *s, int *i);
-void putf8_dec(char *s, int *i);
-int octal_digit(char c);
-int hex_digit(char c);
-int putf8_read_escape_sequence(char *str, wchar_t *dest);
-int putf8_unescape(char *buf, int sz, char *src);
-int putf8_escape_wchar(char *buf, int sz, wchar_t ch);
-int putf8_escape(char *buf, int sz, char *src, int escape_quotes);
-char *putf8_strchr(char *s, wchar_t ch, int *charn);
-char *putf8_memchr(char *s, wchar_t ch, size_t sz, int *charn);
-int putf8_is_locale_utf8(char *locale);
 
