@@ -56,6 +56,11 @@ $ make
 
 This locally compiles the library or parts of it, and is ideal for development purposes.
 
+### Stand-alone copy
+
+The entire library including its tools can be made available in one target directory by using the script `./standalone.sh`.
+This makes integration of the entire library into other projects possible without a previous installation or porting.
+
 ## Credits
 
 *libphorward* is developed and maintained by [Jan Max Meyer](https://github.com/phorward/), Phorward Software Technologies.
