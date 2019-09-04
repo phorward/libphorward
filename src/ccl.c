@@ -9,7 +9,6 @@ Author:	Jan Max Meyer
 Usage:	Character classes
 ----------------------------------------------------------------------------- */
 
-#define PREGEX_LOCAL
 #include "phorward.h"
 
 /* Prototype */
