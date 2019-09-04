@@ -38,6 +38,7 @@ libphorward_la_SOURCES = \
 	regex/regex.c
 
 noinst_HEADERS = \
+	boolean.h \
 	array.h \
 	ccl.h \
 	dbg.h \

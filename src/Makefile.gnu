@@ -30,6 +30,7 @@ SRC = \
 	regex/regex.c
 
 HSRC = \
+	boolean.h \
 	array.h \
 	ccl.h \
 	dbg.h \
