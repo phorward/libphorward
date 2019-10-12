@@ -54,12 +54,6 @@ static int plist_get_load_factor( plist* list )
 	int 	load = 0;
 	float	l = 0.00;
 
-	if ( !list )
-	{
-		WRONGPARAM;
-		return -1;
-	}
-
 	l = (float)plist_count( list ) / (float)list->hashsize;
 	load = (int)( l * 100 );
 
@@ -70,12 +64,6 @@ static int plist_get_load_factor( plist* list )
 static int plist_hash_compare( plist* list, char* l, char* r, size_t n )
 {
 	int		res;
-
-	if( !( list && l && r ) )
-	{
-		WRONGPARAM;
-		return -1;
-	}
 
 	if( list->flags & PLIST_MOD_PTRKEYS )
 		res = (int)( l - r );
@@ -98,12 +86,6 @@ static int plist_hash_compare( plist* list, char* l, char* r, size_t n )
 static size_t plist_hash_index( plist* list, char* key, size_t n )
 {
 	size_t hashval	= 5381L;
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return 0;
-	}
 
 	if( list->flags & PLIST_MOD_PTRKEYS )
 		hashval = (size_t)key;
@@ -151,18 +133,8 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 	plistel*	he;
 	plistel**	bucket;
 
-	PROC( "plist_hash_insert" );
-	PARMS( "list", "%p", list );
-	PARMS( "e", "%p", e );
-
-	if( !( list && e ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
 	if( !e->key )
-		RETURN( FALSE );
+		return FALSE;
 
 	e->hashnext = (plistel*)NULL;
 	e->hashprev = (plistel*)NULL;
@@ -173,21 +145,17 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 
 		/* check load factor */
 		list->load_factor = plist_get_load_factor( list );
-		VARS( "load_factor", "%d", list->load_factor );
 
 		if( list->load_factor > LOAD_FACTOR_HIGH )
 		{
-			MSG( "hashmap has to be resized." );
+			/* hashmap has to be resized. */
 			if( !plist_hash_rebuild( list ) )
-			{
-				RETURN( FALSE );
-			}
+				return FALSE;
 
 			/* store new load factor */
 			list->load_factor = plist_get_load_factor( list );
 
-			VARS( "load_factor", "%d", list->load_factor );
-			RETURN( TRUE ); /* e has been inserted by plist_hash_rebuild()! */
+			return TRUE; /* e has been inserted by plist_hash_rebuild()! */
 		}
 	}
 
@@ -195,25 +163,20 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 
 	if( ! *bucket )
 	{
-		MSG( "Bucket is empty, chaining start position" );
-		VARS( "e->key", "%s", e->key );
-
+		/* Bucket is empty, chaining start position */
 		*bucket = e;
 		list->free_hash_entries--;
 	}
 	else
 	{
-		MSG( "Chaining into hash" );
+		/* Chaining into hashed bucket */
 
 		for( he = *bucket; he; he = he->hashnext )
 		{
-			VARS( "he->key", "%s", he->key );
-			VARS( "e->key", "%s", e->key );
-
 			if( plist_hash_compare( list, he->key, e->key, 0 ) == 0 )
 			{
 				if( list->flags & PLIST_MOD_UNIQUE )
-					RETURN( FALSE );
+					return FALSE;
 
 				if( list->flags & PLIST_MOD_KEEPKEYS )
 				{
@@ -249,9 +212,8 @@ static pboolean plist_hash_insert( plist* list, plistel* e )
 
 	/* store new load factor */
 	list->load_factor = plist_get_load_factor( list );
-	VARS( "load_factor", "%d", list->load_factor );
 
-	RETURN( TRUE );
+	return TRUE;
 }
 
 /* Rebuild hash-table */
@@ -259,20 +221,9 @@ static pboolean plist_hash_rebuild( plist* list )
 {
 	plistel*	e;
 
-	PROC( "plist_hash_rebuild" );
-	PARMS( "list", "%p", list );
-
-	if( !list )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
-	if( list->size_index + 1 >= ( sizeof( table_sizes) / sizeof( *table_sizes ) ) )
-	{
-		MSG( "Maximum size is reached." );
-		RETURN( FALSE );
-	}
+	if( list->size_index + 1 >=
+			( sizeof( table_sizes ) / sizeof( *table_sizes ) ) )
+		return FALSE; /* Maximum size is reached. */
 
 	if( list->hash )
 		list->hash = pfree( list->hash );
@@ -282,7 +233,6 @@ static pboolean plist_hash_rebuild( plist* list )
 
 	list->size_index++;
 	list->hashsize = table_sizes[ list->size_index ];
-	VARS( "new list->hashsize", "%ld", list->hashsize );
 
 	list->hash_collisions = 0;
 
@@ -291,26 +241,16 @@ static pboolean plist_hash_rebuild( plist* list )
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		plist_hash_insert( list, e );
 
-	RETURN( TRUE );
+	return TRUE;
 }
 
 /* Drop list element */
-static pboolean plistel_drop( plistel* e )
+static void plistel_drop( plistel* e )
 {
-	PROC( "plistel_drop" );
-
-	if( !( e ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
 	/* TODO: Call element destructor? */
 	if( !( e->flags & PLIST_MOD_EXTKEYS )
 			&& !( e->flags & PLIST_MOD_PTRKEYS ) )
 		e->key = pfree( e->key );
-
-	RETURN( TRUE );
 }
 
 /* Compare elements of a list */
@@ -326,14 +266,8 @@ static int plist_compare( plist* list, plistel* l, plistel* r )
 
 //flags// defines an optional flag configuration that modifies the behavior
 of the linked list and hash table usage. */
-pboolean plist_init( plist* list, size_t size, short flags )
+void plist_init( plist* list, size_t size, short flags )
 {
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
-
 	/* A size of zero causes a pointer list allocation,
 		so the flag must also be set. */
 	if( size == 0 )
@@ -354,8 +288,6 @@ pboolean plist_init( plist* list, size_t size, short flags )
 	list->load_factor = 0;
 	list->free_hash_entries = list->hashsize;
 	list->hash_collisions = 0;
-
-	return TRUE;
 }
 
 /** Create a new plist as an object with an element allocation size //size//.
@@ -404,12 +336,6 @@ plist* plist_dup( plist* list )
 {
 	plist*		dup;
 
-	if( !list )
-	{
-		WRONGPARAM;
-		return (plist*)NULL;
-	}
-
 	dup = plist_create( list->size, list->flags );
 	dup->comparefn = list->comparefn;
 	dup->sortfn = list->sortfn;
@@ -424,20 +350,12 @@ plist* plist_dup( plist* list )
 
 The object //list// will be still alive, but must be re-configured
 using plist_init(). */
-pboolean plist_erase( plist* list )
+void plist_erase( plist* list )
 {
 	plistel*	e;
 	plistel*	next;
 
-	PROC( "plist_erase" );
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
-	MSG( "Freeing current list contents" );
+	/* Freeing current list contents */
 	for( e = list->first; e; e = next )
 	{
 		next = e->next;
@@ -446,25 +364,23 @@ pboolean plist_erase( plist* list )
 		pfree( e );
 	}
 
-	MSG( "Freeing list of unused nodes" );
+	/* Freeing list of unused nodes */
 	for( e = list->unused; e; e = next )
 	{
 		next = e->next;
 		pfree( e );
 	}
 
-	MSG( "Resetting hash table" );
+	/* Resetting hash table */
 	if( list->hash )
 		pfree( list->hash );
 
-	MSG( "Resetting list-object pointers" );
+	/* Resetting list-object pointers */
 	list->first = (plistel*)NULL;
 	list->last = (plistel*)NULL;
 	list->hash = (plistel**)NULL;
 	list->unused = (plistel*)NULL;
 	list->count = 0;
-
-	RETURN( TRUE );
 }
 
 /** Clear content of the list //list//.
@@ -472,20 +388,10 @@ pboolean plist_erase( plist* list )
 The function has nearly the same purpose as plist_erase(), except that
 the entire list is only cleared, but if the list was initialized with
 PLIST_MOD_RECYCLE, existing pointers are held for later usage. */
-pboolean plist_clear( plist* list )
+void plist_clear( plist* list )
 {
-	PROC( "plist_clear" );
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
 	while( list->first )
 		plist_remove( list, list->first );
-
-	RETURN( TRUE );
 }
 
 /** Releases all the memory //list// uses and destroys the list object.
@@ -493,7 +399,7 @@ pboolean plist_clear( plist* list )
 The function always returns (plist*)NULL. */
 plist* plist_free( plist* list )
 {
-	if( !( list ) )
+	if( !list )
 		return (plist*)NULL;
 
 	plist_erase( list );
@@ -516,62 +422,41 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 {
 	plistel*	e;
 
-	PROC( "plist_insert" );
-	PARMS( "list", "%p", list );
-	PARMS( "pos", "%p", pos );
-	PARMS( "key", "%s", key );
-	PARMS( "src", "%p", src );
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		RETURN( (plistel*)NULL );
-	}
-
 	/* Rebuild hash-table if necessary */
 	if( key && !list->hash && !plist_hash_rebuild( list ) )
-		RETURN( (plistel*)NULL );
+		return (plistel*)NULL;
 
 	/* Recycle existing elements? */
 	if( list->unused )
 	{
-		MSG( "Recycle list contains element, recycling" );
+		/* Recycle list contains element, will recycle this now */
 		e = list->unused;
 		list->unused = e->next;
-		memset( e, 0, sizeof( plistel ) + list->size );
 		list->recycled--;
 	}
 	else
 	{
-		MSG( "Allocating new element" );
-		VARS( "size", "%d", sizeof( plistel ) + list->size );
-
+		/* No elements to recycle, allocating a new one */
 		e = (plistel*)pmalloc( sizeof( plistel ) + list->size );
 	}
+
+	memset( e, 0, sizeof( plistel ) + list->size );
 
 	e->flags = list->flags;
 
 	if( src )
 	{
-		MSG( "data is provided, will copy memory" );
-		VARS( "sizeof( plistel )", "%d", sizeof( plistel ) );
-		VARS( "size", "%d", list->size );
+		/* data is provided, copy memory */
 
 		if( list->flags & PLIST_MOD_PTR )
-		{
-			MSG( "Pointer mode, just store the pointer" );
-			*( (void**)( e + 1 ) ) = src;
-		}
+			*( (void**)( e + 1 ) ) = src; /* Pointer mode: just store pointer */
 		else
-		{
-			LOG( "Copying %ld bytes", list->size );
-			memcpy( e + 1, src, list->size );
-		}
+			memcpy( e + 1, src, list->size ); /* Copy memory into element */
 	}
 
 	if( !pos )
 	{
-		MSG( "pos unset, will chain at end of list" );
+		/* pos unset, will chain at end of list */
 		if( !( pos = plist_last( list ) ) )
 			list->first = e;
 		else
@@ -597,8 +482,7 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 
 	if( key )
 	{
-		MSG( "Key provided, will insert into hash table" );
-		VARS( "key", "%s", key );
+		/* Key provided, will insert into hash table */
 
 		if( list->flags & PLIST_MOD_EXTKEYS
 				|| list->flags & PLIST_MOD_PTRKEYS )
@@ -612,17 +496,16 @@ plistel* plist_insert( plist* list, plistel* pos, char* key, void* src )
 
 		if( !plist_hash_insert( list, e ) )
 		{
-			MSG( "This item collides!" );
+			/* Item collides! */
 			plist_remove( list, e );
-			RETURN( (plistel*)NULL );
+			return (plistel*)NULL;
 		}
 	}
 
 	if( list->flags & PLIST_MOD_AUTOSORT )
 		plist_sort( list );
 
-	VARS( "list->count", "%d", list->count );
-	RETURN( e );
+	return e;
 }
 
 /** Push //src// to end of //list//.
@@ -632,12 +515,6 @@ This function can only be used for linked lists without the hash-table feature
 in use. */
 plistel* plist_push( plist* list, void* src )
 {
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return (plistel*)NULL;
-	}
-
 	return plist_insert( list, (plistel*)NULL, (char*)NULL, src );
 }
 
@@ -648,12 +525,6 @@ This function can only be used for linked lists without the hash-table feature
 in use. */
 plistel* plist_shift( plist* list, void* src )
 {
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return (plistel*)NULL;
-	}
-
 	return plist_insert( list, plist_first( list ), (char*)NULL, src );
 }
 
@@ -665,12 +536,6 @@ plist_push().
 */
 void* plist_malloc( plist* list )
 {
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return (void*)NULL;
-	}
-
 	return plist_access( plist_push( list, (void*)NULL ) );
 }
 
@@ -682,27 +547,13 @@ plist_shift().
 */
 void* plist_rmalloc( plist* list )
 {
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return (void*)NULL;
-	}
-
 	return plist_access( plist_shift( list, (void*)NULL ) );
 }
 
 /** Removes the element //e// from the //list// and frees it or puts
  it into the unused element chain if PLIST_MOD_RECYCLE is flagged. */
-pboolean plist_remove( plist* list, plistel* e )
+void plist_remove( plist* list, plistel* e )
 {
-	PROC( "plist_remove" );
-
-	if( !( list && e ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
 	if( e->prev )
 		e->prev->next = e->next;
 	else
@@ -727,31 +578,23 @@ pboolean plist_remove( plist* list, plistel* e )
 	/* Put unused node into unused list or free? */
 	if( list->flags & PLIST_MOD_RECYCLE )
 	{
-		LOG( "Will recycle current element, resetting %d bytes",
-			sizeof( plistel ) + list->size );
-
+		/* Recycling element */
 		memset( e, 0, sizeof( plistel ) + list->size );
 
 		e->next = list->unused;
 		list->unused = e;
 		list->recycled++;
-
-		MSG( "Element is now discarded, for later usage" );
 	}
 	else
 	{
-		MSG( "Freeing current element" );
+		/* Free element */
 		pfree( e );
-		MSG( "Element gone" );
 	}
 
 	list->count--;
 
 	/* store new load factor */
 	list->load_factor = plist_get_load_factor( list );
-	VARS( "load_factor", "%d<", list->load_factor );
-
-	RETURN( TRUE );
 }
 
 /** Pop last element to //dest// off the list //list//.
@@ -763,12 +606,6 @@ its content is written to //dest//, if provided at the end of the list.
 be popped off the list and discards. */
 pboolean plist_pop( plist* list, void* dest )
 {
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
-
 	if( !list->last )
 	{
 		if( dest )
@@ -804,12 +641,6 @@ its content is written to //dest//.
 //list// will be taken and discarded. */
 pboolean plist_unshift( plist* list, void* dest )
 {
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
-
 	if( !list->first )
 	{
 		if( dest )
@@ -843,12 +674,6 @@ plistel* plist_get( plist* list, size_t n )
 {
 	plistel*	e;
 
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return (plistel*)NULL;
-	}
-
 	for( e = plist_first( list ); e && n;
 			e = plist_next( e ), n-- )
 		;
@@ -864,48 +689,21 @@ plistel* plist_getkey( plist* list, size_t n )
 	int			i;
 	plistel*	e;
 
-	PROC( "plist_getkey" );
-	PARMS( "list", "%p", list );
-	PARMS( "n", "%ld", n );
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		RETURN( (plistel*)NULL );
-	}
-
 	/* Iterate trough the buckets */
 	for( i = 0; i < list->hashsize; i++ )
 	{
-		VARS( "i", "%d", i );
-
 		if( !( e = list->hash[ i ] ) )
 			continue;
 
 		while( e )
 		{
-			VARS( "n", "%ld", n );
 			if( !n )
-				RETURN( e );
+				return e;
 
 			n--;
 
 			while( ( e = e->hashnext ) )
 			{
-				if( !( list->flags & PLIST_MOD_PTRKEYS ) )
-				{
-					if( list->flags & PLIST_MOD_WCHAR )
-					{
-						VARS( "e->hashprev->key", "%ls", e->hashprev->key );
-						VARS( "e->key", "%ls", e->key );
-					}
-					else
-					{
-						VARS( "e->hashprev->key", "%s", e->hashprev->key );
-						VARS( "e->key", "%s", e->key );
-					}
-				}
-
 				if( e && plist_hash_compare(
 							list, e->hashprev->key, e->key, 0 ) )
 					break;
@@ -913,7 +711,7 @@ plistel* plist_getkey( plist* list, size_t n )
 		}
 	}
 
-	RETURN( (plistel*)NULL );
+	return NULL;
 }
 
 /** Retrieve list element by its index from the end.
@@ -923,12 +721,6 @@ from the right. */
 plistel* plist_rget( plist* list, size_t n )
 {
 	plistel*	e;
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return (plistel*)NULL;
-	}
 
 	for( e = plist_last( list ); e && n;
 			e = plist_prev( e ), n-- )
@@ -947,35 +739,16 @@ plistel* plist_get_by_key( plist* list, char* key )
 	int			bucket;
 	plistel*	e;
 
-	PROC( "plist_get_by_key" );
-	PARMS( "list", "%p", list );
-	PARMS( "key", "%p", key );
-
-	if( !( list && key ) )
-	{
-		WRONGPARAM;
-		RETURN( (plistel*)NULL );
-	}
-
 	if( !list->hash )
-		RETURN( (plistel*)NULL );
+		return NULL;
 
 	bucket = plist_hash_index( list, key, 0 );
-	VARS( "bucket", "%d", bucket );
 
 	for( e = list->hash[ bucket ]; e; e = e->hashnext )
-	{
-		VARS( "e", "%p", e );
-		VARS( "e->key", "%p", e->key );
-
 		if( plist_hash_compare( list, e->key, key, 0 ) == 0 )
-		{
-			MSG( "Key matches" );
-			RETURN( e );
-		}
-	}
+			return e;
 
-	RETURN( e );
+	return NULL;
 }
 
 /** Retrieve list element by hash-table //key//,
@@ -989,36 +762,16 @@ plistel* plist_get_by_nkey( plist* list, char* key, size_t n )
 	int			bucket;
 	plistel*	e;
 
-	PROC( "plist_get_by_nkey" );
-	PARMS( "list", "%p", list );
-	PARMS( "key", "%p", key );
-	PARMS( "n", "%ld", n );
-
-	if( !( list && key && n ) )
-	{
-		WRONGPARAM;
-		RETURN( (plistel*)NULL );
-	}
-
 	if( !list->hash )
-		RETURN( (plistel*)NULL );
+		return NULL;
 
 	bucket = plist_hash_index( list, key, n );
-	VARS( "bucket", "%d", bucket );
 
 	for( e = list->hash[ bucket ]; e; e = e->hashnext )
-	{
-		VARS( "e", "%p", e );
-		VARS( "e->key", "%p", e->key );
-
 		if( plist_hash_compare( list, e->key, key, n ) == 0 )
-		{
-			MSG( "Key matches" );
-			RETURN( e );
-		}
-	}
+			return e;
 
-	RETURN( e );
+	return NULL;
 }
 
 /** Retrieve list element by pointer.
@@ -1029,12 +782,6 @@ that is the pointer //ptr//.
 plistel* plist_get_by_ptr( plist* list, void* ptr )
 {
 	plistel*	e;
-
-	if( !( list && ptr ) )
-	{
-		WRONGPARAM;
-		return (plistel*)NULL;
-	}
 
 	for( e = plist_first( list ); e; e = plist_next( e ) )
 		if( plist_access( e ) == ptr )
@@ -1053,16 +800,10 @@ size_t plist_concat( plist* dest, plist* src )
 	plistel*	e;
 	size_t		count;
 
-	if( !( dest && src && dest->size == src->size ) )
-	{
-		WRONGPARAM;
-		return 0;
-	}
-
 	count = dest->count;
 
 	plist_for( src, e )
-		if( !plist_insert( dest, (plistel*)NULL, e->key, plist_access( e ) ) )
+		if( !plist_insert( dest, NULL, e->key, plist_access( e ) ) )
 			break;
 
 	return dest->count - count;
@@ -1077,20 +818,8 @@ void plist_iter( plist* list, plistelfn callback )
 {
 	plistel*	e;
 
-	PROC( "plist_iter" );
-	PARMS( "list", "%p", list );
-	PARMS( "callback", "%p", callback );
-
-	if( !( list && callback ) )
-	{
-		WRONGPARAM;
-		VOIDRET;
-	}
-
 	plist_for( list, e )
 		(*callback)( e );
-
-	VOIDRET;
 }
 
 /** Iterates backwards over //list//.
@@ -1102,20 +831,8 @@ void plist_riter( plist* list, plistelfn callback )
 {
 	plistel*	e;
 
-	PROC( "plist_riter" );
-	PARMS( "list", "%p", list );
-	PARMS( "callback", "%p", callback );
-
-	if( !( list && callback ) )
-	{
-		WRONGPARAM;
-		VOIDRET;
-	}
-
 	for( e = plist_last( list ); e; e = plist_prev( e ) )
 		(*callback)( e );
-
-	VOIDRET;
 }
 
 /** Iterates over //list// and accesses every item.
@@ -1127,20 +844,8 @@ void plist_iter_access( plist* list, plistfn callback )
 {
 	plistel*	e;
 
-	PROC( "plist_iter_access" );
-	PARMS( "list", "%p", list );
-	PARMS( "callback", "%p", callback );
-
-	if( !( list && callback ) )
-	{
-		WRONGPARAM;
-		VOIDRET;
-	}
-
 	plist_for( list, e )
 		(*callback)( plist_access( e ) );
-
-	VOIDRET;
 }
 
 /** Iterates backwards over //list//.
@@ -1152,20 +857,8 @@ void plist_riter_access( plist* list, plistfn callback )
 {
 	plistel*	e;
 
-	PROC( "plist_riter_access" );
-	PARMS( "list", "%p", list );
-	PARMS( "callback", "%p", callback );
-
-	if( !( list && callback ) )
-	{
-		WRONGPARAM;
-		VOIDRET;
-	}
-
 	for( e = plist_last( list ); e; e = plist_prev( e ) )
 		(*callback)( plist_access( e ) );
-
-	VOIDRET;
 }
 
 /** Unions elements from list //from// into list //all//.
@@ -1183,20 +876,17 @@ size_t plist_union( plist* all, plist* from )
 	plistel*	p;
 	plistel*	q;
 
-	PROC( "plist_union" );
-	PARMS( "all", "%p", all );
-	PARMS( "from", "%p", from );
-
 	if( !( all && from
 		&& all->size == from->size
 		&& all->comparefn == from->comparefn ) )
 	{
-		WRONGPARAM;
-		RETURN( 0 );
+		/* Invalid list configurations,
+			size and compare function must be equal! */
+		return 0;
 	}
 
 	if( !( count = all->count ) )
-		RETURN( plist_concat( all, from ) );
+		return plist_concat( all, from );
 
 	last = plist_last( all );
 
@@ -1211,8 +901,7 @@ size_t plist_union( plist* all, plist* from )
 				break;
 	}
 
-	VARS( "added", "%ld", all->count - count );
-	RETURN( all->count - count );
+	return all->count - count;
 }
 
 /** Tests the contents (data parts) of the list //left// and the list //right//
@@ -1227,37 +916,33 @@ int plist_diff( plist* left, plist* right )
 	plistel*	q;
 	int			diff;
 
-	PROC( "plist_diff" );
-	PARMS( "left", "%p", left );
-	PARMS( "right", "%p", right );
-
 	if( !( left && right
 		   && left->size == right->size
 		   && left->comparefn == right->comparefn ) )
 	{
-		WRONGPARAM;
-		RETURN( -1 );
+		/* Invalid list configurations,
+			size and compare function must be equal! */
+		return -1;
 	}
 
+	/* Check number of elements */
 	if( right->count < left->count )
-		RETURN( 1 );
+		return 1;
 	else if( right->count > left->count )
-		RETURN( -1 );
+		return -1;
 
-	MSG( "OK, requiring deep check" );
-
+	/* OK, requiring deep check */
 	for( p = plist_first( left ), q = plist_first( right );
 				p && q; p = plist_next( p ), q = plist_next( q ) )
 	{
 		if( ( diff = plist_compare( left, p, q ) ) )
 		{
-			MSG( "Elements are not equal" );
+			/* Elements are not equal */
 			break;
 		}
 	}
 
-	VARS( "diff", "%d", diff );
-	RETURN( diff );
+	return diff;
 }
 
 /** Sorts //list// between the elements //from// and //to// according to the
@@ -1269,7 +954,7 @@ The sort-function can be modified by using plist_set_sortfn().
 
 The default sort function sorts the list by content using the memcmp()
 standard function. */
-pboolean plist_subsort( plist* list, plistel* from, plistel* to )
+void plist_subsort( plist* list, plistel* from, plistel* to )
 {
 	plistel*	a	= from;
 	plistel*	b	= to;
@@ -1279,24 +964,15 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 	int			i	= 0;
 	int			j	= 0;
 
-	if( !( list && from && to ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
-
 	if( from == to )
-		return TRUE;
+		return;
 
 	while( a != b )
 	{
 		j++;
 
 		if( !( a = a->next ) )
-		{
-			WRONGPARAM;
-			return FALSE;
-		}
+			return;
 	}
 
 	a = from;
@@ -1345,8 +1021,6 @@ pboolean plist_subsort( plist* list, plistel* from, plistel* to )
 
 	if( ( a != to ) && ( a != to->next ) )
 		plist_subsort( list, a, to );
-
-	return TRUE;
 }
 
 /** Sorts //list// according to the sort-function that was set for the list.
@@ -1357,92 +1031,46 @@ The sort-function can be modified by using plist_set_sortfn().
 
 The default sort function sorts the list by content using the memcmp()
 standard function. */
-pboolean plist_sort( plist* list )
+void plist_sort( plist* list )
 {
-	pboolean	ret;
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
-
 	if( !plist_first( list ) )
-		return TRUE;
+		return;
 
 	if( list->printfn )
 		(*list->printfn)( list );
 
-	ret = plist_subsort( list, plist_first( list ), plist_last( list ) );
+	plist_subsort( list, plist_first( list ), plist_last( list ) );
 
 	if( list->printfn )
 		(*list->printfn)( list );
-
-	return ret;
 }
 
 /** Set compare function.
 
 If no compare function is set or NULL is provided, memcmp() will be used
 as default fallback. */
-pboolean plist_set_comparefn( plist* list,
+void plist_set_comparefn( plist* list,
 			int (*comparefn)( plist*, plistel*, plistel* ) )
 {
-	PROC( "plist_set_comparefn" );
-	PARMS( "list", "%p", list );
-	PARMS( "compare_fn", "%p", comparefn );
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
 	if( !( list->comparefn = comparefn ) )
 		list->comparefn = plist_compare;
-
-	RETURN( TRUE );
 }
 
 /** Set sort function.
 
 If no sort function is given, the compare function set by plist_set_comparefn()
 is used. If even unset, memcmp() will be used. */
-pboolean plist_set_sortfn( plist* list,
+void plist_set_sortfn( plist* list,
 			int (*sortfn)( plist*, plistel*, plistel* ) )
 {
-	PROC( "plist_set_sortfn" );
-	PARMS( "list", "%p", list );
-	PARMS( "sortfn", "%p", sortfn );
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
 	if( !( list->sortfn = sortfn ) )
 		list->sortfn = plist_compare;
-
-	RETURN( TRUE );
 }
 
 /** Set an element dump function. */
-pboolean plist_set_printfn( plist* list, void (*printfn)( plist* ) )
+void plist_set_printfn( plist* list, void (*printfn)( plist* ) )
 {
-	PROC( "plist_set_printfn" );
-	PARMS( "list", "%p", list );
-	PARMS( "printfn", "%p", printfn );
-
-	if( !( list ) )
-	{
-		WRONGPARAM;
-		RETURN( FALSE );
-	}
-
 	list->printfn = printfn;
-
-	RETURN( TRUE );
 }
 
 /** Access data-content of the current element //e//. */
@@ -1517,21 +1145,15 @@ int plist_offset( plistel* u )
 /** Swaps the positions of the list elements //a// and //b// with each
 other. The elements must be in the same plist object, else the function
 returns FALSE. */
-pboolean plist_swap( plist* l, plistel* a, plistel* b )
+void plist_swap( plist* l, plistel* a, plistel* b )
 {
 	plistel*	aprev;
 	plistel*	anext;
 	plistel*	bprev;
 	plistel*	bnext;
 
-	if( !( l && a && b ) )
-	{
-		WRONGPARAM;
-		return FALSE;
-	}
-
 	if( a == b )
-		return TRUE;
+		return;
 
 	/* Retrieve pointers */
 	aprev = a->prev;
@@ -1586,14 +1208,12 @@ pboolean plist_swap( plist* l, plistel* a, plistel* b )
 		l->last = b;
 	else if( b == l->last )
 		l->last = a;
-
-	return TRUE;
 }
 
 /** Return first element of list //l//. */
 plistel* plist_first( plist* l )
 {
-	if( !( l ) )
+	if( !l )
 		return (plistel*)NULL;
 
 	return l->first;
@@ -1602,7 +1222,7 @@ plistel* plist_first( plist* l )
 /** Return last element of list //l//. */
 plistel* plist_last( plist* l )
 {
-	if( !( l ) )
+	if( !l )
 		return (plistel*)NULL;
 
 	return l->last;
@@ -1611,7 +1231,7 @@ plistel* plist_last( plist* l )
 /** Return element size of list //l//. */
 int plist_size( plist* l )
 {
-	if( !( l ) )
+	if( !l )
 		return 0;
 
 	return l->size;
@@ -1620,7 +1240,7 @@ int plist_size( plist* l )
 /** Return element count of list //l//. */
 int plist_count( plist* l )
 {
-	if( !( l ) )
+	if( !l )
 		return 0;
 
 	return l->count;
@@ -1629,16 +1249,6 @@ int plist_count( plist* l )
 /** Prints some statistics for the hashmap in //list// on stderr. */
 void plist_dbgstats( FILE* stream, plist* list )
 {
-	PROC( "plist_dbgstats" );
-	PARMS( "stream", "%p", stream );
-	PARMS( "list", "%p", list );
-
-	if( !list )
-	{
-		WRONGPARAM;
-		VOIDRET;
-	}
-
 	if( !stream )
 		stream = stderr;
 
@@ -1654,8 +1264,6 @@ void plist_dbgstats( FILE* stream, plist* list )
 	fprintf( stream, "load factor %%:\t\t %7d\n", list->load_factor );
 	fprintf( stream, "# of collisions:\t %7d\n", list->hash_collisions );
 	fprintf( stream, "\n" );
-
-	VOIDRET;
 }
 
 /*TESTCASE:plist object functions

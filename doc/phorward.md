@@ -1820,7 +1820,7 @@ if *left* is greater *right* and a value == 0 if *left* is equal to
 
 **Definition:**
 
-pboolean parray_erase( parray* array )
+void parray_erase( parray* array )
 
 **Usage:**
 
@@ -1840,7 +1840,7 @@ void* parray_first( parray* array )
 
 Access first element of the array.
 
-Returns the address of the accessed item, and (void*)NULL if nothing is in
+Returns the address of the accessed item, and NULL if nothing is in
 the array.
 
 ### parray_free 
@@ -1869,8 +1869,8 @@ Access an element from the array by its offset position from the left.
 *offset* is the offset of the element to be accessed from the array's
 base address.
 
-Returns the address of the accessed item, and (void*)NULL if the item could not
-be accessed (e.g. if the array is empty or offset is beyond the last of array).
+Returns the address of the accessed item, and NULL if the item could not
+be accessed (e.g. if the array is empty or offset is beyond the top of array).
 
 Use [parray_rget()](#fn_parray_rget) for access items from the end.
 
@@ -1878,7 +1878,7 @@ Use [parray_rget()](#fn_parray_rget) for access items from the end.
 
 **Definition:**
 
-pboolean parray_init( parray* array, size_t size, size_t chunk )
+void parray_init( parray* array, size_t size, size_t chunk )
 
 **Usage:**
 
@@ -1892,7 +1892,8 @@ This should be evaluated using the [sizeof()](#fn_sizeof)-macro.
 *chunk* defines the chunk size, when an array-(re)allocation will be
 performed. If, e.g. this is set to 128, then, if the 128th item is created
 within the array, a realloction is done. Once allocated memory remains until
-the array is freed again.
+the array is freed again. The array's elements may change their heap address
+when a chunk reallocation is required.
 
 ### parray_insert 
 
@@ -1931,7 +1932,7 @@ void* parray_last( parray* array )
 
 Access last element of the array.
 
-Returns the address of the accessed item, and (void*)NULL if nothing is in
+Returns the address of the accessed item, and NULL if nothing is in
 the array.
 
 ### parray_malloc 
@@ -1944,7 +1945,7 @@ void* parray_malloc( parray* array )
 
 Pushes and "allocates" an empty element on the array.
 
-This function is just a shortcut to ``parray_push( array, (void*)NULL )``,
+This function is just a shortcut to ``parray_push( array, NULL )``,
 and the memory of the pushed element is initialized to zero.
 
 ### parray_next 
@@ -1957,7 +1958,7 @@ void* parray_next( parray* array, void* ptr )
 
 Access next element from *ptr* in *array*.
 
-Returns the address of the next element, and (void*)NULL if the access gets
+Returns the address of the next element, and NULL if the access gets
 out of bounds.
 
 ### parray_offset 
@@ -1969,6 +1970,7 @@ size_t parray_offset( parray* array, void* ptr )
 **Usage:**
 
 Return offset of element *ptr* in array *array*.
+
 Returns the offset of *ptr* in *array*.
 The function returns the size of the array (which is an invalid offset)
 if *ptr* is not part of *array*.
@@ -1979,7 +1981,7 @@ To check if a pointer belongs to an array, call [parray_partof()](#fn_parray_par
 
 **Definition:**
 
-pboolean parray_partof( parray* array, void* ptr )
+void* parray_partof( parray* array, void* ptr )
 
 **Usage:**
 
@@ -2001,7 +2003,7 @@ only be overridden with the next push operation.
 
 *array* is the pointer to array where to pop an item off.
 
-The function returns the address of the popped item, and (void*)NULL if the
+The function returns the address of the popped item, and NULL if the
 item could not be popped (e.g. array is empty).
 
 ### parray_prev 
@@ -2014,7 +2016,7 @@ void* parray_prev( parray* array, void* ptr )
 
 Access previous element from *ptr* in *array*.
 
-Returns the address of the previous element, and (void*)NULL if the access gets
+Returns the address of the previous element, and NULL if the access gets
 out of bounds.
 
 ### parray_push 
@@ -2034,9 +2036,9 @@ memory size as used at array initialization.
 
 *item* is the pointer to the memory of the item that should be pushed onto the
 array. The caller should cast his type into void, or wrap the push-operation
-with a macro. It can be left (void*)NULL, so no memory will be copied.
+with a macro. It can be left NULL, so no memory will be copied.
 
-The function returns the address of the newly pushed item, and (void*)NULL if
+The function returns the address of the newly pushed item, and NULL if
 the item could not be pushed.
 
 ### parray_put 
@@ -2076,7 +2078,7 @@ moved up data part or invalid memory, if on the end).
 
 **Definition:**
 
-pboolean parray_reserve( parray* array, size_t n )
+void* parray_reserve( parray* array, size_t n )
 
 **Usage:**
 
@@ -2099,7 +2101,7 @@ Access an element from the array by its offset position from the right.
 *offset* is the offset of the element to be accessed from the array's
 base address.
 
-Returns the address of the accessed item, and (void*)NULL if the item could not
+Returns the address of the accessed item, and NULL if the item could not
 be accessed (e.g. if the array is empty or offset is beyond the bottom of
 the array).
 
@@ -2128,7 +2130,7 @@ void* parray_rmalloc( parray* array )
 
 Unshifts and "allocates" an empty element on the array.
 
-This function is just a shortcut to ``parray_unshift( array, (void*)NULL )``,
+This function is just a shortcut to ``parray_unshift( array, NULL )``,
 and the memory of the unshifted element is initialized to zero.
 
 ### parray_rput 
@@ -2155,7 +2157,7 @@ is out of the array bounds.
 
 **Definition:**
 
-pboolean parray_set_comparefn( parray* array, int (*comparefn)( parray*, void*, void* ) )
+void parray_set_comparefn( parray* array, int (*comparefn)( parray*, void*, void* ) )
 
 **Usage:**
 
@@ -2168,7 +2170,7 @@ as default fallback.
 
 **Definition:**
 
-pboolean parray_set_sortfn( parray* array, int (*sortfn)( parray*, void*, void* ) )
+void parray_set_sortfn( parray* array, int (*sortfn)( parray*, void*, void* ) )
 
 **Usage:**
 
@@ -2194,14 +2196,14 @@ operation.
 
 *array* is the pointer to array where to pop an item off.
 
-The function returns the address of the shifted item, and (void*)NULL if the
+The function returns the address of the shifted item, and NULL if the
 item could not be popped (e.g. array is empty).
 
 ### parray_sort 
 
 **Definition:**
 
-pboolean parray_sort( parray* array )
+void parray_sort( parray* array )
 
 **Usage:**
 
@@ -2218,12 +2220,12 @@ standard function.
 
 **Definition:**
 
-pboolean parray_subsort( parray* array, size_t from, size_t to )
+void parray_subsort( parray* array, size_t from, size_t to )
 
 **Usage:**
 
 Sorts *array* between the elements *from* and *to* according to the
-sort-function that was set for the list.
+sort-function that was set for the array.
 
 To sort the entire array, use [parray_sort()](#fn_parray_sort).
 
@@ -2276,9 +2278,9 @@ memory size as used at array initialization.
 
 *item* is the pointer to the memory of the item that should be pushed onto the
 array. The caller should cast his type into void, or wrap the push-operation
-with a macro. It can be left (void*)NULL, so no memory will be copied.
+with a macro. It can be left NULL, so no memory will be copied.
 
-The function returns the address of the newly unshifted item, and (void*)NULL
+The function returns the address of the newly unshifted item, and NULL
 if the item could not be unshifted.
 
 ### pasprintf 
@@ -2397,7 +2399,7 @@ to be in the same character universe and compatible for operations.
 
 **Definition:**
 
-int pccl_count( pccl* ccl )
+size_t pccl_count( pccl* ccl )
 
 **Usage:**
 
@@ -2490,7 +2492,7 @@ in error case.
 
 **Definition:**
 
-pboolean pccl_erase( pccl* ccl )
+void pccl_erase( pccl* ccl )
 
 **Usage:**
 
@@ -2516,7 +2518,7 @@ The function always returns (pccl*)NULL.
 
 **Definition:**
 
-pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, int offset )
+pboolean pccl_get( wchar_t* from, wchar_t* to, pccl* ccl, size_t offset )
 
 **Usage:**
 
@@ -2588,14 +2590,18 @@ Returns a pointer to *ccl*.
 
 **Definition:**
 
-pboolean pccl_parse( pccl* ccl, char* ccldef, pboolean extend )
+pccl* pccl_parse( pccl* ccl, char* ccldef, pboolean extend )
 
 **Usage:**
 
 Parses the character-class definition provided in *ccldef* and assigns
-this definition to the character-class *ccl*. *ccldef* may contain
-UTF-8 formatted input. Escape-sequences will be interpreted to their correct
-character representations.
+this definition to the character-class *ccl*.
+
+If *ccl* is NULL, a new character-class with the PCCL_MIN/PCCL_MAX
+configuration will be created.
+
+*ccldef* may contain UTF-8 formatted input. Escape-sequences will be
+interpreted to their correct character representations.
 
 A typical character-class definition simply exists of single characters and
 range definitions. For example, "$A-Z#0-9" defines a character-class that
@@ -2670,7 +2676,7 @@ left (FILE*)NULL, so *stderr* will be used.
 
 **Definition:**
 
-int pccl_size( pccl* ccl )
+size_t pccl_size( pccl* ccl )
 
 **Usage:**
 
@@ -3170,7 +3176,7 @@ Access data-content of the current element *e*.
 
 **Definition:**
 
-pboolean plist_clear( plist* list )
+void plist_clear( plist* list )
 
 **Usage:**
 
@@ -3274,7 +3280,7 @@ All elements of *list* are duplicated and stand-alone.
 
 **Definition:**
 
-pboolean plist_erase( plist* list )
+void plist_erase( plist* list )
 
 **Usage:**
 
@@ -3393,7 +3399,7 @@ Access previous element with same hash value of a current unit *u*.
 
 **Definition:**
 
-pboolean plist_init( plist* list, size_t size, short flags )
+void plist_init( plist* list, size_t size, short flags )
 
 **Usage:**
 
@@ -3545,7 +3551,7 @@ in use.
 
 **Definition:**
 
-pboolean plist_remove( plist* list, plistel* e )
+void plist_remove( plist* list, plistel* e )
 
 **Usage:**
 
@@ -3610,7 +3616,7 @@ The function works as a shortcut for [plist_access()](#fn_plist_access) in combi
 
 **Definition:**
 
-pboolean plist_set_comparefn( plist* list, int (*comparefn)( plist*, plistel*, plistel* ) )
+void plist_set_comparefn( plist* list, int (*comparefn)( plist*, plistel*, plistel* ) )
 
 **Usage:**
 
@@ -3623,7 +3629,7 @@ as default fallback.
 
 **Definition:**
 
-pboolean plist_set_printfn( plist* list, void (*printfn)( plist* ) )
+void plist_set_printfn( plist* list, void (*printfn)( plist* ) )
 
 **Usage:**
 
@@ -3633,7 +3639,7 @@ Set an element dump function.
 
 **Definition:**
 
-pboolean plist_set_sortfn( plist* list, int (*sortfn)( plist*, plistel*, plistel* ) )
+void plist_set_sortfn( plist* list, int (*sortfn)( plist*, plistel*, plistel* ) )
 
 **Usage:**
 
@@ -3670,7 +3676,7 @@ Return element size of list *l*.
 
 **Definition:**
 
-pboolean plist_sort( plist* list )
+void plist_sort( plist* list )
 
 **Usage:**
 
@@ -3687,7 +3693,7 @@ standard function.
 
 **Definition:**
 
-pboolean plist_subsort( plist* list, plistel* from, plistel* to )
+void plist_subsort( plist* list, plistel* from, plistel* to )
 
 **Usage:**
 
@@ -3705,7 +3711,7 @@ standard function.
 
 **Definition:**
 
-pboolean plist_swap( plist* l, plistel* a, plistel* b )
+void plist_swap( plist* l, plistel* a, plistel* b )
 
 **Usage:**
 
