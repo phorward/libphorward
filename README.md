@@ -59,7 +59,10 @@ This locally compiles the library or parts of it, and is ideal for development p
 ### Stand-alone copy
 
 The entire library including its tools can be made available in one target directory by using the script `./standalone.sh`.
-This makes integration of the entire library into other projects possible without a previous installation or porting.
+
+This makes stand-alone integration of the entire library into other projects possible without a previous installation or porting, and easier maintainable packages.
+
+The generated stand-alone package contains a `Makefile` and can directly be built.
 
 ## Credits
 

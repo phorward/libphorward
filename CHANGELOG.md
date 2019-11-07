@@ -4,32 +4,36 @@ This file is used to document any relevant changes done to libphorward.
 
 ## v1.0
 
-Under development.
+Released on: Nov 7, 2019
 
-- Entirely restructured `src/`-folder
-- Modularization of the command-line tools `pdoc`, `pinclude` and `pproto`
-- Started `ptest` utility to perform automated tests and CI
-- Started to develop several tests for `ptest`
-- Improved program tracing facilities, including clock measuring to indicate slow running functions
-- Moved the `pany` dynamic variant data type away into the [phosphor repository](https://github.com/phorward/phosphor)
 - parray:
-  - New functions for set management: parray_union(), parray_diff(),
-    parray_sort(), parray_concat(), providing equivalence to their
+  - New data storage behind parray objects
+  - New functions for set management: `parray_union()`, `parray_diff()`,
+    `parray_sort()`, `parray_concat()`, providing equivalence to their
     plist counterparts
   - Changed signatures for parray iter functions
-- pccl:
-  - Changed underlying data structures from plist to the much faster parray.
 - plist:
   - Improvements of the `plist` data type so that `plistel` provides no
     (error-prone!) back-pointer to its list anymore.
-  - Speed optimization on plist_diff() and plist_union().
-  - New flag `PLIST_MOD_KEEPKEYS` to keep key order and implement opposite hiding
-    (last key collision will be chained to the end).
+  - Speed optimization on `plist_diff()` and `plist_union()`.
+  - New flag `PLIST_MOD_KEEPKEYS` to keep key order and implement opposite hiding (last key collision will be chained to the end).
   - New function `plist_getkey()` to iterate over available keys in a
     hash-table configured plist object.
   - Flags generally stored as short values rather than int.
+- pccl:
+  - Changed underlying data structures to the much faster parray.
 - utf8:
-  - putf8_strlen() improved
+  - `putf8_strlen()` improved
+- other:
+  - Switched license terms from 3-clause BSD to MIT
+  - Entirely restructured `src/`-folder.
+  - Modularization of the command-line tools `pdoc`, `pinclude` and `pproto`.
+  - Began development of a `ptest` utility to perform automated tests and CI, implemented several tests cases in different modules.
+  - Improved program tracing facilities, including clock measuring to indicate slow running functions.
+  - Improved documentation and README.md.
+  - Shell script `standalone.sh` to build stand-alone source versions of
+    libphorward to be copied into other projects.
+  - Moved the `pany` dynamic variant data type away into the [phosphor repository](https://github.com/phorward/phosphor).
 
 ## v0.24
 
@@ -44,7 +48,7 @@ Released on: Jan 1, 2019
 
 ## v0.23
 
-Released on: Sept 27, 2018
+Released on: Sep 27, 2018
 
 - regex: Implemented push-scanning
   - Lexical analyzers are now configured and executing using the lexer context
@@ -62,7 +66,7 @@ Released on: Sept 27, 2018
 
 ## v0.22
 
-Released on: April 17, 2018
+Released on: Apr 17, 2018
 
 - v0.22.4: Memory leaks removed
 - v0.22.3: Updated documentation, thanks to AGS
@@ -92,7 +96,7 @@ Released on: April 17, 2018
 
 ## v0.21
 
-Released on: December 13, 2017
+Released on: Dec 13, 2017
 
 - Documentation updated and refreshed with some syntax-highlighting
 - New array functions parray_next(), parray_prev(), parray_iter(), parray_riter() and parray_for()
@@ -100,7 +104,7 @@ Released on: December 13, 2017
 
 ## v0.20
 
-Released on: November 7, 2017
+Released on: Nov 7, 2017
 
 - v0.20.2: Removed warnings that came up on Mingw32, issue #1
 - v0.20.1: Purged build system
@@ -111,7 +115,7 @@ Released on: November 7, 2017
 
 ## v0.19
 
-Released on: February 3, 2017
+Released on: Feb 3, 2017
 
 - Redesign of the grammar definition language
 - Introduced command-line utilities `pregex` and `plex`
@@ -121,7 +125,7 @@ Released on: February 3, 2017
 
 ## v0.18
 
-Released on: September 9, 2016
+Released on: Sep 9, 2016
 
 -  Full refactoring of all modules, evolving in the following new modules:
    - base (plist, parray, pccl) for data structures
@@ -136,7 +140,7 @@ Released on: September 9, 2016
 
 ## v0.17
 
-Released on: July 2, 2012
+Released on: Jul 2, 2012
 
 - New string functions pstrltrim(), pstrrtrim(), pstrtrim(), pstrndup(),
   pstrset(), pstrget(). There had also been some renamings on existing
