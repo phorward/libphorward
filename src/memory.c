@@ -81,8 +81,7 @@ Always returns (void*)NULL.
 */
 void* pfree( void* ptr )
 {
-	if( ptr )
-		free( ptr );
+	free( ptr );
 
 	return (void*)NULL;
 }
