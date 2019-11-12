@@ -1,6 +1,6 @@
 The Phorward C/C++ Library and Toolkit
 libphorward 1.0.0
-August 2019
+Nov 2019
 
 
 # Table of Contents 

@@ -1,6 +1,6 @@
 The Phorward C/C++ Library and Toolkit
 libphorward 1.0.0
-August 2019
+Nov 2019
 
 %!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
 %!preproc(xhtml): '([^\[])(pboolean|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '\1[\2 #\2]\3'
