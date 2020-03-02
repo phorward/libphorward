@@ -149,6 +149,10 @@ pboolean plex_prepare( plex* lex )
 
 	pregex_nfa_free( nfa );
 
+	/* Debug */
+	if( lex->flags & PREGEX_RUN_DEBUG )
+		pregex_dfa_to_dfatab( NULL, dfa );
+
 	/* Compile significant DFA table into dfatab array */
 	if( ( lex->trans_cnt = pregex_dfa_to_dfatab( &lex->trans, dfa ) ) <= 0 )
 	{
