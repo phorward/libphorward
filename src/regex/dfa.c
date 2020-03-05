@@ -59,7 +59,7 @@ static int pregex_dfa_sort_trans( plist* list, plistel* el, plistel* er )
 	pregex_dfa_tr*	l = (pregex_dfa_tr*)plist_access( el );
 	pregex_dfa_tr*	r = (pregex_dfa_tr*)plist_access( er );
 
-	return pccl_compare( l->ccl, r->ccl ) < 0 ? 1 : 0;
+	return pccl_compare( l->ccl, r->ccl );
 }
 
 /* Sort transitions by characters */
@@ -68,7 +68,7 @@ static int pregex_dfa_sort_classes( plist* list, plistel* el, plistel* er )
 	pccl*	l = (pccl*)plist_access( el );
 	pccl*	r = (pccl*)plist_access( er );
 
-	return pccl_compare( l, r ) < 0 ? 1 : 0;
+	return pccl_compare( l, r );
 }
 
 /* Creating a new DFA state */

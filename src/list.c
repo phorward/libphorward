@@ -945,7 +945,7 @@ int plist_diff( plist* left, plist* right )
 	return diff;
 }
 
-/** Sorts //list// between the elements //from// and //to// according to the
+/** Sorts //list// between the elements //left// and //right// according to the
 sort-function that was set for the list.
 
 To sort the entire list, use plist_sort().
@@ -954,73 +954,33 @@ The sort-function can be modified by using plist_set_sortfn().
 
 The default sort function sorts the list by content using the memcmp()
 standard function. */
-void plist_subsort( plist* list, plistel* from, plistel* to )
+void plist_subsort( plist* list, plistel* left, plistel* right )
 {
-	plistel*	a	= from;
-	plistel*	b	= to;
-	plistel*	e;
-	plistel*	ref;
-
-	int			i	= 0;
-	int			j	= 0;
-
-	if( from == to )
-		return;
-
-	while( a != b )
-	{
-		j++;
-
-		if( !( a = a->next ) )
-			return;
-	}
-
-	a = from;
-	ref = from;
+	plistel*	i;
+	pboolean	mod;
 
 	do
 	{
-		while( ( *list->sortfn )( list, a, ref ) > 0 )
+		mod = FALSE;
+
+		for( i = left; i && i->next && i != right; i = i->next )
 		{
-			i++;
-			a = a->next;
+			if( (*list->sortfn)( list, i, i->next ) > 0 )
+			{
+				if( i->next == right )
+					right = i;
+
+				plist_swap( list, i, i->next );
+
+				i = i->prev;
+
+				mod = TRUE;
+			}
 		}
 
-		while( ( *list->sortfn )( list, ref, b ) > 0 )
-		{
-			j--;
-			b = b->prev;
-		}
-
-		if( i <= j )
-		{
-			if( from == a )
-				from = b;
-			else if( from == b )
-				from = a;
-
-			if( to == a )
-				to = b;
-			else if( to == b )
-				to = a;
-
-			plist_swap( list, a, b );
-
-			e = a;
-			a = b->next;
-			b = e->prev;
-
-			i++;
-			j--;
-		}
+		right = right->prev;
 	}
-	while( i <= j );
-
-	if( ( b != from ) && ( b != from->prev ) )
-		plist_subsort( list, from, b );
-
-	if( ( a != to ) && ( a != to->next ) )
-		plist_subsort( list, a, to );
+	while( mod && right );
 }
 
 /** Sorts //list// according to the sort-function that was set for the list.
@@ -1384,19 +1344,19 @@ void testcase( void )
 - Joli, Monique
 - Mueller, Susan
 4 elements
-- Smith, Melinda
-- Mueller, Susan
-- Joli, Monique
 - Brandon, Brenda
+- Joli, Monique
+- Mueller, Susan
+- Smith, Melinda
 4 elements
 Joli => Joli, Monique
 <No record found matching 'Joli'>
 Ayanami => Ayanami, Rei
-- Smith, Melinda
-- Mueller, Susan
-- Full, Throttle
-- Brandon, Brenda
 - Ayanami, Rei
+- Brandon, Brenda
+- Full, Throttle
+- Mueller, Susan
+- Smith, Melinda
 5 elements
 Ayanami => Full, Throttle
 0 elements

@@ -2,6 +2,14 @@
 
 This file is used to document any relevant changes done to libphorward.
 
+## develop
+
+Not released yet.
+
+- `plist_subsort()` switched to a bubble-sort algorithm after several fails
+  of improving the previous quicksort-like algorithm
+- service scripts fixed to run better in distribution mode
+
 ## v1.0
 
 Released on: Nov 7, 2019
