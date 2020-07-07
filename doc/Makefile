@@ -17,10 +17,10 @@ SRC 	= 	array.t2t \
 all: $(HTMLOUT) $(MDOUT) $(TXTOUT)
 
 $(HTMLOUT): $(SRC) phorward.css Makefile
-	txt2tags -o $@ -t xhtml --toc --css-sugar --style=phorward.css $(MAINSRC)
+	txt2tags -o $@ -t html --toc --style=phorward.css $(MAINSRC)
 
 $(MDOUT): $(SRC) Makefile
-	txt2tags -o $@ -t md --toc $(MAINSRC)
+	txt2tags -o $@ -t md $(MAINSRC)
 
 $(TXTOUT): $(SRC) Makefile
 	txt2tags -t txt -H --toc -o - $(MAINSRC) | sed -E -n '1h;1!H;$${;g;s/ +([-A-Z ]+)\n +(=+)/\1\n\2/g;p;}' | sed 's/^  /    /g' >$@

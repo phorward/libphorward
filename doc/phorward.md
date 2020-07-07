@@ -1,284 +1,7 @@
 The Phorward C/C++ Library and Toolkit
-libphorward 1.0.0
-Nov 2019
+libphorward 1.0.2
+Jul 2020
 
-
-# Table of Contents 
-
-
- * Table of Contents
- * Introduction
- * Installation
-  * Building from sources
-  * Local development build
-  * Building on Windows
- * Command-line tools
-  * pdoc - C source code documentation tool
-  * pinclude - Generate big files from various smaller ones
-  * plex - Lexical analyzer generator and interpreter
-  * pproto - C function prototype generator
-  * pregex - Regular expression operations
-  * ptest - C program test facilities
- * General functions & dynamic data structures
-  * Advanced memory management
-  * Boolean data type
-  * Debugging and tracing
-  * System-related, platform-independent helpers
-  * Dynamically managed arrays & stacks (parray)
-   * Overview
-   * Construction and destruction
-   * Inserting elements
-   * Accessing and iterating elements
-   * Removing elements
-   * Sorting elements
-   * Interchanging functions
-   * Additional functions
-  * Linked lists, hash-tables, queues & stacks (plist)
-   * Overview
-   * Construction and destruction
-   * Inserting elements
-   * Accessing and iterating elements
-   * Removing elements
-   * Sorting elements
-   * Interchanging functions
-   * Additional functions
-  * Character-classes (pccl)
- * Regular expressions & lexical analyzers (pregex, plex)
-  * Overview
-   * Meta constructs
-   * Characters and escape sequences
-   * Shorthand character classes
-   * Anchoring
-   * Examples
-  * Operating on regular expressions (pregex)
-   * Construction and destruction
-   * Matching
-   * Splitting
-   * Replacing
-   * Quick-access functions
-  * Lexical analysis using regular expressions (plex)
-  * Tools
-   * Ranges
-   * Regular Expression Patterns
- * String helper functions (pstr*, pwcs*)
- * Function reference
-  * Macros
-   * BOOLEAN_STR
-   * CORE
-   * FALSE
-   * LOG
-   * MAKE_BOOLEAN
-   * MISSINGCASE
-   * MSG
-   * OUTOFMEM
-   * PARMS
-   * PROC
-   * RETURN
-   * TODO
-   * TRUE
-   * VARS
-   * VOIDRET
-   * WRONGPARAM
-   * parray_for
-   * plist_for
-  * Functions
-   * parray_concat
-   * parray_count
-   * parray_create
-   * parray_diff
-   * parray_erase
-   * parray_first
-   * parray_free
-   * parray_get
-   * parray_init
-   * parray_insert
-   * parray_iter
-   * parray_last
-   * parray_malloc
-   * parray_next
-   * parray_offset
-   * parray_partof
-   * parray_pop
-   * parray_prev
-   * parray_push
-   * parray_put
-   * parray_remove
-   * parray_reserve
-   * parray_rget
-   * parray_riter
-   * parray_rmalloc
-   * parray_rput
-   * parray_set_comparefn
-   * parray_set_sortfn
-   * parray_shift
-   * parray_sort
-   * parray_subsort
-   * parray_swap
-   * parray_union
-   * parray_unshift
-   * pasprintf
-   * pawcsprintf
-   * pbasename
-   * pccl_add
-   * pccl_addrange
-   * pccl_compare
-   * pccl_compat
-   * pccl_count
-   * pccl_create
-   * pccl_del
-   * pccl_delrange
-   * pccl_diff
-   * pccl_dup
-   * pccl_erase
-   * pccl_free
-   * pccl_get
-   * pccl_instest
-   * pccl_intersect
-   * pccl_negate
-   * pccl_parse
-   * pccl_parsechar
-   * pccl_parseshorthand
-   * pccl_print
-   * pccl_size
-   * pccl_test
-   * pccl_testrange
-   * pccl_to_str
-   * pccl_union
-   * pdbl_to_str
-   * pdbl_to_wcs
-   * pfileexists
-   * pfiletostr
-   * pfree
-   * pgetline
-   * pgetopt
-   * plex_create
-   * plex_define
-   * plex_dump_dot
-   * plex_free
-   * plex_lex
-   * plex_next
-   * plex_prepare
-   * plex_reset
-   * plex_tokenize
-   * plexctx_create
-   * plexctx_free
-   * plexctx_init
-   * plexctx_lex
-   * plexctx_reset
-   * plist_access
-   * plist_clear
-   * plist_concat
-   * plist_count
-   * plist_create
-   * plist_dbgstats
-   * plist_diff
-   * plist_dup
-   * plist_erase
-   * plist_first
-   * plist_free
-   * plist_get
-   * plist_get_by_key
-   * plist_get_by_nkey
-   * plist_get_by_ptr
-   * plist_getkey
-   * plist_hashnext
-   * plist_hashprev
-   * plist_init
-   * plist_insert
-   * plist_iter
-   * plist_iter_access
-   * plist_key
-   * plist_last
-   * plist_malloc
-   * plist_next
-   * plist_offset
-   * plist_pop
-   * plist_prev
-   * plist_push
-   * plist_remove
-   * plist_rget
-   * plist_riter
-   * plist_riter_access
-   * plist_rmalloc
-   * plist_set_comparefn
-   * plist_set_printfn
-   * plist_set_sortfn
-   * plist_shift
-   * plist_size
-   * plist_sort
-   * plist_subsort
-   * plist_swap
-   * plist_union
-   * plist_unshift
-   * pmalloc
-   * pmemdup
-   * prealloc
-   * pregex_create
-   * pregex_find
-   * pregex_findall
-   * pregex_free
-   * pregex_match
-   * pregex_ptn_create
-   * pregex_ptn_create_alt
-   * pregex_ptn_create_char
-   * pregex_ptn_create_kle
-   * pregex_ptn_create_opt
-   * pregex_ptn_create_pos
-   * pregex_ptn_create_refsub
-   * pregex_ptn_create_seq
-   * pregex_ptn_create_string
-   * pregex_ptn_create_sub
-   * pregex_ptn_dup
-   * pregex_ptn_free
-   * pregex_ptn_parse
-   * pregex_ptn_print
-   * pregex_ptn_to_dfa
-   * pregex_ptn_to_dfatab
-   * pregex_ptn_to_nfa
-   * pregex_ptn_to_regex
-   * pregex_qmatch
-   * pregex_qreplace
-   * pregex_qsplit
-   * pregex_replace
-   * pregex_split
-   * pregex_splitall
-   * pstr_to_wcs
-   * pstrcasecmp
-   * pstrcatchar
-   * pstrcatstr
-   * pstrdup
-   * pstrget
-   * pstrlen
-   * pstrltrim
-   * pstrlwr
-   * pstrncasecmp
-   * pstrncatstr
-   * pstrndup
-   * pstrput
-   * pstrrender
-   * pstrreplace
-   * pstrrtrim
-   * pstrsplit
-   * pstrtrim
-   * pstrunescape
-   * pstrupr
-   * putf8_char
-   * putf8_isutf
-   * putf8_move
-   * putf8_parse_char
-   * putf8_seqlen
-   * pvasprintf
-   * pvawcsprintf
-   * pwcs_to_str
-   * pwcscatchar
-   * pwcscatstr
-   * pwcsdup
-   * pwcsget
-   * pwcslen
-   * pwcsncatstr
-   * pwcsndup
-   * pwcsput
-   * pwhich
 
 # Introduction 
 
@@ -393,8 +116,6 @@ pdoc currently is only used for libphorward's own library documentation, but can
         -V  --version            Show version info and exit.
     
 
-$NEWPAGE$
-
 ### plex - Lexical analyzer generator and interpreter 
 
 **plex** is a command-line tool to construct and run lexical analyzers. It returns a list of tokens on success to stdout, and aims to be used in combination with shell scripts for lexical analysis.
@@ -436,8 +157,6 @@ Example call:
 
 It can be seen as a very simple implementation of the well-known *cproto* command-line tool. It only accepts ANSI C functions as input. It recognizes #ifdef/#ifndef/#if/#endif-preprocessor directives around functions and emits them in the same manner to the output.
 
-$NEWPAGE$
-
 ### pregex - Regular expression operations 
 
 **pregex** is a command-line tool for regular expression operations on files and strings. It can be used for match, find, split and replace actions.
@@ -466,8 +185,6 @@ Example call:
     78
     xy
     9
-
-$NEWPAGE$
 
 ### ptest - C program test facilities 
 
@@ -551,8 +268,6 @@ See also
  * @BOOLEAN_STR() - converts a boolean expression into a string.
  * @MAKE_BOOLEAN() - converts a boolean expression into a real pboolean TRUE or FALSE.
 
-$NEWPAGE$
-
 ## Debugging and tracing 
 
 Although this option is not widely used in modern C/C++ projects, libphorward offers an own debug and trace facility that can be turned on for modules to detect bugs or view the program trace.
@@ -634,7 +349,6 @@ yields in a debug log
 
 when previously setting the environment variable `TRACEMODULE="demo.c"` or `TRACEFUNCTION="faculty"`.
 
-$NEWPAGE$
 The following environment variables can be used when running programs using libphorward and compiled with `-DDEBUG`:
 
 | Environment Variable |Example |Usage|
@@ -644,8 +358,6 @@ The following environment variables can be used when running programs using libp
 |`TRACETYPE` |`TRACETYPE="ENTRY LOG RETURN"` |Only print trace types given, ignore any other types. Can be set to `*` to emit all trace types (default)|
 |`TRACEDEPTH` |`TRACEDEPTH=5` |Maximum trace depth, stop emitting trace when behind this level depth.|
 |`TRACEINDENT` |`TRACEINDENT=OFF` |Enable/disable trace indentation; If switched OFF, the dots indicating the trace level depth are not emitted.|
-
-$NEWPAGE$
 
 ## System-related, platform-independent helpers 
 
@@ -657,8 +369,6 @@ The Phorward C/C++ Library provides some useful functions for system-related but
  * @pgetline() serves as a platform independent getline(),
  * @pgetopt() provides a simple to use, but effective GNU-style command-line argument parser,
  * @pwhich() checks for a file using @pfileexists() in a PATH-like, delimited search path definition
-
-$NEWPAGE$
 
 ## Dynamically managed arrays & stacks (parray) 
 
@@ -700,8 +410,6 @@ parray objects are created using @parray_create() or initialized with @parray_in
     /* Do something... */
     
     parray_free( a );
-
-$NEWPAGE$
 
 ### Inserting elements 
 
@@ -836,8 +544,6 @@ To implement these functions, every parray object also refers to a comparison-ca
  * @parray_diff() - checks two arrays for same items (equality),
  * @parray_union() - extends an array to all elements of a secondary array that are not equal within the first array.
 
-$NEWPAGE$
-
 ### Additional functions 
 
 Other, useful functions are
@@ -847,8 +553,6 @@ Other, useful functions are
  * @parray_partof() - check if element is part of object,
  * @parray_swap() - swap two elements within an object,
  * @parray_reserve() - assume memory pre-allocation; This is interesting for stack operations.
-
-$NEWPAGE$
 
 ## Linked lists, hash-tables, queues & stacks (plist) 
 
@@ -888,8 +592,6 @@ The plist object brings the following advantages and disadvantages:
   * List elements are chained as plistel data structures, while the data members must be called separately
   * All operations require more computing power in comparison to parray
 
-$NEWPAGE$
-
 ### Construction and destruction 
 
 plist objects are created using @plist_create() or initialized with @plist_init(). The specific functions require the objects byte size that is required for every single element, and a flag configuration, that configures the plist object to a specified behavior.
@@ -917,8 +619,6 @@ A plist object must be freed using @plist_free() or cleared with @plist_clear().
     /* Do something... */
     
     plist_free( l );
-
-$NEWPAGE$
 
 ### Inserting elements 
 
@@ -951,8 +651,6 @@ Elements can be inserted with
     fill_usertype( tp );
     tp = (usertype*)plist_rmalloc( a );
     fill_usertype( tp );
-
-$NEWPAGE$
 
 ### Accessing and iterating elements 
 
@@ -997,8 +695,6 @@ Elements within a plist object are referenced by plistel items. To access the da
     
     /* Reverse alternative: Using offset */
     for( i = 0; ( tp = (usertype*)plist_access( plist_rget( l, i ) ) ); i++ ) ;
-
-$NEWPAGE$
 
 ### Removing elements 
 
@@ -1068,8 +764,6 @@ plist provides these additional functions:
  * @plist_swap() - swaps the two elements within a list,
  * @plist_dup() - duplicate list and its items,
  * @plist_count() - return number of items in a list.
-
-$NEWPAGE$
 
 ## Character-classes (pccl) 
 
@@ -1166,8 +860,6 @@ In general, regular expressions are made-up of the following elements:
 |`?` |Optional closure (none or one of previous expression) modifier.|
 
 All meta-characters can be escaped by backslash, so they are interpretered as usual characters.
-
-$NEWPAGE$
 
 ### Characters and escape sequences 
 
@@ -3204,7 +2896,7 @@ The function returns the number of elements added to *dest*.
 
 **Definition:**
 
-int plist_count( plist* l )
+size_t plist_count( plist* l )
 
 **Usage:**
 
@@ -3693,11 +3385,11 @@ standard function.
 
 **Definition:**
 
-void plist_subsort( plist* list, plistel* from, plistel* to )
+void plist_subsort( plist* list, plistel* left, plistel* right )
 
 **Usage:**
 
-Sorts *list* between the elements *from* and *to* according to the
+Sorts *list* between the elements *left* and *right* according to the
 sort-function that was set for the list.
 
 To sort the entire list, use [plist_sort()](#fn_plist_sort).

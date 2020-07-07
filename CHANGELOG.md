@@ -6,6 +6,8 @@ This file is used to document any relevant changes done to libphorward.
 
 Not released yet.
 
+- `plist_count()` now returns size_t instead of int
+- Generate documentation with txt2tags 3.7
 - `plist_subsort()` switched to a bubble-sort algorithm after several fails
   of improving the previous quicksort-like algorithm
 - service scripts fixed to run better in distribution mode

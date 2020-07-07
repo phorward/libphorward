@@ -2131,7 +2131,7 @@ The function returns the number of elements added to //dest//.
 **Definition:**
 
 %DEFINITION:BEGIN
-int plist_count( plist* l )
+size_t plist_count( plist* l )
 %DEFINITION:END
 
 **Usage:**
@@ -2772,12 +2772,12 @@ standard function.
 **Definition:**
 
 %DEFINITION:BEGIN
-void plist_subsort( plist* list, plistel* from, plistel* to )
+void plist_subsort( plist* list, plistel* left, plistel* right )
 %DEFINITION:END
 
 **Usage:**
 
-Sorts //list// between the elements //from// and //to// according to the
+Sorts //list// between the elements //left// and //right// according to the
 sort-function that was set for the list.
 
 To sort the entire list, use [plist_sort() #fn_plist_sort].

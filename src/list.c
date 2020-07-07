@@ -1198,7 +1198,7 @@ int plist_size( plist* l )
 }
 
 /** Return element count of list //l//. */
-int plist_count( plist* l )
+size_t plist_count( plist* l )
 {
 	if( !l )
 		return 0;

@@ -117,7 +117,7 @@ void plist_swap( plist* l, plistel* a, plistel* b );
 plistel* plist_first( plist* l );
 plistel* plist_last( plist* l );
 int plist_size( plist* l );
-int plist_count( plist* l );
+size_t plist_count( plist* l );
 void plist_dbgstats( FILE* stream, plist* list );
 
 /* memory.c */

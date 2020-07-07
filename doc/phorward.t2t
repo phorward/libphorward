@@ -1,21 +1,24 @@
 The Phorward C/C++ Library and Toolkit
-libphorward 1.0.0
-Nov 2019
+libphorward 1.0.2
+Jul 2020
 
-%!preproc(xhtml): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
-%!preproc(xhtml): '([^\[])(pboolean|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '\1[\2 #\2]\3'
-%!preproc(xhtml): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
-%!preproc(xhtml): '%FUNCTION:BEGIN' "''' <div class='function'>"
-%!preproc(xhtml): '%FUNCTION:END' "''' </div>"
-%!preproc(xhtml): '%DEFINITION:BEGIN' "''' <div class='definition'>"
-%!preproc(xhtml): '%DEFINITION:END' "''' </div>"
+%!preproc(html): '@([a-zA-Z0-9_]+)((\(\))?)' '[\1\2 #fn_\1]'
+%!preproc(html): '([^\[])(pboolean|plist|plistel|parray|pccl|prange|pregex|pregex_ptn|plex)([-,.* \t])' '\1[\2 #\2]\3'
+%!preproc(html): '%NEED:(\d+)' "''' <!-- NEED \1 -->"
+%!preproc(html): '%FUNCTION:BEGIN' "''' <div class='function'>"
+%!preproc(html): '%FUNCTION:END' "''' </div>"
+%!preproc(html): '%DEFINITION:BEGIN' "''' <div class='definition'>"
+%!preproc(html): '%DEFINITION:END' "''' </div>"
 
-%!postproc(xhtml): '[$]NEWPAGE[$]' '<div class="page-break"></div>'
-%!postproc(xhtml): '\(C\)' '&copy;'
-%!postproc(xhtml): '(<pre>)' '\1<code class="language-c">'
-%!postproc(xhtml): '(</pre>)' '</code>\1'
-%!postproc(xhtml): '(</head>)' '<link rel="stylesheet" type="text/css" href="prism.css" />\n<script src="prism.js"></script>\n\1'
-%!postproc(xhtml): '\[(p\w+) #p\w+\]' '\1'
+%!postproc(html): '[$]NEWPAGE[$]' '<div class="page-break"></div>'
+%!postproc(html): '\(C\)' '&copy;'
+%!postproc(html): '(<pre>)' '\1<code class="language-c">'
+%!postproc(html): '(</pre>)' '</code>\1'
+%!postproc(html): '(</head>)' '<link rel="stylesheet" type="text/css" href="prism.css" />\n<script src="prism.js"></script>\n\1'
+%!postproc(html): '\[(p\w+) #p\w+\]' '\1'
+
+%!preproc(md): '= Table of Contents =' ''
+%!preproc(md): '[$]NEWPAGE[$]' ''
 
 %-------------------------------------------------------------------------------
 
