@@ -6,6 +6,7 @@ This file is used to document any relevant changes done to libphorward.
 
 Not released yet.
 
+- Fixed memory bug in `parray_swap()`
 - `plist_count()` now returns size_t instead of int
 - Generate documentation with txt2tags 3.7
 - `plist_subsort()` switched to a bubble-sort algorithm after several fails

@@ -501,23 +501,23 @@ void* parray_prev( parray* array, void* ptr )
 }
 
 /** Swap two elements of an array. */
-void* parray_swap( parray* array, size_t pos1, size_t pos2 )
+void parray_swap( parray* array, size_t pos1, size_t pos2 )
 {
 	void*	ptr1;
 	void*	ptr2;
 
-	if( !( ( ptr1 = parray_get( array, pos1 ) )
-			&& ( ptr2 = parray_get( array, pos2 ) ) ) )
-		return NULL;
+	if( pos1 == pos2 || pos1 >= array->count || pos2 >= array->count )
+		return;
 
-	if( ptr1 == ptr2 )
-		return ptr1;
+	/* Reserve one entry first before accessing and moving elements. */
+	parray_reserve( array, 1 );
+
+	ptr1 = parray_get( array, pos1 );
+	ptr2 = parray_get( array, pos2 );
 
 	parray_push( array, ptr1 );
 	parray_put( array, pos1, ptr2 );
 	parray_put( array, pos2, parray_pop( array ) );
-
-	return ptr1;
 }
 
 /** Returns the number of elements in a array. */

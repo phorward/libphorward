@@ -170,9 +170,9 @@ static void pregex_dfa_default_trans( pregex_dfa* dfa )
 	plistel*		f;
 	pregex_dfa_st*	st;
 	pregex_dfa_tr*	tr;
-	int				max;
-	int				all;
-	int				cnt;
+	size_t			max;
+	size_t			all;
+	size_t			cnt;
 
 	PROC( "pregex_dfa_default_trans" );
 	PARMS( "dfa", "%p", dfa );

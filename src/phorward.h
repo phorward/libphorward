@@ -558,7 +558,7 @@ void* parray_first( parray* array );
 void* parray_last( parray* array );
 void* parray_next( parray* array, void* ptr );
 void* parray_prev( parray* array, void* ptr );
-void* parray_swap( parray* array, size_t pos1, size_t pos2 );
+void parray_swap( parray* array, size_t pos1, size_t pos2 );
 size_t parray_count( parray* array );
 void* parray_partof( parray* array, void* ptr );
 size_t parray_offset( parray* array, void* ptr );
