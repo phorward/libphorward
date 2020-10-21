@@ -146,13 +146,13 @@ clean:
 	-rm -f \$(LIBPHORWARD) \$(PREGEX) \$(PLEX)
 
 ENDL
- 
+
 cat <<ENDL >$TARGET/README.md
 # phorward v$VERSION
 
-This is a stand-alone copy of the Phorward C/C++ library that was generated on $TODAY from the [official phorward repository](https://github.com/phorward/phorward).
+This is a stand-alone copy of the Phorward C/C++ library that was generated on $TODAY from the [official phorward repository](https://github.com/phorward/libphorward).
 
-It is not intended to be used for further development, but for simple and fast integration into existing projects. To contribute changes, please check out the official repository at https://github.com/phorward/phorward.
+It is not intended to be used for further development, but for simple and fast integration into existing projects. To contribute changes, please check out the official repository at https://github.com/phorward/libphorward.
 
 Thank you & have fun!
 ENDL
