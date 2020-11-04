@@ -24,7 +24,7 @@
         Overview
         Construction and destruction
         Inserting elements
-        Accessing and iterating elements
+        Accessing and iterating over elements
         Removing elements
         Sorting elements
         Interchanging functions
@@ -33,7 +33,7 @@
         Overview
         Construction and destruction
         Inserting elements
-        Accessing and iterating elements
+        Accessing and iterating over elements
         Removing elements
         Sorting elements
         Interchanging functions
@@ -293,7 +293,7 @@ phorward (libphorward) is a generic C/C++ library and toolbox, serving platform-
       - parray - Dynamically managed arrays & stacks
       - pccl - Character-classes
       - plex - Lexical analyzers
-      - plist - Linked lists, hash-tables, queues & stacks
+      - plist - Dynamically managed linked lists, hash-tables, queues & stacks
       - pregex - Regular expressions
 - Generic helpers
       - DEBUG-facilities (#ptrace) - Logging, tracing and run-time analysis
@@ -307,9 +307,9 @@ phorward (libphorward) is a generic C/C++ library and toolbox, serving platform-
       - pregex (#c_pregex) - Regular expressions match/find/split/replace
       - ptest (#c_ptest) - C program test facilities
 
-The cornerstone for this C functions library was already laid in 2006 during some experimenting with several algorithms, data structures and their implementation. It rapidly turned out to become a general purpose library serving as the base toolchain for several, unfortunately mostly unfinished software projects which had their origin at J.M.K S.F. Software Technologies, which was later renamed to Phorward Software Technologies.
+The cornerstone for this C functions library was already laid in 2006 during some experimenting with several algorithms, data structures and their implementation.
 
-The library was then released as version 0.16 to the public in 2011, together with the open source parser generator UniCC (http://unicc.phorward-software.com/). It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandoned or evolved into other directions.
+The library was officially released in 2001 as version 0.16 to the public, together with the open source parser generator UniCC (http://unicc.phorward-software.com/). It was initially planned to use the library for other C-based software projects having their origin at Phorward Software Technologies also, but most of them where not continued, abandoned or evolved into other directions.
 
 In 2019, the library was finally officially released as version 1.0, and will now be continued in several ways.
 
@@ -774,8 +774,8 @@ Elements can be inserted with
     fill_usertype( tp );
 
 
-		Accessing and iterating elements
-		================================
+		Accessing and iterating over elements
+		=====================================
 
 Direct access to specific elements is done using
 
@@ -912,7 +912,7 @@ $NEWPAGE$
 		Overview
 		========
 
-Next to the parray object, the plist object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
+The plist object is a powerful C implementation of a double-linked list with some extra features. It is also used for handling homogeneous elements of the same size in a dynamic way, and can be used for many tasks.
 
 plist can be seen as a superset of the parray object, because it features nearly the same operations but with other underlying data management methods.
 
@@ -1017,8 +1017,8 @@ Elements can be inserted with
 $NEWPAGE$
 
 
-		Accessing and iterating elements
-		================================
+		Accessing and iterating over elements
+		=====================================
 
 Elements within a plist object are referenced by plistel items. To access the data element behind a plistel item, the function @plist_access() is used, in combination with element retrival functions, like
 
@@ -1147,11 +1147,13 @@ $NEWPAGE$
 	Character-classes (pccl)
 	========================
 
-The pccl object is established on top of the plist object and encapsulates easy-to-handle low-level functions for character-class handling.
+The pccl object is established on top of the parray object and encapsulates easy-to-handle low-level functions for character-class handling.
 
-These functions are heavily used by the library's regular expressions, but may also be helpful for other related projects. pccl can handle character classes, by chaining ranges.
+These functions are heavily used by the library's regular expression facilities, but may also be helpful for other related projects. pccl can handle character classes, by chaining ranges, and optimizing intersections between them.
 
-It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. pccl objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as wchar_t (wide-character unicode) values.
+pccl supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. pccl objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as wchar_t (wide-character unicode) values.
+
+Primary functions overview:
 
 - @pccl_create() - create and optionally parse a new character-class,
 - @pccl_parse() - parse characters and ranges from a string into a character-class,
@@ -1172,7 +1174,7 @@ It supports a fully-fledged set theory automatism, including construction of int
     /* Invert character class */
     pccl_negate( ccl );
     
-    /* Remove system chars */
+    /* Remove ASCII system chars */
     pccl_delrange( ccl, 0, 31 );
     
     /* Oh, and delete the "z" */
@@ -1181,7 +1183,7 @@ It supports a fully-fledged set theory automatism, including construction of int
     /* But add tab again! */
     pccl_add( ccl, '\t' );
     
-    /* Enable all from 32 to 126  */
+    /* Enable all from ASCII 32 to 126  */
     pccl_addrange( ccl, ' ', '~' );
     
     /* Alternative way: */
@@ -1198,7 +1200,7 @@ It supports a fully-fledged set theory automatism, including construction of int
     /* Drop it! */
     pccl_free( ccl );
 
-Useful, additional functions when working with pccl are:
+Additional functions when working with pccl are:
 
 - @pccl_compare() - compare character-classes,
 - @pccl_diff() - create differencing character-class of two classes,

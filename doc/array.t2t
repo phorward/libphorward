@@ -76,7 +76,7 @@ tp = (usertype*)parray_rmalloc( a );
 fill_usertype( tp );
 ```
 
-=== Accessing and iterating elements ===
+=== Accessing and iterating over elements ===
 
 Direct access to specific elements is done using
 

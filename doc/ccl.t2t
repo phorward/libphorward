@@ -1,11 +1,13 @@
 
 
 
-The pccl object is established on top of the plist object and encapsulates easy-to-handle low-level functions for character-class handling.
+The pccl object is established on top of the parray object and encapsulates easy-to-handle low-level functions for character-class handling.
 
-These functions are heavily used by the library's regular expressions, but may also be helpful for other related projects. pccl can handle character classes, by chaining ranges.
+These functions are heavily used by the library's regular expression facilities, but may also be helpful for other related projects. pccl can handle character classes, by chaining ranges, and optimizing intersections between them.
 
-It supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. pccl objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as **wchar_t** (wide-character unicode) values.
+pccl supports a fully-fledged set theory automatism, including construction of intersections, unions, range removal or appending. pccl objects are designed to work on huge alphabets with low memory consumption. By default, characters are specified as **wchar_t** (wide-character unicode) values.
+
+Primary functions overview:
 
 - @pccl_create() - create and optionally parse a new character-class,
 - @pccl_parse() - parse characters and ranges from a string into a character-class,
@@ -28,7 +30,7 @@ ccl = pccl_create( 0, 255, "A-Za-z0-9_-" );
 /* Invert character class */
 pccl_negate( ccl );
 
-/* Remove system chars */
+/* Remove ASCII system chars */
 pccl_delrange( ccl, 0, 31 );
 
 /* Oh, and delete the "z" */
@@ -37,7 +39,7 @@ pccl_del( ccl, 'z' );
 /* But add tab again! */
 pccl_add( ccl, '\t' );
 
-/* Enable all from 32 to 126  */
+/* Enable all from ASCII 32 to 126  */
 pccl_addrange( ccl, ' ', '~' );
 
 /* Alternative way: */
@@ -55,7 +57,7 @@ printf( "My ccl is: %s\n", pccl_to_str( ccl, TRUE ) );
 pccl_free( ccl );
 ```
 
-Useful, additional functions when working with pccl are:
+Additional functions when working with pccl are:
 
 - @pccl_compare() - compare character-classes,
 - @pccl_diff() - create differencing character-class of two classes,
