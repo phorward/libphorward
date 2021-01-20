@@ -75,4 +75,4 @@ Contributions by [Heavenfighter](https://github.com/Heavenfighter) and [AGS](htt
 You may use, modify and distribute this software under the terms and conditions of the MIT license.
 The full license terms can be obtained from the file LICENSE.
 
-Copyright (C) 2006-2020 by Phorward Software Technologies, Jan Max Meyer.
+Copyright (C) 2006-2021 by Phorward Software Technologies, Jan Max Meyer.

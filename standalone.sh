@@ -94,17 +94,14 @@ done
 
 TARGET=${1:-"dist"}
 
-if [ -d "$TARGET" ]
+if [ ! -d "$TARGET" ]
 then
-	echo "Folder '$TARGET' exists, please specify another output path"
-	exit 1
-fi
-
-mkdir $TARGET
-if [ $? -ne 0 ]
-then
-	echo "Failed to create '$TARGET'"
-	exit 1
+	mkdir $TARGET
+	if [ $? -ne 0 ]
+	then
+		echo "Failed to create '$TARGET'"
+		exit 1
+	fi
 fi
 
 # Assembling files

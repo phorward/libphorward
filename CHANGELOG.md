@@ -2,9 +2,9 @@
 
 This file is used to document any relevant changes done to libphorward.
 
-## develop
+## v1.0.3
 
-Not released yet.
+Released on: Jan 20, 2021
 
 - Fixed memory bug in `parray_swap()`
 - `plist_count()` now returns size_t instead of int
